@@ -1,7 +1,7 @@
 [run]
 branch = True
-source = shablona/*
-include = shablona/*
+source = saltproc/*
+include = saltproc/*
 omit = */setup.py
 [report]
-include = shablona/*
+include = saltproc/*

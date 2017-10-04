@@ -5,7 +5,7 @@ API
 Classes
 -------
 
-.. currentmodule:: shablona
+.. currentmodule:: saltproc
 
 .. autosummary::
    :template: class.rst

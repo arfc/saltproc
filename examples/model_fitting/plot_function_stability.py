@@ -3,14 +3,14 @@
 Plotting model stability
 ========================
 
-Next we'll show off another demonstration of model fitting with shablona.
+Next we'll show off another demonstration of model fitting with saltproc.
 We'll generate a bunch of data with varying levels of signal to noise, and then
 show the stability of the model coefficients for each set of data.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-import shablona as sb
+import saltproc as sb
 plt.style.use('ggplot')
 
 # Set seed for reproducibility
