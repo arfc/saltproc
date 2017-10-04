@@ -1,4 +1,5 @@
 ## saltproc
+Online fuel salt reprocesing for Molten Salt Reactors
 [![Build Status](https://travis-ci.org/uwescience/saltproc.svg?branch=master)](https://travis-ci.org/uwescience/saltproc)
 
 Shablona is a template project for small scientific python projects. The
