@@ -1,4 +1,3 @@
-from __future__ import absolute_import, division, print_function
 import numpy as np
 import pandas as pd
 import scipy.optimize as opt
@@ -8,7 +7,6 @@ class read(object):
     """Class for reading data from files"""
 
     def initial_input_file('init.json'):
-
     def serpent_output_res ('filename_res.m'):       # Using PyNE parser
     def serpent_composition ('filename.bumat0'):     # Serpent write ready-to-input materials composition after each depletion step. Use it
 
