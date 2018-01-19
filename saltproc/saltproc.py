@@ -17,9 +17,10 @@ sss_exe        = '/home/andrei2/serpent/serpent2/src_omp/sss2'  # Serpent2 execu
 mat_file       =   'fuel_comp'                # Path and name of file with materials data (input for Serpent)
 cores          =   4                          # Number of OMP cores to use
 steps          =   2                          # Number of depletion steps needed
-pa_id          = [1050,1051,1052,1053]        # ID of isotope for which we want to keep constant adens (Pa-233, 232,234,235)
+pa_id          = np.arange(1050,1054)         # ID of isotope for which we want to keep constant adens (Pa-233, 232,234,235)
 kr_id          = np.arange(200,224)           # IDs for all isotopes of Kr(36)
 xe_id          = np.arange(684,710)           # IDs for all isotopes of Xe(54)
+th232_id       = np.array([1042])             # IDs for Th-232
 
 # Read *.dep output Serpent file and store it in few arrays
 def read_dep (inp_filename):
@@ -84,7 +85,7 @@ def run_serpent (input_filename, cores):
 def pa_remove (target_isotope, target_adens, bu_adens):
     tank_adens = np.zeros(len(bu_adens))
     for i in target_isotope:
-        tank_adens[i] = bu_adens[i]             # Store cumulitive adens of isotope in the end of step in tank
+        tank_adens[i] = bu_adens[i] - target_adens        # Store cumulitive adens of isotope in the end of step in tank
         bu_adens[i] = target_adens
     #print (target_isotope)
     #print tank_adens[198:225]
@@ -114,21 +115,22 @@ def main():
             bu_adens_db   = f.create_dataset ('core adensity', (steps+1,len(isolib)))
             tank_adens_db = f.create_dataset ('tank adensity', (steps+1,len(isolib)))
             noble_adens_db = f.create_dataset ('noble adensity', (steps+1,len(isolib)))
+            th_adens_db = f.create_dataset ('Th refill adensity', (steps+1,len(isolib)))
             dt = h5py.special_dtype(vlen=str)
             isolib_db    = f.create_dataset ('iso_codes', (len(isolib),), dtype=dt)
             keff_db[:,0] = read_res(sss_input_file,0)   # store Keff for BoC
             isolib, bu_adens_db[0,:], mat_def = read_bumat (sss_input_file,0)
             isolib_db[:] = isolib[:]
-            
+            th232_adens_0 = bu_adens_db[0,th232_id]# store Pa-232 adens for 0 cycle            
         # Apply online reprocessing conditions
         # Keep Pa-233 concentration const and =0 and store cumulitive adens for isotope in tank for Pa decay
         bu_adens_arr, tank_adens_db[i,]  = pa_remove (pa_id, 0, bu_adens_arr)
-        bu_adens_arr, noble_adens_db[i,] = pa_remove (np.hstack((kr_id,xe_id)), 0, bu_adens_arr)  # remove all Kr
-        #bu_adens_arr, noble_adens_db[i,] = pa_remove (xe_id, 0, bu_adens_arr)  # remove all Xe
+        bu_adens_arr, noble_adens_db[i,] = pa_remove (np.hstack((kr_id,xe_id)), 0, bu_adens_arr) # remove all Kr&Xe
+        bu_adens_arr, th_adens_db[i,] = pa_remove (th232_id, th232_adens_0, bu_adens_arr)        # keep Th-232 concentration constant
         # Write input file with new materials ADENS   
         write_mat_file(mat_file, isolib,  bu_adens_arr, mat_def,i)
 
-        # Print put what's going on
+        # Print out what's going on
         print ('Cycle number %s of %s steps' % (i, steps))
         # Write K_eff in database
         keff_db[:,i] = read_res(sss_input_file,1)
