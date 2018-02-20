@@ -2,6 +2,15 @@
 Online fuel salt reprocesing for Molten Salt Reactors
 [![Build Status](https://travis-ci.org/uwescience/saltproc.svg?branch=master)](https://travis-ci.org/uwescience/saltproc)
 
+How to run script (with default flags):
+
+python saltproc.py -n 1 -r /False -bw True/False -steps 5
+
+-n     		   number of nodes
+-r     	           continue previous simulation? True/False
+-bw    		   running on Blue Waters? True/False
+-steps 	           number of reprocessing steps to run
+
 Shablona is a template project for small scientific python projects. The
 recommendations we make here follow the standards and conventions of much of
 the scientific Python eco-system. Following these standards and recommendations

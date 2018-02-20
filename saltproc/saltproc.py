@@ -9,18 +9,56 @@ from pyne import serpent
 from pyne import nucname
 import h5py
 import shutil
-
+import argparse
+restart        = 'False'                      # Restart option off by default
 sss_input_file = 'core'                       # Serpent 2 file without fuel description and geometry
-sss_exe        = '/home/andrei2/serpent/serpent2/src_omp/sss2'  # Serpent2 executable
 #dep_file       =   'core_dep.m'              # Path and name depletion output from Serpent
 #bumat_file     = 'core.bumat1'               # Path and name depletion output from Serpent
 mat_file       =   'fuel_comp'                # Path and name of file with materials data (input for Serpent)
-cores          =   4                          # Number of OMP cores to use
-steps          =   2                          # Number of depletion steps needed
-pa_id          = np.arange(1050,1054)         # ID of isotope for which we want to keep constant adens (Pa-233, 232,234,235)
+cores          =   32                         # Number of OMP cores to use
+nodes          =   1                          # Number of nodes by defaule
+bw             =  'False'                     # Not cluster by default
+steps          =   5                          # 5 fuel cycle steps by default
+# Isotopes description
+pa_id          = np.array([1050])             # ID of isotope for which we want to keep constant adens (Pa-233, 232,234,235)
+th232_id       = np.array([1042])             # IDs for Th-232
+u233_id        = np.array([1057])             # ID for U-233
+pa233_id       = np.array([1050])             # ID for Pa-233
+# Volatile gases, interval 20 sec
 kr_id          = np.arange(200,224)           # IDs for all isotopes of Kr(36)
 xe_id          = np.arange(684,710)           # IDs for all isotopes of Xe(54)
-th232_id       = np.array([1042])             # IDs for Th-232
+# Noble metals, interval 20 sec
+se_id          = np.arange(155,179)           #IDs for Selenium
+nob1_id        = np.arange(308,496)           # All elements from Nb(41) to Ag (47)
+nob2_id        = np.arange(604,660)           # All elements from Sb(51) to Te (52)
+noble_id       = np.hstack((se_id,nob1_id, nob2_id))# Stack all Noble Metals
+# Seminoble metals, interval 200 days
+zr_id          = np.arange(288,308)           # IDs for Zr (40)
+semin_id       = np.arange(496,604)           # IDs from Cd(48) to Sn(50)
+se_noble_id    = np.hstack((zr_id,semin_id))  # Stack all Semi-Noble Metals
+# Volatile fluorides, 60 days
+br_id          = np.arange(179,200)           # IDs for Br(35)
+i_id           = np.arange(660,684)           # IDs for I(53)
+vol_fluorides  = np.hstack((br_id,i_id))      # Stack volatile fluorides
+# Rare earth, interval 50 days
+y_id           = np.arange(264,288)           # IDs for I(39)
+rees_1_id      = np.arange(759,881)           # IDs for La(57) to Sm(62)
+gd_id          = np.arange(902,920)           # IDs for Gd(64)
+rees_id        = np.hstack((y_id, rees_1_id, gd_id)) # Stack of all Rare earth except Eu
+# Eu(63)
+eu_id          = np.arange(881,902)
+
+# Parse flags
+parser = argparse.ArgumentParser()
+parser.add_argument('-r', choices=['True', 'False']) # Restart flag -r
+parser.add_argument('-n', nargs=1, type=int, default=1)         # Number of nodes -n
+parser.add_argument('-steps', nargs=1, type=int, default=5)     # Number of steps
+parser.add_argument('-bw', choices=['True', 'False']) # Blue Waters?
+args = parser.parse_args()
+restart = args.r
+nodes   = int(args.n[0])
+steps   = int(args.steps[0])
+bw      = args.bw
 
 # Read *.dep output Serpent file and store it in few arrays
 def read_dep (inp_filename):
@@ -75,67 +113,106 @@ def write_mat_file(file_name, isolib, bu_adens, fuel_intro, current_step):
     
 # Just run serpent with input file 'input_file' and using cores
 def run_serpent (input_filename, cores):
-    args = (sss_exe, "-omp", str(cores), input_filename)
+    if bw == 'True':
+	args = ("aprun", "-n", str(nodes), "-d", str(cores), "/projects/sciteam/bahg/serpent/src/sss2", "-omp", str(cores), input_filename)
+    else:
+    	args = ("/home/serpent/serpent2/src_test/sss2", "-omp", str(cores), input_filename)
     popen = subprocess.Popen(args, stdout=subprocess.PIPE)
     #popen.wait()
     #output = popen.stdout.read()
     print popen.stdout.read()
     
 # Keep isotope atomic density constant and store cumulitive values into the TANK array
-def pa_remove (target_isotope, target_adens, bu_adens):
+def pa_remove (target_isotope, target_adens, bu_adens, current_step, removal_interval):
     tank_adens = np.zeros(len(bu_adens))
-    for i in target_isotope:
-        tank_adens[i] = bu_adens[i] - target_adens        # Store cumulitive adens of isotope in the end of step in tank
-        bu_adens[i] = target_adens
-    #print (target_isotope)
-    #print tank_adens[198:225]
+    if current_step % removal_interval == 0: # Check is it time to removing isotope? i.e. 5step/3step interval =2, NO
+        for i in target_isotope:
+            tank_adens[i] = bu_adens[i] - target_adens        # Store cumulitive adens of isotope in the end of step in tank
+            bu_adens[i] = target_adens
+        #print (target_isotope)
+        #print tank_adens[198:225]
     return bu_adens, tank_adens
+
+# Adding isotope with rate equal refill_rate[10e+24atoms/cm3 per cycle step]
+def refill (refill_isotope, delta_adens, bu_adens):
+    for i in refill_isotope:
+        bu_adens[i] = bu_adens[i] + delta_adens
+    return bu_adens
   
 # Main run
 def main():
-    # Create startup composition material file from the template
-    shutil.copy('fuel_comp_with_fix', 'fuel_comp')
-
-    # Create HDF5 database
-    f    = h5py.File ("saltproc_main.hdf5","w")
-    keff_db = f.create_dataset ('keff', (2,steps+1))
-    # First step run
-    #run_serpent (sss_input_file, cores)
-    #keff_db[:,0] = read_res(sss_input_file,0)   # store Keff for BoC
-    #keff_db[:,1] = read_res(sss_input_file,1)   # store Keff for EoC
-    # Read bumat file
-
-    #bu_adens_db[0,:]  = bu_adens_init
-    for i in range(1,steps+1):
+    if restart == 'True' and os.path.isfile(mat_file) is True:
+	f = h5py.File('saltproc_main.hdf5', 'r+')
+	keff_db = f['keff']
+ 	bu_adens_db    = f['core adensity']
+        tank_adens_db  = f['tank adensity']
+        noble_adens_db = f['noble adensity']
+        th_adens_db    = f['Th refill adensity']
+        isolib_db      = f['iso_codes']
+	keff = keff_db[0,:] # Numpy array size [steps] containing Keff values
+	isolib = isolib_db
+	# Find last non-zero element in Keff array
+	lasti = np.amax(np.nonzero(keff)) + 1
+	print ('Restaring simulation from step #' + str(lasti) + ' to step #' + str(lasti+steps)+'...')
+	# Resize datasets
+	keff_db.resize((2, steps+lasti))
+	bu_adens_db.resize   ((steps+lasti+1,len(isolib)))
+	tank_adens_db.resize ((steps+lasti+1,len(isolib)))
+	noble_adens_db.resize((steps+lasti+1,len(isolib)))
+	th_adens_db.resize   ((steps+lasti+1, len(isolib)))
+        rem_adens = np.zeros((5,len(isolib)))
+        th232_adens_0 = bu_adens_db[0,th232_id]# store Th-232 adens for 0 cycle            
+    else:
+	# Create startup composition material file from the template
+	shutil.copy('fuel_comp_with_fix', mat_file)
+	lasti = 0
+    for i in range(lasti+1,lasti+steps+1):
         # Run sss with initial fuel composition
         run_serpent (sss_input_file, cores)
         # Read bumat file
         isolib, bu_adens_arr, mat_def = read_bumat (sss_input_file,1)
         if i == 1:   # First run, create HDF5 dataset after 1st run
-            bu_adens_db   = f.create_dataset ('core adensity', (steps+1,len(isolib)))
-            tank_adens_db = f.create_dataset ('tank adensity', (steps+1,len(isolib)))
-            noble_adens_db = f.create_dataset ('noble adensity', (steps+1,len(isolib)))
-            th_adens_db = f.create_dataset ('Th refill adensity', (steps+1,len(isolib)))
+	    # Create HDF5 database
+	    f    = h5py.File ("saltproc_main.hdf5","w")
+	    keff_db = f.create_dataset ('keff', (2,steps), maxshape=(2,None),chunks=True)
+            bu_adens_db   = f.create_dataset ('core adensity', (steps+1,len(isolib)), maxshape=(None,len(isolib)),chunks=True)
+            tank_adens_db = f.create_dataset ('tank adensity', (steps+1,len(isolib)), maxshape=(None,len(isolib)),chunks=True)
+            noble_adens_db = f.create_dataset ('noble adensity', (steps+1,len(isolib)), maxshape=(None,len(isolib)),chunks=True)
+            th_adens_db = f.create_dataset ('Th refill adensity', (steps+1,len(isolib)), maxshape=(None,len(isolib)),chunks=True)
+            rem_adens = np.zeros((5,len(isolib)))
             dt = h5py.special_dtype(vlen=str)
             isolib_db    = f.create_dataset ('iso_codes', (len(isolib),), dtype=dt)
-            keff_db[:,0] = read_res(sss_input_file,0)   # store Keff for BoC
+            #keff_db[:,0] = read_res(sss_input_file,0)   # store Keff for BoC
             isolib, bu_adens_db[0,:], mat_def = read_bumat (sss_input_file,0)
             isolib_db[:] = isolib[:]
-            th232_adens_0 = bu_adens_db[0,th232_id]# store Pa-232 adens for 0 cycle            
+            th232_adens_0 = bu_adens_db[0,th232_id]# store Th-232 adens for 0 cycle            
         # Apply online reprocessing conditions
-        # Keep Pa-233 concentration const and =0 and store cumulitive adens for isotope in tank for Pa decay
-        bu_adens_arr, tank_adens_db[i,]  = pa_remove (pa_id, 0, bu_adens_arr)
-        bu_adens_arr, noble_adens_db[i,] = pa_remove (np.hstack((kr_id,xe_id)), 0, bu_adens_arr) # remove all Kr&Xe
-        bu_adens_arr, th_adens_db[i,] = pa_remove (th232_id, th232_adens_0, bu_adens_arr)        # keep Th-232 concentration constant
+        # Keep Pa-233 concentration const and =0 and store cumulitive adens for isotope in tank for Pa decay, interval 3days
+        bu_adens_arr, tank_adens_db[i,]  = pa_remove (pa_id, 0, bu_adens_arr, i, 1) # Removing interval=1step
+        # Add U-233 from protactinium decay tank, rate = rate of Pa-233 removal, interval=3days=1step
+        bu_adens_arr = refill (u233_id, tank_adens_db[i,pa233_id], bu_adens_arr)
+        # Remove of Volatile Gases, Noble Metals (interval=3days)
+        bu_adens_arr, rem_adens[0,] = pa_remove (np.hstack((kr_id,xe_id,noble_id)), 0, bu_adens_arr, i, 1) # Every 1 step=3days
+        # Remove seminoble metals, interval 200d=>67steps=201days
+        bu_adens_arr, rem_adens[1,] = pa_remove (np.hstack((se_noble_id)), 0, bu_adens_arr, i, 67) # Every 67steps=201days
+        # Remove Volatile Fluorides every 60d=20steps
+        bu_adens_arr, rem_adens[2,] = pa_remove (np.hstack((vol_fluorides)), 0, bu_adens_arr, i, 20) # Every 20steps=60days
+        # Remove REEs every 50days~51days=17steps
+        bu_adens_arr, rem_adens[3,] = pa_remove (np.hstack((rees_id)), 0, bu_adens_arr, i, 17) # Every 16steps=51days
+        # Remove Eu every 500days~501days=167steps
+        bu_adens_arr, rem_adens[4,] = pa_remove (np.hstack((eu_id)), 0, bu_adens_arr, i, 167) # Every 167steps=501days
+        # Refill Th-232 to keep ADENS const
+        bu_adens_arr, th_adens_db[i,] = pa_remove (th232_id, th232_adens_0, bu_adens_arr, i, 1) # Store rate of removal of Th-232[barn/cm3]
         # Write input file with new materials ADENS   
         write_mat_file(mat_file, isolib,  bu_adens_arr, mat_def,i)
 
         # Print out what's going on
-        print ('Cycle number %s of %s steps' % (i, steps))
-        # Write K_eff in database
-        keff_db[:,i] = read_res(sss_input_file,1)
+        print ('Cycle number %s of %s steps' % (i, steps+lasti))
+        # Write K_eff, core composition, Pa decay tank composition, noble gases tank composition in database
+        keff_db[:,i-1] = read_res(sss_input_file,1)
         bu_adens_db[i,:] = bu_adens_arr
-        tank_adens_db[i,:] = tank_adens_db[i-1,:] + tank_adens_db[i,:] 
+        tank_adens_db[i,:] = tank_adens_db[i-1,:] + tank_adens_db[i,:]
+        noble_adens_db[i,:] = noble_adens_db[i-1,:] + rem_adens.sum(axis=0)
 
     f.close()
 
