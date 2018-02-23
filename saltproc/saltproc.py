@@ -138,18 +138,27 @@ def refill (refill_isotope, delta_adens, bu_adens):
     for i in refill_isotope:
         bu_adens[i] = bu_adens[i] + delta_adens
     return bu_adens
-  
+
+# Adding isotope to keep ADENs equal constant target_adens
+def maintain_const (target_isotope, target_adens, bu_adens, current_step, removal_interval):
+    tank_adens = np.zeros(len(bu_adens))
+    if current_step % removal_interval == 0: # Check is it time to removing isotope? i.e. 5step/3step interval =2, NO
+        for i in target_isotope:
+            tank_adens[i] = bu_adens[i] - target_adens   # Store cumulitive adens of isotope in the end of step in tank
+            bu_adens[i] = target_adens
+    return bu_adens, tank_adens
+          
 # Main run
 def main():
     if restart == 'True' and os.path.isfile(mat_file) is True:
 	f = h5py.File(db_file, 'r+')
-	keff_db = f['keff']
- 	bu_adens_db_0    = f['core adensity before reproc']
- 	bu_adens_db_1    = f['core adensity after reproc']
-        tank_adens_db  = f['tank adensity']
-        noble_adens_db = f['noble adensity']
-        th_adens_db    = f['Th tank adensity']
-        isolib_db      = f['iso_codes']
+	keff_db          = f['keff']
+	bu_adens_db_0    = f['core adensity before reproc']
+	bu_adens_db_1    = f['core adensity after reproc']
+	tank_adens_db    = f['tank adensity']
+	noble_adens_db   = f['noble adensity']
+	th_adens_db      = f['Th tank adensity']
+	isolib_db        = f['iso_codes']
 	keff = keff_db[0,:] # Numpy array size [steps] containing Keff values
 	isolib = isolib_db
 	# Find last non-zero element in Keff array
@@ -190,6 +199,15 @@ def main():
 	    isolib, bu_adens_db_1[0,:], mat_def = read_bumat (sss_input_file,0)
             isolib_db[:] = isolib[:]
             th232_adens_0 = bu_adens_db_0[0,th232_id]# store Th-232 adens for 0 cycle 
+	else:
+	    f = h5py.File(db_file, 'r+')
+	    keff_db          = f['keff']
+	    bu_adens_db_0    = f['core adensity before reproc']
+	    bu_adens_db_1    = f['core adensity after reproc']
+            tank_adens_db    = f['tank adensity']
+            noble_adens_db   = f['noble adensity']
+            th_adens_db      = f['Th tank adensity']
+            isolib_db        = f['iso_codes']
         # Apply online reprocessing conditions
 	# Store core composition before any removals and additions
         bu_adens_db_0[i,:] = bu_adens_arr
@@ -208,7 +226,7 @@ def main():
         # Remove Eu every 500days~501days=167steps
         bu_adens_arr, rem_adens[4,] = pa_remove (np.hstack((eu_id)), 1, bu_adens_arr, i, 167) # Every 167steps=501days
         # Refill Th-232 to keep ADENS const
-        bu_adens_arr, th_adens_db[i,] = pa_remove (th232_id, th232_adens_0, bu_adens_arr, i, 1) # Store rate of removal of Th-232[barn/cm3]
+        bu_adens_arr, th_adens_db[i,] = maintain_const (th232_id, th232_adens_0, bu_adens_arr, i, 1) # Store rate of removal of Th-232[barn/cm3] and keep it adens in the core constant
         # Write input file with new materials ADENS   
         write_mat_file(mat_file, isolib,  bu_adens_arr, mat_def,i)
 
@@ -221,7 +239,7 @@ def main():
         noble_adens_db[i,:] = noble_adens_db[i-1,:] + rem_adens.sum(axis=0)
 	th_adens_db[i,th232_id]    = th_adens_db[i-1,th232_id] - (bu_adens_db_0[0,th232_id] - bu_adens_db_0[i, th232_id]) # Store amount of Th in tank
 
-    f.close()	# close DB    
+    	f.close()	# close DB    
 
 if __name__== "__main__":
     main()
