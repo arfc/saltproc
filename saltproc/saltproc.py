@@ -19,7 +19,7 @@ db_file = 'db_saltproc.hdf5'           # HDF5 database name
 # output from Serpent
 # Path and name of file with materials data (input for Serpent)
 mat_file = 'fuel_comp'
-cores = 4                          # Number of OMP cores to use
+cores = 4                         # Number of OMP cores to use on Workstation
 nodes = 1                          # Number of nodes by defaule
 bw = 'False'                       # Not cluster by default
 steps = 5                          # 5 fuel cycle steps by default
@@ -167,7 +167,7 @@ def run_serpent(input_filename, cores):
             "-n",
             str(nodes),
             "-d",
-            str(cores),
+            str(32),
             "/projects/sciteam/bahg/serpent/src/sss2",
             "-omp",
             str(cores),
@@ -179,8 +179,6 @@ def run_serpent(input_filename, cores):
             str(cores),
             input_filename)
     popen = subprocess.Popen(args, stdout=subprocess.PIPE)
-    # popen.wait()
-    #output = popen.stdout.read()
     print popen.stdout.read()
 
 # Keep isotope atomic density constant and store cumulitive values into
@@ -275,7 +273,7 @@ def main():
             keff_db = f.create_dataset(
                 'keff_EOC', (2, steps), maxshape=(
                     2, None), chunks=True)
-	    keff_db_0 = f.create_dataset(
+            keff_db_0 = f.create_dataset(
                 'keff_BOC', (2, steps), maxshape=(
                     2, None), chunks=True)
             bu_adens_db_0 = f.create_dataset(
@@ -377,7 +375,7 @@ def main():
         print('Cycle number %s of %s steps' % (i, steps + lasti))
         # Write K_eff, core composition, Pa decay tank composition, noble gases
         # tank composition in database
-        keff_db  [:, i - 1] = read_res(sss_input_file, 1)
+        keff_db[:, i - 1] = read_res(sss_input_file, 1)
         keff_db_0[:, i - 1] = read_res(sss_input_file, 0)
         bu_adens_db_1[i, :] = bu_adens_arr
         tank_adens_db[i, :] = tank_adens_db[i - 1, :] + tank_adens_db[i, :]
@@ -387,7 +385,7 @@ def main():
                                             th232_id] - (bu_adens_db_0[0,
                                                                        th232_id] - bu_adens_db_0[i,
                                                                                                  th232_id])  # Store amount of Th in tank
-	# Save detector data in file
+        # Save detector data in file
         #shutil.copy('core_det0.m', 'det/core_det_'+str(i))
         f.close()  # close DB
 
