@@ -25,9 +25,9 @@ bw = 'False'                       # Not cluster by default
 steps = 5                          # 5 fuel cycle steps by default
 # Isotopes description
 # ID of isotope for which we want to keep constant adens (Pa-233, 232,234,235)
-pa_id = np.array([1088])
+pa_id = np.array([1088])                # ID for Pa-233 (91)
 th232_id = np.array([1080])             # IDs for Th-232 (90)
-u233_id = np.array([1095])             # ID for U-233 (92)
+u233_id = np.array([1095])              # ID for U-233 (92)
 pa233_id = np.array([1088])             # ID for Pa-233 (91)
 # Volatile gases, interval 20 sec
 kr_id = np.arange(217, 240)           # IDs for all isotopes of Kr(36)
@@ -53,6 +53,15 @@ gd_id = np.arange(934, 949)           # IDs for Gd(64)
 rees_id = np.hstack((y_id, rees_1_id, gd_id))
 # Eu(63)
 eu_id = np.arange(916, 934)
+# Discard, 3435 days
+rb_sr_id = np.arange(240, 283)        # Rb(37) and Sr(38) vector
+cs_ba_id = np.arange(746, 793)        # Cs(55) and Ba(56) vector
+# Stack discard
+discard_id = np.hstack((rb_sr_id, cs_ba_id))
+# Higher nuclides (Np-237 and Pu-242), interval 16 years (5840 days)
+np_id    = np.array ([1109])         # 237Np93
+pu_id    = np.array ([1123])         # 242Pu94
+higher_nuc = np.hstack((np_id, pu_id))
 
 # Parse flags
 parser = argparse.ArgumentParser()
@@ -168,9 +177,9 @@ def run_serpent(input_filename, cores):
             str(nodes),
             "-d",
             str(32),
-            "/projects/sciteam/bahg/serpent/src/sss2",
+            "/projects/sciteam/bahg/serpent30/src/sss2",
             "-omp",
-            str(cores),
+            str(32),
             input_filename)
     else:
         args = (
@@ -363,6 +372,12 @@ def main():
         # Remove Eu every 500days~501days=167steps
         bu_adens_arr, rem_adens[4, ] = pa_remove(np.hstack(
             (eu_id)), 1, bu_adens_arr, i, 167)  # Every 167steps=501days
+        # Remove Rb, Sr, Cs, Ba every 3435 days= 1145 steps
+        bu_adens_arr, rem_adens[4, ] = pa_remove(np.hstack(
+            (discard_id)), 1, bu_adens_arr, i, 1145)  # Every 1145 steps
+        # Remove Np-237 and Pu-242 every 16 years = 5840 days= 1946 steps                                                              
+        bu_adens_arr, rem_adens[4, ] = pa_remove(np.hstack(
+            (higher_nuc)), 1, bu_adens_arr, i, 1946)
         # Refill Th-232 to keep ADENS const
         # Store rate of removal of Th-232[barn/cm3] and keep it adens in the
         # core constant
