@@ -118,14 +118,14 @@ def read_bumat(file_name, moment):
 
     Returns:
     --------
-    dep_dict: dictionary
-        key: isotope name
-        val: isotope adens
+    isolib_arary: np array
+        array of tracked isotopes
+    bu_adens: list
+        list of adens of isotopes
     material_def: str
         SERPENT material definition line
     """
     bumat_filename = os.path.join(file_name + ".bumat" + str(moment))
-    dep_dict  = {}
     with open(bumat_filename, 'r') as data:
         isolib = []
         bu_adens = []
@@ -136,12 +136,10 @@ def read_bumat(file_name, moment):
         for line in itertools.islice(
                 data, 0, None):  # Skip file header start=6, stop=None
             p = line.split()
-            dep_dict[p[0]] = float(p[1])
-
-    return dep_dict, material_def
-
-# Write fuel introduction info and two columns (isoname and atomic
-# density) in file
+            isolib.append(str(p[0]))
+            isolib.append(str(p[1]))
+        isolib_array = np.asarray(isolib)
+    return isolib_array, bu_adens, material_def
 
 
 def write_mat_file(file_name, comp_dict, fuel_intro, current_step):
@@ -171,8 +169,6 @@ def write_mat_file(file_name, comp_dict, fuel_intro, current_step):
     for iso, adens in comp_dict:
         matf.write('%s\t %f\n' %(iso, adens))
     matf.close()
-
-# Just run serpent with input file 'input_file' and using cores
 
 #!!!!!! FIX !!!!!!#
 def run_serpent(input_filename, cores):
@@ -213,12 +209,9 @@ def run_serpent(input_filename, cores):
 # the TANK array
 
 
-def pa_remove(
-        target_isotope,
-        removal_eff,
-        bu_adens,
-        current_step,
-        removal_interval):
+def pa_remove(target_isotope, removal_eff, bu_adens,
+              current_step, removal_interval):
+    """"""
     tank_adens = np.zeros(len(bu_adens))
     # Check is it time to removing isotope? i.e. 5step/3step interval =2, NO
     if current_step % removal_interval == 0:
@@ -295,55 +288,30 @@ def main():
         run_serpent(sss_input_file, cores)
         # Read bumat file
         isolib, bu_adens_arr, mat_def = read_bumat(sss_input_file, 1)
-        if i == 1:   # First run, create HDF5 dataset after 1st run
-            # Create HDF5 database
+        if i == 1:   
+            # Create HDF5 database if it's the first run
             f = h5py.File(db_file, "w")
-            keff_db = f.create_dataset(
-                'keff_EOC', (2, steps), maxshape=(
-                    2, None), chunks=True)
-            keff_db_0 = f.create_dataset(
-                'keff_BOC', (2, steps), maxshape=(
-                    2, None), chunks=True)
-            bu_adens_db_0 = f.create_dataset(
-                'core adensity before reproc',
-                (steps + 1,
-                 len(isolib)),
-                maxshape=(
-                    None,
-                    len(isolib)),
-                chunks=True)
-            bu_adens_db_1 = f.create_dataset(
-                'core adensity after reproc',
-                (steps + 1,
-                 len(isolib)),
-                maxshape=(
-                    None,
-                    len(isolib)),
-                chunks=True)
-            tank_adens_db = f.create_dataset(
-                'tank adensity',
-                (steps + 1,
-                 len(isolib)),
-                maxshape=(
-                    None,
-                    len(isolib)),
-                chunks=True)
-            noble_adens_db = f.create_dataset(
-                'noble adensity',
-                (steps + 1,
-                 len(isolib)),
-                maxshape=(
-                    None,
-                    len(isolib)),
-                chunks=True)
-            th_adens_db = f.create_dataset(
-                'Th tank adensity',
-                (steps + 1,
-                 len(isolib)),
-                maxshape=(
-                    None,
-                    len(isolib)),
-                chunks=True)
+            maxshape = (None, len(isolib))
+
+            # keff dbs are 2 shaped because they just have mean value and uncertainty
+            keff_db = f.create_dataset('keff_EOC', (2, steps), 
+                                       maxshape, chunks=True)
+            keff_db_0 = f.create_dataset('keff_BOC', (2, steps),
+                                         maxshape, chunks=True)
+
+            # this shape encapsulates the entire isotopes vectors traced
+            shape = (steps + 1, len(isolib))
+            bu_adens_db_0 = f.create_dataset('core adensity before reproc',shape,
+                                             maxshape, chunks=True)
+            bu_adens_db_1 = f.create_dataset('core adensity after reproc', shape,
+                                             maxshape, chunks=True)
+            tank_adens_db = f.create_dataset('tank adensity', shape,
+                                             maxshape, chunks=True)
+            noble_adens_db = f.create_dataset('noble adensity', shape,
+                                              maxshape, chunks=True)
+            th_adens_db = f.create_dataset('Th tank adensity', shape,
+                                           maxshape, chunks=True)
+
             rem_adens = np.zeros((5, len(isolib)))
             dt = h5py.special_dtype(vlen=str)
             isolib_db = f.create_dataset('iso_codes', (len(isolib),), dtype=dt)
