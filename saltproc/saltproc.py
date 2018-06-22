@@ -142,16 +142,17 @@ def read_bumat(file_name, moment):
     return isolib_array, bu_adens, material_def
 
 
-def write_mat_file(file_name, comp_dict, fuel_intro, current_step):
+def write_mat_file(file_name, isolib, bu_adens, fuel_intro, current_step):
     """ Writes the input fuel composition input file block
 
     Parameters:
     -----------
     file_name: str
         name of output file
-    comp_dict: dictionary
-        key: isotope name
-        val: isotope adens
+    isolib: np array
+        array of tracked isotopes
+    bu_adens: list
+        list of adens of isotopes
     fuel_intro: str
         fuel definition line defining fuel properties
     current_step: int
@@ -166,7 +167,9 @@ def write_mat_file(file_name, comp_dict, fuel_intro, current_step):
     matf = open(file_name, 'w')
     matf.write('% Step number # %i %f %f \n' %(current_step, ana_keff_boc, ana_keff_eoc))
     matf.write(fuel_intro + ' burn 1 rgb 253 231 37\n')
-    for iso, adens in comp_dict:
+    for indx in rnage(len(isolib)):
+        iso = isolib_list[indx]
+        adens = bu_adens[indx]
         matf.write('%s\t %f\n' %(iso, adens))
     matf.close()
 
@@ -209,23 +212,51 @@ def run_serpent(input_filename, cores):
 # the TANK array
 
 
-def pa_remove(target_isotope, removal_eff, bu_adens,
-              current_step, removal_interval):
-    """"""
-    tank_adens = np.zeros(len(bu_adens))
-    # Check is it time to removing isotope? i.e. 5step/3step interval =2, NO
-    if current_step % removal_interval == 0:
-        for i in target_isotope:
-            # Store cumulitive adens of isotope in the end of step in tank
-            tank_adens[i] = bu_adens[i] - (1 - removal_eff) * bu_adens[i]
-            bu_adens[i] = (1 - removal_eff) * bu_adens[i]
-        #print (target_isotope)
-    return bu_adens, tank_adens
+def pa_remove(target_isotope, removal_eff, bu_adens):
+    """ Removes the target isotopes with the removal efficiency
 
-# Adding isotope with rate equal refill_rate[10e+24atoms/cm3 per cycle step]
+    Parameters:
+    -----------
+    target_isotope: list
+        list of target isotopes
+    removal_eff: float
+        removal efficiency
+    bu_adens: array
+        adens array
+
+    Returns:
+    --------
+    bu_adens: array
+        adens array after reprocessing
+    tank_adens: array
+        adens of wate stream
+    """
+
+    tank_adens = np.zeros(len(bu_adens))
+    for i in target_isotope:
+        # Store cumulitive adens of isotope in the end of step in tank
+        tank_adens[i] = bu_adens[i] - (1 - removal_eff) * bu_adens[i]
+        bu_adens[i] = (1 - removal_eff) * bu_adens[i]
+    return bu_adens, tank_adens
 
 
 def refill(refill_isotope, delta_adens, bu_adens):
+    """ Refills the isotope by delta_adens
+
+    Parameters:
+    -----------
+    refill_istope: array
+        array with index of isootope to refill
+    delta_adens: float
+        admount of isotpe to add
+    bu_adens:  array
+        adens array
+
+    Returns:
+    --------
+    bu_adens: array
+        array with filled isotope
+    """
     for i in refill_isotope:
         bu_adens[i] = bu_adens[i] + delta_adens
     return bu_adens
@@ -233,22 +264,31 @@ def refill(refill_isotope, delta_adens, bu_adens):
 # Adding isotope to keep ADENs equal constant target_adens
 
 
-def maintain_const(
-        target_isotope,
-        target_adens,
-        bu_adens,
-        current_step,
-        removal_interval):
-    tank_adens = np.zeros(len(bu_adens))
-    # Check is it time to removing isotope? i.e. 5step/3step interval =2, NO
-    if current_step % removal_interval == 0:
-        for i in target_isotope:
-            # Store cumulitive adens of isotope in the end of step in tank
-            tank_adens[i] = bu_adens[i] - target_adens
-            bu_adens[i] = target_adens
-    return bu_adens, tank_adens
+def maintain_const(target_isotope, target_adens, bu_adens):
+    """ Refills the isotope to keep its adens constant
 
-# Main run
+    Parameters:
+    -----------
+    target_isotope: array
+        array with index of isotope
+    target_adens: float
+        amount to refill the adens to
+    bu_adens: array
+        adens array
+
+    Returns:
+    --------
+    bu_adens: array
+        adens array
+    tank_adens: array
+        adens of waste stream 
+    """
+    tank_adens = np.zeros(len(bu_adens))
+    for i in target_isotope:
+        # Store cumulitive adens of isotope in the end of step in tank
+        tank_adens[i] = bu_adens[i] - target_adens
+        bu_adens[i] = target_adens
+    return bu_adens, tank_adens
 
 
 def main():
@@ -312,14 +352,14 @@ def main():
             th_adens_db = f.create_dataset('Th tank adensity', shape,
                                            maxshape, chunks=True)
 
+            # !!!! WHATI S THIS #
             rem_adens = np.zeros((5, len(isolib)))
             dt = h5py.special_dtype(vlen=str)
             isolib_db = f.create_dataset('iso_codes', (len(isolib),), dtype=dt)
+
             # Store ADENS, materials IDS for index=0
-            isolib, bu_adens_db_0[0, :], mat_def = read_bumat(
-                sss_input_file, 0)
-            isolib, bu_adens_db_1[0, :], mat_def = read_bumat(
-                sss_input_file, 0)
+            isolib, bu_adens_db_0[0, :], mat_def = read_bumat(sss_input_file, 0)
+            isolib, bu_adens_db_1[0, :], mat_def = read_bumat(sss_input_file, 0)
             isolib_db[:] = isolib[:]
             # store Th-232 adens for 0 cycle
             th232_adens_0 = bu_adens_db_0[0, th232_id]
@@ -338,38 +378,42 @@ def main():
         bu_adens_db_0[i, :] = bu_adens_arr
         # Keep Pa-233 concentration const and =0 and store cumulitive adens for
         # isotope in tank for Pa decay, interval 3days
-        bu_adens_arr, tank_adens_db[i, ] = pa_remove(
-            pa_id, 1, bu_adens_arr, i, 1)  # Removing interval=1step
+        bu_adens_arr, tank_adens_db[i, ] = pa_remove(pa_id, 1, bu_adens_arr, i, 1)  # Removing interval=1step
         # Add U-233 from protactinium decay tank, rate = rate of Pa-233
         # removal, interval=3days=1step
-        bu_adens_arr = refill(
-            u233_id, tank_adens_db[i, pa233_id], bu_adens_arr)
+        bu_adens_arr = refill(u233_id, tank_adens_db[i, pa233_id], bu_adens_arr)
         # Remove of Volatile Gases, Noble Metals (interval=3days)
-        bu_adens_arr, rem_adens[0, ] = pa_remove(np.hstack(
-            (kr_id, xe_id, noble_id)), 1, bu_adens_arr, i, 1)  # Every 1 step=3days
+
+        bu_adens_arr, rem_adens[0, ] = pa_remove(np.hstack((kr_id, xe_id, noble_id)),
+                                                 1, bu_adens_arr)  # Every 1 step=3days
         # Remove seminoble metals, interval 200d=>67steps=201days
-        bu_adens_arr, rem_adens[1, ] = pa_remove(np.hstack(
-            (se_noble_id)), 1, bu_adens_arr, i, 67)  # Every 67steps=201days
+        if current_step % 67 == 0:
+            bu_adens_arr, rem_adens[1, ] = pa_remove(np.hstack((se_noble_id)),
+                                                     1, bu_adens_arr)  # Every 67steps=201days
         # Remove Volatile Fluorides every 60d=20steps
-        bu_adens_arr, rem_adens[2, ] = pa_remove(np.hstack(
-            (vol_fluorides)), 1, bu_adens_arr, i, 20)  # Every 20steps=60days
+        if current_step % 20 == 0:
+            bu_adens_arr, rem_adens[2, ] = pa_remove(np.hstack((vol_fluorides)),
+                                                     1, bu_adens_arr)  # Every 20steps=60days
         # Remove REEs every 50days~51days=17steps
-        bu_adens_arr, rem_adens[3, ] = pa_remove(np.hstack(
-            (rees_id)), 1, bu_adens_arr, i, 17)  # Every 16steps=51days
+        if current_step % 17 == 0:
+            bu_adens_arr, rem_adens[3, ] = pa_remove(np.hstack((rees_id)),
+                                                     1, bu_adens_arr)  # Every 16steps=51days
         # Remove Eu every 500days~501days=167steps
-        bu_adens_arr, rem_adens[4, ] = pa_remove(np.hstack(
-            (eu_id)), 1, bu_adens_arr, i, 167)  # Every 167steps=501days
+        if current_step % 167 == 0:
+            bu_adens_arr, rem_adens[4, ] = pa_remove(np.hstack((eu_id)),
+                                                     1, bu_adens_arr)  # Every 167steps=501days
         # Remove Rb, Sr, Cs, Ba every 3435 days= 1145 steps
-        bu_adens_arr, rem_adens[4, ] = pa_remove(np.hstack(
-            (discard_id)), 1, bu_adens_arr, i, 1145)  # Every 1145 steps
-        # Remove Np-237 and Pu-242 every 16 years = 5840 days= 1946 steps                                                              
-        bu_adens_arr, rem_adens[4, ] = pa_remove(np.hstack(
-            (higher_nuc)), 1, bu_adens_arr, i, 1946)
+        if current_step % 1145 == 0:
+            bu_adens_arr, rem_adens[4, ] = pa_remove(np.hstack((discard_id)),
+                                                     1, bu_adens_arr)  # Every 1145 steps
+        # Remove Np-237 and Pu-242 every 16 years = 5840 days= 1946 steps
+        if current_step % 1946 == 0:                                                              
+            bu_adens_arr, rem_adens[4, ] = pa_remove(np.hstack((higher_nuc)),
+                                                     1, bu_adens_arr)
         # Refill Th-232 to keep ADENS const
         # Store rate of removal of Th-232[barn/cm3] and keep it adens in the
         # core constant
-        bu_adens_arr, th_adens_db[i, ] = maintain_const(
-            th232_id, th232_adens_0, bu_adens_arr, i, 1)
+        bu_adens_arr, th_adens_db[i, ] = maintain_const(th232_id, th232_adens_0, bu_adens_arr)
         # Write input file with new materials ADENS
         write_mat_file(mat_file, isolib, bu_adens_arr, mat_def, i)
 
@@ -382,11 +426,8 @@ def main():
         bu_adens_db_1[i, :] = bu_adens_arr
         tank_adens_db[i, :] = tank_adens_db[i - 1, :] + tank_adens_db[i, :]
         noble_adens_db[i, :] = noble_adens_db[i - 1, :] + rem_adens.sum(axis=0)
-        th_adens_db[i,
-                    th232_id] = th_adens_db[i - 1,
-                                            th232_id] - (bu_adens_db_0[0,
-                                                                       th232_id] - bu_adens_db_0[i,
-                                                                                                 th232_id])  # Store amount of Th in tank
+        th_adens_db[i,th232_id] =( th_adens_db[i - 1,th232_id] -
+                                  (bu_adens_db_0[0,th232_id] - bu_adens_db_0[i,th232_id]) ) # Store amount of Th in tank
         # Save detector data in file
         #shutil.copy('core_det0.m', 'det/core_det_'+str(i))
         f.close()  # close DB
