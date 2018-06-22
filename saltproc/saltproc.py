@@ -118,41 +118,36 @@ def read_bumat(file_name, moment):
 
     Returns:
     --------
-    isolib_arary: np array
-        array of tracked isotopes
-    bu_adens: list
-        list of adens of isotopes
+    dep_dict: dictionary
+        key: isotope name
+        val: adens
     material_def: str
         SERPENT material definition line
     """
     bumat_filename = os.path.join(file_name + ".bumat" + str(moment))
+    dep_dict = {}
     with open(bumat_filename, 'r') as data:
-        isolib = []
-        bu_adens = []
-        material_def = []
         for line in itertools.islice(
                 data, 5, 6):    # Read material description in variable
             material_def = line.strip()
         for line in itertools.islice(
                 data, 0, None):  # Skip file header start=6, stop=None
             p = line.split()
-            isolib.append(str(p[0]))
-            isolib.append(str(p[1]))
-        isolib_array = np.asarray(isolib)
-    return isolib_array, bu_adens, material_def
+            iso_name = nucname.name(p[0].split[0])
+            adens = p[1]
+            dep_dict[iso_name] = adens
+    return dep_dict, material_def
 
-
-def write_mat_file(file_name, isolib, bu_adens, fuel_intro, current_step):
+def write_mat_file(file_name, dep_dict, fuel_intro, current_step):
     """ Writes the input fuel composition input file block
 
     Parameters:
     -----------
     file_name: str
         name of output file
-    isolib: np array
-        array of tracked isotopes
-    bu_adens: list
-        list of adens of isotopes
+    dep_dict: dictionary
+        key: isotope name
+        val: adens
     fuel_intro: str
         fuel definition line defining fuel properties
     current_step: int
@@ -167,9 +162,7 @@ def write_mat_file(file_name, isolib, bu_adens, fuel_intro, current_step):
     matf = open(file_name, 'w')
     matf.write('% Step number # %i %f %f \n' %(current_step, ana_keff_boc, ana_keff_eoc))
     matf.write(fuel_intro + ' burn 1 rgb 253 231 37\n')
-    for indx in rnage(len(isolib)):
-        iso = isolib_list[indx]
-        adens = bu_adens[indx]
+    for iso, adens in dep_dict.items():
         matf.write('%s\t %f\n' %(iso, adens))
     matf.close()
 
@@ -326,12 +319,14 @@ def main():
     for i in range(lasti + 1, lasti + steps + 1):
         # Run sss with initial fuel composition
         run_serpent(sss_input_file, cores)
-        # Read bumat file
-        isolib, bu_adens_arr, mat_def = read_bumat(sss_input_file, 1)
+        # Read depleted composition
+        dep_dict, mat_def = read_bumat(sss_input_file, 1)
+        isotope_list = list(dep_dict.keys())
+        num_isotopes = len(dep_dict)
         if i == 1:   
             # Create HDF5 database if it's the first run
             f = h5py.File(db_file, "w")
-            maxshape = (None, len(isolib))
+            maxshape = (None, num_isotopes)
 
             # keff dbs are 2 shaped because they just have mean value and uncertainty
             keff_db = f.create_dataset('keff_EOC', (2, steps), 
@@ -340,7 +335,7 @@ def main():
                                          maxshape, chunks=True)
 
             # this shape encapsulates the entire isotopes vectors traced
-            shape = (steps + 1, len(isolib))
+            shape = (steps + 1, num_isotopes)
             bu_adens_db_0 = f.create_dataset('core adensity before reproc',shape,
                                              maxshape, chunks=True)
             bu_adens_db_1 = f.create_dataset('core adensity after reproc', shape,
@@ -353,13 +348,15 @@ def main():
                                            maxshape, chunks=True)
 
             # !!!! WHATI S THIS #
-            rem_adens = np.zeros((5, len(isolib)))
+            rem_adens = np.zeros((5, num_isotopes))
             dt = h5py.special_dtype(vlen=str)
-            isolib_db = f.create_dataset('iso_codes', (len(isolib),), dtype=dt)
+            isolib_db = f.create_dataset('iso_codes', (num_isotopes,), dtype=dt)
 
             # Store ADENS, materials IDS for index=0
-            isolib, bu_adens_db_0[0, :], mat_def = read_bumat(sss_input_file, 0)
-            isolib, bu_adens_db_1[0, :], mat_def = read_bumat(sss_input_file, 0)
+            db_0, mat_def = read_bumat(sss_input_file, 0)
+            ### !!!!! SHOULDNT THIS BE 1?###
+            ### !!! this looks wrong #
+            db_1, mat_def = read_bumat(sss_input_file, 0)
             isolib_db[:] = isolib[:]
             # store Th-232 adens for 0 cycle
             th232_adens_0 = bu_adens_db_0[0, th232_id]
