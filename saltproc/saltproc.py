@@ -85,23 +85,47 @@ nodes = int(args.n[0])
 steps = int(args.steps[0])
 bw = args.bw
 
-# Read *.dep output Serpent file and store it in few arrays
 
+def read_res(inp_filename, moment):
+    """ Reads the .res file generated from serpent using PyNE
 
-def read_res(inp_filename, moment):             # moment=0 for BOC and moment=1 for EOC
+    Parameters:
+    -----------
+    inp_filename: str
+        filename
+    moment: int
+        moment of depletion step (0 for BOC and 1 for EOC)
+
+    Returns:
+    --------
+    [mean_keff, uncertainty_keff]
+    """
     res_filename = os.path.join(inp_filename + "_res.m")
     res = serpent.parse_res(res_filename)
     keff_analytical = res['IMP_KEFF']
-    # Value Keff and uncertantly for the moment (two values in list: BOS and
-    # EOS)
-    return keff_analytical[moment, :]
-
-# Read bumat# Serpent file and parse name of isotope, atomic density and
-# general fuel description (material_def)
+    return keff_analytical[moment]
 
 
-def read_bumat(file_name, moment):  # moment=0 for BoC, moment=1 for EoC
+def read_bumat(file_name, moment):
+    """ Reads the .bumat file generated from serpent
+
+    Parameters:
+    -----------
+    file_name: str
+        name of file
+    moment: int
+        moment of depletion step (0 for BOC and 1 for EOC)
+
+    Returns:
+    --------
+    dep_dict: dictionary
+        key: isotope name
+        val: isotope adens
+    material_def: str
+        SERPENT material definition line
+    """
     bumat_filename = os.path.join(file_name + ".bumat" + str(moment))
+    dep_dict  = {}
     with open(bumat_filename, 'r') as data:
         isolib = []
         bu_adens = []
@@ -112,38 +136,59 @@ def read_bumat(file_name, moment):  # moment=0 for BoC, moment=1 for EoC
         for line in itertools.islice(
                 data, 0, None):  # Skip file header start=6, stop=None
             p = line.split()
-            isolib.append(str(p[0]))
-            bu_adens.append(float(p[1]))
-    isolib_array = np.asarray(isolib)
-    # print isolib_array
-    return isolib_array, bu_adens, material_def
+            dep_dict[p[0]] = float(p[1])
+
+    return dep_dict, material_def
 
 # Write fuel introduction info and two columns (isoname and atomic
 # density) in file
 
 
-def write_mat_file(file_name, isolib, bu_adens, fuel_intro, current_step):
+def write_mat_file(file_name, comp_dict, fuel_intro, current_step):
+    """ Writes the input fuel composition input file block
+
+    Parameters:
+    -----------
+    file_name: str
+        name of output file
+    comp_dict: dictionary
+        key: isotope name
+        val: isotope adens
+    fuel_intro: str
+        fuel definition line defining fuel properties
+    current_step: int
+        step number
+
+    Returns:
+    --------
+    null. outputs SEPRENT input mat block
+    """
     ana_keff_boc = read_res(sss_input_file, 0)
     ana_keff_eoc = read_res(sss_input_file, 1)
     matf = open(file_name, 'w')
-    matf.write(
-        '% Step number #' +
-        str(current_step) +
-        '  ' +
-        str(ana_keff_boc) +
-        ';' +
-        str(ana_keff_eoc) +
-        '\n')
+    matf.write('% Step number # %i %f %f \n' %(current_step, ana_keff_boc, ana_keff_eoc))
     matf.write(fuel_intro + ' burn 1 rgb 253 231 37\n')
-    for index in range(len(isolib)):
-        matf.write(str(isolib[index]) + "        " +
-                   str(bu_adens[index]) + "\n")
+    for iso, adens in comp_dict:
+        matf.write('%s\t %f\n' %(iso, adens))
     matf.close()
 
 # Just run serpent with input file 'input_file' and using cores
 
-
+#!!!!!! FIX !!!!!!#
 def run_serpent(input_filename, cores):
+    """ Runs the SERPENT input file using defined number of cores
+
+    Parameters:
+    -----------
+    input_filename: str
+        path to input file
+    cores: int
+        number of cores used to run SERPENT
+
+    Returns:
+    --------
+    null. Runs SERPENT
+    """
     if bw == 'True':
         args = (
             "aprun",
