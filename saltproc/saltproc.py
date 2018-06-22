@@ -10,10 +10,12 @@ from pyne import nucname
 import h5py
 import shutil
 import argparse
+
+
 restart = 'False'                      # Restart option off by default
 # Serpent 2 file without fuel description and geometry
 sss_input_file = 'core'
-db_file = 'db_saltproc.hdf5'           # HDF5 database name
+db_file = 'db_saltproc.hdf5'           # output HDF5 database name
 # dep_file       =   'core_dep.m'              # Path and name depletion output from Serpent
 # bumat_file     = 'core.bumat1'               # Path and name depletion
 # output from Serpent
@@ -84,34 +86,6 @@ steps = int(args.steps[0])
 bw = args.bw
 
 # Read *.dep output Serpent file and store it in few arrays
-
-
-def read_dep(inp_filename):
-    dep_filename = os.path.join(inp_filename + "_res.m")
-    dep = serpent.parse_dep(dep_filename, make_mats=False)
-    # Time array parsed from *_dep.m file
-    days = dep['DAYS']
-    # Depletion time step evaluation
-    time_step = np.diff(days)
-    # Codes of isotopes parsed from *_dep.m file
-    isoid = dep['ZAI']
-    # Names of isotopes parsed from *_dep.m file
-    names = dep['NAMES']
-    # End of cycle (simulation time length)
-    EOC = np.amax(days)
-    iso_mass = dep['TOT_MASS']                   # Mass if each isotope in core
-    # atomic density for each isotope in material 'fuel'
-    adens_fuel = dep['MAT_fuel_ADENS']
-    # mass density for each isotope in material 'fuel'
-    mdens_fuel = dep['MAT_fuel_MDENS']
-    # total volume of material 'fuel'
-    vol_fuel = dep['MAT_fuel_VOLUME']
-    # return (days, time_step, isonum, isosize)
-    fuel_mass = mdens_fuel[isoid.size - 1, :] * \
-        vol_fuel              # Calculate total fuel mass
-    return isoid, days, time_step, EOC, fuel_mass, iso_mass, adens_fuel[:,
-                                                                        1], mdens_fuel[:, 1], vol_fuel
-# Read *.res output Serpent file and store it in few arrays
 
 
 def read_res(inp_filename, moment):             # moment=0 for BOC and moment=1 for EOC
