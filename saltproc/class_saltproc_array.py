@@ -155,7 +155,15 @@ class saltproc:
         bu_adens_db_1[0, :] = boc_adens
         self.th232_adens_0 = boc_adens[self.th232_id]
 
-    def init_db_restart():
+    def reopen_db(self, restart):
+        """ Reopens the previously exisiting database
+
+        Parameters:
+        -----------
+        restart: bool
+            if True, modified current_step and datasets
+            if False, simply load the datasets
+        """
         f = h5py.File(self.db_file, 'r+')
         self.keff_db = f['keff_BOC']
         self.keff_db_0 = f['keff_BOC']
@@ -168,21 +176,22 @@ class saltproc:
         self.keff = self.keff_db[0, :]
 
         self.isolib = isolib_db
-        # set past time
-        #! this time thing should be made certain
-        self.current_step = np.amax(np.nonzero(keff)) + 1
+        if restart:
+            # set past time
+            #! this time thing should be made certain
+            self.current_step = np.amax(np.nonzero(keff)) + 1
 
-        # resize datasets
-        self.keff_db.resize((2, self.steps + self.current_step))
-        self.keff_db_0.resize((2, self.steps + self.current_step))
-        shape = (self.steps + self.current_step + 1, self.number_of_isotopes)
-        self.bu_adens_db_0.resize(shape)
-        self.bu_adens_db_1.resize(shape)
-        self.tank_adens_db.resize(shape)
-        self.noble_adens_db.resize(shape)
-        self.th_adens_db.resize(shape)
-        self.rem_adens = np.zeros((5, self.number_of_isotopes))
-        self.th232_adens_0 = self.bu_adens_db_0[0, self.th232_id]
+            # resize datasets
+            self.keff_db.resize((2, self.steps + self.current_step))
+            self.keff_db_0.resize((2, self.steps + self.current_step))
+            shape = (self.steps + self.current_step + 1, self.number_of_isotopes)
+            self.bu_adens_db_0.resize(shape)
+            self.bu_adens_db_1.resize(shape)
+            self.tank_adens_db.resize(shape)
+            self.noble_adens_db.resize(shape)
+            self.th_adens_db.resize(shape)
+            self.rem_adens = np.zeros((5, self.number_of_isotopes))
+            self.th232_adens_0 = self.bu_adens_db_0[0, self.th232_id]
 
     def read_res(self, moment):
         """ Reads the .res file generated from serpent using PyNE
@@ -341,6 +350,7 @@ class saltproc:
         step_th = self.bu_adens_db_0[self.current_step, self.th232_id]
         self.th_adens_db[self.current_step,
                          self.th232_id] = prev_th - orig_th - step_th
+        self.f.close()
 
         #! why are you closing and `rereading` the hdf5 file?
 
@@ -424,20 +434,21 @@ class saltproc:
         #! why not boolean (you can do 0 and 1)
         if self.restart == 'True' and os.path.isfile(self.mat_file):
             self.f = h5py.File(self.db_file, 'r+')
-            self.init_db_restart()
+            self.reopen_db(True)
             # sets the current step so the db isn't initialized again
+        else:
+            #! this shouldn't be hardcoded
+            shutil.copy('fuel_comp_with_fix', self.mat_file)
 
         while self.current_step < self.steps:
             print('Cycle number of %i of %i steps' %
                   (self.current_step, self.steps))
             self.run_serpent()
-
             if self.current_step == 0:
-                #! not sure what this is, and why it's hard coded
-                shutil.copy('fuel_comp_with_fix', self.mat_file)
                 # intializing db to get all arrays for calculation
                 self.init_db()
-
+            else:
+                self.reopen_db(False)    
             self.process_fuel()
             self.record_db()
             self.current_step += 1
