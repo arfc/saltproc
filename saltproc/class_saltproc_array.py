@@ -10,43 +10,53 @@ import h5py
 import shutil
 import argparse
 
-
-# Parse flags
-parser = argparse.ArgumentParser()
-parser.add_argument('-r', choices=['True', 'False'])  # Restart flag -r
-parser.add_argument(
-    '-n',
-    nargs=1,
-    type=int,
-    default=1)         # Number of nodes -n
-parser.add_argument(
-    '-steps',
-    nargs=1,
-    type=int,
-    default=5)     # Number of steps
-parser.add_argument('-bw', choices=['True', 'False'])  # -bw Blue Waters?
-args = parser.parse_args()
-restart = args.r
-nodes = int(args.n[0])
-steps = int(args.steps[0])
-bw = args.bw
-
-
 class saltproc:
+    """ Class saltproc runs SERPENT and manipulates its input and output files
+        to reprocess its material, while storing the SERPENT run results in a
+        HDF5 database.
+    """
     def __init__(self, restart=False,
                   input_file='core', db_file='db_saltproc.hdf5',
-                  mat_file='fuel_comp', steps, cores):
+                  mat_file='fuel_comp', steps, cores, nodes, bw):
+        """ Initializes the class
+        Parameters:
+        -----------
+        restart: bool
+            if true, starts from an existing database
+        input_file: string
+            name of input file
+        db_file: string
+            name of output hdf5 file
+        mat_file: string
+            name of material file connected to input file
+        steps: int
+            total number of steps for this saltproc run
+        cores: int
+            number of cores to use for this saltproc run
+        nodes: int
+            number of nodes to use for this saltproc run
+        bw: string
+            #! if 'True', runs saltproc on blue waters
+        """
+
         self.current_step = 0
         self.init_indices()
 
         # initial run to get what input / out looks like
-        self.run_serpent(self.input_file, self.cores)
+        self.run_serpent()
         self.init_db()
 
         while self.current_step < self.steps:
+            print('Cycle number of %i of %i steps' %(self.current_step, self.steps))
+            self.process_fuel()
             self.record_db()
+            self.run_serpent()
+            self.current_step += 1
+
+        print('End of Saltproc.')
 
     def init_indices(self):
+        """ Initializes indices isotopes and groups"""
         self.pa_id = np.array([1088])                # ID for Pa-233 (91)
         self.th232_id = np.array([1080])             # IDs for Th-232 (90)
         self.u233_id = np.array([1095])              # ID for U-233 (92)
@@ -86,9 +96,14 @@ class saltproc:
         self.higher_nuc = np.hstack((np_id, pu_id))
 
     def init_db(self):
+        """ Initializes the database from the output of the first
+            SEPRENT run """
+
         self.f = h5py.File(self.db_file, 'w')
         isolib, adens_array, mat_def = self.read_bumat(self.input_file, 1)
-        # initialize keys
+
+        # initialize isotope library and number of isotpes
+        self.isolib = isolib
         self.number_of_isotopes = len(isolib)
 
         shape = (2, steps)
@@ -129,7 +144,7 @@ class saltproc:
         #! old code = isolib, bu_adens_db_1[0, :], mat_def = read_bumat(
         #!          sss_input_file, 0)
         bu_adens_db_1[0, :] = boc_adens
-        th232_adens_0 = boc_adens[self.th232_id]
+        self.th232_adens_0 = boc_adens[self.th232_id]
 
 
 
@@ -188,39 +203,35 @@ class saltproc:
 
         Parameters:
         -----------
-        file_name: str
-            name of output file
-        dep_dict: dictionary
-            key: isotope name
-            val: adens
-        fuel_intro: str
-            fuel definition line defining fuel properties
-        current_step: int
-            step number
 
         Returns:
         --------
-        null. outputs SEPRENT input mat block
+        null. creates SEPRENT input mat block text file
         """
-        ana_keff_boc = read_res(sss_input_file, 0)
-        ana_keff_eoc = read_res(sss_input_file, 1)
-        matf = open(file_name, 'w')
-        matf.write('% Step number # %i %f %f \n' %(current_step, ana_keff_boc, ana_keff_eoc))
-        matf.write(fuel_intro + ' burn 1 rgb 253 231 37\n')
-        for iso, adens in dep_dict.items():
-            matf.write('%s\t %f\n' %(iso, adens))
+        ana_keff_boc = read_res(self.input_file, 0)
+        ana_keff_eoc = read_res(self.input_file, 1)
+        matf = open(self.mat_file, 'w')
+        matf.write('% Step number # %i %f;%f \n' %(current_step, ana_keff_boc, ana_keff_eoc))
+        matf.write(self.mat_def + ' burn 1 rgb 253 231 37\n')
+        for iso in range(self.number_of_isotopes):
+            matf.write('%s\t\t%s\n' %(str(self.isolib[iso]), str(self.core[iso])))
         matf.close()
 
-    def record_db(self):
-        # read bumat1
-        isolib, buadens, mat_def = self.read_bumat(self.input_file, 1)
-        self.core = buadens
+    def process_fuel(self):
+        """ processes the fuel from the output of the previous SERPENT run
+            by removing isotopes and refilling with Th232
+        """
+
+        # read bumat1 (output composition)
+        isolib, self.core, self.mat_def = self.read_bumat(self.input_file, 1)
+
+        # record core composition before reprocessing to db_0
         self.bu_adens_db_0[self.current_step, :] = self.core
 
         # start reprocessing and refilling
         # reprocess out pa233
         # every 1 step = 3days
-        self.tank_adens_db[self.current_step, ] = self.reprocess_iso(self.pa_id, 1, 1)
+        self.tank_adens_db[self.current_step, ] = self.remove_iso(self.pa_id, 1)
         # add back u233 to core
         #! where is this refill coming from?
         u233_to_add = self.tank_adens_db[self.current_step, self.pa233_id]
@@ -229,46 +240,171 @@ class saltproc:
         # remove volatile gases
         # every 1 step = 3 days
         volatile_gases = np.hstack(self.kr_id, self.xe_id, self.noble_id)
-        self.rem_adens[0, ] = self.reprocess_iso(volatile_gases, 1, 1)
+        self.rem_adens[0, ] = self.remove_iso(volatile_gases, 1)
 
+        #! this rem_adens indexing looks wrong
         # remove seminoble metals
         # every 67 steps = 201 days
-        self.rem_adens[1, ] = self.reprocess_iso(np.hstack((self.se_noble_id)), 1, 67)
+        if current_step % 67 == 0:
+            self.rem_adens[1, ] = self.remove_iso(np.hstack((self.se_noble_id)), 1)
 
         # remove volatile fluorides
         # every 20 steps = 60 days
-        self.rem_adens[2, ] = self.reprocess_iso(np.hstack(self.vol_fluorides), 1, 20)
+        if current_step % 20 == 0:
+            self.rem_adens[2, ] = self.remove_iso(np.hstack(self.vol_fluorides), 1)
 
         # remove REEs
         # evrey 17 steps = 50 days
-        self.rem_adens[3, ] = self.reprocess_iso(np.hstack(self.rees_id), 1, 17)
+        if current_step % 17 == 0:
+        self.rem_adens[3, ] = self.remove_iso(np.hstack(self.rees_id), 1)
 
         # remove Eu
         # evrey 167 steps = 500 days
-        self.rem_adens[4, ] = self.reprocess_iso(np.hstack(self.eu_id), 1, 167)
+        if current_step % 167 == 0:
+            self.rem_adens[4, ] = self.remove_iso(np.hstack(self.eu_id), 1, 167)
 
         # remove Rb, Sr, Cs, Ba
         # every 1145 steps = 3435 days
-        self.rem_adens[4, ] = self.reprocess_iso(np.hstack(self.discard_id), 1, 1145)
+        if current_step % 1145 == 0:
+            self.rem_adens[4, ] = self.remove_iso(np.hstack(self.discard_id), 1, 1145)
 
         # remove np-237, pu-242
         # every 1946 steps = 16 years
-        self.rem_adens[4, ] = self.reprocess_iso(np.hstack(self.higher_nuc), 1, 1946)
+        if current_step % 1946 == 0:
+            self.rem_adens[4, ] = self.remove_iso(np.hstack(self.higher_nuc), 1, 1946)
+
 
         # refill th232 to keep adens constant
-        
-        
+        # do it every time 
+        # if want to do it less often do:
+        # if current_step % time == 0:
+        self.th_adens_db[self.current_step, ] = self.maintain_const(self.th232_id,
+                                                                    self.th232_adens_0)
 
+        # write the processed material to mat file for next run
+        self.write_mat_file()
 
-    def reprocess_iso(self, target_iso, removal_eff, removal_interval):
+    def record_db(self):
+        """ Records the processed fuel composition, Keff values,
+            waste tank composition to database
+        """
+        self.keff_db[:, self.current_step - 1] = self.read_res(1)
+        self.keff_db_0[:, self.current_step - 1] = self.read_res(0)
+        self.bu_adens_db_1[self.current_step, :] = self.core
+        self.tank_adens_db[self.current_step, :] = (self.tank_adens_db[self.current_step - 1, :]
+                                                    + self.rem_adens.sum(axis=0))
+        # store amount of Th tank
+        prev_th = self.th_adens_db[self.current_step - 1, self.th232_id]
+        orig_th = self.bu_adens_db_0[0, self.th232_id]
+        step_th = self.bu_adens_db_0[self.current_step, self.th232_id]
+        self.th_adens_db[self.current_step, self.th232_id] = prev_th - orig_th - step_th
+
+        #! why are you closing and `rereading` the hdf5 file?
+
+    def run_serpent(self):
+        """ Runs SERPERNT with subprocess with the given parameters"""
+        #! why a string not a boolean
+        if self.bw == 'True':
+            args = ('aprun', '-n', str(self.nodes), '-d', str(32),
+                    '/projects/sciteam/bahg/serpent30/src/sss2',
+                    '-omp', str(32), self.input_file)
+        else:
+            args = ('/home/andrei2/serpent/serpetn2/src_test/sss2',
+                    '-omp', str(self.cores), self.input_file)
+        popen = subprocess.Popen(args, stdout=subprocess.PIPE)
+        print(popen.stdout.read())
+
+    def remove_iso(self, target_iso, removal_eff):
+        """ Removes isotopes with given removal efficiency
+
+        Parameters:
+        -----------
+        target_iso: array
+            array  of indices for isotopes to remove from core
+        removal_eff: float
+            removal efficiency (max 1)
+
+        Returns:
+        --------
+        tank_stream: array
+            array of adens of removed material
+        """
         tank_stream = np.zeros(self.number_of_isotopes)
-        if self.current_step % removal_interval == 0:
-            for iso in target_isotope:
-                tank_stream[iso] = self.core[iso] * removal_eff
-                self.core[iso] = (1 - removal_eff) * self.core[iso]
+        for iso in target_isotope:
+            tank_stream[iso] = self.core[iso] * removal_eff
+            self.core[iso] = (1 - removal_eff) * self.core[iso]
         return tank_stream
 
     def refill(self, refill_iso, delta_adens):
+        """ Refills isotope with delta_adens
+
+        Parameters:
+        -----------
+        refill_iso: array
+            array of indices for isotopes to be refilled
+        delta_adens: float
+            adens to be refilled
+
+        Returns:
+        --------
+        null.
+        """
+
         for iso in refill_iso:
             self.core[iso] = self.core[iso] + delta_adens
 
+    def maintain_const(self, target_isotope, target_adens):
+        """ Maintains the constant amount of a target isotope
+
+        Parameters:
+        -----------
+        target_isotope: array
+            array of indices for isotopes to be refilled
+        target_adens: float
+            adens to be satisfied
+
+        Returns:
+        --------
+        null.
+        """
+        #! this is funky
+        tank_stream = np.zeros(self.number_of_isotopes)
+        for iso in target_isotope:
+            tank_stream[iso] = self.core[iso] - target_adens
+            self.core[iso] = target_adens
+        return tank_stream
+
+
+# Parse flags
+# Read run command
+parser = argparse.ArgumentParser()
+parser.add_argument('-r', choices=['True', 'False'])  # Restart flag -r
+parser.add_argument(
+    '-n',
+    nargs=1,
+    type=int,
+    default=1)         # Number of nodes -n
+parser.add_argument(
+    '-steps',
+    nargs=1,
+    type=int,
+    default=5)     # Number of steps
+parser.add_argument('-bw', choices=['True', 'False'])  # -bw Blue Waters?
+args = parser.parse_args()
+restart = args.r
+nodes = int(args.n[0])
+steps = int(args.steps[0])
+bw = args.bw
+
+# manually hard-code parameters.
+# andrei this is up to you
+input_file = 'core'
+db_file = 'db_saltproc.hdf5'
+mat_file = 'fuel_comp'
+cores = 4
+
+if __name__ == "__main__":
+    # run saltproc
+    saltproc(restart=restart, input_file=input_file,
+             db_file=db_file, mat_file=mat_file, steps=steps,
+             cores=cores, nodes=nodes, bw=bw)
