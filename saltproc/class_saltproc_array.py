@@ -155,6 +155,35 @@ class saltproc:
         bu_adens_db_1[0, :] = boc_adens
         self.th232_adens_0 = boc_adens[self.th232_id]
 
+    def init_db_restart():
+        f = h5py.File(self.db_file, 'r+')
+        self.keff_db = f['keff_BOC']
+        self.keff_db_0 = f['keff_BOC']
+        self.bu_adens_db_0 = f['core adensity before reproc']
+        self.bu_adens_db_1 = f['core adensity after reproc']
+        self.tank_adens_db = f['tank adensity']
+        self.noble_adens_db = f['noble adensity']
+        self.th_adens_db = f['Th tank adensity']
+        isolib_db = f['iso_codes']
+        self.keff = self.keff_db[0, :]
+
+        self.isolib = isolib_db
+        # set past time
+        #! this time thing should be made certain
+        self.current_step = np.amax(np.nonzero(keff)) + 1
+
+        # resize datasets
+        self.keff_db.resize((2, self.steps + self.current_step))
+        self.keff_db_0.resize((2, self.steps + self.current_step))
+        shape = (self.steps + self.current_step + 1, self.number_of_isotopes)
+        self.bu_adens_db_0.resize(shape)
+        self.bu_adens_db_1.resize(shape)
+        self.tank_adens_db.resize(shape)
+        self.noble_adens_db.resize(shape)
+        self.th_adens_db.resize(shape)
+        self.rem_adens = np.zeros((5, self.number_of_isotopes))
+        self.th232_adens_0 = self.bu_adens_db_0[0, self.th232_id]
+
     def read_res(self, moment):
         """ Reads the .res file generated from serpent using PyNE
 
@@ -392,12 +421,20 @@ class saltproc:
         """ Core of saltproc, moves forward in timesteps,
             run serpent, process fuel, record to db, and repeats
         """
+        #! why not boolean (you can do 0 and 1)
+        if self.restart == 'True' and os.path.isfile(self.mat_file):
+            self.f = h5py.File(self.db_file, 'r+')
+            self.init_db_restart()
+            # sets the current step so the db isn't initialized again
+
         while self.current_step < self.steps:
             print('Cycle number of %i of %i steps' %
                   (self.current_step, self.steps))
             self.run_serpent()
 
             if self.current_step == 0:
+                #! not sure what this is, and why it's hard coded
+                shutil.copy('fuel_comp_with_fix', self.mat_file)
                 # intializing db to get all arrays for calculation
                 self.init_db()
 
