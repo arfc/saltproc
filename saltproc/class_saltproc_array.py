@@ -17,20 +17,13 @@ class saltproc:
         HDF5 database.
     """
 
-    def __init__(self, restart=False,
+    def __init__(self, steps, cores, nodes, bw, restart=False,
                  input_file='core', db_file='db_saltproc.hdf5',
-                 mat_file='fuel_comp', steps, cores, nodes, bw):
+                 mat_file='fuel_comp'):
         """ Initializes the class
+
         Parameters:
         -----------
-        restart: bool
-            if true, starts from an existing database
-        input_file: string
-            name of input file
-        db_file: string
-            name of output hdf5 file
-        mat_file: string
-            name of material file connected to input file
         steps: int
             total number of steps for this saltproc run
         cores: int
@@ -39,26 +32,27 @@ class saltproc:
             number of nodes to use for this saltproc run
         bw: string
             #! if 'True', runs saltproc on blue waters
+        restart: bool
+            if true, starts from an existing database
+        input_file: string
+            name of input file
+        db_file: string
+            name of output hdf5 file
+        mat_file: string
+            name of material file connected to input file
         """
+        # initialize all object attributes
+        self.steps = steps
+        self.cores = cores
+        self.nodes = nodes
+        self.bw = bw
+        self.restart = restart
+        self.input_file = input_file
+        self.db_file = db_file
+        self.mat_file = mat_file
 
         self.current_step = 0
         self.init_indices()
-
-        # this block loops around to reprocess, run and continue
-        while self.current_step < self.steps:
-            print('Cycle number of %i of %i steps' %
-                  (self.current_step, self.steps))
-            self.run_serpent()
-
-            if self.current_step == 0:
-                # intializing db to get all arrays for calculation
-                self.init_db()
-
-            self.process_fuel()
-            self.record_db()
-            self.current_step += 1
-
-        print('End of Saltproc.')
 
     def init_indices(self):
         """ Initializes indices isotopes and groups"""
@@ -72,41 +66,41 @@ class saltproc:
         # IDs for all isotopes of Xe(54)
         self.xe_id = np.arange(718, 746)
         # Noble metals, interval 20 sec
-        self.se_id = np.arange(175, 196)           # IDs for Selenium (34)
+        se_id = np.arange(175, 196)           # IDs for Selenium (34)
         # All elements from Nb(41) to Ag (47)
-        self.nob1_id = np.arange(331, 520)
+        nob1_id = np.arange(331, 520)
         # All elements from Sb(51) to Te (52)
-        self.nob2_id = np.arange(636, 694)
+        nob2_id = np.arange(636, 694)
         # Stack all Noble Metals
         self.noble_id = np.hstack((se_id, nob1_id, nob2_id))
         # Seminoble metals, interval 200 days
-        self.zr_id = np.arange(312, 331)           # IDs for Zr (40)
+        zr_id = np.arange(312, 331)           # IDs for Zr (40)
         # IDs from Cd(48) to Sn(50)
-        self.semin_id = np.arange(520, 636)
+        semin_id = np.arange(520, 636)
         # Stack all Semi-Noble Metals
         self.se_noble_id = np.hstack((zr_id, semin_id))
         # Volatile fluorides, 60 days
-        self.br_id = np.arange(196, 217)           # IDs for Br(35)
-        self.i_id = np.arange(694, 718)           # IDs for I(53)
+        br_id = np.arange(196, 217)           # IDs for Br(35)
+        i_id = np.arange(694, 718)           # IDs for I(53)
         # Stack volatile fluorides
         self.vol_fluorides = np.hstack((br_id, i_id))
         # Rare earth, interval 50 days
-        self.y_id = np.arange(283, 312)           # IDs for Y(39)
+        y_id = np.arange(283, 312)           # IDs for Y(39)
         # IDs for La(57) to Sm(62)
-        self.rees_1_id = np.arange(793, 916)
-        self.gd_id = np.arange(934, 949)           # IDs for Gd(64)
+        rees_1_id = np.arange(793, 916)
+        gd_id = np.arange(934, 949)           # IDs for Gd(64)
         # Stack of all Rare earth except Eu
         self.rees_id = np.hstack((y_id, rees_1_id, gd_id))
         # Eu(63)
         self.eu_id = np.arange(916, 934)
         # Discard, 3435 days
-        self.rb_sr_id = np.arange(240, 283)        # Rb(37) and Sr(38) vector
-        self.cs_ba_id = np.arange(746, 793)        # Cs(55) and Ba(56) vector
+        rb_sr_id = np.arange(240, 283)        # Rb(37) and Sr(38) vector
+        cs_ba_id = np.arange(746, 793)        # Cs(55) and Ba(56) vector
         # Stack discard
         self.discard_id = np.hstack((rb_sr_id, cs_ba_id))
         # Higher nuclides (Np-237 and Pu-242), interval 16 years (5840 days)
-        self.np_id = np.array([1109])         # 237Np93
-        self.pu_id = np.array([1123])         # 242Pu94
+        np_id = np.array([1109])         # 237Np93
+        pu_id = np.array([1123])         # 242Pu94
         self.higher_nuc = np.hstack((np_id, pu_id))
 
     def init_db(self):
@@ -394,7 +388,37 @@ class saltproc:
             self.core[iso] = target_adens
         return tank_stream
 
+    def main(self):
+        """ Core of saltproc, moves forward in timesteps,
+            run serpent, process fuel, record to db, and repeats
+        """
+        while self.current_step < self.steps:
+            print('Cycle number of %i of %i steps' %
+                  (self.current_step, self.steps))
+            self.run_serpent()
 
+            if self.current_step == 0:
+                # intializing db to get all arrays for calculation
+                self.init_db()
+
+            self.process_fuel()
+            self.record_db()
+            self.current_step += 1
+
+        print('End of Saltproc.')
+
+
+
+
+# manually hard-code parameters.
+# andrei this is up to you
+input_file = 'core'
+db_file = 'db_saltproc.hdf5'
+mat_file = 'fuel_comp'
+restart = 'False'
+cores = 4
+nodes = 1
+steps = 5
 # Parse flags
 # Read run command
 parser = argparse.ArgumentParser()
@@ -416,15 +440,9 @@ nodes = int(args.n[0])
 steps = int(args.steps[0])
 bw = args.bw
 
-# manually hard-code parameters.
-# andrei this is up to you
-input_file = 'core'
-db_file = 'db_saltproc.hdf5'
-mat_file = 'fuel_comp'
-cores = 4
 
 if __name__ == "__main__":
     # run saltproc
-    saltproc(restart=restart, input_file=input_file,
-             db_file=db_file, mat_file=mat_file, steps=steps,
-             cores=cores, nodes=nodes, bw=bw)
+    run = saltproc(steps=steps, cores=cores, nodes=nodes,
+                   bw=bw, restart=restart, input_file=input_file,
+                   db_file=db_file, mat_file=mat_file)
