@@ -10,14 +10,16 @@ import h5py
 import shutil
 import argparse
 
+
 class saltproc:
     """ Class saltproc runs SERPENT and manipulates its input and output files
         to reprocess its material, while storing the SERPENT run results in a
         HDF5 database.
     """
+
     def __init__(self, restart=False,
-                  input_file='core', db_file='db_saltproc.hdf5',
-                  mat_file='fuel_comp', steps, cores, nodes, bw):
+                 input_file='core', db_file='db_saltproc.hdf5',
+                 mat_file='fuel_comp', steps, cores, nodes, bw):
         """ Initializes the class
         Parameters:
         -----------
@@ -42,15 +44,18 @@ class saltproc:
         self.current_step = 0
         self.init_indices()
 
-        # initial run to get what input / out looks like
-        self.run_serpent()
-        self.init_db()
-
+        # this block loops around to reprocess, run and continue
         while self.current_step < self.steps:
-            print('Cycle number of %i of %i steps' %(self.current_step, self.steps))
+            print('Cycle number of %i of %i steps' %
+                  (self.current_step, self.steps))
+            self.run_serpent()
+
+            if self.current_step == 0:
+                # intializing db to get all arrays for calculation
+                self.init_db()
+
             self.process_fuel()
             self.record_db()
-            self.run_serpent()
             self.current_step += 1
 
         print('End of Saltproc.')
@@ -62,24 +67,33 @@ class saltproc:
         self.u233_id = np.array([1095])              # ID for U-233 (92)
         self.pa233_id = np.array([1088])             # ID for Pa-233 (91)
         # Volatile gases, interval 20 sec
-        self.kr_id = np.arange(217, 240)           # IDs for all isotopes of Kr(36)
-        self.xe_id = np.arange(718, 746)           # IDs for all isotopes of Xe(54)
+        # IDs for all isotopes of Kr(36)
+        self.kr_id = np.arange(217, 240)
+        # IDs for all isotopes of Xe(54)
+        self.xe_id = np.arange(718, 746)
         # Noble metals, interval 20 sec
         self.se_id = np.arange(175, 196)           # IDs for Selenium (34)
-        self.nob1_id = np.arange(331, 520)           # All elements from Nb(41) to Ag (47)
-        self.nob2_id = np.arange(636, 694)           # All elements from Sb(51) to Te (52)
-        self.noble_id = np.hstack((se_id, nob1_id, nob2_id))  # Stack all Noble Metals
+        # All elements from Nb(41) to Ag (47)
+        self.nob1_id = np.arange(331, 520)
+        # All elements from Sb(51) to Te (52)
+        self.nob2_id = np.arange(636, 694)
+        # Stack all Noble Metals
+        self.noble_id = np.hstack((se_id, nob1_id, nob2_id))
         # Seminoble metals, interval 200 days
         self.zr_id = np.arange(312, 331)           # IDs for Zr (40)
-        self.semin_id = np.arange(520, 636)           # IDs from Cd(48) to Sn(50)
-        self.se_noble_id = np.hstack((zr_id, semin_id))  # Stack all Semi-Noble Metals
+        # IDs from Cd(48) to Sn(50)
+        self.semin_id = np.arange(520, 636)
+        # Stack all Semi-Noble Metals
+        self.se_noble_id = np.hstack((zr_id, semin_id))
         # Volatile fluorides, 60 days
         self.br_id = np.arange(196, 217)           # IDs for Br(35)
         self.i_id = np.arange(694, 718)           # IDs for I(53)
-        self.vol_fluorides = np.hstack((br_id, i_id))      # Stack volatile fluorides
+        # Stack volatile fluorides
+        self.vol_fluorides = np.hstack((br_id, i_id))
         # Rare earth, interval 50 days
         self.y_id = np.arange(283, 312)           # IDs for Y(39)
-        self.rees_1_id = np.arange(793, 916)           # IDs for La(57) to Sm(62)
+        # IDs for La(57) to Sm(62)
+        self.rees_1_id = np.arange(793, 916)
         self.gd_id = np.arange(934, 949)           # IDs for Gd(64)
         # Stack of all Rare earth except Eu
         self.rees_id = np.hstack((y_id, rees_1_id, gd_id))
@@ -91,8 +105,8 @@ class saltproc:
         # Stack discard
         self.discard_id = np.hstack((rb_sr_id, cs_ba_id))
         # Higher nuclides (Np-237 and Pu-242), interval 16 years (5840 days)
-        self.np_id    = np.array ([1109])         # 237Np93
-        self.pu_id    = np.array ([1123])         # 242Pu94
+        self.np_id = np.array([1109])         # 237Np93
+        self.pu_id = np.array([1123])         # 242Pu94
         self.higher_nuc = np.hstack((np_id, pu_id))
 
     def init_db(self):
@@ -109,15 +123,15 @@ class saltproc:
         shape = (2, steps)
         maxshape = (2, None)
         self.keff_db = f.create_dataset('keff_EOC', shape,
-                                   maxshape=maxshape, chunks=True)
+                                        maxshape=maxshape, chunks=True)
         self.keff_db_0 = f.create_dataset('keff_BOC', shape,
-                                   maxshape=maxshape, chunks=True)
+                                          maxshape=maxshape, chunks=True)
 
         shape = (self.steps + 1, self.number_of_isotopes)
         maxshape = (None, self.number_of_isotopes)
         self.bu_adens_db_0 = f.create_dataset('core adensity before reproc',
-                                               shape, maxshape=maxshape,
-                                               chunks=True)
+                                              shape, maxshape=maxshape,
+                                              chunks=True)
         self.bu_adens_db_1 = f.create_dataset('core adensity after reproc',
                                               shape, maxshape=maxshape,
                                               chunks=True)
@@ -128,12 +142,13 @@ class saltproc:
                                                shape, maxshape=maxshape,
                                                chunks=True)
         self.th_adens_db = f.create_dataset('Th tank adensity',
-                                             shape, maxshape=maxshape,
-                                             chunks=True)
+                                            shape, maxshape=maxshape,
+                                            chunks=True)
         #! raffinate steram consider splitting by what element
         self.rem_adens = f.create_dataset('Raffinate stream',
                                           (5, self.number_of_isotopes),
                                           chunks=True)
+        dt = h5py.special_dtype(vlen=str)
         self.isolib_db = f.create_dataset('iso codes', data=self.isolib_array,
                                           dtype=dt)
 
@@ -145,8 +160,6 @@ class saltproc:
         #!          sss_input_file, 0)
         bu_adens_db_1[0, :] = boc_adens
         self.th232_adens_0 = boc_adens[self.th232_id]
-
-
 
     def read_res(self, moment):
         """ Reads the .res file generated from serpent using PyNE
@@ -165,7 +178,6 @@ class saltproc:
         keff_analytical = res['IMP_KEFF']
         return keff_analytical[moment]
 
-
     def read_bumat(self, file_name, moment):
         """ Reads the .bumat file generated from serpent
 
@@ -183,7 +195,7 @@ class saltproc:
         mat_def: str
             material definition in SERPENT with volume and density
         """
-        bumat_filename = os.path.join('%s.bumat%i' %(self.file_name, moment))
+        bumat_filename = os.path.join('%s.bumat%i' % (self.file_name, moment))
         with open(bumat_filename, 'r') as data:
             isolib = []
             bu_adens = []
@@ -211,10 +223,12 @@ class saltproc:
         ana_keff_boc = read_res(self.input_file, 0)
         ana_keff_eoc = read_res(self.input_file, 1)
         matf = open(self.mat_file, 'w')
-        matf.write('% Step number # %i %f;%f \n' %(current_step, ana_keff_boc, ana_keff_eoc))
+        matf.write('% Step number # %i %f;%f \n' %
+                   (current_step, ana_keff_boc, ana_keff_eoc))
         matf.write(self.mat_def + ' burn 1 rgb 253 231 37\n')
         for iso in range(self.number_of_isotopes):
-            matf.write('%s\t\t%s\n' %(str(self.isolib[iso]), str(self.core[iso])))
+            matf.write('%s\t\t%s\n' %
+                       (str(self.isolib[iso]), str(self.core[iso])))
         matf.close()
 
     def process_fuel(self):
@@ -231,7 +245,8 @@ class saltproc:
         # start reprocessing and refilling
         # reprocess out pa233
         # every 1 step = 3days
-        self.tank_adens_db[self.current_step, ] = self.remove_iso(self.pa_id, 1)
+        self.tank_adens_db[self.current_step,
+                           ] = self.remove_iso(self.pa_id, 1)
         # add back u233 to core
         #! where is this refill coming from?
         u233_to_add = self.tank_adens_db[self.current_step, self.pa233_id]
@@ -246,36 +261,40 @@ class saltproc:
         # remove seminoble metals
         # every 67 steps = 201 days
         if current_step % 67 == 0:
-            self.rem_adens[1, ] = self.remove_iso(np.hstack((self.se_noble_id)), 1)
+            self.rem_adens[1, ] = self.remove_iso(
+                np.hstack((self.se_noble_id)), 1)
 
         # remove volatile fluorides
         # every 20 steps = 60 days
         if current_step % 20 == 0:
-            self.rem_adens[2, ] = self.remove_iso(np.hstack(self.vol_fluorides), 1)
+            self.rem_adens[2, ] = self.remove_iso(
+                np.hstack(self.vol_fluorides), 1)
 
         # remove REEs
         # evrey 17 steps = 50 days
         if current_step % 17 == 0:
-        self.rem_adens[3, ] = self.remove_iso(np.hstack(self.rees_id), 1)
+            self.rem_adens[3, ] = self.remove_iso(np.hstack(self.rees_id), 1)
 
         # remove Eu
         # evrey 167 steps = 500 days
         if current_step % 167 == 0:
-            self.rem_adens[4, ] = self.remove_iso(np.hstack(self.eu_id), 1, 167)
+            self.rem_adens[4, ] = self.remove_iso(
+                np.hstack(self.eu_id), 1, 167)
 
         # remove Rb, Sr, Cs, Ba
         # every 1145 steps = 3435 days
         if current_step % 1145 == 0:
-            self.rem_adens[4, ] = self.remove_iso(np.hstack(self.discard_id), 1, 1145)
+            self.rem_adens[4, ] = self.remove_iso(
+                np.hstack(self.discard_id), 1, 1145)
 
         # remove np-237, pu-242
         # every 1946 steps = 16 years
         if current_step % 1946 == 0:
-            self.rem_adens[4, ] = self.remove_iso(np.hstack(self.higher_nuc), 1, 1946)
-
+            self.rem_adens[4, ] = self.remove_iso(
+                np.hstack(self.higher_nuc), 1, 1946)
 
         # refill th232 to keep adens constant
-        # do it every time 
+        # do it every time
         # if want to do it less often do:
         # if current_step % time == 0:
         self.th_adens_db[self.current_step, ] = self.maintain_const(self.th232_id,
@@ -297,7 +316,8 @@ class saltproc:
         prev_th = self.th_adens_db[self.current_step - 1, self.th232_id]
         orig_th = self.bu_adens_db_0[0, self.th232_id]
         step_th = self.bu_adens_db_0[self.current_step, self.th232_id]
-        self.th_adens_db[self.current_step, self.th232_id] = prev_th - orig_th - step_th
+        self.th_adens_db[self.current_step,
+                         self.th232_id] = prev_th - orig_th - step_th
 
         #! why are you closing and `rereading` the hdf5 file?
 
