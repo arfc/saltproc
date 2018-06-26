@@ -3,7 +3,8 @@ import itertools
 import subprocess
 import os
 import numpy as np
-import matplotlib.pyplot
+import sys
+sys.path.append('/u/sciteam/bae/pyne/pyne/')
 from pyne import serpent
 from pyne import nucname
 import h5py
@@ -116,44 +117,42 @@ class saltproc:
 
         shape = (2, steps)
         maxshape = (2, None)
-        self.keff_db = f.create_dataset('keff_EOC', shape,
+        self.keff_db = self.f.create_dataset('keff_EOC', shape,
                                         maxshape=maxshape, chunks=True)
-        self.keff_db_0 = f.create_dataset('keff_BOC', shape,
+        self.keff_db_0 = self.f.create_dataset('keff_BOC', shape,
                                           maxshape=maxshape, chunks=True)
 
         shape = (self.steps + 1, self.number_of_isotopes)
         maxshape = (None, self.number_of_isotopes)
-        self.bu_adens_db_0 = f.create_dataset('core adensity before reproc',
+        self.bu_adens_db_0 = self.f.create_dataset('core adensity before reproc',
                                               shape, maxshape=maxshape,
                                               chunks=True)
-        self.bu_adens_db_1 = f.create_dataset('core adensity after reproc',
+        self.bu_adens_db_1 = self.f.create_dataset('core adensity after reproc',
                                               shape, maxshape=maxshape,
                                               chunks=True)
-        self.tank_adens_db = f.create_dataset('tank adensity',
+        self.tank_adens_db = self.f.create_dataset('tank adensity',
                                               shape, maxshape=maxshape,
                                               chunks=True)
-        self.noble_adens_db = f.create_dataset('noble adensity',
+        self.noble_adens_db = self.f.create_dataset('noble adensity',
                                                shape, maxshape=maxshape,
                                                chunks=True)
-        self.th_adens_db = f.create_dataset('Th tank adensity',
+        self.th_adens_db = self.f.create_dataset('Th tank adensity',
                                             shape, maxshape=maxshape,
                                             chunks=True)
         #! raffinate steram consider splitting by what element
-        self.rem_adens = f.create_dataset('Raffinate stream',
-                                          (5, self.number_of_isotopes),
-                                          chunks=True)
+        self.rem_adens = np.zeros((5, self.number_of_isotopes))
         dt = h5py.special_dtype(vlen=str)
-        self.isolib_db = f.create_dataset('iso codes', data=self.isolib_array,
+        self.isolib_db = self.f.create_dataset('iso codes', data=self.isolib,
                                           dtype=dt)
 
         # put in values from initial condition
         isolib, boc_adens, mat_def = self.read_bumat(self.input_file, 0)
-        bu_adens_db_0[0, :] = boc_adens
+        self.bu_adens_db_0[0, :] = boc_adens
         #! shouldn't this be eoc_adens???
         #! old code = isolib, bu_adens_db_1[0, :], mat_def = read_bumat(
         #!          sss_input_file, 0)
-        bu_adens_db_1[0, :] = boc_adens
-        self.th232_adens_0 = boc_adens[self.th232_id]
+        self.bu_adens_db_1[0, :] = boc_adens
+        self.th232_adens_0 = boc_adens[self.th232_id[0]]
 
     def reopen_db(self, restart):
         """ Reopens the previously exisiting database
@@ -164,15 +163,15 @@ class saltproc:
             if True, modified current_step and datasets
             if False, simply load the datasets
         """
-        f = h5py.File(self.db_file, 'r+')
-        self.keff_db = f['keff_BOC']
-        self.keff_db_0 = f['keff_BOC']
-        self.bu_adens_db_0 = f['core adensity before reproc']
-        self.bu_adens_db_1 = f['core adensity after reproc']
-        self.tank_adens_db = f['tank adensity']
-        self.noble_adens_db = f['noble adensity']
-        self.th_adens_db = f['Th tank adensity']
-        isolib_db = f['iso_codes']
+        self.f = h5py.File(self.db_file, 'r+')
+        self.keff_db = self.f['keff_BOC']
+        self.keff_db_0 = self.f['keff_BOC']
+        self.bu_adens_db_0 = self.f['core adensity before reproc']
+        self.bu_adens_db_1 = self.f['core adensity after reproc']
+        self.tank_adens_db = self.f['tank adensity']
+        self.noble_adens_db = self.f['noble adensity']
+        self.th_adens_db = self.f['Th tank adensity']
+        isolib_db = self.f['iso codes']
         self.keff = self.keff_db[0, :]
 
         self.isolib = isolib_db
@@ -205,7 +204,7 @@ class saltproc:
         --------
         [mean_keff, uncertainty_keff]
         """
-        res_filename = os.path.join(self.inp_filename + "_res.m")
+        res_filename = os.path.join(self.input_file + "_res.m")
         res = serpent.parse_res(res_filename)
         keff_analytical = res['IMP_KEFF']
         return keff_analytical[moment]
@@ -227,7 +226,7 @@ class saltproc:
         mat_def: str
             material definition in SERPENT with volume and density
         """
-        bumat_filename = os.path.join('%s.bumat%i' % (self.file_name, moment))
+        bumat_filename = os.path.join('%s.bumat%i' % (self.input_file, moment))
         with open(bumat_filename, 'r') as data:
             isolib = []
             bu_adens = []
@@ -252,11 +251,12 @@ class saltproc:
         --------
         null. creates SEPRENT input mat block text file
         """
-        ana_keff_boc = read_res(self.input_file, 0)
-        ana_keff_eoc = read_res(self.input_file, 1)
+        ana_keff_boc = self.read_res(0)
+        ana_keff_eoc = self.read_res(1)
         matf = open(self.mat_file, 'w')
-        matf.write('% Step number # %i %f;%f \n' %
-                   (current_step, ana_keff_boc, ana_keff_eoc))
+        matf.write('%% Step number # %i %f +- %f;%f +- %f \n' %
+                   (self.current_step, ana_keff_boc[0], ana_keff_boc[1],
+                    ana_keff_eoc[0], ana_keff_eoc[1]))
         matf.write(self.mat_def + ' burn 1 rgb 253 231 37\n')
         for iso in range(self.number_of_isotopes):
             matf.write('%s\t\t%s\n' %
@@ -286,44 +286,44 @@ class saltproc:
 
         # remove volatile gases
         # every 1 step = 3 days
-        volatile_gases = np.hstack(self.kr_id, self.xe_id, self.noble_id)
+        volatile_gases = np.hstack((self.kr_id, self.xe_id, self.noble_id))
         self.rem_adens[0, ] = self.remove_iso(volatile_gases, 1)
 
         #! this rem_adens indexing looks wrong
         # remove seminoble metals
         # every 67 steps = 201 days
-        if current_step % 67 == 0:
+        if self.current_step % 67 == 0:
             self.rem_adens[1, ] = self.remove_iso(
                 np.hstack((self.se_noble_id)), 1)
 
         # remove volatile fluorides
         # every 20 steps = 60 days
-        if current_step % 20 == 0:
+        if self.current_step % 20 == 0:
             self.rem_adens[2, ] = self.remove_iso(
-                np.hstack(self.vol_fluorides), 1)
+                np.hstack((self.vol_fluorides)), 1)
 
         # remove REEs
         # evrey 17 steps = 50 days
-        if current_step % 17 == 0:
-            self.rem_adens[3, ] = self.remove_iso(np.hstack(self.rees_id), 1)
+        if self.current_step % 17 == 0:
+            self.rem_adens[3, ] = self.remove_iso(np.hstack((self.rees_id)), 1)
 
         # remove Eu
         # evrey 167 steps = 500 days
-        if current_step % 167 == 0:
+        if self.current_step % 167 == 0:
             self.rem_adens[4, ] = self.remove_iso(
-                np.hstack(self.eu_id), 1, 167)
+                np.hstack((self.eu_id)), 1)
 
         # remove Rb, Sr, Cs, Ba
         # every 1145 steps = 3435 days
-        if current_step % 1145 == 0:
+        if self.current_step % 1145 == 0:
             self.rem_adens[4, ] = self.remove_iso(
-                np.hstack(self.discard_id), 1, 1145)
+                np.hstack((self.discard_id)), 1)
 
         # remove np-237, pu-242
         # every 1946 steps = 16 years
-        if current_step % 1946 == 0:
+        if self.current_step % 1946 == 0:
             self.rem_adens[4, ] = self.remove_iso(
-                np.hstack(self.higher_nuc), 1, 1946)
+                np.hstack((self.higher_nuc)), 1)
 
         # refill th232 to keep adens constant
         # do it every time
@@ -357,7 +357,7 @@ class saltproc:
     def run_serpent(self):
         """ Runs SERPERNT with subprocess with the given parameters"""
         #! why a string not a boolean
-        if self.bw == 'True':
+        if self.bw:
             args = ('aprun', '-n', str(self.nodes), '-d', str(32),
                     '/projects/sciteam/bahg/serpent30/src/sss2',
                     '-omp', str(32), self.input_file)
@@ -383,7 +383,7 @@ class saltproc:
             array of adens of removed material
         """
         tank_stream = np.zeros(self.number_of_isotopes)
-        for iso in target_isotope:
+        for iso in target_iso:
             tank_stream[iso] = self.core[iso] * removal_eff
             self.core[iso] = (1 - removal_eff) * self.core[iso]
         return tank_stream
@@ -442,7 +442,7 @@ class saltproc:
 
         while self.current_step < self.steps:
             print('Cycle number of %i of %i steps' %
-                  (self.current_step, self.steps))
+                  (self.current_step + 1, self.steps))
             self.run_serpent()
             if self.current_step == 0:
                 # intializing db to get all arrays for calculation
@@ -464,8 +464,8 @@ input_file = 'core'
 db_file = 'db_saltproc.hdf5'
 mat_file = 'fuel_comp'
 restart = 'False'
-cores = 4
-nodes = 1
+cores = 32
+nodes = 32
 steps = 5
 # Parse flags
 # Read run command
@@ -484,13 +484,15 @@ parser.add_argument(
 parser.add_argument('-bw', choices=['True', 'False'])  # -bw Blue Waters?
 args = parser.parse_args()
 restart = args.r
-nodes = int(args.n[0])
-steps = int(args.steps[0])
-bw = args.bw
+#nodes = int(args.n[0])
+#steps = int(args.steps[0])
+
+bw = bool(args.bw)
 
 
 if __name__ == "__main__":
     # run saltproc
     run = saltproc(steps=steps, cores=cores, nodes=nodes,
-                   bw=bw, restart=restart, input_file=input_file,
+                   bw=True, restart=restart, input_file=input_file,
                    db_file=db_file, mat_file=mat_file)
+    run.main()
