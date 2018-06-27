@@ -178,7 +178,7 @@ class saltproc:
         if restart:
             # set past time
             #! this time thing should be made certain
-            self.current_step = np.amax(np.nonzero(keff)) + 1
+            self.current_step = np.amax(np.nonzero(self.keff)) + 1
 
             # resize datasets
             self.keff_db.resize((2, self.steps + self.current_step))
@@ -482,12 +482,12 @@ parser.add_argument(
     type=int,
     default=5)     # Number of steps
 parser.add_argument('-bw', choices=['True', 'False'])  # -bw Blue Waters?
-args = parser.parse_args()
-restart = args.r
+#args = parser.parse_args()
+#restart = args.r
 #nodes = int(args.n[0])
 #steps = int(args.steps[0])
 
-bw = bool(args.bw)
+#bw = bool(args.bw)
 
 
 if __name__ == "__main__":
