@@ -7,19 +7,16 @@ import os
 import sys
 path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
-import class_saltproc_array as csa
+from saltproc import saltproc
 
 # global clas object
-saltproc = csa.saltproc(5,32,32,'False', input_file='test',
-                        db_file='test_db.hdf5', mat_file='test_mat')
+saltproc = saltproc(5,32,32,'False', restart=False, input_file='test',
+                    db_file='test_db.hdf5', mat_file='test_mat')
 
 def test_init_db_file_creation():
     """ Test if the db is created correctly"""
     # this is like this because it errors, but runs
-    try:
-        saltproc.init_db()
-    except:
-        z = 0
+    saltproc.init_db()
     assert os.path.isfile('test_db.hdf5')
 
 def test_init_db_dataset():
@@ -65,3 +62,14 @@ def test_write_mat_file():
             if linenum == 0:
                 solution = '% Step number # 0 1.074470 +- 0.002130;1.014630 +- 0.002520'
                 assert line.rstrip() == solution
+
+def test_process_fuel():
+    saltproc.process_fuel()
+    assert saltproc.bu_adens_db_0[saltproc.current_step, 0] == pytest.approx(1.8811870e-09, 1e-6)
+    assert saltproc.bu_adens_db_0[saltproc.current_step, 1] == pytest.approx(1.0529505e-10, 1e-7)
+
+
+def test_process_th():
+    assert saltproc.th_adens_db[saltproc.current_step, saltproc.th232_id] == pytest.approx(-3.684984e-06, 1e-5)
+
+    
