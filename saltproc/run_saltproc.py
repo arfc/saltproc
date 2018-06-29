@@ -10,7 +10,7 @@ from pyne import nucname
 import h5py
 import shutil
 import argparse
-import saltproc
+from saltproc import saltproc
 
 
 # manually hard-code parameters.
