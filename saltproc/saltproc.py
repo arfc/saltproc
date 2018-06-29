@@ -112,38 +112,44 @@ class saltproc:
         isolib, adens_array, mat_def = self.read_bumat(self.input_file, 1)
 
         # initialize isotope library and number of isotpes
-        self.isolib = isolib
+        self.isolib = []
+        for iso in isolib:
+            isotope = str(iso).split('.')[0]
+            isotope = nucname.name(isotope)
+            # needs to incode to put string in h5py
+            self.isolib.append(isotope.encode('utf8'))
+
         self.number_of_isotopes = len(isolib)
 
-        shape = (2, steps)
+        shape = (2, self.steps)
         maxshape = (2, None)
         self.keff_db = self.f.create_dataset('keff_EOC', shape,
-                                        maxshape=maxshape, chunks=True)
+                                             maxshape=maxshape, chunks=True)
         self.keff_db_0 = self.f.create_dataset('keff_BOC', shape,
-                                          maxshape=maxshape, chunks=True)
+                                               maxshape=maxshape, chunks=True)
 
         shape = (self.steps + 1, self.number_of_isotopes)
         maxshape = (None, self.number_of_isotopes)
         self.bu_adens_db_0 = self.f.create_dataset('core adensity before reproc',
-                                              shape, maxshape=maxshape,
-                                              chunks=True)
+                                                   shape, maxshape=maxshape,
+                                                   chunks=True)
         self.bu_adens_db_1 = self.f.create_dataset('core adensity after reproc',
-                                              shape, maxshape=maxshape,
-                                              chunks=True)
+                                                   shape, maxshape=maxshape,
+                                                   chunks=True)
         self.tank_adens_db = self.f.create_dataset('tank adensity',
-                                              shape, maxshape=maxshape,
-                                              chunks=True)
+                                                   shape, maxshape=maxshape,
+                                                   chunks=True)
         self.noble_adens_db = self.f.create_dataset('noble adensity',
-                                               shape, maxshape=maxshape,
-                                               chunks=True)
+                                                    shape, maxshape=maxshape,
+                                                    chunks=True)
         self.th_adens_db = self.f.create_dataset('Th tank adensity',
-                                            shape, maxshape=maxshape,
-                                            chunks=True)
+                                                 shape, maxshape=maxshape,
+                                                 chunks=True)
         #! raffinate steram consider splitting by what element
         self.rem_adens = np.zeros((5, self.number_of_isotopes))
         dt = h5py.special_dtype(vlen=str)
         self.isolib_db = self.f.create_dataset('iso codes', data=self.isolib,
-                                          dtype=dt)
+                                               dtype=dt)
 
         # put in values from initial condition
         isolib, boc_adens, mat_def = self.read_bumat(self.input_file, 0)
@@ -172,7 +178,7 @@ class saltproc:
         self.noble_adens_db = self.f['noble adensity']
         self.th_adens_db = self.f['Th tank adensity']
         isolib_db = self.f['iso codes']
-        self.number_of_isotopes = len (isolib_db)
+        self.number_of_isotopes = len(isolib_db)
         self.keff = self.keff_db[0, :]
 
         self.isolib = isolib_db
@@ -184,7 +190,8 @@ class saltproc:
             # resize datasets
             self.keff_db.resize((2, self.steps + self.current_step))
             self.keff_db_0.resize((2, self.steps + self.current_step))
-            shape = (self.steps + self.current_step + 1, self.number_of_isotopes)
+            shape = (self.steps + self.current_step +
+                     1, self.number_of_isotopes)
             self.bu_adens_db_0.resize(shape)
             self.bu_adens_db_1.resize(shape)
             self.tank_adens_db.resize(shape)
@@ -456,6 +463,3 @@ class saltproc:
             self.record_db()
 
         print('End of Saltproc.')
-
-
-
