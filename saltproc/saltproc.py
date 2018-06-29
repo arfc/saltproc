@@ -433,7 +433,7 @@ class saltproc:
             run serpent, process fuel, record to db, and repeats
         """
         #! why not boolean (you can do 0 and 1)
-        if self.restart == 'True' and os.path.isfile(self.mat_file):
+        if self.restart and os.path.isfile(self.mat_file):
             self.f = h5py.File(self.db_file, 'r+')
             self.reopen_db(True)
             self.steps += self.current_step
