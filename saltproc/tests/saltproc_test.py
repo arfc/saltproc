@@ -9,15 +9,17 @@ path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
 from saltproc import saltproc
 
+
 # global clas object
-saltproc = saltproc(5,32,32,'False', restart=False, input_file='test',
-                    db_file='test_db.hdf5', mat_file='test_mat')
+directory = os.path.dirname(path)
+saltproc = saltproc(5,32,32,'False', restart=False, input_file=directory+'/test',
+                    db_file=directory+'/test_db.hdf5', mat_file=directory+'/test_mat')
 
 def test_init_db_file_creation():
     """ Test if the db is created correctly"""
     # this is like this because it errors, but runs
     saltproc.init_db()
-    assert os.path.isfile('test_db.hdf5')
+    assert os.path.isfile(directory+'/test_db.hdf5')
 
 def test_init_db_dataset():
     """ Tests if the db is initialized correctly"""
@@ -72,4 +74,3 @@ def test_process_fuel():
 def test_process_th():
     assert saltproc.th_adens_db[saltproc.current_step, saltproc.th232_id] == pytest.approx(-3.684984e-06, 1e-5)
 
-    
