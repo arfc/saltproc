@@ -172,6 +172,7 @@ class saltproc:
         self.noble_adens_db = self.f['noble adensity']
         self.th_adens_db = self.f['Th tank adensity']
         isolib_db = self.f['iso codes']
+        self.number_of_isotopes = len (isolib_db)
         self.keff = self.keff_db[0, :]
 
         self.isolib = isolib_db
@@ -435,6 +436,7 @@ class saltproc:
         if self.restart == 'True' and os.path.isfile(self.mat_file):
             self.f = h5py.File(self.db_file, 'r+')
             self.reopen_db(True)
+            self.steps += self.current_step
             # sets the current step so the db isn't initialized again
         else:
             #! this shouldn't be hardcoded
@@ -448,10 +450,10 @@ class saltproc:
                 # intializing db to get all arrays for calculation
                 self.init_db()
             else:
-                self.reopen_db(False)    
+                self.reopen_db(False)
+            self.current_step += 1
             self.process_fuel()
             self.record_db()
-            self.current_step += 1
 
         print('End of Saltproc.')
 
@@ -482,12 +484,12 @@ parser.add_argument(
     type=int,
     default=5)     # Number of steps
 parser.add_argument('-bw', choices=['True', 'False'])  # -bw Blue Waters?
-#args = parser.parse_args()
-#restart = args.r
-#nodes = int(args.n[0])
-#steps = int(args.steps[0])
-
-#bw = bool(args.bw)
+args = parser.parse_args()
+print (args)
+restart = args.r
+nodes = int(args.n[0])
+steps = int(args.steps[0])
+bw = bool(args.bw)
 
 
 if __name__ == "__main__":
