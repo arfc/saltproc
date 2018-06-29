@@ -31,6 +31,7 @@ install:
   - conda install -c anaconda matplotlib
   - conda install -c anaconda numpy
   - conda install -c anaconda scipy
+  - conda install -c anaconda h5py
   - conda install -c anaconda numpy
   - conda install -c anaconda cython
   - conda install -c anaconda pytest
