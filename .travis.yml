@@ -35,5 +35,6 @@ install:
   - conda install -c anaconda cython
   - conda install -c anaconda pytest
 
+# run
 script:
-  - pytest ./saltproc/tests/test_saltproc.py
+  - pytest ./saltproc/tests/saltproc_test.py
