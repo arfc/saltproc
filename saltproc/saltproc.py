@@ -11,6 +11,7 @@ import shutil
 import argparse
 sys.path.append('/u/sciteam/bae/pyne/pyne/')
 
+
 class saltproc:
     """ Class saltproc runs SERPENT and manipulates its input and output files
         to reprocess its material, while storing the SERPENT run results in a
