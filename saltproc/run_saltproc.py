@@ -4,13 +4,13 @@ import subprocess
 import os
 import numpy as np
 import sys
-from pyne import serpent
-from pyne import nucname
 import h5py
 import shutil
 import argparse
 from saltproc import saltproc
 sys.path.append('/u/sciteam/bae/pyne/pyne/')
+from pyne import serpent
+from pyne import nucname
 
 
 # manually hard-code parameters.

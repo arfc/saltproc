@@ -4,12 +4,12 @@ import subprocess
 import os
 import numpy as np
 import sys
-from pyne import serpent
-from pyne import nucname
 import h5py
 import shutil
 import argparse
 sys.path.append('/u/sciteam/bae/pyne/pyne/')
+from pyne import serpent
+from pyne import nucname
 
 
 class saltproc:

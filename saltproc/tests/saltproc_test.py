@@ -5,9 +5,9 @@ import sqlite3 as lite
 import h5py
 import os
 import sys
-from saltproc import saltproc
 path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
+from saltproc import saltproc
 
 
 # global clas object
@@ -66,6 +66,8 @@ def test_read_bumat_matef():
 
 def test_write_mat_file():
     # this is like this because it errors, but runs
+    saltproc.isolib_array, saltproc.core, saltproc.mat_def = saltproc.read_bumat(
+        saltproc.input_file, 0)
     saltproc.write_mat_file()
     z = 0
     with open(saltproc.mat_file, 'r') as f:
