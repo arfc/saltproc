@@ -4,13 +4,12 @@ import subprocess
 import os
 import numpy as np
 import sys
-sys.path.append('/u/sciteam/bae/pyne/pyne/')
 from pyne import serpent
 from pyne import nucname
 import h5py
 import shutil
 import argparse
-
+sys.path.append('/u/sciteam/bae/pyne/pyne/')
 
 class saltproc:
     """ Class saltproc runs SERPENT and manipulates its input and output files
@@ -32,7 +31,7 @@ class saltproc:
         nodes: int
             number of nodes to use for this saltproc run
         bw: string
-            #! if 'True', runs saltproc on blue waters
+            # !! if 'True', runs saltproc on blue waters
         restart: bool
             if true, starts from an existing database
         input_file: string
@@ -145,7 +144,7 @@ class saltproc:
         self.th_adens_db = self.f.create_dataset('Th tank adensity',
                                                  shape, maxshape=maxshape,
                                                  chunks=True)
-        #! raffinate steram consider splitting by what element
+        # !! raffinate steram consider splitting by what element
         self.rem_adens = np.zeros((5, self.number_of_isotopes))
         dt = h5py.special_dtype(vlen=str)
         self.isolib_db = self.f.create_dataset('iso codes', data=self.isolib,
@@ -154,9 +153,9 @@ class saltproc:
         # put in values from initial condition
         isolib, boc_adens, mat_def = self.read_bumat(self.input_file, 0)
         self.bu_adens_db_0[0, :] = boc_adens
-        #! shouldn't this be eoc_adens???
-        #! old code = isolib, bu_adens_db_1[0, :], mat_def = read_bumat(
-        #!          sss_input_file, 0)
+        # !! shouldn't this be eoc_adens???
+        # !! old code = isolib, bu_adens_db_1[0, :], mat_def = read_bumat(
+        # !!          sss_input_file, 0)
         self.bu_adens_db_1[0, :] = boc_adens
         self.th232_adens_0 = boc_adens[self.th232_id[0]]
 
@@ -184,7 +183,7 @@ class saltproc:
         self.isolib = isolib_db
         if restart:
             # set past time
-            #! this time thing should be made certain
+            # !! this time thing should be made certain
             self.current_step = np.amax(np.nonzero(self.keff)) + 1
 
             # resize datasets
@@ -288,7 +287,7 @@ class saltproc:
         self.tank_adens_db[self.current_step,
                            ] = self.remove_iso(self.pa_id, 1)
         # add back u233 to core
-        #! where is this refill coming from?
+        # !! where is this refill coming from?
         u233_to_add = self.tank_adens_db[self.current_step, self.pa233_id]
         self.refill(self.u233_id, u233_to_add)
 
@@ -297,7 +296,7 @@ class saltproc:
         volatile_gases = np.hstack((self.kr_id, self.xe_id, self.noble_id))
         self.rem_adens[0, ] = self.remove_iso(volatile_gases, 1)
 
-        #! this rem_adens indexing looks wrong
+        # !! this rem_adens indexing looks wrong
         # remove seminoble metals
         # every 67 steps = 201 days
         if self.current_step % 67 == 0:
@@ -360,11 +359,9 @@ class saltproc:
                          self.th232_id] = prev_th - orig_th - step_th
         self.f.close()
 
-        #! why are you closing and `rereading` the hdf5 file?
-
     def run_serpent(self):
         """ Runs SERPERNT with subprocess with the given parameters"""
-        #! why a string not a boolean
+        # !why a string not a boolean
         if self.bw:
             args = ('aprun', '-n', str(self.nodes), '-d', str(32),
                     '/projects/sciteam/bahg/serpent30/src/sss2',
@@ -428,7 +425,7 @@ class saltproc:
         --------
         null.
         """
-        #! this is funky
+        # !this is funky
         tank_stream = np.zeros(self.number_of_isotopes)
         for iso in target_isotope:
             tank_stream[iso] = self.core[iso] - target_adens
@@ -439,14 +436,14 @@ class saltproc:
         """ Core of saltproc, moves forward in timesteps,
             run serpent, process fuel, record to db, and repeats
         """
-        #! why not boolean (you can do 0 and 1)
+        # !!why not boolean (you can do 0 and 1)
         if self.restart and os.path.isfile(self.mat_file):
             self.f = h5py.File(self.db_file, 'r+')
             self.reopen_db(True)
             self.steps += self.current_step
             # sets the current step so the db isn't initialized again
         else:
-            #! this shouldn't be hardcoded
+            # !!this shouldn't be hardcoded
             shutil.copy('fuel_comp_with_fix', self.mat_file)
 
         while self.current_step < self.steps:
