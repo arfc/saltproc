@@ -5,12 +5,12 @@ Online fuel salt reprocesing for Molten Salt Reactors
 How to run script (with default flags):
 
 python run_saltproc.py -n 1 -r /False -bw True/False -steps 5
-
+```
 -n     		   number of nodes
 -r     	           continue previous simulation? True/False
 -bw    		   running on Blue Waters? True/False
 -steps 	           number of reprocessing steps to run
-
+```
 ### Rooms for Improvement
 Note that the SERPENT input file path, output database file path, and SERPENT mat file path
 are hard-coded in `run_saltproc.py`. The user must edit this to the correct input files.
@@ -51,7 +51,6 @@ The project has the following structure:
       |- saltproc/
          |- __init__.py
          |- saltproc.py
-         |- due.py
          |- data/
             |- ...
          |- tests/
@@ -91,7 +90,7 @@ interactive Python session, the classes and functions defined inside of the
 need to also create a file in `__init__.py` which contains code that imports
 everything in that file into the namespace of the project:
 
-    from .saltproc import *
+    from saltproc import saltproc
 
 In the module code, we follow the convention that all functions are either
 imported from other places, or are defined in lines that precede the lines that
