@@ -4,13 +4,13 @@ import subprocess
 import os
 import numpy as np
 import sys
-sys.path.append('/u/sciteam/bae/pyne/pyne/')
 from pyne import serpent
 from pyne import nucname
 import h5py
 import shutil
 import argparse
 from saltproc import saltproc
+sys.path.append('/u/sciteam/bae/pyne/pyne/')
 
 
 # manually hard-code parameters.
@@ -38,7 +38,6 @@ parser.add_argument(
     default=5)     # Number of steps
 parser.add_argument('-bw', choices=['True', 'False'])  # -bw Blue Waters?
 args = parser.parse_args()
-print (args)
 restart = args.r
 nodes = int(args.n[0])
 steps = int(args.steps[0])
@@ -48,6 +47,6 @@ bw = bool(args.bw)
 if __name__ == "__main__":
     # run saltproc
     run = saltproc(steps=steps, cores=cores, nodes=nodes,
-                       bw=True, restart=restart, input_file=input_file,
-                       db_file=db_file, mat_file=mat_file)
+                   bw=True, restart=restart, input_file=input_file,
+                   db_file=db_file, mat_file=mat_file)
     run.main()
