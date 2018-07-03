@@ -1,0 +1,255 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>saltproc package &#8212; Saltproc  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="saltproc-package">
+<h1>saltproc package<a class="headerlink" href="#saltproc-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="saltproc-run-saltproc-module">
+<h2>saltproc.run_saltproc module<a class="headerlink" href="#saltproc-run-saltproc-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-saltproc.saltproc">
+<span id="saltproc-saltproc-module"></span><h2>saltproc.saltproc module<a class="headerlink" href="#module-saltproc.saltproc" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="saltproc.saltproc.saltproc">
+<em class="property">class </em><code class="descclassname">saltproc.saltproc.</code><code class="descname">saltproc</code><span class="sig-paren">(</span><em>steps</em>, <em>cores</em>, <em>nodes</em>, <em>bw</em>, <em>restart=False</em>, <em>input_file='core'</em>, <em>db_file='db_saltproc.hdf5'</em>, <em>mat_file='fuel_comp'</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class saltproc runs SERPENT and manipulates its input and output files
+to reprocess its material, while storing the SERPENT run results in a
+HDF5 database.</p>
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.init_db">
+<code class="descname">init_db</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.init_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the database from the output of the first
+SEPRENT run</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.init_indices">
+<code class="descname">init_indices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.init_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes indices isotopes and groups</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.main">
+<code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Core of saltproc, moves forward in timesteps,
+run serpent, process fuel, record to db, and repeats</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.maintain_const">
+<code class="descname">maintain_const</code><span class="sig-paren">(</span><em>target_isotope</em>, <em>target_adens</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.maintain_const" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maintains the constant amount of a target isotope</p>
+<dl class="docutils">
+<dt>target_isotope: array</dt>
+<dd>array of indices for isotopes to be refilled</dd>
+<dt>target_adens: float</dt>
+<dd>adens to be satisfied</dd>
+</dl>
+<p>null.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.process_fuel">
+<code class="descname">process_fuel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.process_fuel" title="Permalink to this definition">¶</a></dt>
+<dd><p>processes the fuel from the output of the previous SERPENT run
+by removing isotopes and refilling with Th232</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.read_bumat">
+<code class="descname">read_bumat</code><span class="sig-paren">(</span><em>file_name</em>, <em>moment</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.read_bumat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the .bumat file generated from serpent</p>
+<dl class="docutils">
+<dt>moment: int</dt>
+<dd>moment of depletion step (0 for BOC and 1 for EOC)</dd>
+</dl>
+<dl class="docutils">
+<dt>isolib_array: np array</dt>
+<dd>array of isotopes</dd>
+<dt>bu_adens: list</dt>
+<dd>list of isotopes adens</dd>
+<dt>mat_def: str</dt>
+<dd>material definition in SERPENT with volume and density</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.read_res">
+<code class="descname">read_res</code><span class="sig-paren">(</span><em>moment</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.read_res" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the .res file generated from serpent using PyNE</p>
+<dl class="docutils">
+<dt>moment: int</dt>
+<dd>moment of depletion step (0 for BOC and 1 for EOC)</dd>
+</dl>
+<p>[mean_keff, uncertainty_keff]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.record_db">
+<code class="descname">record_db</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.record_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records the processed fuel composition, Keff values,
+waste tank composition to database</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.refill">
+<code class="descname">refill</code><span class="sig-paren">(</span><em>refill_iso</em>, <em>delta_adens</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.refill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refills isotope with delta_adens</p>
+<dl class="docutils">
+<dt>refill_iso: array</dt>
+<dd>array of indices for isotopes to be refilled</dd>
+<dt>delta_adens: float</dt>
+<dd>adens to be refilled</dd>
+</dl>
+<p>null.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.remove_iso">
+<code class="descname">remove_iso</code><span class="sig-paren">(</span><em>target_iso</em>, <em>removal_eff</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.remove_iso" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes isotopes with given removal efficiency</p>
+<dl class="docutils">
+<dt>target_iso: array</dt>
+<dd>array  of indices for isotopes to remove from core</dd>
+<dt>removal_eff: float</dt>
+<dd>removal efficiency (max 1)</dd>
+</dl>
+<dl class="docutils">
+<dt>tank_stream: array</dt>
+<dd>array of adens of removed material</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.reopen_db">
+<code class="descname">reopen_db</code><span class="sig-paren">(</span><em>restart</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.reopen_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reopens the previously exisiting database</p>
+<dl class="docutils">
+<dt>restart: bool</dt>
+<dd>if True, modified current_step and datasets
+if False, simply load the datasets</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.run_serpent">
+<code class="descname">run_serpent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.run_serpent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs SERPERNT with subprocess with the given parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.saltproc.saltproc.write_mat_file">
+<code class="descname">write_mat_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.write_mat_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the input fuel composition input file block</p>
+<p>null. creates SEPRENT input mat block text file</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-saltproc.version">
+<span id="saltproc-version-module"></span><h2>saltproc.version module<a class="headerlink" href="#module-saltproc.version" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-saltproc">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-saltproc" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">saltproc package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#saltproc-run-saltproc-module">saltproc.run_saltproc module</a></li>
+<li><a class="reference internal" href="#module-saltproc.saltproc">saltproc.saltproc module</a></li>
+<li><a class="reference internal" href="#module-saltproc.version">saltproc.version module</a></li>
+<li><a class="reference internal" href="#module-saltproc">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/source/saltproc.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Andrei Rykhlevskii, Jin Whan Bae.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="../_sources/source/saltproc.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
