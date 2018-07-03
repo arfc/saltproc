@@ -22,8 +22,8 @@ hardcoded in `saltproc.py`. The user must edit this to the correct executable pa
 Saltproc is a driver for SERPENT to simulate online fuel salt reprocessing for Molten Salt Reactors.
 It performs three major functions:
   * runs SERPENT
-  * creates and stores SERPENT output data in hdf5
-  * prasers and edits SERPENT input file (`reprocesses`)
+  * parsers and stores SERPENT output data in hdf5
+  * creates and edits SERPENT input file (`reprocesses`)
 
 The code logic flow is the following:
   1. Checks for restart ()
@@ -32,8 +32,8 @@ The code logic flow is the following:
     * restart OFF : if first run, initializes database with isotopic vectors from the output bumat file (`saltproc.init_db()`)
   3. 'Processes Fuel' (`saltproc.process_fuel()`)
     * It parses through the output bumat file to:
-      1. eliminate isotope groups periodically
-      2. add back fissile and fertile streams
+      1. remove isotope groups periodically with specific efficiency
+      2. add back fissile and/or fertile streams
   4. Records data:
     * Depleted fuel composition (`core adensity before reproc`)
     * Reprocessed fuel composition (`core adensity after reproc`)
