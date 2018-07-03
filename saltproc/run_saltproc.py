@@ -8,7 +8,6 @@ import h5py
 import shutil
 import argparse
 from saltproc import saltproc
-sys.path.append('/u/sciteam/bae/pyne/pyne/')
 from pyne import serpent
 from pyne import nucname
 
