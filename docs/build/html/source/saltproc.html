@@ -85,13 +85,13 @@ run serpent, process fuel, record to db, and repeats</p>
 <dt id="saltproc.saltproc.saltproc.process_fuel">
 <code class="descname">process_fuel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.process_fuel" title="Permalink to this definition">¶</a></dt>
 <dd><p>processes the fuel from the output of the previous SERPENT run
-by removing isotopes and refilling with Th232</p>
+by removing isotopes and refilling with fresh fuel</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="saltproc.saltproc.saltproc.read_bumat">
 <code class="descname">read_bumat</code><span class="sig-paren">(</span><em>file_name</em>, <em>moment</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.read_bumat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads the .bumat file generated from serpent</p>
+<dd><p>Reads the SERPENT .bumat file</p>
 <dl class="docutils">
 <dt>moment: int</dt>
 <dd>moment of depletion step (0 for BOC and 1 for EOC)</dd>
@@ -109,7 +109,7 @@ by removing isotopes and refilling with Th232</p>
 <dl class="method">
 <dt id="saltproc.saltproc.saltproc.read_res">
 <code class="descname">read_res</code><span class="sig-paren">(</span><em>moment</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.read_res" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads the .res file generated from serpent using PyNE</p>
+<dd><p>Reads using PyNE the SERPENT output .res file</p>
 <dl class="docutils">
 <dt>moment: int</dt>
 <dd>moment of depletion step (0 for BOC and 1 for EOC)</dd>
@@ -127,7 +127,7 @@ waste tank composition to database</p>
 <dl class="method">
 <dt id="saltproc.saltproc.saltproc.refill">
 <code class="descname">refill</code><span class="sig-paren">(</span><em>refill_iso</em>, <em>delta_adens</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.refill" title="Permalink to this definition">¶</a></dt>
-<dd><p>Refills isotope with delta_adens</p>
+<dd><p>Refills isotope with target rate of refuel</p>
 <dl class="docutils">
 <dt>refill_iso: array</dt>
 <dd>array of indices for isotopes to be refilled</dd>
@@ -167,7 +167,7 @@ if False, simply load the datasets</dd>
 <dl class="method">
 <dt id="saltproc.saltproc.saltproc.run_serpent">
 <code class="descname">run_serpent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.saltproc.saltproc.run_serpent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs SERPERNT with subprocess with the given parameters</p>
+<dd><p>Runs SERPENT with subprocess with the given Args</p>
 </dd></dl>
 
 <dl class="method">
