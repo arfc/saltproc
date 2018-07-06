@@ -41,6 +41,8 @@ restart = args.r
 nodes = int(args.n[0])
 steps = int(args.steps[0])
 bw = bool(args.bw)
+parser.add_argument('-dual' choice=['True', 'False'])
+two_region = bool(args.dual[0])
 
 
 if __name__ == "__main__":

@@ -88,14 +88,14 @@ class saltproc:
         self.f = h5py.File(self.db_file, 'w')
         # put in values from initial condition
         self.bumat_dict, mat_def = self.read_bumat(self.input_file, 0)
-
+        
         # initialize isotope library and number of isotpes
         self.isolib = []
-        for key in bumat_dict.keys():
+        for key in self.bumat_dict.keys():
             # needs to incode to put string in h5py
             self.isolib.append(key.encode('utf8'))
 
-        self.number_of_isotopes = len(isolib)
+        self.number_of_isotopes = len(self.isolib)
 
         shape = (2, self.steps)
         maxshape = (2, None)
@@ -127,10 +127,12 @@ class saltproc:
         self.isolib_db = self.f.create_dataset('iso codes', data=self.isolib,
                                                dtype=dt)
 
-        self.bu_adens_db_0[0, :] = self.dict_to_array(bumat_dict)
-        self.bu_adens_db_1[0, :] = self.dict_to_array(bumat_dict)
+        self.bu_adens_db_0[0, :] = self.dict_to_array(self.bumat_dict)
+        self.bu_adens_db_1[0, :] = self.dict_to_array(self.bumat_dict)
 
-        self.th232_adens_0 = bumat_dict['Th232']
+        print(self.bumat_dict.keys())
+        print(len(self.bumat_dict))
+        self.th232_adens_0 = self.bumat_dict['Th232']
 
     def dict_to_array(self, bumat_dict):
         """ Converts an OrderedDict to an array of its values
@@ -234,7 +236,14 @@ class saltproc:
                 mat_def = line.strip()
             for line in itertools.islice(
                     data, 0, None):  # Skip file header start=6, stop=None
-                iso = nucname.name(p[0].split('.')[0])
+                p = line.split()
+                if '.' in p[0]:
+                    iso = p[0].split('.')[0] + '0'
+                    iso = nucname.name(iso)
+                else:
+                    iso = nucname.name(p[0])
+                if iso in bumat_dict.keys():
+                    print('WTF THIS GUY ALREADY HERE %s' %iso)
                 bumat_dict[iso] = float(p[1])
         return bumat_dict, mat_def
 
@@ -267,7 +276,7 @@ class saltproc:
 
         # read bumat1 (output composition)
         self.bumat_dict, self.mat_def = self.read_bumat(self.input_file, 1)
-        self.core = dict_to_array(self.bumat_dict)
+        self.core = self.dict_to_array(self.bumat_dict)
 
         # record core composition before reprocessing to db_0
         self.bu_adens_db_0[self.current_step, :] = self.core
