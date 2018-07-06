@@ -17,10 +17,9 @@ from pyne import nucname
 input_file = 'core'
 db_file = 'db_saltproc.hdf5'
 mat_file = 'fuel_comp'
+bw       = False
 restart = 'False'
 cores = 32
-nodes = 32
-steps = 5
 # Parse flags
 # Read run command
 parser = argparse.ArgumentParser()
@@ -46,6 +45,6 @@ bw = bool(args.bw)
 if __name__ == "__main__":
     # run saltproc
     run = saltproc(steps=steps, cores=cores, nodes=nodes,
-                   bw=True, restart=restart, input_file=input_file,
+                   bw=bw, restart=restart, input_file=input_file,
                    db_file=db_file, mat_file=mat_file)
     run.main()
