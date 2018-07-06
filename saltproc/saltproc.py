@@ -52,7 +52,6 @@ class saltproc:
         self.db_file = db_file
         self.mat_file = mat_file
         self.current_step = 0
-        self.init_indices()
 
     def find_iso_indx(self, keyword):
         """ Returns index number of keword in bumat dictionary
@@ -81,30 +80,6 @@ class saltproc:
                 indx += 1
 
         return np.array(indx_list)
-
-    def init_indices(self):
-
-        self.pa233_id = find_iso_indx('Pa233')
-        self.th232_id = find_iso_indx('Th232')
-        self.u233_id = find_iso_indx('U233')
-
-        self.kr_id = find_iso_indx('Kr')
-        self.xe_id = find_iso_indx('Xe')
-        
-        self.noble_id = find_iso_indx(['Se', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag',
-                                       'Sb', 'Te'])
-
-        self.se_noble_id = find_iso_indx(['Zr', 'Cd', 'In', 'Sn'])
-
-        self.vol_fluorides = find_iso_indx(['Br', 'I'])
-
-        self.rees_id = find_iso_indx(['Y', 'Gd', 'La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm'])
-
-        self.eu_id = find_iso_indx('Eu')
-
-        self.discard_id = find_iso_indx(['Rb', 'Sr', 'Cs', 'Ba'])
-        # Higher nuclides (Np-237 and Pu-242), interval 16 years (5840 days)
-        self.higher_nuc = find_iso_indx(['Pu237', 'Pu242'])
 
     def init_db(self):
         """ Initializes the database from the output of the first
@@ -153,21 +128,22 @@ class saltproc:
                                                dtype=dt)
 
         self.bu_adens_db_0[0, :] = self.dict_to_array(bumat_dict)
-        # !! shouldn't this be eoc_adens???
-        # !! old code = isolib, bu_adens_db_1[0, :], mat_def = read_bumat(
-        # !!          sss_input_file, 0)
         self.bu_adens_db_1[0, :] = self.dict_to_array(bumat_dict)
-        # not sure if this will work
+
         self.th232_adens_0 = bumat_dict['Th232']
 
     def dict_to_array(self, bumat_dict):
-        """ Converts an OrderedDict to an array
+        """ Converts an OrderedDict to an array of its values
         
         Parameters:
         -----------
         bumat_dict: OrderedDict
             key: isotope name
             value: adensity
+
+        Returns:
+        --------
+        array of bumat_dict values
         """
         array = np.array([])
         for key, value in bumat_dict.items():
@@ -252,6 +228,7 @@ class saltproc:
         bumat_dict = OrderedDict({})
         with open(bumat_filename, 'r') as data:
             # this should be changed for two region flows
+            # and in general, hardcoding things is never a good thing
             for line in itertools.islice(
                     data, 5, 6):    # Read material description in variable
                 mat_def = line.strip()
@@ -289,7 +266,8 @@ class saltproc:
         """
 
         # read bumat1 (output composition)
-        isolib, self.core, self.mat_def = self.read_bumat(self.input_file, 1)
+        self.bumat_dict, self.mat_def = self.read_bumat(self.input_file, 1)
+        self.core = dict_to_array(self.bumat_dict)
 
         # record core composition before reprocessing to db_0
         self.bu_adens_db_0[self.current_step, :] = self.core
@@ -297,59 +275,62 @@ class saltproc:
         # start reprocessing and refilling
         # reprocess out pa233
         # every 1 step = 3days
-        self.tank_adens_db[self.current_step,
-                           ] = self.remove_iso(self.pa_id, 1)
+        th232_id = self.find_iso_indx('Th232')
+        self.tank_adens_db[self.current_step, ] = self.remove_iso(th232_id, 1)
         # add back u233 to core
         # !! where is this refill coming from?
-        u233_to_add = self.tank_adens_db[self.current_step, self.pa233_id]
-        self.refill(self.u233_id, u233_to_add)
+        u233_to_add = self.tank_adens_db[self.current_step, self.find_iso_indx('Pa233')]
+        self.refill(self.find_iso_indx('U233'), u233_to_add)
 
         # remove volatile gases
         # every 1 step = 3 days
-        volatile_gases = np.hstack((self.kr_id, self.xe_id, self.noble_id))
+        volatile_gases = self.find_iso_indx(['Kr', 'Xe', 'Se', 'Nb', 'Mo', 'Tc', 'Ru',
+                                             'Rh', 'Pd', 'Ag', 'Sb', 'Te'])
         self.rem_adens[0, ] = self.remove_iso(volatile_gases, 1)
 
         # !! this rem_adens indexing looks wrong
         # remove seminoble metals
         # every 67 steps = 201 days
         if self.current_step % 67 == 0:
-            self.rem_adens[1, ] = self.remove_iso(
-                np.hstack((self.se_noble_id)), 1)
+            se_noble_id = self.find_iso_indx(['Zr', 'Cd', 'In', 'Sn'])
+            self.rem_adens[1, ] = self.remove_iso(se_noble_id, 1)
 
         # remove volatile fluorides
         # every 20 steps = 60 days
         if self.current_step % 20 == 0:
-            self.rem_adens[2, ] = self.remove_iso(
-                np.hstack((self.vol_fluorides)), 1)
+            vol_fluorides = self.find_iso_indx(['Br', 'I'])
+            self.rem_adens[2, ] = self.remove_iso(vol_fluorides, 1)
 
         # remove REEs
         # evrey 17 steps = 50 days
         if self.current_step % 17 == 0:
-            self.rem_adens[3, ] = self.remove_iso(np.hstack((self.rees_id)), 1)
+            rees_id = self.find_iso_indx(['Y', 'Gd', 'La', 'Ce', 'Pr',
+                                          'Nd', 'Pm', 'Sm'])
+            self.rem_adens[3, ] = self.remove_iso(rees_id, 1)
 
         # remove Eu
         # evrey 167 steps = 500 days
         if self.current_step % 167 == 0:
-            self.rem_adens[4, ] = self.remove_iso(
-                np.hstack((self.eu_id)), 1)
+            eu_id = self.find_iso_indx('Eu')
+            self.rem_adens[4, ] = self.remove_iso(eu_id, 1)
 
         # remove Rb, Sr, Cs, Ba
         # every 1145 steps = 3435 days
         if self.current_step % 1145 == 0:
-            self.rem_adens[4, ] = self.remove_iso(
-                np.hstack((self.discard_id)), 1)
+            discard_id = self.find_iso_indx(['Rb', 'Sr', 'Cs', 'Ba'])
+            self.rem_adens[4, ] = self.remove_iso(discard_id, 1)
 
         # remove np-237, pu-242
         # every 1946 steps = 16 years
         if self.current_step % 1946 == 0:
-            self.rem_adens[4, ] = self.remove_iso(
-                np.hstack((self.higher_nuc)), 1)
+            higher_nuc = self.find_iso_indx(['Pu237', 'Pu242'])
+            self.rem_adens[4, ] = self.remove_iso(higher_nuc, 1)
 
         # refill th232 to keep adens constant
         # do it every time
         # if want to do it less often do:
         # if current_step % time == 0:
-        self.th_adens_db[self.current_step, ] = self.maintain_const(self.th232_id,
+        self.th_adens_db[self.current_step, ] = self.maintain_const(th232_id,
                                                                     self.th232_adens_0)
 
         # write the processed material to mat file for next run
@@ -365,11 +346,12 @@ class saltproc:
         self.tank_adens_db[self.current_step, :] = (self.tank_adens_db[self.current_step - 1, :]
                                                     + self.rem_adens.sum(axis=0))
         # store amount of Th tank
-        prev_th = self.th_adens_db[self.current_step - 1, self.th232_id]
-        orig_th = self.bu_adens_db_0[0, self.th232_id]
-        step_th = self.bu_adens_db_0[self.current_step, self.th232_id]
+        th232_id = self.find_iso_indx('Th232')
+        prev_th = self.th_adens_db[self.current_step - 1, th232_id]
+        orig_th = self.bu_adens_db_0[0, th232_id]
+        step_th = self.bu_adens_db_0[self.current_step, th232_id]
         self.th_adens_db[self.current_step,
-                         self.th232_id] = prev_th - orig_th - step_th
+                         th232_id] = prev_th - orig_th - step_th
         self.f.close()
 
     def run_serpent(self):
