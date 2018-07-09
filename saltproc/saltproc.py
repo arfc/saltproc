@@ -244,7 +244,7 @@ class saltproc:
                 else:
                     iso = nucname.name(p[0])
                 # special treatment with metastable isotopes
-                if 'M' in iso:
+                if iso[-1] == 'M':
                     metastable_state = p[0][-1]
                     iso = iso + '-' + metastable_state
                 if iso in bumat_dict.keys():
