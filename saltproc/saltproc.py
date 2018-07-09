@@ -242,15 +242,14 @@ class saltproc:
                 self.isoname.append(p[0])
                 if '.' in p[0]:
                     iso = p[0].split('.')[0] + '0'
-                    iso = nucname.Serpent(iso)
+                    iso = nucname.name(iso)
                 else:
-                    iso = nucname.Serpent(p[0])
-                # special treatment with metastable isotopes
-                if iso[-1] == 'm':
-                    metastable_state = p[0][-1]
-                    iso = iso + '-' + metastable_state
+                    iso = nucname.name(p[0])
                 if iso in bumat_dict.keys():
-                    raise KeyError('Overlapping Isotopes (%s) %s' %(p[0], iso))
+                    # if it's already in bumat_dict, means that it's a higher
+                    # degree metastable, thus we simply `melt' it into
+                    # the lowest degree metastable isotope [assumption]
+                    bumat_dict[iso] += float(p[1])
                 bumat_dict[iso] = float(p[1])
         return bumat_dict, mat_def
 
