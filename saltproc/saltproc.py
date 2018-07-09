@@ -172,7 +172,7 @@ class saltproc:
         self.noble_adens_db = self.f['noble adensity']
         self.th_adens_db = self.f['Th tank adensity']
         self.isolib_db = self.f['iso codes']
-        self.number_of_isotopes = len(isolib_db)
+        self.number_of_isotopes = len(self.isolib_db)
         self.keff = self.keff_db[0, :]
 
         if restart:
