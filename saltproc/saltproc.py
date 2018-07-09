@@ -130,8 +130,6 @@ class saltproc:
         self.bu_adens_db_0[0, :] = self.dict_to_array(self.bumat_dict)
         self.bu_adens_db_1[0, :] = self.dict_to_array(self.bumat_dict)
 
-        print(self.bumat_dict.keys())
-        print(len(self.bumat_dict))
         self.th232_adens_0 = self.bumat_dict['Th232']
 
     def dict_to_array(self, bumat_dict):
@@ -242,8 +240,12 @@ class saltproc:
                     iso = nucname.name(iso)
                 else:
                     iso = nucname.name(p[0])
+                # special treatment with metastable isotopes
+                if 'M' in iso:
+                    metastable_state = p[0][-1]
+                    iso = iso + '-' + metastable_state
                 if iso in bumat_dict.keys():
-                    print('WTF THIS GUY ALREADY HERE %s' %iso)
+                    raise KeyError('Overlapping Isotopes (%s) %s' %(p[0], iso))
                 bumat_dict[iso] = float(p[1])
         return bumat_dict, mat_def
 
@@ -285,7 +287,6 @@ class saltproc:
         # reprocess out pa233
         # every 1 step = 3days
         th232_id = self.find_iso_indx('Th232')
-        self.tank_adens_db[self.current_step, ] = self.remove_iso(th232_id, 1)
         # add back u233 to core
         # !! where is this refill coming from?
         u233_to_add = self.tank_adens_db[self.current_step, self.find_iso_indx('Pa233')]
@@ -335,6 +336,7 @@ class saltproc:
             higher_nuc = self.find_iso_indx(['Pu237', 'Pu242'])
             self.rem_adens[4, ] = self.remove_iso(higher_nuc, 1)
 
+
         # refill th232 to keep adens constant
         # do it every time
         # if want to do it less often do:
@@ -344,6 +346,7 @@ class saltproc:
 
         # write the processed material to mat file for next run
         self.write_mat_file()
+
 
     def record_db(self):
         """ Records the processed fuel composition, Keff values,

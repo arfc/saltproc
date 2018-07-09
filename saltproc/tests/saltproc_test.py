@@ -22,7 +22,6 @@ def test_init_db_file_creation():
     """ Test if the db is created correctly"""
     # this is like this because it errors, but runs
     saltproc.init_db()
-    assert 1 ==2
     assert os.path.isfile(directory+'/test_db.hdf5')
 
 
@@ -53,7 +52,6 @@ def test_read_bumat():
     assert bumat_dict['Cf251'] == 0.00000000000000E+00
 
     assert bumat_dict['Th232'] == 3.69244822559746E-03
-    assert 1 ==2
 
 
 def test_read_bumat_matef():
@@ -81,14 +79,23 @@ def test_write_mat_file():
 
 def test_process_fuel():
     saltproc.process_fuel()
+    h1 = saltproc.bu_adens_db_0[saltproc.current_step, saltproc.find_iso_indx('H1')]
     assert saltproc.bu_adens_db_0[saltproc.current_step, 0] == pytest.approx(
         1.8811870e-09, 1e-6)
+    h1 = saltproc.find_iso_indx('H1')
+    assert saltproc.bu_adens_db_0[saltproc.current_step, h1] == pytest.approx(
+        1.8811870e-09, 1e-6)
     assert saltproc.bu_adens_db_0[saltproc.current_step, 1] == pytest.approx(
+        1.0529505e-10, 1e-7)
+    h2 = saltproc.find_iso_indx('H2')
+    assert saltproc.bu_adens_db_0[saltproc.current_step, h2] == pytest.approx(
         1.0529505e-10, 1e-7)
 
 
 def test_process_th():
+    saltproc.process_fuel()
     th232_id = saltproc.find_iso_indx('Th232')
-    saltproc.init_db()
+    print(saltproc.th232_adens_0)
+    print(saltproc.core[th232_id])
     assert saltproc.th_adens_db[saltproc.current_step,
-                                th232_id] == pytest.approx(-3.684984e-06, 1e-5)
+                                th232_id] == -3.684984e-06
