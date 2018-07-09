@@ -229,6 +229,7 @@ class saltproc:
         """
         bumat_filename = os.path.join('%s.bumat%i' % (self.input_file, moment))
         bumat_dict = OrderedDict({})
+        self.isoname = []
         with open(bumat_filename, 'r') as data:
             # this should be changed for two region flows
             # and in general, hardcoding things is never a good thing
@@ -238,13 +239,14 @@ class saltproc:
             for line in itertools.islice(
                     data, 0, None):  # Skip file header start=6, stop=None
                 p = line.split()
+                self.isoname.append(p[0])
                 if '.' in p[0]:
                     iso = p[0].split('.')[0] + '0'
-                    iso = nucname.name(iso)
+                    iso = nucname.Serpent(iso)
                 else:
-                    iso = nucname.name(p[0])
+                    iso = nucname.Serpent(p[0])
                 # special treatment with metastable isotopes
-                if iso[-1] == 'M':
+                if iso[-1] == 'm':
                     metastable_state = p[0][-1]
                     iso = iso + '-' + metastable_state
                 if iso in bumat_dict.keys():
@@ -271,7 +273,7 @@ class saltproc:
         matf.write(self.mat_def + ' burn 1 rgb 253 231 37\n')
         for iso in range(self.number_of_isotopes):
             matf.write('%s\t\t%s\n' %
-                       (str(self.isolib[iso]), str(self.core[iso])))
+                       (str(self.isoname[iso]), str(self.core[iso])))
         matf.close()
 
     def process_fuel(self):
