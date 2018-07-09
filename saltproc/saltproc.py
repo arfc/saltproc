@@ -171,11 +171,10 @@ class saltproc:
         self.tank_adens_db = self.f['tank adensity']
         self.noble_adens_db = self.f['noble adensity']
         self.th_adens_db = self.f['Th tank adensity']
-        isolib_db = self.f['iso codes']
+        self.isolib_db = self.f['iso codes']
         self.number_of_isotopes = len(isolib_db)
         self.keff = self.keff_db[0, :]
 
-        self.isolib = isolib_db
         if restart:
             # set past time
             # !! this time thing should be made certain
@@ -229,7 +228,9 @@ class saltproc:
         """
         bumat_filename = os.path.join('%s.bumat%i' % (self.input_file, moment))
         bumat_dict = OrderedDict({})
+        # save isonames for mat file generation
         self.isoname = []
+
         with open(bumat_filename, 'r') as data:
             # this should be changed for two region flows
             # and in general, hardcoding things is never a good thing
@@ -245,12 +246,12 @@ class saltproc:
                     iso = nucname.name(iso)
                 else:
                     iso = nucname.name(p[0])
-                if iso in bumat_dict.keys():
-                    # if it's already in bumat_dict, means that it's a higher
-                    # degree metastable, thus we simply `melt' it into
-                    # the lowest degree metastable isotope [assumption]
-                    bumat_dict[iso] += float(p[1])
+                if iso[-1] == 'M':
+                    metastable_state = p[0][-1]
+                    # if metastable, label it with state
+                    iso = iso + '-' + str(metastable_state)
                 bumat_dict[iso] = float(p[1])
+        self.isolib_db = bumat_dict.keys()
         return bumat_dict, mat_def
 
     def write_mat_file(self):
