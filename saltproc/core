@@ -47,7 +47,7 @@ set nbuf 10
 
 % --- Neutron population and criticality cycles:
 
-set pop 100 20 10 
+set pop 100 50 10 
 
 % --- Geometry and mesh plots:
 
