@@ -20,7 +20,7 @@ class saltproc:
 
     def __init__(self, steps, cores, nodes, bw, exec_path, restart=False,
                  input_file='core', db_file='db_saltproc.hdf5',
-                 mat_file='fuel_comp', ):
+                 mat_file='fuel_comp'):
         """ Initializes the class
 
         Parameters:
