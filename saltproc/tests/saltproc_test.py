@@ -13,6 +13,7 @@ from saltproc import saltproc
 # global clas object
 directory = os.path.dirname(path)
 saltproc = saltproc(5, 32, 32, 'False', restart=False,
+                    exec_path='/projects/sciteam/bahg/serpent30/src/sss2',
                     input_file=directory+'/test',
                     db_file=directory+'/test_db.hdf5',
                     mat_file=directory+'/test_mat')
