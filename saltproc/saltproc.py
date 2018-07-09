@@ -18,9 +18,9 @@ class saltproc:
         HDF5 database.
     """
 
-    def __init__(self, steps, cores, nodes, bw, restart=False,
+    def __init__(self, steps, cores, nodes, bw, exec_path, restart=False,
                  input_file='core', db_file='db_saltproc.hdf5',
-                 mat_file='fuel_comp'):
+                 mat_file='fuel_comp', ):
         """ Initializes the class
 
         Parameters:
@@ -33,6 +33,8 @@ class saltproc:
             number of nodes to use for this saltproc run
         bw: string
             # !! if 'True', runs saltproc on Blue Waters
+        exec_path: string
+            path of SERPENT executable
         restart: bool
             if true, starts from an existing database
         input_file: string
@@ -47,6 +49,7 @@ class saltproc:
         self.cores = cores
         self.nodes = nodes
         self.bw = bw
+        self.exec_path = exec_path
         self.restart = restart
         self.input_file = input_file
         self.db_file = db_file
@@ -371,10 +374,10 @@ class saltproc:
         # !why a string not a boolean
         if self.bw:
             args = ('aprun', '-n', str(self.nodes), '-d', str(32),
-                    '/projects/sciteam/bahg/serpent30/src/sss2',
+                    self.exec_path,
                     '-omp', str(32), self.input_file)
         else:
-            args = ('/home/andrei2/serpent/serpetn2/src_test/sss2',
+            args = (self.exec_path,
                     '-omp', str(self.cores), self.input_file)
         popen = subprocess.Popen(args, stdout=subprocess.PIPE)
         print(popen.stdout.read())
