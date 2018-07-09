@@ -1,6 +1,6 @@
 set title "themperature coefficient of reactivity 900K for both"
 
-include "../../../msr-neutronics/RobertsonMSBR/geometry/whole_core_axial_ref"
+include "./whole_core_axial_ref"
 
 % --- Fuel (LiF-BeF2-ThF4-233UF4 72-16-12-0.25 mole %) Table 3.7 Robertson:
 include "fuel_comp_025U"
@@ -16,16 +16,16 @@ rgb 127 205 187
 therm gr gr06.32t  % 1000K C-12
 
 % --- Cross section data library file path:
-%set acelib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff312.xsdata" %this for BW
+set acelib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff312.xsdata" %this for BW
 %set acelib "/home/andrei2/serpent/xsdata/jeff32/sss_jeff32.xsdata"
-set acelib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff312.xsdata"
+%set acelib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff312.xsdata"
 %set acelib "/projects/arfc/serpent/core/xsdata/endfb7/sss_endfb7.xsdata" % this for RCaaS
 
 % --- Decay and fission yield libraries:
-%set declib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.dec"       % for BW
-%set nfylib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.nfy"       % for BW
-set declib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.dec"
-set nfylib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.nfy"
+set declib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.dec"       % for BW
+set nfylib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.nfy"       % for BW
+%set declib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.dec"
+%set nfylib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.nfy"
 %set declib "/projects/arfc/serpent/core/xsdata/endfb7/sss_endfb7.dec" % for RCaaS
 %set nfylib "/projects/arfc/serpent/core/xsdata/endfb7/sss_endfb7.nfy" % for RCaaS
 
@@ -47,7 +47,7 @@ set nbuf 10
 
 % --- Neutron population and criticality cycles:
 
-set pop 1000 50 10 
+set pop 100 20 10 
 
 % --- Geometry and mesh plots:
 
