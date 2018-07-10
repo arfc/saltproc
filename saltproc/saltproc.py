@@ -259,7 +259,7 @@ class saltproc:
             output = iso.split('.')[0] + '0'
             output = nucname.name(output)
         else:
-            output = nucname.name()
+            output = nucname.name(iso)
 
         # check metastable states
         if output[-1] == 'M':
