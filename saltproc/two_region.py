@@ -103,7 +103,7 @@ class saltproc_two_region:
 
         # initialize isotope library and number of isotopes
         self.isolib = []
-        for key in self.bumat_dict[driver_mat_name].keys():
+        for key in self.bumat_dict[self.driver_mat_name].keys():
             # needs to incode to put string in h5py
             self.isolib.append(key.encode('utf8'))
 
@@ -142,10 +142,10 @@ class saltproc_two_region:
         self.isolib_db = self.f.create_dataset('iso codes', data=self.isolib,
                                                dtype=dt)
 
-        self.driver_adens_0[0, :] = self.dict_to_array(self.bumat_dict[driver_mat_name])
-        self.driver_adens_1[0, :] = self.dict_to_array(self.bumat_dict[driver_mat_name])
-        self.blanket_adens_0[0, :] = self.dict_to_array(self.bumat_dict[blanket_mat_name])
-        self.blanket_adens_1[0, :] = self.dict_to_array(self.bumat_dict[blanket_mat_name])
+        self.driver_adens_0[0, :] = self.dict_to_array(self.bumat_dict[self.driver_mat_name])
+        self.driver_adens_1[0, :] = self.dict_to_array(self.bumat_dict[self.driver_mat_name])
+        self.blanket_adens_0[0, :] = self.dict_to_array(self.bumat_dict[self.blanket_mat_name])
+        self.blanket_adens_1[0, :] = self.dict_to_array(self.bumat_dict[self.blanket_mat_name])
         self.init_u238 = self.driver_adens[0, self.find_iso_indx('U238')]
 
 
@@ -262,7 +262,6 @@ class saltproc_two_region:
                 if 'mat' in line:
                     key = line.split()[1]
                     matdef_dict[key] = line.strip()
-                    bumat_dict[key] = {}
                     gather = True
                 elif gather:
                     self.isoname.append(line.split()[0])
@@ -337,8 +336,8 @@ class saltproc_two_region:
             self.core[key] = self.dict_to_array(self.core[key])
         
         # record core composition before reprocessing to db_0
-        self.driver_adens_0[self.current_step, :] = self.core[driver_mat_name]
-        self.blanket_adens_0[self.current_step, :] = self.core[blanket_mat_name]
+        self.driver_adens_0[self.current_step, :] = self.core[self.driver_mat_name]
+        self.blanket_adens_0[self.current_step, :] = self.core[self.blanket_mat_name]
 
         # start reprocessing and refilling
         # reprocess out pa233
@@ -349,31 +348,31 @@ class saltproc_two_region:
         #### REPROCESSING FROM BLANKET ###########
         # separate pu from blanket and put into driver
         pu = self.find_iso_indx(['Pu'])
-        pu_from_blanket = self.remove_iso(pu, 1, blanket_mat_name)
-        self.core[driver_mat_name] += pu_from_blanket
+        pu_from_blanket = self.remove_iso(pu, 1, self.blanket_mat_name)
+        self.core[self.driver_mat_name] += pu_from_blanket
 
         #### REPROCESSING FROM DRIVER ############
         # remove volatile gases
         # every 1 step = 3 days (30secs)
         volatile_gases = self.find_iso_indx(['Kr', 'Xe', 'Ar', 'Ne', 'H', 'N', 'O', 'Rn'])
-        self.rem_adens[0, ] = self.remove_iso(volatile_gases, 1, driver_mat_name)
+        self.rem_adens[0, ] = self.remove_iso(volatile_gases, 1, self.driver_mat_name)
 
         # remove noble metals
         noble_metals = self.find_iso_indx(['Se', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd',
                                            'Ag', 'Sb', 'Te', 'Zr', 'Cd', 'In', 'Sn'])
-        self.rem_adens[1, ] = self.remove_iso(noble_metals, 1, driver_mat_name)
+        self.rem_adens[1, ] = self.remove_iso(noble_metals, 1, self.driver_mat_name)
 
         # remove rare earths
         rare_earths = self.find_iso_indx(['Y', 'La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm',
                                           'Gd', 'Eu', 'Dy', 'Ho', 'Er', 'Tb', 'Ga',
                                           'Ge', 'As', 'Zn'])
-        self.rem_adens[2, ] = self.remove_iso(rare_earths, 1, driver_mat_name)
+        self.rem_adens[2, ] = self.remove_iso(rare_earths, 1, self.driver_mat_name)
 
         # remove every 10 years
         if self.current_step % 1216 == 0:
             discard = self.find_iso_indx(['Cs', 'Ba', 'Rb', 'Sr', 'Li', 'Be',
                                              'Cl', 'Na' 'Th'])
-            self.rem_adens[3, ] = self.remove_iso(discard_id, 1, driver_mat_name)
+            self.rem_adens[3, ] = self.remove_iso(discard_id, 1, self.driver_mat_name)
 
 
         #### REFILLING BLANKET ################
@@ -382,8 +381,8 @@ class saltproc_two_region:
         tails_enrich = 0.003
         u238_fill = pu_removed * (1 - tails_enrich)
         u235_fill = pu_removed * (tails_enrich)
-        self.refill(u238_id, u238_fill, blanket_mat_name)
-        self.refill(u235_id, u235_fill, blanket_mat_name)
+        self.refill(u238_id, u238_fill, self.blanket_mat_name)
+        self.refill(u235_id, u235_fill, self.blanket_mat_name)
         # values are negative to be consistent with previous saltproc
         self.refill_tank_db[self.current_step, u238_id] = -1.0 * u238_fill
         self.refill_tank_db[self.current_step, u235_id] = -1.0 * u235_fill
@@ -392,8 +391,8 @@ class saltproc_two_region:
         adens_reprocessed_out = sum(self.rem_adens.sum(axis=0))
         u238_fill = adens_reprocessed_out * (1 - tails_enrich)
         u235_fill = adens_reprocessed_out * (tails_enrich)
-        self.refill(u238_id, u238_fill, driver_mat_name)
-        self.refill(u235_id, u235_fill, driver_mat_name)
+        self.refill(u238_id, u238_fill, self.driver_mat_name)
+        self.refill(u235_id, u235_fill, self.driver_mat_name)
         # note the addition
         self.refill_tank_db[self.current_step, u238_id] += -1.0 * u238_fill
         self.refill_tank_db[self.current_step, u235_id] += -1.0 * u235_fill
@@ -409,8 +408,8 @@ class saltproc_two_region:
         self.keff_db[:, self.current_step - 1] = self.read_res(1)
         self.keff_db_0[:, self.current_step - 1] = self.read_res(0)
 
-        self.driver_adens_1[self.current_step, :] = self.core[driver_mat_name]
-        self.blanket_adens_1[self.current_step, :] = self.core[blanket_mat_name]
+        self.driver_adens_1[self.current_step, :] = self.core[self.driver_mat_name]
+        self.blanket_adens_1[self.current_step, :] = self.core[self.blanket_mat_name]
 
         self.tank_adens_db[self.current_step, :] = (self.tank_adnes_db[self.current_step - 1, :]
                                                     + self.rem_adens.sum(axis=0))        

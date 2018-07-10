@@ -16,7 +16,8 @@ set nfylib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.nfy"       
 
 % --- Neutron population
 %set pop 10000 100 20
-set pop 6000 100 50
+% set extremely low for quickness
+set pop 100 10 2
 
 % --- Depletion parameters
 % --- Options for burnup calculation:
@@ -35,7 +36,8 @@ dep
 daytot
 3
 
-set inventory all
+% we are using bumat for now
+%set inventory all
 set printm 1 1E-24
 
 % --- Geometry plots
