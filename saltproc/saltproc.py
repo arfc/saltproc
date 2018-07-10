@@ -164,7 +164,7 @@ class saltproc:
             if False, simply load the datasets
         """
         self.f = h5py.File(self.db_file, 'r+')
-        self.keff_db = self.f['keff_BOC']
+        self.keff_db = self.f['keff_EOC']
         self.keff_db_0 = self.f['keff_BOC']
         self.bu_adens_db_0 = self.f['core adensity before reproc']
         self.bu_adens_db_1 = self.f['core adensity after reproc']
