@@ -126,9 +126,6 @@ class saltproc_two_region:
         self.tank_adens_db = self.f.create_dataset('tank adensity',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
-        self.noble_adens_db = self.f.create_dataset('noble adensity',
-                                                    shape, maxshape=maxshape,
-                                                    chunks=True)
         self.th_adens_db = self.f.create_dataset('Th tank adensity',
                                                  shape, maxshape=maxshape,
                                                  chunks=True)
@@ -177,7 +174,6 @@ class saltproc_two_region:
         self.bu_adens_db_0 = self.f['core adensity before reproc']
         self.bu_adens_db_1 = self.f['core adensity after reproc']
         self.tank_adens_db = self.f['tank adensity']
-        self.noble_adens_db = self.f['noble adensity']
         self.th_adens_db = self.f['Th tank adensity']
         self.isolib_db = self.f['iso codes']
         self.number_of_isotopes = len(self.isolib_db)
@@ -196,7 +192,6 @@ class saltproc_two_region:
             self.bu_adens_db_0.resize(shape)
             self.bu_adens_db_1.resize(shape)
             self.tank_adens_db.resize(shape)
-            self.noble_adens_db.resize(shape)
             self.th_adens_db.resize(shape)
             self.rem_adens = np.zeros((5, self.number_of_isotopes))
             self.th232_adens_0 = self.bu_adens_db_0[0, self.th232_id]
