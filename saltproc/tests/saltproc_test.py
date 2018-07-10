@@ -46,8 +46,7 @@ def test_read_res():
 
 
 def test_read_bumat():
-    bumat_dict, mat_def = saltproc.read_bumat(
-        saltproc.input_file, 0)
+    bumat_dict, mat_def = saltproc.read_bumat(0)
     assert bumat_dict['H1'] == 0.00000000000000E+00
 
     assert bumat_dict['Cf251'] == 0.00000000000000E+00
@@ -56,16 +55,14 @@ def test_read_bumat():
 
 
 def test_read_bumat_matef():
-    bumat_dict, mat_def = saltproc.read_bumat(
-        saltproc.input_file, 0)
+    bumat_dict, mat_def = saltproc.read_bumat(0)
     solution = 'mat  fuel  7.77767011499957E-02 vol 5.51573E+06'
     assert mat_def == solution
 
 
 def test_write_mat_file():
     # this is like this because it errors, but runs
-    saltproc.bumat_dict, saltproc.mat_def = saltproc.read_bumat(
-        saltproc.input_file, 0)
+    saltproc.bumat_dict, saltproc.mat_def = saltproc.read_bumat(0)
     saltproc.process_fuel()
     saltproc.write_mat_file()
     z = 0
