@@ -1,0 +1,142 @@
+set title "MCSFR Design#3 Unit cell model Depletion 510EFPD"
+
+include "../mat_composition3.inp"
+%include "mat_composition.inp"
+%include "../unit_cell2.inp"
+include "../unit_cell.inp"
+
+% ----- Boundary conditions
+set bc 3		% Periodic BC
+
+% +++ Run parameters +++ %
+% ---- Libraries
+set acelib "sss_endfb7u.xsdata"
+set declib "sss_endfb7.dec"
+set nfylib "sss_endfb7.nfy"
+
+% --- Neutron population
+%set pop 10000 100 20
+set pop 6000 100 50
+
+% --- Depletion parameters
+% --- Options for burnup calculation:
+set bumode  2  % CRAM method
+set pcc     1  % Predictor-corrector calculation on
+%set xscalc  2  % Cross sections from spectrum
+set bunorm 2
+set opti 3
+
+% --- Irradiation cycle:
+%set power 6E+9		% 6 GWth
+%set fmass 9.040E+6      % Fissile material mass in salt (Table 3, EVOL Final report)
+set powdens 30.7062436E-3
+
+dep
+daystep
+30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30
+
+set inventory all
+%set printm 1 1E-24
+
+% --- Geometry plots
+%plot 3 1000 1000 50.0 
+%plot 3 1000 1000 112.0
+%plot 3 1000 1000 212.75
+%plot 3 1000 1000 323.0
+%plot 3 1000 1000 345.00
+
+%plot 3 1000 1000 200.0 -190.0 190.0 -190.0 190.0
+
+%plot 3 1000 1000 320.0 -190.0 190.0 -190.0 190.0
+
+%plot 3 1000 1000 375.0 -190.0 190.0 -190.0 190.0
+
+%plot 1 1000 1000 
+
+%mesh 3 1000 1000
+
+%mesh 1 1000 1000 0
+/*
+% --- Neutron energy spectrum
+%ene tot 3 3000 1E-5 12.0
+ene tot 4 scale238
+ene 3 1 1E-9 20.00    % One total single bin
+
+ene tot 1 1.000e-11 
+ 1.000e-10 5.000e-10 7.500e-10 1.000e-09 1.200e-09 1.500e-09 2.000e-09
+ 2.500e-09 3.000e-09 4.000e-09 5.000e-09 7.500e-09 1.000e-08 2.530e-08
+ 3.000e-08 4.000e-08 5.000e-08 6.000e-08 7.000e-08 8.000e-08 9.000e-08
+ 1.000e-07 1.250e-07 1.500e-07 1.750e-07 2.000e-07 2.250e-07 2.500e-07
+ 2.750e-07 3.000e-07 3.250e-07 3.500e-07 3.750e-07 4.000e-07 4.500e-07
+ 5.000e-07 5.500e-07 6.000e-07 6.250e-07 6.500e-07 7.000e-07 7.500e-07
+ 8.000e-07 8.500e-07 9.000e-07 9.250e-07 9.500e-07 9.750e-07 1.000e-06
+ 1.010e-06 1.020e-06 1.030e-06 1.040e-06 1.050e-06 1.060e-06 1.070e-06
+ 1.080e-06 1.090e-06 1.100e-06 1.110e-06 1.120e-06 1.130e-06 1.140e-06
+ 1.150e-06 1.175e-06 1.200e-06 1.225e-06 1.250e-06 1.300e-06 1.350e-06
+ 1.400e-06 1.450e-06 1.500e-06 1.590e-06 1.680e-06 1.770e-06 1.860e-06
+ 1.940e-06 2.000e-06 2.120e-06 2.210e-06 2.300e-06 2.380e-06 2.470e-06
+ 2.570e-06 2.670e-06 2.770e-06 2.870e-06 2.970e-06 3.000e-06 3.100e-06
+ 3.200e-06 3.500e-06 3.730e-06 4.100e-06 4.700e-06 5.000e-06 5.400e-06
+ 6.000e-06 6.250e-06 6.500e-06 6.750e-06 6.875e-06 7.000e-06 7.150e-06
+ 8.100e-06 9.100e-06 1.000e-05 1.150e-05 1.190e-05 1.290e-05 1.440e-05
+ 1.600e-05 1.700e-05 1.850e-05 1.940e-05 2.000e-05 2.050e-05 2.120e-05
+ 2.175e-05 2.250e-05 2.500e-05 2.750e-05 3.000e-05 3.125e-05 3.175e-05
+ 3.325e-05 3.375e-05 3.500e-05 3.550e-05 3.600e-05 3.700e-05 3.713e-05
+ 3.727e-05 3.763e-05 3.800e-05 3.910e-05 3.960e-05 4.100e-05 4.240e-05
+ 4.400e-05 4.520e-05 4.830e-05 5.060e-05 5.340e-05 5.800e-05 6.100e-05
+ 6.300e-05 6.500e-05 6.750e-05 7.200e-05 7.600e-05 8.000e-05 8.170e-05
+ 9.000e-05 9.700e-05 1.012e-04 1.050e-04 1.080e-04 1.130e-04 1.160e-04
+ 1.175e-04 1.190e-04 1.220e-04 1.430e-04 1.700e-04 1.800e-04 1.877e-04
+ 1.885e-04 1.915e-04 1.930e-04 2.020e-04 2.074e-04 2.095e-04 2.200e-04
+ 2.400e-04 2.850e-04 3.050e-04 5.500e-04 6.700e-04 6.830e-04 9.500e-04
+ 1.150e-03 1.500e-03 1.550e-03 1.800e-03 2.200e-03 2.250e-03 2.500e-03
+ 3.000e-03 3.740e-03 3.900e-03 5.700e-03 8.030e-03 9.500e-03 1.300e-02
+ 1.700e-02 2.000e-02 3.000e-02 4.500e-02 5.000e-02 5.200e-02 6.000e-02
+ 7.300e-02 7.500e-02 8.200e-02 8.500e-02 1.000e-01 1.283e-01 1.490e-01
+ 2.000e-01 2.700e-01 3.300e-01 4.000e-01 4.200e-01 4.400e-01 4.700e-01
+ 4.920e-01 5.500e-01 5.730e-01 6.000e-01 6.700e-01 6.790e-01 7.500e-01
+ 8.200e-01 8.611e-01 8.750e-01 9.000e-01 9.200e-01 1.010e+00 1.100e+00
+ 1.200e+00 1.250e+00 1.317e+00 1.356e+00 1.400e+00 1.500e+00 1.850e+00
+ 2.354e+00 2.479e+00 3.000e+00 4.304e+00 4.800e+00 6.434e+00 8.187e+00
+ 1.000e+01 1.284e+01 1.384e+01 1.455e+01 1.568e+01 1.733e+01 2.000e+01
+
+mat TH232 1.0 90232.09c 1.0
+
+det spectrum 		de tot dt -3
+det spectrumFuel 	de tot dm fuel  dt -3
+det spectrumBlanket 	de tot dm blank dt -3
+
+%----Power generation in 2-D 30x30 bins
+det powxy
+dr -8 fuel
+de 3
+dx 0.0		206.45 207
+dy 0.0		206.45 207
+dz 100.0	325.5 1
+
+%----Fissions generation in 2-D 30x30 bins
+det fisxy
+dr -6 fuel
+de 3
+dx 0.0		206.45 207
+dy 0.0		206.45 207
+dz 100.0	325.5 1
+
+%----Breeding in fuel salt
+det breeding_fuel
+dm fuel
+dr 102 TH232 %===capture===
+de 3         %===overall spectrum
+dx 0.0		112.75 225
+dy 0.0		112.75 225
+dz 100.0	325.5 1
+
+%----Breeding in fertile salt
+det breeding_blank
+dm blank
+dr 102 TH232 %===capture===
+de 3         %===overall spectrum
+dx 0.0		162.75 325
+dy 0.0		162.75 325
+dz 100.0	325.5 1
+*/

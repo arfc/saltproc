@@ -46,6 +46,11 @@ restart = False
 bw = False
 
 
+# two region parameters
+two_region = True
+driver_mat_name =
+blanket_mat_name = 
+
 ###############################################################
 #########           END OF INPUT FILE SECTION         #########
 ###############################################################
