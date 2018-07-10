@@ -260,8 +260,9 @@ class saltproc_two_region:
             gather = False
             for line in lines:
                 if 'mat' in line:
-                    key = mat.split()[1]
+                    key = line.split()[1]
                     matdef_dict[key] = line.strip()
+                    bumat_dict[key] = {}
                     gather = True
                 elif gather:
                     self.isoname.append(line.split()[0])
