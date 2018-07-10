@@ -487,7 +487,6 @@ class saltproc_two_region:
         --------
         null.
         """
-        # !this is funky
         tank_stream = np.zeros(self.number_of_isotopes)
         for iso in target_isotope:
             tank_stream[iso] = self.core[region][iso] - target_adens
@@ -508,8 +507,7 @@ class saltproc_two_region:
             self.steps += self.current_step
             # sets the current step so the db isn't initialized again
         else:
-            # !!this shouldn't be hardcoded
-            shutil.copy('fuel_comp_with_fix', self.mat_file)
+            shutil.copy(self.mat_file, 'init_mat_file')
 
         while self.current_step < self.steps:
             print('Cycle number of %i of %i steps' %

@@ -451,7 +451,6 @@ class saltproc:
         --------
         null.
         """
-        # !this is funky
         tank_stream = np.zeros(self.number_of_isotopes)
         for iso in target_isotope:
             tank_stream[iso] = self.core[iso] - target_adens
@@ -462,7 +461,6 @@ class saltproc:
         """ Core of saltproc, moves forward in timesteps,
             run serpent, process fuel, record to db, and repeats
         """
-        # !!why not boolean (you can do 0 and 1)
         if self.restart and os.path.isfile(self.mat_file):
             try:
                 self.f = h5py.File(self.db_file, 'r+')
@@ -473,8 +471,7 @@ class saltproc:
             self.steps += self.current_step
             # sets the current step so the db isn't initialized again
         else:
-            # !!this shouldn't be hardcoded
-            shutil.copy('fuel_comp_with_fix', self.mat_file)
+            shutil.copy(self.mat_file, 'init_mat_file')
 
         while self.current_step < self.steps:
             print('Cycle number of %i of %i steps' %
