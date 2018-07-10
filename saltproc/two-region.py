@@ -217,16 +217,15 @@ class saltproc_two_region:
         keff_analytical = res['IMP_KEFF']
         return keff_analytical[moment]
 
-    def read_bumat(self, moment, driver):
+    def read_bumat(self, moment, mat_name):
         """ Reads the SERPENT .bumat file
 
         Parameters:
         -----------
         moment: int
             moment of depletion step (0 for BOC and 1 for EOC)
-        driver: bool
-            True: Gets driver composition
-            False: Gets blanket composition 
+        mat_name: string
+            name of material to return the composition of
 
         Returns:
         --------
@@ -242,6 +241,9 @@ class saltproc_two_region:
         self.isoname = []
 
         with open(bumat_filename, 'r') as data:
+            lines = data.readlines()
+
+
             # this should be changed for two region flows
             # and in general, hardcoding things is never a good thing
             for line in itertools.islice(
@@ -251,18 +253,37 @@ class saltproc_two_region:
                     data, 0, None):  # Skip file header start=6, stop=None
                 p = line.split()
                 self.isoname.append(p[0])
-                if '.' in p[0]:
-                    iso = p[0].split('.')[0] + '0'
-                    iso = nucname.name(iso)
-                else:
-                    iso = nucname.name(p[0])
-                if iso[-1] == 'M':
-                    metastable_state = p[0][-1]
-                    # if metastable, label it with state
-                    iso = iso + '-' + str(metastable_state)
+                iso = isotope_naming(p[0])
                 bumat_dict[iso] = float(p[1])
         self.isolib_db = bumat_dict.keys()
         return bumat_dict, mat_def
+
+    def isotope_naming(self, iso):
+        """ This function figures out the isotope naming problem
+            by taking into account different anomalies.
+
+        Parameters:
+        -----------
+        iso: string
+            isotope to be converted into name
+
+        Returns:
+        --------
+        isotope with format [chemical symbol][atmoic weight]
+        (e.g. 'Th232', 'U235', 'Cs137')
+        """
+        if '.' in iso:
+            output = iso.split('.')[0] + '0'
+            output = nucname.name(output)
+        else:
+            output = nucname.name()
+
+        # check metastable states
+        if output[-1] == 'M':
+            metastable_state = iso[-1]
+            output = iso + '-' + str(metastable_state)
+
+        return output
 
     def write_mat_file(self):
         """ Writes the input fuel composition input file block
