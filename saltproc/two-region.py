@@ -135,8 +135,8 @@ class saltproc_two_region:
         self.isolib_db = self.f.create_dataset('iso codes', data=self.isolib,
                                                dtype=dt)
 
-        self.bu_adens_db_0[0, :] = self.dict_to_array(self.bumat_dict)
-        self.bu_adens_db_1[0, :] = self.dict_to_array(self.bumat_dict)
+        self.driver_adens_0[0, :] = self.dict_to_array(self.bumat_dict)
+        self.driver_adens_1[0, :] = self.dict_to_array(self.bumat_dict)
 
         self.th232_adens_0 = self.bumat_dict['Th232']
 
@@ -167,7 +167,7 @@ class saltproc_two_region:
         restart: bool
             if True, modified current_step and datasets
             if False, simply load the datasets
-        """
+        """   
         self.f = h5py.File(self.db_file, 'r+')
         self.keff_db = self.f['keff_EOC']
         self.keff_db_0 = self.f['keff_BOC']
@@ -451,9 +451,12 @@ class saltproc_two_region:
         """ Core of saltproc, moves forward in timesteps,
             run serpent, process fuel, record to db, and repeats
         """
-        # !!why not boolean (you can do 0 and 1)
         if self.restart and os.path.isfile(self.mat_file):
-            self.f = h5py.File(self.db_file, 'r+')
+            try:
+                self.f = h5py.File(self.db_file, 'r+')
+            except:
+                raise ValueErorr('HDF5 file does not exist. You might want to check the '
+                                 'restart parameter.') 
             self.reopen_db(True)
             self.steps += self.current_step
             # sets the current step so the db isn't initialized again

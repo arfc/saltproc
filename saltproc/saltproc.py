@@ -445,7 +445,11 @@ class saltproc:
         """
         # !!why not boolean (you can do 0 and 1)
         if self.restart and os.path.isfile(self.mat_file):
-            self.f = h5py.File(self.db_file, 'r+')
+            try:
+                self.f = h5py.File(self.db_file, 'r+')
+            except:
+                raise ValueErorr('HDF5 file does not exist. You might want to check the '
+                                 'restart parameter.') 
             self.reopen_db(True)
             self.steps += self.current_step
             # sets the current step so the db isn't initialized again
