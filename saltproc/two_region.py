@@ -99,7 +99,7 @@ class saltproc_two_region:
 
         self.f = h5py.File(self.db_file, 'w')
         # put in values from initial condition
-        bumat_dict, mat_def_dict = self.read_bumat(1)
+        bumat_dict, mat_def_dict = self.read_bumat(0)
 
         # initialize isotope library and number of isotopes
         self.isolib = []
