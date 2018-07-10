@@ -22,7 +22,7 @@ from pyne import nucname
 input_file = 'core'
 # desired database file name
 db_file = 'db_saltproc.hdf5'
-# material file with fuel composition and density 
+# material file with fuel composition and density
 mat_file = 'fuel_comp'
 
 # executable path of Serpent
@@ -33,7 +33,7 @@ cores = 32
 nodes = 32
 
 # timesteps of 3 days of run Saltproc
-# total days = (3 * steps) [days] 
+# total days = (3 * steps) [days]
 steps = 5
 
 # True: restart by reading from a previously existing database.
@@ -49,7 +49,6 @@ bw = False
 ###############################################################
 #########           END OF INPUT FILE SECTION         #########
 ###############################################################
-
 
 
 if __name__ == "__main__":

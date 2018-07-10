@@ -19,6 +19,7 @@ saltproc = saltproc(5, 32, 32, 'False', restart=False,
                     mat_file=directory+'/test_mat')
 os.remove(directory+'/test_db.hdf5')
 
+
 def test_init_db_file_creation():
     """ Test if the db is created correctly"""
     # this is like this because it errors, but runs
@@ -74,13 +75,14 @@ def test_write_mat_file():
         for linenum, line in enumerate(lines):
             if linenum == 0:
                 solution = ('% Step number # 0 1.074470 +- 0.002130;'
-                           '1.014630 +- 0.002520')
+                            '1.014630 +- 0.002520')
                 assert line.rstrip() == solution
 
 
 def test_process_fuel():
     saltproc.process_fuel()
-    h1 = saltproc.bu_adens_db_0[saltproc.current_step, saltproc.find_iso_indx('H1')]
+    h1 = saltproc.bu_adens_db_0[saltproc.current_step,
+                                saltproc.find_iso_indx('H1')]
     assert saltproc.bu_adens_db_0[saltproc.current_step, 0] == pytest.approx(
         1.8811870e-09, 1e-6)
     h1 = saltproc.find_iso_indx('H1')
