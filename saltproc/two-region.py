@@ -22,7 +22,8 @@ class saltproc_two_region:
 
     def __init__(self, steps, cores, nodes, bw, exec_path, restart=False,
                  input_file='core', db_file='db_saltproc.hdf5',
-                 mat_file='fuel_comp'):
+                 mat_file='fuel_comp', driver_mat_name='fuel',
+                 blanket_mat_name='blank'):
         """ Initializes the class
 
         Parameters:
@@ -45,6 +46,10 @@ class saltproc_two_region:
             name of output hdf5 file
         mat_file: string
             name of material file connected to input file
+        driver_mat_name: string
+            name of driver material in the definition
+        blanket_mat_name: string
+            name of blanket material in definition
         """
         # initialize all object attributes
         self.steps = steps
@@ -57,6 +62,8 @@ class saltproc_two_region:
         self.db_file = db_file
         self.mat_file = mat_file
         self.current_step = 0
+        self.blanket_mat_name = blanket_mat_name
+        self.driver_mat_name = driver_mat_name
 
     def find_iso_indx(self, keyword):
         """ Returns index number of keword in bumat dictionary
@@ -92,11 +99,11 @@ class saltproc_two_region:
 
         self.f = h5py.File(self.db_file, 'w')
         # put in values from initial condition
-        self.bumat_dict, mat_def = self.read_bumat(0)
-        
-        # initialize isotope library and number of isotpes
+        bumat_dict, mat_def_dict = self.read_bumat(1)
+
+        # initialize isotope library and number of isotopes
         self.isolib = []
-        for key in self.bumat_dict.keys():
+        for key in self.bumat_dict[driver_mat_name].keys():
             # needs to incode to put string in h5py
             self.isolib.append(key.encode('utf8'))
 
@@ -135,8 +142,10 @@ class saltproc_two_region:
         self.isolib_db = self.f.create_dataset('iso codes', data=self.isolib,
                                                dtype=dt)
 
-        self.driver_adens_0[0, :] = self.dict_to_array(self.bumat_dict)
-        self.driver_adens_1[0, :] = self.dict_to_array(self.bumat_dict)
+        self.driver_adens_0[0, :] = self.dict_to_array(self.bumat_dict[driver_mat_name])
+        self.driver_adens_1[0, :] = self.dict_to_array(self.bumat_dict[driver_mat_name])
+        self.blanket_adens_0[0, :] = self.dict_to_array(self.bumat_dict[blanket_mat_name])
+        self.blanket_adens_1[0, :] = self.dict_to_array(self.bumat_dict[blanket_mat_name])
 
         self.th232_adens_0 = self.bumat_dict['Th232']
 
@@ -217,7 +226,8 @@ class saltproc_two_region:
         keff_analytical = res['IMP_KEFF']
         return keff_analytical[moment]
 
-    def read_bumat(self, moment, mat_name):
+
+    def read_bumat(self, moment):
         """ Reads the SERPENT .bumat file
 
         Parameters:
@@ -230,33 +240,38 @@ class saltproc_two_region:
         Returns:
         --------
         bumat_dict: dictionary
-            key: isotope name
-            value: adens
-        mat_def: str
-            material definition in SERPENT with volume and density
+            key: material name
+            value: dictionary
+                key: isotope
+                value: adens
+        mat_def_dict: dictionary
+            key: material name
+            value: material definition in SERPENT with volume and density
         """
         bumat_filename = os.path.join('%s.bumat%i' % (self.input_file, moment))
         bumat_dict = OrderedDict({})
+        matdef_dict = OrderedDict({})
         # save isonames for mat file generation
         self.isoname = []
 
         with open(bumat_filename, 'r') as data:
             lines = data.readlines()
+            bumat_dict = {}
+            for line in lines:
+                if 'mat' in line:
+                    key = mat.split()[1]
+                    matdef_dict[key] = line.strip()
+                    gather = True
+                elif gather:
+                    self.isoname.append(line.split()[0])
+                    iso = isotope_naming(line.split()[0])
+                    bumat_dict[key][iso] = float(line.split()[1])
+            self.isoname = set(self.isoname)
+            self.isolib_db = bumat_dict[key].keys()
 
-
-            # this should be changed for two region flows
-            # and in general, hardcoding things is never a good thing
-            for line in itertools.islice(
-                    data, 5, 6):    # Read material description in variable
-                mat_def = line.strip()
-            for line in itertools.islice(
-                    data, 0, None):  # Skip file header start=6, stop=None
-                p = line.split()
-                self.isoname.append(p[0])
-                iso = isotope_naming(p[0])
-                bumat_dict[iso] = float(p[1])
-        self.isolib_db = bumat_dict.keys()
-        return bumat_dict, mat_def
+        # selectively return the material composition
+        # and definition
+        return bumat_dict, matdef_dict
 
     def isotope_naming(self, iso):
         """ This function figures out the isotope naming problem
@@ -313,18 +328,20 @@ class saltproc_two_region:
         """
 
         # read bumat1 (output composition)
-        self.bumat_dict, self.mat_def = self.read_bumat(1)
-        self.core = self.dict_to_array(self.bumat_dict)
+        self.driver_dict, self.driver_def = self.read_bumat(1, self.drvier_mat_name)
+        self.blanket_dict, self.blanket_def = self.read_bumat(1, self.blanket_mat_name)
 
+        self.driver = self.dict_to_array(self.driver_dict)
+        self.blanket = self.dict_to_array(self.blanket_dict)
         # record core composition before reprocessing to db_0
-        self.bu_adens_db_0[self.current_step, :] = self.core
+        self.driver_adens_0[self.current_step, :] = self.driver
+        self.blanket_adens_0[self.current_step, :] = self.blanket
 
         # start reprocessing and refilling
         # reprocess out pa233
         # every 1 step = 3days
-        th232_id = self.find_iso_indx('Th232')
-        # add back u233 to core
-        # !! where is this refill coming from?
+        u238_id = self.find_iso_indx('U238')
+
         u233_to_add = self.tank_adens_db[self.current_step, self.find_iso_indx('Pa233')]
         self.refill(self.find_iso_indx('U233'), u233_to_add)
 
@@ -415,7 +432,7 @@ class saltproc_two_region:
         popen = subprocess.Popen(args, stdout=subprocess.PIPE)
         print(popen.stdout.read())
 
-    def remove_iso(self, target_iso, removal_eff):
+    def remove_iso(self, target_iso, removal_eff, region):
         """ Removes isotopes with given removal efficiency
 
         Parameters:
@@ -424,6 +441,8 @@ class saltproc_two_region:
             array  of indices for isotopes to remove from core
         removal_eff: float
             removal efficiency (max 1)
+        region: string
+            region to perform action on
 
         Returns:
         --------
@@ -436,7 +455,7 @@ class saltproc_two_region:
             self.core[iso] = (1 - removal_eff) * self.core[iso]
         return tank_stream
 
-    def refill(self, refill_iso, delta_adens):
+    def refill(self, refill_iso, delta_adens, region):
         """ Refills isotope with target rate of refuel
 
         Parameters:
@@ -445,6 +464,9 @@ class saltproc_two_region:
             array of indices for isotopes to be refilled
         delta_adens: float
             adens to be refilled
+        region: string
+            region to perform action on
+
 
         Returns:
         --------
@@ -454,7 +476,7 @@ class saltproc_two_region:
         for iso in refill_iso:
             self.core[iso] = self.core[iso] + delta_adens
 
-    def maintain_const(self, target_isotope, target_adens):
+    def maintain_const(self, target_isotope, target_adens, region):
         """ Maintains the constant amount of a target isotope
 
         Parameters:
@@ -463,6 +485,8 @@ class saltproc_two_region:
             array of indices for isotopes to be refilled
         target_adens: float
             adens to be satisfied
+        region: string
+            region to perform action on
 
         Returns:
         --------

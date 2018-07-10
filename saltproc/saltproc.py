@@ -90,7 +90,7 @@ class saltproc:
 
         self.f = h5py.File(self.db_file, 'w')
         # put in values from initial condition
-        self.bumat_dict, mat_def = self.read_bumat(0)
+        self.bumat_dict, mat_def = self.read_bumat(1)
         
         # initialize isotope library and number of isotpes
         self.isolib = []
