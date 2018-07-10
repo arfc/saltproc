@@ -133,7 +133,7 @@ class saltproc_two_region:
         self.tank_adens_db = self.f.create_dataset('tank adensity',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
-        self.th_adens_db = self.f.create_dataset('Th tank adensity',
+        self.refill_tank_db = self.f.create_dataset('refill tank adensity',
                                                  shape, maxshape=maxshape,
                                                  chunks=True)
         # !! raffinate stream consider splitting by what element
@@ -146,8 +146,8 @@ class saltproc_two_region:
         self.driver_adens_1[0, :] = self.dict_to_array(self.bumat_dict[driver_mat_name])
         self.blanket_adens_0[0, :] = self.dict_to_array(self.bumat_dict[blanket_mat_name])
         self.blanket_adens_1[0, :] = self.dict_to_array(self.bumat_dict[blanket_mat_name])
+        self.init_u238 = self.driver_adens[0, self.find_iso_indx('U238')]
 
-        self.th232_adens_0 = self.bumat_dict['Th232']
 
     def dict_to_array(self, bumat_dict):
         """ Converts an OrderedDict to an array of its values
@@ -185,7 +185,7 @@ class saltproc_two_region:
         self.blanket_adens_0 = self.f['blanket adensity before reproc']
         self.blanket_adens_1 = self.f['blanket adensity after reproc']
         self.tank_adens_db = self.f['tank adensity']
-        self.th_adens_db = self.f['Th tank adensity']
+        self.refill_tank_db = self.f['refill tank adensity']
         self.isolib_db = self.f['iso codes']
         self.number_of_isotopes = len(self.isolib_db)
         self.keff = self.keff_db[0, :]
@@ -205,7 +205,7 @@ class saltproc_two_region:
             self.blanket_adens_0.resize(shape)
             self.blanket_adens_1.resize(shape)
             self.tank_adens_db.resize(shape)
-            self.th_adens_db.resize(shape)
+            self.refill_tank_db.resize(shape)
             self.rem_adens = np.zeros((5, self.number_of_isotopes))
             self.th232_adens_0 = self.bu_adens_db_0[0, self.th232_id]
 
@@ -316,10 +316,10 @@ class saltproc_two_region:
         matf.write('%% Step number # %i %f +- %f;%f +- %f \n' %
                    (self.current_step, ana_keff_boc[0], ana_keff_boc[1],
                     ana_keff_eoc[0], ana_keff_eoc[1]))
-        matf.write(self.mat_def + ' burn 1 rgb 253 231 37\n')
-        for iso in range(self.number_of_isotopes):
-            matf.write('%s\t\t%s\n' %
-                       (str(self.isoname[iso]), str(self.core[iso])))
+        for key, val in self.core.items():
+            matf.write(self.matdef_dict[key] + ' burn 1 rgb 253 231 37\n')
+            for iso in range(self.number_of_isotopes):
+                matf.write('%s\t\t%s\n' %(str(self.isoname[iso]), str(val[iso])))
         matf.close()
 
     def process_fuel(self):
@@ -328,74 +328,73 @@ class saltproc_two_region:
         """
 
         # read bumat1 (output composition)
-        self.driver_dict, self.driver_def = self.read_bumat(1, self.drvier_mat_name)
-        self.blanket_dict, self.blanket_def = self.read_bumat(1, self.blanket_mat_name)
+        self.core, self.matdef_dict = self.read_bumat(1)
 
-        self.driver = self.dict_to_array(self.driver_dict)
-        self.blanket = self.dict_to_array(self.blanket_dict)
+        # convert core from dict to array
+        for key, val in self.core.items():
+            self.core[key] = self.dict_to_array(self.core[key])
+        
         # record core composition before reprocessing to db_0
-        self.driver_adens_0[self.current_step, :] = self.driver
-        self.blanket_adens_0[self.current_step, :] = self.blanket
+        self.driver_adens_0[self.current_step, :] = self.core[driver_mat_name]
+        self.blanket_adens_0[self.current_step, :] = self.core[blanket_mat_name]
 
         # start reprocessing and refilling
         # reprocess out pa233
         # every 1 step = 3days
         u238_id = self.find_iso_indx('U238')
+        u235_id = self.find_iso_indx('U235')
 
-        u233_to_add = self.tank_adens_db[self.current_step, self.find_iso_indx('Pa233')]
-        self.refill(self.find_iso_indx('U233'), u233_to_add)
+        #### REPROCESSING FROM BLANKET ###########
+        # separate pu from blanket and put into driver
+        pu = self.find_iso_indx(['Pu'])
+        pu_from_blanket = self.remove_iso(pu, 1, blanket_mat_name)
+        self.core[driver_mat_name] += pu_from_blanket
 
+        #### REPROCESSING FROM DRIVER ############
         # remove volatile gases
-        # every 1 step = 3 days
-        volatile_gases = self.find_iso_indx(['Kr', 'Xe', 'Se', 'Nb', 'Mo', 'Tc', 'Ru',
-                                             'Rh', 'Pd', 'Ag', 'Sb', 'Te'])
-        self.rem_adens[0, ] = self.remove_iso(volatile_gases, 1)
+        # every 1 step = 3 days (30secs)
+        volatile_gases = self.find_iso_indx(['Kr', 'Xe', 'Ar', 'Ne', 'H', 'N', 'O', 'Rn'])
+        self.rem_adens[0, ] = self.remove_iso(volatile_gases, 1, driver_mat_name)
 
-        # !! this rem_adens indexing looks wrong
-        # remove seminoble metals
-        # every 67 steps = 201 days
-        if self.current_step % 67 == 0:
-            se_noble_id = self.find_iso_indx(['Zr', 'Cd', 'In', 'Sn'])
-            self.rem_adens[1, ] = self.remove_iso(se_noble_id, 1)
+        # remove noble metals
+        noble_metals = self.find_iso_indx(['Se', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd',
+                                           'Ag', 'Sb', 'Te', 'Zr', 'Cd', 'In', 'Sn'])
+        self.rem_adens[1, ] = self.remove_iso(noble_metals, 1, driver_mat_name)
 
-        # remove volatile fluorides
-        # every 20 steps = 60 days
-        if self.current_step % 20 == 0:
-            vol_fluorides = self.find_iso_indx(['Br', 'I'])
-            self.rem_adens[2, ] = self.remove_iso(vol_fluorides, 1)
+        # remove rare earths
+        rare_earths = self.find_iso_indx(['Y', 'La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm',
+                                          'Gd', 'Eu', 'Dy', 'Ho', 'Er', 'Tb', 'Ga',
+                                          'Ge', 'As', 'Zn'])
+        self.rem_adens[2, ] = self.remove_iso(rare_earths, 1, driver_mat_name)
 
-        # remove REEs
-        # evrey 17 steps = 50 days
-        if self.current_step % 17 == 0:
-            rees_id = self.find_iso_indx(['Y', 'Gd', 'La', 'Ce', 'Pr',
-                                          'Nd', 'Pm', 'Sm'])
-            self.rem_adens[3, ] = self.remove_iso(rees_id, 1)
-
-        # remove Eu
-        # evrey 167 steps = 500 days
-        if self.current_step % 167 == 0:
-            eu_id = self.find_iso_indx('Eu')
-            self.rem_adens[4, ] = self.remove_iso(eu_id, 1)
-
-        # remove Rb, Sr, Cs, Ba
-        # every 1145 steps = 3435 days
-        if self.current_step % 1145 == 0:
-            discard_id = self.find_iso_indx(['Rb', 'Sr', 'Cs', 'Ba'])
-            self.rem_adens[4, ] = self.remove_iso(discard_id, 1)
-
-        # remove np-237, pu-242
-        # every 1946 steps = 16 years
-        if self.current_step % 1946 == 0:
-            higher_nuc = self.find_iso_indx(['Pu237', 'Pu242'])
-            self.rem_adens[4, ] = self.remove_iso(higher_nuc, 1)
+        # remove every 10 years
+        if self.current_step % 1216 == 0:
+            discard = self.find_iso_indx(['Cs', 'Ba', 'Rb', 'Sr', 'Li', 'Be',
+                                             'Cl', 'Na' 'Th'])
+            self.rem_adens[3, ] = self.remove_iso(discard_id, 1, driver_mat_name)
 
 
-        # refill th232 to keep adens constant
-        # do it every time
-        # if want to do it less often do:
-        # if current_step % time == 0:
-        self.th_adens_db[self.current_step, ] = self.maintain_const(th232_id,
-                                                                    self.th232_adens_0)
+        #### REFILLING BLANKET ################
+        # fill it back with depleted uranium (0.3 % U235)
+        pu_removed = sum(pu_from_blanket)
+        tails_enrich = 0.003
+        u238_fill = pu_removed * (1 - tails_enrich)
+        u235_fill = pu_removed * (tails_enrich)
+        self.refill(u238_id, u238_fill, blanket_mat_name)
+        self.refill(u235_id, u235_fill, blanket_mat_name)
+        # values are negative to be consistent with previous saltproc
+        self.refill_tank_db[self.current_step, u238_id] = -1.0 * u238_fill
+        self.refill_tank_db[self.current_step, u235_id] = -1.0 * u235_fill
+
+        #### REFILLING DRIVER ################
+        adens_reprocessed_out = sum(self.rem_adens.sum(axis=0))
+        u238_fill = adens_reprocessed_out * (1 - tails_enrich)
+        u235_fill = adens_reprocessed_out * (tails_enrich)
+        self.refill(u238_id, u238_fill, driver_mat_name)
+        self.refill(u235_id, u235_fill, driver_mat_name)
+        # note the addition
+        self.refill_tank_db[self.current_step, u238_id] += -1.0 * u238_fill
+        self.refill_tank_db[self.current_step, u235_id] += -1.0 * u235_fill
 
         # write the processed material to mat file for next run
         self.write_mat_file()
@@ -407,16 +406,12 @@ class saltproc_two_region:
         """
         self.keff_db[:, self.current_step - 1] = self.read_res(1)
         self.keff_db_0[:, self.current_step - 1] = self.read_res(0)
-        self.bu_adens_db_1[self.current_step, :] = self.core
-        self.tank_adens_db[self.current_step, :] = (self.tank_adens_db[self.current_step - 1, :]
-                                                    + self.rem_adens.sum(axis=0))
-        # store amount of Th tank
-        th232_id = self.find_iso_indx('Th232')
-        prev_th = self.th_adens_db[self.current_step - 1, th232_id]
-        orig_th = self.bu_adens_db_0[0, th232_id]
-        step_th = self.bu_adens_db_0[self.current_step, th232_id]
-        self.th_adens_db[self.current_step,
-                         th232_id] = prev_th - orig_th - step_th
+
+        self.driver_adens_1[self.current_step, :] = self.core[driver_mat_name]
+        self.blanket_adens_1[self.current_step, :] = self.core[blanket_mat_name]
+
+        self.tank_adens_db[self.current_step, :] = (self.tank_adnes_db[self.current_step - 1, :]
+                                                    + self.rem_adens.sum(axis=0))        
         self.f.close()
 
     def run_serpent(self):
@@ -451,8 +446,9 @@ class saltproc_two_region:
         """
         tank_stream = np.zeros(self.number_of_isotopes)
         for iso in target_iso:
-            tank_stream[iso] = self.core[iso] * removal_eff
-            self.core[iso] = (1 - removal_eff) * self.core[iso]
+            tank_stream[iso] = self.core[reigon][iso] * removal_eff
+            # remaining
+            self.core[region][iso] = (1 - removal_eff) * self.core[iso]
         return tank_stream
 
     def refill(self, refill_iso, delta_adens, region):
@@ -472,9 +468,8 @@ class saltproc_two_region:
         --------
         null.
         """
-
         for iso in refill_iso:
-            self.core[iso] = self.core[iso] + delta_adens
+            self.core[region][iso] = self.core[region][iso] + delta_adens
 
     def maintain_const(self, target_isotope, target_adens, region):
         """ Maintains the constant amount of a target isotope
@@ -495,8 +490,8 @@ class saltproc_two_region:
         # !this is funky
         tank_stream = np.zeros(self.number_of_isotopes)
         for iso in target_isotope:
-            tank_stream[iso] = self.core[iso] - target_adens
-            self.core[iso] = target_adens
+            tank_stream[iso] = self.core[region][iso] - target_adens
+            self.core[region][iso] = target_adens
         return tank_stream
 
     def main(self):
