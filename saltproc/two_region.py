@@ -257,6 +257,7 @@ class saltproc_two_region:
         with open(bumat_filename, 'r') as data:
             lines = data.readlines()
             bumat_dict = {}
+            gather = False
             for line in lines:
                 if 'mat' in line:
                     key = mat.split()[1]
@@ -264,7 +265,7 @@ class saltproc_two_region:
                     gather = True
                 elif gather:
                     self.isoname.append(line.split()[0])
-                    iso = isotope_naming(line.split()[0])
+                    iso = self.isotope_naming(line.split()[0])
                     bumat_dict[key][iso] = float(line.split()[1])
             self.isoname = set(self.isoname)
             self.isolib_db = bumat_dict[key].keys()
@@ -487,7 +488,6 @@ class saltproc_two_region:
         --------
         null.
         """
-        # !this is funky
         tank_stream = np.zeros(self.number_of_isotopes)
         for iso in target_isotope:
             tank_stream[iso] = self.core[region][iso] - target_adens
@@ -508,8 +508,7 @@ class saltproc_two_region:
             self.steps += self.current_step
             # sets the current step so the db isn't initialized again
         else:
-            # !!this shouldn't be hardcoded
-            shutil.copy('fuel_comp_with_fix', self.mat_file)
+            shutil.copy(self.mat_file, 'init_mat_file')
 
         while self.current_step < self.steps:
             print('Cycle number of %i of %i steps' %

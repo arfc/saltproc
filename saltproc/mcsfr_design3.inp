@@ -1,18 +1,18 @@
 set title "MCSFR Design#3 Unit cell model Depletion 510EFPD"
 
-include "../mat_composition3.inp"
+include "mat_composition3.inp"
 %include "mat_composition.inp"
 %include "../unit_cell2.inp"
-include "../unit_cell.inp"
+include "unit_cell.inp"
 
 % ----- Boundary conditions
 set bc 3		% Periodic BC
 
 % +++ Run parameters +++ %
 % ---- Libraries
-set acelib "sss_endfb7u.xsdata"
-set declib "sss_endfb7.dec"
-set nfylib "sss_endfb7.nfy"
+set acelib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff312.xsdata" %this for BW
+set declib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.dec"       % for BW
+set nfylib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.nfy"       % for BW
 
 % --- Neutron population
 %set pop 10000 100 20
@@ -32,11 +32,11 @@ set opti 3
 set powdens 30.7062436E-3
 
 dep
-daystep
-30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30
+daytot
+3
 
 set inventory all
-%set printm 1 1E-24
+set printm 1 1E-24
 
 % --- Geometry plots
 %plot 3 1000 1000 50.0 
