@@ -48,8 +48,8 @@ bw = False
 
 # two region parameters
 two_region = True
-driver_mat_name =
-blanket_mat_name = 
+driver_mat_name = 'fuel'
+blanket_mat_name = 'blank'
 
 ###############################################################
 #########           END OF INPUT FILE SECTION         #########
