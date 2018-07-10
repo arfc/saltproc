@@ -236,7 +236,7 @@ class saltproc:
                     data, 0, None):  # Skip file header start=6, stop=None
                 p = line.split()
                 self.isoname.append(p[0])
-                iso = isotope_naming(p[0])
+                iso = self.isotope_naming(p[0])
                 bumat_dict[iso] = float(p[1])
         self.isolib_db = bumat_dict.keys()
         return bumat_dict, mat_def

@@ -257,6 +257,7 @@ class saltproc_two_region:
         with open(bumat_filename, 'r') as data:
             lines = data.readlines()
             bumat_dict = {}
+            gather = False
             for line in lines:
                 if 'mat' in line:
                     key = mat.split()[1]
@@ -264,7 +265,7 @@ class saltproc_two_region:
                     gather = True
                 elif gather:
                     self.isoname.append(line.split()[0])
-                    iso = isotope_naming(line.split()[0])
+                    iso = self.isotope_naming(line.split()[0])
                     bumat_dict[key][iso] = float(line.split()[1])
             self.isoname = set(self.isoname)
             self.isolib_db = bumat_dict[key].keys()
