@@ -58,12 +58,12 @@ class saltproc:
 
     def find_iso_indx(self, keyword):
         """ Returns index number of keword in bumat dictionary
-        
+
         Parameters:
         -----------
         keyword: string or list
             keyword to search for - element (e.g. Xe) or isotope (e.g. Pa233)
-        
+
         Returns:
         --------
         numpy array of indices
@@ -91,7 +91,7 @@ class saltproc:
         self.f = h5py.File(self.db_file, 'w')
         # put in values from initial condition
         self.bumat_dict, mat_def = self.read_bumat(self.input_file, 0)
-        
+
         # initialize isotope library and number of isotpes
         self.isolib = []
         for key in self.bumat_dict.keys():
@@ -137,7 +137,7 @@ class saltproc:
 
     def dict_to_array(self, bumat_dict):
         """ Converts an OrderedDict to an array of its values
-        
+
         Parameters:
         -----------
         bumat_dict: OrderedDict
@@ -152,7 +152,6 @@ class saltproc:
         for key, value in bumat_dict.items():
             array = np.append(array, value)
         return array
-
 
     def reopen_db(self, restart):
         """ Reopens the previously exisiting database
@@ -294,7 +293,8 @@ class saltproc:
         th232_id = self.find_iso_indx('Th232')
         # add back u233 to core
         # !! where is this refill coming from?
-        u233_to_add = self.tank_adens_db[self.current_step, self.find_iso_indx('Pa233')]
+        u233_to_add = self.tank_adens_db[self.current_step, self.find_iso_indx(
+            'Pa233')]
         self.refill(self.find_iso_indx('U233'), u233_to_add)
 
         # remove volatile gases
@@ -341,7 +341,6 @@ class saltproc:
             higher_nuc = self.find_iso_indx(['Pu237', 'Pu242'])
             self.rem_adens[4, ] = self.remove_iso(higher_nuc, 1)
 
-
         # refill th232 to keep adens constant
         # do it every time
         # if want to do it less often do:
@@ -351,7 +350,6 @@ class saltproc:
 
         # write the processed material to mat file for next run
         self.write_mat_file()
-
 
     def record_db(self):
         """ Records the processed fuel composition, Keff values,
