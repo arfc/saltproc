@@ -44,6 +44,10 @@ def test_read_res():
     assert keff[0] == 1.07447
     assert keff[1] == 0.00213
 
+    keff = saltproc.read_res(1)
+    assert keff[0] == 1.01463
+    assert keff[1] == 0.00252
+
 
 def test_read_bumat():
     bumat_dict, mat_def = saltproc.read_bumat(
@@ -53,7 +57,6 @@ def test_read_bumat():
     assert bumat_dict['Cf251'] == 0.00000000000000E+00
 
     assert bumat_dict['Th232'] == 3.69244822559746E-03
-
 
 def test_read_bumat_matef():
     bumat_dict, mat_def = saltproc.read_bumat(
@@ -77,7 +80,6 @@ def test_write_mat_file():
                            '1.014630 +- 0.002520')
                 assert line.rstrip() == solution
 
-
 def test_process_fuel():
     saltproc.process_fuel()
     h1 = saltproc.bu_adens_db_0[saltproc.current_step, saltproc.find_iso_indx('H1')]
@@ -100,3 +102,4 @@ def test_process_th():
     print(saltproc.core[th232_id])
     assert saltproc.th_adens_db[saltproc.current_step,
                                 th232_id] == -3.684984e-06
+
