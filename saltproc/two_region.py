@@ -99,7 +99,7 @@ class saltproc_two_region:
 
         self.f = h5py.File(self.db_file, 'w')
         # put in values from initial condition
-        bumat_dict, mat_def_dict = self.read_bumat(0)
+        self.bumat_dict, self.mat_def_dict = self.read_bumat(0)
 
         # initialize isotope library and number of isotopes
         self.isolib = []
@@ -262,6 +262,7 @@ class saltproc_two_region:
                 if 'mat' in line:
                     key = line.split()[1]
                     matdef_dict[key] = line.strip()
+                    bumat_dict[key] = {}
                     gather = True
                 elif gather:
                     self.isoname.append(line.split()[0])
