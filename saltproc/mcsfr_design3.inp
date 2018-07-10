@@ -38,7 +38,7 @@ daytot
 
 % we are using bumat for now
 %set inventory all
-set printm 1 1E-24
+set printm 1 0.0
 
 % --- Geometry plots
 %plot 3 1000 1000 50.0 

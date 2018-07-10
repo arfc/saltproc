@@ -31,7 +31,7 @@ exec_path = '/projects/sciteam/bahg/serpent30/src/sss2'
 
 # Number of cores and nodes to use in cluster
 cores = 32
-nodes = 9
+nodes = 32
 
 # timesteps of 3 days of run Saltproc
 # total days = (3 * steps) [days] 
