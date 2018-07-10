@@ -92,7 +92,7 @@ class saltproc_two_region:
 
         self.f = h5py.File(self.db_file, 'w')
         # put in values from initial condition
-        self.bumat_dict, mat_def = self.read_bumat(self.input_file, 0)
+        self.bumat_dict, mat_def = self.read_bumat(0)
         
         # initialize isotope library and number of isotpes
         self.isolib = []
@@ -171,8 +171,10 @@ class saltproc_two_region:
         self.f = h5py.File(self.db_file, 'r+')
         self.keff_db = self.f['keff_EOC']
         self.keff_db_0 = self.f['keff_BOC']
-        self.bu_adens_db_0 = self.f['core adensity before reproc']
-        self.bu_adens_db_1 = self.f['core adensity after reproc']
+        self.driver_adens_0 = self.f['driver adensity before reproc']
+        self.driver_adens_1 = self.f['driver adensity after reproc']
+        self.blanket_adens_0 = self.f['blanket adensity before reproc']
+        self.blanket_adens_1 = self.f['blanket adensity after reproc']
         self.tank_adens_db = self.f['tank adensity']
         self.th_adens_db = self.f['Th tank adensity']
         self.isolib_db = self.f['iso codes']
@@ -189,8 +191,10 @@ class saltproc_two_region:
             self.keff_db_0.resize((2, self.steps + self.current_step))
             shape = (self.steps + self.current_step +
                      1, self.number_of_isotopes)
-            self.bu_adens_db_0.resize(shape)
-            self.bu_adens_db_1.resize(shape)
+            self.driver_adens_0.resize(shape)
+            self.driver_adens_1.resize(shape)
+            self.blanket_adens_0.resize(shape)
+            self.blanket_adens_1.resize(shape)
             self.tank_adens_db.resize(shape)
             self.th_adens_db.resize(shape)
             self.rem_adens = np.zeros((5, self.number_of_isotopes))
@@ -213,13 +217,16 @@ class saltproc_two_region:
         keff_analytical = res['IMP_KEFF']
         return keff_analytical[moment]
 
-    def read_bumat(self, file_name, moment):
+    def read_bumat(self, moment, driver):
         """ Reads the SERPENT .bumat file
 
         Parameters:
         -----------
         moment: int
             moment of depletion step (0 for BOC and 1 for EOC)
+        driver: bool
+            True: Gets driver composition
+            False: Gets blanket composition 
 
         Returns:
         --------
@@ -285,7 +292,7 @@ class saltproc_two_region:
         """
 
         # read bumat1 (output composition)
-        self.bumat_dict, self.mat_def = self.read_bumat(self.input_file, 1)
+        self.bumat_dict, self.mat_def = self.read_bumat(1)
         self.core = self.dict_to_array(self.bumat_dict)
 
         # record core composition before reprocessing to db_0

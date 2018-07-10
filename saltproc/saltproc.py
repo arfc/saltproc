@@ -90,7 +90,7 @@ class saltproc:
 
         self.f = h5py.File(self.db_file, 'w')
         # put in values from initial condition
-        self.bumat_dict, mat_def = self.read_bumat(self.input_file, 0)
+        self.bumat_dict, mat_def = self.read_bumat(0)
         
         # initialize isotope library and number of isotpes
         self.isolib = []
@@ -205,7 +205,7 @@ class saltproc:
         keff_analytical = res['IMP_KEFF']
         return keff_analytical[moment]
 
-    def read_bumat(self, file_name, moment):
+    def read_bumat(self, moment):
         """ Reads the SERPENT .bumat file
 
         Parameters:
@@ -277,7 +277,7 @@ class saltproc:
         """
 
         # read bumat1 (output composition)
-        self.bumat_dict, self.mat_def = self.read_bumat(self.input_file, 1)
+        self.bumat_dict, self.mat_def = self.read_bumat(1)
         self.core = self.dict_to_array(self.bumat_dict)
 
         # record core composition before reprocessing to db_0
