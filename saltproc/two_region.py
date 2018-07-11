@@ -99,7 +99,8 @@ class saltproc_two_region:
 
         self.f = h5py.File(self.db_file, 'w')
         # put in values from initial condition
-        self.bumat_dict, self.mat_def_dict = self.read_bumat(0)
+        # only bumat1 will give all isotopes
+        self.bumat_dict, self.mat_def_dict = self.read_bumat(1)
 
         # initialize isotope library and number of isotopes
         self.isolib = []
@@ -142,6 +143,8 @@ class saltproc_two_region:
         self.isolib_db = self.f.create_dataset('iso codes', data=self.isolib,
                                                dtype=dt)
 
+        # record initial values
+        self.bumat_dict, self.mat_def_dict = self.read_bumat(0)
         self.driver_adens_0[0, :] = self.dict_to_array(self.bumat_dict[self.driver_mat_name])
         self.driver_adens_1[0, :] = self.dict_to_array(self.bumat_dict[self.driver_mat_name])
         self.blanket_adens_0[0, :] = self.dict_to_array(self.bumat_dict[self.blanket_mat_name])
