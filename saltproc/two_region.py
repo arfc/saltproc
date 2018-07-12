@@ -77,17 +77,15 @@ class saltproc_two_region:
         --------
         numpy array of indices
         """
-        indx = 0
         indx_list = []
+        indx = 0
         if isinstance(keyword, str):
-            for key in self.bumat_dict.keys():
-                if keyword in key:
-                    indx_list.append(indx)
-                indx += 1
-        elif isinstance(keyword, list):
-            for key in self.bumat_dict.keys():
+            indx = self.isolib.index(isoname.encode('utf8'))
+            indx_list.append(indx)
+        elif isinstance(keyword, list):         
+            for key in self.isolib:
                 for keywor in keyword:
-                    if keywor in key:
+                    if keywor in key.decode('utf8'):
                         indx_list.append(indx)
                 indx += 1
 
@@ -104,9 +102,10 @@ class saltproc_two_region:
 
         # initialize isotope library and number of isotopes
         self.isolib = []
-        for key in self.bumat_dict[self.driver_mat_name].keys():
-            # needs to incode to put string in h5py
-            self.isolib.append(key.encode('utf8'))
+        for key, val in self.bumat_dict.items():
+            for isos in val.keys():
+                self.isolib.append(isos.encode('utf8'))
+        self.isolib = set(self.isolib)
 
         self.number_of_isotopes = len(self.isolib)
 
@@ -131,6 +130,8 @@ class saltproc_two_region:
         self.blanket_adens_1 = self.f.create_dataset('blanket adensity after reproc',
                                                      shape, maxshape=maxshape,
                                                      chunks=True)
+        self.pu_tank = self.f.create_dataset('pu tank adensity', shape, maxshape=maxshape,
+                                             chunks=True)
         self.tank_adens_db = self.f.create_dataset('tank adensity',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
@@ -145,11 +146,31 @@ class saltproc_two_region:
 
         # record initial values
         self.bumat_dict, self.mat_def_dict = self.read_bumat(0)
-        self.driver_adens_0[0, :] = self.dict_to_array(self.bumat_dict[self.driver_mat_name])
-        self.driver_adens_1[0, :] = self.dict_to_array(self.bumat_dict[self.driver_mat_name])
-        self.blanket_adens_0[0, :] = self.dict_to_array(self.bumat_dict[self.blanket_mat_name])
-        self.blanket_adens_1[0, :] = self.dict_to_array(self.bumat_dict[self.blanket_mat_name])
+        self.driver_adens_0[0, :] = self.build_array(self.bumat_dict[self.driver_mat_name])
+        self.driver_adens_1[0, :] = self.build_array(self.bumat_dict[self.driver_mat_name])
+        self.blanket_adens_0[0, :] = self.build_array(self.bumat_dict[self.blanket_mat_name])
+        self.blanket_adens_1[0, :] = self.build_array(self.bumat_dict[self.blanket_mat_name])
         self.init_u238 = self.driver_adens[0, self.find_iso_indx('U238')]
+
+    def build_array(self, comp_dict):
+        """ Inputs the correct element into array by looking at isotope name
+        
+        Parameters:
+        -----------
+        comp_dict: dictionary
+            dictionary with
+            key: isotope name
+            value :adens
+        
+        Returns:
+        --------
+        array: array with ordered isotopic adens values
+        """
+        output_array = np.zeros(self.number_of_isotopes)
+        for isoname, adens in comp_dict.keys():
+            indx = self.isolib.index(isoname.encode('utf8'))
+            output_array[indx] = adens
+        return output_array
 
 
     def dict_to_array(self, bumat_dict):
@@ -190,6 +211,7 @@ class saltproc_two_region:
         self.tank_adens_db = self.f['tank adensity']
         self.refill_tank_db = self.f['refill tank adensity']
         self.isolib_db = self.f['iso codes']
+        self.pu_tank = self.f['pu tank adensity']
         self.number_of_isotopes = len(self.isolib_db)
         self.keff = self.keff_db[0, :]
 
@@ -209,6 +231,7 @@ class saltproc_two_region:
             self.blanket_adens_1.resize(shape)
             self.tank_adens_db.resize(shape)
             self.refill_tank_db.resize(shape)
+            self.pu_tank.resize(shape)
             self.rem_adens = np.zeros((5, self.number_of_isotopes))
             self.th232_adens_0 = self.bu_adens_db_0[0, self.th232_id]
 
@@ -296,7 +319,7 @@ class saltproc_two_region:
             output = iso.split('.')[0] + '0'
             output = nucname.name(output)
         else:
-            output = nucname.name()
+            output = nucname.name(iso)
 
         # check metastable states
         if output[-1] == 'M':
@@ -337,7 +360,7 @@ class saltproc_two_region:
 
         # convert core from dict to array
         for key, val in self.core.items():
-            self.core[key] = self.dict_to_array(self.core[key])
+            self.core[key] = self.build_array(self.core[key])
         
         # record core composition before reprocessing to db_0
         self.driver_adens_0[self.current_step, :] = self.core[self.driver_mat_name]
@@ -352,8 +375,7 @@ class saltproc_two_region:
         #### REPROCESSING FROM BLANKET ###########
         # separate pu from blanket and put into driver
         pu = self.find_iso_indx(['Pu'])
-        pu_from_blanket = self.remove_iso(pu, 1, self.blanket_mat_name)
-        self.core[self.driver_mat_name] += pu_from_blanket
+        self.pu_tank[self.current_step, :] = self.remove_iso(pu, 1, self.blanket_mat_name)
 
         #### REPROCESSING FROM DRIVER ############
         # remove volatile gases
@@ -381,7 +403,7 @@ class saltproc_two_region:
 
         #### REFILLING BLANKET ################
         # fill it back with depleted uranium (0.3 % U235)
-        pu_removed = sum(pu_from_blanket)
+        pu_removed = sum(self.pu_tank[self.current_step, :])
         tails_enrich = 0.003
         u238_fill = pu_removed * (1 - tails_enrich)
         u235_fill = pu_removed * (tails_enrich)
@@ -393,17 +415,18 @@ class saltproc_two_region:
 
         #### REFILLING DRIVER ################
         adens_reprocessed_out = sum(self.rem_adens.sum(axis=0))
-        u238_fill = adens_reprocessed_out * (1 - tails_enrich)
-        u235_fill = adens_reprocessed_out * (tails_enrich)
-        self.refill(u238_id, u238_fill, self.driver_mat_name)
-        self.refill(u235_id, u235_fill, self.driver_mat_name)
-        # note the addition
-        self.refill_tank_db[self.current_step, u238_id] += -1.0 * u238_fill
-        self.refill_tank_db[self.current_step, u235_id] += -1.0 * u235_fill
+        # fill this amount of plutonium
+        # hopefully there's pu leftover
+        self.pu_tank[self.current_step, :] -= adens_reprocessed_out * self.find_pu_comp()
+        self.core[driver_mat_name] += adens_reprocessed_out * self.find_pu_comp()
 
         # write the processed material to mat file for next run
         self.write_mat_file()
 
+    def find_pu_comp(self):
+        """ Finds the separated Pu quality (composition) """
+        comp_vec = self.pu_tank[self.current_step, :] / sum(self.pu_tank[self.current_step, :])
+        return comp_vec
 
     def record_db(self):
         """ Records the processed fuel composition, Keff values,
