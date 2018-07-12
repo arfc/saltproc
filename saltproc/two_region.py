@@ -452,8 +452,10 @@ class saltproc_two_region:
         else:
             args = (self.exec_path,
                     '-omp', str(self.cores), self.input_file)
-        popen = subprocess.Popen(args, stdout=subprocess.PIPE)
-        print(popen.stdout.read())
+        print('RUNNNIN')
+        output = subprocess.Popen(args, stdout=subprocess.PIPE)
+        print('DONES')
+        print(output.stdout.read())
 
     def remove_iso(self, target_iso, removal_eff, region):
         """ Removes isotopes with given removal efficiency
@@ -547,6 +549,10 @@ class saltproc_two_region:
                 self.reopen_db(False)
             self.current_step += 1
             self.process_fuel()
+            ### this is to check if serpent is running
+            u235_id = self.find_iso_indx('U235')
+            print(self.driver_adens_0[self.current_step, u235_id])
+            #######
             self.record_db()
 
         print('End of Saltproc.')

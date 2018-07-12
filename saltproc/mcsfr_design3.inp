@@ -1,8 +1,6 @@
 set title "MCSFR Design#3 Unit cell model Depletion 510EFPD"
 
 include "mat_composition3.inp"
-%include "mat_composition.inp"
-%include "../unit_cell2.inp"
 include "unit_cell.inp"
 
 % ----- Boundary conditions
@@ -24,8 +22,8 @@ set pop 500 30 20
 set bumode  2  % CRAM method
 set pcc     1  % Predictor-corrector calculation on
 %set xscalc  2  % Cross sections from spectrum
-set bunorm 2
-set opti 3
+%set bunorm 2
+%set opti 3
 
 % --- Irradiation cycle:
 %set power 6E+9		% 6 GWth
