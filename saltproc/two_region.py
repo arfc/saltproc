@@ -22,8 +22,8 @@ class saltproc_two_region:
 
     def __init__(self, steps, cores, nodes, bw, exec_path, restart=False,
                  input_file='core', db_file='db_saltproc.hdf5',
-                 mat_file='fuel_comp', driver_mat_name='fuel',
-                 blanket_mat_name='blank'):
+                 mat_file='fuel_comp', init_mat_file='init_mat_file', 
+                 driver_mat_name='fuel', blanket_mat_name='blank'):
         """ Initializes the class
 
         Parameters:
@@ -46,6 +46,8 @@ class saltproc_two_region:
             name of output hdf5 file
         mat_file: string
             name of material file connected to input file
+        init_mat_file: string
+            name of material file initally definedd by user
         driver_mat_name: string
             name of driver material in the definition
         blanket_mat_name: string
@@ -62,6 +64,7 @@ class saltproc_two_region:
         self.db_file = db_file
         self.mat_file = mat_file
         self.current_step = 0
+        self.init_mat_file = init_mat_file
         self.blanket_mat_name = blanket_mat_name
         self.driver_mat_name = driver_mat_name
 
@@ -453,9 +456,9 @@ class saltproc_two_region:
             args = (self.exec_path,
                     '-omp', str(self.cores), self.input_file)
         print('RUNNNIN')
-        output = subprocess.Popen(args, stdout=subprocess.PIPE)
+        output = subprocess.check_output(args)
         print('DONES')
-        print(output.stdout.read())
+        print(output)
 
     def remove_iso(self, target_iso, removal_eff, region):
         """ Removes isotopes with given removal efficiency
@@ -536,7 +539,7 @@ class saltproc_two_region:
             self.steps += self.current_step
             # sets the current step so the db isn't initialized again
         else:
-            shutil.copy(self.mat_file, 'init_mat_file')
+            shutil.copy(self.init_mat_file, self.mat_file)
 
         while self.current_step < self.steps:
             print('Cycle number of %i of %i steps' %

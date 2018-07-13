@@ -24,14 +24,15 @@ input_file = 'mcsfr_design3.inp'
 # desired database file name
 db_file = 'db_saltproc.hdf5'
 # material file with fuel composition and density 
-mat_file = 'mat_composition3'
+mat_file = 'iter_mat_file'
+init_mat_file = 'mat_composition3.inp'
 
 # executable path of Serpent
 exec_path = '/projects/sciteam/bahg/serpent30/src/sss2'
 
 # Number of cores and nodes to use in cluster
 cores = 32
-nodes = 4
+nodes = 3
 
 # timesteps of 3 days of run Saltproc
 # total days = (3 * steps) [days] 
@@ -63,7 +64,8 @@ if __name__ == "__main__":
         run = saltproc_two_region(steps=steps, cores=cores, nodes=nodes,
                                   bw=bw, exec_path=exec_path, restart=restart,
                                   input_file=input_file, db_file=db_file,
-                                  mat_file=mat_file, driver_mat_name=driver_mat_name,
+                                  mat_file=mat_file, init_mat_file=init_mat_file,
+                                  driver_mat_name=driver_mat_name,
                                   blanket_mat_name=blanket_mat_name)
     else:
         run = saltproc(steps=steps, cores=cores, nodes=nodes,
