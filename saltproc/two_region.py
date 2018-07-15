@@ -10,6 +10,7 @@ import argparse
 from pyne import serpent
 from pyne import nucname
 from collections import OrderedDict
+import fnmatch
 
 
 class saltproc_two_region:
@@ -83,16 +84,62 @@ class saltproc_two_region:
         indx_list = []
         indx = 0
         if isinstance(keyword, str):
-            indx = self.isolib.index(keyword.encode('utf8'))
+            indx = self.isoname.index(keyword)
             indx_list.append(indx)
-        elif isinstance(keyword, list):         
-            for key in self.isolib:
-                for keywor in keyword:
-                    if keywor in key.decode('utf8'):
-                        indx_list.append(indx)
-                indx += 1
-
+        elif isinstance(keyword, list):
+            for key in keyword:
+                pattern = key + '*'
+                matching = fnmatch.filter(self.isoname, pattern)
+                for i in matching:
+                    indx = self.isoname.index(i)
+                    indx_list.append(indx)
         return np.array(indx_list)
+
+    def get_mat_def(self):
+        """ Get material definition from the initial material definition
+            file
+        """
+        with open(self.mat_file, 'r') as f:
+            self.mat_def_dict = OrderedDict({})
+            lines = f.readlines()
+            for line in lines:
+                if 'mat' in line:
+                    z = line.split()
+                    key = z[1]
+                    self.mat_def_dict[key] = line
+
+    def get_isos(self):
+        """ Reads the isotope zai and name from dep file
+
+        """
+        dep_file = os.path.join('%s_dep.m' %self.input_file)
+        with open(dep_file, 'r') as f:
+            lines = f.readlines()
+            self.bumat_dict = OrderedDict({})
+            read = False
+            read_zai = False
+            read_name = False
+            self.isozai = []
+            self.isoname = []
+            for line in lines:
+                if 'ZAI' in line:
+                    read_zai = True
+                elif read_zai and ';' in line:
+                    read_zai = False
+                elif read_zai:
+                    self.isozai.append(line.strip())
+
+                if 'NAMES' in line:
+                    read_name = True
+                elif read_name and ';' in line:
+                    read_name = False
+                elif read_name:
+                    # skip the spaces and first apostrophe
+                    self.isoname.append(line.split()[0][1:]) 
+                
+            self.isozai = self.isozai[:-2]
+            self.isoname = self.isoname[:-2]
+
 
     def init_db(self):
         """ Initializes the database from the output of the first
@@ -101,16 +148,11 @@ class saltproc_two_region:
         self.f = h5py.File(self.db_file, 'w')
         # put in values from initial condition
         # only bumat1 will give all isotopes
-        self.bumat_dict, self.mat_def_dict = self.read_bumat(1)
+        self.get_isos()
+        self.get_mat_def()
+        self.bumat_dict = self.read_dep()
 
-        # initialize isotope library and number of isotopes
-        self.isolib = []
-        for key, val in self.bumat_dict.items():
-            for isos in val.keys():
-                self.isolib.append(isos.encode('utf8'))
-        self.isolib = list(set(self.isolib))
-
-        self.number_of_isotopes = len(self.isolib)
+        self.number_of_isotopes = len(self.isoname)
 
         shape = (2, self.steps)
         maxshape = (2, None)
@@ -144,55 +186,16 @@ class saltproc_two_region:
         # !! raffinate stream consider splitting by what element
         self.rem_adens = np.zeros((5, self.number_of_isotopes))
         dt = h5py.special_dtype(vlen=str)
-        self.isolib_db = self.f.create_dataset('iso codes', data=self.isolib,
+        # have to encode to utf8 for hdf5 string
+        self.isolib_db = self.f.create_dataset('iso codes',
+                                               data=[x.encode('utf8') for x in self.isoname],
                                                dtype=dt)
 
-        # record initial values
-        self.bumat_dict, self.mat_def_dict = self.read_bumat(0)
-        self.driver_adens_0[0, :] = self.build_array(self.bumat_dict[self.driver_mat_name])
-        self.driver_adens_1[0, :] = self.build_array(self.bumat_dict[self.driver_mat_name])
-        self.blanket_adens_0[0, :] = self.build_array(self.bumat_dict[self.blanket_mat_name])
-        self.blanket_adens_1[0, :] = self.build_array(self.bumat_dict[self.blanket_mat_name])
+        self.driver_adens_0[0, :] = self.bumat_dict[self.driver_mat_name]
+        self.driver_adens_1[0, :] = self.bumat_dict[self.driver_mat_name]
+        self.blanket_adens_0[0, :] = self.bumat_dict[self.blanket_mat_name]
+        self.blanket_adens_1[0, :] = self.bumat_dict[self.blanket_mat_name]
         self.init_u238 = self.driver_adens_0[0, self.find_iso_indx('U238')]
-
-    def build_array(self, comp_dict):
-        """ Inputs the correct element into array by looking at isotope name
-        
-        Parameters:
-        -----------
-        comp_dict: dictionary
-            dictionary with
-            key: isotope name
-            value :adens
-        
-        Returns:
-        --------
-        array: array with ordered isotopic adens values
-        """
-        output_array = np.zeros(self.number_of_isotopes)
-        for isoname, adens in comp_dict.items():
-            indx = self.isolib.index(isoname.encode('utf8'))
-            output_array[indx] = adens
-        return output_array
-
-
-    def dict_to_array(self, bumat_dict):
-        """ Converts an OrderedDict to an array of its values
-        
-        Parameters:
-        -----------
-        bumat_dict: OrderedDict
-            key: isotope name
-            value: adensity
-
-        Returns:
-        --------
-        array of bumat_dict values
-        """
-        array = np.array([])
-        for key, value in bumat_dict.items():
-            array = np.append(array, value)
-        return array
 
 
     def reopen_db(self, restart):
@@ -256,8 +259,8 @@ class saltproc_two_region:
         return keff_analytical[moment]
 
 
-    def read_bumat(self, moment):
-        """ Reads the SERPENT .bumat file
+    def read_dep(self):
+        """ Reads the SERPENT _dep.m file
 
         Parameters:
         -----------
@@ -273,63 +276,33 @@ class saltproc_two_region:
             value: dictionary
                 key: isotope
                 value: adens
-        mat_def_dict: dictionary
-            key: material name
-            value: material definition in SERPENT with volume and density
         """
-        bumat_filename = os.path.join('%s.bumat%i' % (self.input_file, moment))
-        bumat_dict = OrderedDict({})
-        matdef_dict = OrderedDict({})
-        # save isonames for mat file generation
-        self.isoname = []
-
-        with open(bumat_filename, 'r') as data:
-            lines = data.readlines()
-            bumat_dict = {}
-            gather = False
+        dep_file = os.path.join('%s_dep.m' %self.input_file)
+        with open(dep_file, 'r') as f:
+            lines = f.readlines()
+            self.bumat_dict = OrderedDict({})
+            read = False
             for line in lines:
-                if 'mat' in line:
-                    key = line.split()[1]
-                    matdef_dict[key] = line.strip()
-                    bumat_dict[key] = {}
-                    gather = True
-                elif gather:
-                    self.isoname.append(line.split()[0])
-                    iso = self.isotope_naming(line.split()[0])
-                    bumat_dict[key][iso] = float(line.split()[1])
-            self.isoname = list(set(self.isoname))
-            self.isolib_db = bumat_dict[key].keys()
+                if 'MAT' and 'MDENS' in line:
+                    key = line.split('_')[1]
 
-        # selectively return the material composition
-        # and definition
-        return bumat_dict, matdef_dict
+                    read = True
+                    self.bumat_dict[key] = []
+                elif read and ';' in line:
+                    read = False
+                elif read:
+                    z = line.split(' ')
+                    # second / last burnup stage
+                    indx = z.index('%')
+                    self.bumat_dict[key].append(float(z[indx-1]))
 
-    def isotope_naming(self, iso):
-        """ This function figures out the isotope naming problem
-            by taking into account different anomalies.
+            for key, val in self.bumat_dict.items():
+                total = val[-1]
+                val = np.array(val[:-2]) / total
+                # normalized values
+                self.bumat_dict[key] = val
+        return self.bumat_dict
 
-        Parameters:
-        -----------
-        iso: string
-            isotope to be converted into name
-
-        Returns:
-        --------
-        isotope with format [chemical symbol][atmoic weight]
-        (e.g. 'Th232', 'U235', 'Cs137')
-        """
-        if '.' in iso:
-            output = iso.split('.')[0] + '0'
-            output = nucname.name(output)
-        else:
-            output = nucname.name(iso)
-
-        # check metastable states
-        if output[-1] == 'M':
-            metastable_state = iso[-1]
-            output = iso + '-' + str(metastable_state)
-
-        return output
 
     def write_mat_file(self):
         """ Writes the input fuel composition input file block
@@ -348,9 +321,9 @@ class saltproc_two_region:
                    (self.current_step, ana_keff_boc[0], ana_keff_boc[1],
                     ana_keff_eoc[0], ana_keff_eoc[1]))
         for key, val in self.core.items():
-            matf.write(self.matdef_dict[key] + ' burn 1 rgb 253 231 37\n')
-            for iso in range(self.number_of_isotopes):
-                matf.write('%s\t\t%s\n' %(str(self.isoname[iso]), str(val[iso])))
+            matf.write(self.mat_def_dict[key].replace('\n', '') + ' fix 09c 900\n')
+            for indx, isotope in enumerate(self.isozai):
+                matf.write('%s\t\t%s\n' %(str(isotope), str(-1.0 * val[indx])))
         matf.close()
 
     def process_fuel(self):
@@ -359,11 +332,7 @@ class saltproc_two_region:
         """
 
         # read bumat1 (output composition)
-        self.core, self.matdef_dict = self.read_bumat(1)
-
-        # convert core from dict to array
-        for key, val in self.core.items():
-            self.core[key] = self.build_array(self.core[key])
+        self.core = self.read_dep()
 
         # record core composition before reprocessing to db_0
         self.driver_adens_0[self.current_step, :] = self.core[self.driver_mat_name]
@@ -480,7 +449,7 @@ class saltproc_two_region:
         tank_stream = np.zeros(self.number_of_isotopes)
         for iso in target_iso:
             tank_stream[iso] = self.core[region][iso] * removal_eff
-            # remaining            self.core[region][iso] = (1 - removal_eff) * self.core[iso]
+            self.core[region][iso] = (1 - removal_eff) * self.core[region][iso]
         return tank_stream
 
     def refill(self, refill_iso, delta_adens, region):
