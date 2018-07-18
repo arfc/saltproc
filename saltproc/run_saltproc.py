@@ -32,7 +32,7 @@ exec_path = '/projects/sciteam/bahg/serpent30/src/sss2'
 
 # Number of cores and nodes to use in cluster
 cores = 32
-nodes = 3
+nodes = 1
 
 # timesteps of 3 days of run Saltproc
 # total days = (3 * steps) [days] 
@@ -46,7 +46,6 @@ restart = False
 # True: Uses blue water command (aprun) to run SERPERNT
 # False: Simply runs the executable command
 bw = True
-
 
 # two region parameters
 two_region = True

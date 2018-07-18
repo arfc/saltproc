@@ -68,6 +68,7 @@ class saltproc_two_region:
         self.init_mat_file = init_mat_file
         self.blanket_mat_name = blanket_mat_name
         self.driver_mat_name = driver_mat_name
+        self.get_library_isotopes()
 
     def find_iso_indx(self, keyword):
         """ Returns index number of keword in bumat dictionary
@@ -95,11 +96,38 @@ class saltproc_two_region:
                     indx_list.append(indx)
         return np.array(indx_list)
 
+    def get_library_isotopes(self):
+        """ Returns the isotopes in the cross section library
+
+        Parameters:
+        -----------
+
+        Returns:
+        --------
+        iso_array: array
+            array of isotopes in cross section library:
+        """
+        with open(self.input_file, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if 'set acelib' in line:
+                    start = line.index('"') + 1
+                    end = line[start:].index('"') + start
+                    acelib = line[start:end]
+        self.lib_isos = []
+        with open(acelib, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                iso = line.split()[1]
+                self.lib_isos.append(iso)
+
+        self.lib_isos = np.array(self.lib_isos)
+
     def get_mat_def(self):
         """ Get material definition from the initial material definition
             file
         """
-        with open(self.mat_file, 'r') as f:
+        with open(self.init_mat_file, 'r') as f:
             self.mat_def_dict = OrderedDict({})
             lines = f.readlines()
             for line in lines:
@@ -115,7 +143,6 @@ class saltproc_two_region:
         dep_file = os.path.join('%s_dep.m' %self.input_file)
         with open(dep_file, 'r') as f:
             lines = f.readlines()
-            self.bumat_dict = OrderedDict({})
             read = False
             read_zai = False
             read_name = False
@@ -153,7 +180,6 @@ class saltproc_two_region:
         self.bumat_dict = self.read_dep()
 
         self.number_of_isotopes = len(self.isoname)
-
         shape = (2, self.steps)
         maxshape = (2, None)
         self.keff_db = self.f.create_dataset('keff_EOC', shape,
@@ -190,7 +216,6 @@ class saltproc_two_region:
         self.isolib_db = self.f.create_dataset('iso codes',
                                                data=[x.encode('utf8') for x in self.isoname],
                                                dtype=dt)
-
         self.driver_adens_0[0, :] = self.bumat_dict[self.driver_mat_name]
         self.driver_adens_1[0, :] = self.bumat_dict[self.driver_mat_name]
         self.blanket_adens_0[0, :] = self.bumat_dict[self.blanket_mat_name]
@@ -283,24 +308,25 @@ class saltproc_two_region:
             self.bumat_dict = OrderedDict({})
             read = False
             for line in lines:
-                if 'MAT' and 'MDENS' in line:
+                if 'MAT'in line and 'MDENS' in line:
                     key = line.split('_')[1]
-
                     read = True
-                    self.bumat_dict[key] = []
+                    self.bumat_dict[key] = [0] * len(self.isoname)
                 elif read and ';' in line:
                     read = False
                 elif read:
                     z = line.split(' ')
                     # second / last burnup stage
                     indx = z.index('%')
-                    self.bumat_dict[key].append(float(z[indx-1]))
-
-            for key, val in self.bumat_dict.items():
-                total = val[-1]
-                val = np.array(val[:-2]) / total
-                # normalized values
-                self.bumat_dict[key] = val
+                    mdens = z[indx-1]
+                    # find index so that it doesn't change
+                    name = z[-1].replace('\n', '')
+                    try:
+                        where_in_isoname = self.isoname.index(name)
+                        self.bumat_dict[key][where_in_isoname] = float(z[indx-1])
+                    except ValueError:
+                        if name not in ['total', 'data']:
+                            print('THIS WAS NOT HERE %s' %name)
         return self.bumat_dict
 
 
@@ -316,6 +342,7 @@ class saltproc_two_region:
         """
         ana_keff_boc = self.read_res(0)
         ana_keff_eoc = self.read_res(1)
+        not_in_lib = open('NOT_IN_LIB', 'w')
         matf = open(self.mat_file, 'w')
         matf.write('%% Step number # %i %f +- %f;%f +- %f \n' %
                    (self.current_step, ana_keff_boc[0], ana_keff_boc[1],
@@ -323,7 +350,17 @@ class saltproc_two_region:
         for key, val in self.core.items():
             matf.write(self.mat_def_dict[key].replace('\n', '') + ' fix 09c 900\n')
             for indx, isotope in enumerate(self.isozai):
-                matf.write('%s\t\t%s\n' %(str(isotope), str(-1.0 * val[indx])))
+                # filter metastables
+                if str(isotope[-1]) != '0':
+                    continue
+                # change name so it corresponds to temperature
+                isotope = str(isotope)[:-1] + '.09c'
+                # filter isotopes not in cross section library 
+                if isotope not in self.lib_isos:
+                    not_in_lib.write('%s\t\t%s\n' %(str(isotope), str(-1.0 * val[indx])))
+                    continue
+                else:
+                    matf.write('%s\t\t%s\n' %(str(isotope), str(-1.0 * val[indx])))
         matf.close()
 
     def process_fuel(self):
@@ -391,6 +428,8 @@ class saltproc_two_region:
         # hopefully there's pu leftover
         self.pu_tank[self.current_step, :] -= adens_reprocessed_out * self.find_pu_comp()
         self.core[self.driver_mat_name] += adens_reprocessed_out * self.find_pu_comp()
+
+        #### MAYBE RENORMALIZE BEFORE WRITING MAT FILE?
 
         # write the processed material to mat file for next run
         self.write_mat_file()
@@ -508,6 +547,9 @@ class saltproc_two_region:
             self.steps += self.current_step
             # sets the current step so the db isn't initialized again
         else:
+            if os.path.isfile(self.db_file):
+                print('FILE ALREADY EXISTS - THE FILE IS MOVED TO old_%s' %self.db_file)
+                os.rename(self.db_file, 'old' + self.db_file)
             shutil.copy(self.init_mat_file, self.mat_file)
 
         while self.current_step < self.steps:
@@ -525,6 +567,6 @@ class saltproc_two_region:
             u235_id = self.find_iso_indx('U235')
             print(self.driver_adens_0[self.current_step, u235_id])
             #######
-            self.record_db()
+            # self.record_db()
 
         print('End of Saltproc.')
