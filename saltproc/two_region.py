@@ -70,7 +70,7 @@ class saltproc_two_region:
         self.driver_mat_name = driver_mat_name
         self.get_library_isotopes()
 
-        self.fissile_add_back_frac = 0.5
+        self.fissile_add_back_frac = 1
 
     def find_iso_indx(self, keyword):
         """ Returns index number of keword in bumat dictionary
@@ -178,7 +178,7 @@ class saltproc_two_region:
 
         self.get_isos()
         self.get_mat_def()
-        self.dep_dict = self.read_dep()
+        self.dep_dict = self.read_dep(boc=True)
 
         self.number_of_isotopes = len(self.isoname)
         shape = (2, self.steps)
@@ -196,7 +196,6 @@ class saltproc_two_region:
         self.driver_before_db = self.f.create_dataset('driver composition before reproc',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
-        print(len(self.driver_before_db[0, :]))
         self.driver_after_db = self.f.create_dataset('driver composition after reproc',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
@@ -223,6 +222,7 @@ class saltproc_two_region:
                                                data=[x.encode('utf8') for x in self.isoname],
                                                dtype=dt)
         # the first depleted, non-reprocessed fuel is stored in timestep 1
+        # initial composition
         self.driver_before_db[0, :] = self.dep_dict[self.driver_mat_name]
         self.driver_after_db[0, :] = self.dep_dict[self.driver_mat_name]
         self.blanket_before_db[0, :] = self.dep_dict[self.blanket_mat_name]
@@ -296,7 +296,7 @@ class saltproc_two_region:
         return keff_analytical[moment]
 
 
-    def read_dep(self):
+    def read_dep(self, boc=False):
         """ Reads the SERPENT _dep.m file
 
         Parameters:
@@ -305,6 +305,8 @@ class saltproc_two_region:
             moment of depletion step (0 for BOC and 1 for EOC)
         mat_name: string
             name of material to return the composition of
+        boc: bool
+            if true, gets the boc composition
 
         Returns:
         --------
@@ -331,6 +333,8 @@ class saltproc_two_region:
                     # last burnup stage
                     indx = z.index('%')
                     mdens = z[indx-1]
+                    if boc:
+                        mdens = z[indx-2]
                     # the isotope name is at the end of the line.
                     name = z[-1].replace('\n', '')
                     # find index so that it doesn't change
@@ -412,10 +416,10 @@ class saltproc_two_region:
         self.waste_tank_db += self.remove_iso(rare_earths, 1, self.driver_mat_name)
 
         # remove every 10 years
-        if self.current_step % 1216 == 0:
-            discard = self.find_iso_indx(['Cs', 'Ba', 'Rb', 'Sr', 'Li', 'Be',
-                                          'Cl', 'Na' 'Th'])
-            self.waste_tank_db += self.remove_iso(discard_id, 1, self.driver_mat_name)
+        #if self.current_step % 1216 == 0:
+        #    discard = self.find_iso_indx(['Cs', 'Ba', 'Rb', 'Sr', 'Li', 'Be',
+        #                                  'Cl', 'Na' 'Th'])
+        #    self.waste_tank_db += self.remove_iso(discard_id, 1, self.driver_mat_name)
         #### end of separation from driver
 
 
@@ -475,10 +479,10 @@ class saltproc_two_region:
         # check EOC KEFF for determining fissile_add_back_frac
 
         self.eoc_keff = self.read_res(1)
-        print('EOC KEFF IS %f +- %f' %(eoc_keff[0], eoc_keff[1]))
+        print('EOC KEFF IS %f +- %f' %(self.eoc_keff[0], self.eoc_keff[1]))
         ## SOME SMART WAY TO REDUCE OR INCREASE THE AMOUNT OF PU
         ## GOING INSIDE THE CORE DEPENDING ON THE KEFF VALUE
-        
+
        
 
 
