@@ -70,6 +70,8 @@ class saltproc_two_region:
         self.driver_mat_name = driver_mat_name
         self.get_library_isotopes()
 
+        self.fissile_add_back_frac = 0.5
+
     def find_iso_indx(self, keyword):
         """ Returns index number of keword in bumat dictionary
         
@@ -188,9 +190,13 @@ class saltproc_two_region:
 
         shape = (self.steps + 1, self.number_of_isotopes)
         maxshape = (None, self.number_of_isotopes)
+        print('INIT DB ')
+        print('NUMBER OF ISOTOPES: %i' %self.number_of_isotopes)
+        print(shape)
         self.driver_before_db = self.f.create_dataset('driver composition before reproc',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
+        print(len(self.driver_before_db[0, :]))
         self.driver_after_db = self.f.create_dataset('driver composition after reproc',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
@@ -236,21 +242,24 @@ class saltproc_two_region:
         self.keff_eoc_db = self.f['keff_EOC']
         self.keff_boc_db = self.f['keff_BOC']
         self.driver_before_db = self.f['driver composition before reproc']
+        print(len(self.driver_before_db[0, :]))
+
         self.driver_after_db = self.f['driver composition after reproc']
         self.blanket_before_db = self.f['blanket composition before reproc']
         self.blanket_after_db = self.f['blanket composition after reproc']
-        self.waste_tank_db = self.f['tank composition']
+        self.waste_tank_db = self.f['waste tank composition']
         self.driver_refill_tank_db = self.f['driver refill tank composition']
         self.blanket_refill_tank_db = self.f['blanket refill tank composition']
         self.isolib_db = self.f['iso names']
         self.fissile_tank_db = self.f['fissile tank composition']
 
-        self.get_isos()
-        self.get_mat_def()
-        self.number_of_isotopes = len(self.isoname)
-        self.keff = self.keff_eoc_db[0, :]
 
         if restart:
+
+            self.get_isos()
+            self.get_mat_def()
+            self.number_of_isotopes = len(self.isoname)
+            self.keff = self.keff_eoc_db[0, :]
             # set past time
             # !! this time thing should be made certain
             self.current_step = np.amax(np.nonzero(self.keff)) + 1
@@ -375,6 +384,8 @@ class saltproc_two_region:
         self.core = self.read_dep()
 
         # record the depleted composition before reprocessing
+        print(len(self.driver_before_db[self.current_step, :]))
+        print(len(self.core[self.driver_mat_name]))
         self.driver_before_db[self.current_step, :] = self.core[self.driver_mat_name]
         self.blanket_before_db[self.current_step, :] = self.core[self.blanket_mat_name]
 
@@ -419,6 +430,7 @@ class saltproc_two_region:
 
         ########## blanket refilling
         pu_removed = sum(self.fissile_tank_db[self.current_step, :])
+        print('\nREMOVED %f GRAMS OF PU FROM BLANKET' %pu_removed)
         # depleted uranium composition
         tails_enrich = 0.003
         # for natural uranium, use below:
@@ -433,10 +445,14 @@ class saltproc_two_region:
 
         ########## driver refilling
         # refill as much as what's reprocessed for mass balance
-        fill_qty = sum(self.refill_tank_db[self.current_step, :])
+        fill_qty = sum(self.waste_tank_db[self.current_step, :])
+        print('REMOVED A TOTAL OF %f GRAMS OF WASTE FROM THE DRIVER\n' %fill_qty)
 
-        fissile_add_back_frac = 0.5
-        pu_to_add = self.fissile_tank_db[self.current_step, :] * fissile_add_back_frac
+        ### REACTIVITY CONTROL MODULE
+
+        self.reactivity_control()
+        pu_to_add = self.fissile_tank_db[self.current_step, :] * self.fissile_add_back_frac
+        print('PUTTING IN %f GRAMS OF PU BACK INTO THE DRIVER' %sum(pu_to_add))
         if sum(pu_to_add) >= fill_qty:
             raise ValueError('\n\nThe fissile add back fraction is too high. It causes the driver to increase in mass!!!!\n\n')
         self.fissile_tank_db[self.current_step, :] -= pu_to_add
@@ -448,6 +464,22 @@ class saltproc_two_region:
         u235_fill = fill_qty * tails_enrich
         self.refill(u238_id, u238_fill, self.driver_mat_name)
         self.refill(u235_id, u235_fill, self.driver_mat_name)
+        print('PUTTING IN %f GRAMS OF DEP U INTO DRIVER\n' %(fill_qty))
+
+
+    def reactivity_control(self):
+        """ Controls fraction of fissile material
+            input into core to control keff into
+            a range
+        """
+        # check EOC KEFF for determining fissile_add_back_frac
+
+        self.eoc_keff = self.read_res(1)
+        print('EOC KEFF IS %f +- %f' %(eoc_keff[0], eoc_keff[1]))
+        ## SOME SMART WAY TO REDUCE OR INCREASE THE AMOUNT OF PU
+        ## GOING INSIDE THE CORE DEPENDING ON THE KEFF VALUE
+        
+       
 
 
 
@@ -499,6 +531,7 @@ class saltproc_two_region:
         for iso in target_iso:
             tank_stream[iso] = self.core[region][iso] * removal_eff
             self.core[region][iso] = (1 - removal_eff) * self.core[region][iso]
+            # print('REMOVING %f GRAMS OF %s FROM %s' %(self.core[region][iso], self.isoname[iso], region))
         return tank_stream
 
     def refill(self, refill_iso, delta, region):
@@ -520,10 +553,11 @@ class saltproc_two_region:
         """
         for iso in refill_iso:
             self.core[region][iso] = self.core[region][iso] + delta
+            # print('REFILLING %f GRAMS OF %s TO %s' %(delta, self.isoname[iso], region))
             if region == self.driver_mat_name:
-                self.driver_refill_tank_db[iso] -= delta
+                self.driver_refill_tank_db[self.current_step, iso] -= delta
             elif region == self.blanket_mat_name:
-                self.blanket_refill_tank_db[iso] -= delta
+                self.blanket_refill_tank_db[self.current_step, iso] -= delta
         
     def maintain_const(self, target_isotope, target_qty, region):
         """ Maintains the constant amount of a target isotope
@@ -549,6 +583,7 @@ class saltproc_two_region:
 
     def start_sequence(self):
         """ checks restart and preexisting file
+            copies initial mat file to predefined mat file name
         """
         if self.restart and os.path.isfile(self.mat_file):
             try:
@@ -568,7 +603,7 @@ class saltproc_two_region:
             shutil.copy(self.init_mat_file, self.mat_file)
 
     def main(self):
-        """ Core of saltproc, moves forward in timesteps,
+        """ Core of saltproc: moves forward in timesteps,
             run serpent, process fuel, record to db, and repeats
         """
         self.start_sequence()
