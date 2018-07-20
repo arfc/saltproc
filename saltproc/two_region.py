@@ -69,8 +69,7 @@ class saltproc_two_region:
         self.blanket_mat_name = blanket_mat_name
         self.driver_mat_name = driver_mat_name
         self.get_library_isotopes()
-
-        self.fissile_add_back_frac = 1
+        self.prev_qty = 1
 
     def find_iso_indx(self, keyword):
         """ Returns index number of keword in bumat dictionary
@@ -190,9 +189,6 @@ class saltproc_two_region:
 
         shape = (self.steps + 1, self.number_of_isotopes)
         maxshape = (None, self.number_of_isotopes)
-        print('INIT DB ')
-        print('NUMBER OF ISOTOPES: %i' %self.number_of_isotopes)
-        print(shape)
         self.driver_before_db = self.f.create_dataset('driver composition before reproc',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
@@ -242,8 +238,7 @@ class saltproc_two_region:
         self.keff_eoc_db = self.f['keff_EOC']
         self.keff_boc_db = self.f['keff_BOC']
         self.driver_before_db = self.f['driver composition before reproc']
-        print(len(self.driver_before_db[0, :]))
-
+        
         self.driver_after_db = self.f['driver composition after reproc']
         self.blanket_before_db = self.f['blanket composition before reproc']
         self.blanket_after_db = self.f['blanket composition after reproc']
@@ -388,8 +383,6 @@ class saltproc_two_region:
         self.core = self.read_dep()
 
         # record the depleted composition before reprocessing
-        print(len(self.driver_before_db[self.current_step, :]))
-        print(len(self.core[self.driver_mat_name]))
         self.driver_before_db[self.current_step, :] = self.core[self.driver_mat_name]
         self.blanket_before_db[self.current_step, :] = self.core[self.blanket_mat_name]
 
@@ -434,7 +427,8 @@ class saltproc_two_region:
 
         ########## blanket refilling
         pu_removed = sum(self.fissile_tank_db[self.current_step, :])
-        print('\nREMOVED %f GRAMS OF PU FROM BLANKET' %pu_removed)
+        print('\n')
+        print('REMOVED %f GRAMS OF PU FROM BLANKET' %pu_removed)
         # depleted uranium composition
         tails_enrich = 0.003
         # for natural uranium, use below:
@@ -446,16 +440,18 @@ class saltproc_two_region:
         u235_id = self.find_iso_indx('U235')
         self.refill(u238_id, u238_fill, self.blanket_mat_name)
         self.refill(u235_id, u235_fill, self.blanket_mat_name)
-
+        print('REFUELED %f GRAMS OF DEP U INTO BLANKET' %(u238_fill + u235_fill))
+        print('\n')
         ########## driver refilling
         # refill as much as what's reprocessed for mass balance
         fill_qty = sum(self.waste_tank_db[self.current_step, :])
-        print('REMOVED A TOTAL OF %f GRAMS OF WASTE FROM THE DRIVER\n' %fill_qty)
-
+        print('REMOVED A TOTAL OF %f GRAMS OF WASTE FROM THE DRIVER' %fill_qty)
+        """
+        #! DELETED FOR ANDREI
         ### REACTIVITY CONTROL MODULE
-
-        self.reactivity_control()
-        pu_to_add = self.fissile_tank_db[self.current_step, :] * self.fissile_add_back_frac
+        self.add_back_qty = self.reactivity_control()
+        # since mass frac, can multiply by qty to get isotopic
+        pu_to_add = self.fissile_tank_db[self.current_step, :] * self.add_back_qty
         print('PUTTING IN %f GRAMS OF PU BACK INTO THE DRIVER' %sum(pu_to_add))
         if sum(pu_to_add) >= fill_qty:
             raise ValueError('\n\nThe fissile add back fraction is too high. It causes the driver to increase in mass!!!!\n\n')
@@ -464,6 +460,7 @@ class saltproc_two_region:
 
         # fill the rest of the driver with depleted uranium
         fill_qty -= sum(pu_to_add)
+        """
         u238_fill = fill_qty * (1 - tails_enrich)
         u235_fill = fill_qty * tails_enrich
         self.refill(u238_id, u238_fill, self.driver_mat_name)
@@ -479,13 +476,27 @@ class saltproc_two_region:
         # check EOC KEFF for determining fissile_add_back_frac
 
         self.eoc_keff = self.read_res(1)
+        # how much pu we lost:
+        pu = self.find_iso_indx(['Pu'])
+        pu_loss = self.driver_before_db[self.current_step, :] - self.driver_after_db[self.current_step-1, :]
+
+        pu_avail = sum(self.fissile_tank_db[self.current_step, :])
         print('EOC KEFF IS %f +- %f' %(self.eoc_keff[0], self.eoc_keff[1]))
-        ## SOME SMART WAY TO REDUCE OR INCREASE THE AMOUNT OF PU
-        ## GOING INSIDE THE CORE DEPENDING ON THE KEFF VALUE
+        
+        if self.eoc_keff[0] > 1.05:
+            print('KEFF IS TOO HIGH: NOT PUTTING ANY MORE PU IN DRIVER\n')
+            qty = 0
+        elif self.eoc_keff[0] <= 1.05 and self.eoc_keff[0] > 1.01:
+            print('KEFF IS IN A GOOD SPOT: PUTTING THE AMOUNT LOST FROM PREV DEPLETION\n')
+            qty = min(pu_avail, pu_loss)
+        elif self.eoc_keff[0] <= 1.01:
+            print('KEFF IS LOW: PUTTING IN 1.5 TIMES PU THAN PREIVOUS STEP:')
+            qty = min(self.prev_qty * 1.5, pu_avail)
+        if qty == pu_avail:
+            print('NOT ENOUGH PU AVAILABLE: PUTTING THE MAXIMUM AMOUNT AVAILABLE')
 
-       
-
-
+        self.prev_qty = qty
+        return qty
 
     def record_db(self):
         """ Records the processed fuel composition, Keff values,
@@ -510,7 +521,10 @@ class saltproc_two_region:
             args = (self.exec_path,
                     '-omp', str(self.cores), self.input_file)
         print('RUNNNIN')
-        output = subprocess.check_output(args)
+        try:
+            output = subprocess.check_output(args)
+        except subprocess.CalledProcessError as e:
+            print (e.output)
         print('DONES')
         print(output)
 
