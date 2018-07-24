@@ -46,12 +46,35 @@ restart = False
 bw = False
 
 
-###############################################################
+parser = argparse.ArgumentParser()
+parser.add_argument('-r', choices=['True', 'False'], default=restart) # restart flag -r 
+parser.add_argument('-n', nargs=1, type=int, default=nodes) # number of nodes
+parser.add_argument('-steps', nargs=1, type=int, default=steps) # steps for depletion
+parser.add_argument('-bw', choices=['True', 'False'], default=bw) # blue waters?
+
+args = parser.parse_args()
+restart = bool(args.r)
+nodes = int(args.n)
+steps = int(args.steps)
+bw = bool(args.bw)
+
+
 #########           END OF INPUT FILE SECTION         #########
 ###############################################################
 
 
 if __name__ == "__main__":
+    print('Initiating Saltproc:\n'
+          '\tRestart = ' + str(restart) + '\n'
+          '\tNodes = ' + str(nodes) + '\n'
+          '\tCores = ' + str(cores) + '\n'
+          '\tSteps = ' + str(steps) + '\n'
+          '\tBlue Waters = ' + str(bw) + '\n'
+          '\tSerpent Path = ' + exec_path + '\n'
+          '\tInput File Path = ' + input_file + '\n'
+          '\tMaterial File Path = ' + mat_file + '\n'
+          '\tOutput DB File Path = ' + db_file + '\n'
+          )
     # run saltproc
     run = saltproc(steps=steps, cores=cores, nodes=nodes,
                    bw=bw, exec_path=exec_path, restart=restart,
