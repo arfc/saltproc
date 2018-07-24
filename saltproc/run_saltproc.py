@@ -19,11 +19,11 @@ from pyne import nucname
 ##############################################################
 
 # SERPENT input file
-input_file = 'core'
+input_file = '../examples/core'
 # desired database file name
 db_file = 'db_saltproc.hdf5'
 # material file with fuel composition and density
-mat_file = 'fuel_comp'
+mat_file = '../examples/fuel_comp'
 
 # executable path of Serpent
 exec_path = '/projects/sciteam/bahg/serpent30/src/sss2'
