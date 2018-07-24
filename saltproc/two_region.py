@@ -10,7 +10,6 @@ import argparse
 from pyne import serpent
 from pyne import nucname
 from collections import OrderedDict
-import fnmatch
 
 
 class saltproc_two_region:
@@ -90,11 +89,9 @@ class saltproc_two_region:
             indx_list.append(indx)
         elif isinstance(keyword, list):
             for key in keyword:
-                pattern = key + '*'
-                matching = fnmatch.filter(self.isoname, pattern)
-                for i in matching:
-                    indx = self.isoname.index(i)
-                    indx_list.append(indx)
+                for indx, isotope in self.isoname:
+                    if key in isotope:
+                        indx_list.append(indx)
         return np.array(indx_list)
 
     def get_library_isotopes(self):
@@ -407,12 +404,13 @@ class saltproc_two_region:
                                           'Gd', 'Eu', 'Dy', 'Ho', 'Er', 'Tb', 'Ga',
                                           'Ge', 'As', 'Zn'])
         self.waste_tank_db += self.remove_iso(rare_earths, 1, self.driver_mat_name)
-
+        """
         # remove every 10 years
-        #if self.current_step % 1216 == 0:
-        #    discard = self.find_iso_indx(['Cs', 'Ba', 'Rb', 'Sr', 'Li', 'Be',
-        #                                  'Cl', 'Na' 'Th'])
-        #    self.waste_tank_db += self.remove_iso(discard_id, 1, self.driver_mat_name)
+        if self.current_step % 1216 == 0:
+           discard = self.find_iso_indx(['Cs', 'Ba', 'Rb', 'Sr', 'Li', 'Be',
+                                         'Cl', 'Na' 'Th'])
+           self.waste_tank_db += self.remove_iso(discard_id, 1, self.driver_mat_name)
+        """
         #### end of separation from driver
 
 
@@ -446,6 +444,7 @@ class saltproc_two_region:
         # refill as much as what's reprocessed for mass balance
         fill_qty = sum(self.waste_tank_db[self.current_step, :])
         print('REMOVED A TOTAL OF %f GRAMS OF WASTE FROM THE DRIVER' %fill_qty)
+
         """
         #! DELETED FOR ANDREI
         ### REACTIVITY CONTROL MODULE
@@ -478,8 +477,8 @@ class saltproc_two_region:
         self.eoc_keff = self.read_res(1)
         # how much pu we lost:
         pu = self.find_iso_indx(['Pu'])
-        pu_loss = self.driver_before_db[self.current_step, :] - self.driver_after_db[self.current_step-1, :]
-
+        pu_loss = self.driver_before_db[self.current_step, pu] - self.driver_after_db[self.current_step-1, pu]
+        pu_loss = sum(pu_loss)
         pu_avail = sum(self.fissile_tank_db[self.current_step, :])
         print('EOC KEFF IS %f +- %f' %(self.eoc_keff[0], self.eoc_keff[1]))
         
