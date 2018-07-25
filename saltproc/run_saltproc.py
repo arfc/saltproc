@@ -11,13 +11,6 @@ from saltproc import saltproc
 from pyne import serpent
 from pyne import nucname
 
-##############################################################
-######### THIS IS THE INPUT FILE SECTION OF SALTPROC #########
-######### TO RUN, simply set these settings and run  #########
-##############################################################
-#########         `python run_saltproc.py            #########
-##############################################################
-
 # SERPENT input file
 input_file = '../examples/core'
 # desired database file name
