@@ -10,6 +10,7 @@ import argparse
 from pyne import serpent
 from pyne import nucname
 from collections import OrderedDict
+import re
 
 
 class saltproc_two_region:
@@ -89,9 +90,11 @@ class saltproc_two_region:
             indx_list.append(indx)
         elif isinstance(keyword, list):
             for key in keyword:
-                for indx, isotope in self.isoname:
-                    if key in isotope:
+                for indx, isotope in enumerate(self.isoname):
+                    el = " ".join(re.findall("[a-zA-Z]+", isotope))
+                    if key == el:   
                         indx_list.append(indx)
+                        print(self.isoname[indx])
         return np.array(indx_list)
 
     def get_library_isotopes(self):
@@ -174,7 +177,7 @@ class saltproc_two_region:
 
         self.get_isos()
         self.get_mat_def()
-        self.dep_dict = self.read_dep(boc=True)
+        self.dep_dict = self.read_dep()
 
         self.number_of_isotopes = len(self.isoname)
         shape = (2, self.steps)
@@ -209,6 +212,8 @@ class saltproc_two_region:
         self.blanket_refill_tank_db = self.f.create_dataset('blanket refill tank composition',
                                                             shape, maxshape=maxshape,
                                                             chunks=True)
+        # initial composition
+
         dt = h5py.special_dtype(vlen=str)
         # have to encode to utf8 for hdf5 string
         self.isolib_db = self.f.create_dataset('iso names',
@@ -216,11 +221,44 @@ class saltproc_two_region:
                                                dtype=dt)
         # the first depleted, non-reprocessed fuel is stored in timestep 1
         # initial composition
+        self.dep_dict = self.read_dep()
         self.driver_before_db[0, :] = self.dep_dict[self.driver_mat_name]
         self.driver_after_db[0, :] = self.dep_dict[self.driver_mat_name]
         self.blanket_before_db[0, :] = self.dep_dict[self.blanket_mat_name]
         self.blanket_after_db[0, :] = self.dep_dict[self.blanket_mat_name]
 
+    def write_run_info(self):
+        # read from input file:
+        with open(self.input_file, 'r') as f:
+            lines = f.readlines()
+            for linenum, line in enumerate(lines):
+                if line.strip() == 'dep':
+                    timestep = lines[linenum+2].strip()
+                    if ' ' in timestep:
+                        raise ValueError('Your Input file should only have one depstep')
+                if 'set pop' in line and '%' not in line:
+                    neutrons = line.split()[2]
+                    active = line.split()[3]
+                    inactive = line.split()[4]
+        # write to db
+        self.f.create_dataset('siminfo_timestep', data=timestep)
+        self.f.create_dataset('siminfo_pop', data=[neutrons, active, inactive])
+
+        # fuel and blanket density
+        dens_dict = {}
+        for key, value in self.mat_def_dict().items():
+            if float(value.split()[2]) < 0:
+                cat = 'mass'
+            else:
+                cat = 'atomic' 
+            dens_dict[key] = value.split()[2]
+        for key, value in self.dens_dict.items():
+            self.f.create_dataset('siminfo_%s_%s_density' %(key, cat), data=value)
+
+        # init composition
+        init_comp = self.read_dep(boc=True)
+        for key, value in init_comp.items():
+            self.f.create_dataset('siminfo_%s_init_comp' %key, data=value)
 
     def reopen_db(self, restart):
         """ Reopens the previously exisiting database
@@ -391,6 +429,7 @@ class saltproc_two_region:
         self.fissile_tank_db[self.current_step, :] = self.remove_iso(pu, 1, self.blanket_mat_name)
 
         # reprocess waste from driver
+        print('GETTING RID OF VOLATIVE GASES:')
         volatile_gases = self.find_iso_indx(['Kr', 'Xe', 'Ar', 'Ne', 'H', 'N', 'O', 'Rn'])
         self.waste_tank_db[self.current_step, :] += self.remove_iso(volatile_gases, 1, self.driver_mat_name)
 
@@ -525,7 +564,7 @@ class saltproc_two_region:
         except subprocess.CalledProcessError as e:
             print (e.output)
         print('DONES')
-        print(output)
+        # print(output)
 
     def remove_iso(self, target_iso, removal_eff, region):
         """ Removes isotopes with given removal efficiency
@@ -575,7 +614,7 @@ class saltproc_two_region:
                 self.driver_refill_tank_db[self.current_step, iso] -= delta
             elif region == self.blanket_mat_name:
                 self.blanket_refill_tank_db[self.current_step, iso] -= delta
-        
+
     def maintain_const(self, target_isotope, target_qty, region):
         """ Maintains the constant amount of a target isotope
 
