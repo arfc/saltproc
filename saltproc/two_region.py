@@ -178,6 +178,7 @@ class saltproc_two_region:
         self.get_isos()
         self.get_mat_def()
         self.dep_dict = self.read_dep()
+        self.write_run_info()
 
         self.number_of_isotopes = len(self.isoname)
         shape = (2, self.steps)
@@ -246,13 +247,13 @@ class saltproc_two_region:
 
         # fuel and blanket density
         dens_dict = {}
-        for key, value in self.mat_def_dict().items():
+        for key, value in self.mat_def_dict.items():
             if float(value.split()[2]) < 0:
                 cat = 'mass'
             else:
                 cat = 'atomic' 
             dens_dict[key] = value.split()[2]
-        for key, value in self.dens_dict.items():
+        for key, value in dens_dict.items():
             self.f.create_dataset('siminfo_%s_%s_density' %(key, cat), data=value)
 
         # init composition
@@ -667,7 +668,7 @@ class saltproc_two_region:
         while self.current_step < self.steps:
             print('Cycle number of %i of %i steps' %
                   (self.current_step + 1, self.steps))
-            self.run_serpent()
+            #self.run_serpent()
             if self.current_step == 0:
                 # intializing db to get all arrays for calculation
                 self.init_db()
