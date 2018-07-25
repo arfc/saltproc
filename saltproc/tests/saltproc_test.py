@@ -13,9 +13,11 @@ from saltproc import saltproc
 # global clas object
 directory = os.path.dirname(path)
 saltproc = saltproc(5, 32, 32, 'False', restart=False,
+                    exec_path='/projects/sciteam/bahg/serpent30/src/sss2',
                     input_file=directory+'/test',
                     db_file=directory+'/test_db.hdf5',
                     mat_file=directory+'/test_mat')
+os.remove(directory+'/test_db.hdf5')
 
 
 def test_init_db_file_creation():
@@ -45,20 +47,17 @@ def test_read_res():
 
 
 def test_read_bumat():
-    isolib_array, bu_adens, mat_def = saltproc.read_bumat(
+    bumat_dict, mat_def = saltproc.read_bumat(
         saltproc.input_file, 0)
-    assert isolib_array[0] == '1001.10c'
-    assert bu_adens[0] == 0.00000000000000E+00
+    assert bumat_dict['H1'] == 0.00000000000000E+00
 
-    assert isolib_array[-1] == '982510'
-    assert bu_adens[0] == 0.00000000000000E+00
+    assert bumat_dict['Cf251'] == 0.00000000000000E+00
 
-    assert isolib_array[saltproc.th232_id] == '90232.10c'
-    assert bu_adens[saltproc.th232_id[0]] == 3.69244822559746E-03
+    assert bumat_dict['Th232'] == 3.69244822559746E-03
 
 
 def test_read_bumat_matef():
-    isolib_array, bu_adens, mat_def = saltproc.read_bumat(
+    bumat_dict, mat_def = saltproc.read_bumat(
         saltproc.input_file, 0)
     solution = 'mat  fuel  7.77767011499957E-02 vol 5.51573E+06'
     assert mat_def == solution
@@ -66,8 +65,9 @@ def test_read_bumat_matef():
 
 def test_write_mat_file():
     # this is like this because it errors, but runs
-    saltproc.isolib_array, saltproc.core, saltproc.mat_def = saltproc.read_bumat(
+    saltproc.bumat_dict, saltproc.mat_def = saltproc.read_bumat(
         saltproc.input_file, 0)
+    saltproc.process_fuel()
     saltproc.write_mat_file()
     z = 0
     with open(saltproc.mat_file, 'r') as f:
@@ -75,18 +75,30 @@ def test_write_mat_file():
         for linenum, line in enumerate(lines):
             if linenum == 0:
                 solution = ('% Step number # 0 1.074470 +- 0.002130;'
-                           '1.014630 +- 0.002520')
+                            '1.014630 +- 0.002520')
                 assert line.rstrip() == solution
 
 
 def test_process_fuel():
     saltproc.process_fuel()
+    h1 = saltproc.bu_adens_db_0[saltproc.current_step,
+                                saltproc.find_iso_indx('H1')]
     assert saltproc.bu_adens_db_0[saltproc.current_step, 0] == pytest.approx(
         1.8811870e-09, 1e-6)
+    h1 = saltproc.find_iso_indx('H1')
+    assert saltproc.bu_adens_db_0[saltproc.current_step, h1] == pytest.approx(
+        1.8811870e-09, 1e-6)
     assert saltproc.bu_adens_db_0[saltproc.current_step, 1] == pytest.approx(
+        1.0529505e-10, 1e-7)
+    h2 = saltproc.find_iso_indx('H2')
+    assert saltproc.bu_adens_db_0[saltproc.current_step, h2] == pytest.approx(
         1.0529505e-10, 1e-7)
 
 
 def test_process_th():
+    saltproc.process_fuel()
+    th232_id = saltproc.find_iso_indx('Th232')
+    print(saltproc.th232_adens_0)
+    print(saltproc.core[th232_id])
     assert saltproc.th_adens_db[saltproc.current_step,
-                                saltproc.th232_id] == pytest.approx(-3.684984e-06, 1e-5)
+                                th232_id] == -3.684984e-06

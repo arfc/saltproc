@@ -9,6 +9,7 @@ import shutil
 import argparse
 from pyne import serpent
 from pyne import nucname
+from collections import OrderedDict
 
 
 class saltproc:
@@ -17,7 +18,7 @@ class saltproc:
         HDF5 database.
     """
 
-    def __init__(self, steps, cores, nodes, bw, restart=False,
+    def __init__(self, steps, cores, nodes, bw, exec_path, restart=False,
                  input_file='core', db_file='db_saltproc.hdf5',
                  mat_file='fuel_comp'):
         """ Initializes the class
@@ -32,6 +33,8 @@ class saltproc:
             number of nodes to use for this saltproc run
         bw: string
             # !! if 'True', runs saltproc on Blue Waters
+        exec_path: string
+            path of SERPENT executable
         restart: bool
             if true, starts from an existing database
         input_file: string
@@ -46,78 +49,56 @@ class saltproc:
         self.cores = cores
         self.nodes = nodes
         self.bw = bw
+        self.exec_path = exec_path
         self.restart = restart
         self.input_file = input_file
         self.db_file = db_file
         self.mat_file = mat_file
         self.current_step = 0
-        self.init_indices()
 
-    def init_indices(self):
-        """ Initializes indices isotopes and groups"""
-        self.pa_id = np.array([1088])                # ID for Pa-233 (91)
-        self.th232_id = np.array([1080])             # IDs for Th-232 (90)
-        self.u233_id = np.array([1095])              # ID for U-233 (92)
-        self.pa233_id = np.array([1088])             # ID for Pa-233 (91)
-        # Volatile gases, interval 20 sec
-        # IDs for all isotopes of Kr(36)
-        self.kr_id = np.arange(217, 240)
-        # IDs for all isotopes of Xe(54)
-        self.xe_id = np.arange(718, 746)
-        # Noble metals, interval 20 sec
-        se_id = np.arange(175, 196)                 # IDs for Selenium (34)
-        # All elements from Nb(41) to Ag (47)
-        nob1_id = np.arange(331, 520)
-        # All elements from Sb(51) to Te (52)
-        nob2_id = np.arange(636, 694)
-        # Stack all Noble Metals
-        self.noble_id = np.hstack((se_id, nob1_id, nob2_id))
-        # Seminoble metals, interval 200 days
-        zr_id = np.arange(312, 331)                 # IDs for Zr (40)
-        # IDs from Cd(48) to Sn(50)
-        semin_id = np.arange(520, 636)
-        # Stack all Semi-Noble Metals
-        self.se_noble_id = np.hstack((zr_id, semin_id))
-        # Volatile fluorides, 60 days
-        br_id = np.arange(196, 217)                 # IDs for Br(35)
-        i_id = np.arange(694, 718)                  # IDs for I(53)
-        # Stack volatile fluorides
-        self.vol_fluorides = np.hstack((br_id, i_id))
-        # Rare earth, interval 50 days
-        y_id = np.arange(283, 312)                  # IDs for Y(39)
-        # IDs for La(57) to Sm(62)
-        rees_1_id = np.arange(793, 916)
-        gd_id = np.arange(934, 949)                 # IDs for Gd(64)
-        # Stack of all Rare earth except Eu
-        self.rees_id = np.hstack((y_id, rees_1_id, gd_id))
-        # Eu(63)
-        self.eu_id = np.arange(916, 934)
-        # Discard, 3435 days
-        rb_sr_id = np.arange(240, 283)              # Rb(37) and Sr(38) vector
-        cs_ba_id = np.arange(746, 793)              # Cs(55) and Ba(56) vector
-        # Stack discard
-        self.discard_id = np.hstack((rb_sr_id, cs_ba_id))
-        # Higher nuclides (Np-237 and Pu-242), interval 16 years (5840 days)
-        np_id = np.array([1109])                    # 237Np93
-        pu_id = np.array([1123])                    # 242Pu94
-        self.higher_nuc = np.hstack((np_id, pu_id))
+    def find_iso_indx(self, keyword):
+        """ Returns index number of keword in bumat dictionary
+
+        Parameters:
+        -----------
+        keyword: string or list
+            keyword to search for - element (e.g. Xe) or isotope (e.g. Pa233)
+
+        Returns:
+        --------
+        numpy array of indices
+        """
+        indx = 0
+        indx_list = []
+        if isinstance(keyword, str):
+            for key in self.bumat_dict.keys():
+                if keyword in key:
+                    indx_list.append(indx)
+                indx += 1
+        elif isinstance(keyword, list):
+            for key in self.bumat_dict.keys():
+                for keywor in keyword:
+                    if keywor in key:
+                        indx_list.append(indx)
+                indx += 1
+
+        return np.array(indx_list)
 
     def init_db(self):
         """ Initializes the database from the output of the first
             SEPRENT run """
 
         self.f = h5py.File(self.db_file, 'w')
-        isolib, adens_array, mat_def = self.read_bumat(self.input_file, 1)
+        # put in values from initial condition
+        self.bumat_dict, mat_def = self.read_bumat(self.input_file, 0)
 
         # initialize isotope library and number of isotpes
         self.isolib = []
-        for iso in isolib:
-            isotope = str(iso).split('.')[0]
-            isotope = nucname.name(isotope)
+        for key in self.bumat_dict.keys():
             # needs to incode to put string in h5py
-            self.isolib.append(isotope.encode('utf8'))
+            self.isolib.append(key.encode('utf8'))
 
-        self.number_of_isotopes = len(isolib)
+        self.number_of_isotopes = len(self.isolib)
 
         shape = (2, self.steps)
         maxshape = (2, None)
@@ -143,20 +124,34 @@ class saltproc:
         self.th_adens_db = self.f.create_dataset('Th tank adensity',
                                                  shape, maxshape=maxshape,
                                                  chunks=True)
-        # !! raffinate steram consider splitting by what element
+        # !! raffinate stream consider splitting by what element
         self.rem_adens = np.zeros((5, self.number_of_isotopes))
         dt = h5py.special_dtype(vlen=str)
         self.isolib_db = self.f.create_dataset('iso codes', data=self.isolib,
                                                dtype=dt)
 
-        # put in values from initial condition
-        isolib, boc_adens, mat_def = self.read_bumat(self.input_file, 0)
-        self.bu_adens_db_0[0, :] = boc_adens
-        # !! shouldn't this be eoc_adens???
-        # !! old code = isolib, bu_adens_db_1[0, :], mat_def = read_bumat(
-        # !!          sss_input_file, 0)
-        self.bu_adens_db_1[0, :] = boc_adens
-        self.th232_adens_0 = boc_adens[self.th232_id[0]]
+        self.bu_adens_db_0[0, :] = self.dict_to_array(self.bumat_dict)
+        self.bu_adens_db_1[0, :] = self.dict_to_array(self.bumat_dict)
+
+        self.th232_adens_0 = self.bumat_dict['Th232']
+
+    def dict_to_array(self, bumat_dict):
+        """ Converts an OrderedDict to an array of its values
+
+        Parameters:
+        -----------
+        bumat_dict: OrderedDict
+            key: isotope name
+            value: adensity
+
+        Returns:
+        --------
+        array of bumat_dict values
+        """
+        array = np.array([])
+        for key, value in bumat_dict.items():
+            array = np.append(array, value)
+        return array
 
     def reopen_db(self, restart):
         """ Reopens the previously exisiting database
@@ -168,18 +163,17 @@ class saltproc:
             if False, simply load the datasets
         """
         self.f = h5py.File(self.db_file, 'r+')
-        self.keff_db = self.f['keff_BOC']
+        self.keff_db = self.f['keff_EOC']
         self.keff_db_0 = self.f['keff_BOC']
         self.bu_adens_db_0 = self.f['core adensity before reproc']
         self.bu_adens_db_1 = self.f['core adensity after reproc']
         self.tank_adens_db = self.f['tank adensity']
         self.noble_adens_db = self.f['noble adensity']
         self.th_adens_db = self.f['Th tank adensity']
-        isolib_db = self.f['iso codes']
-        self.number_of_isotopes = len(isolib_db)
+        self.isolib_db = self.f['iso codes']
+        self.number_of_isotopes = len(self.isolib_db)
         self.keff = self.keff_db[0, :]
 
-        self.isolib = isolib_db
         if restart:
             # set past time
             # !! this time thing should be made certain
@@ -225,27 +219,39 @@ class saltproc:
 
         Returns:
         --------
-        isolib_array: np array
-            array of isotopes
-        bu_adens: list
-            list of isotopes adens
+        bumat_dict: dictionary
+            key: isotope name
+            value: adens
         mat_def: str
             material definition in SERPENT with volume and density
         """
         bumat_filename = os.path.join('%s.bumat%i' % (self.input_file, moment))
+        bumat_dict = OrderedDict({})
+        # save isonames for mat file generation
+        self.isoname = []
+
         with open(bumat_filename, 'r') as data:
-            isolib = []
-            bu_adens = []
+            # this should be changed for two region flows
+            # and in general, hardcoding things is never a good thing
             for line in itertools.islice(
                     data, 5, 6):    # Read material description in variable
                 mat_def = line.strip()
             for line in itertools.islice(
                     data, 0, None):  # Skip file header start=6, stop=None
                 p = line.split()
-                isolib.append(str(p[0]))
-                bu_adens.append(float(p[1]))
-        isolib_array = np.asarray(isolib)
-        return isolib_array, bu_adens, mat_def
+                self.isoname.append(p[0])
+                if '.' in p[0]:
+                    iso = p[0].split('.')[0] + '0'
+                    iso = nucname.name(iso)
+                else:
+                    iso = nucname.name(p[0])
+                if iso[-1] == 'M':
+                    metastable_state = p[0][-1]
+                    # if metastable, label it with state
+                    iso = iso + '-' + str(metastable_state)
+                bumat_dict[iso] = float(p[1])
+        self.isolib_db = bumat_dict.keys()
+        return bumat_dict, mat_def
 
     def write_mat_file(self):
         """ Writes the input fuel composition input file block
@@ -266,7 +272,7 @@ class saltproc:
         matf.write(self.mat_def + ' burn 1 rgb 253 231 37\n')
         for iso in range(self.number_of_isotopes):
             matf.write('%s\t\t%s\n' %
-                       (str(self.isolib[iso]), str(self.core[iso])))
+                       (str(self.isoname[iso]), str(self.core[iso])))
         matf.close()
 
     def process_fuel(self):
@@ -275,7 +281,8 @@ class saltproc:
         """
 
         # read bumat1 (output composition)
-        isolib, self.core, self.mat_def = self.read_bumat(self.input_file, 1)
+        self.bumat_dict, self.mat_def = self.read_bumat(self.input_file, 1)
+        self.core = self.dict_to_array(self.bumat_dict)
 
         # record core composition before reprocessing to db_0
         self.bu_adens_db_0[self.current_step, :] = self.core
@@ -283,59 +290,62 @@ class saltproc:
         # start reprocessing and refilling
         # reprocess out pa233
         # every 1 step = 3days
-        self.tank_adens_db[self.current_step,
-                           ] = self.remove_iso(self.pa_id, 1)
+        th232_id = self.find_iso_indx('Th232')
         # add back u233 to core
         # !! where is this refill coming from?
-        u233_to_add = self.tank_adens_db[self.current_step, self.pa233_id]
-        self.refill(self.u233_id, u233_to_add)
+        u233_to_add = self.tank_adens_db[self.current_step, self.find_iso_indx(
+            'Pa233')]
+        self.refill(self.find_iso_indx('U233'), u233_to_add)
 
         # remove volatile gases
         # every 1 step = 3 days
-        volatile_gases = np.hstack((self.kr_id, self.xe_id, self.noble_id))
+        volatile_gases = self.find_iso_indx(['Kr', 'Xe', 'Se', 'Nb', 'Mo', 'Tc', 'Ru',
+                                             'Rh', 'Pd', 'Ag', 'Sb', 'Te'])
         self.rem_adens[0, ] = self.remove_iso(volatile_gases, 1)
 
         # !! this rem_adens indexing looks wrong
         # remove seminoble metals
         # every 67 steps = 201 days
         if self.current_step % 67 == 0:
-            self.rem_adens[1, ] = self.remove_iso(
-                np.hstack((self.se_noble_id)), 1)
+            se_noble_id = self.find_iso_indx(['Zr', 'Cd', 'In', 'Sn'])
+            self.rem_adens[1, ] = self.remove_iso(se_noble_id, 1)
 
         # remove volatile fluorides
         # every 20 steps = 60 days
         if self.current_step % 20 == 0:
-            self.rem_adens[2, ] = self.remove_iso(
-                np.hstack((self.vol_fluorides)), 1)
+            vol_fluorides = self.find_iso_indx(['Br', 'I'])
+            self.rem_adens[2, ] = self.remove_iso(vol_fluorides, 1)
 
         # remove REEs
         # evrey 17 steps = 50 days
         if self.current_step % 17 == 0:
-            self.rem_adens[3, ] = self.remove_iso(np.hstack((self.rees_id)), 1)
+            rees_id = self.find_iso_indx(['Y', 'Gd', 'La', 'Ce', 'Pr',
+                                          'Nd', 'Pm', 'Sm'])
+            self.rem_adens[3, ] = self.remove_iso(rees_id, 1)
 
         # remove Eu
         # evrey 167 steps = 500 days
         if self.current_step % 167 == 0:
-            self.rem_adens[4, ] = self.remove_iso(
-                np.hstack((self.eu_id)), 1)
+            eu_id = self.find_iso_indx('Eu')
+            self.rem_adens[4, ] = self.remove_iso(eu_id, 1)
 
         # remove Rb, Sr, Cs, Ba
         # every 1145 steps = 3435 days
         if self.current_step % 1145 == 0:
-            self.rem_adens[4, ] = self.remove_iso(
-                np.hstack((self.discard_id)), 1)
+            discard_id = self.find_iso_indx(['Rb', 'Sr', 'Cs', 'Ba'])
+            self.rem_adens[4, ] = self.remove_iso(discard_id, 1)
 
         # remove np-237, pu-242
         # every 1946 steps = 16 years
         if self.current_step % 1946 == 0:
-            self.rem_adens[4, ] = self.remove_iso(
-                np.hstack((self.higher_nuc)), 1)
+            higher_nuc = self.find_iso_indx(['Pu237', 'Pu242'])
+            self.rem_adens[4, ] = self.remove_iso(higher_nuc, 1)
 
         # refill th232 to keep adens constant
         # do it every time
         # if want to do it less often do:
         # if current_step % time == 0:
-        self.th_adens_db[self.current_step, ] = self.maintain_const(self.th232_id,
+        self.th_adens_db[self.current_step, ] = self.maintain_const(th232_id,
                                                                     self.th232_adens_0)
 
         # write the processed material to mat file for next run
@@ -351,11 +361,12 @@ class saltproc:
         self.tank_adens_db[self.current_step, :] = (self.tank_adens_db[self.current_step - 1, :]
                                                     + self.rem_adens.sum(axis=0))
         # store amount of Th tank
-        prev_th = self.th_adens_db[self.current_step - 1, self.th232_id]
-        orig_th = self.bu_adens_db_0[0, self.th232_id]
-        step_th = self.bu_adens_db_0[self.current_step, self.th232_id]
+        th232_id = self.find_iso_indx('Th232')
+        prev_th = self.th_adens_db[self.current_step - 1, th232_id]
+        orig_th = self.bu_adens_db_0[0, th232_id]
+        step_th = self.bu_adens_db_0[self.current_step, th232_id]
         self.th_adens_db[self.current_step,
-                         self.th232_id] = prev_th - orig_th - step_th
+                         th232_id] = prev_th - orig_th - step_th
         self.f.close()
 
     def run_serpent(self):
@@ -363,10 +374,10 @@ class saltproc:
         # !why a string not a boolean
         if self.bw:
             args = ('aprun', '-n', str(self.nodes), '-d', str(32),
-                    '/projects/sciteam/bahg/serpent30/src/sss2',
+                    self.exec_path,
                     '-omp', str(32), self.input_file)
         else:
-            args = ('/home/andrei2/serpent/serpetn2/src_test/sss2',
+            args = (self.exec_path,
                     '-omp', str(self.cores), self.input_file)
         popen = subprocess.Popen(args, stdout=subprocess.PIPE)
         print(popen.stdout.read())
