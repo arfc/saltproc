@@ -244,15 +244,20 @@ class saltproc_two_region:
         # write to db
         self.f.create_dataset('siminfo_timestep', data=timestep)
         self.f.create_dataset('siminfo_pop', data=[neutrons, active, inactive])
+        print('\n\n\n')
+
+        print(timestep)
+        print([neutrons, active, inactive])
 
         # fuel and blanket density
         dens_dict = {}
         for key, value in self.mat_def_dict.items():
             if float(value.split()[2]) < 0:
                 cat = 'mass'
+                dens_dict[key] = -1.0 * float(value.split()[2])
             else:
-                cat = 'atomic' 
-            dens_dict[key] = value.split()[2]
+                cat = 'atomic'
+                dens_dict[key] = float(value.split()[2])
         for key, value in dens_dict.items():
             self.f.create_dataset('siminfo_%s_%s_density' %(key, cat), data=value)
 
