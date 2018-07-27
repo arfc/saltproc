@@ -24,7 +24,8 @@ class saltproc_two_region:
     def __init__(self, steps, cores, nodes, bw, exec_path, restart=False,
                  input_file='core', db_file='db_saltproc.hdf5',
                  mat_file='fuel_comp', init_mat_file='init_mat_file', 
-                 driver_mat_name='fuel', blanket_mat_name='blank'):
+                 driver_mat_name='fuel', blanket_mat_name='blank',
+                 blanket_vol=1, driver_vol=1):
         """ Initializes the class
 
         Parameters:
@@ -68,8 +69,11 @@ class saltproc_two_region:
         self.init_mat_file = init_mat_file
         self.blanket_mat_name = blanket_mat_name
         self.driver_mat_name = driver_mat_name
+        self.driver_vol = driver_vol
+        self.blanket_vol = blanket_vol
         self.get_library_isotopes()
         self.prev_qty = 1
+
 
     def find_iso_indx(self, keyword):
         """ Returns index number of keword in bumat dictionary
@@ -223,10 +227,10 @@ class saltproc_two_region:
         # the first depleted, non-reprocessed fuel is stored in timestep 1
         # initial composition
         self.dep_dict = self.read_dep()
-        self.driver_before_db[0, :] = self.dep_dict[self.driver_mat_name]
-        self.driver_after_db[0, :] = self.dep_dict[self.driver_mat_name]
-        self.blanket_before_db[0, :] = self.dep_dict[self.blanket_mat_name]
-        self.blanket_after_db[0, :] = self.dep_dict[self.blanket_mat_name]
+        self.driver_before_db[0, :] = self.dep_dict[self.driver_mat_name] * self.driver_vol
+        self.driver_after_db[0, :] = self.dep_dict[self.driver_mat_name] * self.driver_vol
+        self.blanket_before_db[0, :] = self.dep_dict[self.blanket_mat_name] * self.blanket_vol
+        self.blanket_after_db[0, :] = self.dep_dict[self.blanket_mat_name] * self.blanket_vol
 
     def write_run_info(self):
         # read from input file:
@@ -423,6 +427,10 @@ class saltproc_two_region:
         """
         self.core = self.read_dep()
 
+        # make core values mass by multiplying by volume
+        self.core[self.driver_mat_name] = self.core[self.driver_mat_name] * self.driver_vol
+        self.core[self.blanket_mat_name] = self.core[self.blanket_mat_name] * self.blanket_vol
+
         # record the depleted composition before reprocessing
         self.driver_before_db[self.current_step, :] = self.core[self.driver_mat_name]
         self.blanket_before_db[self.current_step, :] = self.core[self.blanket_mat_name]
@@ -431,8 +439,9 @@ class saltproc_two_region:
         self.waste_tank_db[self.current_step, :] = np.zeros(self.number_of_isotopes)
 
         # reprocess fissile from blanket with removal eff 1
-        pu = self.find_iso_indx(['Pu'])
-        self.fissile_tank_db[self.current_step, :] = self.remove_iso(pu, 1, self.blanket_mat_name)
+        if self.current_step % 10 == 0:
+            pu = self.find_iso_indx(['Pu'])
+            self.fissile_tank_db[self.current_step, :] = self.remove_iso(pu, 1, self.blanket_mat_name)
 
         # reprocess waste from driver
         print('GETTING RID OF VOLATIVE GASES:')
@@ -471,7 +480,7 @@ class saltproc_two_region:
         ########## blanket refilling
         pu_removed = sum(self.fissile_tank_db[self.current_step, :])
         print('\n')
-        print('REMOVED %f GRAMS OF PU FROM BLANKET' %pu_removed)
+        print('REMOVED %f KG OF PU FROM BLANKET' %pu_removed)
         # depleted uranium composition
         tails_enrich = 0.003
         # for natural uranium, use below:
@@ -483,12 +492,12 @@ class saltproc_two_region:
         u235_id = self.find_iso_indx('U235')
         self.refill(u238_id, u238_fill, self.blanket_mat_name)
         self.refill(u235_id, u235_fill, self.blanket_mat_name)
-        print('REFUELED %f GRAMS OF DEP U INTO BLANKET' %(u238_fill + u235_fill))
+        print('REFUELED %f KG OF DEP U INTO BLANKET' %(u238_fill + u235_fill))
         print('\n')
         ########## driver refilling
         # refill as much as what's reprocessed for mass balance
         fill_qty = sum(self.waste_tank_db[self.current_step, :])
-        print('REMOVED A TOTAL OF %f GRAMS OF WASTE FROM THE DRIVER' %fill_qty)
+        print('REMOVED A TOTAL OF %f KG OF WASTE FROM THE DRIVER' %fill_qty)
 
         """
         #! DELETED FOR ANDREI
@@ -509,7 +518,7 @@ class saltproc_two_region:
         u235_fill = fill_qty * tails_enrich
         self.refill(u238_id, u238_fill, self.driver_mat_name)
         self.refill(u235_id, u235_fill, self.driver_mat_name)
-        print('PUTTING IN %f GRAMS OF DEP U INTO DRIVER\n' %(fill_qty))
+        print('PUTTING IN %f KG OF DEP U INTO DRIVER\n' %(fill_qty))
 
 
     def reactivity_control(self):
@@ -673,7 +682,7 @@ class saltproc_two_region:
         while self.current_step < self.steps:
             print('Cycle number of %i of %i steps' %
                   (self.current_step + 1, self.steps))
-            #self.run_serpent()
+            self.run_serpent()
             if self.current_step == 0:
                 # intializing db to get all arrays for calculation
                 self.init_db()
