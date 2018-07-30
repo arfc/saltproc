@@ -98,7 +98,6 @@ class saltproc_two_region:
                     el = " ".join(re.findall("[a-zA-Z]+", isotope))
                     if key == el:   
                         indx_list.append(indx)
-                        print(self.isoname[indx])
         return np.array(indx_list)
 
     def get_library_isotopes(self):
@@ -227,6 +226,8 @@ class saltproc_two_region:
         # the first depleted, non-reprocessed fuel is stored in timestep 1
         # initial composition
         self.dep_dict = self.read_dep()
+        print(type(self.dep_dict[self.driver_mat_name]))
+        print(self.driver_vol)
         self.driver_before_db[0, :] = self.dep_dict[self.driver_mat_name] * self.driver_vol
         self.driver_after_db[0, :] = self.dep_dict[self.driver_mat_name] * self.driver_vol
         self.blanket_before_db[0, :] = self.dep_dict[self.blanket_mat_name] * self.blanket_vol
@@ -248,10 +249,8 @@ class saltproc_two_region:
         # write to db
         self.f.create_dataset('siminfo_timestep', data=timestep)
         self.f.create_dataset('siminfo_pop', data=[neutrons, active, inactive])
-        print('\n\n\n')
 
-        print(timestep)
-        print([neutrons, active, inactive])
+        self.f.create_dataset('siminfo_totsteps', data=self.steps)
 
         # fuel and blanket density
         dens_dict = {}
@@ -384,6 +383,8 @@ class saltproc_two_region:
                     except ValueError:
                         if name not in ['total', 'data']:
                             print('THIS WAS NOT HERE %s' %name)
+        for key,val in self.dep_dict.items():
+            self.dep_dict[key] = np.array(val) 
         return self.dep_dict
 
 
@@ -412,12 +413,13 @@ class saltproc_two_region:
                     continue
                 # change name so it corresponds to temperature
                 isotope = str(isotope)[:-1] + '.09c'
-                # filter isotopes not in cross section library 
+                # filter isotopes not in cross section library                
+                mass_frac = -1.0 * (val[indx] / sum(val)) * 100
                 if isotope not in self.lib_isos:
-                    not_in_lib.write('%s\t\t%s\n' %(str(isotope), str(-1.0 * val[indx])))
+                    not_in_lib.write('%s\t\t%s\n' %(str(isotope), str(mass_frac)))
                     continue
                 else:
-                    matf.write('%s\t\t%s\n' %(str(isotope), str(-1.0 * val[indx])))
+                    matf.write('%s\t\t%s\n' %(str(isotope), str(mass_frac)))
         matf.close()
 
 
@@ -578,6 +580,7 @@ class saltproc_two_region:
             output = subprocess.check_output(args)
         except subprocess.CalledProcessError as e:
             print (e.output)
+            raise ValueError('\nSEPRENT FAILED\n')
         print('DONES')
         # print(output)
 
