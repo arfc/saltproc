@@ -67,6 +67,7 @@ class saltproc_one_region:
         self.salt_vol = salt_vol
         self.get_library_isotopes()
         self.prev_qty = 1
+        self.fuel_mat_name = fuel_mat_name
 
 
     def find_iso_indx(self, keyword):
@@ -190,7 +191,7 @@ class saltproc_one_region:
         self.comp_before_db = self.f.create_dataset('salt composition before reproc',
                                                shape, maxshape=maxshape,
                                                chunks=True)
-        self.comp_afrer_db = self.f.create_dataset('salt composition after reproc',
+        self.comp_after_db = self.f.create_dataset('salt composition after reproc',
                                               shape, maxshape=maxshape,
                                               chunks=True)
 
@@ -420,7 +421,7 @@ class saltproc_one_region:
         self.comp_before_db[self.current_step, :] = self.core[self.fuel_mat_name]
         
         # waste tank db zero initialization
-        self.waste_tank_db[self.current_step, :] = np.zeros(self.number_of_isotopes)
+        self.waste_tank_db[self.current_step, :] = self.waste_tank_db[self.current_step-1, :]
 
         print('GETTING RID OF VOLATIVE GASES:')
         volatile_gases = self.find_iso_indx(['Kr', 'Xe', 'Ar', 'Ne', 'H', 'N', 'O', 'Rn'])
@@ -452,7 +453,7 @@ class saltproc_one_region:
             material
         """
         # refill tank db zero initialization
-        self.refill_tank_db[self.current_step, :] = np.zeros(self.number_of_isotopes)
+        self.refill_tank_db[self.current_step, :] = self.refill_tank_db[self.current_step-1, :]
         
         ########## fuel salt refilling
         # refill as much as what's reprocessed for mass balance
@@ -474,11 +475,15 @@ class saltproc_one_region:
         # fill the rest of the driver with depleted uranium
         fill_qty -= sum(pu_to_add)
         """
+        tails_enrich = 0.003
         u238_fill = fill_qty * (1 - tails_enrich)
         u235_fill = fill_qty * tails_enrich
+        u238_id = self.find_iso_indx('U238')
+        u235_id = self.find_iso_indx('U235')
         self.refill(u238_id, u238_fill, self.fuel_mat_name)
         self.refill(u235_id, u235_fill, self.fuel_mat_name)
         print('PUTTING IN %f KG OF DEP U INTO FUEL SALT\n' %(fill_qty))
+        print(self.core[self.fuel_mat_name])
 
 
     def reactivity_control(self):
@@ -625,7 +630,7 @@ class saltproc_one_region:
         else:
             if os.path.isfile(self.db_file):
                 print('File already exists: the file is moved to old_%s' %self.db_file)
-                os.rename(self.db_file, 'old_' + self.db_file)
+                os.rename(self.db_file, self.db_file.replace('.hdf5', '_old.hdf5'))
             print('Copying %s to %s so the initial material file is unchanged..'
                   %(self.init_mat_file, self.mat_file))
             shutil.copy(self.init_mat_file, self.mat_file)

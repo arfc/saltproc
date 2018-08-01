@@ -486,12 +486,13 @@ class saltproc_two_region:
         self.blanket_before_db[self.current_step, :] = self.core[self.blanket_mat_name]
 
         # waste tank db zero initialization
-        self.waste_tank_db[self.current_step, :] = np.zeros(self.number_of_isotopes)
+        self.waste_tank_db[self.current_step, :] = self.waste_tank_db[self.current_step-1, :]
 
         # reprocess fissile from blanket with removal eff 1
         if self.current_step % 10 == 0:
             pu = self.find_iso_indx(['Pu'])
-            self.fissile_tank_db[self.current_step, :] = self.remove_iso(pu, 1, self.blanket_mat_name)
+            self.fissile_tank_db[self.current_step, :] = (self.fissile_tank_db[self.current_step-1, :] +
+                                                          self.remove_iso(pu, 1, self.blanket_mat_name))
 
         # reprocess waste from driver
         print('GETTING RID OF VOLATIVE GASES:')
@@ -524,8 +525,8 @@ class saltproc_two_region:
             material
         """
         # refill tank db zero initialization
-        self.driver_refill_tank_db[self.current_step, :] = np.zeros(self.number_of_isotopes)
-        self.blanket_refill_tank_db[self.current_step, :] = np.zeros(self.number_of_isotopes)
+        self.driver_refill_tank_db[self.current_step, :] = self.driver_refill_tank_db[self.current_step-1, :]
+        self.blanket_refill_tank_db[self.current_step, :] = self.blanket_refill_tank_db[self.current_step-1, :]
 
         ########## blanket refilling
         pu_removed = sum(self.fissile_tank_db[self.current_step, :])
