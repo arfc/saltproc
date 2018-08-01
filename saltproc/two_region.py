@@ -223,11 +223,10 @@ class saltproc_two_region:
         self.isolib_db = self.f.create_dataset('iso names',
                                                data=[x.encode('utf8') for x in self.isoname],
                                                dtype=dt)
+        self.isozai_db = self.f.create_dataset('iso zai', data=self.isozai)
         # the first depleted, non-reprocessed fuel is stored in timestep 1
         # initial composition
         self.dep_dict = self.read_dep()
-        print(type(self.dep_dict[self.driver_mat_name]))
-        print(self.driver_vol)
         self.driver_before_db[0, :] = self.dep_dict[self.driver_mat_name] * self.driver_vol
         self.driver_after_db[0, :] = self.dep_dict[self.driver_mat_name] * self.driver_vol
         self.blanket_before_db[0, :] = self.dep_dict[self.blanket_mat_name] * self.blanket_vol
@@ -294,15 +293,57 @@ class saltproc_two_region:
 
 
         if restart:
+            self.isoname = [str(x) for x in self.isolib_db]
+            #!! current workaround
+            # substitute with:
+            # self.isozai = self.isozai_db
+            #########################
 
-            self.get_isos()
+            dep_file = os.path.join('%s_dep.m' %self.input_file)
+            with open(dep_file, 'r') as f:
+                lines = f.readlines()
+                read = False
+                read_zai = False
+                read_name = False
+                temp_zai = []
+                isoname = []
+                for line in lines:
+                    if 'ZAI' in line:
+                        read_zai = True
+                    elif read_zai and ';' in line:
+                        read_zai = False
+                    elif read_zai:
+                        temp_zai.append(line.strip())
+
+                    if 'NAMES' in line:
+                        read_name = True
+                    elif read_name and ';' in line:
+                        read_name = False
+                    elif read_name:
+                        # skip the spaces and first apostrophe
+                        isoname.append(line.split()[0][1:]) 
+                    
+                temp_zai = temp_zai[:-2]
+                self.isozai = []
+                for name in self.isoname:
+                    try:
+                        indx = isoname.index(name)
+                        self.isozai.append(temp_zai[indx])
+                    except:
+                        print('%s IS NOT HERE FOR SOME DUMB REASON' %name)
+                        self.isozai.append(str(nucname.zzaaam(name)))
+
+            ######################
+            print(len(self.isozai))
+            print(len(self.isoname))
+
             self.get_mat_def()
             self.number_of_isotopes = len(self.isoname)
+
             self.keff = self.keff_eoc_db[0, :]
             # set past time
             # !! this time thing should be made certain
             self.current_step = np.amax(np.nonzero(self.keff)) + 1
-
             # resize datasets
             self.keff_eoc_db.resize((2, self.steps + self.current_step))
             self.keff_boc_db.resize((2, self.steps + self.current_step))
@@ -316,6 +357,13 @@ class saltproc_two_region:
             self.driver_refill_tank_db.resize(shape)
             self.blanket_refill_tank_db.resize(shape)
             self.fissile_tank_db.resize(shape)
+
+
+            # write new material file
+            self.core = {}
+            self.core[self.driver_mat_name] = self.driver_after_db[self.current_step - 1]
+            self.core[self.blanket_mat_name] = self.blanket_after_db[self.current_step - 1]
+            self.write_mat_file()
 
     def read_res(self, moment):
         """ Reads using PyNE the SERPENT output .res file   
@@ -582,7 +630,6 @@ class saltproc_two_region:
             print (e.output)
             raise ValueError('\nSEPRENT FAILED\n')
         print('DONES')
-        # print(output)
 
     def remove_iso(self, target_iso, removal_eff, region):
         """ Removes isotopes with given removal efficiency
