@@ -41,7 +41,7 @@ steps = 5
 # True: restart by reading from a previously existing database.
 #       Length of new database would be (previous databse + steps)
 # False: Start from timestep zero.
-restart = True
+restart = False
 
 # True: Uses blue water command (aprun) to run SERPERNT
 # False: Simply runs the executable command
@@ -83,7 +83,10 @@ rep_scheme = {'volatile_gases': {'element': ['Kr', 'Xe', 'Ar', 'Ne', 'H', 'N', '
                               'to': driver_mat_name},
               'feed_blanket': {'element': ['U238', 'U235'],
                                'comp': [99.7, 0.3],
-                               'to': blanket_mat_name}
+                               'to': blanket_mat_name},
+              'pu': {'element': ['Pu'],
+                     'from': blanket_mat_name,
+                     'to': driver_mat_name}
              }
 
 ###############################################################

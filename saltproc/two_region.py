@@ -9,7 +9,7 @@ import shutil
 import argparse
 from collections import OrderedDict
 import re
-
+from pyne import serpent
 
 class saltproc_two_region:
     """ Class saltproc runs SERPENT and manipulates its input and output files
@@ -79,7 +79,7 @@ class saltproc_two_region:
         for group, spec in rep_scheme.items():
             # set default values:
             if 'freq' not in spec.keys():
-                rep_scheme[group]['rate'] = -1
+                rep_scheme[group]['freq'] = -1
             if 'qty' not in spec.keys():
                 rep_scheme[group]['qty'] = -1
             if 'begin_time' not in spec.keys():
@@ -108,7 +108,7 @@ class saltproc_two_region:
                 for el in spec['element']:
                     if any(char.isdigit() for char in el):
                         raise ValueError('You can only remove Elements')
-        self.rep_scheme
+        self.rep_scheme = rep_scheme
 
     def find_iso_indx(self, keyword):
         """ Returns index number of keword in bumat dictionary
@@ -179,7 +179,7 @@ class saltproc_two_region:
         """ Reads the isotope zai and name from dep file
 
         """
-        dep_file = os.path.join('%s_dep.m' %self.input_file)
+        dep_file = self.input_file + '_dep.m'
         with open(dep_file, 'r') as f:
             lines = f.readlines()
             read = False
@@ -475,35 +475,49 @@ class saltproc_two_region:
         self.core[self.driver_mat_name] = self.core[self.driver_mat_name] * self.driver_vol
         self.core[self.blanket_mat_name] = self.core[self.blanket_mat_name] * self.blanket_vol
 
-        # save core mass
+        # save pre-processing core mass
         self.core_mass = {self.driver_mat_name: sum(self.core[self.driver_mat_name]),
                           self.blanket_mat_name: sum(self.core[self.blanket_mat_name])}
+
+        print(self.core_mass)
 
         # record the depleted composition before reprocessing
         self.driver_before_db[self.current_step, :] = self.core[self.driver_mat_name]
         self.blanket_before_db[self.current_step, :] = self.core[self.blanket_mat_name]
 
-        # waste tank db initialization
+        # waste / fissile tank db initialization
         self.waste_tank_db[self.current_step, :] = self.waste_tank_db[self.current_step-1, :]
+        self.fissile_tank_db[self.current_step, :] = self.fissile_tank_db[self.current_step-1, :]
 
-
-        rep_out_dict = {self.driver_mat_name: np.zeros(len(self.number_of_isotopes)),
-                        self.blanket_mat_name: np.zeros(len(self.number_of_isotopes))}
-
-        # reprocessing scheme defined by user
+        # removal first
         for group, scheme in self.rep_scheme.items():
             iso_indx = self.find_iso_indx(scheme['element'])
-            if scheme['from'] == 'fertile' or self.current_step % scheme['freq'] != 0:
-                # dont do anything for this group if the time is not right
-                continue
-            elif scheme['to'] == 'waste':
+            if scheme['to'] == 'waste':
                 # things to dump out
                 self.waste_tank_db[self.current_step, :] += self.remove_iso(iso_indx,
                                                                             scheme['eff'], scheme['from'])
+                print('REMOVING %f kg of %s FROM %s' %(self.removed_qty, group, scheme['from']))
             else:
-                # move from one material to another
-                self.core[scheme['to']] += self.remove_iso(iso_indx, scheme['eff'], scheme['from'])
+                continue
 
+        # get mass lacking in reactor after reprocessing out waste
+        self.core_space = {}
+        for mat, val in self.core.items():
+            self.core_space[mat] = self.core_mass[mat] - sum(val)
+
+        # move things around (fissile to driver)
+        for group, scheme in self.rep_scheme.items():
+            if scheme['to'] != 'waste' and scheme['from'] != 'fertile':
+                removed = self.remove_iso(iso_indx, scheme['eff'], scheme['from'])
+                print('REMOVING %f kg of %s FROM %s' %(self.removed_qty, group, scheme['from']))
+                # if the movement flow is more than the space in the destination,
+                if sum(removed) > self.core_space[scheme['to']]:
+                    removed_comp = removed / sum(removed)
+                    self.core[scheme['to']] += removed_comp * self.core_space[scheme['to']]
+                    print('MOVING %f kg of %s FROM %s TO %s ' %(self.core_space[scheme['to']], group, scheme['from'], scheme['to']))
+                    # move rest to fissile tank
+                    self.fissile_tank_db[self.current_step, :] += removed_comp * (sum(removed) - self.core_space[scheme['to']])
+                    print('MOVING %f kg of %s FROM %s TO FISSILE TANK' %(self.core_space[scheme['to']], group, scheme['from']))                
 
     def refuel(self):
         """ After separating out fissile and waste material,
@@ -522,6 +536,7 @@ class saltproc_two_region:
                 for indx, frac in enumerate(scheme['comp']):
                     isoid = self.find_iso_indx(scheme['element'][indx])
                     self.refill(isoid, qty_to_fill*frac, scheme['to'])
+                    print('ADDING IN %f kg of %s to %s' %(qty_to_fill * frac, scheme['element'][indx], scheme['to']))
 
     def reactivity_control(self):
         """ Controls fraction of fissile material
@@ -600,11 +615,13 @@ class saltproc_two_region:
         tank_stream: array
             array of adens of removed material
         """
+        self.removed_qty = 0
         tank_stream = np.zeros(self.number_of_isotopes)
         for iso in target_iso:
             tank_stream[iso] = self.core[region][iso] * removal_eff
             self.core[region][iso] = (1 - removal_eff) * self.core[region][iso]
             # print('REMOVING %f GRAMS OF %s FROM %s' %(self.core[region][iso], self.isoname[iso], region))
+        self.removed_qty = sum(tank_stream)
         return tank_stream
 
     def refill(self, refill_iso, delta, region):
@@ -669,8 +686,8 @@ class saltproc_two_region:
 
         else:
             if os.path.isfile(self.db_file):
-                print('File already exists: the file is moved to old_%s' %self.db_file)
-                os.rename(self.db_file, 'old_' + self.db_file)
+                print('File already exists: the file is moved to %s' %self.db_file.replace('.hdf5', '_old.hdf5'))
+                os.rename(self.db_file, self.db_file.replace('.hdf5', '_old.hdf5'))
             print('Copying %s to %s so the initial material file is unchanged..'
                   %(self.init_mat_file, self.mat_file))
             shutil.copy(self.init_mat_file, self.mat_file)
