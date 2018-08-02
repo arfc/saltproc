@@ -7,8 +7,6 @@ import sys
 import h5py
 import shutil
 import argparse
-from pyne import serpent
-from pyne import nucname
 from collections import OrderedDict
 import re
 
@@ -25,7 +23,7 @@ class saltproc_two_region:
                  input_file='core', db_file='db_saltproc.hdf5',
                  mat_file='fuel_comp', init_mat_file='init_mat_file', 
                  driver_mat_name='fuel', blanket_mat_name='blank',
-                 blanket_vol=1, driver_vol=1):
+                 blanket_vol=1, driver_vol=1, rep_scheme={}):
         """ Initializes the class
 
         Parameters:
@@ -73,7 +71,44 @@ class saltproc_two_region:
         self.blanket_vol = blanket_vol
         self.get_library_isotopes()
         self.prev_qty = 1
+        self.rep_scheme_init(rep_scheme)
 
+
+    def rep_scheme_init(self, rep_scheme):
+        """ reprocessing scheme default setting and checking"""
+        for group, spec in rep_scheme.items():
+            # set default values:
+            if 'freq' not in spec.keys():
+                rep_scheme[group]['rate'] = -1
+            if 'qty' not in spec.keys():
+                rep_scheme[group]['qty'] = -1
+            if 'begin_time' not in spec.keys():
+                rep_scheme[group]['begin_time'] = -1
+            if 'end_time' not in spec.keys():
+                rep_scheme[group]['end_time'] = 1e299
+            if 'from' not in spec.keys():
+                rep_scheme[group]['from'] = 'fertile'
+            if 'to' not in spec.keys():
+                rep_scheme[group]['to'] = 'waste'
+            if 'eff' not in spec.keys():
+                rep_scheme[group]['eff'] = 1
+
+            # normalize composition
+            if 'comp' in spec.keys():
+                rep_scheme[group]['comp'] = [x / sum(rep_scheme[group]['comp']) for x in rep_scheme[group]['comp']]
+
+            # check for input errors
+            if 'element' not in spec.keys():
+                raise ValueError('Missing elements for %s' %group)
+            if 'from' not in spec.keys() and 'to' not in spec.keys():
+                raise ValueError('Missing to AND from for %s' %group)
+            if spec['from'] == 'fertile' and 'comp' not in spec.keys():
+                raise ValueError('Must define composition for input material')
+            if spec['to'] == 'waste':
+                for el in spec['element']:
+                    if any(char.isdigit() for char in el):
+                        raise ValueError('You can only remove Elements')
+        self.rep_scheme
 
     def find_iso_indx(self, keyword):
         """ Returns index number of keword in bumat dictionary
@@ -294,48 +329,7 @@ class saltproc_two_region:
 
         if restart:
             self.isoname = [str(x) for x in self.isolib_db]
-            #!! current workaround
-            # substitute with:
-            # self.isozai = self.isozai_db
-            #########################
-
-            dep_file = os.path.join('%s_dep.m' %self.input_file)
-            with open(dep_file, 'r') as f:
-                lines = f.readlines()
-                read = False
-                read_zai = False
-                read_name = False
-                temp_zai = []
-                isoname = []
-                for line in lines:
-                    if 'ZAI' in line:
-                        read_zai = True
-                    elif read_zai and ';' in line:
-                        read_zai = False
-                    elif read_zai:
-                        temp_zai.append(line.strip())
-
-                    if 'NAMES' in line:
-                        read_name = True
-                    elif read_name and ';' in line:
-                        read_name = False
-                    elif read_name:
-                        # skip the spaces and first apostrophe
-                        isoname.append(line.split()[0][1:]) 
-                    
-                temp_zai = temp_zai[:-2]
-                self.isozai = []
-                for name in self.isoname:
-                    try:
-                        indx = isoname.index(name)
-                        self.isozai.append(temp_zai[indx])
-                    except:
-                        print('%s IS NOT HERE FOR SOME DUMB REASON' %name)
-                        self.isozai.append(str(nucname.zzaaam(name)))
-
-            ######################
-            print(len(self.isozai))
-            print(len(self.isoname))
+            self.isozai = self.isozai_db
 
             self.get_mat_def()
             self.number_of_isotopes = len(self.isoname)
@@ -481,42 +475,34 @@ class saltproc_two_region:
         self.core[self.driver_mat_name] = self.core[self.driver_mat_name] * self.driver_vol
         self.core[self.blanket_mat_name] = self.core[self.blanket_mat_name] * self.blanket_vol
 
+        # save core mass
+        self.core_mass = {self.driver_mat_name: sum(self.core[self.driver_mat_name]),
+                          self.blanket_mat_name: sum(self.core[self.blanket_mat_name])}
+
         # record the depleted composition before reprocessing
         self.driver_before_db[self.current_step, :] = self.core[self.driver_mat_name]
         self.blanket_before_db[self.current_step, :] = self.core[self.blanket_mat_name]
 
-        # waste tank db zero initialization
+        # waste tank db initialization
         self.waste_tank_db[self.current_step, :] = self.waste_tank_db[self.current_step-1, :]
 
-        # reprocess fissile from blanket with removal eff 1
-        if self.current_step % 10 == 0:
-            pu = self.find_iso_indx(['Pu'])
-            self.fissile_tank_db[self.current_step, :] = (self.fissile_tank_db[self.current_step-1, :] +
-                                                          self.remove_iso(pu, 1, self.blanket_mat_name))
 
-        # reprocess waste from driver
-        print('GETTING RID OF VOLATIVE GASES:')
-        volatile_gases = self.find_iso_indx(['Kr', 'Xe', 'Ar', 'Ne', 'H', 'N', 'O', 'Rn'])
-        self.waste_tank_db[self.current_step, :] += self.remove_iso(volatile_gases, 1, self.driver_mat_name)
+        rep_out_dict = {self.driver_mat_name: np.zeros(len(self.number_of_isotopes)),
+                        self.blanket_mat_name: np.zeros(len(self.number_of_isotopes))}
 
-        # remove noble metals
-        noble_metals = self.find_iso_indx(['Se', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd',
-                                           'Ag', 'Sb', 'Te', 'Zr', 'Cd', 'In', 'Sn'])
-        self.waste_tank_db += self.remove_iso(noble_metals, 1, self.driver_mat_name)
-
-        # remove rare earths
-        rare_earths = self.find_iso_indx(['Y', 'La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm',
-                                          'Gd', 'Eu', 'Dy', 'Ho', 'Er', 'Tb', 'Ga',
-                                          'Ge', 'As', 'Zn'])
-        self.waste_tank_db += self.remove_iso(rare_earths, 1, self.driver_mat_name)
-        """
-        # remove every 10 years
-        if self.current_step % 1216 == 0:
-           discard = self.find_iso_indx(['Cs', 'Ba', 'Rb', 'Sr', 'Li', 'Be',
-                                         'Cl', 'Na' 'Th'])
-           self.waste_tank_db += self.remove_iso(discard_id, 1, self.driver_mat_name)
-        """
-        #### end of separation from driver
+        # reprocessing scheme defined by user
+        for group, scheme in self.rep_scheme.items():
+            iso_indx = self.find_iso_indx(scheme['element'])
+            if scheme['from'] == 'fertile' or self.current_step % scheme['freq'] != 0:
+                # dont do anything for this group if the time is not right
+                continue
+            elif scheme['to'] == 'waste':
+                # things to dump out
+                self.waste_tank_db[self.current_step, :] += self.remove_iso(iso_indx,
+                                                                            scheme['eff'], scheme['from'])
+            else:
+                # move from one material to another
+                self.core[scheme['to']] += self.remove_iso(iso_indx, scheme['eff'], scheme['from'])
 
 
     def refuel(self):
@@ -524,53 +510,18 @@ class saltproc_two_region:
             this function refuels the salt with fissile and fertile
             material
         """
-        # refill tank db zero initialization
+        # refill tank db initialization
         self.driver_refill_tank_db[self.current_step, :] = self.driver_refill_tank_db[self.current_step-1, :]
         self.blanket_refill_tank_db[self.current_step, :] = self.blanket_refill_tank_db[self.current_step-1, :]
 
-        ########## blanket refilling
-        pu_removed = sum(self.fissile_tank_db[self.current_step, :])
-        print('\n')
-        print('REMOVED %f KG OF PU FROM BLANKET' %pu_removed)
-        # depleted uranium composition
-        tails_enrich = 0.003
-        # for natural uranium, use below:
-        # tails_enrich = 0.007
-        u238_fill = pu_removed * (1 - tails_enrich)
-        u235_fill = pu_removed * (tails_enrich)
-
-        u238_id = self.find_iso_indx('U238')
-        u235_id = self.find_iso_indx('U235')
-        self.refill(u238_id, u238_fill, self.blanket_mat_name)
-        self.refill(u235_id, u235_fill, self.blanket_mat_name)
-        print('REFUELED %f KG OF DEP U INTO BLANKET' %(u238_fill + u235_fill))
-        print('\n')
-        ########## driver refilling
-        # refill as much as what's reprocessed for mass balance
-        fill_qty = sum(self.waste_tank_db[self.current_step, :])
-        print('REMOVED A TOTAL OF %f KG OF WASTE FROM THE DRIVER' %fill_qty)
-
-        """
-        #! DELETED FOR ANDREI
-        ### REACTIVITY CONTROL MODULE
-        self.add_back_qty = self.reactivity_control()
-        # since mass frac, can multiply by qty to get isotopic
-        pu_to_add = self.fissile_tank_db[self.current_step, :] * self.add_back_qty
-        print('PUTTING IN %f GRAMS OF PU BACK INTO THE DRIVER' %sum(pu_to_add))
-        if sum(pu_to_add) >= fill_qty:
-            raise ValueError('\n\nThe fissile add back fraction is too high. It causes the driver to increase in mass!!!!\n\n')
-        self.fissile_tank_db[self.current_step, :] -= pu_to_add
-        self.core[self.driver_mat_name] += pu_to_add
-
-        # fill the rest of the driver with depleted uranium
-        fill_qty -= sum(pu_to_add)
-        """
-        u238_fill = fill_qty * (1 - tails_enrich)
-        u235_fill = fill_qty * tails_enrich
-        self.refill(u238_id, u238_fill, self.driver_mat_name)
-        self.refill(u235_id, u235_fill, self.driver_mat_name)
-        print('PUTTING IN %f KG OF DEP U INTO DRIVER\n' %(fill_qty))
-
+        for group, scheme in self.rep_scheme.items():
+            if scheme['from'] != 'fertile':
+                continue
+            else:
+                qty_to_fill = self.core_mass[scheme['to']] - sum(self.core[scheme['to']])
+                for indx, frac in enumerate(scheme['comp']):
+                    isoid = self.find_iso_indx(scheme['element'][indx])
+                    self.refill(isoid, qty_to_fill*frac, scheme['to'])
 
     def reactivity_control(self):
         """ Controls fraction of fissile material
@@ -733,7 +684,7 @@ class saltproc_two_region:
         while self.current_step < self.steps:
             print('Cycle number of %i of %i steps' %
                   (self.current_step + 1, self.steps))
-            self.run_serpent()
+            #self.run_serpent()
             if self.current_step == 0:
                 # intializing db to get all arrays for calculation
                 self.init_db()
