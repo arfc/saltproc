@@ -7,20 +7,23 @@ import sys
 import h5py
 import shutil
 import argparse
-from pyne import serpent
-from pyne import nucname
 from collections import OrderedDict
+import re
+from pyne import serpent
 
-
-class saltproc:
+class saltproc_two_region:
     """ Class saltproc runs SERPENT and manipulates its input and output files
         to reprocess its material, while storing the SERPENT run results in a
-        HDF5 database.
+        HDF5 database. This class is for two region flows, with fertile blanket
+        and fissile driver. The fissile material from the blanket is separated
+        and put into the driver.
     """
 
     def __init__(self, steps, cores, nodes, bw, exec_path, restart=False,
                  input_file='core', db_file='db_saltproc.hdf5',
-                 mat_file='fuel_comp'):
+                 mat_file='fuel_comp', init_mat_file='init_mat_file', 
+                 driver_mat_name='fuel', blanket_mat_name='blank',
+                 blanket_vol=1, driver_vol=1, rep_scheme={}):
         """ Initializes the class
 
         Parameters:
@@ -43,6 +46,12 @@ class saltproc:
             name of output hdf5 file
         mat_file: string
             name of material file connected to input file
+        init_mat_file: string
+            name of material file initally definedd by user
+        driver_mat_name: string
+            name of driver material in the definition
+        blanket_mat_name: string
+            name of blanket material in definition
         """
         # initialize all object attributes
         self.steps = steps
@@ -55,6 +64,53 @@ class saltproc:
         self.db_file = db_file
         self.mat_file = mat_file
         self.current_step = 0
+        self.init_mat_file = init_mat_file
+        self.blanket_mat_name = blanket_mat_name
+        self.driver_mat_name = driver_mat_name
+        self.driver_vol = driver_vol
+        self.blanket_vol = blanket_vol
+        self.get_library_isotopes()
+        self.prev_qty = 1
+        self.rep_scheme_init(rep_scheme)
+        if blalnket_mat_name == '':
+            self.two_region = False
+
+
+    def rep_scheme_init(self, rep_scheme):
+        """ reprocessing scheme default setting and checking"""
+        for group, spec in rep_scheme.items():
+            # set default values:
+            if 'freq' not in spec.keys():
+                rep_scheme[group]['freq'] = -1
+            if 'qty' not in spec.keys():
+                rep_scheme[group]['qty'] = -1
+            if 'begin_time' not in spec.keys():
+                rep_scheme[group]['begin_time'] = -1
+            if 'end_time' not in spec.keys():
+                rep_scheme[group]['end_time'] = 1e299
+            if 'from' not in spec.keys():
+                rep_scheme[group]['from'] = 'fertile'
+            if 'to' not in spec.keys():
+                rep_scheme[group]['to'] = 'waste'
+            if 'eff' not in spec.keys():
+                rep_scheme[group]['eff'] = 1
+
+            # normalize composition
+            if 'comp' in spec.keys():
+                rep_scheme[group]['comp'] = [x / sum(rep_scheme[group]['comp']) for x in rep_scheme[group]['comp']]
+
+            # check for input errors
+            if 'element' not in spec.keys():
+                raise ValueError('Missing elements for %s' %group)
+            if 'from' not in spec.keys() and 'to' not in spec.keys():
+                raise ValueError('Missing to AND from for %s' %group)
+            if spec['from'] == 'fertile' and 'comp' not in spec.keys():
+                raise ValueError('Must define composition for input material')
+            if spec['to'] == 'waste':
+                for el in spec['element']:
+                    if any(char.isdigit() for char in el):
+                        raise ValueError('You can only remove Elements')
+        self.rep_scheme = rep_scheme
 
     def find_iso_indx(self, keyword):
         """ Returns index number of keword in bumat dictionary
@@ -68,88 +124,189 @@ class saltproc:
         --------
         numpy array of indices
         """
-        indx = 0
         indx_list = []
+        indx = 0
         if isinstance(keyword, str):
-            for key in self.bumat_dict.keys():
-                if keyword in key:
-                    indx_list.append(indx)
-                indx += 1
+            indx = self.isoname.index(keyword)
+            indx_list.append(indx)
         elif isinstance(keyword, list):
-            for key in self.bumat_dict.keys():
-                for keywor in keyword:
-                    if keywor in key:
+            for key in keyword:
+                for indx, isotope in enumerate(self.isoname):
+                    el = " ".join(re.findall("[a-zA-Z]+", isotope))
+                    if key == el:   
                         indx_list.append(indx)
-                indx += 1
-
         return np.array(indx_list)
+
+    def get_library_isotopes(self):
+        """ Returns the isotopes in the cross section library
+
+        Parameters:
+        -----------
+
+        Returns:
+        --------
+        iso_array: array
+            array of isotopes in cross section library:
+        """
+        with open(self.input_file, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if 'set acelib' in line:
+                    start = line.index('"') + 1
+                    end = line[start:].index('"') + start
+                    acelib = line[start:end]
+        self.lib_isos = []
+        with open(acelib, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                iso = line.split()[1]
+                self.lib_isos.append(iso)
+
+        self.lib_isos = np.array(self.lib_isos)
+
+    def get_mat_def(self):
+        """ Get material definition from the initial material definition
+            file
+        """
+        with open(self.init_mat_file, 'r') as f:
+            self.mat_def_dict = OrderedDict({})
+            lines = f.readlines()
+            for line in lines:
+                if 'mat' in line:
+                    z = line.split()
+                    key = z[1]
+                    self.mat_def_dict[key] = line
+
+    def get_isos(self):
+        """ Reads the isotope zai and name from dep file
+
+        """
+        dep_file = self.input_file + '_dep.m'
+        with open(dep_file, 'r') as f:
+            lines = f.readlines()
+            read = False
+            read_zai = False
+            read_name = False
+            self.isozai = []
+            self.isoname = []
+            for line in lines:
+                if 'ZAI' in line:
+                    read_zai = True
+                elif read_zai and ';' in line:
+                    read_zai = False
+                elif read_zai:
+                    self.isozai.append(line.strip())
+
+                if 'NAMES' in line:
+                    read_name = True
+                elif read_name and ';' in line:
+                    read_name = False
+                elif read_name:
+                    # skip the spaces and first apostrophe
+                    self.isoname.append(line.split()[0][1:]) 
+                
+            self.isozai = self.isozai[:-2]
+            self.isoname = self.isoname[:-2]
+
 
     def init_db(self):
         """ Initializes the database from the output of the first
             SEPRENT run """
 
         self.f = h5py.File(self.db_file, 'w')
-        # put in values from initial condition
-        self.bumat_dict, mat_def = self.read_bumat(0)
-        
-        # initialize isotope library and number of isotpes
-        self.isolib = []
-        for key in self.bumat_dict.keys():
-            # needs to incode to put string in h5py
-            self.isolib.append(key.encode('utf8'))
 
-        self.number_of_isotopes = len(self.isolib)
+        self.get_isos()
+        self.get_mat_def()
+        self.dep_dict = self.read_dep()
+        self.write_run_info()
 
+        self.number_of_isotopes = len(self.isoname)
         shape = (2, self.steps)
         maxshape = (2, None)
-        self.keff_db = self.f.create_dataset('keff_EOC', shape,
+        self.keff_eoc_db = self.f.create_dataset('keff_EOC', shape,
                                              maxshape=maxshape, chunks=True)
-        self.keff_db_0 = self.f.create_dataset('keff_BOC', shape,
+        self.keff_boc_db = self.f.create_dataset('keff_BOC', shape,
                                                maxshape=maxshape, chunks=True)
 
         shape = (self.steps + 1, self.number_of_isotopes)
         maxshape = (None, self.number_of_isotopes)
-        self.bu_adens_db_0 = self.f.create_dataset('core adensity before reproc',
+        self.driver_before_db = self.f.create_dataset('driver composition before reproc',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
-        self.bu_adens_db_1 = self.f.create_dataset('core adensity after reproc',
+        self.driver_after_db = self.f.create_dataset('driver composition after reproc',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
-        self.tank_adens_db = self.f.create_dataset('tank adensity',
+        self.driver_refill_tank_db = self.f.create_dataset('driver refill tank composition',
+                                                          shape, maxshape=maxshape,
+                                                          chunks=True)
+        if self.two_region:
+            self.blanket_before_db = self.f.create_dataset('blanket composition before reproc',
+                                                         shape, maxshape=maxshape,
+                                                         chunks=True)
+            self.blanket_after_db = self.f.create_dataset('blanket composition after reproc',
+                                                         shape, maxshape=maxshape,
+                                                         chunks=True)
+            self.blanket_refill_tank_db = self.f.create_dataset('blanket refill tank composition',
+                                                    shape, maxshape=maxshape,
+                                                    chunks=True)
+
+        self.fissile_tank_db = self.f.create_dataset('fissile tank composition', shape, maxshape=maxshape,
+                                             chunks=True)
+        self.waste_tank_db = self.f.create_dataset('waste tank composition',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
-        self.th_adens_db = self.f.create_dataset('Th tank adensity',
-                                                 shape, maxshape=maxshape,
-                                                 chunks=True)
-        # !! raffinate stream consider splitting by what element
-        self.rem_adens = np.zeros((5, self.number_of_isotopes))
+        # initial composition
+
         dt = h5py.special_dtype(vlen=str)
-        self.isolib_db = self.f.create_dataset('iso codes', data=self.isolib,
+        # have to encode to utf8 for hdf5 string
+        self.isolib_db = self.f.create_dataset('iso names',
+                                               data=[x.encode('utf8') for x in self.isoname],
                                                dtype=dt)
+        self.isozai_db = self.f.create_dataset('iso zai', data=self.isozai)
+        # the first depleted, non-reprocessed fuel is stored in timestep 1
+        # initial composition
+        self.dep_dict = self.read_dep()
+        self.driver_before_db[0, :] = self.dep_dict[self.driver_mat_name] * self.driver_vol
+        self.driver_after_db[0, :] = self.dep_dict[self.driver_mat_name] * self.driver_vol
+        if self.two_region:
+            self.blanket_before_db[0, :] = self.dep_dict[self.blanket_mat_name] * self.blanket_vol
+            self.blanket_after_db[0, :] = self.dep_dict[self.blanket_mat_name] * self.blanket_vol
 
-        self.bu_adens_db_0[0, :] = self.dict_to_array(self.bumat_dict)
-        self.bu_adens_db_1[0, :] = self.dict_to_array(self.bumat_dict)
+    def write_run_info(self):
+        # read from input file:
+        with open(self.input_file, 'r') as f:
+            lines = f.readlines()
+            for linenum, line in enumerate(lines):
+                if line.strip() == 'dep':
+                    timestep = lines[linenum+2].strip()
+                    if ' ' in timestep:
+                        raise ValueError('Your Input file should only have one depstep')
+                if 'set pop' in line and '%' not in line:
+                    neutrons = line.split()[2]
+                    active = line.split()[3]
+                    inactive = line.split()[4]
+        # write to db
+        self.f.create_dataset('siminfo_timestep', data=timestep)
+        self.f.create_dataset('siminfo_pop', data=[neutrons, active, inactive])
 
-        self.th232_adens_0 = self.bumat_dict['Th232']
+        self.f.create_dataset('siminfo_totsteps', data=self.steps)
 
-    def dict_to_array(self, bumat_dict):
-        """ Converts an OrderedDict to an array of its values
-        
-        Parameters:
-        -----------
-        bumat_dict: OrderedDict
-            key: isotope name
-            value: adensity
+        # fuel and blanket density
+        dens_dict = {}
+        for key, value in self.mat_def_dict.items():
+            if float(value.split()[2]) < 0:
+                cat = 'mass'
+                dens_dict[key] = -1.0 * float(value.split()[2])
+            else:
+                cat = 'atomic'
+                dens_dict[key] = float(value.split()[2])
+        for key, value in dens_dict.items():
+            self.f.create_dataset('siminfo_%s_%s_density' %(key, cat), data=value)
 
-        Returns:
-        --------
-        array of bumat_dict values
-        """
-        array = np.array([])
-        for key, value in bumat_dict.items():
-            array = np.append(array, value)
-        return array
-
+        # init composition
+        init_comp = self.read_dep(boc=True)
+        for key, value in init_comp.items():
+            self.f.create_dataset('siminfo_%s_init_comp' %key, data=value)
 
     def reopen_db(self, restart):
         """ Reopens the previously exisiting database
@@ -159,34 +316,59 @@ class saltproc:
         restart: bool
             if True, modified current_step and datasets
             if False, simply load the datasets
-        """
+        """   
         self.f = h5py.File(self.db_file, 'r+')
-        self.keff_db = self.f['keff_EOC']
-        self.keff_db_0 = self.f['keff_BOC']
-        self.bu_adens_db_0 = self.f['core adensity before reproc']
-        self.bu_adens_db_1 = self.f['core adensity after reproc']
-        self.tank_adens_db = self.f['tank adensity']
-        self.th_adens_db = self.f['Th tank adensity']
-        self.isolib_db = self.f['iso codes']
-        self.number_of_isotopes = len(self.isolib_db)
-        self.keff = self.keff_db[0, :]
+        self.keff_eoc_db = self.f['keff_EOC']
+        self.keff_boc_db = self.f['keff_BOC']
+        self.driver_before_db = self.f['driver composition before reproc']
+        self.driver_refill_tank_db = self.f['driver refill tank composition']        
+        self.driver_after_db = self.f['driver composition after reproc']
+
+        if self.two_region:
+            self.blanket_before_db = self.f['blanket composition before reproc']
+            self.blanket_after_db = self.f['blanket composition after reproc']
+            self.blanket_refill_tank_db = self.f['blanket refill tank composition']
+
+        self.waste_tank_db = self.f['waste tank composition']
+        self.isolib_db = self.f['iso names']
+        self.fissile_tank_db = self.f['fissile tank composition']
+
 
         if restart:
+            self.isoname = [str(x) for x in self.isolib_db]
+            self.isozai = self.isozai_db
+
+            self.get_mat_def()
+            self.number_of_isotopes = len(self.isoname)
+
+            self.keff = self.keff_eoc_db[0, :]
             # set past time
             # !! this time thing should be made certain
             self.current_step = np.amax(np.nonzero(self.keff)) + 1
-
             # resize datasets
-            self.keff_db.resize((2, self.steps + self.current_step))
-            self.keff_db_0.resize((2, self.steps + self.current_step))
+            self.keff_eoc_db.resize((2, self.steps + self.current_step))
+            self.keff_boc_db.resize((2, self.steps + self.current_step))
             shape = (self.steps + self.current_step +
                      1, self.number_of_isotopes)
-            self.bu_adens_db_0.resize(shape)
-            self.bu_adens_db_1.resize(shape)
-            self.tank_adens_db.resize(shape)
-            self.th_adens_db.resize(shape)
-            self.rem_adens = np.zeros((5, self.number_of_isotopes))
-            self.th232_adens_0 = self.bu_adens_db_0[0, self.th232_id]
+            self.driver_before_db.resize(shape)
+            self.driver_after_db.resize(shape)
+            self.driver_refill_tank_db.resize(shape)
+
+            if self.two_region:
+                self.blanket_before_db.resize(shape)
+                self.blanket_after_db.resize(shape)
+                self.blanket_refill_tank_db.resize(shape)
+
+            self.waste_tank_db.resize(shape)
+            self.fissile_tank_db.resize(shape)
+
+
+            # write new material file
+            self.core = {}
+            self.core[self.driver_mat_name] = self.driver_after_db[self.current_step - 1]
+            if self.two_region:
+                self.core[self.blanket_mat_name] = self.blanket_after_db[self.current_step - 1]
+            self.write_mat_file()
 
     def read_res(self, moment):
         """ Reads using PyNE the SERPENT output .res file   
@@ -205,68 +387,59 @@ class saltproc:
         keff_analytical = res['IMP_KEFF']
         return keff_analytical[moment]
 
-    def read_bumat(self, moment):
-        """ Reads the SERPENT .bumat file
+
+    def read_dep(self, boc=False):
+        """ Reads the SERPENT _dep.m file
 
         Parameters:
         -----------
         moment: int
             moment of depletion step (0 for BOC and 1 for EOC)
+        mat_name: string
+            name of material to return the composition of
+        boc: bool
+            if true, gets the boc composition
 
         Returns:
         --------
-        bumat_dict: dictionary
-            key: isotope name
-            value: adens
-        mat_def: str
-            material definition in SERPENT with volume and density
+        dep_dict: dictionary
+            key: material name
+            value: dictionary
+                key: isotope
+                value: adens
         """
-        bumat_filename = os.path.join('%s.bumat%i' % (self.input_file, moment))
-        bumat_dict = OrderedDict({})
-        # save isonames for mat file generation
-        self.isoname = []
+        dep_file = os.path.join('%s_dep.m' %self.input_file)
+        with open(dep_file, 'r') as f:
+            lines = f.readlines()
+            self.dep_dict = OrderedDict({})
+            read = False
+            for line in lines:
+                if 'MAT'in line and 'MDENS' in line:
+                    key = line.split('_')[1]
+                    read = True
+                    self.dep_dict[key] = [0] * len(self.isoname)
+                elif read and ';' in line:
+                    read = False
+                elif read:
+                    z = line.split(' ')
+                    # last burnup stage
+                    indx = z.index('%')
+                    mdens = z[indx-1]
+                    if boc:
+                        mdens = z[indx-2]
+                    # the isotope name is at the end of the line.
+                    name = z[-1].replace('\n', '')
+                    # find index so that it doesn't change
+                    try:
+                        where_in_isoname = self.isoname.index(name)
+                        self.dep_dict[key][where_in_isoname] = float(z[indx-1])
+                    except ValueError:
+                        if name not in ['total', 'data']:
+                            print('THIS WAS NOT HERE %s' %name)
+        for key,val in self.dep_dict.items():
+            self.dep_dict[key] = np.array(val) 
+        return self.dep_dict
 
-        with open(bumat_filename, 'r') as data:
-            # this should be changed for two region flows
-            # and in general, hardcoding things is never a good thing
-            for line in itertools.islice(
-                    data, 5, 6):    # Read material description in variable
-                mat_def = line.strip()
-            for line in itertools.islice(
-                    data, 0, None):  # Skip file header start=6, stop=None
-                p = line.split()
-                self.isoname.append(p[0])
-                iso = self.isotope_naming(p[0])
-                bumat_dict[iso] = float(p[1])
-        self.isolib_db = bumat_dict.keys()
-        return bumat_dict, mat_def
-
-    def isotope_naming(self, iso):
-        """ This function figures out the isotope naming problem
-            by taking into account different anomalies.
-
-        Parameters:
-        -----------
-        iso: string
-            isotope to be converted into name
-
-        Returns:
-        --------
-        isotope with format [chemical symbol][atmoic weight]
-        (e.g. 'Th232', 'U235', 'Cs137')
-        """
-        if '.' in iso:
-            output = iso.split('.')[0] + '0'
-            output = nucname.name(output)
-        else:
-            output = nucname.name(iso)
-
-        # check metastable states
-        if output[-1] == 'M':
-            metastable_state = iso[-1]
-            output = iso + '-' + str(metastable_state)
-
-        return output
 
     def write_mat_file(self):
         """ Writes the input fuel composition input file block
@@ -280,109 +453,147 @@ class saltproc:
         """
         ana_keff_boc = self.read_res(0)
         ana_keff_eoc = self.read_res(1)
+        not_in_lib = open('NOT_IN_LIB', 'w')
         matf = open(self.mat_file, 'w')
         matf.write('%% Step number # %i %f +- %f;%f +- %f \n' %
                    (self.current_step, ana_keff_boc[0], ana_keff_boc[1],
                     ana_keff_eoc[0], ana_keff_eoc[1]))
-        matf.write(self.mat_def + ' burn 1 rgb 253 231 37\n')
-        for iso in range(self.number_of_isotopes):
-            matf.write('%s\t\t%s\n' %
-                       (str(self.isoname[iso]), str(self.core[iso])))
+        for key, val in self.core.items():
+            matf.write(self.mat_def_dict[key].replace('\n', '') + ' fix 09c 900\n')
+            for indx, isotope in enumerate(self.isozai):
+                # filter metastables
+                if str(isotope[-1]) != '0':
+                    continue
+                # change name so it corresponds to temperature
+                isotope = str(isotope)[:-1] + '.09c'
+                # filter isotopes not in cross section library                
+                mass_frac = -1.0 * (val[indx] / sum(val)) * 100
+                if isotope not in self.lib_isos:
+                    not_in_lib.write('%s\t\t%s\n' %(str(isotope), str(mass_frac)))
+                    continue
+                else:
+                    matf.write('%s\t\t%s\n' %(str(isotope), str(mass_frac)))
         matf.close()
 
-    def process_fuel(self):
-        """ processes the fuel from the output of the previous SERPENT run
-            by removing isotopes and refilling with fresh fuel
+
+    def separate_fuel(self):
+        """ separate fissile material from blanket,
+            separate waste out of driver
         """
+        self.core = self.read_dep()
 
-        # read bumat1 (output composition)
-        self.bumat_dict, self.mat_def = self.read_bumat(1)
-        self.core = self.dict_to_array(self.bumat_dict)
+        # make core values mass by multiplying by volume
+        self.core[self.driver_mat_name] = self.core[self.driver_mat_name] * self.driver_vol
+        if self.two_region:
+            self.core[self.blanket_mat_name] = self.core[self.blanket_mat_name] * self.blanket_vol
 
-        # record core composition before reprocessing to db_0
-        self.bu_adens_db_0[self.current_step, :] = self.core
+        # save pre-processing core mass
+        self.core_mass = {}
+        for key, val in self.core.items():
+            self.core_mass[key] = sum(val)
 
-        # start reprocessing and refilling
-        # reprocess out pa233
-        # every 1 step = 3days
-        th232_id = self.find_iso_indx('Th232')
-        # add back u233 to core
-        # !! where is this refill coming from?
-        u233_to_add = self.tank_adens_db[self.current_step, self.find_iso_indx('Pa233')]
-        self.refill(self.find_iso_indx('U233'), u233_to_add)
+        print(self.core_mass)
 
-        # remove volatile gases
-        # every 1 step = 3 days
-        volatile_gases = self.find_iso_indx(['Kr', 'Xe', 'Se', 'Nb', 'Mo', 'Tc', 'Ru',
-                                             'Rh', 'Pd', 'Ag', 'Sb', 'Te'])
-        self.rem_adens[0, ] = self.remove_iso(volatile_gases, 1)
+        # record the depleted composition before reprocessing
+        self.driver_before_db[self.current_step, :] = self.core[self.driver_mat_name]
+        if self.two_region:
+            self.blanket_before_db[self.current_step, :] = self.core[self.blanket_mat_name]
 
-        # !! this rem_adens indexing looks wrong
-        # remove seminoble metals
-        # every 67 steps = 201 days
-        if self.current_step % 67 == 0:
-            se_noble_id = self.find_iso_indx(['Zr', 'Cd', 'In', 'Sn'])
-            self.rem_adens[1, ] = self.remove_iso(se_noble_id, 1)
+        # waste / fissile tank db initialization
+        self.waste_tank_db[self.current_step, :] = self.waste_tank_db[self.current_step-1, :]
+        self.fissile_tank_db[self.current_step, :] = self.fissile_tank_db[self.current_step-1, :]
 
-        # remove volatile fluorides
-        # every 20 steps = 60 days
-        if self.current_step % 20 == 0:
-            vol_fluorides = self.find_iso_indx(['Br', 'I'])
-            self.rem_adens[2, ] = self.remove_iso(vol_fluorides, 1)
+        # removal first
+        for group, scheme in self.rep_scheme.items():
+            iso_indx = self.find_iso_indx(scheme['element'])
+            if scheme['to'] == 'waste':
+                # things to dump out
+                self.waste_tank_db[self.current_step, :] += self.remove_iso(iso_indx,
+                                                                            scheme['eff'], scheme['from'])
+                print('REMOVING %f kg of %s FROM %s' %(self.removed_qty, group, scheme['from']))
+            else:
+                continue
 
-        # remove REEs
-        # evrey 17 steps = 50 days
-        if self.current_step % 17 == 0:
-            rees_id = self.find_iso_indx(['Y', 'Gd', 'La', 'Ce', 'Pr',
-                                          'Nd', 'Pm', 'Sm'])
-            self.rem_adens[3, ] = self.remove_iso(rees_id, 1)
+        # get mass lacking in reactor after reprocessing out waste
+        self.core_space = {}
+        for mat, val in self.core.items():
+            self.core_space[mat] = self.core_mass[mat] - sum(val)
 
-        # remove Eu
-        # evrey 167 steps = 500 days
-        if self.current_step % 167 == 0:
-            eu_id = self.find_iso_indx('Eu')
-            self.rem_adens[4, ] = self.remove_iso(eu_id, 1)
+        # move things around (fissile to driver)
+        for group, scheme in self.rep_scheme.items():
+            if scheme['to'] != 'waste' and scheme['from'] != 'fertile':
+                removed = self.remove_iso(iso_indx, scheme['eff'], scheme['from'])
+                print('REMOVING %f kg of %s FROM %s' %(self.removed_qty, group, scheme['from']))
+                # if the movement flow is more than the space in the destination,
+                if sum(removed) > self.core_space[scheme['to']]:
+                    removed_comp = removed / sum(removed)
+                    self.core[scheme['to']] += removed_comp * self.core_space[scheme['to']]
+                    print('MOVING %f kg of %s FROM %s TO %s ' %(self.core_space[scheme['to']], group, scheme['from'], scheme['to']))
+                    # move rest to fissile tank
+                    self.fissile_tank_db[self.current_step, :] += removed_comp * (sum(removed) - self.core_space[scheme['to']])
+                    print('MOVING %f kg of %s FROM %s TO FISSILE TANK' %(self.core_space[scheme['to']], group, scheme['from']))                
 
-        # remove Rb, Sr, Cs, Ba
-        # every 1145 steps = 3435 days
-        if self.current_step % 1145 == 0:
-            discard_id = self.find_iso_indx(['Rb', 'Sr', 'Cs', 'Ba'])
-            self.rem_adens[4, ] = self.remove_iso(discard_id, 1)
+    def refuel(self):
+        """ After separating out fissile and waste material,
+            this function refuels the salt with fissile and fertile
+            material
+        """
+        # refill tank db initialization
+        self.driver_refill_tank_db[self.current_step, :] = self.driver_refill_tank_db[self.current_step-1, :]
+        if self.two_region:
+            self.blanket_refill_tank_db[self.current_step, :] = self.blanket_refill_tank_db[self.current_step-1, :]
 
-        # remove np-237, pu-242
-        # every 1946 steps = 16 years
-        if self.current_step % 1946 == 0:
-            higher_nuc = self.find_iso_indx(['Pu237', 'Pu242'])
-            self.rem_adens[4, ] = self.remove_iso(higher_nuc, 1)
+        for group, scheme in self.rep_scheme.items():
+            if scheme['from'] != 'fertile':
+                continue
+            else:
+                qty_to_fill = self.core_mass[scheme['to']] - sum(self.core[scheme['to']])
+                for indx, frac in enumerate(scheme['comp']):
+                    isoid = self.find_iso_indx(scheme['element'][indx])
+                    self.refill(isoid, qty_to_fill*frac, scheme['to'])
+                    print('ADDING IN %f kg of %s to %s' %(qty_to_fill * frac, scheme['element'][indx], scheme['to']))
 
+    def reactivity_control(self):
+        """ Controls fraction of fissile material
+            input into core to control keff into
+            a range
+        """
+        # check EOC KEFF for determining fissile_add_back_frac
 
-        # refill th232 to keep adens constant
-        # do it every time
-        # if want to do it less often do:
-        # if current_step % time == 0:
-        self.th_adens_db[self.current_step, ] = self.maintain_const(th232_id,
-                                                                    self.th232_adens_0)
+        self.eoc_keff = self.read_res(1)
+        # how much pu we lost:
+        pu = self.find_iso_indx(['Pu'])
+        pu_loss = self.driver_before_db[self.current_step, pu] - self.driver_after_db[self.current_step-1, pu]
+        pu_loss = sum(pu_loss)
+        pu_avail = sum(self.fissile_tank_db[self.current_step, :])
+        print('EOC KEFF IS %f +- %f' %(self.eoc_keff[0], self.eoc_keff[1]))
+        
+        if self.eoc_keff[0] > 1.05:
+            print('KEFF IS TOO HIGH: NOT PUTTING ANY MORE PU IN DRIVER\n')
+            qty = 0
+        elif self.eoc_keff[0] <= 1.05 and self.eoc_keff[0] > 1.01:
+            print('KEFF IS IN A GOOD SPOT: PUTTING THE AMOUNT LOST FROM PREV DEPLETION\n')
+            qty = min(pu_avail, pu_loss)
+        elif self.eoc_keff[0] <= 1.01:
+            print('KEFF IS LOW: PUTTING IN 1.5 TIMES PU THAN PREIVOUS STEP:')
+            qty = min(self.prev_qty * 1.5, pu_avail)
+        if qty == pu_avail:
+            print('NOT ENOUGH PU AVAILABLE: PUTTING THE MAXIMUM AMOUNT AVAILABLE')
 
-        # write the processed material to mat file for next run
-        self.write_mat_file()
-
+        self.prev_qty = qty
+        return qty
 
     def record_db(self):
         """ Records the processed fuel composition, Keff values,
             waste tank composition to database
         """
-        self.keff_db[:, self.current_step - 1] = self.read_res(1)
-        self.keff_db_0[:, self.current_step - 1] = self.read_res(0)
-        self.bu_adens_db_1[self.current_step, :] = self.core
-        self.tank_adens_db[self.current_step, :] = (self.tank_adens_db[self.current_step - 1, :]
-                                                    + self.rem_adens.sum(axis=0))
-        # store amount of Th tank
-        th232_id = self.find_iso_indx('Th232')
-        prev_th = self.th_adens_db[self.current_step - 1, th232_id]
-        orig_th = self.bu_adens_db_0[0, th232_id]
-        step_th = self.bu_adens_db_0[self.current_step, th232_id]
-        self.th_adens_db[self.current_step,
-                         th232_id] = prev_th - orig_th - step_th
+        self.keff_eoc_db[:, self.current_step - 1] = self.read_res(1)
+        self.keff_boc_db[:, self.current_step - 1] = self.read_res(0)
+
+        self.driver_after_db[self.current_step, :] = self.core[self.driver_mat_name]
+        if self.two_region:
+            self.blanket_after_db[self.current_step, :] = self.core[self.blanket_mat_name]
+
         self.f.close()
 
     def run_serpent(self):
@@ -395,10 +606,15 @@ class saltproc:
         else:
             args = (self.exec_path,
                     '-omp', str(self.cores), self.input_file)
-        popen = subprocess.Popen(args, stdout=subprocess.PIPE)
-        print(popen.stdout.read())
+        print('RUNNNIN')
+        try:
+            output = subprocess.check_output(args)
+        except subprocess.CalledProcessError as e:
+            print (e.output)
+            raise ValueError('\nSEPRENT FAILED\n')
+        print('DONES')
 
-    def remove_iso(self, target_iso, removal_eff):
+    def remove_iso(self, target_iso, removal_eff, region):
         """ Removes isotopes with given removal efficiency
 
         Parameters:
@@ -407,45 +623,59 @@ class saltproc:
             array  of indices for isotopes to remove from core
         removal_eff: float
             removal efficiency (max 1)
+        region: string
+            region to perform action on
 
         Returns:
         --------
         tank_stream: array
             array of adens of removed material
         """
+        self.removed_qty = 0
         tank_stream = np.zeros(self.number_of_isotopes)
         for iso in target_iso:
-            tank_stream[iso] = self.core[iso] * removal_eff
-            self.core[iso] = (1 - removal_eff) * self.core[iso]
+            tank_stream[iso] = self.core[region][iso] * removal_eff
+            self.core[region][iso] = (1 - removal_eff) * self.core[region][iso]
+            # print('REMOVING %f GRAMS OF %s FROM %s' %(self.core[region][iso], self.isoname[iso], region))
+        self.removed_qty = sum(tank_stream)
         return tank_stream
 
-    def refill(self, refill_iso, delta_adens):
+    def refill(self, refill_iso, delta, region):
         """ Refills isotope with target rate of refuel
 
         Parameters:
         -----------
         refill_iso: array
             array of indices for isotopes to be refilled
-        delta_adens: float
-            adens to be refilled
+        delta: float
+            amount to be refilled
+        region: string
+            region to perform action on
+
 
         Returns:
         --------
         null.
         """
-
         for iso in refill_iso:
-            self.core[iso] = self.core[iso] + delta_adens
+            self.core[region][iso] = self.core[region][iso] + delta
+            # print('REFILLING %f GRAMS OF %s TO %s' %(delta, self.isoname[iso], region))
+            if region == self.driver_mat_name:
+                self.driver_refill_tank_db[self.current_step, iso] -= delta
+            elif region == self.blanket_mat_name:
+                self.blanket_refill_tank_db[self.current_step, iso] -= delta
 
-    def maintain_const(self, target_isotope, target_adens):
+    def maintain_const(self, target_isotope, target_qty, region):
         """ Maintains the constant amount of a target isotope
 
         Parameters:
         -----------
         target_isotope: array
             array of indices for isotopes to be refilled
-        target_adens: float
-            adens to be satisfied
+        target_qty: float
+            quantity to be satisfied
+        region: string
+            region to perform action on
 
         Returns:
         --------
@@ -453,37 +683,54 @@ class saltproc:
         """
         tank_stream = np.zeros(self.number_of_isotopes)
         for iso in target_isotope:
-            tank_stream[iso] = self.core[iso] - target_adens
-            self.core[iso] = target_adens
+            tank_stream[iso] = self.core[region][iso] - target_qty
+            self.core[region][iso] = tartget_qty
         return tank_stream
 
-    def main(self):
-        """ Core of saltproc, moves forward in timesteps,
-            run serpent, process fuel, record to db, and repeats
+    def start_sequence(self):
+        """ checks restart and preexisting file
+            copies initial mat file to predefined mat file name
         """
         if self.restart and os.path.isfile(self.mat_file):
             try:
                 self.f = h5py.File(self.db_file, 'r+')
             except:
-                raise ValueErorr('HDF5 file does not exist. You might want to check the '
-                                 'restart parameter.') 
+                raise ValueError('HDF5 File does not exist.\n'
+                                 'Are you sure you want to restart?')
             self.reopen_db(True)
             self.steps += self.current_step
-            # sets the current step so the db isn't initialized again
+
         else:
-            shutil.copy(self.mat_file, 'init_mat_file')
+            if os.path.isfile(self.db_file):
+                print('File already exists: the file is moved to %s' %self.db_file.replace('.hdf5', '_old.hdf5'))
+                os.rename(self.db_file, self.db_file.replace('.hdf5', '_old.hdf5'))
+            print('Copying %s to %s so the initial material file is unchanged..'
+                  %(self.init_mat_file, self.mat_file))
+            shutil.copy(self.init_mat_file, self.mat_file)
+
+    def main(self):
+        """ Core of saltproc: moves forward in timesteps,
+            run serpent, process fuel, record to db, and repeats
+        """
+        self.start_sequence()
 
         while self.current_step < self.steps:
             print('Cycle number of %i of %i steps' %
                   (self.current_step + 1, self.steps))
-            self.run_serpent()
+            #self.run_serpent()
             if self.current_step == 0:
                 # intializing db to get all arrays for calculation
                 self.init_db()
             else:
                 self.reopen_db(False)
             self.current_step += 1
-            self.process_fuel()
+            self.separate_fuel()
+            self.refuel()
+            self.write_mat_file()
+
+            ### this is to check if serpent is running
+            u235_id = self.find_iso_indx('U235')
+            print(self.driver_before_db[self.current_step, u235_id])
             self.record_db()
 
         print('End of Saltproc.')

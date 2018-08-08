@@ -7,7 +7,7 @@ import sys
 import h5py
 import shutil
 import argparse
-from two_region import saltproc_two_region
+import saltproc
 
 ##############################################################
 ######### THIS IS THE INPUT FILE SECTION OF SALTPROC #########
@@ -106,18 +106,15 @@ if __name__ == "__main__":
         '\tMaterial File Path = ' + mat_file + '\n'
         '\tOutput DB File Path = ' + db_file + '\n'
         )
-    # run saltproc
-    if two_region:
-        run = saltproc_two_region(steps=steps, cores=cores, nodes=nodes,
-                                  bw=bw, exec_path=exec_path, restart=restart,
-                                  input_file=input_file, db_file=db_file,
-                                  mat_file=mat_file, init_mat_file=init_mat_file,
-                                  driver_mat_name=driver_mat_name,
-                                  blanket_mat_name=blanket_mat_name,
-                                  driver_vol=driver_vol, blanket_vol=blanket_vol,
-                                  rep_scheme=rep_scheme)
-    else:
-        run = saltproc(steps=steps, cores=cores, nodes=nodes,
-                       bw=bw, exec_path=exec_path, restart=restart,
-                       input_file=input_file, db_file=db_file, mat_file=mat_file)
+    if not two_region:
+        blanket_mat_name = ''
+        blanket_vol = 0
+
+    run = saltproc(steps=steps, cores=cores, nodes=nodes,
+                   bw=bw, exec_path=exec_path, restart=restart,
+                   mat_file=mat_file, init_mat_file=init_mat_file,
+                   driver_mat_name=driver_mat_name,
+                   blanket_mat_name=blanket_mat_name,
+                   driver_vol=driver_vol, blanket_vol=blanket_vol,
+                   rep_scheme=rep_scheme)
     run.main()
