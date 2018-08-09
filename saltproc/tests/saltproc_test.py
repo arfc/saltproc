@@ -23,7 +23,7 @@ saltproc = saltproc(5, 1, 32, 'False',
                     rep_scheme={'he': {'element': ['He'],
                                        'from': 'fuel'}})
 # use ci input if running on travis
-print(directory)
+print(sys.path)
 if '/home/travis/build/jbae11/saltproc' in sys.path:
     saltproc.input_file = directory + '/test_ci'
     print('ahhhhhhhhhhhhhhhhhhhhhh')
