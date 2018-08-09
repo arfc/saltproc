@@ -16,7 +16,7 @@ rgb 127 205 187
 therm gr gr06.32t  % 1000K C-12
 
 % --- Cross section data library file path:
-set acelib "/home/travis/build/jbae11/saltproc/tests/test.xsdata"
+set acelib "/home/travis/build/jbae11/saltproc/saltproc/tests/test.xsdata"
 
 % --- Decay and fission yield libraries:
 set declib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.dec"
