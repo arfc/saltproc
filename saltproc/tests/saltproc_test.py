@@ -4,6 +4,7 @@ import collections
 import sqlite3 as lite
 import h5py
 import os
+import argparse
 import sys
 path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
@@ -11,8 +12,14 @@ print(sys.path)
 print(os.path.realpath(__file__))
 from saltproc import saltproc
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-ci', help='For Continuous Integration',
+                    action='store_true')
+args = parser.parse_args()
+
 # global class object
 directory = os.path.dirname(path)
+
 saltproc = saltproc(5, 1, 32, 'False', 
                     exec_path='/projects/sciteam/bahg/serpent30/src/sss2',
                     restart=False,
@@ -22,6 +29,8 @@ saltproc = saltproc(5, 1, 32, 'False',
                     blanket_mat_name='blank',
                     rep_scheme={'he': {'element': ['He'],
                                        'from': 'fuel'}})
+if args.ci:
+    saltproc.input_file = directory + '/test_ci'
 try:
     os.remove(directory+'/test_db.hdf5')
 except:

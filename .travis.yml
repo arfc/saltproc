@@ -32,4 +32,4 @@ install:
 
 # run
 script:
-  - pytest ./saltproc/tests/saltproc_test.py
+  - pytest ./saltproc/tests/saltproc_test.py -ci
