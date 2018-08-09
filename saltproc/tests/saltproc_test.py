@@ -16,18 +16,12 @@ directory = os.path.dirname(path)
 saltproc = saltproc(5, 1, 32, 'False', 
                     exec_path='/projects/sciteam/bahg/serpent30/src/sss2',
                     restart=False,
-                    input_file=directory+'/test',
+                    input_file=directory+'/test_ci',
                     db_file=directory+'/test_db.hdf5',
                     init_mat_file=directory+'/test_mat',
                     blanket_mat_name='blank',
                     rep_scheme={'he': {'element': ['He'],
                                        'from': 'fuel'}})
-# use ci input if running on travis
-print(sys.path)
-if '/home/travis/build/jbae11/saltproc' in sys.path:
-    saltproc.input_file = directory + '/test_ci'
-    print('ahhhhhhhhhhhhhhhhhhhhhh')
-
 try:
     os.remove(directory+'/test_db.hdf5')
 except:
