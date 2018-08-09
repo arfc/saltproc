@@ -7,6 +7,8 @@ import os
 import sys
 path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
+print(sys.path)
+print(os.path.realpath(__file__))
 from saltproc import saltproc
 
 # global class object
