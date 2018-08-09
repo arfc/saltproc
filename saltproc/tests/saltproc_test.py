@@ -8,8 +8,6 @@ import argparse
 import sys
 path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
-print(sys.path)
-print(os.path.realpath(__file__))
 from saltproc import saltproc
 
 # global class object
@@ -25,7 +23,8 @@ saltproc = saltproc(5, 1, 32, 'False',
                     rep_scheme={'he': {'element': ['He'],
                                        'from': 'fuel'}})
 # use ci input if running on travis
-if 'travis' in str(directory):
+print(directory)
+if '/home/travis/build/jbae11/saltproc' in sys.path:
     saltproc.input_file = directory + '/test_ci'
     print('ahhhhhhhhhhhhhhhhhhhhhh')
 
