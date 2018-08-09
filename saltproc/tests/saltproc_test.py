@@ -12,11 +12,6 @@ print(sys.path)
 print(os.path.realpath(__file__))
 from saltproc import saltproc
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-ci', help='For Continuous Integration',
-                    action='store_true')
-args = parser.parse_args()
-
 # global class object
 directory = os.path.dirname(path)
 
@@ -29,8 +24,10 @@ saltproc = saltproc(5, 1, 32, 'False',
                     blanket_mat_name='blank',
                     rep_scheme={'he': {'element': ['He'],
                                        'from': 'fuel'}})
-if args.ci:
+# use ci input if running on travis
+if 'travis' in sys.path[0]:
     saltproc.input_file = directory + '/test_ci'
+
 try:
     os.remove(directory+'/test_db.hdf5')
 except:
