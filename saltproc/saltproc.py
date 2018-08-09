@@ -11,7 +11,7 @@ from collections import OrderedDict
 import re
 from pyne import serpent
 
-class saltproc_two_region:
+class saltproc:
     """ Class saltproc runs SERPENT and manipulates its input and output files
         to reprocess its material, while storing the SERPENT run results in a
         HDF5 database. This class is for two region flows, with fertile blanket
@@ -22,8 +22,8 @@ class saltproc_two_region:
     def __init__(self, steps, cores, nodes, bw, exec_path, restart=False,
                  input_file='core', db_file='db_saltproc.hdf5',
                  mat_file='fuel_comp', init_mat_file='init_mat_file', 
-                 driver_mat_name='fuel', blanket_mat_name='blank',
-                 blanket_vol=1, driver_vol=1, rep_scheme={}):
+                 driver_mat_name='fuel', blanket_mat_name='',
+                 blanket_vol=0, driver_vol=1, rep_scheme={}):
         """ Initializes the class
 
         Parameters:
@@ -72,7 +72,7 @@ class saltproc_two_region:
         self.get_library_isotopes()
         self.prev_qty = 1
         self.rep_scheme_init(rep_scheme)
-        if blalnket_mat_name == '':
+        if blanket_mat_name == '':
             self.two_region = False
 
 
@@ -148,14 +148,20 @@ class saltproc_two_region:
         iso_array: array
             array of isotopes in cross section library:
         """
+        # check if environment variable is set
+        if os.environ.get('SERPENT_DATA') is not None:
+            path = os.environ['SERPENT_DATA']
+        else:
+            path = ''
         with open(self.input_file, 'r') as f:
             lines = f.readlines()
             for line in lines:
-                if 'set acelib' in line:
+                if 'set acelib' in line and '%' != line[0]:
                     start = line.index('"') + 1
                     end = line[start:].index('"') + start
                     acelib = line[start:end]
         self.lib_isos = []
+        acelib = path + acelib
         with open(acelib, 'r') as f:
             lines = f.readlines()
             for line in lines:
@@ -175,6 +181,7 @@ class saltproc_two_region:
                 if 'mat' in line:
                     z = line.split()
                     key = z[1]
+                    line = line.split('%')[0]
                     self.mat_def_dict[key] = line
 
     def get_isos(self):
@@ -195,7 +202,7 @@ class saltproc_two_region:
                 elif read_zai and ';' in line:
                     read_zai = False
                 elif read_zai:
-                    self.isozai.append(line.strip())
+                    self.isozai.append(int(line.strip()))
 
                 if 'NAMES' in line:
                     read_name = True
@@ -239,16 +246,16 @@ class saltproc_two_region:
         self.driver_refill_tank_db = self.f.create_dataset('driver refill tank composition',
                                                           shape, maxshape=maxshape,
                                                           chunks=True)
-        if self.two_region:
-            self.blanket_before_db = self.f.create_dataset('blanket composition before reproc',
-                                                         shape, maxshape=maxshape,
-                                                         chunks=True)
-            self.blanket_after_db = self.f.create_dataset('blanket composition after reproc',
-                                                         shape, maxshape=maxshape,
-                                                         chunks=True)
-            self.blanket_refill_tank_db = self.f.create_dataset('blanket refill tank composition',
-                                                    shape, maxshape=maxshape,
-                                                    chunks=True)
+
+        self.blanket_before_db = self.f.create_dataset('blanket composition before reproc',
+                                                     shape, maxshape=maxshape,
+                                                     chunks=True)
+        self.blanket_after_db = self.f.create_dataset('blanket composition after reproc',
+                                                     shape, maxshape=maxshape,
+                                                     chunks=True)
+        self.blanket_refill_tank_db = self.f.create_dataset('blanket refill tank composition',
+                                                shape, maxshape=maxshape,
+                                                chunks=True)
 
         self.fissile_tank_db = self.f.create_dataset('fissile tank composition', shape, maxshape=maxshape,
                                              chunks=True)
@@ -268,23 +275,26 @@ class saltproc_two_region:
         self.dep_dict = self.read_dep()
         self.driver_before_db[0, :] = self.dep_dict[self.driver_mat_name] * self.driver_vol
         self.driver_after_db[0, :] = self.dep_dict[self.driver_mat_name] * self.driver_vol
-        if self.two_region:
+        try:
             self.blanket_before_db[0, :] = self.dep_dict[self.blanket_mat_name] * self.blanket_vol
             self.blanket_after_db[0, :] = self.dep_dict[self.blanket_mat_name] * self.blanket_vol
-
+        except:
+            self.blanket_before_db[0, :] = np.zeros(self.number_of_isotopes)
+            self.blanket_after_db[0, :] = np.zeros(self.number_of_isotopes)
+            print('Blanket not defined: going to be all zeros')
     def write_run_info(self):
         # read from input file:
         with open(self.input_file, 'r') as f:
             lines = f.readlines()
             for linenum, line in enumerate(lines):
-                if line.strip() == 'dep':
-                    timestep = lines[linenum+2].strip()
+                if (line.split('%')[0]).strip() == 'dep':
+                    timestep = (lines[linenum+2].split('%')[0]).strip()
                     if ' ' in timestep:
                         raise ValueError('Your Input file should only have one depstep')
                 if 'set pop' in line and '%' not in line:
-                    neutrons = line.split()[2]
-                    active = line.split()[3]
-                    inactive = line.split()[4]
+                    neutrons = int(line.split()[2])
+                    active = int(line.split()[3])
+                    inactive = int(line.split()[4])
         # write to db
         self.f.create_dataset('siminfo_timestep', data=timestep)
         self.f.create_dataset('siminfo_pop', data=[neutrons, active, inactive])
@@ -324,10 +334,9 @@ class saltproc_two_region:
         self.driver_refill_tank_db = self.f['driver refill tank composition']        
         self.driver_after_db = self.f['driver composition after reproc']
 
-        if self.two_region:
-            self.blanket_before_db = self.f['blanket composition before reproc']
-            self.blanket_after_db = self.f['blanket composition after reproc']
-            self.blanket_refill_tank_db = self.f['blanket refill tank composition']
+        self.blanket_before_db = self.f['blanket composition before reproc']
+        self.blanket_after_db = self.f['blanket composition after reproc']
+        self.blanket_refill_tank_db = self.f['blanket refill tank composition']
 
         self.waste_tank_db = self.f['waste tank composition']
         self.isolib_db = self.f['iso names']
@@ -354,10 +363,9 @@ class saltproc_two_region:
             self.driver_after_db.resize(shape)
             self.driver_refill_tank_db.resize(shape)
 
-            if self.two_region:
-                self.blanket_before_db.resize(shape)
-                self.blanket_after_db.resize(shape)
-                self.blanket_refill_tank_db.resize(shape)
+            self.blanket_before_db.resize(shape)
+            self.blanket_after_db.resize(shape)
+            self.blanket_refill_tank_db.resize(shape)
 
             self.waste_tank_db.resize(shape)
             self.fissile_tank_db.resize(shape)
@@ -366,8 +374,7 @@ class saltproc_two_region:
             # write new material file
             self.core = {}
             self.core[self.driver_mat_name] = self.driver_after_db[self.current_step - 1]
-            if self.two_region:
-                self.core[self.blanket_mat_name] = self.blanket_after_db[self.current_step - 1]
+            self.core[self.blanket_mat_name] = self.blanket_after_db[self.current_step - 1]
             self.write_mat_file()
 
     def read_res(self, moment):
@@ -462,7 +469,7 @@ class saltproc_two_region:
             matf.write(self.mat_def_dict[key].replace('\n', '') + ' fix 09c 900\n')
             for indx, isotope in enumerate(self.isozai):
                 # filter metastables
-                if str(isotope[-1]) != '0':
+                if str(isotope)[-1] != '0':
                     continue
                 # change name so it corresponds to temperature
                 isotope = str(isotope)[:-1] + '.09c'
@@ -484,20 +491,20 @@ class saltproc_two_region:
 
         # make core values mass by multiplying by volume
         self.core[self.driver_mat_name] = self.core[self.driver_mat_name] * self.driver_vol
-        if self.two_region:
+        try:
             self.core[self.blanket_mat_name] = self.core[self.blanket_mat_name] * self.blanket_vol
-
+        except:
+            self.core[self.blanket_mat_name] = np.zeros(self.number_of_isotopes)
         # save pre-processing core mass
         self.core_mass = {}
         for key, val in self.core.items():
             self.core_mass[key] = sum(val)
 
-        print(self.core_mass)
 
         # record the depleted composition before reprocessing
         self.driver_before_db[self.current_step, :] = self.core[self.driver_mat_name]
-        if self.two_region:
-            self.blanket_before_db[self.current_step, :] = self.core[self.blanket_mat_name]
+        self.blanket_before_db[self.current_step, :] = self.core[self.blanket_mat_name]
+
 
         # waste / fissile tank db initialization
         self.waste_tank_db[self.current_step, :] = self.waste_tank_db[self.current_step-1, :]
@@ -540,8 +547,8 @@ class saltproc_two_region:
         """
         # refill tank db initialization
         self.driver_refill_tank_db[self.current_step, :] = self.driver_refill_tank_db[self.current_step-1, :]
-        if self.two_region:
-            self.blanket_refill_tank_db[self.current_step, :] = self.blanket_refill_tank_db[self.current_step-1, :]
+        self.blanket_refill_tank_db[self.current_step, :] = self.blanket_refill_tank_db[self.current_step-1, :]
+
 
         for group, scheme in self.rep_scheme.items():
             if scheme['from'] != 'fertile':
@@ -591,8 +598,7 @@ class saltproc_two_region:
         self.keff_boc_db[:, self.current_step - 1] = self.read_res(0)
 
         self.driver_after_db[self.current_step, :] = self.core[self.driver_mat_name]
-        if self.two_region:
-            self.blanket_after_db[self.current_step, :] = self.core[self.blanket_mat_name]
+        self.blanket_after_db[self.current_step, :] = self.core[self.blanket_mat_name]
 
         self.f.close()
 
