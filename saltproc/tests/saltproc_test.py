@@ -10,13 +10,14 @@ sys.path.append(os.path.dirname(os.path.dirname(path)))
 from saltproc import saltproc
 
 
-# global clas object
+# global class object
 directory = os.path.dirname(path)
-saltproc = saltproc(5, 32, 32, 'False', restart=False,
+saltproc = saltproc(5, 1, 32, 'False', 
                     exec_path='/projects/sciteam/bahg/serpent30/src/sss2',
+                    restart=False,
                     input_file=directory+'/test',
                     db_file=directory+'/test_db.hdf5',
-                    mat_file=directory+'/test_mat')
+                    init_mat_file=directory+'/test_mat')
 os.remove(directory+'/test_db.hdf5')
 
 def test_init_db_file_creation():
@@ -25,17 +26,25 @@ def test_init_db_file_creation():
     saltproc.init_db()
     assert os.path.isfile(directory+'/test_db.hdf5')
 
-
 def test_init_db_dataset():
     """ Tests if the db is initialized correctly"""
     f = h5py.File(saltproc.db_file, 'r')
-    dataset_lists = ['keff_BOC', 'tank adensity', 'iso codes',
-                     'noble adensity', 'keff_EOC',
-                     'core adensity before reproc',
-                     'core adensity after reproc',
-                     'Th tank adensity']
-    for key in f.keys():
-        assert key in dataset_lists
+    dataset_lists = ['keff_BOC',
+                     'driver composition before reproc',
+                     'driver composition after reproc',
+                     'driver refill tank composition',
+                     'blanket composition before reproc',
+                     'blanket composition after reproc',
+                     'blanket refill tank composition',
+                     'fissile tank composition',
+                     'waste tank composition',
+                     'iso names',
+                     'iso zai',
+                     'siminfo_timestep',
+                     'siminfo_pop',
+                     'siminfo_totsteps']
+    for dataset in dataset_lists:
+        assert dataset in list(f.keys())
 
 
 def test_read_res():
