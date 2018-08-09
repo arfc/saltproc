@@ -25,7 +25,7 @@ saltproc = saltproc(5, 1, 32, 'False',
                     rep_scheme={'he': {'element': ['He'],
                                        'from': 'fuel'}})
 # use ci input if running on travis
-if 'travis' in str(sys.path[0]):
+if 'travis' in str(directory):
     saltproc.input_file = directory + '/test_ci'
     print('ahhhhhhhhhhhhhhhhhhhhhh')
 
