@@ -9,7 +9,6 @@ import shutil
 import argparse
 from collections import OrderedDict
 import re
-from pyne import serpent
 
 class saltproc:
     """ Class saltproc runs SERPENT and manipulates its input and output files
@@ -378,7 +377,7 @@ class saltproc:
             self.write_mat_file()
 
     def read_res(self, moment):
-        """ Reads using PyNE the SERPENT output .res file   
+        """ Reads SERPENT output .res file   
 
         Parameters:
         -----------
@@ -390,10 +389,19 @@ class saltproc:
         [mean_keff, uncertainty_keff]
         """
         res_filename = os.path.join(self.input_file + "_res.m")
-        res = serpent.parse_res(res_filename)
-        keff_analytical = res['IMP_KEFF']
-        return keff_analytical[moment]
-
+        count = 0
+        with open(res_filename, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if 'IMP_KEFF' in line:
+                    line = line.split('=')[1]
+                    line = line.split('[')[1]
+                    line = line.split(']')[0]
+                    line = line.split()
+                    keff = [float(line[0]), float(line[1])]
+                    if count == moment:
+                        return keff
+                    count += 1
 
     def read_dep(self, boc=False):
         """ Reads the SERPENT _dep.m file
