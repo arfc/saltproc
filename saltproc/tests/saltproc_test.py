@@ -13,6 +13,7 @@ from saltproc import saltproc
 # global class object
 directory = os.path.dirname(path)
 
+# for travis
 saltproc = saltproc(5, 1, 32, 'False', 
                     exec_path='/projects/sciteam/bahg/serpent30/src/sss2',
                     restart=False,
@@ -21,7 +22,9 @@ saltproc = saltproc(5, 1, 32, 'False',
                     init_mat_file=directory+'/test_mat',
                     blanket_mat_name='blank',
                     rep_scheme={'he': {'element': ['He'],
-                                       'from': 'fuel'}})
+                                    'from': 'fuel'}})
+
+
 try:
     os.remove(directory+'/test_db.hdf5')
 except:
@@ -74,7 +77,7 @@ def test_read_dep():
 
     assert dep_dict['blank'][0] == 1.31815e-09
 
-def test_read__matdef():
+def test_get_mat_def():
     mat_def = saltproc.get_mat_def()
     solution = 'mat  fuel  7.77767011499957E-02 fix 10c 1000 burn 1 vol 4.87100E+07 '
     print(saltproc.mat_def_dict)
@@ -95,3 +98,42 @@ def test_write_mat_file():
                 solution = ('% Step number # 0 1.074470 +- 0.002130;'
                            '1.014630 +- 0.002520')
                 assert line.rstrip() == solution
+
+def test_get_isos():
+    saltproc.get_isos()
+    assert len(saltproc.isoname) == 1715
+    assert len(saltproc.isozai) == 1715
+    assert saltproc.isoname[-1] == 'Bk251'
+    assert saltproc.isoname[0] == 'H1'
+    assert saltproc.isozai[0] == 10010
+    assert saltproc.isozai[-1] == 972510
+
+def test_find_iso_indx_iso():
+    saltproc.get_isos()
+    indx = saltproc.find_iso_indx('Bk251')
+    assert indx[0] == 1714
+    indx = saltproc.find_iso_indx('H1')
+    assert indx[0] == 0
+
+def test_find_iso_indx_el():
+    saltproc.get_isos()
+    indx = saltproc.find_iso_indx(['H'])
+    assert all(indx == [0, 1, 2])
+    indx = saltproc.find_iso_indx(['Cm'])
+    assert indx[0] == 343
+    assert indx[-1] == 1713
+
+def test_get_library_isotopes():
+    saltproc.get_library_isotopes()
+    print(saltproc.lib_isos)
+    assert saltproc.lib_isos[0] == '89225.09c'
+    assert saltproc.lib_isos[-1] == '40096.10c'
+
+def test_rep_scheme_init():
+    print(saltproc.rep_scheme)
+    assert saltproc.rep_scheme['he']['to'] == 'waste'
+    assert saltproc.rep_scheme['he']['freq'] == -1
+    assert saltproc.rep_scheme['he']['qty'] == -1
+    assert saltproc.rep_scheme['he']['begin_time'] == -1
+    assert saltproc.rep_scheme['he']['end_time'] == 1e+299
+    assert saltproc.rep_scheme['he']['eff'] == 1
