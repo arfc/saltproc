@@ -51,6 +51,13 @@ class saltproc:
             name of driver material in the definition
         blanket_mat_name: string
             name of blanket material in definition
+        driver_vol: float
+            volume of driver
+        blanket_vol: float
+            volume of blanket
+        rep_scheme: dict
+            key: scheme name
+            value: element, freq, qty, comp, begin_time, end_time, from, to, eff
         """
         # initialize all object attributes
         self.steps = steps
@@ -76,7 +83,11 @@ class saltproc:
 
 
     def rep_scheme_init(self, rep_scheme):
-        """ reprocessing scheme default setting and checking"""
+        """ reprocessing scheme default setting and checking.
+            1. Undefined parameters set to default value
+            2. Composition normalized
+            3. Check input errors for missing elements
+        """
         for group, spec in rep_scheme.items():
             # set default values:
             if 'freq' not in spec.keys():
@@ -112,12 +123,13 @@ class saltproc:
         self.rep_scheme = rep_scheme
 
     def find_iso_indx(self, keyword):
-        """ Returns index number of keword in bumat dictionary
+        """ Returns index number of keyword in bumat dictionary
         
         Parameters:
         -----------
         keyword: string or list
-            keyword to search for - element (e.g. Xe) or isotope (e.g. Pa233)
+            list for searching element
+            string for isotope
         
         Returns:
         --------
@@ -282,6 +294,9 @@ class saltproc:
             self.blanket_after_db[0, :] = np.zeros(self.number_of_isotopes)
             print('Blanket not defined: going to be all zeros')
     def write_run_info(self):
+        """ Reads from the input file to write to hdf5
+            of important SERPENT and Saltproc run parameters
+        """
         # read from input file:
         with open(self.input_file, 'r') as f:
             lines = f.readlines()
