@@ -9,13 +9,6 @@ import shutil
 import argparse
 from saltproc import saltproc
 
-##############################################################
-######### THIS IS THE INPUT FILE SECTION OF SALTPROC #########
-######### TO RUN, simply set these settings and run  #########
-##############################################################
-#########         `python run_saltproc.py            #########
-##############################################################
-
 # SERPENT input file
 input_path = os.path.dirname(os.path.abspath(__file__))
 print(input_path)

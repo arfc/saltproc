@@ -30,6 +30,7 @@ try:
 except:
     z=1
 
+
 def test_init_db_file_creation():
     """ Test if the db is created correctly"""
     # this is like this because it errors, but runs
@@ -96,7 +97,7 @@ def test_write_mat_file():
         for linenum, line in enumerate(lines):
             if linenum == 0:
                 solution = ('% Step number # 0 1.074470 +- 0.002130;'
-                           '1.014630 +- 0.002520')
+                            '1.014630 +- 0.002520')
                 assert line.rstrip() == solution
 
 def test_get_isos():

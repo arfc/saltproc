@@ -234,7 +234,6 @@ class saltproc:
             SEPRENT run """
 
         self.f = h5py.File(self.db_file, 'w')
-
         self.get_isos()
         self.get_mat_def()
         self.dep_dict = self.read_dep()
@@ -328,7 +327,6 @@ class saltproc:
                 dens_dict[key] = float(value.split()[2])
         for key, value in dens_dict.items():
             self.f.create_dataset('siminfo_%s_%s_density' %(key, cat), data=value)
-
         # init composition
         init_comp = self.read_dep(boc=True)
         for key, value in init_comp.items():
@@ -573,7 +571,6 @@ class saltproc:
         # refill tank db initialization
         self.driver_refill_tank_db[self.current_step, :] = self.driver_refill_tank_db[self.current_step-1, :]
         self.blanket_refill_tank_db[self.current_step, :] = self.blanket_refill_tank_db[self.current_step-1, :]
-
 
         for group, scheme in self.rep_scheme.items():
             if scheme['from'] != 'fertile':
