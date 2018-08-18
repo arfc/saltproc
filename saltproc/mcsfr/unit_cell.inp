@@ -1,0 +1,13 @@
+%surf 200 pz  0.0
+%surf 201 pz  188.0  
+surf 101 cyl 0.0 0.0 98.50			% Core (fuel salt)    87.67
+surf 103 cyl 0.0 0.0 118.00			% Fertile salt        93.37
+surf 104 sqc 0.0 0.0 118.00			% Fertile salt
+
+%cell 1001 0 fuel	200 -201 -101		% Core
+cell 1001 0 fuel	-101			% Core
+cell 1003 0 blank	-103 101		% Blanket
+cell 1004 0 hast	-104 103		% THermal insulation/reflector
+cell 1099 0 outside	104			% Outside world
+%cell 1098 0 outside     -200			% Outside upper
+%cell 1097 0 outside	201			% Outside lower

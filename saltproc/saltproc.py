@@ -11,7 +11,7 @@ from collections import OrderedDict
 import re
 from pyne import serpent
 
-class saltproc_two_region:
+class saltproc:
     """ Class saltproc runs SERPENT and manipulates its input and output files
         to reprocess its material, while storing the SERPENT run results in a
         HDF5 database. This class is for two region flows, with fertile blanket
@@ -21,7 +21,7 @@ class saltproc_two_region:
 
     def __init__(self, steps, cores, nodes, bw, exec_path, restart=False,
                  input_file='core', db_file='db_saltproc.hdf5',
-                 mat_file='fuel_comp', init_mat_file='init_mat_file', 
+                 mat_file='iter_mat_file', init_mat_file='init_mat_file', 
                  driver_mat_name='fuel', blanket_mat_name='blank',
                  blanket_vol=1, driver_vol=1, rep_scheme={}):
         """ Initializes the class
@@ -72,8 +72,10 @@ class saltproc_two_region:
         self.get_library_isotopes()
         self.prev_qty = 1
         self.rep_scheme_init(rep_scheme)
-        if blalnket_mat_name == '':
+        self.two_region = True
+	if blanket_mat_name == '':
             self.two_region = False
+	
 
 
     def rep_scheme_init(self, rep_scheme):
@@ -717,7 +719,7 @@ class saltproc_two_region:
         while self.current_step < self.steps:
             print('Cycle number of %i of %i steps' %
                   (self.current_step + 1, self.steps))
-            #self.run_serpent()
+            self.run_serpent()
             if self.current_step == 0:
                 # intializing db to get all arrays for calculation
                 self.init_db()

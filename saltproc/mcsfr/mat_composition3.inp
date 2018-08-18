@@ -1,0 +1,15 @@
+%+++++ Material definitions ++++++%   Depleted uranium with tails 0.25% and Cl-37 enrichment
+
+% --- Fuel salt
+mat fuel    -3.2882 burn 1 vol 3.8E+7
+92235.09c	-0.11865598		% U-235
+92238.09c	-47.949392		% U-238
+94239.09c	-6.183383		% Pu-239
+11023.09c	-7.8554704		% Na (100% of natural composition Na-23)
+17037.09c	-37.893099		% Cl-37
+% --- Fertile salt
+mat blank    -3.2882 burn 1 vol 7.5E+7
+92235.09c	-0.13389018		% U-235
+92238.09c	-54.105599		% U-238
+11023.09c	-7.8575209		% Na
+17037.09c	-37.902990		% Cl-37

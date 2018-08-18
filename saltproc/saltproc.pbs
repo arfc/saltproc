@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -l nodes=32:ppn=32:xe
 #PBS -l walltime=48:00:00
-#PBS -N no_removals
+#PBS -N saltproc
 #PBS -j oe
 #PBS -q normal
 
