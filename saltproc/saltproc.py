@@ -79,7 +79,6 @@ class saltproc:
         self.prev_qty = 1
         self.rep_scheme_init(rep_scheme)
         self.two_region = True
-	if blanket_mat_name == '':
         if blanket_mat_name == '':
             self.two_region = False
 	
