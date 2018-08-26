@@ -295,6 +295,8 @@ class saltproc:
             self.blanket_before_db[0, :] = np.zeros(self.number_of_isotopes)
             self.blanket_after_db[0, :] = np.zeros(self.number_of_isotopes)
             print('Blanket not defined: going to be all zeros')
+
+
     def write_run_info(self):
         """ Reads from the input file to write to hdf5
             of important SERPENT and Saltproc run parameters
@@ -327,11 +329,18 @@ class saltproc:
                 cat = 'atomic'
                 dens_dict[key] = float(value.split()[2])
         for key, value in dens_dict.items():
+            if key == self.driver_mat_name:
+                key = 'driver'
+            elif key == self.blanket_mat_name:
+                key = 'blanket'
             self.f.create_dataset('siminfo_%s_%s_density' %(key, cat), data=value)
 
-        # init composition
         init_comp = self.read_dep(boc=True)
         for key, value in init_comp.items():
+            if key == self.driver_mat_name:
+                key = 'driver'
+            elif key == self.blanket_mat_name:
+                key = 'blanket'
             self.f.create_dataset('siminfo_%s_init_comp' %key, data=value)
 
     def reopen_db(self, restart):
@@ -358,8 +367,10 @@ class saltproc:
         self.isolib_db = self.f['iso names']
         self.fissile_tank_db = self.f['fissile tank composition']
 
+        self.isozai_db = self.f['iso zai']
 
         if restart:
+            # resize dataset
             self.isoname = [str(x) for x in self.isolib_db]
             self.isozai = self.isozai_db
 
@@ -370,6 +381,7 @@ class saltproc:
             # set past time
             # !! this time thing should be made certain
             self.current_step = np.amax(np.nonzero(self.keff)) + 1
+            self.current_step = np.amax(np.nonzero(sum(self.driver_before_db))) + 1
             # resize datasets
             self.keff_eoc_db.resize((2, self.steps + self.current_step))
             self.keff_boc_db.resize((2, self.steps + self.current_step))
@@ -389,8 +401,11 @@ class saltproc:
 
             # write new material file
             self.core = {}
-            self.core[self.driver_mat_name] = self.driver_after_db[self.current_step - 1]
-            self.core[self.blanket_mat_name] = self.blanket_after_db[self.current_step - 1]
+            self.core[self.driver_mat_name] = self.driver_after_db[self.current_step - 2]
+            self.core[self.blanket_mat_name] = self.blanket_after_db[self.current_step - 2]
+            print(self.current_step - 1)
+            print(self.core[self.driver_mat_name])
+            print(self.core[self.blanket_mat_name])
             self.write_mat_file()
 
     def read_res(self, moment):
@@ -458,13 +473,13 @@ class saltproc:
                     indx = z.index('%')
                     mdens = z[indx-1]
                     if boc:
-                        mdens = z[indx-2]
+                        mdens = z[0]
                     # the isotope name is at the end of the line.
                     name = z[-1].replace('\n', '')
                     # find index so that it doesn't change
                     try:
                         where_in_isoname = self.isoname.index(name)
-                        self.dep_dict[key][where_in_isoname] = float(z[indx-1])
+                        self.dep_dict[key][where_in_isoname] = float(mdens)
                     except ValueError:
                         if name not in ['total', 'data']:
                             print('THIS WAS NOT HERE %s' %name)
@@ -491,6 +506,8 @@ class saltproc:
                    (self.current_step, ana_keff_boc[0], ana_keff_boc[1],
                     ana_keff_eoc[0], ana_keff_eoc[1]))
         for key, val in self.core.items():
+            if key == '':
+                continue
             matf.write(self.mat_def_dict[key].replace('\n', '') + ' fix 09c 900\n')
             for indx, isotope in enumerate(self.isozai):
                 # filter metastables
@@ -758,6 +775,7 @@ class saltproc:
             self.separate_fuel()
             self.refuel()
             self.write_mat_file()
+
 
             ### this is to check if serpent is running
             u235_id = self.find_iso_indx('U235')
