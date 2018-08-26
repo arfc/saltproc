@@ -24,7 +24,7 @@ print(input_path)
 input_file = os.path.join(input_path, 'mcsfr_design3.inp')
 # desired database file name
 db_file = os.path.join(input_path, 'mcsfr.hdf5')
-# material file with fuel composition and density 
+# material file with fuel composition and density
 mat_file = os.path.join(input_path, 'iter_mat_file')
 
 init_mat_file = os.path.join(input_path, 'mat_composition3.inp')
@@ -37,7 +37,7 @@ cores = 32
 nodes = 4
 
 # timesteps of 3 days of run Saltproc
-# total days = (3 * steps) [days] 
+# total days = (3 * steps) [days]
 steps = 3
 
 # True: restart by reading from a previously existing database.
@@ -54,11 +54,11 @@ two_region = True
 driver_mat_name = 'fuel'
 blanket_mat_name = 'blank'
 
-driver_vol = 38*10^3
-blanket_vol = 75*10^3
+driver_vol = 38*10 ^ 3
+blanket_vol = 75*10 ^ 3
 
 
-#reprocessing scheme defined by user
+# reprocessing scheme defined by user
 # key: group name
 # value: dictionary:
 #   key: element : list of elements to be reprocessed
@@ -89,7 +89,7 @@ rep_scheme = {'volatile_gases': {'element': ['Kr', 'Xe', 'Ar', 'Ne', 'H', 'N', '
               'pu': {'element': ['Pu'],
                      'from': blanket_mat_name,
                      'to': driver_mat_name}
-             }
+              }
 
 ###############################################################
 #########           END OF INPUT FILE SECTION         #########
@@ -98,23 +98,23 @@ rep_scheme = {'volatile_gases': {'element': ['Kr', 'Xe', 'Ar', 'Ne', 'H', 'N', '
 
 if __name__ == "__main__":
     print('Initiating Saltproc:\n'
-        '\tRestart = ' + str(restart) + '\n'
-        '\tNodes = ' + str(nodes) + '\n'
-        '\tCores = ' + str(cores) + '\n'
-        '\tSteps = ' + str(steps) + '\n'
-        '\tBlue Waters = ' + str(bw) + '\n'
-        '\tSerpent Path = ' + exec_path + '\n'
-        '\tInput File Path = ' + input_file + '\n'
-        '\tMaterial File Path = ' + mat_file + '\n'
-        '\tOutput DB File Path = ' + db_file + '\n'
-        )
+          '\tRestart = ' + str(restart) + '\n'
+          '\tNodes = ' + str(nodes) + '\n'
+          '\tCores = ' + str(cores) + '\n'
+          '\tSteps = ' + str(steps) + '\n'
+          '\tBlue Waters = ' + str(bw) + '\n'
+          '\tSerpent Path = ' + exec_path + '\n'
+          '\tInput File Path = ' + input_file + '\n'
+          '\tMaterial File Path = ' + mat_file + '\n'
+          '\tOutput DB File Path = ' + db_file + '\n'
+          )
     if not two_region:
         blanket_mat_name = ''
         blanket_vol = 0
 
     run = saltproc(steps=steps, cores=cores, nodes=nodes,
                    bw=bw, exec_path=exec_path, restart=restart,
-             		   input_file=input_file,
+                   input_file=input_file,
                    mat_file=mat_file, init_mat_file=init_mat_file,
                    driver_mat_name=driver_mat_name,
                    blanket_mat_name=blanket_mat_name,

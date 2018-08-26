@@ -1,0 +1,7 @@
+mat fuel    -3.266364 burn 1 rgb 253 231 37 
+3007.10c   -7.874749    % Mass fraction of Li-7 
+9019.10c   -45.400438   % Mass fraction of F-19
+4009.10c   -2.255668    % Mass fraction of Be-9
+90232.10c  -43.557775   % Mass fraction of Th-232
+92233.10c  -0.91137062  % Mass fraction of U-233 (0.25 % mole)
+
