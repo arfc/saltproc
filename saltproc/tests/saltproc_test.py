@@ -13,7 +13,6 @@ from saltproc import saltproc
 # global class object
 directory = os.path.dirname(path)
 
-# for travis
 saltproc = saltproc(5, 1, 32, 'False',
                     exec_path='/projects/sciteam/bahg/serpent30/src/sss2',
                     restart=False,
@@ -23,7 +22,6 @@ saltproc = saltproc(5, 1, 32, 'False',
                     blanket_mat_name='blank',
                     rep_scheme={'he': {'element': ['He'],
                                        'from': 'fuel'}})
-
 
 try:
     os.remove(directory+'/test_db.hdf5')
