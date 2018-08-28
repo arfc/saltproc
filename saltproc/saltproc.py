@@ -332,19 +332,31 @@ class saltproc:
                 cat = 'atomic'
                 dens_dict[key] = float(value.split()[2])
         for key, value in dens_dict.items():
-            if key == self.driver_mat_name:
-                key = 'driver'
-            elif key == self.blanket_mat_name:
-                key = 'blanket'
+            key = self.get_key_from_mat_name(key)
             self.f.create_dataset('siminfo_%s_%s_density' %(key, cat), data=value)
 
         init_comp = self.read_dep(boc=True)
         for key, value in init_comp.items():
-            if key == self.driver_mat_name:
-                key = 'driver'
-            elif key == self.blanket_mat_name:
-                key = 'blanket'
+            key = self.get_key_from_mat_name(key)
             self.f.create_dataset('siminfo_%s_init_comp' %key, data=value)
+
+    def get_key_from_mat_name(self, key):
+        """ Returns either `driver' or `blanket' given
+            the key from a dictionary
+
+        Parameters:
+        -----------
+        key: string
+            key from dictionary
+
+        Returns:
+        --------
+        either `driver' or `blanket'
+        """
+        if key == self.driver_mat_name:
+            return 'driver'
+        elif key == self.blanket_mat_name:
+            return 'blanket'
 
     def reopen_db(self, restart):
         """ Reopens the previously exisiting database
@@ -383,7 +395,6 @@ class saltproc:
             # set past time
             # !! this time thing should be made certain
             self.current_step = np.amax(np.nonzero(self.keff)) + 1
-            self.current_step = np.amax(np.nonzero(sum(self.driver_before_db))) + 1
             # resize datasets
             self.keff_eoc_db.resize((2, self.steps + self.current_step))
             self.keff_boc_db.resize((2, self.steps + self.current_step))
@@ -404,9 +415,6 @@ class saltproc:
             self.core = {}
             self.core[self.driver_mat_name] = self.driver_after_db[self.current_step - 2]
             self.core[self.blanket_mat_name] = self.blanket_after_db[self.current_step - 2]
-            print(self.current_step - 1)
-            print(self.core[self.driver_mat_name])
-            print(self.core[self.blanket_mat_name])
             self.write_mat_file()
 
     def read_res(self, moment):
