@@ -14,9 +14,7 @@ import re
 class saltproc:
     """ Class saltproc runs SERPENT and manipulates its input and output files
         to reprocess its material, while storing the SERPENT run results in a
-        HDF5 database. This class is for two region flows, with fertile blanket
-        and fissile driver. The fissile material from the blanket is separated
-        and put into the driver.
+        HDF5 database. 
     """
 
     def __init__(self, steps, cores, nodes, bw, exec_path, restart=False,
@@ -78,40 +76,42 @@ class saltproc:
         self.blanket_vol = blanket_vol
         self.get_library_isotopes()
         self.prev_qty = 1
-        self.rep_scheme_init(rep_scheme)
+
+        self.rep_scheme = rep_scheme
+        self.set_default_rep_params()
+        self.normalize_comp_rep_params()
+        self.check_error_rep_params()
+
         self.two_region = True
         if blanket_mat_name == '':
             self.two_region = False
 
-    def rep_scheme_init(self, rep_scheme):
-        """ reprocessing scheme default setting and checking.
-            1. Undefined parameters set to default value
-            2. Composition normalized
-            3. Check input errors for missing elements
-        """
-        for group, spec in rep_scheme.items():
-            # set default values:
+
+    def set_default_rep_params(self):
+         for group, spec in self.rep_scheme.items():
             if 'freq' not in spec.keys():
-                rep_scheme[group]['freq'] = -1
+                self.rep_scheme[group]['freq'] = -1
             if 'qty' not in spec.keys():
-                rep_scheme[group]['qty'] = -1
+                self.rep_scheme[group]['qty'] = -1
             if 'begin_time' not in spec.keys():
-                rep_scheme[group]['begin_time'] = -1
+                self.rep_scheme[group]['begin_time'] = -1
             if 'end_time' not in spec.keys():
-                rep_scheme[group]['end_time'] = 1e299
+                self.rep_scheme[group]['end_time'] = 1e299
             if 'from' not in spec.keys():
-                rep_scheme[group]['from'] = 'fertile'
+                self.rep_scheme[group]['from'] = 'fertile'
             if 'to' not in spec.keys():
-                rep_scheme[group]['to'] = 'waste'
+                self.rep_scheme[group]['to'] = 'waste'
             if 'eff' not in spec.keys():
-                rep_scheme[group]['eff'] = 1
+                self.rep_scheme[group]['eff'] = 1
 
-            # normalize composition
+    def normalize_comp_rep_params(self):
+        for group, spec in self.rep_scheme.items():
             if 'comp' in spec.keys():
-                rep_scheme[group]['comp'] = [
-                    x / sum(rep_scheme[group]['comp']) for x in rep_scheme[group]['comp']]
+                self.rep_scheme[group]['comp'] = [
+                    x / sum(self.rep_scheme[group]['comp']) for x in self.rep_scheme[group]['comp']]
 
-            # check for input errors
+    def check_error_rep_params(self):
+        for group, spec in self.rep_scheme.items():
             if 'element' not in spec.keys():
                 raise ValueError('Missing elements for %s' % group)
             if 'from' not in spec.keys() and 'to' not in spec.keys():
@@ -122,7 +122,7 @@ class saltproc:
                 for el in spec['element']:
                     if any(char.isdigit() for char in el):
                         raise ValueError('You can only remove Elements')
-        self.rep_scheme = rep_scheme
+
 
     def find_iso_indx(self, keyword):
         """ Returns index number of keyword in bumat dictionary
