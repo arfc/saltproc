@@ -161,11 +161,7 @@ class saltproc:
         iso_array: array
             array of isotopes in cross section library:
         """
-        # check if environment variable is set
-        if os.environ.get('SERPENT_DATA') is not None:
-            path = os.environ['SERPENT_DATA']
-        else:
-            path = ''
+        path = self.check_serpent_data_env_variable()
         with open(self.input_file, 'r') as f:
             lines = f.readlines()
             for line in lines:
@@ -183,24 +179,35 @@ class saltproc:
 
         self.lib_isos = np.array(self.lib_isos)
 
+    def check_serpent_data_env_variable(self):
+        """ Checks for environment variable `SERPENT_DATA
+
+        Returns:
+        --------
+        SERPENT_DATA environment variable, if set
+        """
+        if os.environ.get('SERPENT_DATA') is not None:
+            return os.environ['SERPENT_DATA']
+        else:
+            return ''
+
     def get_mat_def(self):
         """ Get material definition from the initial material definition
             file
         """
         with open(self.init_mat_file, 'r') as f:
-            self.mat_def_dict = OrderedDict({})
+            mat_def_dict = OrderedDict({})
             lines = f.readlines()
             for line in lines:
                 if 'mat' in line:
                     z = line.split()
                     key = z[1]
                     line = line.split('%')[0]
-                    self.mat_def_dict[key] = line
+                    mat_def_dict[key] = line
+        return self.mat_def_dict
 
     def get_isos(self):
-        """ Reads the isotope zai and name from dep file
-
-        """
+        """ Reads the isotope zai and name from dep file"""
         dep_file = self.input_file + '_dep.m'
         with open(dep_file, 'r') as f:
             lines = f.readlines()
@@ -216,7 +223,6 @@ class saltproc:
                     read_zai = False
                 elif read_zai:
                     self.isozai.append(int(line.strip()))
-
                 if 'NAMES' in line:
                     read_name = True
                 elif read_name and ';' in line:
@@ -224,17 +230,15 @@ class saltproc:
                 elif read_name:
                     # skip the spaces and first apostrophe
                     self.isoname.append(line.split()[0][1:])
-
             self.isozai = self.isozai[:-2]
             self.isoname = self.isoname[:-2]
 
     def init_db(self):
         """ Initializes the database from the output of the first
             SEPRENT run """
-
         self.f = h5py.File(self.db_file, 'w')
         self.get_isos()
-        self.get_mat_def()
+        self.mat_def_dict = self.get_mat_def()
         self.dep_dict = self.read_dep()
         self.write_run_info()
 
@@ -273,8 +277,6 @@ class saltproc:
         self.waste_tank_db = self.f.create_dataset('waste tank composition',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
-        # initial composition
-
         dt = h5py.special_dtype(vlen=str)
         # have to encode to utf8 for hdf5 string
         self.isolib_db = self.f.create_dataset('iso names',
@@ -388,7 +390,7 @@ class saltproc:
             self.isoname = [str(x) for x in self.isolib_db]
             self.isozai = self.isozai_db
 
-            self.get_mat_def()
+            self.mat_def_dict = self.get_mat_def()
             self.number_of_isotopes = len(self.isoname)
 
             self.keff = self.keff_eoc_db[0, :]
@@ -491,7 +493,7 @@ class saltproc:
                         self.dep_dict[key][where_in_isoname] = float(mdens)
                     except ValueError:
                         if name not in ['total', 'data']:
-                            print('THIS WAS NOT HERE %s' % name)
+                            print('This isotope is not a valid isotope %s' % name)
         for key, val in self.dep_dict.items():
             self.dep_dict[key] = np.array(val)
         return self.dep_dict
@@ -572,7 +574,7 @@ class saltproc:
                 # things to dump out
                 self.waste_tank_db[self.current_step, :] += self.remove_iso(iso_indx,
                                                                             scheme['eff'], scheme['from'])
-                print('REMOVING %f kg of %s FROM %s' %
+                print('Removing %f kg of %s from %s' %
                       (self.removed_qty, group, scheme['from']))
             else:
                 continue
@@ -587,19 +589,19 @@ class saltproc:
             if scheme['to'] != 'waste' and scheme['from'] != 'fertile':
                 removed = self.remove_iso(
                     iso_indx, scheme['eff'], scheme['from'])
-                print('REMOVING %f kg of %s FROM %s' %
+                print('Removing %f kg of %s from %s' %
                       (self.removed_qty, group, scheme['from']))
                 # if the movement flow is more than the space in the destination,
                 if sum(removed) > self.core_space[scheme['to']]:
                     removed_comp = removed / sum(removed)
                     self.core[scheme['to']] += removed_comp * \
                         self.core_space[scheme['to']]
-                    print('MOVING %f kg of %s FROM %s TO %s ' % (
+                    print('Moving %f kg of %s from %s to %s ' % (
                         self.core_space[scheme['to']], group, scheme['from'], scheme['to']))
                     # move rest to fissile tank
                     self.fissile_tank_db[self.current_step, :] += removed_comp * \
                         (sum(removed) - self.core_space[scheme['to']])
-                    print('MOVING %f kg of %s FROM %s TO FISSILE TANK' %
+                    print('Moving %f kg of %s from %s to fissile tank' %
                           (self.core_space[scheme['to']], group, scheme['from']))
 
     def refuel(self):
@@ -622,7 +624,7 @@ class saltproc:
                 for indx, frac in enumerate(scheme['comp']):
                     isoid = self.find_iso_indx(scheme['element'][indx])
                     self.refill(isoid, qty_to_fill*frac, scheme['to'])
-                    print('ADDING IN %f kg of %s to %s' % (
+                    print('Adding in %f kg of %s to %s' % (
                         qty_to_fill * frac, scheme['element'][indx], scheme['to']))
 
     def reactivity_control(self):
@@ -630,8 +632,6 @@ class saltproc:
             input into core to control keff into
             a range
         """
-        # check EOC KEFF for determining fissile_add_back_frac
-
         self.eoc_keff = self.read_res(1)
         # how much pu we lost:
         pu = self.find_iso_indx(['Pu'])
@@ -639,19 +639,19 @@ class saltproc:
                                         pu] - self.driver_after_db[self.current_step-1, pu]
         pu_loss = sum(pu_loss)
         pu_avail = sum(self.fissile_tank_db[self.current_step, :])
-        print('EOC KEFF IS %f +- %f' % (self.eoc_keff[0], self.eoc_keff[1]))
+        print('EOC KEFF is %f +- %f' % (self.eoc_keff[0], self.eoc_keff[1]))
 
         if self.eoc_keff[0] > 1.05:
-            print('KEFF IS TOO HIGH: NOT PUTTING ANY MORE PU IN DRIVER\n')
+            print('KEFF is too high: Not putting any more Pu in driver\n')
             qty = 0
         elif self.eoc_keff[0] <= 1.05 and self.eoc_keff[0] > 1.01:
-            print('KEFF IS IN A GOOD SPOT: PUTTING THE AMOUNT LOST FROM PREV DEPLETION\n')
+            print('KEFF is in a good spot: Inserting the amount lost from previous depletion to driver\n')
             qty = min(pu_avail, pu_loss)
         elif self.eoc_keff[0] <= 1.01:
-            print('KEFF IS LOW: PUTTING IN 1.5 TIMES PU THAN PREIVOUS STEP:')
+            print('KEFF is low: Inserting 1.5 times Pu than previous step to driver\n')
             qty = min(self.prev_qty * 1.5, pu_avail)
         if qty == pu_avail:
-            print('NOT ENOUGH PU AVAILABLE: PUTTING THE MAXIMUM AMOUNT AVAILABLE')
+            print('NOT enough Pu available: Inserting maximum amount of Pu available to driver\n')
 
         self.prev_qty = qty
         return qty
@@ -680,13 +680,13 @@ class saltproc:
         else:
             args = (self.exec_path,
                     '-omp', str(self.cores), self.input_file)
-        print('RUNNNIN')
+        print('Running Serpent')
         try:
             output = subprocess.check_output(args)
         except subprocess.CalledProcessError as e:
             print(e.output)
             raise ValueError('\nSEPRENT FAILED\n')
-        print('DONES')
+        print('Finished Serpent Run')
 
     def remove_iso(self, target_iso, removal_eff, region):
         """ Removes isotopes with given removal efficiency
