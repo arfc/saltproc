@@ -410,7 +410,7 @@ class saltproc:
             self.write_mat_file()
 
     def read_res(self, moment):
-        """ Reads SERPENT output .res file   
+        """ Reads SERPENT output .res file
 
         Parameters:
         -----------
