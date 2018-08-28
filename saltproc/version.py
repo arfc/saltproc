@@ -31,10 +31,11 @@ description = "saltproc: the on-line reprocessing driver for SERPENT"
 long_description = """
 Shablona
 ========
-Saltproc is a on-line reprocessing driver for SERPENT, where it 
+Saltproc is a on-line reprocessing driver for SERPENT, which
 runs SEPRENT from a given input file and parameters and performs
 user-defined processing of the fuel salt by adding or removing
 waste, fissile, and fertile streams.
+
 License
 =======
 The 3-Clause BSD License
@@ -69,8 +70,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 NAME = "saltproc"
-MAINTAINER = "Jin Whan Bae"
-MAINTAINER_EMAIL = "jbae11@illinois.edu"
+MAINTAINER = "Andrei Rykhlevskii"
+MAINTAINER_EMAIL = "arfc@googlegroups.com"
 DESCRIPTION = description
 LONG_DESCRIPTION = long_description
 URL = "http://github.com/arfc/saltproc"
