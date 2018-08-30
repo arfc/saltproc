@@ -605,16 +605,8 @@ class saltproc:
         """
         self.core = self.read_dep()
 
-        # make core values mass by multiplying by volume
-        self.core[self.driver_mat_name] = self.core[self.driver_mat_name] * \
-            self.driver_vol
-        try:
-            self.core[self.blanket_mat_name] = self.core[self.blanket_mat_name] * \
-                self.blanket_vol
-        except:
-            self.core[self.blanket_mat_name] = np.zeros(
-                self.number_of_isotopes)
-        # save pre-processing core mass
+        self.mdens_to_mass()
+
         self.core_mass = {}
         for key, val in self.core.items():
             self.core_mass[key] = sum(val)
@@ -630,43 +622,65 @@ class saltproc:
                            :] = self.waste_tank_db[self.current_step-1, :]
         self.fissile_tank_db[self.current_step,
                              :] = self.fissile_tank_db[self.current_step-1, :]
+        self.removal()
 
-        # removal first
+        self.get_core_space()
+
+        self.inter_material_transfer()
+
+    def get_core_mass(self):
+        """ calculates core mass and saves it in dictionary """
+        self.core_mass = {}
+        for key, val in self.core.items():
+            self.core_mass[key] = sum(val)
+
+    def mdens_to_mass(self):
+        """ Calculates mass of each material from mdens by multiplying by volume """
+        self.core[self.driver_mat_name] = self.core[self.driver_mat_name] * \
+            self.driver_vol
+        try:
+            self.core[self.blanket_mat_name] = self.core[self.blanket_mat_name] * \
+                self.blanket_vol
+        except:
+            self.core[self.blanket_mat_name] = np.zeros(
+                self.number_of_isotopes)
+
+    def removal(self):
+        """ Removes elements from core from user-defined reprocessing scheme"""
         for group, scheme in self.rep_scheme.items():
             iso_indx = self.find_iso_indx(scheme['element'])
             if scheme['to'] == 'waste':
-                # things to dump out
                 self.waste_tank_db[self.current_step, :] += self.remove_iso(iso_indx,
-                                                                            scheme['eff'], scheme['from'])
-                print('REMOVING %f kg of %s FROM %s' %
-                      (self.removed_qty, group, scheme['from']))
+                                                                            scheme['eff'],
+                                                                            scheme['from'])
+                print('Removing %f kg of %s from %s' %(self.removed_qty, group, scheme['from']))
             else:
                 continue
 
-        # get mass lacking in reactor after reprocessing out waste
+    def get_core_space(self):
+        """ Calculates core space after removal and saves it in dictionary"""
         self.core_space = {}
         for mat, val in self.core.items():
             self.core_space[mat] = self.core_mass[mat] - sum(val)
 
-        # move things around (fissile to driver)
+    def inter_material_transfer(self):
         for group, scheme in self.rep_scheme.items():
             if scheme['to'] != 'waste' and scheme['from'] != 'fertile':
                 removed = self.remove_iso(
                     iso_indx, scheme['eff'], scheme['from'])
-                print('REMOVING %f kg of %s FROM %s' %
-                      (self.removed_qty, group, scheme['from']))
-                # if the movement flow is more than the space in the destination,
+                print('Removing %f kg of %s from %s' %
+                    (self.removed_qty, group, scheme['from']))
                 if sum(removed) > self.core_space[scheme['to']]:
                     removed_comp = removed / sum(removed)
                     self.core[scheme['to']] += removed_comp * \
                         self.core_space[scheme['to']]
-                    print('MOVING %f kg of %s FROM %s TO %s ' % (
-                        self.core_space[scheme['to']], group, scheme['from'], scheme['to']))
-                    # move rest to fissile tank
+                    print('Moving %f kg of %s from %s to %s' %
+                        (self.core_space[scheme['to']], group, scheme['from'], scheme['to']))
+                    # remaining amount (surplus)
                     self.fissile_tank_db[self.current_step, :] += removed_comp * \
                         (sum(removed) - self.core_space[scheme['to']])
-                    print('MOVING %f kg of %s FROM %s TO FISSILE TANK' %
-                          (self.core_space[scheme['to']], group, scheme['from']))
+                    print('Moving %f kg of %s from %s to fissile tank' %
+                        (self.core_space[scheme['to']], group, scheme['from']))
 
     def refuel(self):
         """ After separating out fissile and waste material,
