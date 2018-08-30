@@ -130,8 +130,8 @@ class saltproc:
         Parameters:
         -----------
         keyword: string or list
-            list for searching element
-            string for isotope
+            list - list of elements
+            string - isotope
 
         Returns:
         --------
@@ -162,19 +162,11 @@ class saltproc:
             array of isotopes in cross section library:
         """
         # check if environment variable is set
-        if os.environ.get('SERPENT_DATA') is not None:
-            path = os.environ['SERPENT_DATA']
-        else:
-            path = ''
-        with open(self.input_file, 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                if 'set acelib' in line and '%' != line[0]:
-                    start = line.index('"') + 1
-                    end = line[start:].index('"') + start
-                    acelib = line[start:end]
+        path = self.check_env_variable()
+        acelib = self.get_acelib_path()
         self.lib_isos = []
-        acelib = path + acelib
+        acelib_path = path + acelib
+
         with open(acelib, 'r') as f:
             lines = f.readlines()
             for line in lines:
@@ -182,6 +174,39 @@ class saltproc:
                 self.lib_isos.append(iso)
 
         self.lib_isos = np.array(self.lib_isos)
+
+    def get_acelib_path(self):
+        """ Finds and returns the user-defined acelib
+            from the SERPENT input file
+
+        Returns:
+        --------
+        acelib: str
+            path to acelib
+        """
+        with open(self.input_file, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if 'set acelib' in line and '%' != line[0]:
+                    start = line.index('"') + 1
+                    end = line[start:].index('"') + start
+                    acelib = line[start:end]
+        return acelib
+
+    def check_env_variable(self):
+        """ Checks for environment variable `SERPENT_DATA'
+
+        Returns:
+        --------
+        path: str
+            'SEPRENT_DATA' if the environment variable exists
+            '' if it doesn't exist
+        """
+        if os.environ.get('SERPENT_DATA') is not None:
+            path =  os.environ['SERPENT_DATA']
+        else:
+            path = ''
+        return path
 
     def get_mat_def(self):
         """ Get material definition from the initial material definition
@@ -196,6 +221,7 @@ class saltproc:
                     key = z[1]
                     line = line.split('%')[0]
                     self.mat_def_dict[key] = line
+        return self.mat_def_dict[key]
 
     def get_isos(self):
         """ Reads the isotope zai and name from dep file
@@ -273,7 +299,6 @@ class saltproc:
         self.waste_tank_db = self.f.create_dataset('waste tank composition',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
-        # initial composition
 
         dt = h5py.special_dtype(vlen=str)
         # have to encode to utf8 for hdf5 string
@@ -384,38 +409,37 @@ class saltproc:
         self.isozai_db = self.f['iso zai']
 
         if restart:
-            # resize dataset
-            self.isoname = [str(x) for x in self.isolib_db]
-            self.isozai = self.isozai_db
+            self.resize_dataset()
 
-            self.get_mat_def()
-            self.number_of_isotopes = len(self.isoname)
+    def resize_dataset(self):
+        """ Resizes dataset upon restart"""
+        self.isoname = [str(x) for x in self.isolib_db]
+        self.isozai = self.isozai_db
 
-            self.keff = self.keff_eoc_db[0, :]
-            # set past time
-            # !! this time thing should be made certain
-            self.current_step = np.amax(np.nonzero(self.keff)) + 1
-            # resize datasets
-            self.keff_eoc_db.resize((2, self.steps + self.current_step))
-            self.keff_boc_db.resize((2, self.steps + self.current_step))
-            shape = (self.steps + self.current_step +
-                     1, self.number_of_isotopes)
-            self.driver_before_db.resize(shape)
-            self.driver_after_db.resize(shape)
-            self.driver_refill_tank_db.resize(shape)
+        self.get_mat_def()
+        self.number_of_isotopes = len(self.isoname)
 
-            self.blanket_before_db.resize(shape)
-            self.blanket_after_db.resize(shape)
-            self.blanket_refill_tank_db.resize(shape)
+        self.keff = self.keff_eoc_db[0, :]
+        self.current_step = np.amax(np.nonzero(self.keff)) + 1
+        self.keff_eoc_db.resize((2, self.steps + self.current_step))
+        self.keff_boc_db.resize((2, self.steps + self.current_step))
+        shape = (self.steps + self.current_step + 1,
+                 self.number_of_isotopes)
+        self.driver_before_db.resize(shape)
+        self.driver_after_db.resize(shape)
+        self.driver_refill_tank_db.resize(shape)
 
-            self.waste_tank_db.resize(shape)
-            self.fissile_tank_db.resize(shape)
+        self.blanket_before_db.resize(shape)
+        self.blanket_after_db.resize(shape)
+        self.blanket_refill_tank_db.resize(shape)
 
-            # write new material file
-            self.core = {}
-            self.core[self.driver_mat_name] = self.driver_after_db[self.current_step - 2]
-            self.core[self.blanket_mat_name] = self.blanket_after_db[self.current_step - 2]
-            self.write_mat_file()
+        self.waste_tank_db.resize(shape)
+        self.fissile_tank_db.resize(shape)
+
+        self.core = {}
+        self.core[self.driver_mat_name] = self.driver_after_db[self.current_step -2]
+        self.core[self.blanket_mat_name] = self.blanket_after_db[self.current_step -2]
+        self.write_mat_file()
 
     def read_res(self, moment):
         """ Reads SERPENT output .res file
