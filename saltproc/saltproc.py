@@ -263,6 +263,7 @@ class saltproc:
         self.get_mat_def()
         self.dep_dict = self.read_dep()
         self.write_run_info()
+        self.write_init_mat_def()
 
         self.number_of_isotopes = len(self.isoname)
         shape = (2, self.steps)
@@ -344,9 +345,12 @@ class saltproc:
         # write to db
         self.f.create_dataset('siminfo_timestep', data=timestep)
         self.f.create_dataset('siminfo_pop', data=[neutrons, active, inactive])
-
         self.f.create_dataset('siminfo_totsteps', data=self.steps)
 
+    def write_init_mat_def(self):
+        """ Extracts material density from initial input file
+            and records it to the hdf5 file
+        """
         # fuel and blanket density
         dens_dict = {}
         for key, value in self.mat_def_dict.items():
@@ -364,6 +368,7 @@ class saltproc:
         for key, value in init_comp.items():
             key = self.get_key_from_mat_name(key)
             self.f.create_dataset('siminfo_%s_init_comp' %key, data=value)
+
 
     def get_key_from_mat_name(self, key):
         """ Returns either `driver' or `blanket' given
@@ -532,7 +537,6 @@ class saltproc:
         """
         ana_keff_boc = self.read_res(0)
         ana_keff_eoc = self.read_res(1)
-        not_in_lib = open('NOT_IN_LIB', 'w')
         matf = open(self.mat_file, 'w')
         matf.write('%% Step number # %i %f +- %f;%f +- %f \n' %
                    (self.current_step, ana_keff_boc[0], ana_keff_boc[1],
@@ -542,20 +546,58 @@ class saltproc:
                 continue
             matf.write(self.mat_def_dict[key].replace('\n', '') + ' fix 09c 900\n')
             for indx, isotope in enumerate(self.isozai):
-                # filter metastables
-                if str(isotope)[-1] != '0':
+                if self.check_isozai_metastable(isotope) or not self.check_isotope_in_library(isotope):
                     continue
-                # change name so it corresponds to temperature
-                isotope = str(isotope)[:-1] + '.09c'
+                isotope = self.add_isozai_temp(isotope, '.09c')
                 # filter isotopes not in cross section library
                 mass_frac = -1.0 * (val[indx] / sum(val)) * 100
-                if isotope not in self.lib_isos:
-                    not_in_lib.write('%s\t\t%s\n' %
-                                     (str(isotope), str(mass_frac)))
-                    continue
-                else:
-                    matf.write('%s\t\t%s\n' % (str(isotope), str(mass_frac)))
+                matf.write('%s\t\t%s\n' % (str(isotope), str(mass_frac)))
         matf.close()
+
+    def check_isozai_metastable(self, isotope):
+        """ check if an isotope is metastable by checking its
+            last digit
+        Returns:
+        --------
+        bool:
+            True if metastable
+            False if not
+        """
+        if str(isotope)[-1] != '0':
+            return True
+        else:
+            return False
+
+    def add_isozai_temp(self, isotope, temp_suffix):
+        """ Appends SEREPENT temperature suffix to isozai
+
+        Parameters:
+        -----------
+        isotope: str
+            isotope in zai format
+        temp_suffix: str
+            temperature suffix for SERPENT (e.g. .09c)
+
+        Returns:
+        --------
+        str:
+            isotope + temp_suffix
+        """
+        return str(isotope)[:-1] + temp_suffix
+
+    def check_isotope_in_library(self, isotope):
+        """ Check if an isotope is in the acelib library
+            used for this simulation
+        Returns:
+        --------
+        bool:
+            True if  in library
+            False if not in library
+        """
+        if isotope not in self.lib_isos:
+            return False
+        else:
+            return True
 
     def separate_fuel(self):
         """ separate fissile material from blanket,
