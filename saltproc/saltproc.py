@@ -14,9 +14,7 @@ import re
 class saltproc:
     """ Class saltproc runs SERPENT and manipulates its input and output files
         to reprocess its material, while storing the SERPENT run results in a
-        HDF5 database. This class is for two region flows, with fertile blanket
-        and fissile driver. The fissile material from the blanket is separated
-        and put into the driver.
+        HDF5 database. 
     """
 
     def __init__(self, steps, cores, nodes, bw, exec_path, restart=False,
@@ -78,40 +76,42 @@ class saltproc:
         self.blanket_vol = blanket_vol
         self.get_library_isotopes()
         self.prev_qty = 1
-        self.rep_scheme_init(rep_scheme)
+
+        self.rep_scheme = rep_scheme
+        self.set_default_rep_params()
+        self.normalize_comp_rep_params()
+        self.check_error_rep_params()
+
         self.two_region = True
         if blanket_mat_name == '':
             self.two_region = False
 
-    def rep_scheme_init(self, rep_scheme):
-        """ reprocessing scheme default setting and checking.
-            1. Undefined parameters set to default value
-            2. Composition normalized
-            3. Check input errors for missing elements
-        """
-        for group, spec in rep_scheme.items():
-            # set default values:
+
+    def set_default_rep_params(self):
+         for group, spec in self.rep_scheme.items():
             if 'freq' not in spec.keys():
-                rep_scheme[group]['freq'] = -1
+                self.rep_scheme[group]['freq'] = -1
             if 'qty' not in spec.keys():
-                rep_scheme[group]['qty'] = -1
+                self.rep_scheme[group]['qty'] = -1
             if 'begin_time' not in spec.keys():
-                rep_scheme[group]['begin_time'] = -1
+                self.rep_scheme[group]['begin_time'] = -1
             if 'end_time' not in spec.keys():
-                rep_scheme[group]['end_time'] = 1e299
+                self.rep_scheme[group]['end_time'] = 1e299
             if 'from' not in spec.keys():
-                rep_scheme[group]['from'] = 'fertile'
+                self.rep_scheme[group]['from'] = 'fertile'
             if 'to' not in spec.keys():
-                rep_scheme[group]['to'] = 'waste'
+                self.rep_scheme[group]['to'] = 'waste'
             if 'eff' not in spec.keys():
-                rep_scheme[group]['eff'] = 1
+                self.rep_scheme[group]['eff'] = 1
 
-            # normalize composition
+    def normalize_comp_rep_params(self):
+        for group, spec in self.rep_scheme.items():
             if 'comp' in spec.keys():
-                rep_scheme[group]['comp'] = [
-                    x / sum(rep_scheme[group]['comp']) for x in rep_scheme[group]['comp']]
+                self.rep_scheme[group]['comp'] = [
+                    x / sum(self.rep_scheme[group]['comp']) for x in self.rep_scheme[group]['comp']]
 
-            # check for input errors
+    def check_error_rep_params(self):
+        for group, spec in self.rep_scheme.items():
             if 'element' not in spec.keys():
                 raise ValueError('Missing elements for %s' % group)
             if 'from' not in spec.keys() and 'to' not in spec.keys():
@@ -122,7 +122,7 @@ class saltproc:
                 for el in spec['element']:
                     if any(char.isdigit() for char in el):
                         raise ValueError('You can only remove Elements')
-        self.rep_scheme = rep_scheme
+
 
     def find_iso_indx(self, keyword):
         """ Returns index number of keyword in bumat dictionary
@@ -213,20 +213,18 @@ class saltproc:
             file
         """
         with open(self.init_mat_file, 'r') as f:
-            self.mat_def_dict = OrderedDict({})
+            mat_def_dict = OrderedDict({})
             lines = f.readlines()
             for line in lines:
                 if 'mat' in line:
                     z = line.split()
                     key = z[1]
                     line = line.split('%')[0]
-                    self.mat_def_dict[key] = line
-        return self.mat_def_dict[key]
+                    mat_def_dict[key] = line
+        return self.mat_def_dict
 
     def get_isos(self):
-        """ Reads the isotope zai and name from dep file
-
-        """
+        """ Reads the isotope zai and name from dep file"""
         dep_file = self.input_file + '_dep.m'
         with open(dep_file, 'r') as f:
             lines = f.readlines()
@@ -242,7 +240,6 @@ class saltproc:
                     read_zai = False
                 elif read_zai:
                     self.isozai.append(int(line.strip()))
-
                 if 'NAMES' in line:
                     read_name = True
                 elif read_name and ';' in line:
@@ -250,17 +247,15 @@ class saltproc:
                 elif read_name:
                     # skip the spaces and first apostrophe
                     self.isoname.append(line.split()[0][1:])
-
             self.isozai = self.isozai[:-2]
             self.isoname = self.isoname[:-2]
 
     def init_db(self):
         """ Initializes the database from the output of the first
             SEPRENT run """
-
         self.f = h5py.File(self.db_file, 'w')
         self.get_isos()
-        self.get_mat_def()
+        self.mat_def_dict = self.get_mat_def()
         self.dep_dict = self.read_dep()
         self.write_run_info()
         self.write_init_mat_def()
@@ -300,7 +295,6 @@ class saltproc:
         self.waste_tank_db = self.f.create_dataset('waste tank composition',
                                                    shape, maxshape=maxshape,
                                                    chunks=True)
-
         dt = h5py.special_dtype(vlen=str)
         # have to encode to utf8 for hdf5 string
         self.isolib_db = self.f.create_dataset('iso names',
@@ -520,7 +514,7 @@ class saltproc:
                         self.dep_dict[key][where_in_isoname] = float(mdens)
                     except ValueError:
                         if name not in ['total', 'data']:
-                            print('THIS WAS NOT HERE %s' % name)
+                            print('This isotope is not a valid isotope %s' % name)
         for key, val in self.dep_dict.items():
             self.dep_dict[key] = np.array(val)
         return self.dep_dict
@@ -702,7 +696,7 @@ class saltproc:
                 for indx, frac in enumerate(scheme['comp']):
                     isoid = self.find_iso_indx(scheme['element'][indx])
                     self.refill(isoid, qty_to_fill*frac, scheme['to'])
-                    print('ADDING IN %f kg of %s to %s' % (
+                    print('Adding in %f kg of %s to %s' % (
                         qty_to_fill * frac, scheme['element'][indx], scheme['to']))
 
     def reactivity_control(self):
@@ -710,8 +704,6 @@ class saltproc:
             input into core to control keff into
             a range
         """
-        # check EOC KEFF for determining fissile_add_back_frac
-
         self.eoc_keff = self.read_res(1)
         # how much pu we lost:
         pu = self.find_iso_indx(['Pu'])
@@ -719,19 +711,19 @@ class saltproc:
                                         pu] - self.driver_after_db[self.current_step-1, pu]
         pu_loss = sum(pu_loss)
         pu_avail = sum(self.fissile_tank_db[self.current_step, :])
-        print('EOC KEFF IS %f +- %f' % (self.eoc_keff[0], self.eoc_keff[1]))
+        print('EOC KEFF is %f +- %f' % (self.eoc_keff[0], self.eoc_keff[1]))
 
         if self.eoc_keff[0] > 1.05:
-            print('KEFF IS TOO HIGH: NOT PUTTING ANY MORE PU IN DRIVER\n')
+            print('KEFF is too high: Not putting any more Pu in driver\n')
             qty = 0
         elif self.eoc_keff[0] <= 1.05 and self.eoc_keff[0] > 1.01:
-            print('KEFF IS IN A GOOD SPOT: PUTTING THE AMOUNT LOST FROM PREV DEPLETION\n')
+            print('KEFF is in a good spot: Inserting the amount lost from previous depletion to driver\n')
             qty = min(pu_avail, pu_loss)
         elif self.eoc_keff[0] <= 1.01:
-            print('KEFF IS LOW: PUTTING IN 1.5 TIMES PU THAN PREIVOUS STEP:')
+            print('KEFF is low: Inserting 1.5 times Pu than previous step to driver\n')
             qty = min(self.prev_qty * 1.5, pu_avail)
         if qty == pu_avail:
-            print('NOT ENOUGH PU AVAILABLE: PUTTING THE MAXIMUM AMOUNT AVAILABLE')
+            print('NOT enough Pu available: Inserting maximum amount of Pu available to driver\n')
 
         self.prev_qty = qty
         return qty
@@ -760,13 +752,13 @@ class saltproc:
         else:
             args = (self.exec_path,
                     '-omp', str(self.cores), self.input_file)
-        print('RUNNNIN')
+        print('Running Serpent')
         try:
             output = subprocess.check_output(args)
         except subprocess.CalledProcessError as e:
             print(e.output)
             raise ValueError('\nSEPRENT FAILED\n')
-        print('DONES')
+        print('Finished Serpent Run')
 
     def remove_iso(self, target_iso, removal_eff, region):
         """ Removes isotopes with given removal efficiency
