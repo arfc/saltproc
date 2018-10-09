@@ -17,7 +17,7 @@ if _version_extra:
 
 __version__ = '.'.join(map(str, _ver))
 
-CLASSIFIERS = ["Development Status :: 3 - Alpha",
+CLASSIFIERS = ["Development Status :: beta",
                "Environment :: Console",
                "Intended Audience :: Science/Research",
                "License :: OSI Approved :: MIT License",
@@ -26,50 +26,63 @@ CLASSIFIERS = ["Development Status :: 3 - Alpha",
                "Topic :: Scientific/Engineering"]
 
 # Description should be a one-liner:
-description = "saltproc: a template for small scientific Python projects"
+description = "saltproc: the on-line reprocessing driver for SERPENT"
 # Long description will go up on the pypi page
 long_description = """
-
 Shablona
 ========
-Shablona is a template project for small scientific Python projects.
-
-It contains software implementations of an analysis of some simple data, but
-more importantly, it contains infrastructure for testing, documentation,
-continuous integration and deployment, which can be easily adapted
-to use in other projects.
-
-To get started using these components in your own software, please go to the
-repository README_.
-
-.. _README: https://github.com/uwescience/saltproc/blob/master/README.md
+Saltproc is a on-line reprocessing driver for SERPENT, which
+runs SEPRENT from a given input file and parameters and performs
+user-defined processing of the fuel salt by adding or removing
+waste, fissile, and fertile streams.
 
 License
 =======
-``saltproc`` is licensed under the terms of the MIT license. See the file
-"LICENSE" for information on the history of this software, terms & conditions
-for usage, and a DISCLAIMER OF ALL WARRANTIES.
+The 3-Clause BSD License
 
-All trademarks referenced herein are property of their respective holders.
+Copyright (c) 2018, Andrei Rykhlevskii
+All rights reserved.
 
-Copyright (c) 2015--, Ariel Rokem, The University of Washington
-eScience Institute.
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of default-bsd-3-clause nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 NAME = "saltproc"
-MAINTAINER = "Ariel Rokem"
-MAINTAINER_EMAIL = "arokem@gmail.com"
+MAINTAINER = "Andrei Rykhlevskii"
+MAINTAINER_EMAIL = "arfc@googlegroups.com"
 DESCRIPTION = description
 LONG_DESCRIPTION = long_description
-URL = "http://github.com/uwescience/saltproc"
+URL = "http://github.com/arfc/saltproc"
 DOWNLOAD_URL = ""
-LICENSE = "MIT"
-AUTHOR = "Ariel Rokem"
-AUTHOR_EMAIL = "arokem@gmail.com"
+LICENSE = "BSD-3"
+AUTHOR = "Andrei Rykhlevskii"
+AUTHOR_EMAIL = "andrewyh@illinois.edu"
 PLATFORMS = "OS Independent"
 MAJOR = _version_major
 MINOR = _version_minor
 MICRO = _version_micro
 VERSION = __version__
 PACKAGE_DATA = {'saltproc': [pjoin('data', '*')]}
-REQUIRES = ["numpy"]
+REQUIRES = ["numpy", "pyne"]
