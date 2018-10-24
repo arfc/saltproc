@@ -4,26 +4,43 @@ Online fuel salt reprocesing for Molten Salt Reactors
 
 How to run script (with default flags):
 
-python saltproc.py -n 1 -r /False -bw True/False -steps 5
-
+python run_saltproc.py -n 1 -r /False -bw True/False -steps 5
+```
 -n     		   number of nodes
 -r     	           continue previous simulation? True/False
 -bw    		   running on Blue Waters? True/False
 -steps 	           number of reprocessing steps to run
+```
+### Rooms for Improvement
+Note that the SERPENT input file path, output database file path, and SERPENT mat file path
+are hard-coded in `run_saltproc.py`. The user must edit this to the correct input files.
 
-Shablona is a template project for small scientific python projects. The
-recommendations we make here follow the standards and conventions of much of
-the scientific Python eco-system. Following these standards and recommendations
-will make it easier for others to use your code, and can make it easier for you
-to port your code into other projects and collaborate with other users of this
-eco-system.
+Note that the executable paths for SERPENT for both the Blue Waters mode and Local mode are
+hardcoded in `saltproc.py`. The user must edit this to the correct executable path.
 
-To use it as a template for your own project, you will need to follow the
-instructions at the [bottom of this page](#using-saltproc-as-a-template).
+### How saltproc works:
+Saltproc is a driver for SERPENT to simulate online fuel salt reprocessing for Molten Salt Reactors.
+It performs three major functions:
+  * runs SERPENT
+  * parsers and stores SERPENT output data in hdf5
+  * creates and edits SERPENT input file (`reprocesses`)
 
-First, let me explain all the different moving parts that make up a small
-scientific python project, and all the elements which allow us to effectively
-share it with others, test it, document it, and track its evolution.
+The code logic flow is the following:
+  1. Checks for restart ()
+    * restart ON: it reads from the database and starts where the database took off (`saltproc.reopen_db()`)
+  2. Runs SERPENT (`saltproc.run_serpent()`)
+    * restart OFF : if first run, initializes database with isotopic vectors from the output bumat file (`saltproc.init_db()`)
+  3. 'Processes Fuel' (`saltproc.process_fuel()`)
+    * It parses through the output bumat file to:
+      1. remove isotope groups periodically with specific efficiency
+      2. add back fissile and/or fertile streams
+  4. Records data:
+    * Depleted fuel composition (`core adensity before reproc`)
+    * Reprocessed fuel composition (`core adensity after reproc`)
+    * EOC / BOC Keff (`keff_EOC`, `keff_BOC`)
+    * Th tank inventory (`Th tank adensity`)
+  5. Repeat 2-4.
+
 
 ### Organization of the  project
 
@@ -34,7 +51,6 @@ The project has the following structure:
       |- saltproc/
          |- __init__.py
          |- saltproc.py
-         |- due.py
          |- data/
             |- ...
          |- tests/
@@ -74,7 +90,7 @@ interactive Python session, the classes and functions defined inside of the
 need to also create a file in `__init__.py` which contains code that imports
 everything in that file into the namespace of the project:
 
-    from .saltproc import *
+    from saltproc import saltproc
 
 In the module code, we follow the convention that all functions are either
 imported from other places, or are defined in lines that precede the lines that
