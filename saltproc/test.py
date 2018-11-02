@@ -3,7 +3,7 @@ from depcode import Depcode
 
 input_path = os.path.dirname(os.path.abspath(__file__))
 print(input_path)
-input_file = os.path.join(input_path, 'data/rebus.inp')
+input_file = os.path.join(input_path, 'data/saltproc_rebus.inp')
 template_file = os.path.join(input_path, 'data/rebus.inp')
 # executable path of Serpent
 exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
@@ -18,6 +18,7 @@ if __name__ == "__main__":
           # '\tSteps = ' + str(steps) + '\n'
           # '\tBlue Waters = ' + str(bw) + '\n'
           '\tSerpent Path = ' + exec_path + '\n'
+          '\tTemplate File Path = ' + template_file + '\n'
           '\tInput File Path = ' + input_file + '\n'
           # '\tMaterial File Path = ' + mat_file + '\n'
           # '\tOutput DB File Path = ' + db_file + '\n'
@@ -33,4 +34,5 @@ if __name__ == "__main__":
                   inactive_cycles=20)
 #    run.run_depcode(cores)
 # print('End of RUN')
-    run.read_depcode_template()
+    # run.read_depcode_template()
+    run.write_depcode_input(template_file, input_file)
