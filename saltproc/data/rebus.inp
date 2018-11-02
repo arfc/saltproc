@@ -1,6 +1,7 @@
 set title "REBUS-3700 Unit cell model, TRU 16.7 at.%, No removals depl for 510EFPD"
 
-include "/home/andrei2/Desktop/git/fs-msrs/rebus/serpent/mat_composition_167.inp"
+%include "/home/andrei2/Desktop/git/fs-msrs/rebus/serpent/mat_composition_167.inp"
+include "../../../../fs-msrs/rebus/serpent/mat_composition_167.inp"
 include "/home/andrei2/Desktop/git/fs-msrs/rebus/serpent/unit_cell.inp"
 
 % ----- Boundary conditions

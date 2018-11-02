@@ -96,17 +96,27 @@ class Depcode:
     def create_iter_matfile(self, data):
         """ Check <include> with material file, copy in iteration material file,
          and change name of file in <include> """
+        data_dir = os.path.dirname(self.template_fname)
         include_str = [s for s in data if s.startswith("include ")]
-        src_matfile = include_str[0].split()[1][1:-1]
-        if 'mat ' not in open(src_matfile).read():
-            print('ERROR: Template file %s has not include file with materials'
-                  ' description or <include "material_file"> statement is not'
-                  ' appears as first <include> statement \n'
-                  % (self.template_fname))
+        if not include_str:
+            print('ERROR: Template file %s has no <include "material_file">'
+                  ' statements ' % (self.template_fname))
             return
+        src_file = include_str[0].split()[1][1:-1]
+        if not os.path.isabs(src_file):
+            abs_src_matfile = os.path.normpath(data_dir) + '/' + src_file
+        else:
+            abs_src_matfile = src_file
+            if 'mat ' not in open(abs_src_matfile).read():
+                print('ERROR: Template file %s has not include file with'
+                      ' materials description or <include "material_file">'
+                      ' statement is not appears'
+                      ' as first <include> statement\n'
+                      % (self.template_fname))
+                return
         # Create file with path for SaltProc rewritable iterative material file
-        shutil.copy2(src_matfile, self.iter_matfile)
-        return [s.replace(src_matfile, self.iter_matfile) for s in data]
+        shutil.copy2(abs_src_matfile, self.iter_matfile)
+        return [s.replace(src_file, self.iter_matfile) for s in data]
 
     def write_depcode_input(self, template_file, input_file):
         """ Write prepared data into depletion code input file """
