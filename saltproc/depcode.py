@@ -1,5 +1,6 @@
 import subprocess
 import os
+import shutil
 
 
 class Depcode:
@@ -16,6 +17,7 @@ class Depcode:
                 template_fname,
                 input_fname,
                 output_fname,
+                iter_matfile,
                 npop=None,
                 active_cycles=None,
                 inactive_cycles=None):
@@ -34,6 +36,9 @@ class Depcode:
                 name of input file for depletion code rerunning
             output_fname: string
                 name of output file for depletion code rerunning
+            iter_matfile: string
+                name of iterative rewritable material file for depletion code
+                 rerunning
             npop: int
                 size of neutron population for Monte-Carlo code
             active_cycles: int
@@ -47,6 +52,7 @@ class Depcode:
             self.template_fname = template_fname
             self.input_fname = input_fname
             self.output_fname = output_fname
+            self.iter_matfile = iter_matfile
             self.npop = npop
             self.active_cycles = active_cycles
             self.inactive_cycles = inactive_cycles
@@ -70,7 +76,7 @@ class Depcode:
         return str_list
 
     def change_sim_par(self, data):
-        """ Check simulation parameters (neutron population, cycles) and changes
+        """ Check simulation parameters (neutron population, cycles) and change
          to parameters from SaltProc input """
         if self.npop and self.active_cycles and self.inactive_cycles:
             sim_param = [s for s in data if s.startswith("set pop")]
@@ -87,13 +93,29 @@ class Depcode:
                                            self.inactive_cycles)
         return [s.replace(sim_param[0], args) for s in data]
 
+    def create_iter_matfile(self, data):
+        """ Check <include> with material file, copy in iteration material file,
+         and change name of file in <include> """
+        include_str = [s for s in data if s.startswith("include ")]
+        src_matfile = include_str[0].split()[1][1:-1]
+        if 'mat ' not in open(src_matfile).read():
+            print('ERROR: Template file %s has not include file with materials'
+                  ' description or <include "material_file"> statement is not'
+                  ' appears as first <include> statement \n'
+                  % (self.template_fname))
+            return
+        # Create file with path for SaltProc rewritable iterative material file
+        shutil.copy2(src_matfile, self.iter_matfile)
+        return [s.replace(src_matfile, self.iter_matfile) for s in data]
+
     def write_depcode_input(self, template_file, input_file):
         """ Write prepared data into depletion code input file """
         if os.path.exists(input_file):
             os.remove(input_file)
         data = self.read_depcode_template(template_file)
-        changed_data = self.change_sim_par(data)
-        if changed_data:
+        data = self.change_sim_par(data)
+        data = self.create_iter_matfile(data)
+        if data:
             out_file = open(input_file, 'w')
-            out_file.writelines(changed_data)
+            out_file.writelines(data)
             out_file.close()

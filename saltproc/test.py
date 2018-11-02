@@ -5,6 +5,7 @@ input_path = os.path.dirname(os.path.abspath(__file__))
 print(input_path)
 input_file = os.path.join(input_path, 'data/saltproc_rebus.inp')
 template_file = os.path.join(input_path, 'data/rebus.inp')
+iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
 # executable path of Serpent
 exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
 # Number of cores and nodes to use in cluster
@@ -24,15 +25,17 @@ if __name__ == "__main__":
           # '\tOutput DB File Path = ' + db_file + '\n'
           )
 
-    run = Depcode(codename='SERPENT',
-                  exec_path=exec_path,
-                  template_fname=template_file,
-                  input_fname=input_file,
-                  output_fname='NONE',
-                  npop=444,
-                  active_cycles=100,
-                  inactive_cycles=20)
+    serpent = Depcode(codename='SERPENT',
+                      exec_path=exec_path,
+                      template_fname=template_file,
+                      input_fname=input_file,
+                      output_fname='NONE',
+                      iter_matfile=iter_matfile,
+                      npop=444,
+                      active_cycles=100,
+                      inactive_cycles=20)
 #    run.run_depcode(cores)
 # print('End of RUN')
     # run.read_depcode_template()
-    run.write_depcode_input(template_file, input_file)
+    serpent.write_depcode_input(template_file, input_file)
+    # print(serpent.iter_matfile)
