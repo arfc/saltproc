@@ -61,6 +61,7 @@ class Depcode:
         """ Runs depletion code as subprocess with the given parameters"""
         print('Running %s' % self.codename)
         args = (self.exec_path, '-omp', str(cores), self.input_fname)
+        print('Running %s' % (self.codename))
         try:
             subprocess.check_call(args)
         except subprocess.CalledProcessError as error:
