@@ -1,5 +1,6 @@
 import os
 from depcode import Depcode
+from simulation import Simulation
 
 input_path = os.path.dirname(os.path.abspath(__file__))
 print(input_path)
@@ -34,12 +35,15 @@ if __name__ == "__main__":
                       npop=444,
                       active_cycles=100,
                       inactive_cycles=20)
-
+    simulation = Simulation(sim_name='Super test',
+                            template_file=template_file,
+                            input_file=input_file)
     # print('End of RUN')
     # run.read_depcode_template()
     # Read templates for Depletion code, extract fuel composition in iter_mat
     # file, create input file for further loop calculations
-    serpent.write_depcode_input(template_file, input_file)
+    # serpent.write_depcode_input(template_file, input_file)
     # Run first iteration of depletion simulation
-    serpent.run_depcode(cores)
+    # serpent.run_depcode(cores)
     # print(serpent.iter_matfile)
+    simulation.runsim()

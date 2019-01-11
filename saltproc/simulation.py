@@ -1,3 +1,6 @@
+# from test import serpent
+
+
 class Simulation():
     """ Class setups parameters for simulation, runs SERPENT, parse output,
     create input.
@@ -6,17 +9,8 @@ class Simulation():
     def __init__(
             self,
             sim_name,
-            cores,
-            nodes,
-            bw,
-            sss_exec_path,
-            restart,
-            timestep,
-            t_0,
-            t_final,
-            input_filename,
-            db_filename,
-            connection_graph):
+            template_file,
+            input_file):
         """ Initializes the class
 
         Parameters:
@@ -50,9 +44,13 @@ class Simulation():
             key: ???
             value: ???
         """
+        # initialize all object attributes
+        self.sim_name = sim_name
+        self.template_file = template_file
+        self.input_file = input_file
 
     def runsim(self):
-        return
+            serpent.write_depcode_input(self.template_file, self.input_file)
 
     def steptime(self):
         return
