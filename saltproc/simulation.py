@@ -10,7 +10,8 @@ class Simulation():
             self,
             sim_name,
             template_file,
-            input_file):
+            input_file,
+            sim_depcode):
         """ Initializes the class
 
         Parameters:
@@ -48,6 +49,7 @@ class Simulation():
         self.sim_name = sim_name
         self.template_file = template_file
         self.input_file = input_file
+        self.sim_depcode = sim_depcode
 
     def runsim(self):
             serpent.write_depcode_input(self.template_file, self.input_file)
