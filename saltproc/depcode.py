@@ -1,6 +1,7 @@
 import subprocess
 import os
 import shutil
+from collections import OrderedDict
 
 
 class Depcode:
@@ -130,3 +131,29 @@ class Depcode:
             out_file = open(input_file, 'w')
             out_file.writelines(data)
             out_file.close()
+
+    def read_bumat(self, input_file, moment):
+        """ Reads depletion code output *.bumatx file """
+        self.depl_dict = OrderedDict({})
+        isolib = []
+        bu_adens = []
+        read = False
+        bumat_fname = os.path.join(input_file + ".bumat" + str(moment))
+        file = open(bumat_fname, 'r')
+        str_list = file.read().split('\n')
+        for line in str_list:
+            if 'mat' in line:
+                mat_name = line.split()[1]
+                density = line.split()[2]
+                vol = line.split()[4]
+                read = True
+            elif read and not line:
+                read = False
+            elif read:
+                z = line.split()
+                isolib.append(str(z[0]))
+                bu_adens.append(str(z[1]))
+        # print (str_list[:7])
+        print (mat_name, density, vol)
+        print (isolib)
+        print (bu_adens)
