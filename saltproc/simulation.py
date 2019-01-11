@@ -9,9 +9,8 @@ class Simulation():
     def __init__(
             self,
             sim_name,
-            template_file,
-            input_file,
-            sim_depcode):
+            sim_depcode,
+            core_number):
         """ Initializes the class
 
         Parameters:
@@ -47,12 +46,13 @@ class Simulation():
         """
         # initialize all object attributes
         self.sim_name = sim_name
-        self.template_file = template_file
-        self.input_file = input_file
         self.sim_depcode = sim_depcode
+        self.core_number = core_number
 
     def runsim(self):
-            serpent.write_depcode_input(self.template_file, self.input_file)
+        self.sim_depcode.write_depcode_input(self.sim_depcode.template_fname,
+                                             self.sim_depcode.input_fname)
+        self.sim_depcode.run_depcode(self.core_number)
 
     def steptime(self):
         return

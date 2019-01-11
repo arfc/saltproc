@@ -36,8 +36,8 @@ if __name__ == "__main__":
                       active_cycles=100,
                       inactive_cycles=20)
     simulation = Simulation(sim_name='Super test',
-                            template_file=template_file,
-                            input_file=input_file)
+                            sim_depcode=serpent,
+                            core_number=cores)
     # print('End of RUN')
     # run.read_depcode_template()
     # Read templates for Depletion code, extract fuel composition in iter_mat
