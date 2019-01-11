@@ -34,8 +34,12 @@ if __name__ == "__main__":
                       npop=444,
                       active_cycles=100,
                       inactive_cycles=20)
-#    run.run_depcode(cores)
-# print('End of RUN')
+
+    # print('End of RUN')
     # run.read_depcode_template()
+    # Read templates for Depletion code, extract fuel composition in iter_mat
+    # file, create input file for further loop calculations
     serpent.write_depcode_input(template_file, input_file)
+    # Run first iteration of depletion simulation
+    serpent.run_depcode(cores)
     # print(serpent.iter_matfile)
