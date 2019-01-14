@@ -1,7 +1,7 @@
 import subprocess
 import os
 import shutil
-from collections import OrderedDict
+from re import compile
 
 
 class Depcode:
@@ -134,26 +134,44 @@ class Depcode:
 
     def read_bumat(self, input_file, moment):
         """ Reads depletion code output *.bumatx file """
-        self.depl_dict = OrderedDict({})
-        isolib = []
-        bu_adens = []
-        read = False
+        bu_format = compile(r'\s+Material compositions\s+\(([0-9E\.\+-]+) '
+                            r'MWd/kgU\s+/\s+([0-9E\.\+-]+)')
+        self.depl_dict = {}
+        bu_match = None
+        mat_name = None
         bumat_fname = os.path.join(input_file + ".bumat" + str(moment))
         file = open(bumat_fname, 'r')
         str_list = file.read().split('\n')
         for line in str_list:
-            if 'mat' in line:
-                mat_name = line.split()[1]
-                density = line.split()[2]
-                vol = line.split()[4]
-                read = True
-            elif read and not line:
-                read = False
-            elif read:
-                z = line.split()
-                isolib.append(str(z[0]))
-                bu_adens.append(str(z[1]))
-        # print (str_list[:7])
-        print (mat_name, density, vol)
-        print (isolib)
-        print (bu_adens)
+            line = line.strip()
+            if not line:
+                continue
+            if bu_match is None:
+                bu_match = bu_format.search(line)
+                if bu_match is not None:
+                    self.burnup, self.days = [
+                        float(z) for z in bu_match.groups()]
+                    continue
+            elif line[0] == '%':
+                continue
+            z = line.split()
+            if z[0] == 'mat':
+                mat_name = z[1]
+                density = float(z[2])
+                vol = float(z[4])
+                self.depl_dict[mat_name] = {
+                    'density': density,
+                    'volume': vol,
+                    'nuclides': {},
+                }
+            else:
+                nuc_code, adens = z[:2]
+                self.depl_dict[mat_name]['nuclides'][nuc_code] = float(adens)
+        print (self.depl_dict['fuel']['nuclides']['1001.09c'])
+        print (self.depl_dict.keys())
+        print (self.depl_dict['fuel']['volume'])
+        print (self.depl_dict['tit']['volume'])
+
+        print (len(self.depl_dict['fuel']['nuclides'].keys()))
+        print (len(self.depl_dict['tit']['nuclides'].keys()))
+        print (self.burnup, self.days)

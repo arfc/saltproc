@@ -54,7 +54,7 @@ class Simulation():
         #                                      self.sim_depcode.input_fname)
         # self.sim_depcode.run_depcode(self.core_number)
         self.sim_depcode.read_bumat(self.sim_depcode.input_fname,
-                                    0)
+                                    1)
 
     def steptime(self):
         return
