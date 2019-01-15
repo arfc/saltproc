@@ -1,6 +1,5 @@
 # import h5py
-from silx.io.dictdump import dicttoh5
-from pyne import nucname as pyname
+import silx.io.dictdump as dd
 
 
 class Simulation():
@@ -61,12 +60,13 @@ class Simulation():
         # self.sim_depcode.run_depcode(self.core_number)
         # self.sim_depcode.read_bumat(self.sim_depcode.input_fname,
         #                            0)
-        depletion_dict = self.sim_depcode.read_bumat(self.sim_depcode.
-                                                     input_fname,
-                                                     1)
-        self.sim_depcode.write_mat_file(depletion_dict, self.iter_matfile)
-        print (depletion_dict)
-        # self.init_db()
+        dep_dict, dep_dict_h = self.sim_depcode.read_bumat(self.sim_depcode.
+                                                           input_fname,
+                                                           0)
+        # self.sim_depcode.write_mat_file(depletion_dict, self.iter_matfile)
+        # print (dep_dict_h)
+        # self.init_db(self.db_file)
+        self.write_db(dep_dict_h, self.db_file)
 
     def steptime(self):
         return
@@ -74,41 +74,37 @@ class Simulation():
     def loadinput_sp(self):
         return
 
-    def init_db(self):
-        """ Initializes the database  """
-        dicttoh5(self.sim_depcode.depl_dict, self.db_file,
-                 create_dataset_args={'compression': "gzip",
-                                      'shuffle': True,
-                                      'fletcher32': True,
-                                      'dtype': 'f8'})
+    def init_db(self, hdf5_db_file):
+        """ Initializes the database and save it """
+        simulation_parameters = {
+            "Transport_code": self.sim_depcode.codename,
+            "Simulation_name": self.sim_name,
+            "Number_of_cores": self.core_number,
+            "Neutron_population": self.sim_depcode.npop,
+            "Active_cycles": self.sim_depcode.active_cycles,
+            "Inactive_cycles": self.sim_depcode.inactive_cycles
+        }
+        # print (simulation_parameters)
+        dd.dicttoh5(simulation_parameters, hdf5_db_file,
+                    mode='w',
+                    overwrite_data=False,
+                    create_dataset_args={'compression': "gzip",
+                                         'shuffle': True,
+                                         'fletcher32': True})
+        # dd.io.save(hdf5_db_file, depletion)
+        # dictToH5(hdf5_db_file, depletion)
 
     def reopen_db(self):
         return
 
-    def write_db(self):
-        return
-
-    def get_nuc_name(self, nuc_code):
-        """ Get nuclide name human readable notation. The chemical symbol(one
-             or two characters), dash, and the atomic weight. Lastly if the
-             nuclide metastable, the letter m is concatenated with number of
-             excited state. Example 'Am-242m1'.
+    def write_db(self, depletion, hdf5_db_file):
+        """ Dump dictionary with depletion data in HDF5 database
         """
-        if '.' in nuc_code:
-            nuc_code_id = pyname.mcnp_to_id(nuc_code.split('.')[0])
-            zz = pyname.znum(nuc_code_id)
-            aa = pyname.anum(nuc_code_id)
-            aa_str = str(aa)
-            if aa > 300:
-                if zz > 76:
-                    aa_str = str(aa-100)+'m1'
-                else:
-                    aa_str = str(aa-200)+'m1'
-            nuc_name = pyname.zz_name[zz] + '-' + aa_str
-        else:
-            meta_flag = pyname.snum(nuc_code)
-            if meta_flag:
-                nuc_name = pyname.serpent(nuc_code)+str(pyname.snum(nuc_code))
-            else:
-                nuc_name = pyname.serpent(nuc_code)
-        return nuc_name
+        dd.dicttoh5(depletion,
+                    hdf5_db_file,
+                    mode='a',
+                    overwrite_data=True,
+                    create_dataset_args={'compression': "gzip",
+                                         'shuffle': True,
+                                         'fletcher32': True})
+        print ("\nData for depletion step # have been saved\n")

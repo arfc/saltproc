@@ -1,8 +1,10 @@
 import subprocess
 import os
+import copy
 import shutil
 from re import compile
 from collections import OrderedDict
+from pyne import nucname as pyname
 
 
 class Depcode:
@@ -152,6 +154,7 @@ class Depcode:
                             r'MWd/kgU\s+/\s+([0-9E\.\+-]+)')
 
         depl_dict = OrderedDict()
+        depl_dict_h = OrderedDict()
         bu_match = None
         mat_name = None
         bumat_fname = os.path.join(input_file + ".bumat" + str(moment))
@@ -181,15 +184,19 @@ class Depcode:
                     'temperature': None,
                     'nuclides': OrderedDict({}),
                 }
+                depl_dict_h[mat_name] = copy.deepcopy(depl_dict[mat_name])
             else:
                 nuc_code, adens = z[:2]
                 if '.' in nuc_code:
-                    code_end = nuc_code.split('.')[1]
-                    depl_dict[mat_name]['lib_temp'] = code_end
-                    depl_dict[mat_name]['temperature'] = 100 * int(
-                        code_end.replace('c', ''))
-                # nuc_name = self.get_nuc_name(nuc_code)
+                    lib_code = nuc_code.split('.')[1]
+                    temp_val = 100 * int(lib_code.replace('c', ''))
+                    depl_dict[mat_name]['lib_temp'] = lib_code
+                    depl_dict_h[mat_name]['lib_temp'] = lib_code
+                    depl_dict[mat_name]['temperature'] = temp_val
+                    depl_dict_h[mat_name]['temperature'] = temp_val
+                nuc_name = self.get_nuc_name(nuc_code)
                 depl_dict[mat_name]['nuclides'][nuc_code] = float(adens)
+                depl_dict_h[mat_name]['nuclides'][nuc_name] = [float(adens)]
                 # print ('Material %5s, nuclide name %8s, atomic density %5e'
                 #        % (mat_name, nuc_name, float(adens)))
         # for i in range(len(nuc_name)):
@@ -209,7 +216,7 @@ class Depcode:
         #    print ('Nuclide name %8s and atomic density %5e' % (x, y))
         # print (self.depl_dict_n)
         # print (len(self.depl_dict['tit']['nuclides'].values()))
-        return depl_dict
+        return depl_dict, depl_dict_h
 
     def write_mat_file(self, dep_dict, mat_file):
         """ Writes the input fuel composition input file block
@@ -229,3 +236,28 @@ class Depcode:
                            (nuc_code,
                             adens))
         matf.close()
+
+    def get_nuc_name(self, nuc_code):
+        """ Get nuclide name human readable notation. The chemical symbol(one
+             or two characters), dash, and the atomic weight. Lastly if the
+             nuclide metastable, the letter m is concatenated with number of
+             excited state. Example 'Am-242m1'.
+        """
+        if '.' in nuc_code:
+            nuc_code_id = pyname.mcnp_to_id(nuc_code.split('.')[0])
+            zz = pyname.znum(nuc_code_id)
+            aa = pyname.anum(nuc_code_id)
+            aa_str = str(aa)
+            if aa > 300:
+                if zz > 76:
+                    aa_str = str(aa-100)+'m1'
+                else:
+                    aa_str = str(aa-200)+'m1'
+            nuc_name = pyname.zz_name[zz] + '-' + aa_str
+        else:
+            meta_flag = pyname.snum(nuc_code)
+            if meta_flag:
+                nuc_name = pyname.serpent(nuc_code)+str(pyname.snum(nuc_code))
+            else:
+                nuc_name = pyname.serpent(nuc_code)
+        return nuc_name  # .encode('utf8')
