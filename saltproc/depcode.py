@@ -2,6 +2,8 @@ import subprocess
 import os
 import shutil
 from re import compile
+from pyne import nucname as pyname
+from collections import OrderedDict
 
 
 class Depcode:
@@ -46,6 +48,16 @@ class Depcode:
                 number of active cycles
             inactive_cycles: int
                 number of inactive cycles
+            depl_dict: dict
+                key: material name
+                value: density, volume, dict: 'nuclides'
+                key: nuclide code in Serpent format (95342.09c or 952421)
+                value: atomic density
+            depl_dict_n: dict
+                key: material name
+                value: density, volume, dict: 'nuclides'
+                key: nuclide name in human readable format (Am-242m1)
+                value: atomic density
             """
             # initialize all object attributes
             self.codename = codename
@@ -57,6 +69,8 @@ class Depcode:
             self.npop = npop
             self.active_cycles = active_cycles
             self.inactive_cycles = inactive_cycles
+            self.depl_dict = OrderedDict()
+            self.depl_dict_n = OrderedDict()
 
     def run_depcode(self, cores):
         """ Runs depletion code as subprocess with the given parameters"""
@@ -133,10 +147,13 @@ class Depcode:
             out_file.close()
 
     def read_bumat(self, input_file, moment):
-        """ Reads depletion code output *.bumatx file """
+        """ Reads depletion code output *.bumatx file and store it in two dict:
+            depl_dict (nuclide codes are keys) and depl_dict_n (nuclide nuclide
+            names are keys).
+        """
         bu_format = compile(r'\s+Material compositions\s+\(([0-9E\.\+-]+) '
                             r'MWd/kgU\s+/\s+([0-9E\.\+-]+)')
-        self.depl_dict = {}
+
         bu_match = None
         mat_name = None
         bumat_fname = os.path.join(input_file + ".bumat" + str(moment))
@@ -159,19 +176,61 @@ class Depcode:
                 mat_name = z[1]
                 density = float(z[2])
                 vol = float(z[4])
-                self.depl_dict[mat_name] = {
+                self.depl_dict[mat_name] = OrderedDict({
                     'density': density,
                     'volume': vol,
                     'nuclides': {},
-                }
+                })
+                self.depl_dict_n[mat_name] = OrderedDict({
+                    'density': density,
+                    'volume': vol,
+                    'nuclides': {},
+                })
             else:
                 nuc_code, adens = z[:2]
+                nuc_name = self.get_nuc_name(nuc_code)
                 self.depl_dict[mat_name]['nuclides'][nuc_code] = float(adens)
-        print (self.depl_dict['fuel']['nuclides']['1001.09c'])
-        print (self.depl_dict.keys())
-        print (self.depl_dict['fuel']['volume'])
-        print (self.depl_dict['tit']['volume'])
+                print ('Material name %5s, nuclide name %8s and atomic density %5e' % (mat_name, nuc_name, float(adens)))
+                self.depl_dict_n[mat_name]['nuclides'][nuc_name] = float(adens)
+        # for i in range(len(nuc_name)):
+        #      print (nuc_name[i]+'\r')
+        # print (self.depl_dict['tit']['nuclides'])
+        # nuclide_names = self.depl_dict_n['fuel']['nuclides'].keys()
+        # print(nuclide_names)
+        # print (self.depl_dict['fuel']['nuclides']['94239.09c'])
+        # print (self.depl_dict.keys())
+        # print (self.depl_dict['fuel']['volume'])
+        # print (self.depl_dict['fuel']['density'])
+        # print (self.depl_dict_n['fuel']['volume'])
+        # print (self.depl_dict_n['fuel']['density'])
+        # print (self.depl_dict['tit']['volume'])
+        # print (self.burnup, self.days)
+        for x, y in self.depl_dict['tit']['nuclides'].items():
+            print ('Nuclide name %8s and atomic density %5e' % (x, y))
+        # print (self.depl_dict['fuel'][i])
+        # print (len(self.depl_dict['tit']['nuclides'].values()))
 
-        print (len(self.depl_dict['fuel']['nuclides'].keys()))
-        print (len(self.depl_dict['tit']['nuclides'].keys()))
-        print (self.burnup, self.days)
+    def get_nuc_name(self, nuc_code):
+        """ Get nuclide name human readable notation. The chemical symbol(one
+             or two characters), dash, and the atomic weight. Lastly if the
+             nuclide metastable, the letter m is concatenated with number of
+             excited state. Example 'Am-242m1'.
+        """
+        if '.' in nuc_code:
+            nuc_code_id = pyname.mcnp_to_id(nuc_code.split('.')[0])
+            zz = pyname.znum(nuc_code_id)
+            aa = pyname.anum(nuc_code_id)
+            aa_str = str(aa)
+            if aa > 300:
+                if zz > 76:
+                    aa_str = str(aa-100)+'m1'
+                else:
+                    aa_str = str(aa-200)+'m1'
+            nuc_name = pyname.zz_name[zz] + '-' + aa_str
+        else:
+            meta_flag = pyname.snum(nuc_code)
+            if meta_flag:
+                nuc_name = pyname.serpent(nuc_code)+str(pyname.snum(nuc_code))
+            else:
+                nuc_name = pyname.serpent(nuc_code)
+        return nuc_name

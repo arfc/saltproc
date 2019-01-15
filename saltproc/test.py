@@ -7,6 +7,7 @@ print(input_path)
 input_file = os.path.join(input_path, 'data/saltproc_rebus.inp')
 template_file = os.path.join(input_path, 'data/rebus.inp')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
+db_file = os.path.join(input_path, 'data/db_saltproc.hdf5')
 # executable path of Serpent
 exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
 # Number of cores and nodes to use in cluster
@@ -37,7 +38,8 @@ if __name__ == "__main__":
                       inactive_cycles=20)
     simulation = Simulation(sim_name='Super test',
                             sim_depcode=serpent,
-                            core_number=cores)
+                            core_number=cores,
+                            db_file=db_file)
     # print('End of RUN')
     # run.read_depcode_template()
     # Read templates for Depletion code, extract fuel composition in iter_mat
