@@ -39,7 +39,8 @@ if __name__ == "__main__":
     simulation = Simulation(sim_name='Super test',
                             sim_depcode=serpent,
                             core_number=cores,
-                            db_file=db_file)
+                            db_file=db_file,
+                            iter_matfile=iter_matfile)
     # print('End of RUN')
     # run.read_depcode_template()
     # Read templates for Depletion code, extract fuel composition in iter_mat

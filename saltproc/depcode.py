@@ -2,7 +2,6 @@ import subprocess
 import os
 import shutil
 from re import compile
-from pyne import nucname as pyname
 from collections import OrderedDict
 
 
@@ -69,8 +68,6 @@ class Depcode:
             self.npop = npop
             self.active_cycles = active_cycles
             self.inactive_cycles = inactive_cycles
-            self.depl_dict = OrderedDict()
-            self.depl_dict_n = OrderedDict()
 
     def run_depcode(self, cores):
         """ Runs depletion code as subprocess with the given parameters"""
@@ -154,6 +151,7 @@ class Depcode:
         bu_format = compile(r'\s+Material compositions\s+\(([0-9E\.\+-]+) '
                             r'MWd/kgU\s+/\s+([0-9E\.\+-]+)')
 
+        depl_dict = OrderedDict()
         bu_match = None
         mat_name = None
         bumat_fname = os.path.join(input_file + ".bumat" + str(moment))
@@ -176,23 +174,24 @@ class Depcode:
                 mat_name = z[1]
                 density = float(z[2])
                 vol = float(z[4])
-                self.depl_dict[mat_name] = {
+                depl_dict[mat_name] = {
                     'density': density,
                     'volume': vol,
-                    'nuclides': OrderedDict({}),
-                }
-                self.depl_dict_n[mat_name] = {
-                    'density': density,
-                    'volume': vol,
+                    'lib_temp': None,
+                    'temperature': None,
                     'nuclides': OrderedDict({}),
                 }
             else:
                 nuc_code, adens = z[:2]
-                nuc_name = self.get_nuc_name(nuc_code)
-                self.depl_dict[mat_name]['nuclides'][nuc_code] = float(adens)
+                if '.' in nuc_code:
+                    code_end = nuc_code.split('.')[1]
+                    depl_dict[mat_name]['lib_temp'] = code_end
+                    depl_dict[mat_name]['temperature'] = 100 * int(
+                        code_end.replace('c', ''))
+                # nuc_name = self.get_nuc_name(nuc_code)
+                depl_dict[mat_name]['nuclides'][nuc_code] = float(adens)
                 # print ('Material %5s, nuclide name %8s, atomic density %5e'
                 #        % (mat_name, nuc_name, float(adens)))
-                self.depl_dict_n[mat_name]['nuclides'][nuc_name] = float(adens)
         # for i in range(len(nuc_name)):
         #      print (nuc_name[i]+'\r')
         # print (self.depl_dict['tit']['nuclides'])
@@ -208,30 +207,25 @@ class Depcode:
         # print (self.burnup, self.days)
         # for x, y in self.depl_dict['tit']['nuclides'].items():
         #    print ('Nuclide name %8s and atomic density %5e' % (x, y))
-        print (self.depl_dict_n)
+        # print (self.depl_dict_n)
         # print (len(self.depl_dict['tit']['nuclides'].values()))
+        return depl_dict
 
-    def get_nuc_name(self, nuc_code):
-        """ Get nuclide name human readable notation. The chemical symbol(one
-             or two characters), dash, and the atomic weight. Lastly if the
-             nuclide metastable, the letter m is concatenated with number of
-             excited state. Example 'Am-242m1'.
+    def write_mat_file(self, dep_dict, mat_file):
+        """ Writes the input fuel composition input file block
         """
-        if '.' in nuc_code:
-            nuc_code_id = pyname.mcnp_to_id(nuc_code.split('.')[0])
-            zz = pyname.znum(nuc_code_id)
-            aa = pyname.anum(nuc_code_id)
-            aa_str = str(aa)
-            if aa > 300:
-                if zz > 76:
-                    aa_str = str(aa-100)+'m1'
-                else:
-                    aa_str = str(aa-200)+'m1'
-            nuc_name = pyname.zz_name[zz] + '-' + aa_str
-        else:
-            meta_flag = pyname.snum(nuc_code)
-            if meta_flag:
-                nuc_name = pyname.serpent(nuc_code)+str(pyname.snum(nuc_code))
-            else:
-                nuc_name = pyname.serpent(nuc_code)
-        return nuc_name
+        matf = open(mat_file, 'w')
+        matf.write('%% Material compositions (%f MWd/kgU / %f days)\n\n'
+                   % (self.burnup, self.days))
+        for key, value in dep_dict.items():
+            matf.write('mat  %s  %7.14E fix %3s %4i burn 1 vol %7.5E\n' %
+                       (key,
+                        dep_dict[key]['density'],
+                        dep_dict[key]['lib_temp'],
+                        dep_dict[key]['temperature'],
+                        dep_dict[key]['volume']))
+            for nuc_code, adens in dep_dict[key]['nuclides'].items():
+                matf.write('           %9s  %7.14E\n' %
+                           (nuc_code,
+                            adens))
+        matf.close()
