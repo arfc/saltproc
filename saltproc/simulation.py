@@ -1,4 +1,5 @@
-# from test import serpent
+import h5py
+from silx.io.dictdump import dicttoh5
 
 
 class Simulation():
@@ -10,7 +11,8 @@ class Simulation():
             self,
             sim_name,
             sim_depcode,
-            core_number):
+            core_number,
+            db_file):
         """ Initializes the class
 
         Parameters:
@@ -48,6 +50,7 @@ class Simulation():
         self.sim_name = sim_name
         self.sim_depcode = sim_depcode
         self.core_number = core_number
+        self.db_file = db_file
 
     def runsim(self):
         # self.sim_depcode.write_depcode_input(self.sim_depcode.template_fname,
@@ -55,6 +58,9 @@ class Simulation():
         # self.sim_depcode.run_depcode(self.core_number)
         self.sim_depcode.read_bumat(self.sim_depcode.input_fname,
                                     1)
+        # self.sim_depcode.read_bumat(self.sim_depcode.input_fname,
+        #                             1)
+        # self.init_db()
 
     def steptime(self):
         return
@@ -63,7 +69,12 @@ class Simulation():
         return
 
     def init_db(self):
-        return
+        """ Initializes the database  """
+        dicttoh5(self.sim_depcode.depl_dict, self.db_file,
+                 create_dataset_args={'compression': "gzip",
+                                      'shuffle': True,
+                                      'fletcher32': True,
+                                      'dtype': 'f8'})
 
     def reopen_db(self):
         return

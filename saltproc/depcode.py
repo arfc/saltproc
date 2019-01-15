@@ -176,21 +176,22 @@ class Depcode:
                 mat_name = z[1]
                 density = float(z[2])
                 vol = float(z[4])
-                self.depl_dict[mat_name] = OrderedDict({
+                self.depl_dict[mat_name] = {
                     'density': density,
                     'volume': vol,
-                    'nuclides': {},
-                })
-                self.depl_dict_n[mat_name] = OrderedDict({
+                    'nuclides': OrderedDict({}),
+                }
+                self.depl_dict_n[mat_name] = {
                     'density': density,
                     'volume': vol,
-                    'nuclides': {},
-                })
+                    'nuclides': OrderedDict({}),
+                }
             else:
                 nuc_code, adens = z[:2]
                 nuc_name = self.get_nuc_name(nuc_code)
                 self.depl_dict[mat_name]['nuclides'][nuc_code] = float(adens)
-                print ('Material name %5s, nuclide name %8s and atomic density %5e' % (mat_name, nuc_name, float(adens)))
+                # print ('Material %5s, nuclide name %8s, atomic density %5e'
+                #        % (mat_name, nuc_name, float(adens)))
                 self.depl_dict_n[mat_name]['nuclides'][nuc_name] = float(adens)
         # for i in range(len(nuc_name)):
         #      print (nuc_name[i]+'\r')
@@ -205,9 +206,9 @@ class Depcode:
         # print (self.depl_dict_n['fuel']['density'])
         # print (self.depl_dict['tit']['volume'])
         # print (self.burnup, self.days)
-        for x, y in self.depl_dict['tit']['nuclides'].items():
-            print ('Nuclide name %8s and atomic density %5e' % (x, y))
-        # print (self.depl_dict['fuel'][i])
+        # for x, y in self.depl_dict['tit']['nuclides'].items():
+        #    print ('Nuclide name %8s and atomic density %5e' % (x, y))
+        print (self.depl_dict_n)
         # print (len(self.depl_dict['tit']['nuclides'].values()))
 
     def get_nuc_name(self, nuc_code):
