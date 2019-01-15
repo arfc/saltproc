@@ -4,6 +4,11 @@ set title "REBUS-3700 Unit cell model, TRU 16.7 at.%, No removals depl for 510EF
 include "../../../../fs-msrs/rebus/serpent/mat_composition_167.inp"
 include "/home/andrei2/Desktop/git/fs-msrs/rebus/serpent/unit_cell.inp"
 
+% ---- Steel for reflector (Carbon Steel)
+mat steel -7.821200E+00 tmp 673
+ 6000.06c  -1.00
+26000.06c  -99.00
+
 % ----- Boundary conditions
 %set bc 3		% Periodic BC 1.57816E-02 3.55104E-02
 set bc 3 %9.644896E-01
