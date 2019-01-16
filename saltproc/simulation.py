@@ -1,5 +1,6 @@
 # import h5py
 import silx.io.dictdump as dd
+import copy
 
 
 class Simulation():
@@ -13,7 +14,8 @@ class Simulation():
             sim_depcode,
             core_number,
             db_file,
-            iter_matfile):
+            iter_matfile,
+            timesteps):
         """ Initializes the class
 
         Parameters:
@@ -31,7 +33,7 @@ class Simulation():
             path to SERPENT executable
         restart: bool
             if 'True', restarts simulation using existing HDF5  database
-        timestep: int
+        timesteps: int
             duration of each depletion simulation
         t_0: int
             beggining of simulation moment in time (0 for new run, >0 when
@@ -53,20 +55,38 @@ class Simulation():
         self.core_number = core_number
         self.db_file = db_file
         self.iter_matfile = iter_matfile
+        self.timesteps = timesteps
 
     def runsim(self):
-        # self.sim_depcode.write_depcode_input(self.sim_depcode.template_fname,
-        #                                      self.sim_depcode.input_fname)
-        # self.sim_depcode.run_depcode(self.core_number)
-        # self.sim_depcode.read_bumat(self.sim_depcode.input_fname,
-        #                            0)
-        dep_dict, dep_dict_h = self.sim_depcode.read_bumat(self.sim_depcode.
-                                                           input_fname,
-                                                           0)
-        # self.sim_depcode.write_mat_file(depletion_dict, self.iter_matfile)
-        # print (dep_dict_h)
+        for i in range(self.timesteps):
+            print ("Step #%i has been started" % (self.timesteps))
+            if i == 0:  # First run
+                self.sim_depcode.write_depcode_input(
+                            self.sim_depcode.template_fname,
+                            self.sim_depcode.input_fname)
+                self.sim_depcode.run_depcode(self.core_number)
+                dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
+                                           self.sim_depcode.input_fname, 0)
+                # Initialize dictionary, HDF5 with cumulative data for all step
+                self.init_db(self.db_file)
+                cum_dict_h5 = copy.deepcopy(dep_dict_names)  # store init comp
+                dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
+                                           self.sim_depcode.input_fname, 1)
+            else:
+                self.sim_depcode.run_depcode(self.core_number)
+                dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
+                                           self.sim_depcode.input_fname, 1)
+            cum_dict_h5 = self.add_adens_to_dict(cum_dict_h5,
+                                                 dep_dict_names)
+            self.write_db(cum_dict_h5, self.db_file, i+1)
+            self.sim_depcode.write_mat_file(dep_dict, self.iter_matfile, i)
+        # dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
+        #                            self.sim_depcode.input_fname, 0)
+        # dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
+        #                            self.sim_depcode.input_fname, 1)
+        # print (cum_dict_h5)
         # self.init_db(self.db_file)
-        self.write_db(dep_dict_h, self.db_file)
+        # self.write_db(cum_dict_h5, self.db_file, 1)
 
     def steptime(self):
         return
@@ -87,7 +107,7 @@ class Simulation():
         # print (simulation_parameters)
         dd.dicttoh5(simulation_parameters, hdf5_db_file,
                     mode='w',
-                    overwrite_data=False,
+                    overwrite_data=True,
                     create_dataset_args={'compression': "gzip",
                                          'shuffle': True,
                                          'fletcher32': True})
@@ -97,7 +117,7 @@ class Simulation():
     def reopen_db(self):
         return
 
-    def write_db(self, depletion, hdf5_db_file):
+    def write_db(self, depletion, hdf5_db_file, step):
         """ Dump dictionary with depletion data in HDF5 database
         """
         dd.dicttoh5(depletion,
@@ -107,4 +127,14 @@ class Simulation():
                     create_dataset_args={'compression': "gzip",
                                          'shuffle': True,
                                          'fletcher32': True})
-        print ("\nData for depletion step # have been saved\n")
+        print ("\nData for depletion step #%i have been saved\n" % (step))
+
+    def add_adens_to_dict(self, cum_depletion, depletion):
+        """ Adds atomic densities for current step to existing dictionary to
+            make it possible to store in HDF5.
+        """
+        for key, value in cum_depletion.items():
+            for nname, adens in cum_depletion[key]['nuclides'].items():
+                adens = depletion[key]['nuclides'][nname][0]
+                cum_depletion[key]['nuclides'][nname].append(float(adens))
+        return cum_depletion

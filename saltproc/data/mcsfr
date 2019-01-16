@@ -1,0 +1,50 @@
+set title "MCSFR Design#3 Unit cell model"
+
+include "../../../../fs-msrs/mcsfr/serpent/mat_composition3.inp"
+include "/home/andrei2/Desktop/git/fs-msrs/mcsfr/serpent/unit_cell2.inp"
+
+% --- Hastelloy N
+mat hast     -8.671 rgb 127 205 187    % Structural material T assumed=blanket T
+28000.09c    -72.0      % Mass fraction of Ni
+42000.09c    -16.0      % Mass fraction of Mo
+24000.09c    -7.0       % Mass fraction of Cr
+26000.09c    -5.0       % Mass fraction of Fe
+
+
+% ----- Boundary conditions
+set bc 3		% Periodic BC
+
+% +++ Run parameters +++ %
+% ---- Libraries
+%set acelib "sss_endfb7u.xsdata"
+%set declib "sss_endfb7.dec"
+%set nfylib "sss_endfb7.nfy"
+set acelib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.xsdata" %this for BW
+set declib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.dec"       % for BW
+set nfylib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.nfy"       % for BW
+
+
+% --- Neutron population
+%set pop 10000 100 20
+set pop 1000 120 20
+
+% --- Depletion parameters
+% --- Options for burnup calculation:
+set bumode  2  % CRAM method
+set pcc     1  % Predictor-corrector calculation on
+%set xscalc  2  % Cross sections from spectrum
+%set bunorm 2
+%set opti 3
+
+% --- Irradiation cycle:
+%set power 6E+9		% 6 GWth
+%set fmass 9.040E+6      % Fissile material mass in salt (Table 3, EVOL Final report)
+set powdens 30.7062436E-3
+
+dep
+daystep
+30
+%30 30 30 30 30 30 30 30 30 30
+
+set printm 1 0.0
+set inventory all

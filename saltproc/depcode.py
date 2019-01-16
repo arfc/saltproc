@@ -176,7 +176,10 @@ class Depcode:
             if z[0] == 'mat':
                 mat_name = z[1]
                 density = float(z[2])
-                vol = float(z[4])
+                if 'fix' in z:
+                    vol = float(z[7])
+                else:
+                    vol = float(z[4])
                 depl_dict[mat_name] = {
                     'density': density,
                     'volume': vol,
@@ -187,7 +190,7 @@ class Depcode:
                 depl_dict_h[mat_name] = copy.deepcopy(depl_dict[mat_name])
             else:
                 nuc_code, adens = z[:2]
-                if '.' in nuc_code:
+                if '.' in nuc_code and depl_dict[mat_name]['lib_temp'] is None:
                     lib_code = nuc_code.split('.')[1]
                     temp_val = 100 * int(lib_code.replace('c', ''))
                     depl_dict[mat_name]['lib_temp'] = lib_code
@@ -218,12 +221,12 @@ class Depcode:
         # print (len(self.depl_dict['tit']['nuclides'].values()))
         return depl_dict, depl_dict_h
 
-    def write_mat_file(self, dep_dict, mat_file):
+    def write_mat_file(self, dep_dict, mat_file, step):
         """ Writes the input fuel composition input file block
         """
         matf = open(mat_file, 'w')
         matf.write('%% Material compositions (%f MWd/kgU / %f days)\n\n'
-                   % (self.burnup, self.days))
+                   % (self.burnup*step, self.days*step))
         for key, value in dep_dict.items():
             matf.write('mat  %s  %7.14E fix %3s %4i burn 1 vol %7.5E\n' %
                        (key,

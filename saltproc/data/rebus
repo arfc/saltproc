@@ -19,7 +19,7 @@ set declib "sss_endfb7.dec"
 set nfylib "sss_endfb7.nfy"
 % --- Neutron population
 %set pop 10000 100 20
-set pop 800 50 10
+set pop 1000 120 20
 
 % --- Depletion parameters
 % --- Options for burnup calculation:
@@ -37,7 +37,7 @@ set powdens 32.1818E-3	% 100kW/l
 
 dep
 daystep
-30 %30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30
+30 % 30 30 30 30 30 30 30 30 30 % 30 30 30 30 30 30 30
 
 set printm 1 0.0
 set inventory all
