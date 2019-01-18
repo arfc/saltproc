@@ -5,6 +5,7 @@ import shutil
 from re import compile
 from collections import OrderedDict
 from pyne import nucname as pyname
+from pyne import serpent
 
 
 class Depcode:
@@ -70,6 +71,12 @@ class Depcode:
             self.npop = npop
             self.active_cycles = active_cycles
             self.inactive_cycles = inactive_cycles
+    keff = {
+            "keff_BOC": [],
+            "keff_BOC_e": [],
+            "keff_EOC": [],
+            "keff_EOC_e": []
+            }
 
     def run_depcode(self, cores):
         """ Runs depletion code as subprocess with the given parameters"""
@@ -264,3 +271,12 @@ class Depcode:
             else:
                 nuc_name = pyname.serpent(nuc_code)
         return nuc_name  # .encode('utf8')
+
+    def read_out(self):
+        """ Parses data from Serpent output for each step and stores it in dict
+        """
+        res = serpent.parse_res(self.input_fname + "_res.m")
+        self.keff['keff_BOC'].append(res['IMP_KEFF'][0])
+        # self.keff['keff_BOC_e'].append(res['IMP_KEFF'][0, 1])
+        self.keff['keff_EOC'].append(res['IMP_KEFF'][1])
+        # self.keff['keff_EOC_e'].append(res['IMP_KEFF'][1, 1])

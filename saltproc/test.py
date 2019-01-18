@@ -11,7 +11,7 @@ db_file = os.path.join(input_path, 'data/db_saltproc.hdf5')
 exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
 # Number of cores and nodes to use in cluster
 cores = 4
-steps = 5
+steps = 3
 
 if __name__ == "__main__":
     print('Initiating Saltproc:\n'
@@ -33,9 +33,9 @@ if __name__ == "__main__":
                       input_fname=input_file,
                       output_fname='NONE',
                       iter_matfile=iter_matfile,
-                      npop=444,
+                      npop=111,
                       active_cycles=80,
-                      inactive_cycles=20)
+                      inactive_cycles=70)
     simulation = Simulation(sim_name='Super test',
                             sim_depcode=serpent,
                             core_number=cores,
