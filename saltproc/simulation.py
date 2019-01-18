@@ -15,7 +15,8 @@ class Simulation():
             core_number,
             db_file,
             iter_matfile,
-            timesteps):
+            timesteps,
+            mass_units):
         """ Initializes the class
 
         Parameters:
@@ -56,6 +57,7 @@ class Simulation():
         self.db_file = db_file
         self.iter_matfile = iter_matfile
         self.timesteps = timesteps
+        self.mass_units = mass_units
 
     def runsim(self):
         for i in range(self.timesteps):
@@ -77,7 +79,7 @@ class Simulation():
             cum_dict_h5 = self.add_adens_to_dict(cum_dict_h5,
                                                  dep_dict_names)
             self.sim_depcode.read_out()
-            print(self.sim_depcode.keff)
+            # print(self.sim_depcode.keff)
             self.write_db(cum_dict_h5, self.db_file, i+1)
             self.sim_depcode.write_mat_file(dep_dict, self.iter_matfile, i)
         # dep_dict, dep_dict_names = self.sim_depcode.read_bumat(

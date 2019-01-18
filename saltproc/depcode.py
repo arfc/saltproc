@@ -3,9 +3,11 @@ import os
 import copy
 import shutil
 from re import compile
+from scipy import constants as const
 from collections import OrderedDict
 from pyne import nucname as pyname
 from pyne import serpent
+from pyne import data as pydata
 
 
 class Depcode:
@@ -78,7 +80,9 @@ class Depcode:
             "Execution_time": [],
             "Beta_eff": [],
             "Fission_mass_BOC": [],
-            "Fission_mass_EOC": []
+            "Fission_mass_EOC": [],
+            "Burnup": [],
+            "Burn_days": []
             }
 
     def run_depcode(self, cores):
@@ -207,9 +211,10 @@ class Depcode:
                     depl_dict_h[mat_name]['lib_temp'] = lib_code
                     depl_dict[mat_name]['temperature'] = temp_val
                     depl_dict_h[mat_name]['temperature'] = temp_val
-                nuc_name = self.get_nuc_name(nuc_code)
+                nuc_name, atomic_mass = self.get_nuc_name(nuc_code)
+                mass = (1e+24 * float(adens) * atomic_mass) / const.N_A
                 depl_dict[mat_name]['nuclides'][nuc_code] = float(adens)
-                depl_dict_h[mat_name]['nuclides'][nuc_name] = [float(adens)]
+                depl_dict_h[mat_name]['nuclides'][nuc_name] = [mass]
                 # print ('Material %5s, nuclide name %8s, atomic density %5e'
                 #        % (mat_name, nuc_name, float(adens)))
         # for i in range(len(nuc_name)):
@@ -261,19 +266,24 @@ class Depcode:
             zz = pyname.znum(nuc_code_id)
             aa = pyname.anum(nuc_code_id)
             aa_str = str(aa)
+            at_mass = pydata.atomic_mass(nuc_code_id)
             if aa > 300:
                 if zz > 76:
                     aa_str = str(aa-100)+'m1'
+                    at_mass = pydata.atomic_mass(str(zz)+str(aa-100)+'1')
                 else:
                     aa_str = str(aa-200)+'m1'
+                    at_mass = pydata.atomic_mass(str(zz)+str(aa-200)+'1')
             nuc_name = pyname.zz_name[zz] + '-' + aa_str
         else:
             meta_flag = pyname.snum(nuc_code)
+            at_mass = pydata.atomic_mass(nuc_code)
             if meta_flag:
                 nuc_name = pyname.serpent(nuc_code)+str(pyname.snum(nuc_code))
             else:
                 nuc_name = pyname.serpent(nuc_code)
-        return nuc_name  # .encode('utf8')
+        # print ("Nuclide %s; atomic mass %f" % (nuc_name, at_mass))
+        return nuc_name, at_mass  # .encode('utf8')
 
     def read_out(self):
         """ Parses data from Serpent output for each step and stores it in dict
@@ -287,3 +297,5 @@ class Depcode:
         self.keff['Beta_eff'].append(res['BETA_EFF'][1])
         self.keff['Fission_mass_BOC'].append(res['INI_FMASS'][1])
         self.keff['Fission_mass_EOC'].append(res['TOT_FMASS'][1])
+        self.keff['Burnup'].append(res['BURNUP'][1])
+        self.keff['Burn_days'].append(res['BURN_DAYS'][1])

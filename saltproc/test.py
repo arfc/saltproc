@@ -11,7 +11,7 @@ db_file = os.path.join(input_path, 'data/db_saltproc.hdf5')
 exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
 # Number of cores and nodes to use in cluster
 cores = 4
-steps = 2
+steps = 1
 
 if __name__ == "__main__":
     print('Initiating Saltproc:\n'
@@ -41,7 +41,8 @@ if __name__ == "__main__":
                             core_number=cores,
                             db_file=db_file,
                             iter_matfile=iter_matfile,
-                            timesteps=steps)
+                            timesteps=steps,
+                            mass_units=munits)
     # print('End of RUN')
     # run.read_depcode_template()
     # Read templates for Depletion code, extract fuel composition in iter_mat
