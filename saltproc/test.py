@@ -11,7 +11,7 @@ db_file = os.path.join(input_path, 'data/db_saltproc.hdf5')
 exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
 # Number of cores and nodes to use in cluster
 cores = 4
-steps = 3
+steps = 2
 
 if __name__ == "__main__":
     print('Initiating Saltproc:\n'

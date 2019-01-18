@@ -73,9 +73,12 @@ class Depcode:
             self.inactive_cycles = inactive_cycles
     keff = {
             "keff_BOC": [],
-            "keff_BOC_e": [],
             "keff_EOC": [],
-            "keff_EOC_e": []
+            "Breeding_ratio": [],
+            "Execution_time": [],
+            "Beta_eff": [],
+            "Fission_mass_BOC": [],
+            "Fission_mass_EOC": []
             }
 
     def run_depcode(self, cores):
@@ -277,6 +280,10 @@ class Depcode:
         """
         res = serpent.parse_res(self.input_fname + "_res.m")
         self.keff['keff_BOC'].append(res['IMP_KEFF'][0])
-        # self.keff['keff_BOC_e'].append(res['IMP_KEFF'][0, 1])
         self.keff['keff_EOC'].append(res['IMP_KEFF'][1])
-        # self.keff['keff_EOC_e'].append(res['IMP_KEFF'][1, 1])
+        self.keff['Breeding_ratio'].append(res['CONVERSION_RATIO'][1])
+        self.keff['Execution_time'].append(res['TOT_CPU_TIME'][0] +
+                                           res['TOT_CPU_TIME'][1])
+        self.keff['Beta_eff'].append(res['BETA_EFF'][1])
+        self.keff['Fission_mass_BOC'].append(res['INI_FMASS'][1])
+        self.keff['Fission_mass_EOC'].append(res['TOT_FMASS'][1])
