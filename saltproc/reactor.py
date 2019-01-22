@@ -30,3 +30,9 @@ class Reactor ():
         mthm: array [Tx1]
             metric tons of heavy metals for the end of each time step (MTHM)
         """
+        # initialize all object attributes
+        self.name = name
+        self.volume = volume
+        self.mass_flowrate = mass_flowrate
+        self.power_level = power_level
+        self.fp_powdens = fp_powdens

@@ -81,8 +81,7 @@ class Depcode:
             "Beta_eff": [],
             "Fission_mass_BOC": [],
             "Fission_mass_EOC": [],
-            "Burnup": [],
-            "Burn_days": []
+            "Burnup": []
             }
 
     def run_depcode(self, cores):
@@ -298,4 +297,3 @@ class Depcode:
         self.keff['Fission_mass_BOC'].append(res['INI_FMASS'][1])
         self.keff['Fission_mass_EOC'].append(res['TOT_FMASS'][1])
         self.keff['Burnup'].append(res['BURNUP'][1])
-        self.keff['Burn_days'].append(res['BURN_DAYS'][1])
