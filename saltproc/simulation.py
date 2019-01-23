@@ -60,7 +60,7 @@ class Simulation():
         self.mass_units = mass_units
 
     def runsim(self):
-        for i in range(self.timesteps):
+        """for i in range(self.timesteps):
             print ("Step #%i has been started" % (self.timesteps))
             if i == 0:  # First run
                 self.sim_depcode.write_depcode_input(
@@ -68,22 +68,29 @@ class Simulation():
                             self.sim_depcode.input_fname)
                 self.sim_depcode.run_depcode(self.core_number)
                 dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
-                                           self.sim_depcode.input_fname, 0)
+                                           self.sim_depcode.input_fname,
+                                           self.mass_units,
+                                           0)
                 # Initialize dictionary, HDF5 with cumulative data for all step
                 self.init_db(self.db_file)
                 cum_dict_h5 = copy.deepcopy(dep_dict_names)  # store init comp
             else:
                 self.sim_depcode.run_depcode(self.core_number)
             dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
-                                       self.sim_depcode.input_fname, 1)
+                                       self.sim_depcode.input_fname,
+                                       self.mass_units,
+                                       1)
             cum_dict_h5 = self.add_adens_to_dict(cum_dict_h5,
                                                  dep_dict_names)
             self.sim_depcode.read_out()
             # print(self.sim_depcode.keff)
             self.write_db(cum_dict_h5, self.db_file, i+1)
-            self.sim_depcode.write_mat_file(dep_dict, self.iter_matfile, i)
-        # dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
-        #                            self.sim_depcode.input_fname, 0)
+            self.sim_depcode.write_mat_file(dep_dict, self.iter_matfile, i)"""
+#############################################################################
+        dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
+                                   self.sim_depcode.input_fname,
+                                   self.mass_units,
+                                   0)
         # dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
         #                            self.sim_depcode.input_fname, 1)
         # print (cum_dict_h5)

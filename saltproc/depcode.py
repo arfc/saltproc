@@ -8,6 +8,7 @@ from collections import OrderedDict
 from pyne import nucname as pyname
 from pyne import serpent
 from pyne import data as pydata
+from pyne.material import Material as pymat
 
 
 class Depcode:
@@ -79,6 +80,7 @@ class Depcode:
             "Breeding_ratio": [],
             "Execution_time": [],
             "Beta_eff": [],
+            "Delayed_neutrons_lambda": [],
             "Fission_mass_BOC": [],
             "Fission_mass_EOC": [],
             "Burnup": []
@@ -158,7 +160,7 @@ class Depcode:
             out_file.writelines(data)
             out_file.close()
 
-    def read_bumat(self, input_file, moment):
+    def read_bumat(self, input_file, munits, moment):
         """ Reads depletion code output *.bumatx file and store it in two dict:
             depl_dict (nuclide codes are keys) and depl_dict_n (nuclide nuclide
             names are keys).
@@ -168,6 +170,7 @@ class Depcode:
 
         depl_dict = OrderedDict()
         depl_dict_h = OrderedDict()
+        nucvec = {}
         bu_match = None
         mat_name = None
         bumat_fname = os.path.join(input_file + ".bumat" + str(moment))
@@ -210,29 +213,36 @@ class Depcode:
                     depl_dict_h[mat_name]['lib_temp'] = lib_code
                     depl_dict[mat_name]['temperature'] = temp_val
                     depl_dict_h[mat_name]['temperature'] = temp_val
-                nuc_name, atomic_mass = self.get_nuc_name(nuc_code)
-                mass = (1e+24 * float(adens) * atomic_mass) / const.N_A
+                nuc_name, nuc_zzaaam, atomic_mass = self.get_nuc_name(nuc_code)
                 depl_dict[mat_name]['nuclides'][nuc_code] = float(adens)
+                # Make dictionary with isotopes names and mass to store in hdf5
+                # determine multiplier for mass units convertion
+                if munits is "g":
+                    mul_m = 1.
+                elif munits is "kg":
+                    mul_m = 1.E-3
+                elif munits is "t" or "ton" or "tonne" or "MT":
+                    mul_m = 1.E-6
+                else:
+                    raise ValueError(
+                          'Mass units does not supported or does not defined')
+                mass = vol * (1e+24*mul_m*float(adens)*atomic_mass) / const.N_A
                 depl_dict_h[mat_name]['nuclides'][nuc_name] = [mass]
-                # print ('Material %5s, nuclide name %8s, atomic density %5e'
-                #        % (mat_name, nuc_name, float(adens)))
-        # for i in range(len(nuc_name)):
-        #      print (nuc_name[i]+'\r')
-        # print (self.depl_dict['tit']['nuclides'])
-        # nuclide_names = self.depl_dict_n['fuel']['nuclides'].keys()
-        # print(nuclide_names)
-        # print (self.depl_dict['fuel']['nuclides']['94239.09c'])
-        # print (self.depl_dict.keys())
-        # print (self.depl_dict['fuel']['volume'])
-        # print (self.depl_dict['fuel']['density'])
-        # print (self.depl_dict_n['fuel']['volume'])
-        # print (self.depl_dict_n['fuel']['density'])
-        # print (self.depl_dict['tit']['volume'])
-        # print (self.burnup, self.days)
-        # for x, y in self.depl_dict['tit']['nuclides'].items():
-        #    print ('Nuclide name %8s and atomic density %5e' % (x, y))
-        # print (self.depl_dict_n)
-        # print (len(self.depl_dict['tit']['nuclides'].values()))
+                # print ('%5s, %8s, zzaaam %7s, aensity %5e, at mass %5f'
+                #        % (mat_name, nuc_name, nuc_zzaaam, float(adens),
+                #           atomic_mass))
+                nucvec[nuc_zzaaam] = float(mass)
+        fuel = pymat(nucvec, density=3.6)
+        # print (fuel)
+        fuel_at_perc = fuel.to_atom_dens()
+        # print (fuel_at_perc)
+        totm = 0
+        for iso, value in fuel_at_perc.items():
+            if abs(fuel_at_perc[iso]) > 0.0:
+                totm += 1E-24*fuel_at_perc[iso]
+                print("%5s, wt %7.12E" % (pyname.name(iso),
+                                          1E-24*fuel_at_perc[iso]))
+        print (totm)
         return depl_dict, depl_dict_h
 
     def write_mat_file(self, dep_dict, mat_file, step):
@@ -261,18 +271,19 @@ class Depcode:
              excited state. Example 'Am-242m1'.
         """
         if '.' in nuc_code:
-            nuc_code_id = pyname.mcnp_to_id(nuc_code.split('.')[0])
-            zz = pyname.znum(nuc_code_id)
-            aa = pyname.anum(nuc_code_id)
+            nuc_code = pyname.mcnp_to_id(nuc_code.split('.')[0])
+            zz = pyname.znum(nuc_code)
+            aa = pyname.anum(nuc_code)
             aa_str = str(aa)
-            at_mass = pydata.atomic_mass(nuc_code_id)
+            # at_mass = pydata.atomic_mass(nuc_code_id)
             if aa > 300:
                 if zz > 76:
                     aa_str = str(aa-100)+'m1'
-                    at_mass = pydata.atomic_mass(str(zz)+str(aa-100)+'1')
+                    aa_new = aa-100
                 else:
                     aa_str = str(aa-200)+'m1'
-                    at_mass = pydata.atomic_mass(str(zz)+str(aa-200)+'1')
+                    aa_new = aa-200
+                nuc_zzaaam = str(zz)+str(aa_new)+'1'
             nuc_name = pyname.zz_name[zz] + '-' + aa_str
         else:
             meta_flag = pyname.snum(nuc_code)
@@ -281,8 +292,10 @@ class Depcode:
                 nuc_name = pyname.serpent(nuc_code)+str(pyname.snum(nuc_code))
             else:
                 nuc_name = pyname.serpent(nuc_code)
+        nuc_zzaaam = pyname.zzaaam(nuc_code)
+        at_mass = pydata.atomic_mass(pyname.id(nuc_zzaaam))
         # print ("Nuclide %s; atomic mass %f" % (nuc_name, at_mass))
-        return nuc_name, at_mass  # .encode('utf8')
+        return nuc_name, nuc_zzaaam, at_mass  # .encode('utf8')
 
     def read_out(self):
         """ Parses data from Serpent output for each step and stores it in dict
@@ -293,7 +306,8 @@ class Depcode:
         self.keff['Breeding_ratio'].append(res['CONVERSION_RATIO'][1])
         self.keff['Execution_time'].append(res['TOT_CPU_TIME'][0] +
                                            res['TOT_CPU_TIME'][1])
-        self.keff['Beta_eff'].append(res['BETA_EFF'][1])
+        self.keff['Beta_eff'].append(res['BETA_EFF'][1, ::2])
+        self.keff['Delayed_neutrons_lambda'].append(res['LAMBDA'][1, ::2])
         self.keff['Fission_mass_BOC'].append(res['INI_FMASS'][1])
         self.keff['Fission_mass_EOC'].append(res['TOT_FMASS'][1])
         self.keff['Burnup'].append(res['BURNUP'][1])

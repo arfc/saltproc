@@ -4,6 +4,14 @@ set title "REBUS-3700 Unit cell model, TRU 16.7 at.%, No removals depl for 510EF
 include "../../../../fs-msrs/rebus/serpent/mat_composition_167.inp"
 include "/home/andrei2/Desktop/git/fs-msrs/rebus/serpent/unit_cell.inp"
 
+
+% --- Struct material (Ti)
+mat tit -4.50000E+00 tmp 963	rgb 127 205 187
+22046.09c  -8.25
+22047.09c  -7.44
+22048.09c  -73.72
+22049.09c  -5.41
+22050.09c  -5.18
 % ---- Steel for reflector (Carbon Steel)
 mat steel -7.821200E+00 tmp 673
  6000.06c  -1.00
@@ -29,6 +37,7 @@ set pcc     1  % Predictor-corrector calculation on
 %set bunorm 2
 set egrid 5E-5 1E-9 15.0
 set fpcut 1E-6
+set delnu 1
 
 % --- Irradiation cycle:
 %set power 3.686E+9		% 6 GWth
