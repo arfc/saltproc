@@ -231,17 +231,20 @@ class Depcode:
                 # print ('%5s, %8s, zzaaam %7s, aensity %5e, at mass %5f'
                 #        % (mat_name, nuc_name, nuc_zzaaam, float(adens),
                 #           atomic_mass))
-                nucvec[nuc_zzaaam] = float(mass)
-        fuel = pymat(nucvec, density=3.6)
+                nucvec[nuc_zzaaam] = float(adens)
+        # fuel = pymat(nucvec, density=3.6)
         # print (fuel)
-        fuel_at_perc = fuel.to_atom_dens()
-        # print (fuel_at_perc)
+        fuel = pymat()
+        fuel.density = 3.6
+        fuel.mass = 200.E+6
+        fuel.from_atom_frac(nucvec)
+        print (fuel)
         totm = 0
-        for iso, value in fuel_at_perc.items():
-            if abs(fuel_at_perc[iso]) > 0.0:
-                totm += 1E-24*fuel_at_perc[iso]
-                print("%5s, wt %7.12E" % (pyname.name(iso),
-                                          1E-24*fuel_at_perc[iso]))
+        for iso, value in fuel.items():
+            if abs(fuel[iso]) > 0.0:
+                totm += fuel[iso]
+                print("%5s, wt %8f" % (pyname.name(iso),
+                                       fuel[iso]))
         print (totm)
         return depl_dict, depl_dict_h
 
