@@ -3,6 +3,8 @@ import os
 import copy
 import shutil
 from re import compile
+import re
+import itertools
 from scipy import constants as const
 from collections import OrderedDict
 from pyne import nucname as pyname
@@ -74,7 +76,7 @@ class Depcode:
             self.npop = npop
             self.active_cycles = active_cycles
             self.inactive_cycles = inactive_cycles
-    keff = {
+    param = {
             "keff_BOC": [],
             "keff_EOC": [],
             "Breeding_ratio": [],
@@ -88,14 +90,13 @@ class Depcode:
 
     def run_depcode(self, cores):
         """ Runs depletion code as subprocess with the given parameters"""
-        print('Running %s' % self.codename)
         args = (self.exec_path, '-omp', str(cores), self.input_fname)
         print('Running %s' % (self.codename))
         try:
             subprocess.check_call(args)
         except subprocess.CalledProcessError as error:
             print(error.output)
-            raise ValueError('\n %s RUN FAILED\n' % self.codename)
+            raise ValueError('\n %s RUN FAILED\n' % (self.codename))
         print('Finished Serpent Run')
 
     def read_depcode_template(self, template_fname):
@@ -232,21 +233,61 @@ class Depcode:
                 #        % (mat_name, nuc_name, nuc_zzaaam, float(adens),
                 #           atomic_mass))
                 nucvec[nuc_zzaaam] = float(adens)
-        # fuel = pymat(nucvec, density=3.6)
-        # print (fuel)
-        fuel = pymat()
-        fuel.density = 3.6
-        fuel.mass = 200.E+6
-        fuel.from_atom_frac(nucvec)
-        print (fuel)
-        totm = 0
-        for iso, value in fuel.items():
-            if abs(fuel[iso]) > 0.0:
-                totm += fuel[iso]
-                print("%5s, wt %8f" % (pyname.name(iso),
-                                       fuel[iso]))
-        print (totm)
+        mat_name = pymat()
+        mat_name.density = 3.6
+        mat_name.mass = 200.E+6
+        mat_name.metadata = str(mat_name)
+        mat_name.atoms_per_molecule = -1.0
+        mat_name.from_atom_frac(nucvec)
+        print (mat_name)
+        # totm = 0
+        # for iso, value in mat_name.items():
+        #     if abs(mat_name[iso]) > 0.0:
+        #         totm += mat_name[iso]
+        #         print("%5s, wt %8f" % (pyname.name(iso),
+        #                                mat_name[iso]))
+        # print (totm)
+        print (mat_name.metadata)
         return depl_dict, depl_dict_h
+
+    def read_dep(self, input_file, munits, moment):
+        """ Reads the SERPENT _dep.m file and return mat_composition.
+        """
+        dep_file = os.path.join('%s_dep.m' % input_file)
+        dep = serpent.parse_dep(dep_file, make_mats=False)
+        # Read materials names from the file
+        mat_name = []
+        for key in dep.keys():
+            m = re.search('MAT_(.+?)_VOLUME', key)
+            if m:
+                mat_name.append(m.group(1))
+        day = dep['DAYS']           # Time array parsed from *_dep.m file
+        iso_n = dep['NAMES'][0].split()  # Names of isotopes parsed from dep
+        zai = list(map(int, dep['ZAI'][:-2]))
+        bu = dep['MAT_fuel_BURNUP']  # Time array parsed from *_dep.m file
+        adens_fuel = dep['MAT_fuel_ADENS'][:, moment]  # mass density
+        mdens_fuel = dep['MAT_fuel_MDENS'][:, moment]  # mass density
+        vol_fuel = dep['MAT_fuel_VOLUME']   # total volume of material 'fuel'
+        density_fuel = mdens_fuel[-1]  # total mass density for material
+        #print (day, bu)
+        #print (iso_n)
+        #print(zai)
+        #print(mdens_fuel[iso_n.index('U235')])
+        #print(density_fuel)
+        #print (mat_name)
+        mat1 = pymat(nucvec = dict(zip(zai,
+                     dep['MAT_'+str(mat_name[0])+'_MDENS'][:, moment])))
+        mat1.density = dep['MAT_'+str(mat_name[0])+'_MDENS'][-1, moment]
+        mat1.mass = mat1.density*dep['MAT_'+str(mat_name[0])+'_VOLUME'][moment]
+        mat1.metadata = str(mat_name[0])
+        # mat_name.atoms_per_molecule = -1.0
+        print (mat1)
+        print (mat1.metadata)
+        mat1_composition = mat1.comp
+        print(mat1_composition[170370000])
+        print(mat1_composition[pyname.id('Cl37')])
+
+
 
     def write_mat_file(self, dep_dict, mat_file, step):
         """ Writes the input fuel composition input file block
@@ -304,13 +345,13 @@ class Depcode:
         """ Parses data from Serpent output for each step and stores it in dict
         """
         res = serpent.parse_res(self.input_fname + "_res.m")
-        self.keff['keff_BOC'].append(res['IMP_KEFF'][0])
-        self.keff['keff_EOC'].append(res['IMP_KEFF'][1])
-        self.keff['Breeding_ratio'].append(res['CONVERSION_RATIO'][1])
-        self.keff['Execution_time'].append(res['TOT_CPU_TIME'][0] +
-                                           res['TOT_CPU_TIME'][1])
-        self.keff['Beta_eff'].append(res['BETA_EFF'][1, ::2])
-        self.keff['Delayed_neutrons_lambda'].append(res['LAMBDA'][1, ::2])
-        self.keff['Fission_mass_BOC'].append(res['INI_FMASS'][1])
-        self.keff['Fission_mass_EOC'].append(res['TOT_FMASS'][1])
-        self.keff['Burnup'].append(res['BURNUP'][1])
+        self.param['keff_BOC'].append(res['IMP_KEFF'][0])
+        self.param['keff_EOC'].append(res['IMP_KEFF'][1])
+        self.param['Breeding_ratio'].append(res['CONVERSION_RATIO'][1])
+        self.param['Execution_time'].append(res['TOT_CPU_TIME'][0] +
+                                            res['TOT_CPU_TIME'][1])
+        self.param['Beta_eff'].append(res['BETA_EFF'][1, ::2])
+        self.param['Delayed_neutrons_lambda'].append(res['LAMBDA'][1, ::2])
+        self.param['Fission_mass_BOC'].append(res['INI_FMASS'][1])
+        self.param['Fission_mass_EOC'].append(res['TOT_FMASS'][1])
+        self.param['Burnup'].append(res['BURNUP'][1])

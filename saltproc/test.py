@@ -3,8 +3,10 @@ from depcode import Depcode
 from simulation import Simulation
 
 input_path = os.path.dirname(os.path.abspath(__file__))
-input_file = os.path.join(input_path, 'data/saltproc_rebus')
-template_file = os.path.join(input_path, 'data/rebus')
+# input_file = os.path.join(input_path, 'data/saltproc_tap')
+# template_file = os.path.join(input_path, 'data/tap')
+input_file = os.path.join(input_path, 'data/saltproc_mcsfr')
+template_file = os.path.join(input_path, 'data/mcsfr')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
 db_file = os.path.join(input_path, 'data/db_saltproc.hdf5')
 # executable path of Serpent
@@ -12,7 +14,7 @@ exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
 # Number of cores and nodes to use in cluster
 cores = 4
 steps = 1
-munits = "MT"
+munits = "kg"
 
 if __name__ == "__main__":
     print('Initiating Saltproc:\n'
@@ -35,8 +37,8 @@ if __name__ == "__main__":
                       output_fname='NONE',
                       iter_matfile=iter_matfile,
                       npop=111,
-                      active_cycles=80,
-                      inactive_cycles=70)
+                      active_cycles=50,
+                      inactive_cycles=10)
     simulation = Simulation(sim_name='Super test',
                             sim_depcode=serpent,
                             core_number=cores,

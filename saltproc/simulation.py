@@ -10,14 +10,14 @@ class Simulation():
 
     def __init__(
             self,
-            sim_name,
-            sim_depcode,
-            core_number,
-            db_file,
-            iter_matfile,
-            timesteps,
-            mass_units):
-        """ Initializes the class
+            sim_name="default",
+            sim_depcode="SERPENT",
+            core_number=0,
+            db_file="default",
+            iter_matfile="default",
+            timesteps="default",
+            mass_units="default"):
+        """Initializes the class
 
         Parameters:
         -----------
@@ -60,8 +60,9 @@ class Simulation():
         self.mass_units = mass_units
 
     def runsim(self):
+        """"""
         for i in range(self.timesteps):
-            print ("Step #%i has been started" % (self.timesteps))
+            """print ("Step #%i has been started" % (self.timesteps))
             if i == 0:  # First run
                 self.sim_depcode.write_depcode_input(
                             self.sim_depcode.template_fname,
@@ -85,8 +86,11 @@ class Simulation():
             self.sim_depcode.read_out()
             # print(self.sim_depcode.keff)
             self.write_db(cum_dict_h5, self.db_file, i+1)
-            self.sim_depcode.write_mat_file(dep_dict, self.iter_matfile, i)
+            self.sim_depcode.write_mat_file(dep_dict, self.iter_matfile, i)"""
 #############################################################################
+        self.sim_depcode.read_dep(self.sim_depcode.input_fname,
+                                  self.mass_units,
+                                  0)
         # dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
         #                            self.sim_depcode.input_fname,
         #                            self.mass_units,
@@ -137,7 +141,7 @@ class Simulation():
                     mode='a',
                     overwrite_data=True,
                     create_dataset_args=dset_args)
-        dd.dicttoh5(self.sim_depcode.keff,
+        dd.dicttoh5(self.sim_depcode.param,
                     hdf5_db_file,
                     mode='a',
                     overwrite_data=True,
