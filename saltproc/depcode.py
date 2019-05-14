@@ -4,7 +4,6 @@ import copy
 import shutil
 from re import compile
 import re
-import itertools
 from scipy import constants as const
 from collections import OrderedDict
 from pyne import nucname as pyname
@@ -77,15 +76,15 @@ class Depcode:
             self.active_cycles = active_cycles
             self.inactive_cycles = inactive_cycles
     param = {
-            "keff_BOC": [],
-            "keff_EOC": [],
-            "Breeding_ratio": [],
-            "Execution_time": [],
-            "Beta_eff": [],
-            "Delayed_neutrons_lambda": [],
-            "Fission_mass_BOC": [],
-            "Fission_mass_EOC": [],
-            "Burnup": []
+            "keff_bds": [],
+            "keff_eds": [],
+            "breeding_ratio": [],
+            "execution_time": [],
+            "beta_eff": [],
+            "delayed_neutrons_lambda": [],
+            "fission_mass_bds": [],
+            "fission_mass_eds": [],
+            "burnup": []
             }
 
     def run_depcode(self, cores):
@@ -239,7 +238,7 @@ class Depcode:
         mat_name.metadata = str(mat_name)
         mat_name.atoms_per_molecule = -1.0
         mat_name.from_atom_frac(nucvec)
-        print (mat_name)
+        # print (mat_name)
         # totm = 0
         # for iso, value in mat_name.items():
         #     if abs(mat_name[iso]) > 0.0:
@@ -247,7 +246,7 @@ class Depcode:
         #         print("%5s, wt %8f" % (pyname.name(iso),
         #                                mat_name[iso]))
         # print (totm)
-        print (mat_name.metadata)
+        # print (mat_name.metadata)
         return depl_dict, depl_dict_h
 
     def read_dep(self, input_file, munits, moment):
@@ -257,35 +256,32 @@ class Depcode:
         dep = serpent.parse_dep(dep_file, make_mats=False)
         # Read materials names from the file
         mat_name = []
+        mats = {}
         for key in dep.keys():
             m = re.search('MAT_(.+?)_VOLUME', key)
             if m:
                 mat_name.append(m.group(1))
-        day = dep['DAYS']           # Time array parsed from *_dep.m file
-        iso_n = dep['NAMES'][0].split()  # Names of isotopes parsed from dep
-        zai = list(map(int, dep['ZAI'][:-2]))
-        bu = dep['MAT_fuel_BURNUP']  # Time array parsed from *_dep.m file
-        adens_fuel = dep['MAT_fuel_ADENS'][:, moment]  # mass density
-        mdens_fuel = dep['MAT_fuel_MDENS'][:, moment]  # mass density
-        vol_fuel = dep['MAT_fuel_VOLUME']   # total volume of material 'fuel'
-        density_fuel = mdens_fuel[-1]  # total mass density for material
-        #print (day, bu)
-        #print (iso_n)
-        #print(zai)
-        #print(mdens_fuel[iso_n.index('U235')])
-        #print(density_fuel)
-        #print (mat_name)
-        mat1 = pymat(nucvec = dict(zip(zai,
-                     dep['MAT_'+str(mat_name[0])+'_MDENS'][:, moment])))
-        mat1.density = dep['MAT_'+str(mat_name[0])+'_MDENS'][-1, moment]
-        mat1.mass = mat1.density*dep['MAT_'+str(mat_name[0])+'_VOLUME'][moment]
-        mat1.metadata = str(mat_name[0])
+        zai = list(map(int, dep['ZAI'][:-2]))  # zzaaam codes of isotopes
+
+        for m in mat_name:
+            volume = dep['MAT_'+m+'_VOLUME'][moment]
+            mats[m] = pymat(nucvec=dict(zip(zai,
+                                        dep['MAT_'+m+'_MDENS'][:, moment])))
+            mats[m].density = dep['MAT_'+m+'_MDENS'][-1, moment]
+            mats[m].mass = mats[m].density*volume
         # mat_name.atoms_per_molecule = -1.0
-        print (mat1)
-        print (mat1.metadata)
-        mat1_composition = mat1.comp
-        print(mat1_composition[170370000])
-        print(mat1_composition[pyname.id('Cl37')])
+        # print (mats['fuel'])
+        # print (mats['ctrlPois'].mass)
+        # print (mats['ctrlPois']['O16'])
+        # print (mats['ctrlPois']['Al27'])
+        # print (mats['ctrlPois'])
+        # for key, value in mats.items():
+        #    print ("Object material:", key, "\n", value)
+        #print (mat1.metadata)
+        #mat1_composition = mat1.comp
+        #print(mat1_composition[170370000])
+        #print(mat1_composition[pyname.id('Cl37')])
+        return mats
 
 
 
@@ -345,13 +341,27 @@ class Depcode:
         """ Parses data from Serpent output for each step and stores it in dict
         """
         res = serpent.parse_res(self.input_fname + "_res.m")
-        self.param['keff_BOC'].append(res['IMP_KEFF'][0])
-        self.param['keff_EOC'].append(res['IMP_KEFF'][1])
-        self.param['Breeding_ratio'].append(res['CONVERSION_RATIO'][1])
-        self.param['Execution_time'].append(res['TOT_CPU_TIME'][0] +
+        self.param['keff_bds'].append(res['IMP_KEFF'][0])
+        self.param['keff_eds'].append(res['IMP_KEFF'][1])
+        self.param['breeding_ratio'].append(res['CONVERSION_RATIO'][1])
+        self.param['execution_time'].append(res['TOT_CPU_TIME'][0] +
                                             res['TOT_CPU_TIME'][1])
-        self.param['Beta_eff'].append(res['BETA_EFF'][1, ::2])
-        self.param['Delayed_neutrons_lambda'].append(res['LAMBDA'][1, ::2])
-        self.param['Fission_mass_BOC'].append(res['INI_FMASS'][1])
-        self.param['Fission_mass_EOC'].append(res['TOT_FMASS'][1])
-        self.param['Burnup'].append(res['BURNUP'][1])
+        self.param['beta_eff'].append(res['BETA_EFF'][1, ::2])
+        self.param['delayed_neutrons_lambda'].append(res['LAMBDA'][1, ::2])
+        self.param['fission_mass_bds'].append(res['INI_FMASS'][1])
+        self.param['fission_mass_bds'].append(res['TOT_FMASS'][1])
+        self.param['burnup'].append(res['BURNUP'][1])
+
+    def mass_units(units):
+        """ Returns multiplicator to convert mass to different mass_units
+        """
+        if units is "g":
+            mul_m = 1.
+        elif units is "kg":
+            mul_m = 1.E-3
+        elif units is "t" or "ton" or "tonne" or "MT":
+            mul_m = 1.E-6
+        else:
+            raise ValueError(
+                          'Mass units does not supported or does not defined')
+        return mul_m

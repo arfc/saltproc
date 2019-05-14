@@ -1,12 +1,14 @@
 import os
 from depcode import Depcode
 from simulation import Simulation
+from materialflow import Materialflow
+
 
 input_path = os.path.dirname(os.path.abspath(__file__))
 # input_file = os.path.join(input_path, 'data/saltproc_tap')
 # template_file = os.path.join(input_path, 'data/tap')
-input_file = os.path.join(input_path, 'data/saltproc_mcsfr')
-template_file = os.path.join(input_path, 'data/mcsfr')
+input_file = os.path.join(input_path, 'data/saltproc_tap')
+template_file = os.path.join(input_path, 'data/tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
 db_file = os.path.join(input_path, 'data/db_saltproc.hdf5')
 # executable path of Serpent

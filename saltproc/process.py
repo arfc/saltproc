@@ -32,5 +32,4 @@ class Process():
                 vector contains removal efficency vector for the current
                  process (w.%)
 
-
             """

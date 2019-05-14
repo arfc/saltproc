@@ -15,8 +15,8 @@ class Simulation():
             core_number=0,
             db_file="default",
             iter_matfile="default",
-            timesteps="default",
-            mass_units="default"):
+            timesteps=0,
+            mass_units="kg"):
         """Initializes the class
 
         Parameters:
@@ -24,6 +24,8 @@ class Simulation():
         sim_name: string
             name of simulation may contain number of reference case, paper name
              or other specific information to identify simulation
+        sim_depcode: object
+            object of depletiob code initiated using depcode class
         cores: int
             number of cores to use for SERPENT run
         nodes: int
@@ -61,8 +63,8 @@ class Simulation():
 
     def runsim(self):
         """"""
-        for i in range(self.timesteps):
-            """print ("Step #%i has been started" % (self.timesteps))
+        """for i in range(self.timesteps):
+            print ("Step #%i has been started" % (self.timesteps))
             if i == 0:  # First run
                 self.sim_depcode.write_depcode_input(
                             self.sim_depcode.template_fname,
@@ -88,9 +90,11 @@ class Simulation():
             self.write_db(cum_dict_h5, self.db_file, i+1)
             self.sim_depcode.write_mat_file(dep_dict, self.iter_matfile, i)"""
 #############################################################################
-        self.sim_depcode.read_dep(self.sim_depcode.input_fname,
-                                  self.mass_units,
-                                  0)
+        materials = self.sim_depcode.read_dep(self.sim_depcode.input_fname,
+                                              self.mass_units,
+                                              1)
+        print(materials['ctrlPois']['O16'])
+        print(materials['ctrlPois']['Al27'])
         # dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
         #                            self.sim_depcode.input_fname,
         #                            self.mass_units,
@@ -110,12 +114,12 @@ class Simulation():
     def init_db(self, hdf5_db_file):
         """ Initializes the database and save it """
         simulation_parameters = {
-            "Transport_code": self.sim_depcode.codename,
-            "Simulation_name": self.sim_name,
-            "Number_of_cores": self.core_number,
-            "Neutron_population": self.sim_depcode.npop,
-            "Active_cycles": self.sim_depcode.active_cycles,
-            "Inactive_cycles": self.sim_depcode.inactive_cycles
+            "transport_code": self.sim_depcode.codename,
+            "simulation_name": self.sim_name,
+            "number_of_cores": self.core_number,
+            "neutron_population": self.sim_depcode.npop,
+            "active_cycles": self.sim_depcode.active_cycles,
+            "inactive_cycles": self.sim_depcode.inactive_cycles
         }
         # print (simulation_parameters)
         dd.dicttoh5(simulation_parameters, hdf5_db_file,

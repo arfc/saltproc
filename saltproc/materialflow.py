@@ -1,39 +1,65 @@
-class Materialflow():
+from pyne.material import Material as pymat
+
+
+class Materialflow(pymat):
     """ Class contains information about material flow and methods how insert
      and extract elements to|from the flow.
     """
 
     def __init__(
             self,
-            mat_name,
-            n_iso,
-            mass,
-            rho,
-            mass_flowrate,
-            vol_flowrate):
-        """ Initializes the class
+            comp=None,
+            mass=-1.0,
+            density=1.0,
+            atoms_per_molecule=-1.0,
+            metadata=None,
+            temp=900,
+            mass_flowrate=1.0,
+            void_frac=0.0):
+        """Initializes the class
 
         Parameters:
         -----------
-        mat_name: string
-            name of material from SERPENT input file
-        n_iso: int
-            number of isotopes in the material flow
-        mass: 1D ndarray of size n_iso
-            mass of isotopes in the material flow (g)
-        rho: float
-            density of the material flow (g/cm**3)
+        PyNE.Material: class
+            PyNE Material parent class containing nuclide vector, density,
+            mass, metadata
+        temp: float
+            temperature of the material flow (K)
         mass_flowrate: float
             mass flow rate of the material flow (g/s)
-        vol_flowrate: float
-            volumetric flow rate of the material flow through reactor (cm**3/s)
+        void_frac: float
+            void fraction in the material (%)
         """
+        # initialize parent class attributes
+        super().__init__()
+        # initialize all object attributes
+        self.temp = temp
+        self.mass_flowrate = mass_flowrate
+        self.void_frac = void_frac
 
     def conservationchecker(self):
         return
 
-    def insert(self):
-        return
+    def get_mass(self):
+        return self.mass
 
-    def extract(self):
-        return
+
+"""
+fuel = Materialflow({922350: 0.04, 922380: 0.96},
+                    122000000,
+                    4.9602,
+                    temp=923,
+                    mass_flowrate=0.5e+6,
+                    void_frac=1.0)
+
+print(fuel)
+print(fuel.comp)
+print(fuel.mass)
+print(fuel.density)
+print(fuel.atoms_per_molecule)
+print(fuel.metadata)
+
+print('Fuel salt temperature %f K' % fuel.temp)
+print('Mass flowrate %f g/s' % fuel.mass_flowrate)
+print('Void fraction %f %%' % fuel.void_frac)
+print('Mass %f g' % fuel.get_mass())"""
