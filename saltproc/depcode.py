@@ -10,6 +10,7 @@ from pyne import nucname as pyname
 from pyne import serpent
 from pyne import data as pydata
 from pyne.material import Material as pymat
+from materialflow import Materialflow as matflow
 
 
 class Depcode:
@@ -238,15 +239,6 @@ class Depcode:
         mat_name.metadata = str(mat_name)
         mat_name.atoms_per_molecule = -1.0
         mat_name.from_atom_frac(nucvec)
-        # print (mat_name)
-        # totm = 0
-        # for iso, value in mat_name.items():
-        #     if abs(mat_name[iso]) > 0.0:
-        #         totm += mat_name[iso]
-        #         print("%5s, wt %8f" % (pyname.name(iso),
-        #                                mat_name[iso]))
-        # print (totm)
-        # print (mat_name.metadata)
         return depl_dict, depl_dict_h
 
     def read_dep(self, input_file, munits, moment):
@@ -254,6 +246,7 @@ class Depcode:
         """
         dep_file = os.path.join('%s_dep.m' % input_file)
         dep = serpent.parse_dep(dep_file, make_mats=False)
+        self.days = dep['DAYS'][moment]
         # Read materials names from the file
         mat_name = []
         mats = {}
@@ -265,10 +258,12 @@ class Depcode:
 
         for m in mat_name:
             volume = dep['MAT_'+m+'_VOLUME'][moment]
-            mats[m] = pymat(nucvec=dict(zip(zai,
-                                        dep['MAT_'+m+'_MDENS'][:, moment])))
+            nucvec = dict(zip(zai, dep['MAT_'+m+'_MDENS'][:, moment]))
+            mats[m] = matflow(nucvec)
             mats[m].density = dep['MAT_'+m+'_MDENS'][-1, moment]
             mats[m].mass = mats[m].density*volume
+            mats[m].vol = volume
+            mats[m].burnup = dep['MAT_'+m+'_BURNUP'][moment]
         # mat_name.atoms_per_molecule = -1.0
         # print (mats['fuel'])
         # print (mats['ctrlPois'].mass)
@@ -277,32 +272,50 @@ class Depcode:
         # print (mats['ctrlPois'])
         # for key, value in mats.items():
         #    print ("Object material:", key, "\n", value)
-        #print (mat1.metadata)
-        #mat1_composition = mat1.comp
-        #print(mat1_composition[170370000])
-        #print(mat1_composition[pyname.id('Cl37')])
+        # print (mat1.metadata)
+        # mat1_composition = mat1.comp
+        # print(mat1_composition[170370000])
+        # print(mat1_composition[pyname.id('Cl37')])
         return mats
-
-
 
     def write_mat_file(self, dep_dict, mat_file, step):
         """ Writes the input fuel composition input file block
         """
+        # Generate map for transforming iso name fprm zas to SERPENT
+        self.get_tra_or_dec()
         matf = open(mat_file, 'w')
-        matf.write('%% Material compositions (%f MWd/kgU / %f days)\n\n'
-                   % (self.burnup*step, self.days*step))
+        matf.write('%% Material compositions (after %f days)\n\n'
+                   % (self.days*step))
         for key, value in dep_dict.items():
-            matf.write('mat  %s  %7.14E fix %3s %4i burn 1 vol %7.5E\n' %
+            matf.write('mat  %s  %5.9E burn 1 fix %3s %4i vol %7.5E\n' %
                        (key,
-                        dep_dict[key]['density'],
-                        dep_dict[key]['lib_temp'],
-                        dep_dict[key]['temperature'],
-                        dep_dict[key]['volume']))
-            for nuc_code, adens in dep_dict[key]['nuclides'].items():
+                        -dep_dict[key].density,
+                        '09c',
+                        dep_dict[key].temp,
+                        dep_dict[key].vol))
+            for nuc_code, wt_frac in dep_dict[key].comp.items():
+                # Transforms iso name from zas to zzaaam and then to SERPENT
+                iso_name_serpent = pyname.zzaaam(nuc_code)
                 matf.write('           %9s  %7.14E\n' %
-                           (nuc_code,
-                            adens))
+                           (self.iso_map[iso_name_serpent],
+                            -wt_frac))
         matf.close()
+
+    def sss_meta_zzz(self, nuc_code):
+        """ Check special SERPENT meta stable-flag for zzaaam (i.e. 47310 insead
+            of 471101)
+        """
+        zz = pyname.znum(nuc_code)
+        aa = pyname.anum(nuc_code)
+        if aa > 300:
+            if zz > 76:
+                aa_new = aa-100
+            else:
+                aa_new = aa-200
+            zzaaam = str(zz)+str(aa_new)+'1'
+        else:
+            zzaaam = nuc_code
+        return int(zzaaam)
 
     def get_nuc_name(self, nuc_code):
         """ Get nuclide name human readable notation. The chemical symbol(one
@@ -311,7 +324,7 @@ class Depcode:
              excited state. Example 'Am-242m1'.
         """
         if '.' in nuc_code:
-            nuc_code = pyname.mcnp_to_id(nuc_code.split('.')[0])
+            nuc_code = pyname.zzzaaa_to_id(int(nuc_code.split('.')[0]))
             zz = pyname.znum(nuc_code)
             aa = pyname.anum(nuc_code)
             aa_str = str(aa)
@@ -319,11 +332,13 @@ class Depcode:
             if aa > 300:
                 if zz > 76:
                     aa_str = str(aa-100)+'m1'
-                    aa_new = aa-100
+                    aa = aa-100
                 else:
                     aa_str = str(aa-200)+'m1'
-                    aa_new = aa-200
-                nuc_zzaaam = str(zz)+str(aa_new)+'1'
+                    aa = aa-200
+                nuc_zzaaam = str(zz)+str(aa)+'1'
+            elif aa == 0:
+                aa_str = 'nat'
             nuc_name = pyname.zz_name[zz] + '-' + aa_str
         else:
             meta_flag = pyname.snum(nuc_code)
@@ -332,9 +347,9 @@ class Depcode:
                 nuc_name = pyname.serpent(nuc_code)+str(pyname.snum(nuc_code))
             else:
                 nuc_name = pyname.serpent(nuc_code)
-        nuc_zzaaam = pyname.zzaaam(nuc_code)
+        nuc_zzaaam = self.sss_meta_zzz(pyname.zzaaam(nuc_code))
         at_mass = pydata.atomic_mass(pyname.id(nuc_zzaaam))
-        # print ("Nuclide %s; atomic mass %f" % (nuc_name, at_mass))
+        print ("Nuclide %s; zzaaam %i" % (nuc_name, nuc_zzaaam))
         return nuc_name, nuc_zzaaam, at_mass  # .encode('utf8')
 
     def read_out(self):
@@ -365,3 +380,36 @@ class Depcode:
             raise ValueError(
                           'Mass units does not supported or does not defined')
         return mul_m
+
+    def get_tra_or_dec(self):
+        """ Returns the isotopes map to tranform isotope zzaaam code to SERPENT
+
+        Parameters:
+        -----------
+
+        Returns:
+        --------
+        iso_map: dict
+            contain mapping for isotopes names from zzaaam fprmat to SERPENT
+            key: zzaaam name of specific isotope
+            value: Serpent-oriented name (i.e. 92235.09c for transport isotope
+                   or 982510 for decay only isotope)
+        """
+        map_dict = {}
+        # Construct path to the *.out File
+        out_file = os.path.join('%s.out' % self.input_fname)
+        file = open(out_file, 'r')
+        str_list = file.read().split('\n')
+        # Stop-line
+        end = ' --- Table  2: Reaction and decay data: '
+        for line in str_list:
+            if not line:
+                continue
+            if end in line:
+                break
+            if 'c  TRA' in line:# or 'c  DEC' in line:
+                line = line.split()
+                iname, zzaaam, imass = self.get_nuc_name(line[2])
+                # print (zzaaam, line[2], iname, imass)
+                map_dict.update({zzaaam: line[2]})
+        self.iso_map = map_dict
