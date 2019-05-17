@@ -13,9 +13,11 @@ class Materialflow(pymat):
             density=1.0,
             atoms_per_molecule=-1.0,
             metadata=None,
+            vol=1.0,
             temp=900,
             mass_flowrate=1.0,
-            void_frac=0.0):
+            void_frac=0.0,
+            burnup=0.0):
         """Initializes the class
 
         Parameters:
@@ -29,13 +31,17 @@ class Materialflow(pymat):
             mass flow rate of the material flow (g/s)
         void_frac: float
             void fraction in the material (%)
+        burnup: float
+            material burnup at the end of depletion step [MWd/kgU]
         """
         # initialize parent class attributes
         super().__init__()
         # initialize all object attributes
+        self.vol = vol
         self.temp = temp
         self.mass_flowrate = mass_flowrate
         self.void_frac = void_frac
+        self.burnup = burnup
 
     def conservationchecker(self):
         return

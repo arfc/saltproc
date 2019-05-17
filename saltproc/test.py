@@ -1,7 +1,6 @@
 import os
 from depcode import Depcode
 from simulation import Simulation
-from materialflow import Materialflow
 
 
 input_path = os.path.dirname(os.path.abspath(__file__))
@@ -17,6 +16,9 @@ exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
 cores = 4
 steps = 1
 munits = "kg"
+
+# Define materials (should read from input file)
+
 
 if __name__ == "__main__":
     print('Initiating Saltproc:\n'

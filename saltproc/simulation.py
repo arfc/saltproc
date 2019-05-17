@@ -1,6 +1,7 @@
 # import h5py
 import silx.io.dictdump as dd
 import copy
+from pyne import nucname as pyname
 
 
 class Simulation():
@@ -93,8 +94,33 @@ class Simulation():
         materials = self.sim_depcode.read_dep(self.sim_depcode.input_fname,
                                               self.mass_units,
                                               1)
-        print(materials['ctrlPois']['O16'])
-        print(materials['ctrlPois']['Al27'])
+        fuel_salt = materials['fuel']
+        # print(materials['ctrlPois']['O16'])
+        # print(materials['ctrlPois']['Al27'])
+        # print(fuel_salt.comp.keys())
+        # print(fuel_salt.comp[962470000])
+        for key, value in fuel_salt.comp.items():
+            print(key)
+            print(fuel_salt.comp[key])
+            print('\n')
+        print(materials['fuel'])
+        print(materials['fuel'].temp)
+        print(materials['fuel'].mass_flowrate)
+        print(materials['fuel'].mass)
+        self.sim_depcode.write_mat_file(materials, self.iter_matfile, 1)
+        self.sim_depcode.get_tra_or_dec()
+        # for key, value in self.sim_depcode.iso_map.items():
+        #     if '95242.09c' in value:
+        #         print(key, self.sim_depcode.iso_map[key])
+        # print(self.sim_depcode.iso_map[952420])
+        # print(self.sim_depcode.iso_map[471101])
+        # print(self.sim_depcode.iso_map[521291])
+        # print(self.sim_depcode.iso_map)
+        # print(len(self.sim_depcode.iso_map))
+        # print(self.sim_depcode.iso_map[471101])
+        # print(self.sim_depcode.dec_iso)
+        # fuel_salt.write_text('fuel_write_text.txt')
+        # fuel_salt.write_json('fuel_write.json')
         # dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
         #                            self.sim_depcode.input_fname,
         #                            self.mass_units,

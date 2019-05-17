@@ -349,7 +349,7 @@ class Depcode:
                 nuc_name = pyname.serpent(nuc_code)
         nuc_zzaaam = self.sss_meta_zzz(pyname.zzaaam(nuc_code))
         at_mass = pydata.atomic_mass(pyname.id(nuc_zzaaam))
-        print ("Nuclide %s; zzaaam %i" % (nuc_name, nuc_zzaaam))
+        # print ("Nuclide %s; zzaaam %i" % (nuc_name, nuc_zzaaam))
         return nuc_name, nuc_zzaaam, at_mass  # .encode('utf8')
 
     def read_out(self):
@@ -407,7 +407,7 @@ class Depcode:
                 continue
             if end in line:
                 break
-            if 'c  TRA' in line:# or 'c  DEC' in line:
+            if 'c  TRA' in line or 'c  DEC' in line:
                 line = line.split()
                 iname, zzaaam, imass = self.get_nuc_name(line[2])
                 # print (zzaaam, line[2], iname, imass)
