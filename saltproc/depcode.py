@@ -241,7 +241,7 @@ class Depcode:
         mat_name.from_atom_frac(nucvec)
         return depl_dict, depl_dict_h
 
-    def read_dep(self, input_file, munits, moment):
+    def read_dep_comp(self, input_file, munits, moment):
         """ Reads the SERPENT _dep.m file and return mat_composition.
         """
         dep_file = os.path.join('%s_dep.m' % input_file)
@@ -276,13 +276,13 @@ class Depcode:
         # mat1_composition = mat1.comp
         # print(mat1_composition[170370000])
         # print(mat1_composition[pyname.id('Cl37')])
+        # Generate map for transforming iso name fprm zas to SERPENT
+        self.get_tra_or_dec()
         return mats
 
     def write_mat_file(self, dep_dict, mat_file, step):
         """ Writes the input fuel composition input file block
         """
-        # Generate map for transforming iso name fprm zas to SERPENT
-        self.get_tra_or_dec()
         matf = open(mat_file, 'w')
         matf.write('%% Material compositions (after %f days)\n\n'
                    % (self.days*step))
@@ -323,7 +323,7 @@ class Depcode:
              nuclide metastable, the letter m is concatenated with number of
              excited state. Example 'Am-242m1'.
         """
-        if '.' in nuc_code:
+        if '.' in str(nuc_code):
             nuc_code = pyname.zzzaaa_to_id(int(nuc_code.split('.')[0]))
             zz = pyname.znum(nuc_code)
             aa = pyname.anum(nuc_code)
@@ -344,15 +344,15 @@ class Depcode:
             meta_flag = pyname.snum(nuc_code)
             at_mass = pydata.atomic_mass(nuc_code)
             if meta_flag:
-                nuc_name = pyname.serpent(nuc_code)+str(pyname.snum(nuc_code))
+                nuc_name = pyname.name(nuc_code)+str(pyname.snum(nuc_code))
             else:
-                nuc_name = pyname.serpent(nuc_code)
+                nuc_name = pyname.name(nuc_code)
         nuc_zzaaam = self.sss_meta_zzz(pyname.zzaaam(nuc_code))
         at_mass = pydata.atomic_mass(pyname.id(nuc_zzaaam))
         # print ("Nuclide %s; zzaaam %i" % (nuc_name, nuc_zzaaam))
         return nuc_name, nuc_zzaaam, at_mass  # .encode('utf8')
 
-    def read_out(self):
+    def read_sim_param(self):
         """ Parses data from Serpent output for each step and stores it in dict
         """
         res = serpent.parse_res(self.input_fname + "_res.m")

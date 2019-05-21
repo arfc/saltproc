@@ -9,7 +9,7 @@ input_path = os.path.dirname(os.path.abspath(__file__))
 input_file = os.path.join(input_path, 'data/saltproc_tap')
 template_file = os.path.join(input_path, 'data/tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
-db_file = os.path.join(input_path, 'data/db_saltproc.hdf5')
+db_file = os.path.join(input_path, 'data/db_saltproc.h5')
 # executable path of Serpent
 exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
 # Number of cores and nodes to use in cluster

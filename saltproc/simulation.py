@@ -2,7 +2,10 @@
 import silx.io.dictdump as dd
 import copy
 from pyne import nucname as pyname
-
+import pandas as pd
+import numpy as np
+import tables as tb
+from collections import OrderedDict
 
 class Simulation():
     """ Class setups parameters for simulation, runs SERPENT, parse output,
@@ -86,29 +89,28 @@ class Simulation():
                                        1)
             cum_dict_h5 = self.add_adens_to_dict(cum_dict_h5,
                                                  dep_dict_names)
-            self.sim_depcode.read_out()
+            self.sim_depcode.read_sim_param()
             # print(self.sim_depcode.keff)
             self.write_db(cum_dict_h5, self.db_file, i+1)
             self.sim_depcode.write_mat_file(dep_dict, self.iter_matfile, i)"""
 #############################################################################
-        materials = self.sim_depcode.read_dep(self.sim_depcode.input_fname,
+        self.sim_depcode.read_sim_param()  # read simulation parameters
+        mats = self.sim_depcode.read_dep_comp(self.sim_depcode.input_fname,
                                               self.mass_units,
                                               1)
-        fuel_salt = materials['fuel']
         # print(materials['ctrlPois']['O16'])
-        # print(materials['ctrlPois']['Al27'])
         # print(fuel_salt.comp.keys())
         # print(fuel_salt.comp[962470000])
-        for key, value in fuel_salt.comp.items():
-            print(key)
-            print(fuel_salt.comp[key])
-            print('\n')
-        print(materials['fuel'])
-        print(materials['fuel'].temp)
-        print(materials['fuel'].mass_flowrate)
-        print(materials['fuel'].mass)
-        self.sim_depcode.write_mat_file(materials, self.iter_matfile, 1)
-        self.sim_depcode.get_tra_or_dec()
+        print(mats['fuel'])
+        print(mats['fuel'].temp)
+        print(mats['fuel'].mass_flowrate)
+        print(mats['fuel'].mass)
+#############################################################################
+        self.hdf5store(self.db_file, mats)
+
+        # self.sim_depcode.write_mat_file(materials, self.iter_matfile, 1)
+
+        # self.sim_depcode.get_tra_or_dec()
         # for key, value in self.sim_depcode.iso_map.items():
         #     if '95242.09c' in value:
         #         print(key, self.sim_depcode.iso_map[key])
@@ -136,6 +138,118 @@ class Simulation():
 
     def loadinput_sp(self):
         return
+
+    def hdf5store(self, h5_db_file, mats):
+        """ Initializes HDF5 database (if does not exist) or append depletion
+            step data to it
+        """
+        # Moment when store compositions
+        moment = 'before_reproc'
+        # Define compression
+        filters = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
+        iso_idx = OrderedDict()
+        db = tb.open_file(h5_db_file,
+                          mode='a')
+        if not hasattr(db.root, 'composition'):
+            comp_group = db.create_group('/',
+                                         'composition',
+                                         'Material compositions')
+        if not hasattr(db.root.composition, moment):
+            before_group = db.create_group(
+                                comp_group,
+                                moment,
+                                'Isotope masses before applying reprocessing')
+        comp_pfx = '/composition/' + str(moment)
+        # Iterate over all materials
+        for key, value in mats.items():
+            iso_idx[key] = {}
+            iso_wt_frac = []
+            coun = 0
+            # Read isotopes from Materialflow for material
+            for nuc_code, wt_frac in mats[key].comp.items():
+                # Dictonary in format {isotope_name : index(int)}
+                iso_idx[key][self.sim_depcode.get_nuc_name(nuc_code)[0]] = coun
+                iso_wt_frac.append(wt_frac)
+                coun += 1
+            # if not hasattr(db.root.composition.before_reproc._key_):
+            earr = db.create_earray(comp_pfx,
+                                        key,
+                                        atom=tb.Float64Atom(),
+                                        shape=(0, len(iso_idx[key])),
+                                        title="Isotope mass in the material [g]",
+                                        filters=filters)
+            earr.flavor = 'python'
+            print (len(iso_idx))
+            print(np.array([iso_wt_frac], dtype=np.float64))
+            earr.append(np.array([iso_wt_frac], dtype=np.float64))
+            # for nuc, wt in mats[key].comp.items():
+            #     if mats[key].comp[nuc] == iso_wt_frac[iso_idx[key][self.sim_depcode.get_nuc_name(nuc)[0]]]:
+            #         print ('Ok')
+            #     else:
+            #         print('Mismatch in %s, %s' % (mats[key].comp[nuc], key))
+            del (iso_wt_frac)
+            # Save isotope indexes map in EArray attributes (same for each mat)
+            earr._v_attrs.iso_map = iso_idx[key]
+            print(earr.attrs._f_list("all"))
+            print(earr._v_attrs.iso_map)
+        db.close()
+
+    def hdf5store_pandas(self, h5_db_file, mats):
+        """ Initializes HDF5 database (if does not exist) or append depletion
+            step data to it
+        """
+        s = pd.HDFStore(h5_db_file,
+                        mode='a',
+                        complevel=5,
+                        complib='blosc')
+        #  Read list of isotopes from Materialflow
+        for key, value in mats.items():
+            column_names = []
+            iso_wt_frac = []
+            for nuc_code, wt_frac in mats[key].comp.items():
+                # Transforms iso name from zas to zzaaam and then to SERPENT
+                column_names.append(self.sim_depcode.get_nuc_name(nuc_code)[0])
+                iso_wt_frac.append(wt_frac)
+                if len(column_names) == 1000:
+                    break
+            df = pd.DataFrame([np.asarray(iso_wt_frac, dtype='f')],
+                              columns=np.asarray(column_names),
+                              index=["%10sd" % self.sim_depcode.days],
+                              dtype='float64')
+            print(df)
+            print(key)
+            print(df.get_dtype_counts())
+            s.append(key, df, format='t', data_columns=True, index=False)
+            # df.to_hdf(h5_db_file, key, data_columns=True)
+            # release memory
+            del (df)
+            del (column_names)
+            del (iso_wt_frac)
+        s.close()
+
+    def hdf5store_test(self, db_file):
+        """ Initializes HDF5 database and store data in it
+        """
+        try:
+            with h5py.File('test.hdf5', mode='r+') as h5f:
+                print ('HDF5 database exist, reading data...')
+                sim = h5f.get('simulation parameters')
+                depcode = sim['transport code'].value
+                ncores = sim['number of cores'].value
+                print (depcode)
+                print (ncores)
+                h5f.flush()
+                pass
+        except IOError as e:
+            print("Unable to open HDF5 database, creating new one...")
+            with h5py.File('test.hdf5', mode='w') as h5f:
+                sim = h5f.create_group('simulation parameters')
+                sim.create_dataset(
+                    'transport code',
+                    data=self.sim_depcode.codename)
+                sim.create_dataset(
+                    'number of cores',
+                    data=self.core_number)
 
     def init_db(self, hdf5_db_file):
         """ Initializes the database and save it """
