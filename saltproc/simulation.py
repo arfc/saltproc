@@ -150,37 +150,57 @@ class Simulation():
         iso_idx = OrderedDict()
         db = tb.open_file(h5_db_file,
                           mode='a')
-        if not hasattr(db.root, 'composition'):
+        if not hasattr(db.root, 'materials'):
             comp_group = db.create_group('/',
-                                         'composition',
-                                         'Material compositions')
-        if not hasattr(db.root.composition, moment):
-            before_group = db.create_group(
-                                comp_group,
-                                moment,
-                                'Isotope masses before applying reprocessing')
-        comp_pfx = '/composition/' + str(moment)
+                                         'materials',
+                                         'Material data')
         # Iterate over all materials
         for key, value in mats.items():
             iso_idx[key] = {}
             iso_wt_frac = []
             coun = 0
+            # Create group for each material
+            if not hasattr(db.root.materials, key):
+                m_group = db.create_group(comp_group,
+                                          key)
+            # Create group for composition and parameters before reprocessing
+            # if not hasattr(db.root.materials, key + '/' + moment):
+            mat_node = getattr(db.root.materials, key)
+            if not hasattr(mat_node, moment):
+                before_group = db.create_group(
+                                    m_group,
+                                    moment,
+                                    'Material data before reprocessing')
+            comp_pfx = '/materials/' + str(key) + '/' + str(moment) + '/'
             # Read isotopes from Materialflow for material
             for nuc_code, wt_frac in mats[key].comp.items():
                 # Dictonary in format {isotope_name : index(int)}
                 iso_idx[key][self.sim_depcode.get_nuc_name(nuc_code)[0]] = coun
                 iso_wt_frac.append(wt_frac)
                 coun += 1
-            # if not hasattr(db.root.composition.before_reproc._key_):
-            earr = db.create_earray(comp_pfx,
-                                        key,
-                                        atom=tb.Float64Atom(),
-                                        shape=(0, len(iso_idx[key])),
-                                        title="Isotope mass in the material [g]",
-                                        filters=filters)
-            earr.flavor = 'python'
-            print (len(iso_idx))
-            print(np.array([iso_wt_frac], dtype=np.float64))
+            # Try to open EArray and if not exist - create new one
+            try:
+                earr = db.get_node(comp_pfx,
+                                   'comp')
+                print(str(earr.title)+' array exist, opening.')
+            except Exception:
+                print('Material '+key+' array is not exist, making new one...')
+                earr = db.create_earray(
+                                comp_pfx,
+                                'comp',
+                                atom=tb.Float64Atom(),
+                                shape=(0, len(iso_idx[key])),
+                                title="Isotopic composition for %s" % key,
+                                filters=filters)
+                # Save isotope indexes map and more in EArray attributes
+                earr.flavor = 'python'
+                earr._v_attrs.iso_map = iso_idx[key]
+                earr._v_attrs.mass = mats[key].mass
+                earr._v_attrs.density = mats[key].density
+                earr._v_attrs.volume = mats[key].vol
+                earr._v_attrs.temperature = mats[key].temp
+            # earr._v_attrs.mass_flowrate = mats[key].mass_flowrate
+
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
             # for nuc, wt in mats[key].comp.items():
             #     if mats[key].comp[nuc] == iso_wt_frac[iso_idx[key][self.sim_depcode.get_nuc_name(nuc)[0]]]:
@@ -188,10 +208,8 @@ class Simulation():
             #     else:
             #         print('Mismatch in %s, %s' % (mats[key].comp[nuc], key))
             del (iso_wt_frac)
-            # Save isotope indexes map in EArray attributes (same for each mat)
-            earr._v_attrs.iso_map = iso_idx[key]
-            print(earr.attrs._f_list("all"))
-            print(earr._v_attrs.iso_map)
+            # print(earr.attrs._f_list("all"))
+            # print(earr._v_attrs.iso_map)
         db.close()
 
     def hdf5store_pandas(self, h5_db_file, mats):
