@@ -148,6 +148,17 @@ class Simulation():
         # Define compression
         filters = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
         iso_idx = OrderedDict()
+        # numpy array row storage data for material physical properties
+        mpar_dtype = np.dtype([
+                        ('mass',            float),
+                        ('density',         float),
+                        ('volume',          float),
+                        ('temperatue',      float),
+                        ('mass_flowrate',   float),
+                        ('void_fraction',   float),
+                        ('burnup',          float)
+                        ])
+
         db = tb.open_file(h5_db_file,
                           mode='a')
         if not hasattr(db.root, 'materials'):
@@ -171,14 +182,25 @@ class Simulation():
                                     m_group,
                                     moment,
                                     'Material data before reprocessing')
-            comp_pfx = '/materials/' + str(key) + '/' + str(moment) + '/'
+            comp_pfx = '/materials/' + str(key) + '/' + str(moment)
             # Read isotopes from Materialflow for material
             for nuc_code, wt_frac in mats[key].comp.items():
                 # Dictonary in format {isotope_name : index(int)}
                 iso_idx[key][self.sim_depcode.get_nuc_name(nuc_code)[0]] = coun
                 iso_wt_frac.append(wt_frac)
                 coun += 1
-            # Try to open EArray and if not exist - create new one
+                # Store information about material properties in new array row
+                mpar_row = (
+                            mats[key].mass,
+                            mats[key].density,
+                            mats[key].vol,
+                            mats[key].temp,
+                            mats[key].mass_flowrate,
+                            mats[key].void_frac,
+                            mats[key].burnup
+                            )
+                mpar_array = np.array([mpar_row], dtype=mpar_dtype)
+            # Try to open EArray and table and if not exist - create new one
             try:
                 earr = db.get_node(comp_pfx,
                                    'comp')
@@ -195,19 +217,22 @@ class Simulation():
                 # Save isotope indexes map and more in EArray attributes
                 earr.flavor = 'python'
                 earr._v_attrs.iso_map = iso_idx[key]
-                earr._v_attrs.mass = mats[key].mass
-                earr._v_attrs.density = mats[key].density
-                earr._v_attrs.volume = mats[key].vol
-                earr._v_attrs.temperature = mats[key].temp
-            # earr._v_attrs.mass_flowrate = mats[key].mass_flowrate
+                # Create table for material Parameters
+                mpar_table = db.create_table(
+                                comp_pfx,
+                                'parameters',
+                                np.empty(0, dtype=mpar_dtype),
+                                "Material parameters data")
 
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
+            mpar_table.append(mpar_array)
             # for nuc, wt in mats[key].comp.items():
             #     if mats[key].comp[nuc] == iso_wt_frac[iso_idx[key][self.sim_depcode.get_nuc_name(nuc)[0]]]:
             #         print ('Ok')
             #     else:
             #         print('Mismatch in %s, %s' % (mats[key].comp[nuc], key))
             del (iso_wt_frac)
+            del (mpar_array)
             # print(earr.attrs._f_list("all"))
             # print(earr._v_attrs.iso_map)
         db.close()
