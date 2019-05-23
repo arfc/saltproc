@@ -139,9 +139,9 @@ class Simulation():
     def loadinput_sp(self):
         return
 
-    def hdf5store(self, h5_db_file, mats):
-        """ Initializes HDF5 database (if does not exist) or append depletion
-            step data to it
+    def hdf5store(self, h5_file, mats):
+        """ Initializes HDF5 database (if not exist) or append depletion
+            step data to it.
         """
         # Moment when store compositions
         moment = 'before_reproc'
@@ -159,7 +159,7 @@ class Simulation():
                         ('burnup',          float)
                         ])
 
-        db = tb.open_file(h5_db_file,
+        db = tb.open_file(h5_file,
                           mode='a')
         if not hasattr(db.root, 'materials'):
             comp_group = db.create_group('/',
@@ -202,11 +202,11 @@ class Simulation():
                 mpar_array = np.array([mpar_row], dtype=mpar_dtype)
             # Try to open EArray and table and if not exist - create new one
             try:
-                earr = db.get_node(comp_pfx,
-                                   'comp')
-                print(str(earr.title)+' array exist, opening.')
+                earr = db.get_node(comp_pfx, 'comp')
+                print('\n' + str(earr.title) + ' array exist, grabbing data.')
+                mpar_table = db.get_node(comp_pfx, 'parameters')
             except Exception:
-                print('Material '+key+' array is not exist, making new one...')
+                print('\nMaterial '+key+' array is not exist, making new one.')
                 earr = db.create_earray(
                                 comp_pfx,
                                 'comp',
@@ -218,12 +218,14 @@ class Simulation():
                 earr.flavor = 'python'
                 earr._v_attrs.iso_map = iso_idx[key]
                 # Create table for material Parameters
+                print('Creating '+key+' parameters table.')
                 mpar_table = db.create_table(
                                 comp_pfx,
                                 'parameters',
                                 np.empty(0, dtype=mpar_dtype),
                                 "Material parameters data")
-
+            print('Dumping Material %s data %s to %s.' %
+                  (key, moment, str(h5_file)))
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
             mpar_table.append(mpar_array)
             # for nuc, wt in mats[key].comp.items():
