@@ -15,7 +15,7 @@ exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
 # Number of cores and nodes to use in cluster
 cores = 4
 steps = 1
-munits = "kg"
+munits = "g"
 
 # Define materials (should read from input file)
 

@@ -367,20 +367,6 @@ class Depcode:
         self.param['fission_mass_bds'].append(res['TOT_FMASS'][1])
         self.param['burnup'].append(res['BURNUP'][1])
 
-    def mass_units(units):
-        """ Returns multiplicator to convert mass to different mass_units
-        """
-        if units is "g":
-            mul_m = 1.
-        elif units is "kg":
-            mul_m = 1.E-3
-        elif units is "t" or "ton" or "tonne" or "MT":
-            mul_m = 1.E-6
-        else:
-            raise ValueError(
-                          'Mass units does not supported or does not defined')
-        return mul_m
-
     def get_tra_or_dec(self):
         """ Returns the isotopes map to tranform isotope zzaaam code to SERPENT
 

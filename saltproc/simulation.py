@@ -7,6 +7,7 @@ import numpy as np
 import tables as tb
 from collections import OrderedDict
 
+
 class Simulation():
     """ Class setups parameters for simulation, runs SERPENT, parse output,
     create input.
@@ -145,6 +146,8 @@ class Simulation():
         """
         # Moment when store compositions
         moment = 'before_reproc'
+        # Retrieving user setting for mass units, converting and append
+        mass_convert_factor = self.get_mass_units(self.mass_units)
         # Define compression
         filters = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
         iso_idx = OrderedDict()
@@ -153,7 +156,7 @@ class Simulation():
                         ('mass',            float),
                         ('density',         float),
                         ('volume',          float),
-                        ('temperatue',      float),
+                        ('temperature',      float),
                         ('mass_flowrate',   float),
                         ('void_fraction',   float),
                         ('burnup',          float)
@@ -187,15 +190,16 @@ class Simulation():
             for nuc_code, wt_frac in mats[key].comp.items():
                 # Dictonary in format {isotope_name : index(int)}
                 iso_idx[key][self.sim_depcode.get_nuc_name(nuc_code)[0]] = coun
-                iso_wt_frac.append(wt_frac)
+                # Convert wt% to absolute [user units]
+                iso_wt_frac.append(mass_convert_factor*wt_frac*mats[key].mass)
                 coun += 1
                 # Store information about material properties in new array row
                 mpar_row = (
-                            mats[key].mass,
+                            mats[key].mass * mass_convert_factor,
                             mats[key].density,
                             mats[key].vol,
                             mats[key].temp,
-                            mats[key].mass_flowrate,
+                            mats[key].mass_flowrate * mass_convert_factor,
                             mats[key].void_frac,
                             mats[key].burnup
                             )
@@ -214,9 +218,10 @@ class Simulation():
                                 shape=(0, len(iso_idx[key])),
                                 title="Isotopic composition for %s" % key,
                                 filters=filters)
-                # Save isotope indexes map and more in EArray attributes
+                # Save isotope indexes map and units in EArray attributes
                 earr.flavor = 'python'
                 earr._v_attrs.iso_map = iso_idx[key]
+                earr._v_attrs.mass_units = self.mass_units
                 # Create table for material Parameters
                 print('Creating '+key+' parameters table.')
                 mpar_table = db.create_table(
@@ -226,8 +231,23 @@ class Simulation():
                                 "Material parameters data")
             print('Dumping Material %s data %s to %s.' %
                   (key, moment, str(h5_file)))
+            # Add row for the timestep to EArray and Material Parameters table
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
             mpar_table.append(mpar_array)
             del (iso_wt_frac)
             del (mpar_array)
         db.close()
+
+    def get_mass_units(self, units):
+        """ Returns multiplicator to convert mass to different mass_units
+        """
+        if units is "g":
+            mul_m = 1.
+        elif units is "kg":
+            mul_m = 1.E-3
+        elif units is "t" or "ton" or "tonne" or "MT":
+            mul_m = 1.E-6
+        else:
+            raise ValueError(
+                          'Mass units does not supported or does not defined')
+        return mul_m
