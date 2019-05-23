@@ -19,6 +19,7 @@ class Simulation():
             sim_depcode="SERPENT",
             core_number=0,
             h5_file="db_saltproc.h5",
+            compression=None,
             iter_matfile="default",
             timesteps=0,
             mass_units="kg"):
@@ -53,6 +54,8 @@ class Simulation():
              Saltproc simulation
         h5_file: string
             name of HDF5 database
+        compression: Pytables filter object
+            HDF5 fatabase compression parameters
         connection_graph: dict
             key: ???
             value: ???
@@ -62,6 +65,7 @@ class Simulation():
         self.sim_depcode = sim_depcode
         self.core_number = core_number
         self.h5_file = h5_file
+        self.compression = compression
         self.iter_matfile = iter_matfile
         self.timesteps = timesteps
         self.mass_units = mass_units
@@ -107,7 +111,7 @@ class Simulation():
         print(mats['fuel'].mass_flowrate)
         print(mats['fuel'].mass)
 #############################################################################
-        self.write_mat_data(mats)
+        self.store_mat_data(mats)
 
         # self.sim_depcode.write_mat_file(materials, self.iter_matfile, 1)
 
@@ -140,7 +144,7 @@ class Simulation():
     def loadinput_sp(self):
         return
 
-    def write_mat_data(self, mats):
+    def store_mat_data(self, mats):
         """ Initializes HDF5 database (if not exist) or append depletion
             step data to it.
         """
@@ -148,8 +152,6 @@ class Simulation():
         moment = 'before_reproc'
         # Retrieving user setting for mass units, converting and append
         mass_convert_factor = self.get_mass_units(self.mass_units)
-        # Define compression
-        compression = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
         iso_idx = OrderedDict()
         # numpy array row storage data for material physical properties
         mpar_dtype = np.dtype([
@@ -162,7 +164,7 @@ class Simulation():
                         ('burnup',          float)
                         ])
 
-        db = tb.open_file(self.h5_file, mode='a', filters=compression)
+        db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
         if not hasattr(db.root, 'materials'):
             comp_group = db.create_group('/',
                                          'materials',
@@ -238,9 +240,9 @@ class Simulation():
 
     def store_run_info(self):
         """ Write to database important SERPENT and Saltproc run parameters
-            before starting depletion steping in time
+            before starting depletion sequence
         """
-        print('test')
+
 
     def get_mass_units(self, units):
         """ Returns multiplicator to convert mass to different mass_units

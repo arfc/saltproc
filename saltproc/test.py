@@ -1,7 +1,7 @@
 import os
 from depcode import Depcode
 from simulation import Simulation
-
+import tables as tb
 
 input_path = os.path.dirname(os.path.abspath(__file__))
 # input_file = os.path.join(input_path, 'data/saltproc_tap')
@@ -10,6 +10,7 @@ input_file = os.path.join(input_path, 'data/saltproc_tap')
 template_file = os.path.join(input_path, 'data/tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
 db_file = os.path.join(input_path, 'data/db_saltproc.h5')
+compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
 # executable path of Serpent
 exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
 # Number of cores and nodes to use in cluster
@@ -47,6 +48,7 @@ if __name__ == "__main__":
                             sim_depcode=serpent,
                             core_number=cores,
                             h5_file=db_file,
+                            compression=compression_prop,
                             iter_matfile=iter_matfile,
                             timesteps=steps,
                             mass_units=munits)
