@@ -91,11 +91,11 @@ class Depcode:
             "keff_eds": [],
             "breeding_ratio": [],
             "execution_time": [],
+            "memory_usage": [],
             "beta_eff": [],
             "delayed_neutrons_lambda": [],
             "fission_mass_bds": [],
-            "fission_mass_eds": [],
-            "burnup": []
+            "fission_mass_eds": []
             }
 
     def run_depcode(self, cores):
@@ -387,13 +387,13 @@ class Depcode:
         self.param['keff_bds'].append(res['IMP_KEFF'][0])
         self.param['keff_eds'].append(res['IMP_KEFF'][1])
         self.param['breeding_ratio'].append(res['CONVERSION_RATIO'][1])
-        self.param['execution_time'].append(res['TOT_CPU_TIME'][0] +
-                                            res['TOT_CPU_TIME'][1])
-        self.param['beta_eff'].append(res['BETA_EFF'][1, ::2])
-        self.param['delayed_neutrons_lambda'].append(res['LAMBDA'][1, ::2])
+        self.param['execution_time'].append(res['RUNNING_TIME'][1])
+        self.param['memory_usage'].append(res['MEMSIZE'][0])
+        self.param['beta_eff'].append(res['BETA_EFF'][1].reshape((9, 2)))
+        self.param['delayed_neutrons_lambda'].append(
+                                        res['LAMBDA'][1].reshape((9, 2)))
         self.param['fission_mass_bds'].append(res['INI_FMASS'][1])
-        self.param['fission_mass_bds'].append(res['TOT_FMASS'][1])
-        self.param['burnup'].append(res['BURNUP'][1])
+        self.param['fission_mass_eds'].append(res['TOT_FMASS'][1])
 
     def get_tra_or_dec(self):
         """ Returns the isotopes map to tranform isotope zzaaam code to SERPENT

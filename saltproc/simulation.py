@@ -106,33 +106,16 @@ class Simulation():
         # print(fuel_salt.comp.keys())
         # print(fuel_salt.comp[962470000])
 #############################################################################
-        self.store_run_info()
+        # self.store_run_init_info()
+        # self.store_run_step_info()
         # self.store_mat_data(mats)
 
-        # self.sim_depcode.write_mat_file(materials, self.iter_matfile, 1)
-
         # self.sim_depcode.get_tra_or_dec()
-        # for key, value in self.sim_depcode.iso_map.items():
-        #     if '95242.09c' in value:
-        #         print(key, self.sim_depcode.iso_map[key])
-        # print(self.sim_depcode.iso_map[952420])
-        # print(self.sim_depcode.iso_map[471101])
-        # print(self.sim_depcode.iso_map[521291])
-        # print(self.sim_depcode.iso_map)
-        # print(len(self.sim_depcode.iso_map))
-        # print(self.sim_depcode.iso_map[471101])
-        # print(self.sim_depcode.dec_iso)
-        # fuel_salt.write_text('fuel_write_text.txt')
-        # fuel_salt.write_json('fuel_write.json')
-        # dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
-        #                            self.sim_depcode.input_fname,
-        #                            self.mass_units,
-        #                            0)
-        # dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
-        #                            self.sim_depcode.input_fname, 1)
-        # print (cum_dict_h5)
-        # self.init_db(self.db_file)
-        # self.write_db(cum_dict_h5, self.db_file, 1)
+#############################################################################
+        # Start sequence
+        self.store_run_init_info()
+        self.store_run_step_info()
+        self.store_mat_data(mats)
 
     def steptime(self):
         return
@@ -204,7 +187,7 @@ class Simulation():
             # Try to open EArray and table and if not exist - create new one
             try:
                 earr = db.get_node(comp_pfx, 'comp')
-                print('\n' + str(earr.title) + ' array exist, grabbing data.')
+                print('\n' + str(earr.title) + ' array exist, appending data.')
                 mpar_table = db.get_node(comp_pfx, 'parameters')
             except Exception:
                 print('\nMaterial '+key+' array is not exist, making new one.')
@@ -235,7 +218,61 @@ class Simulation():
             mpar_table.flush()
         db.close()
 
-    def store_run_info(self):
+    def store_run_step_info(self):
+        """ Write to database important SERPENT and Saltproc run parameters,
+            breeding ratio, beta, etc for each timestep
+        """
+        # numpy arraw row storage for run info
+        class Step_info(tb.IsDescription):
+            keff_bds = tb.Float32Col((2,))
+            keff_eds = tb.Float32Col((2,))
+            breeding_ratio = tb.Float32Col((2,))
+            step_execution_time = tb.Float32Col()
+            memory_usage = tb.Float32Col()
+            beta_eff_eds = tb.Float32Col((9, 2))
+            delayed_neutrons_lambda_eds = tb.Float32Col((9, 2))
+            fission_mass_bds = tb.Float32Col()
+            fission_mass_eds = tb.Float32Col()
+        # Read info from depcode _res.m File
+        self.sim_depcode.read_depcode_step_param()
+        # Open or restore db and append datat to it
+        db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
+        try:
+            step_info_table = db.get_node(
+                                         db.root,
+                                         'simulation_parameters')
+        except Exception:
+            step_info_table = db.create_table(
+                                db.root,
+                                'simulation_parameters',
+                                Step_info,
+                                "Simulation parameters after each timestep")
+        # Define row of table as step_info
+        step_info = step_info_table.row
+
+        # Define all values in the row
+        step_info['keff_bds'] = self.sim_depcode.param['keff_bds'][0]
+        step_info['keff_eds'] = self.sim_depcode.param['keff_eds'][0]
+        step_info['breeding_ratio'] = self.sim_depcode.param[
+                                        'breeding_ratio'][0]
+        step_info['step_execution_time'] = self.sim_depcode.param[
+                                        'execution_time'][0]
+        step_info['memory_usage'] = self.sim_depcode.param[
+                                        'memory_usage'][0]
+        step_info['beta_eff_eds'] = self.sim_depcode.param[
+                                        'beta_eff'][0]
+        step_info['delayed_neutrons_lambda_eds'] = self.sim_depcode.param[
+                                        'delayed_neutrons_lambda'][0]
+        step_info['fission_mass_bds'] = self.sim_depcode.param[
+                                        'fission_mass_bds'][0]
+        step_info['fission_mass_eds'] = self.sim_depcode.param[
+                                        'fission_mass_eds'][0]
+        # Inject the Record value into the table
+        step_info.append()
+        step_info_table.flush()
+        db.close()
+
+    def store_run_init_info(self):
         """ Write to database important SERPENT and Saltproc run parameters
             before starting depletion sequence
         """
@@ -274,13 +311,13 @@ class Simulation():
         # Open or restore db and append datat to it
         db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
         try:
-            sim_info_table = db.get_node(db.root, 'depcode_sim_info')
+            sim_info_table = db.get_node(db.root, 'initial_depcode_siminfo')
         except Exception:
             sim_info_table = db.create_table(
-                                        db.root,
-                                        'depcode_sim_info',
-                                        sim_info_array,
-                                        "Depletion code simulation parameters")
+                                db.root,
+                                'initial_depcode_siminfo',
+                                sim_info_array,
+                                "Initial depletion code simulation parameters")
         sim_info_table.flush()
         db.close()
 
