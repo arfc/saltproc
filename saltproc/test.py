@@ -46,7 +46,7 @@ if __name__ == "__main__":
     simulation = Simulation(sim_name='Super test',
                             sim_depcode=serpent,
                             core_number=cores,
-                            db_file=db_file,
+                            h5_file=db_file,
                             iter_matfile=iter_matfile,
                             timesteps=steps,
                             mass_units=munits)

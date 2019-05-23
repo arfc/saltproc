@@ -18,7 +18,7 @@ class Simulation():
             sim_name="default",
             sim_depcode="SERPENT",
             core_number=0,
-            db_file="default",
+            h5_file="db_saltproc.h5",
             iter_matfile="default",
             timesteps=0,
             mass_units="kg"):
@@ -51,7 +51,7 @@ class Simulation():
         input_filename: string
             name of JSON input file with reprocessing scheme and parameters for
              Saltproc simulation
-        db_file: string
+        h5_file: string
             name of HDF5 database
         connection_graph: dict
             key: ???
@@ -61,7 +61,7 @@ class Simulation():
         self.sim_name = sim_name
         self.sim_depcode = sim_depcode
         self.core_number = core_number
-        self.db_file = db_file
+        self.h5_file = h5_file
         self.iter_matfile = iter_matfile
         self.timesteps = timesteps
         self.mass_units = mass_units
@@ -107,7 +107,7 @@ class Simulation():
         print(mats['fuel'].mass_flowrate)
         print(mats['fuel'].mass)
 #############################################################################
-        self.hdf5store(self.db_file, mats)
+        self.write_mat_data(mats)
 
         # self.sim_depcode.write_mat_file(materials, self.iter_matfile, 1)
 
@@ -140,7 +140,7 @@ class Simulation():
     def loadinput_sp(self):
         return
 
-    def hdf5store(self, h5_file, mats):
+    def write_mat_data(self, mats):
         """ Initializes HDF5 database (if not exist) or append depletion
             step data to it.
         """
@@ -149,7 +149,7 @@ class Simulation():
         # Retrieving user setting for mass units, converting and append
         mass_convert_factor = self.get_mass_units(self.mass_units)
         # Define compression
-        filters = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
+        compression = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
         iso_idx = OrderedDict()
         # numpy array row storage data for material physical properties
         mpar_dtype = np.dtype([
@@ -162,8 +162,7 @@ class Simulation():
                         ('burnup',          float)
                         ])
 
-        db = tb.open_file(h5_file,
-                          mode='a')
+        db = tb.open_file(self.h5_file, mode='a', filters=compression)
         if not hasattr(db.root, 'materials'):
             comp_group = db.create_group('/',
                                          'materials',
@@ -216,8 +215,7 @@ class Simulation():
                                 'comp',
                                 atom=tb.Float64Atom(),
                                 shape=(0, len(iso_idx[key])),
-                                title="Isotopic composition for %s" % key,
-                                filters=filters)
+                                title="Isotopic composition for %s" % key)
                 # Save isotope indexes map and units in EArray attributes
                 earr.flavor = 'python'
                 earr._v_attrs.iso_map = iso_idx[key]
@@ -230,13 +228,19 @@ class Simulation():
                                 np.empty(0, dtype=mpar_dtype),
                                 "Material parameters data")
             print('Dumping Material %s data %s to %s.' %
-                  (key, moment, str(h5_file)))
+                  (key, moment, str(self.h5_file)))
             # Add row for the timestep to EArray and Material Parameters table
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
             mpar_table.append(mpar_array)
             del (iso_wt_frac)
             del (mpar_array)
         db.close()
+
+    def store_run_info(self):
+        """ Write to database important SERPENT and Saltproc run parameters
+            before starting depletion steping in time
+        """
+        print('test')
 
     def get_mass_units(self, units):
         """ Returns multiplicator to convert mass to different mass_units
