@@ -76,6 +76,16 @@ class Depcode:
             self.npop = npop
             self.active_cycles = active_cycles
             self.inactive_cycles = inactive_cycles
+    sim_info = {
+                "serpent_version": [],
+                "title": [],
+                "serpent_input_filename": [],
+                "serpent_working_dir": [],
+                "xs_data_path": [],
+                "OMP_threads": [],
+                "MPI_tasks": [],
+                "memory_optimization_mode": []
+                }
     param = {
             "keff_bds": [],
             "keff_eds": [],
@@ -352,7 +362,25 @@ class Depcode:
         # print ("Nuclide %s; zzaaam %i" % (nuc_name, nuc_zzaaam))
         return nuc_name, nuc_zzaaam, at_mass  # .encode('utf8')
 
-    def read_sim_param(self):
+    def read_depcode_info(self):
+        """ Parses initial simulation info data from Serpent output
+        """
+        res = serpent.parse_res(self.input_fname + "_res.m")
+        self.sim_info['serpent_version'].append(
+                                res['VERSION'][0].decode('utf-8'))
+        self.sim_info['title'].append(res['TITLE'][0].decode('utf-8'))
+        self.sim_info['serpent_input_filename'].append(
+                                res['INPUT_FILE_NAME'][0].decode('utf-8'))
+        self.sim_info['serpent_working_dir'].append(
+                                res['WORKING_DIRECTORY'][0].decode('utf-8'))
+        self.sim_info['xs_data_path'].append(
+                                res['XS_DATA_FILE_PATH'][0].decode('utf-8'))
+        self.sim_info['OMP_threads'].append(res['OMP_THREADS'][0])
+        self.sim_info['MPI_tasks'].append(res['MPI_TASKS'][0])
+        self.sim_info['memory_optimization_mode'].append(
+                                                res['OPTIMIZATION_MODE'][0])
+
+    def read_depcode_step_param(self):
         """ Parses data from Serpent output for each step and stores it in dict
         """
         res = serpent.parse_res(self.input_fname + "_res.m")

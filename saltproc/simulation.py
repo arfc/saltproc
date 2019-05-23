@@ -94,24 +94,20 @@ class Simulation():
                                        1)
             cum_dict_h5 = self.add_adens_to_dict(cum_dict_h5,
                                                  dep_dict_names)
-            self.sim_depcode.read_sim_param()
+            self.sim_depcode.read_depcode_step_param()
             # print(self.sim_depcode.keff)
             self.write_db(cum_dict_h5, self.db_file, i+1)
             self.sim_depcode.write_mat_file(dep_dict, self.iter_matfile, i)"""
 #############################################################################
-        self.sim_depcode.read_sim_param()  # read simulation parameters
         mats = self.sim_depcode.read_dep_comp(self.sim_depcode.input_fname,
                                               self.mass_units,
                                               1)
         # print(materials['ctrlPois']['O16'])
         # print(fuel_salt.comp.keys())
         # print(fuel_salt.comp[962470000])
-        print(mats['fuel'])
-        print(mats['fuel'].temp)
-        print(mats['fuel'].mass_flowrate)
-        print(mats['fuel'].mass)
 #############################################################################
-        self.store_mat_data(mats)
+        self.store_run_info()
+        # self.store_mat_data(mats)
 
         # self.sim_depcode.write_mat_file(materials, self.iter_matfile, 1)
 
@@ -236,13 +232,57 @@ class Simulation():
             mpar_table.append(mpar_array)
             del (iso_wt_frac)
             del (mpar_array)
+            mpar_table.flush()
         db.close()
 
     def store_run_info(self):
         """ Write to database important SERPENT and Saltproc run parameters
             before starting depletion sequence
         """
-
+        # numpy arraw row storage for run info
+        sim_info_dtype = np.dtype([
+                    ('neutron_population',       int),
+                    ('active_cycles',            int),
+                    ('inactive_cycles',          int),
+                    ('serpent_version',         'S7'),
+                    ('title',                  'S50'),
+                    ('serpent_input_filename', 'S80'),
+                    ('serpent_working_dir',    'S80'),
+                    ('xs_data_path',           'S80'),
+                    ('OMP_threads',              int),
+                    ('MPI_tasks',                int),
+                    ('memory_optimization_mode', int)
+                    ])
+        # Read info from depcode _res.m File
+        self.sim_depcode.read_depcode_info()
+        # Store information about material properties in new array row
+        sim_info_row = (
+                    self.sim_depcode.npop,
+                    self.sim_depcode.active_cycles,
+                    self.sim_depcode.inactive_cycles,
+                    self.sim_depcode.sim_info['serpent_version'][0],
+                    self.sim_depcode.sim_info['title'][0],
+                    self.sim_depcode.sim_info['serpent_input_filename'][0],
+                    self.sim_depcode.sim_info['serpent_working_dir'][0],
+                    self.sim_depcode.sim_info['xs_data_path'][0],
+                    self.sim_depcode.sim_info['OMP_threads'][0],
+                    self.sim_depcode.sim_info['MPI_tasks'][0],
+                    self.sim_depcode.sim_info['memory_optimization_mode'][0]
+                    )
+        # print(sim_info_row)
+        sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype)
+        # Open or restore db and append datat to it
+        db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
+        try:
+            sim_info_table = db.get_node(db.root, 'depcode_sim_info')
+        except Exception:
+            sim_info_table = db.create_table(
+                                        db.root,
+                                        'depcode_sim_info',
+                                        sim_info_array,
+                                        "Depletion code simulation parameters")
+        sim_info_table.flush()
+        db.close()
 
     def get_mass_units(self, units):
         """ Returns multiplicator to convert mass to different mass_units
