@@ -228,11 +228,6 @@ class Simulation():
                   (key, moment, str(h5_file)))
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
             mpar_table.append(mpar_array)
-            # for nuc, wt in mats[key].comp.items():
-            #     if mats[key].comp[nuc] == iso_wt_frac[iso_idx[key][self.sim_depcode.get_nuc_name(nuc)[0]]]:
-            #         print ('Ok')
-            #     else:
-            #         print('Mismatch in %s, %s' % (mats[key].comp[nuc], key))
             del (iso_wt_frac)
             del (mpar_array)
             # print(earr.attrs._f_list("all"))
