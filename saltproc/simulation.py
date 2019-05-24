@@ -21,8 +21,7 @@ class Simulation():
             h5_file="db_saltproc.h5",
             compression=None,
             iter_matfile="default",
-            timesteps=0,
-            mass_units="kg"):
+            timesteps=0):
         """Initializes the class
 
         Parameters:
@@ -68,7 +67,6 @@ class Simulation():
         self.compression = compression
         self.iter_matfile = iter_matfile
         self.timesteps = timesteps
-        self.mass_units = mass_units
 
     def runsim(self):
         """"""
@@ -100,7 +98,6 @@ class Simulation():
             self.sim_depcode.write_mat_file(dep_dict, self.iter_matfile, i)"""
 #############################################################################
         mats = self.sim_depcode.read_dep_comp(self.sim_depcode.input_fname,
-                                              self.mass_units,
                                               1)
         # print(materials['ctrlPois']['O16'])
         # print(fuel_salt.comp.keys())
@@ -129,8 +126,6 @@ class Simulation():
         """
         # Moment when store compositions
         moment = 'before_reproc'
-        # Retrieving user setting for mass units, converting and append
-        mass_convert_factor = self.get_mass_units(self.mass_units)
         iso_idx = OrderedDict()
         # numpy array row storage data for material physical properties
         mpar_dtype = np.dtype([
@@ -171,15 +166,15 @@ class Simulation():
                 # Dictonary in format {isotope_name : index(int)}
                 iso_idx[key][self.sim_depcode.get_nuc_name(nuc_code)[0]] = coun
                 # Convert wt% to absolute [user units]
-                iso_wt_frac.append(mass_convert_factor*wt_frac*mats[key].mass)
+                iso_wt_frac.append(wt_frac*mats[key].mass)
                 coun += 1
                 # Store information about material properties in new array row
                 mpar_row = (
-                            mats[key].mass * mass_convert_factor,
+                            mats[key].mass,
                             mats[key].density,
                             mats[key].vol,
                             mats[key].temp,
-                            mats[key].mass_flowrate * mass_convert_factor,
+                            mats[key].mass_flowrate,
                             mats[key].void_frac,
                             mats[key].burnup
                             )
@@ -200,7 +195,7 @@ class Simulation():
                 # Save isotope indexes map and units in EArray attributes
                 earr.flavor = 'python'
                 earr._v_attrs.iso_map = iso_idx[key]
-                earr._v_attrs.mass_units = self.mass_units
+                earr._v_attrs.mass_units = "g"
                 # Create table for material Parameters
                 print('Creating '+key+' parameters table.')
                 mpar_table = db.create_table(

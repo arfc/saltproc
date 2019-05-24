@@ -251,7 +251,7 @@ class Depcode:
         mat_name.from_atom_frac(nucvec)
         return depl_dict, depl_dict_h
 
-    def read_dep_comp(self, input_file, munits, moment):
+    def read_dep_comp(self, input_file, moment):
         """ Reads the SERPENT _dep.m file and return mat_composition.
         """
         dep_file = os.path.join('%s_dep.m' % input_file)

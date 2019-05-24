@@ -16,7 +16,6 @@ exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
 # Number of cores and nodes to use in cluster
 cores = 4
 steps = 1
-munits = "g"
 
 # Define materials (should read from input file)
 
@@ -50,8 +49,7 @@ if __name__ == "__main__":
                             h5_file=db_file,
                             compression=compression_prop,
                             iter_matfile=iter_matfile,
-                            timesteps=steps,
-                            mass_units=munits)
+                            timesteps=steps)
     # print('End of RUN')
     # run.read_depcode_template()
     # Read templates for Depletion code, extract fuel composition in iter_mat
