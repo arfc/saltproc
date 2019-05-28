@@ -97,16 +97,15 @@ class Simulation():
             self.sim_depcode.write_mat_file(mats, self.iter_matfile, dts)"""
 ##############################################################################
         # self.sim_depcode.write_depcode_input(
-        #         self.sim_depcode.template_fname,
-        #         self.sim_depcode.input_fname)
-        self.sim_depcode.run_depcode(self.core_number)
-        mats = self.sim_depcode.read_dep_comp(
-                                            self.sim_depcode.input_fname,
-                                            1)
-        print (len(mats['fuel'].comp))
-        print (len(mats['ctrlPois'].comp))
+        #                     self.sim_depcode.template_fname,
+        #                     self.sim_depcode.input_fname)
+        # self.sim_depcode.run_depcode(self.core_number)
+        # mats = self.sim_depcode.read_dep_comp(self.sim_depcode.input_fname, 0)
+        # print(len(self.sim_depcode.iso_map))
+        # print (len(mats['fuel'].comp))
+        # print (len(mats['ctrlPois'].comp))
         # self.store_mat_data(mats, 111)
-        self.sim_depcode.write_mat_file(mats, self.iter_matfile, 1)
+        # self.sim_depcode.write_mat_file(mats, self.iter_matfile, 1)
 #############################################################################
         # self.store_mat_data(mats)
 
@@ -114,6 +113,7 @@ class Simulation():
 
         # self.store_run_step_info()
         # self.store_mat_data(mats)
+        self.mat_comp_preprosessor()
 
     def steptime(self):
         return
@@ -147,7 +147,7 @@ class Simulation():
                                          'Material data')
         # Iterate over all materials
         for key, value in mats.items():
-            iso_idx[key] = {}
+            iso_idx[key] = OrderedDict()
             iso_wt_frac = []
             coun = 0
             # Create group for each material
@@ -170,17 +170,17 @@ class Simulation():
                 # Convert wt% to absolute [user units]
                 iso_wt_frac.append(wt_frac*mats[key].mass)
                 coun += 1
-                # Store information about material properties in new array row
-                mpar_row = (
-                            mats[key].mass,
-                            mats[key].density,
-                            mats[key].vol,
-                            mats[key].temp,
-                            mats[key].mass_flowrate,
-                            mats[key].void_frac,
-                            mats[key].burnup
-                            )
-                mpar_array = np.array([mpar_row], dtype=mpar_dtype)
+            # Store information about material properties in new array row
+            mpar_row = (
+                        mats[key].mass,
+                        mats[key].density,
+                        mats[key].vol,
+                        mats[key].temp,
+                        mats[key].mass_flowrate,
+                        mats[key].void_frac,
+                        mats[key].burnup
+                        )
+            mpar_array = np.array([mpar_row], dtype=mpar_dtype)
             # Try to open EArray and table and if not exist - create new one
             try:
                 earr = db.get_node(comp_pfx, 'comp')
@@ -188,16 +188,16 @@ class Simulation():
                 mpar_table = db.get_node(comp_pfx, 'parameters')
             except Exception:
                 print('Material '+key+' array is not exist, making new one.')
-                earr = db.create_earray(
+                earr = db.create_vlarray(
                                 comp_pfx,
                                 'comp',
-                                atom=tb.Float64Atom(),
-                                shape=(0, len(iso_idx[key])),
+                                atom=tb.Float64Atom(shape=()),
+                                # shape=(0, len(iso_idx[key])),
                                 title="Isotopic composition for %s" % key)
                 # Save isotope indexes map and units in EArray attributes
+                print(iso_idx[key])
+                print(len(iso_idx[key]))
                 earr.flavor = 'python'
-                earr._v_attrs.iso_map = iso_idx[key]
-                earr._v_attrs.mass_units = "g"
                 # Create table for material Parameters
                 print('Creating '+key+' parameters table.')
                 mpar_table = db.create_table(
@@ -211,7 +211,8 @@ class Simulation():
             # print (iso_wt_frac)
             print (np.array([iso_wt_frac], dtype=np.float64))
             print (np.array([iso_wt_frac], dtype=np.float64).shape)
-            earr.append(np.array([iso_wt_frac], dtype=np.float64))
+            earr.append(np.array(iso_wt_frac, dtype=np.float64))
+            earr.attrs.iso_map = iso_idx[key]
             mpar_table.append(mpar_array)
             del (iso_wt_frac)
             del (mpar_array)
@@ -334,3 +335,17 @@ class Simulation():
             raise ValueError(
                           'Mass units does not supported or does not defined')
         return mul_m
+
+    def mat_comp_preprosessor(self):
+        """ Reads Serpent input file with burnable materials and overwrites it
+        with full list of isotopes based on short Serpent run.
+        """
+        print('Prepare files to start Serpent run')
+        self.sim_depcode.write_depcode_input(
+                             self.sim_depcode.template_fname,
+                             self.sim_depcode.input_fname)
+        print('Running Serpent to generate list of all isotopes for depletion')
+        self.sim_depcode.run_depcode(self.core_number)
+        mats = self.sim_depcode.read_dep_comp(self.sim_depcode.input_fname, 0)
+        print('Creating new material composition file: %s' % self.iter_matfile)
+        self.sim_depcode.write_mat_file(mats, self.iter_matfile, 0)
