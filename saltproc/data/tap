@@ -1,4 +1,6 @@
-include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/mat_composition2.ini"
+include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/saltproc_prepr_comp.ini"
+
+include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/non_burnable_mats.ini"
 include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/crw/geometry/core_cr_withdr.ini"
 
 
@@ -14,8 +16,8 @@ set nfylib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.nfy"
 set sfylib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.sfy"
 % --- Neutron population and criticality cycles:
 
-set pop 300 100 10
-
+set pop 30 20 10
+%set gcu -1
 % --- Depletion parameters
 % --- Options for burnup calculation:
 set bumode  2  % CRAM method
@@ -26,8 +28,10 @@ set pcc     1  % Predictor-corrector calculation on
 
 set power 1.250E+09 dep daytot 3
 
-set printm 1 0.0
+%set printm 1 0.0
+
 set inventory all
+%include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/inventory_iso_list.ini"
 
 %set rfw 1 restart
 %set rfr idx 321 restart

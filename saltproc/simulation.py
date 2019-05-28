@@ -71,7 +71,7 @@ class Simulation():
         """ Run simulation sequence """
 #############################################################################
         # Start sequence
-        """for dts in range(self.timesteps):
+        for dts in range(self.timesteps):
             print ("\nStep #%i has been started" % (self.timesteps))
             if dts == 0:  # First step
                 self.sim_depcode.write_depcode_input(
@@ -94,7 +94,7 @@ class Simulation():
                                               1)
             self.store_mat_data(mats, dts)
             self.store_run_step_info()
-            self.sim_depcode.write_mat_file(mats, self.iter_matfile, dts)"""
+            self.sim_depcode.write_mat_file(mats, self.iter_matfile, dts)
 ##############################################################################
         # self.sim_depcode.write_depcode_input(
         #                     self.sim_depcode.template_fname,
@@ -113,7 +113,8 @@ class Simulation():
 
         # self.store_run_step_info()
         # self.store_mat_data(mats)
-        self.mat_comp_preprosessor()
+
+        # self.mat_comp_preprosessor()
 
     def steptime(self):
         return
@@ -188,16 +189,15 @@ class Simulation():
                 mpar_table = db.get_node(comp_pfx, 'parameters')
             except Exception:
                 print('Material '+key+' array is not exist, making new one.')
-                earr = db.create_vlarray(
+                earr = db.create_earray(
                                 comp_pfx,
                                 'comp',
-                                atom=tb.Float64Atom(shape=()),
-                                # shape=(0, len(iso_idx[key])),
+                                atom=tb.Float64Atom(),
+                                shape=(0, len(iso_idx[key])),
                                 title="Isotopic composition for %s" % key)
                 # Save isotope indexes map and units in EArray attributes
-                print(iso_idx[key])
-                print(len(iso_idx[key]))
                 earr.flavor = 'python'
+                earr.attrs.iso_map = iso_idx[key]
                 # Create table for material Parameters
                 print('Creating '+key+' parameters table.')
                 mpar_table = db.create_table(
@@ -209,10 +209,9 @@ class Simulation():
                   (key, moment, str(self.h5_file)))
             # Add row for the timestep to EArray and Material Parameters table
             # print (iso_wt_frac)
-            print (np.array([iso_wt_frac], dtype=np.float64))
-            print (np.array([iso_wt_frac], dtype=np.float64).shape)
-            earr.append(np.array(iso_wt_frac, dtype=np.float64))
-            earr.attrs.iso_map = iso_idx[key]
+            # print (np.array([iso_wt_frac], dtype=np.float64))
+            # print (np.array([iso_wt_frac], dtype=np.float64).shape)
+            earr.append(np.array([iso_wt_frac], dtype=np.float64))
             mpar_table.append(mpar_array)
             del (iso_wt_frac)
             del (mpar_array)

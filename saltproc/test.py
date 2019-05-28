@@ -16,7 +16,10 @@ exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
 # Number of cores and nodes to use in cluster
 cores = 4
 steps = 3
-
+# Monte Carlo method parameters
+neutron_pop = 150
+active_cycles = 100
+inactive_cycles = 20
 # Define materials (should read from input file)
 
 
@@ -40,9 +43,9 @@ if __name__ == "__main__":
                       input_fname=input_file,
                       output_fname='NONE',
                       iter_matfile=iter_matfile,
-                      npop=1000,
-                      active_cycles=200,
-                      inactive_cycles=20)
+                      npop=neutron_pop,
+                      active_cycles=active_cycles,
+                      inactive_cycles=inactive_cycles)
     simulation = Simulation(sim_name='Super test',
                             sim_depcode=serpent,
                             core_number=cores,
