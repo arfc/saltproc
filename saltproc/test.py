@@ -12,10 +12,10 @@ iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
 db_file = os.path.join(input_path, 'data/db_saltproc.h5')
 compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
 # executable path of Serpent
-exec_path = '/home/andrei2/serpent/serpent2/src_2130/sss2'
+exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
 # Number of cores and nodes to use in cluster
 cores = 4
-steps = 1
+steps = 3
 
 # Define materials (should read from input file)
 
@@ -40,9 +40,9 @@ if __name__ == "__main__":
                       input_fname=input_file,
                       output_fname='NONE',
                       iter_matfile=iter_matfile,
-                      npop=111,
-                      active_cycles=50,
-                      inactive_cycles=10)
+                      npop=1000,
+                      active_cycles=200,
+                      inactive_cycles=20)
     simulation = Simulation(sim_name='Super test',
                             sim_depcode=serpent,
                             core_number=cores,

@@ -1,4 +1,3 @@
-# import h5py
 import silx.io.dictdump as dd
 import copy
 from pyne import nucname as pyname
@@ -69,50 +68,52 @@ class Simulation():
         self.timesteps = timesteps
 
     def runsim(self):
-        """"""
-        """for i in range(self.timesteps):
-            print ("Step #%i has been started" % (self.timesteps))
-            if i == 0:  # First run
+        """ Run simulation sequence """
+#############################################################################
+        # Start sequence
+        """for dts in range(self.timesteps):
+            print ("\nStep #%i has been started" % (self.timesteps))
+            if dts == 0:  # First step
                 self.sim_depcode.write_depcode_input(
-                            self.sim_depcode.template_fname,
-                            self.sim_depcode.input_fname)
+                                    self.sim_depcode.template_fname,
+                                    self.sim_depcode.input_fname)
                 self.sim_depcode.run_depcode(self.core_number)
-                dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
-                                           self.sim_depcode.input_fname,
-                                           self.mass_units,
-                                           0)
-                # Initialize dictionary, HDF5 with cumulative data for all step
-                self.init_db(self.db_file)
-                cum_dict_h5 = copy.deepcopy(dep_dict_names)  # store init comp
+                # Read general simulation data which never changes
+                self.store_run_init_info()
+                # Parse and store data for initial state (beginning of dts)
+                mats = self.sim_depcode.read_dep_comp(
+                                            self.sim_depcode.input_fname,
+                                            0)
+                self.store_mat_data(mats, dts-1)
+            # Finish of First step
+            # Main sequence
             else:
                 self.sim_depcode.run_depcode(self.core_number)
-            dep_dict, dep_dict_names = self.sim_depcode.read_bumat(
-                                       self.sim_depcode.input_fname,
-                                       self.mass_units,
-                                       1)
-            cum_dict_h5 = self.add_adens_to_dict(cum_dict_h5,
-                                                 dep_dict_names)
-            self.sim_depcode.read_depcode_step_param()
-            # print(self.sim_depcode.keff)
-            self.write_db(cum_dict_h5, self.db_file, i+1)
-            self.sim_depcode.write_mat_file(dep_dict, self.iter_matfile, i)"""
-#############################################################################
-        mats = self.sim_depcode.read_dep_comp(self.sim_depcode.input_fname,
+            mats = self.sim_depcode.read_dep_comp(
+                                              self.sim_depcode.input_fname,
                                               1)
-        # print(materials['ctrlPois']['O16'])
-        # print(fuel_salt.comp.keys())
-        # print(fuel_salt.comp[962470000])
+            self.store_mat_data(mats, dts)
+            self.store_run_step_info()
+            self.sim_depcode.write_mat_file(mats, self.iter_matfile, dts)"""
+##############################################################################
+        # self.sim_depcode.write_depcode_input(
+        #         self.sim_depcode.template_fname,
+        #         self.sim_depcode.input_fname)
+        self.sim_depcode.run_depcode(self.core_number)
+        mats = self.sim_depcode.read_dep_comp(
+                                            self.sim_depcode.input_fname,
+                                            1)
+        print (len(mats['fuel'].comp))
+        print (len(mats['ctrlPois'].comp))
+        # self.store_mat_data(mats, 111)
+        self.sim_depcode.write_mat_file(mats, self.iter_matfile, 1)
 #############################################################################
-        # self.store_run_init_info()
-        # self.store_run_step_info()
         # self.store_mat_data(mats)
 
         # self.sim_depcode.get_tra_or_dec()
-#############################################################################
-        # Start sequence
-        self.store_run_init_info()
-        self.store_run_step_info()
-        self.store_mat_data(mats)
+
+        # self.store_run_step_info()
+        # self.store_mat_data(mats)
 
     def steptime(self):
         return
@@ -120,7 +121,7 @@ class Simulation():
     def loadinput_sp(self):
         return
 
-    def store_mat_data(self, mats):
+    def store_mat_data(self, mats, depl_step):
         """ Initializes HDF5 database (if not exist) or append depletion
             step data to it.
         """
@@ -138,6 +139,7 @@ class Simulation():
                         ('burnup',          float)
                         ])
 
+        print('\nStoring material data for %i depletion step...' % depl_step)
         db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
         if not hasattr(db.root, 'materials'):
             comp_group = db.create_group('/',
@@ -182,10 +184,10 @@ class Simulation():
             # Try to open EArray and table and if not exist - create new one
             try:
                 earr = db.get_node(comp_pfx, 'comp')
-                print('\n' + str(earr.title) + ' array exist, appending data.')
+                print(str(earr.title) + ' array exist, appending data.')
                 mpar_table = db.get_node(comp_pfx, 'parameters')
             except Exception:
-                print('\nMaterial '+key+' array is not exist, making new one.')
+                print('Material '+key+' array is not exist, making new one.')
                 earr = db.create_earray(
                                 comp_pfx,
                                 'comp',
@@ -206,6 +208,9 @@ class Simulation():
             print('Dumping Material %s data %s to %s.' %
                   (key, moment, str(self.h5_file)))
             # Add row for the timestep to EArray and Material Parameters table
+            # print (iso_wt_frac)
+            print (np.array([iso_wt_frac], dtype=np.float64))
+            print (np.array([iso_wt_frac], dtype=np.float64).shape)
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
             mpar_table.append(mpar_array)
             del (iso_wt_frac)

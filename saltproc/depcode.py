@@ -295,7 +295,7 @@ class Depcode:
         """
         matf = open(mat_file, 'w')
         matf.write('%% Material compositions (after %f days)\n\n'
-                   % (self.days*step))
+                   % (self.days*(step+1)))
         for key, value in dep_dict.items():
             matf.write('mat  %s  %5.9E burn 1 fix %3s %4i vol %7.5E\n' %
                        (key,
@@ -389,9 +389,10 @@ class Depcode:
         self.param['breeding_ratio'].append(res['CONVERSION_RATIO'][1])
         self.param['execution_time'].append(res['RUNNING_TIME'][1])
         self.param['memory_usage'].append(res['MEMSIZE'][0])
-        self.param['beta_eff'].append(res['BETA_EFF'][1].reshape((9, 2)))
+        self.param['beta_eff'].append(
+                                res['FWD_ANA_BETA_ZERO'][1].reshape((9, 2)))
         self.param['delayed_neutrons_lambda'].append(
-                                        res['LAMBDA'][1].reshape((9, 2)))
+                                res['FWD_ANA_LAMBDA'][1].reshape((9, 2)))
         self.param['fission_mass_bds'].append(res['INI_FMASS'][1])
         self.param['fission_mass_eds'].append(res['TOT_FMASS'][1])
 
