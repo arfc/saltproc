@@ -1,4 +1,4 @@
-from saltproc import Materialflow as matflow
+from saltproc import Materialflow
 import subprocess
 import os
 import copy
@@ -269,7 +269,7 @@ class Depcode:
         for m in mat_name:
             volume = dep['MAT_'+m+'_VOLUME'][moment]
             nucvec = dict(zip(zai, dep['MAT_'+m+'_MDENS'][:, moment]))
-            mats[m] = matflow(nucvec)
+            mats[m] = Materialflow(nucvec)
             mats[m].density = dep['MAT_'+m+'_MDENS'][-1, moment]
             mats[m].mass = mats[m].density*volume
             mats[m].vol = volume
@@ -325,7 +325,7 @@ class Depcode:
             zzaaam = str(zz)+str(aa_new)+'1'
         else:
             zzaaam = nuc_code
-        print(nuc_code, zzaaam)
+        # print(nuc_code, zzaaam)
         return int(zzaaam)
 
     def get_nuc_name(self, nuc_code):

@@ -16,7 +16,7 @@ set nfylib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.nfy"
 set sfylib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.sfy"
 % --- Neutron population and criticality cycles:
 
-set pop 30 20 10
+set pop 300 40 10
 %set gcu -1
 % --- Depletion parameters
 % --- Options for burnup calculation:
@@ -35,3 +35,4 @@ set inventory all
 
 %set rfw 1 restart
 %set rfr idx 321 restart
+set seed 46549345296

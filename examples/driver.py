@@ -1,9 +1,11 @@
+from saltproc import *
+# from depcode import Depcode
+# from simulation import Simulation
+# from materialflow import Materialflow
 import os
-from depcode import Depcode
-from simulation import Simulation
 import tables as tb
 
-input_path = os.path.dirname(os.path.abspath(__file__))
+input_path = os.path.dirname(os.path.abspath(__file__)) + '/../saltproc/'
 # input_file = os.path.join(input_path, 'data/saltproc_tap')
 # template_file = os.path.join(input_path, 'data/tap')
 input_file = os.path.join(input_path, 'data/saltproc_tap')
@@ -17,9 +19,9 @@ exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
 cores = 4
 steps = 3
 # Monte Carlo method parameters
-neutron_pop = 50000
-active_cycles = 300
-inactive_cycles = 120
+neutron_pop = 200
+active_cycles = 40
+inactive_cycles = 20
 # Define materials (should read from input file)
 
 
@@ -61,4 +63,4 @@ if __name__ == "__main__":
     # Run first iteration of depletion simulation
     # serpent.run_depcode(cores)
     # print(serpent.iter_matfile)
-    simulation.runsim()
+    simulation.runsim_no_reproc()

@@ -67,7 +67,7 @@ class Simulation():
         self.iter_matfile = iter_matfile
         self.timesteps = timesteps
 
-    def runsim(self):
+    def runsim_no_reproc(self):
         """ Run simulation sequence """
 #############################################################################
         # Start sequence
