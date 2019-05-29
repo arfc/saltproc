@@ -1,4 +1,4 @@
-# from materialflow import Materialflow as matflow
+from saltproc import Materialflow as matflow
 import subprocess
 import os
 import copy
