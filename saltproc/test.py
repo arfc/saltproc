@@ -17,9 +17,9 @@ exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
 cores = 4
 steps = 3
 # Monte Carlo method parameters
-neutron_pop = 150
-active_cycles = 100
-inactive_cycles = 20
+neutron_pop = 50000
+active_cycles = 300
+inactive_cycles = 120
 # Define materials (should read from input file)
 
 

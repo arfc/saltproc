@@ -1,3 +1,4 @@
+# from materialflow import Materialflow as matflow
 import subprocess
 import os
 import copy
@@ -10,7 +11,6 @@ from pyne import nucname as pyname
 from pyne import serpent
 from pyne import data as pydata
 from pyne.material import Material as pymat
-from materialflow import Materialflow as matflow
 
 
 class Depcode:
