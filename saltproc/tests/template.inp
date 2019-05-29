@@ -1,0 +1,37 @@
+include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/saltproc_prepr_comp.ini"
+
+include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/non_burnable_mats.ini"
+include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/crw/geometry/core_cr_withdr.ini"
+
+
+%therm zrh_h 900 hzr05.32t hzr06.32t   % 900K H-Zr
+%set acelib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff312.xsdata"
+%set declib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.dec"
+%set nfylib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.nfy"
+%set sfylib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.sfy"
+
+set acelib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff312.xsdata"
+set declib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.dec"
+set nfylib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.nfy"
+set sfylib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.sfy"
+% --- Neutron population and criticality cycles:
+
+set pop 30 20 10
+%set gcu -1
+% --- Depletion parameters
+% --- Options for burnup calculation:
+set bumode  2
+set pcc     1
+%set xscalc  2  % Cross sections from spectrum
+%set bunorm 2
+%set opti 3
+
+set power 1.250E+09 dep daytot 3
+
+%set printm 1 0.0
+
+set inventory all
+%include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/inventory_iso_list.ini"
+
+%set rfw 1 restart
+%set rfr idx 321 restart

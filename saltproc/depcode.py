@@ -325,6 +325,7 @@ class Depcode:
             zzaaam = str(zz)+str(aa_new)+'1'
         else:
             zzaaam = nuc_code
+        print(nuc_code, zzaaam)
         return int(zzaaam)
 
     def get_nuc_name(self, nuc_code):
@@ -349,12 +350,12 @@ class Depcode:
                 nuc_zzaaam = str(zz)+str(aa)+'1'
             elif aa == 0:
                 aa_str = 'nat'
-            nuc_name = pyname.zz_name[zz] + '-' + aa_str
+            nuc_name = pyname.zz_name[zz] + aa_str
         else:
             meta_flag = pyname.snum(nuc_code)
             at_mass = pydata.atomic_mass(nuc_code)
             if meta_flag:
-                nuc_name = pyname.name(nuc_code)+str(pyname.snum(nuc_code))
+                nuc_name = pyname.name(nuc_code)[:-1] + 'm'+str(meta_flag)
             else:
                 nuc_name = pyname.name(nuc_code)
         nuc_zzaaam = self.sss_meta_zzz(pyname.zzaaam(nuc_code))
