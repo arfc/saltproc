@@ -1,4 +1,3 @@
-import silx.io.dictdump as dd
 import copy
 from pyne import nucname as pyname
 import pandas as pd
@@ -69,10 +68,10 @@ class Simulation():
 
     def runsim_no_reproc(self):
         """ Run simulation sequence """
-#############################################################################
+        ######################################################################
         # Start sequence
         for dts in range(self.timesteps):
-            print ("\nStep #%i has been started" % (self.timesteps))
+            print ("\nStep #%i has been started" % (dts+1))
             if dts == 0:  # First step
                 self.sim_depcode.write_depcode_input(
                                     self.sim_depcode.template_fname,
@@ -84,7 +83,7 @@ class Simulation():
                 mats = self.sim_depcode.read_dep_comp(
                                             self.sim_depcode.input_fname,
                                             0)
-                self.store_mat_data(mats, dts-1)
+                self.store_mat_data(mats, dts)
             # Finish of First step
             # Main sequence
             else:
@@ -100,7 +99,7 @@ class Simulation():
         #                     self.sim_depcode.template_fname,
         #                     self.sim_depcode.input_fname)
         # self.sim_depcode.run_depcode(self.core_number)
-        # mats = self.sim_depcode.read_dep_comp(self.sim_depcode.input_fname, 0)
+        # mats = self.sim_depcode.read_dep_comp(self.sim_depcode.input_fname,0)
         # print(len(self.sim_depcode.iso_map))
         # print (len(mats['fuel'].comp))
         # print (len(mats['ctrlPois'].comp))
@@ -117,30 +116,30 @@ class Simulation():
         # self.mat_comp_preprosessor()
 
     def steptime(self):
-        return
+        return 1
 
     def loadinput_sp(self):
         return
 
-    def store_mat_data(self, mats, depl_step):
+    def store_mat_data(self, mats, d_step, moment):
         """ Initializes HDF5 database (if not exist) or append depletion
             step data to it.
         """
         # Moment when store compositions
-        moment = 'before_reproc'
+        # moment = 'before_reproc'
         iso_idx = OrderedDict()
         # numpy array row storage data for material physical properties
         mpar_dtype = np.dtype([
                         ('mass',            float),
                         ('density',         float),
                         ('volume',          float),
-                        ('temperature',      float),
+                        ('temperature',     float),
                         ('mass_flowrate',   float),
                         ('void_fraction',   float),
                         ('burnup',          float)
                         ])
 
-        print('\nStoring material data for %i depletion step...' % depl_step)
+        print('\nStoring material data for depletion step #%i.' % (d_step+1))
         db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
         if not hasattr(db.root, 'materials'):
             comp_group = db.create_group('/',

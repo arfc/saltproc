@@ -14,8 +14,8 @@ sys.path.append(os.path.dirname(os.path.dirname(path)))
 directory = os.path.dirname(path)
 
 sss_file = directory+'/int_test'
-iter_matfile = directory+'mat'
-db_file = directory+'db_test.h5'
+iter_matfile = directory+'/int_test_mat'
+db_file = directory+'/db_test.h5'
 
 depcode = Depcode(codename='SERPENT',
                   exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
@@ -35,7 +35,7 @@ simulation = Simulation(sim_name='Integration test',
                         timesteps=3)
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_integration_3step_saltproc_no_reproc_heavy():
     simulation.runsim_no_reproc()
     saltproc_out = sss_file + '_dep.m'

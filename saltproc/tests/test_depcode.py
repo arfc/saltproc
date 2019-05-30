@@ -18,7 +18,7 @@ serpent = Depcode(codename='SERPENT',
 
 def test_get_tra_or_dec():
     serpent.get_tra_or_dec()
-    print(serpent.iso_map)
+    # print(serpent.iso_map)
     assert serpent.iso_map[380880] == '38088.09c'
     assert serpent.iso_map[962400] == '96240.09c'
     assert serpent.iso_map[952421] == '95342.09c'
@@ -41,7 +41,7 @@ def test_sss_meta_zzz():
 
 def test_read_depcode_template():
     template_str = serpent.read_depcode_template(serpent.template_fname)
-    print(template_str)
+    # print(template_str)
     assert template_str[18] == 'set pop 30 20 10\n'
     assert template_str[22] == 'set bumode  2\n'
     assert template_str[23] == 'set pcc     1\n'
@@ -55,7 +55,7 @@ def test_change_sim_par():
     out = serpent.change_sim_par(
                     serpent.read_depcode_template(serpent.template_fname)
                     )
-    print(out)
+    # print(out)
     assert out[18] == 'set pop %i %i %i\n' % (
                                               serpent.npop,
                                               serpent.active_cycles,
@@ -81,7 +81,7 @@ def test_get_nuc_name():
 
 def test_read_depcode_info():
     serpent.read_depcode_info()
-    print(serpent.sim_info)
+    # print(serpent.sim_info)
     assert serpent.sim_info['serpent_version'] == ['Serpent 2.1.31']
     assert serpent.sim_info['title'] == ['Untitled']
     assert serpent.sim_info['serpent_version'] == ['Serpent 2.1.31']
@@ -92,8 +92,8 @@ def test_read_depcode_info():
 
 def test_read_depcode_step_param():
     serpent.read_depcode_step_param()
-    print(serpent.param)
-    print(serpent.param['keff_bds'][0][0])
+    # print(serpent.param)
+    # print(serpent.param['keff_bds'][0][0])
     assert serpent.param['memory_usage'] == [10552.84]
     assert serpent.param['execution_time'] == [81.933]
     assert serpent.param['keff_bds'][0][0] == 1.00651e+00
