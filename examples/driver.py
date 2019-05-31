@@ -1,11 +1,13 @@
-from saltproc import *
-# from saltproc import Depcode
-# from saltproc import Simulation
+from saltproc import Depcode
+from saltproc import Simulation
+from saltproc import Process
 # from depcode import Depcode
 # from simulation import Simulation
 # from materialflow import Materialflow
 import os
 import tables as tb
+import json
+
 
 input_path = os.path.dirname(os.path.abspath(__file__)) + '/../saltproc/'
 # input_file = os.path.join(input_path, 'data/saltproc_tap')
@@ -27,24 +29,45 @@ inactive_cycles = 10
 # Define materials (should read from input file)
 
 
+def read_processes_from_input():
+    processes = {}
+    with open('input.json') as f:
+        j = json.load(f)
+        print(j['extraction_processes'])
+        for obj_name, obj_data in j['extraction_processes'].items():
+            processes[obj_name] = Process(**obj_data)
+        print(processes)
+        print('\nProcess objects attributes:')
+        print("Sparger efficiency ", processes['sparger'].efficiency)
+        print("Ni filter efficiency", processes['nickel_filter'].efficiency)
+        print(processes['sparger'].mass_flowrate)
+        print(processes['entrainment_separator'].mass_flowrate)
+
+
 def reprocessing(mat):
     """ Applies reprocessing scheme to selected material
     """
+    processes = {}
     # Create Process object based on input_file
-    heat_exchanger = Process(mass_flowrate=10,
-                             capacity=100.0,
-                             volume=1.0,
-                             inflow=mat,
-                             # outflow,
-                             # waste_stream = 'bucket',
-                             efficiency={'Xe135': 0.95},
-                             )
-    outflow = heat_exchanger.do_removals(mat, {'Xe': 0.})
+    processes['hx'] = Process(mass_flowrate=10.0,
+                              capacity=100.0,
+                              volume=1.0,
+                              # inflow=mat,
+                              # outflow,
+                              # waste_stream = 'bucket',
+                              efficiency={'Xe': 0.95, 'Kr': 0.55},
+                              )
+    outflow, waste = processes['hx'].rem_elements(
+                                                  mat,
+                                                  {'Xe': 0.95, 'Kr': 0.55}
+                                                  )
     # for key, value in mat.items():
     #     print (key, value, outflow[key])
     print(mat[541350000], outflow[541350000])
     print(mat[541340000], outflow[541340000])
     print(mat[541360000], outflow[541360000])
+    print(waste)
+
 
 def main():
     """ Inititialize main run
@@ -80,7 +103,8 @@ def main():
             mats = serpent.read_dep_comp(input_file, 1)  # 0)
             # simulation.store_mat_data(mats, dts, 'before_reproc')  # store init
             # Reprocessing here
-            reprocessing(mats['fuel'])
+            # reprocessing(mats['fuel'])
+            read_processes_from_input()
         # Finish of First step
         # Main sequence
         else:

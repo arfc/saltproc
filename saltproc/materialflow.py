@@ -24,7 +24,7 @@ class Materialflow(pymat):
         -----------
         PyNE.Material: class
             PyNE Material parent class containing nuclide vector, density,
-            mass, metadata
+            mass, atoms_per_molecule, metadata
         temp: float
             temperature of the material flow (K)
         mass_flowrate: float
