@@ -1,4 +1,5 @@
 from pyne.material import Material as pymat
+import copy
 
 
 class Materialflow(pymat):
@@ -48,6 +49,14 @@ class Materialflow(pymat):
 
     def get_mass(self):
         return self.mass
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            setattr(result, k, copy.deepcopy(v, memo))
+        return result
 
 
 """
