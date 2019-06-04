@@ -58,23 +58,32 @@ class Process():
         """ Returns PyNE material after removal target isotopes from inflow
          with specified efficiency and waste stream PyNE material
         """
-        inflow.metadata = "Test for meta-data"
-        print("Inflow class ", inflow.__class__, id(inflow))
+        # inflow.metadata = "Test metadata"
+        # print("Inflow class ", inflow.__class__, id(inflow))
         waste_nucvec = {}
         outflow = copy.deepcopy(inflow)
-        print("Are inflow and outflow equal? ", outflow == inflow)
+        # print("Are inflow and outflow equal? ", outflow == inflow)
+        # print(" Before Density ", outflow.density, inflow.density)
         # print(outflow.comp)
         for iso, mass in inflow.items():
             el_name = pyname.serpent(iso).split('-')[0]
             if el_name in self.efficiency:
                 outflow[iso] = mass * (1 - self.efficiency[el_name])
                 waste_nucvec[iso] = mass * self.efficiency[el_name]
-                print(el_name, iso, inflow[iso], outflow[iso], self.efficiency[el_name])
+                # print(el_name, iso, inflow[iso], outflow[iso], self.efficiency[el_name])
         # print(waste_nucvec)
         waste = Materialflow(waste_nucvec)
-        print("Waste class ", waste.__class__)
-        print("Outflow class ", outflow.__class__)
-        print(outflow.mass, inflow.mass)
+        outflow.copy_pymat_attrs(inflow)  # Copy additional PyNE attributes
+        # print("Waste class ", waste.__class__)
+        # print("Outflow class ", outflow.__class__)
+        """print("Mass ", outflow.mass, inflow.mass, outflow.mass - inflow.mass)
+        print("Density ", outflow.density, inflow.density)
+        print("atoms_per_molecule ", outflow.atoms_per_molecule == inflow.atoms_per_molecule)
+        print("Volume  ", outflow.vol == inflow.vol)
+        print("Burnup ", outflow.burnup == inflow.burnup)
+        print("Metadata ", outflow.metadata, inflow.metadata)
+        print(waste)
+        print(outflow)"""
         return outflow, waste
 
     def check_mass_conservation(self):

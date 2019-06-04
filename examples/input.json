@@ -1,0 +1,98 @@
+{
+  "extraction_processes":
+            {
+              "heat_exchanger":
+                    {
+                      "capacity": 9.92E+6,
+                      "efficiency": {},
+                      "mass_flowrate": 9.92E+6,
+                      "volume": 1.37E+7
+                    },
+                "sparger":
+                    {
+                      "capacity": 9.92E+6,
+                      "efficiency":
+                                  {
+                                    "Kr": 0.6,
+                                    "Xe": 0.6,
+                                    "H": 0.6
+                                  },
+                      "mass_flowrate": 9.92E+6,
+                      "volume": 1.0E+7
+                    },
+                "entrainment_separator":
+                    {
+                      "capacity": 9.92E+6,
+                      "efficiency":
+                                  {
+                                    "Kr": 0.97,
+                                    "Xe": 0.97,
+                                    "H":0.97
+                                  },
+                      "mass_flowrate": 9.92E+6,
+                      "volume": 11.0
+                    },
+                "nickel_filter":
+                    {
+                      "capacity": 9.92E+6,
+                      "efficiency":
+                                  {
+                                    "Se": 1.0,
+                                    "Nb": 1.0,
+                                    "Mo": 1.0,
+                                    "Tc": 1.0,
+                                    "Ru": 1.0,
+                                    "Rh": 1.0,
+                                    "Pd": 1.0,
+                                    "Ag": 1.0,
+                                    "Sb": 1.0,
+                                    "Te": 1.0,
+                                    "Cd": 1.0,
+                                    "In": 1.0,
+                                    "Sn": 1.0,
+                                    "Ti": 1.0,
+                                    "V": 1.0,
+                                    "Cu": 1.0,
+                                    "Mn": 1.0,
+                                    "Co": 1.0,
+                                    "Zn": 1.0,
+                                    "Ga": 1.0,
+                                    "Ge": 1.0,
+                                    "As": 1.0
+                                  },
+                      "mass_flowrate": 4.96E+6,
+                      "volume": 11.0
+                    },
+                "liquid_me_extraction":
+                    {
+                      "capacity": 9.92E+6,
+                      "efficiency":
+                                  {
+                                    "Cr": 0.57,
+                                    "Fe": 0.57,
+                                    "Ni": 0.57,
+                                    "Rb": 0.57,
+                                    "Sr": 0.57,
+                                    "Y":  0.57,
+                                    "Zr": 0.57,
+                                    "Cs": 0.57,
+                                    "Ba": 0.57,
+                                    "La": 0.57,
+                                    "Ce": 0.57,
+                                    "Pr": 0.57,
+                                    "Nd": 0.57,
+                                    "Pm": 0.57,
+                                    "Sm": 0.57,
+                                    "Eu": 0.57,
+                                    "Gd": 0.57,
+                                    "Tb": 0.57,
+                                    "Dy": 0.57,
+                                    "Ho": 0.57,
+                                    "Er": 0.57
+                                  },
+                      "mass_flowrate": 4.96E+6,
+                      "volume": 11.0
+                    }
+
+            }
+}

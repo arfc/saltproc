@@ -55,23 +55,28 @@ def reprocessing(mat):
     prcs = read_processes_from_input()
     p = ['heat_exchanger', 'sparger', 'entrainment_separator', 'nickel_filter', 'liquid_me_extraction']
     # 1 via Heat exchanger
-    outflow[p[1]], waste[p[1]] = prcs[p[1]].rem_elements(mat)
+    outflow[p[0]], waste[p[0]] = prcs[p[0]].rem_elements(mat)
     # 2 via sparger
-    # outflow[p[1]], waste[p[1]] = prcs[p[1]].rem_elements(outflow[p[0]])
+    outflow[p[1]], waste[p[1]] = prcs[p[1]].rem_elements(outflow[p[0]])
     # 3 via entrainment entrainment
-    # outflow[p[2]], waste[p[2]] = prcs[p[2]].rem_elements(outflow[p[1]])
+    """outflow[p[2]], waste[p[2]] = prcs[p[2]].rem_elements(outflow[p[1]])
     # Split to two paralell flows A and B
     # A, 50% of mass flowrate
-    # inflowA = 0.5*copy.deepcopy(outflow[p[2]])
-    # outflowA1, waste[p[3]] = prcs[p[3]].rem_elements(inflowA)
+    # inflowA = outflow[p[2]].copy_and_scale(0.5)
+    inflowA = copy.deepcopy(outflow[p[2]])
+    outflow[p[3]], waste[p[3]] = prcs[p[3]].rem_elements(inflowA)
     # B, 10% of mass flowrate
-    # inflowB = 0.1*copy.deepcopy(outflow[p[2]])
-    # outflowB1, waste[p[4]] = prcs[p[4]].rem_elements(inflowB)
+    inflowB = copy.deepcopy(outflow[p[2]])
+    outflow[p[4]], waste[p[4]] = prcs[p[4]].rem_elements(inflowB)
     # C. rest of mass flow
-    # outflowC = (1.-0.5-0.1)*copy.deepcopy(outflow[p[2]])
+    outflowC = copy.deepcopy(outflow[p[2]])
     # Feed here
     # Merge flows
-    reprocessing_outflow = mat
+    print ("Class mat", mat.__class__)
+    for i in range(len(p)):
+        print ("Class waste ", p[i], waste[p[i]].__class__, waste[p[i]].mass, waste[p[i]].density)
+        print ("Class outflow ", p[i], outflow[p[i]].__class__, outflow[p[i]].mass, outflow[p[i]].density)
+    print("Outflow C", outflowC.__class__, outflowC.mass, outflowC.density) """
     # reprocessing_outflow = outflowA1 + outflowB1 + outflowC
     """print('Waste stream from heat_exchanger', waste['heat_exchanger'])
     print('Waste stream from sparger', waste['sparger'])

@@ -51,27 +51,58 @@ class Materialflow(pymat):
     def get_mass(self):
         return self.mass
 
+    def scale_matflow(self, f=1.0):
+        """ Returns nuclide vector dictionary, obtained from self and scaled by
+         f
+        """
+        old_dict = dict(self.comp)
+        old_nucvec = {}
+        for key, value in old_dict.items():
+            old_nucvec[key] = f * self.mass * value
+        return old_nucvec
+
+    def copy_pymat_attrs(self, src):
+        """ Modifies Materialflow object by copying PyNE attributites from src
+        """
+        setattr(self, 'density', copy.deepcopy(src.density))
+        setattr(self,
+                'atoms_per_molecule',
+                copy.deepcopy(src.atoms_per_molecule))
+        self.metadata = src.metadata
+
+    def copy_and_scale(self, f):
+        """ Returns new copied Materialflow based on self, with composition
+         and mass flowrate scale by factor of f
+        """
+        # Initiate new object my copying class from self
+        outflow = copy.deepcopy(self)
+        print ("Scale outflow ", outflow.__class__)
+        # Use nuclide vector to define Materialflow object
+        outflow = Materialflow(self.scale_matflow(f))
+        # Scale mass flowrate too
+        setattr(outflow, 'mass_flowrate', copy.deepcopy(f*self.mass_flowrate))
+        print("Mass ", outflow.mass, self.mass)
+        print("Flow ", outflow.mass_flowrate, self.mass_flowrate)
+        print("Density ", outflow.density, self.density)
+        print("Atoms ", outflow.atoms_per_molecule, self.atoms_per_molecule)
+        return outflow
+
     def __deepcopy__(self, memo):
         # Initiate new object my copying class from self
         cls = self.__class__
         result = cls.__new__(cls)
         # Copy nuclide vector from self
-        old_dict = dict(self.comp)
-        old_nucvec = {}
-        for key, value in old_dict.items():
-            old_nucvec[key] = self.mass * value
-        # Use nuclide vector to define Materialflow object
-        result = Materialflow(old_nucvec)
+        result = Materialflow(self.scale_matflow())
         # Copy Materialflow density and atoms_per_molecule
         setattr(result, 'density', copy.deepcopy(self.density))
         setattr(result,
                 'atoms_per_molecule',
                 copy.deepcopy(self.atoms_per_molecule))
+        result.metadata = self.metadata
         # Copy other object attributes such as volume, burnup, etc
         for k, v in self.__dict__.items():
             if 'comp' not in k:
                 setattr(result, k, copy.deepcopy(v))
-        print(self.density, result.density)
         return result
 
     def __eq__(self, other):
