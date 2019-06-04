@@ -1,5 +1,6 @@
 from pyne.material import Material as pymat
 import copy
+import sys
 
 
 class Materialflow(pymat):
@@ -51,12 +52,40 @@ class Materialflow(pymat):
         return self.mass
 
     def __deepcopy__(self, memo):
+        # Initiate new object my copying class from self
         cls = self.__class__
         result = cls.__new__(cls)
-        memo[id(self)] = result
+        # Copy nuclide vector from self
+        old_dict = dict(self.comp)
+        old_nucvec = {}
+        for key, value in old_dict.items():
+            old_nucvec[key] = self.mass * value
+        # Use nuclide vector to define Materialflow object
+        result = Materialflow(old_nucvec)
+        # Copy Materialflow density and atoms_per_molecule
+        setattr(result, 'density', copy.deepcopy(self.density))
+        setattr(result,
+                'atoms_per_molecule',
+                copy.deepcopy(self.atoms_per_molecule))
+        # Copy other object attributes such as volume, burnup, etc
         for k, v in self.__dict__.items():
-            setattr(result, k, copy.deepcopy(v, memo))
+            if 'comp' not in k:
+                setattr(result, k, copy.deepcopy(v))
+        print(self.density, result.density)
         return result
+
+    def __eq__(self, other):
+        if not isinstance(other, Materialflow):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        return self.mass == other.mass and self.vol == other.vol \
+            and self.density == other.density \
+            and self.atoms_per_molecule == other.atoms_per_molecule \
+            and self.temp == other.temp \
+            and self.mass_flowrate == other.mass_flowrate \
+            and self[922350000] == other[922350000] \
+            and self[922380000] == other[922380000] \
+            and self[721780001] == other[721780001]
 
 
 """

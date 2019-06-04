@@ -85,4 +85,6 @@ MINOR = _version_minor
 MICRO = _version_micro
 VERSION = __version__
 PACKAGE_DATA = {'saltproc': [pjoin('data', '*')]}
+PACKAGES = ["saltproc",
+        "saltproc.tests"]
 REQUIRES = ["numpy", "pyne"]

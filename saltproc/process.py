@@ -2,6 +2,7 @@ from saltproc import Materialflow
 from pyne import nucname as pyname
 import numpy as np
 import copy
+import json
 
 
 class Process():
@@ -53,20 +54,27 @@ class Process():
         # self.waste_stream_name = waste_stream_name
         self.efficiency = efficiency
 
-    def rem_elements(self, inflow, efficiency):
+    def rem_elements(self, inflow):
         """ Returns PyNE material after removal target isotopes from inflow
          with specified efficiency and waste stream PyNE material
         """
+        inflow.metadata = "Test for meta-data"
+        print("Inflow class ", inflow.__class__, id(inflow))
         waste_nucvec = {}
         outflow = copy.deepcopy(inflow)
+        print("Are inflow and outflow equal? ", outflow == inflow)
+        # print(outflow.comp)
         for iso, mass in inflow.items():
             el_name = pyname.serpent(iso).split('-')[0]
-            if el_name in efficiency:
-                outflow[iso] = mass * (1 - efficiency[el_name])
-                waste_nucvec[iso] = mass * efficiency[el_name]
-                print(el_name, iso, mass, outflow[iso])
-        print(waste_nucvec)
+            if el_name in self.efficiency:
+                outflow[iso] = mass * (1 - self.efficiency[el_name])
+                waste_nucvec[iso] = mass * self.efficiency[el_name]
+                print(el_name, iso, inflow[iso], outflow[iso], self.efficiency[el_name])
+        # print(waste_nucvec)
         waste = Materialflow(waste_nucvec)
+        print("Waste class ", waste.__class__)
+        print("Outflow class ", outflow.__class__)
+        print(outflow.mass, inflow.mass)
         return outflow, waste
 
     def check_mass_conservation(self):
