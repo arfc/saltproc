@@ -1,5 +1,6 @@
 from saltproc import Depcode
 from saltproc import Simulation
+from saltproc import Materialflow
 from saltproc import Process
 # from depcode import Depcode
 # from simulation import Simulation
@@ -11,8 +12,6 @@ import json
 
 
 input_path = os.path.dirname(os.path.abspath(__file__)) + '/../saltproc/'
-# input_file = os.path.join(input_path, 'data/saltproc_tap')
-# template_file = os.path.join(input_path, 'data/tap')
 input_file = os.path.join(input_path, 'data/saltproc_tap')
 template_file = os.path.join(input_path, 'data/tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
@@ -22,7 +21,7 @@ compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
 exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
 # Number of cores and nodes to use in cluster
 cores = 4
-steps = 1
+steps = 2
 # Monte Carlo method parameters
 neutron_pop = 100
 active_cycles = 20
@@ -45,6 +44,23 @@ def read_processes_from_input():
         # print(processes['sparger'].mass_flowrate)
         # print(processes['entrainment_separator'].mass_flowrate)
         return processes
+
+
+def read_feeds_from_input():
+    feeds = {}
+    with open('input.json') as f:
+        j = json.load(f)
+        # print(j['feeds'])
+        for obj_name, obj_data in j['feeds'].items():
+            # print(obj_data)
+            nucvec = obj_data['comp']
+            feeds[obj_name] = Materialflow(nucvec)
+            feeds[obj_name].mass = obj_data['mass']
+            feeds[obj_name].density = obj_data['density']
+            feeds[obj_name].vol = obj_data['volume']
+        # print(feeds['leu'])
+        # print(feeds['leu'].print_attr())
+        return feeds
 
 
 def reprocessing(mat):
@@ -111,6 +127,33 @@ def reprocessing(mat):
     return out, waste
 
 
+def refill(mat, refill_mass):
+    """ Applies reprocessing scheme to selected material
+
+    Parameters:
+    -----------
+    mat: Materialflow object`
+        Material data right after reprocessing plant
+    Returns:
+    --------
+    out: Materialflow object
+        Material data after refill
+    """
+    feeds = read_feeds_from_input()
+    ref = 'leu'
+    # refill_mat = copy.deepcopy(feeds[ref])
+    refill_mat = (refill_mass/feeds[ref].mass) * feeds[ref]
+    out = mat + refill_mat
+    print('Refilled fresh fuel %f g' % refill_mat.mass)
+    """print(refill_mass)
+    print(refill_mat)
+    print(out)
+    print(refill_mat.print_attr())
+    print(mat.print_attr())
+    print(out.print_attr())"""
+    return out
+
+
 def main():
     """ Inititialize main run
     """
@@ -135,33 +178,40 @@ def main():
     # simulation.runsim_no_reproc()
     # Start sequence
     mats_after_repr = {}
+    waste_st = {}
+    mats_after_refill = {}
     for dts in range(steps):
         print ("\nStep #%i has been started" % (dts+1))
         if dts == 0:  # First step
-            # serpent.write_depcode_input(template_file, input_file)
-            # serpent.run_depcode(cores)
+            serpent.write_depcode_input(template_file, input_file)
+            serpent.run_depcode(cores)
             # Read general simulation data which never changes
-            # simulation.store_run_init_info()
+            simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dts
-            mats = serpent.read_dep_comp(input_file, 1)  # 0)
-            # simulation.store_mat_data(mats, dts, 'before_reproc')  # store init
-            # Reprocessing here
-            name_reproc_mat = 'fuel'
-            # mats_after_repr[name_reproc_mat], waste =
-            reprocessing(mats[name_reproc_mat])
-            # print(mats_after_repr)
-            # print(mats_after_repr['fuel'].mass)
-            # print(mats_after_repr['fuel'].vol)
-            # print(mats_after_repr['fuel'].temp)
-            # print(waste)
+            mats = serpent.read_dep_comp(input_file, 0)  # 0)
+            simulation.store_mat_data(mats, dts, 'before_reproc')
         # Finish of First step
         # Main sequence
-#        else:
-            # serpent.run_depcode(cores)
-        # mats = serpent.read_dep_comp(input_file, 1)
-        # simulation.store_mat_data(mats, dts, 'before_reproc')
-        # simulation.store_run_step_info()
-        # serpent.write_mat_file(mats, iter_matfile, dts)
+        else:
+            serpent.run_depcode(cores)
+        mats = serpent.read_dep_comp(input_file, 1)
+        simulation.store_mat_data(mats, dts, 'before_reproc')
+        simulation.store_run_step_info()
+        # Reprocessing here
+        nn_mat = 'fuel'
+        mats_after_repr[nn_mat], waste_st[nn_mat] = reprocessing(mats[nn_mat])
+        # Refill
+        mats_after_refill[nn_mat] = refill(
+                                        mats_after_repr[nn_mat],
+                                        mats[nn_mat].mass -
+                                        mats_after_repr[nn_mat].mass)
+        print("\n\n\n\nMass of material before %f g and after %f g" %
+                                                (mats['fuel'].mass,
+                                                mats_after_refill[nn_mat].mass))
+        mats_after_refill['ctrlPois'] = mats['ctrlPois']
+        serpent.write_mat_file(mats_after_refill,
+                               iter_matfile,
+                               dts)
 
 
 if __name__ == "__main__":

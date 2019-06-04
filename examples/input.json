@@ -1,5 +1,5 @@
 {
-  "extraction_processes":
+    "extraction_processes":
             {
               "heat_exchanger":
                     {
@@ -94,5 +94,22 @@
                       "volume": 11.0
                     }
 
+            },
+    "feeds":
+            {
+                  "leu":
+                    {
+                      "density": 4.9602,
+                      "volume": 1E+8,
+                      "mass": 4.9602E+8,
+                      "comp":
+                            {
+                              "Li-6": 2.418E-6,
+                              "Li-7": 4.83577563E-2,
+                              "F-19": 3.296428341E-1,
+                              "U-235": 3.10998496E-2,
+                              "U-238": 5.90897142E-1
+                            }
+                    }
             }
 }

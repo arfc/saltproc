@@ -18,7 +18,7 @@ class Materialflow(pymat):
             metadata=None,
             vol=1.0,
             temp=900,
-            mass_flowrate=1.0,
+            mass_flowrate=0.0,
             void_frac=0.0,
             burnup=0.0):
         """Initializes the class
@@ -143,12 +143,14 @@ class Materialflow(pymat):
         x_comp.update(y_comp)
         result.comp = dict(x_comp)
         result.norm_comp()
-        result.vol = x.vol + y.vol
         result.mass_flowrate = x.mass_flowrate + y.mass_flowrate
-        result.temp = (x.temp*x.mass + y.temp*y.mass)/result.mass  # averaged
+        # result.temp = (x.temp*x.mass + y.temp*y.mass)/result.mass  # averaged
+        result.temp = x.temp
         # Burnup is simply averaged by should be renormilized by heavy metal
         result.burnup = (x.burnup*x.mass + y.burnup*y.mass)/result.mass
-        result.density = result.mass/result.vol
+        # result.density = result.mass/result.vol
+        result.density = x.density
+        result.vol = result.mass/result.density
         result.void_frac = (x.void_frac*x.vol + y.void_frac*y.vol)/result.vol
         return result
 
