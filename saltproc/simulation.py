@@ -83,7 +83,7 @@ class Simulation():
                 mats = self.sim_depcode.read_dep_comp(
                                             self.sim_depcode.input_fname,
                                             0)
-                self.store_mat_data(mats, dts)
+                self.store_mat_data(mats, dts, 'before_reproc')
             # Finish of First step
             # Main sequence
             else:
@@ -91,7 +91,7 @@ class Simulation():
             mats = self.sim_depcode.read_dep_comp(
                                               self.sim_depcode.input_fname,
                                               1)
-            self.store_mat_data(mats, dts)
+            self.store_mat_data(mats, dts, 'before_reproc')
             self.store_run_step_info()
             self.sim_depcode.write_mat_file(mats, self.iter_matfile, dts)
 ##############################################################################
