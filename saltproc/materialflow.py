@@ -1,6 +1,7 @@
 from pyne.material import Material as pymat
 import copy
 import sys
+from collections import Counter
 
 
 class Materialflow(pymat):
@@ -51,6 +52,19 @@ class Materialflow(pymat):
     def get_mass(self):
         return self.mass
 
+    def print_attr(self):
+        print("Volume %f cm3" % self.vol)
+        print("Mass %f g" % self.mass)
+        print("Density %f g/cm3" % self.density)
+        print("Atoms per molecule %f " % self.atoms_per_molecule)
+        print("Meta %s " % self.metadata)
+        print("Mass flowrate %f g/s" % self.mass_flowrate)
+        print("Temperature %f K" % self.temp)
+        print("Void fraction %f " % self.void_frac)
+        print("Burnup %f MWd/kgU" % self.burnup)
+        print("U-235 mass %f g" % self[922350000])
+        print("Li-7 mass %f g" % self[30070000])
+
     def scale_matflow(self, f=1.0):
         """ Returns nuclide vector dictionary, obtained from self and scaled by
          f
@@ -76,15 +90,18 @@ class Materialflow(pymat):
         """
         # Initiate new object my copying class from self
         outflow = copy.deepcopy(self)
-        print ("Scale outflow ", outflow.__class__)
-        # Use nuclide vector to define Materialflow object
-        outflow = Materialflow(self.scale_matflow(f))
-        # Scale mass flowrate too
+        # print ("Scale outflow ", outflow.__class__)
+        # Scale Materialflow an renormilize
+        outflow.mass = f * self.mass
+        outflow.norm_comp()
+        # Scale mass flowrate and volume too
         setattr(outflow, 'mass_flowrate', copy.deepcopy(f*self.mass_flowrate))
-        print("Mass ", outflow.mass, self.mass)
-        print("Flow ", outflow.mass_flowrate, self.mass_flowrate)
-        print("Density ", outflow.density, self.density)
-        print("Atoms ", outflow.atoms_per_molecule, self.atoms_per_molecule)
+        setattr(outflow, 'vol', copy.deepcopy(f*self.vol))
+        # print("Mass ", outflow.mass, self.mass)
+        # print("Flow ", outflow.mass_flowrate, self.mass_flowrate)
+        # print("Vol ", outflow.vol, self.vol)
+        # print("Density ", outflow.density, self.density)
+        # print("Atoms ", outflow.atoms_per_molecule, self.atoms_per_molecule)
         return outflow
 
     def __deepcopy__(self, memo):
@@ -94,11 +111,7 @@ class Materialflow(pymat):
         # Copy nuclide vector from self
         result = Materialflow(self.scale_matflow())
         # Copy Materialflow density and atoms_per_molecule
-        setattr(result, 'density', copy.deepcopy(self.density))
-        setattr(result,
-                'atoms_per_molecule',
-                copy.deepcopy(self.atoms_per_molecule))
-        result.metadata = self.metadata
+        result.copy_pymat_attrs(self)
         # Copy other object attributes such as volume, burnup, etc
         for k, v in self.__dict__.items():
             if 'comp' not in k:
@@ -117,7 +130,39 @@ class Materialflow(pymat):
             and self[922350000] == other[922350000] \
             and self[922380000] == other[922380000] \
             and self[721780001] == other[721780001]
+    #
+    # Materialflow operation Overloads
+    #
 
+    def __add__(x, y):
+        cls = x.__class__
+        result = cls.__new__(cls)
+        result.mass = x.mass + y.mass
+        x_comp = Counter(x)
+        y_comp = Counter(y)
+        x_comp.update(y_comp)
+        result.comp = dict(x_comp)
+        result.norm_comp()
+        result.vol = x.vol + y.vol
+        result.mass_flowrate = x.mass_flowrate + y.mass_flowrate
+        result.temp = (x.temp*x.mass + y.temp*y.mass)/result.mass  # averaged
+        # Burnup is simply averaged by should be renormilized by heavy metal
+        result.burnup = (x.burnup*x.mass + y.burnup*y.mass)/result.mass
+        result.density = result.mass/result.vol
+        result.void_frac = (x.void_frac*x.vol + y.void_frac*y.vol)/result.vol
+        return result
+
+    def __rmul__(self, other):
+        if isinstance(other, (int, float)):
+            result = copy.deepcopy(self)
+            result.mass = other * self.mass
+            result.norm_comp()
+            result.vol = other * self.vol
+            result.mass_flowrate = other * self.mass_flowrate
+            # result.temp = (x.temp*x.mass + y.temp*y.mass)/result.mass
+            return result
+        else:
+            NotImplemented
 
 """
 fuel = Materialflow({922350: 0.04, 922380: 0.96},

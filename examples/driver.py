@@ -49,53 +49,66 @@ def read_processes_from_input():
 
 def reprocessing(mat):
     """ Applies reprocessing scheme to selected material
+
+    Parameters:
+    -----------
+    mat: Materialflow object`
+        Material data right after irradiation in the core/vesel
+    Returns:
+    --------
+    out: Materialflow object
+        Material data after performing all removals
+    waste: dictionary
+        key: process name
+        value: Materialflow object containing waste streams data
     """
     waste = {}
     outflow = {}
     prcs = read_processes_from_input()
-    p = ['heat_exchanger', 'sparger', 'entrainment_separator', 'nickel_filter', 'liquid_me_extraction']
+    p = ['heat_exchanger',
+         'sparger',
+         'entrainment_separator',
+         'nickel_filter',
+         'liquid_me_extraction']
     # 1 via Heat exchanger
     outflow[p[0]], waste[p[0]] = prcs[p[0]].rem_elements(mat)
     # 2 via sparger
     outflow[p[1]], waste[p[1]] = prcs[p[1]].rem_elements(outflow[p[0]])
     # 3 via entrainment entrainment
-    """outflow[p[2]], waste[p[2]] = prcs[p[2]].rem_elements(outflow[p[1]])
+    outflow[p[2]], waste[p[2]] = prcs[p[2]].rem_elements(outflow[p[1]])
     # Split to two paralell flows A and B
     # A, 50% of mass flowrate
-    # inflowA = outflow[p[2]].copy_and_scale(0.5)
-    inflowA = copy.deepcopy(outflow[p[2]])
+    inflowA = 0.5*outflow[p[2]]
+    print("InflowA", inflowA.__class__, inflowA.mass, inflowA.density)
     outflow[p[3]], waste[p[3]] = prcs[p[3]].rem_elements(inflowA)
     # B, 10% of mass flowrate
-    inflowB = copy.deepcopy(outflow[p[2]])
+    inflowB = 0.1*outflow[p[2]]
     outflow[p[4]], waste[p[4]] = prcs[p[4]].rem_elements(inflowB)
     # C. rest of mass flow
-    outflowC = copy.deepcopy(outflow[p[2]])
+    outflowC = 0.4*outflow[p[2]]
     # Feed here
-    # Merge flows
-    print ("Class mat", mat.__class__)
-    for i in range(len(p)):
-        print ("Class waste ", p[i], waste[p[i]].__class__, waste[p[i]].mass, waste[p[i]].density)
-        print ("Class outflow ", p[i], outflow[p[i]].__class__, outflow[p[i]].mass, outflow[p[i]].density)
-    print("Outflow C", outflowC.__class__, outflowC.mass, outflowC.density) """
-    # reprocessing_outflow = outflowA1 + outflowB1 + outflowC
-    """print('Waste stream from heat_exchanger', waste['heat_exchanger'])
-    print('Waste stream from sparger', waste['sparger'])
-    print('Waste stream from separator', waste['entrainment_separator'])
-    print('Waste stream from Ni filter', waste['nickel_filter'])
-    print('Waste stream from Molten salt/liquid metal extraction', waste['liquid_me_extraction'])
+    # Merge out flows
+    out = outflow[p[3]] + outflow[p[4]] + outflowC
     print('\nMass balance %f g = %f + %f + %f + %f + %f' % (mat.mass,
-                                                            reprocessing_outflow.mass,
+                                                            out.mass,
                                                             waste[p[1]].mass,
                                                             waste[p[2]].mass,
                                                             waste[p[3]].mass,
-                                                            waste[p[4]].mass))"""
-    # total_out = reprocessing_outflow.mass
-    # for i in range(len(p)):
-#         total_out += waste[p[i]].mass
-    # print("Balance %f = %f" % (mat.mass, total_out))
-    # print(mat.__class__)
-    # print(reprocessing_outflow.__class__)
-    # return reprocessing_outflow, waste
+                                                            waste[p[4]].mass))
+    print('\nMass balance', out.mass+waste[p[1]].mass+waste[p[2]].mass+waste[p[3]].mass+waste[p[4]].mass)
+    print('Volume ', inflowA.vol, inflowB.vol, inflowA.vol+inflowB.vol)
+    print('Mass flowrate ', inflowA.mass_flowrate, inflowB.mass_flowrate, out.mass_flowrate)
+    print('Burnup ', inflowA.burnup, inflowB.burnup)
+    print('\n\n')
+    print('\nInflowA attrs ^^^ \n', inflowA.print_attr())
+    print('\nInflowB attrs ^^^ \n ', inflowB.print_attr())
+    print("\nOut ^^^", out.__class__, out.print_attr())
+    # Print data about reprocessing for current step
+    print("\nBalance in %f t / out %f t" % (1e-6*mat.mass, 1e-6*out.mass))
+    print("Removed FPs %f g" % (mat.mass-out.mass))
+    print("Total waste %f g" % (waste[p[1]].mass + waste[p[2]].mass +
+                                waste[p[3]].mass+waste[p[4]].mass))
+    return out, waste
 
 
 def main():
