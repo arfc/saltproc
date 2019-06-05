@@ -103,7 +103,9 @@ class Depcode:
         args = (self.exec_path, '-omp', str(cores), self.input_fname)
         print('Running %s' % (self.codename))
         try:
-            subprocess.check_call(args)
+            subprocess.check_call(args,
+                                  stdout=subprocess.DEVNULL,
+                                  stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
             print(error.output)
             raise ValueError('\n %s RUN FAILED\n' % (self.codename))
@@ -367,35 +369,33 @@ class Depcode:
         """ Parses initial simulation info data from Serpent output
         """
         res = serpent.parse_res(self.input_fname + "_res.m")
-        self.sim_info['serpent_version'].append(
-                                res['VERSION'][0].decode('utf-8'))
-        self.sim_info['title'].append(res['TITLE'][0].decode('utf-8'))
-        self.sim_info['serpent_input_filename'].append(
-                                res['INPUT_FILE_NAME'][0].decode('utf-8'))
-        self.sim_info['serpent_working_dir'].append(
-                                res['WORKING_DIRECTORY'][0].decode('utf-8'))
-        self.sim_info['xs_data_path'].append(
-                                res['XS_DATA_FILE_PATH'][0].decode('utf-8'))
-        self.sim_info['OMP_threads'].append(res['OMP_THREADS'][0])
-        self.sim_info['MPI_tasks'].append(res['MPI_TASKS'][0])
-        self.sim_info['memory_optimization_mode'].append(
-                                                res['OPTIMIZATION_MODE'][0])
+        self.sim_info['serpent_version'] = \
+            res['VERSION'][0].decode('utf-8')
+        self.sim_info['title'] = res['TITLE'][0].decode('utf-8')
+        self.sim_info['serpent_input_filename'] = \
+            res['INPUT_FILE_NAME'][0].decode('utf-8')
+        self.sim_info['serpent_working_dir'] = \
+            res['WORKING_DIRECTORY'][0].decode('utf-8')
+        self.sim_info['xs_data_path'] = \
+            res['XS_DATA_FILE_PATH'][0].decode('utf-8')
+        self.sim_info['OMP_threads'] = res['OMP_THREADS'][0]
+        self.sim_info['MPI_tasks'] = res['MPI_TASKS'][0]
+        self.sim_info['memory_optimization_mode'] = res['OPTIMIZATION_MODE'][0]
 
     def read_depcode_step_param(self):
         """ Parses data from Serpent output for each step and stores it in dict
         """
         res = serpent.parse_res(self.input_fname + "_res.m")
-        self.param['keff_bds'].append(res['IMP_KEFF'][0])
-        self.param['keff_eds'].append(res['IMP_KEFF'][1])
-        self.param['breeding_ratio'].append(res['CONVERSION_RATIO'][1])
-        self.param['execution_time'].append(res['RUNNING_TIME'][1])
-        self.param['memory_usage'].append(res['MEMSIZE'][0])
-        self.param['beta_eff'].append(
-                                res['FWD_ANA_BETA_ZERO'][1].reshape((9, 2)))
-        self.param['delayed_neutrons_lambda'].append(
-                                res['FWD_ANA_LAMBDA'][1].reshape((9, 2)))
-        self.param['fission_mass_bds'].append(res['INI_FMASS'][1])
-        self.param['fission_mass_eds'].append(res['TOT_FMASS'][1])
+        self.param['keff_bds'] = res['IMP_KEFF'][0]
+        self.param['keff_eds'] = res['IMP_KEFF'][1]
+        self.param['breeding_ratio'] = res['CONVERSION_RATIO'][1]
+        self.param['execution_time'] = res['RUNNING_TIME'][1]
+        self.param['memory_usage'] = res['MEMSIZE'][0]
+        self.param['beta_eff'] = res['FWD_ANA_BETA_ZERO'][1].reshape((9, 2))
+        self.param['delayed_neutrons_lambda'] = \
+            res['FWD_ANA_LAMBDA'][1].reshape((9, 2))
+        self.param['fission_mass_bds'] = res['INI_FMASS'][1]
+        self.param['fission_mass_eds'] = res['TOT_FMASS'][1]
 
     def get_tra_or_dec(self):
         """ Returns the isotopes map to tranform isotope zzaaam code to SERPENT
