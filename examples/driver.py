@@ -116,8 +116,9 @@ def reprocessing(mat):
     print('Mass flowrate ', inflowA.mass_flowrate, inflowB.mass_flowrate, out.mass_flowrate)
     print('Burnup ', inflowA.burnup, inflowB.burnup)
     print('\n\n')
-    print('\nInflowA attrs ^^^ \n', inflowA.print_attr())
-    print('\nInflowB attrs ^^^ \n ', inflowB.print_attr())
+    # print('\nInflowA attrs ^^^ \n', inflowA.print_attr())
+    # print('\nInflowB attrs ^^^ \n ', inflowB.print_attr())
+    print("\nIn ^^^", mat.__class__, out.print_attr())
     print("\nOut ^^^", out.__class__, out.print_attr())
     # Print data about reprocessing for current step
     print("\nBalance in %f t / out %f t" % (1e-6*mat.mass, 1e-6*out.mass))
@@ -188,8 +189,9 @@ def main():
             # Read general simulation data which never changes
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dts
+            simulation.store_run_step_info()
             mats = serpent.read_dep_comp(input_file, 0)  # 0)
-            simulation.store_mat_data(mats, dts, 'before_reproc')
+            simulation.store_mat_data(mats, dts-1, 'before_reproc')
         # Finish of First step
         # Main sequence
         else:

@@ -250,22 +250,22 @@ class Simulation():
         step_info = step_info_table.row
 
         # Define all values in the row
-        step_info['keff_bds'] = self.sim_depcode.param['keff_bds'][0]
-        step_info['keff_eds'] = self.sim_depcode.param['keff_eds'][0]
+        step_info['keff_bds'] = self.sim_depcode.param['keff_bds']
+        step_info['keff_eds'] = self.sim_depcode.param['keff_eds']
         step_info['breeding_ratio'] = self.sim_depcode.param[
-                                        'breeding_ratio'][0]
+                                        'breeding_ratio']
         step_info['step_execution_time'] = self.sim_depcode.param[
-                                        'execution_time'][0]
+                                        'execution_time']
         step_info['memory_usage'] = self.sim_depcode.param[
-                                        'memory_usage'][0]
+                                        'memory_usage']
         step_info['beta_eff_eds'] = self.sim_depcode.param[
-                                        'beta_eff'][0]
+                                        'beta_eff']
         step_info['delayed_neutrons_lambda_eds'] = self.sim_depcode.param[
-                                        'delayed_neutrons_lambda'][0]
+                                        'delayed_neutrons_lambda']
         step_info['fission_mass_bds'] = self.sim_depcode.param[
-                                        'fission_mass_bds'][0]
+                                        'fission_mass_bds']
         step_info['fission_mass_eds'] = self.sim_depcode.param[
-                                        'fission_mass_eds'][0]
+                                        'fission_mass_eds']
         # Inject the Record value into the table
         step_info.append()
         step_info_table.flush()
@@ -296,14 +296,14 @@ class Simulation():
                     self.sim_depcode.npop,
                     self.sim_depcode.active_cycles,
                     self.sim_depcode.inactive_cycles,
-                    self.sim_depcode.sim_info['serpent_version'][0],
-                    self.sim_depcode.sim_info['title'][0],
-                    self.sim_depcode.sim_info['serpent_input_filename'][0],
-                    self.sim_depcode.sim_info['serpent_working_dir'][0],
-                    self.sim_depcode.sim_info['xs_data_path'][0],
-                    self.sim_depcode.sim_info['OMP_threads'][0],
-                    self.sim_depcode.sim_info['MPI_tasks'][0],
-                    self.sim_depcode.sim_info['memory_optimization_mode'][0]
+                    self.sim_depcode.sim_info['serpent_version'],
+                    self.sim_depcode.sim_info['title'],
+                    self.sim_depcode.sim_info['serpent_input_filename'],
+                    self.sim_depcode.sim_info['serpent_working_dir'],
+                    self.sim_depcode.sim_info['xs_data_path'],
+                    self.sim_depcode.sim_info['OMP_threads'],
+                    self.sim_depcode.sim_info['MPI_tasks'],
+                    self.sim_depcode.sim_info['memory_optimization_mode']
                     )
         # print(sim_info_row)
         sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype)
