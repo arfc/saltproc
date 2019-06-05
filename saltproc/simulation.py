@@ -121,6 +121,49 @@ class Simulation():
     def loadinput_sp(self):
         return
 
+    def store_waste_data(self, a_mat, waste_dict, step):
+        """ Adds to HDF5 database waste streams data for each process (g/step).
+        """
+        db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
+        for mn in waste_dict.keys():  # iterate over materials
+            mat_node = getattr(db.root.materials, mn)
+            if not hasattr(mat_node, 'waste_streams'):
+                waste_group = db.create_group(
+                                mat_node,
+                                'waste_streams',
+                                'Waste Material streams data for each process')
+            for proc in waste_dict[mn].keys():
+                # proc_node = db.create_group(waste_group, proc)
+                # iso_idx[proc] = OrderedDict()
+                iso_idx = OrderedDict()
+                iso_wt_frac = []
+                coun = 0
+                # Read isotopes from Materialflow
+                for nuc, wt_frac in waste_dict[mn][proc].comp.items():
+                    # Dictonary in format {isotope_name : index(int)}
+                    iso_idx[self.sim_depcode.get_nuc_name(nuc)[0]] = coun
+                    # Convert wt% to absolute [user units]
+                    iso_wt_frac.append(wt_frac*waste_dict[mn][proc].mass)
+                    coun += 1
+                # Try to open EArray and table and if not exist - create
+                try:
+                    earr = db.get_node(waste_group, proc)
+                except Exception:
+                    print("Size of list: ", len(iso_idx), coun, mn, proc)
+                    earr = db.create_earray(
+                                    waste_group,
+                                    proc,
+                                    atom=tb.Float64Atom(),
+                                    shape=(0, len(iso_idx)),
+                                    title="Isotopic composition for %s" % proc)
+                    # Save isotope indexes map and units in EArray attributes
+                    earr.flavor = 'python'
+                    earr.attrs.iso_map = iso_idx
+                earr.append(np.array([iso_wt_frac], dtype=np.float64))
+                del iso_wt_frac
+                del iso_idx
+        db.close()
+
     def store_mat_data(self, mats, d_step, moment):
         """ Initializes HDF5 database (if not exist) or append depletion
             step data to it.

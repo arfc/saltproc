@@ -143,10 +143,13 @@ def reprocessing(mat):
                                         waste[mname][p[3]].mass+waste[mname][p[4]].mass))
 
         if mname == 'ctrlPois':
-            out[mname], waste[mname] = prcs[mname]['removal_tb_dy'].rem_elements(mat[mname])
+            out[mname], waste[mname]['removal_tb_dy'] = \
+                prcs[mname]['removal_tb_dy'].rem_elements(mat[mname])
             print("\n\nPois In ^^^", mat[mname].__class__, mat[mname].print_attr())
             print("\nPois Out ^^^", out[mname].__class__, out[mname].print_attr())
-            print("\nPois Waste ^^^", waste[mname].__class__, waste[mname].mass)
+            print("\nPois Waste ^^^", waste[mname].__class__, waste[mname])
+    print(waste['fuel'].keys())
+    # print(waste['ctrlPois'])
     return out, waste
 
 
@@ -231,9 +234,12 @@ def main():
             # simulation.store_mat_data(mats, dts-1, 'after_reproc')
             # Testing stuff
             mats = serpent.read_dep_comp(input_file, 1)  # 0)
+            simulation.store_mat_data(mats, dts-1, 'before_reproc')
             mats_after_repr, waste_st = reprocessing(mats)
+            # print(waste_st['fuel'])
             mats_after_refill = refill(mats_after_repr, mats)
-
+            simulation.store_mat_data(mats_after_refill, dts-1, 'after_reproc')
+            simulation.store_waste_data(mats_after_refill, waste_st, dts)
         # Finish of First step
         # Main sequence
 """        else:

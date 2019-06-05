@@ -60,30 +60,30 @@ class Process():
         """
         # inflow.metadata = "Test metadata"
         # print("Inflow class ", inflow.__class__, id(inflow))
-        waste_nucvec = {}
+        waste = copy.deepcopy(inflow)
         outflow = copy.deepcopy(inflow)
         # print("Are inflow and outflow equal? ", outflow == inflow)
         # print(" Before Density ", outflow.density, inflow.density)
         # print(outflow.comp)
         for iso, mass in inflow.items():
+            waste[iso] = 0  # zeroes everywhere in the waste stream except if
             el_name = pyname.serpent(iso).split('-')[0]
             if el_name in self.efficiency:
                 outflow[iso] = mass * (1 - self.efficiency[el_name])
-                waste_nucvec[iso] = mass * self.efficiency[el_name]
+                waste[iso] = mass * self.efficiency[el_name]
                 # print(el_name, iso, inflow[iso], outflow[iso], self.efficiency[el_name])
-        # print(waste_nucvec)
-        waste = Materialflow(waste_nucvec)
+        # waste = Materialflow(waste_nucvec)
         outflow.copy_pymat_attrs(inflow)  # Copy additional PyNE attributes
-        # print("Waste class ", waste.__class__)
-        # print("Outflow class ", outflow.__class__)
-        """print("Mass ", outflow.mass, inflow.mass, outflow.mass - inflow.mass)
+        """print("Waste class ", waste.__class__)
+        print("Outflow class ", outflow.__class__)
+        print("Mass ", outflow.mass, inflow.mass, outflow.mass - inflow.mass)
         print("Density ", outflow.density, inflow.density)
         print("atoms_per_molecule ", outflow.atoms_per_molecule == inflow.atoms_per_molecule)
         print("Volume  ", outflow.vol == inflow.vol)
         print("Burnup ", outflow.burnup == inflow.burnup)
         print("Metadata ", outflow.metadata, inflow.metadata)
-        print(waste)
-        print(outflow)"""
+        print(waste.print_attr())
+        print(outflow.print_attr())"""
         return outflow, waste
 
     def check_mass_conservation(self):
