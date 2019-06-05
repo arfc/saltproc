@@ -20,7 +20,7 @@ db_file = os.path.join(input_path, 'data/db_saltproc.h5')
 compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
 # executable path of Serpent
 exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
-restart_flag = False
+restart_flag = True
 pc_type = 'pc'  # 'bw', 'falcon'
 # Number of cores and nodes to use in cluster
 cores = 4
@@ -147,7 +147,9 @@ def reprocessing(mat):
                 prcs[mname]['removal_tb_dy'].rem_elements(mat[mname])
             print("\n\nPois In ^^^", mat[mname].__class__, mat[mname].print_attr())
             print("\nPois Out ^^^", out[mname].__class__, out[mname].print_attr())
-            print("\nPois Waste ^^^", waste[mname].__class__, waste[mname])
+            print("\nPois Waste ^^^",
+                  waste[mname]['removal_tb_dy'] .__class__,
+                  waste[mname]['removal_tb_dy'] .print_attr())
     print(waste['fuel'].keys())
     # print(waste['ctrlPois'])
     return out, waste
@@ -238,8 +240,8 @@ def main():
             mats_after_repr, waste_st = reprocessing(mats)
             # print(waste_st['fuel'])
             mats_after_refill = refill(mats_after_repr, mats)
-            simulation.store_mat_data(mats_after_refill, dts-1, 'after_reproc')
-            simulation.store_waste_data(mats_after_refill, waste_st, dts)
+            # simulation.store_mat_data(mats_after_refill, dts-1, 'after_reproc')
+            simulation.store_after_repr(mats_after_refill, waste_st, dts)
         # Finish of First step
         # Main sequence
 """        else:

@@ -121,7 +121,7 @@ class Simulation():
     def loadinput_sp(self):
         return
 
-    def store_waste_data(self, a_mat, waste_dict, step):
+    def store_after_repr(self, after_mats, waste_dict, step):
         """ Adds to HDF5 database waste streams data for each process (g/step).
         """
         db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
@@ -132,6 +132,8 @@ class Simulation():
                                 mat_node,
                                 'waste_streams',
                                 'Waste Material streams data for each process')
+            else:
+                waste_group = getattr(mat_node, 'waste_streams')
             for proc in waste_dict[mn].keys():
                 # proc_node = db.create_group(waste_group, proc)
                 # iso_idx[proc] = OrderedDict()
@@ -149,7 +151,6 @@ class Simulation():
                 try:
                     earr = db.get_node(waste_group, proc)
                 except Exception:
-                    print("Size of list: ", len(iso_idx), coun, mn, proc)
                     earr = db.create_earray(
                                     waste_group,
                                     proc,
@@ -159,9 +160,11 @@ class Simulation():
                     # Save isotope indexes map and units in EArray attributes
                     earr.flavor = 'python'
                     earr.attrs.iso_map = iso_idx
-                earr.append(np.array([iso_wt_frac], dtype=np.float64))
+                earr.append(np.asarray([iso_wt_frac], dtype=np.float64))
                 del iso_wt_frac
                 del iso_idx
+        # Also save materials AFTER reprocessing and refill here
+        self.store_mat_data(after_mats, step, 'after_reproc')
         db.close()
 
     def store_mat_data(self, mats, d_step, moment):
