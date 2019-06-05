@@ -19,9 +19,11 @@ db_file = os.path.join(input_path, 'data/db_saltproc.h5')
 compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
 # executable path of Serpent
 exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
+restart_flag = False
+pc_type = 'pc'  # 'bw', 'falcon'
 # Number of cores and nodes to use in cluster
 cores = 4
-steps = 2
+steps = 5
 # Monte Carlo method parameters
 neutron_pop = 100
 active_cycles = 20
@@ -155,6 +157,16 @@ def refill(mat, refill_mass):
     return out
 
 
+def check_restart():
+    if not restart_flag:
+        try:
+            os.remove(db_file)
+            os.remove(iter_matfile)
+            os.remove(input_file)
+        except OSError as e:
+            print("Error while deleting file, ", e)
+
+
 def main():
     """ Inititialize main run
     """
@@ -218,7 +230,7 @@ def main():
 
 if __name__ == "__main__":
     print('Initiating Saltproc:\n'
-          # '\tRestart = ' + str(restart) + '\n'
+          '\tRestart = ' + str(restart_flag) + '\n'
           # '\tNodes = ' + str(nodes) + '\n'
           '\tCores = ' + str(cores) + '\n'
           # '\tSteps = ' + str(steps) + '\n'
@@ -229,6 +241,6 @@ if __name__ == "__main__":
           # '\tMaterial File Path = ' + mat_file + '\n'
           # '\tOutput DB File Path = ' + db_file + '\n'
           )
-
+    check_restart()
     main()
     print("\nSimulation succeeded.\n")
