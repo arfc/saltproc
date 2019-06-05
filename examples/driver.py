@@ -23,7 +23,7 @@ restart_flag = False
 pc_type = 'pc'  # 'bw', 'falcon'
 # Number of cores and nodes to use in cluster
 cores = 4
-steps = 2
+steps = 3
 # Monte Carlo method parameters
 neutron_pop = 100
 active_cycles = 20
@@ -201,7 +201,6 @@ def main():
             # Read general simulation data which never changes
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dts
-            simulation.store_run_step_info()
             mats = serpent.read_dep_comp(input_file, 0)  # 0)
             simulation.store_mat_data(mats, dts-1, 'before_reproc')
             # No reprocessing for initial composition but store it in h5 anyway
