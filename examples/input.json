@@ -1,4 +1,5 @@
-{
+{"fuel":
+  {
     "extraction_processes":
             {
               "heat_exchanger":
@@ -112,4 +113,38 @@
                             }
                     }
             }
+  },
+
+   "ctrlPois":
+    {
+      "extraction_processes":
+              {
+                "removal_tb_dy":
+                      {
+                        "capacity": 1.0E+3,
+                        "efficiency":
+                                    {
+                                      "Tb": 1.0,
+                                      "Dy": 1.0
+                                    },
+                        "mass_flowrate": 1.0E+3,
+                        "volume": 11.0
+                      }
+
+              },
+      "feeds":
+              {
+                    "pure_gd":
+                      {
+                        "density": 5.873,
+                        "volume": 1E+4,
+                        "mass": 5.873E+4,
+                        "comp":
+                              {
+                                "Gd-158": 0.5,
+                                "Gd-160": 0.5
+                              }
+                      }
+              }
+    }
 }
