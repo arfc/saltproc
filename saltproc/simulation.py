@@ -159,7 +159,7 @@ class Simulation():
             mat_node = getattr(db.root.materials, key)
             if not hasattr(mat_node, moment):
                 before_group = db.create_group(
-                                    m_group,
+                                    mat_node,
                                     moment,
                                     'Material data before reprocessing')
             comp_pfx = '/materials/' + str(key) + '/' + str(moment)

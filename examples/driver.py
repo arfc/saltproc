@@ -23,7 +23,7 @@ restart_flag = False
 pc_type = 'pc'  # 'bw', 'falcon'
 # Number of cores and nodes to use in cluster
 cores = 4
-steps = 5
+steps = 2
 # Monte Carlo method parameters
 neutron_pop = 100
 active_cycles = 20
@@ -204,6 +204,8 @@ def main():
             simulation.store_run_step_info()
             mats = serpent.read_dep_comp(input_file, 0)  # 0)
             simulation.store_mat_data(mats, dts-1, 'before_reproc')
+            # No reprocessing for initial composition but store it in h5 anyway
+            simulation.store_mat_data(mats, dts-1, 'after_reproc')
         # Finish of First step
         # Main sequence
         else:
@@ -219,10 +221,12 @@ def main():
                                         mats_after_repr[nn_mat],
                                         mats[nn_mat].mass -
                                         mats_after_repr[nn_mat].mass)
-        print("\n\n\n\nMass of material before %f g and after %f g" %
-                                                (mats['fuel'].mass,
-                                                mats_after_refill[nn_mat].mass))
+        print("\nMass of material before \
+             %f g and after %f g" % (mats['fuel'].mass,
+                                     mats_after_refill[nn_mat].mass))
+        # Store in DB after reprocessing and refill (right before next depl)
         mats_after_refill['ctrlPois'] = mats['ctrlPois']
+        simulation.store_mat_data(mats_after_refill, dts, 'after_reproc')
         serpent.write_mat_file(mats_after_refill,
                                iter_matfile,
                                dts)
