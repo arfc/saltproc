@@ -82,12 +82,11 @@ def test_get_nuc_name():
 def test_read_depcode_info():
     serpent.read_depcode_info()
     # print(serpent.sim_info)
-    assert serpent.sim_info['serpent_version'] == ['Serpent 2.1.31']
-    assert serpent.sim_info['title'] == ['Untitled']
-    assert serpent.sim_info['serpent_version'] == ['Serpent 2.1.31']
-    assert serpent.sim_info['MPI_tasks'] == [1]
-    assert serpent.sim_info['OMP_threads'] == [4]
-    assert serpent.sim_info['memory_optimization_mode'] == [4]
+    assert serpent.sim_info['serpent_version'] == 'Serpent 2.1.31'
+    assert serpent.sim_info['title'] == 'Untitled'
+    assert serpent.sim_info['MPI_tasks'] == 1
+    assert serpent.sim_info['OMP_threads'] == 4
+    assert serpent.sim_info['memory_optimization_mode'] == 4
 
 
 def test_read_depcode_step_param():
@@ -96,8 +95,8 @@ def test_read_depcode_step_param():
     # print(serpent.param['keff_bds'][0][0])
     assert serpent.param['memory_usage'] == [10552.84]
     assert serpent.param['execution_time'] == [81.933]
-    assert serpent.param['keff_bds'][0][0] == 1.00651e+00
-    assert serpent.param['keff_eds'][0][0] == 1.00569e+00
+    assert serpent.param['keff_bds'][0] == 1.00651e+00
+    assert serpent.param['keff_eds'][0] == 1.00569e+00
     assert serpent.param['fission_mass_bds'] == [70081]
     assert serpent.param['fission_mass_eds'] == [70077.1]
-    assert serpent.param['breeding_ratio'][0][1] == 5.20000e-04
+    assert serpent.param['breeding_ratio'][1] == 5.20000e-04

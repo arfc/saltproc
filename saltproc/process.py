@@ -3,6 +3,7 @@ from pyne import nucname as pyname
 import numpy as np
 import copy
 import json
+import gc
 
 
 class Process():
@@ -54,27 +55,35 @@ class Process():
         # self.waste_stream_name = waste_stream_name
         self.efficiency = efficiency
 
+    # @profile
     def rem_elements(self, inflow):
         """ Returns PyNE material after removal target isotopes from inflow
          with specified efficiency and waste stream PyNE material
         """
-        # inflow.metadata = "Test metadata"
-        # print("Inflow class ", inflow.__class__, id(inflow))
-        waste = copy.deepcopy(inflow)
-        outflow = copy.deepcopy(inflow)
-        # print("Are inflow and outflow equal? ", outflow == inflow)
-        # print(" Before Density ", outflow.density, inflow.density)
-        # print(outflow.comp)
-        for iso, mass in inflow.items():
-            waste[iso] = 0  # zeroes everywhere in the waste stream except if
+        waste_nucvec = {}
+        out_nucvec = {}
+        # print("Flow Before reprocessing ^^^^\n\n", inflow.print_attr())
+        # print("\n\nXe concentration in inflow before % f g" % inflow['Xe136'])
+        for iso in inflow.comp.keys():
             el_name = pyname.serpent(iso).split('-')[0]
             if el_name in self.efficiency:
-                outflow[iso] = mass * (1 - self.efficiency[el_name])
-                waste[iso] = mass * self.efficiency[el_name]
-                # print(el_name, iso, inflow[iso], outflow[iso], self.efficiency[el_name])
-        # waste = Materialflow(waste_nucvec)
-        outflow.copy_pymat_attrs(inflow)  # Copy additional PyNE attributes
-        """print("Waste class ", waste.__class__)
+                out_nucvec[iso] = \
+                    float(inflow.comp[iso]) * \
+                    float(1.0 - self.efficiency[el_name])
+                waste_nucvec[iso] = \
+                    float(inflow[iso]) * float(self.efficiency[el_name])
+                # print(el_name, iso, inflow[iso], waste_nucvec[iso],
+                #       self.efficiency[el_name])
+            else:
+                out_nucvec[iso] = float(inflow.comp[iso])
+                waste_nucvec[iso] = 0.0  # zeroes everywhere else
+        waste = Materialflow(waste_nucvec)
+        inflow.mass = float(inflow.mass - waste.mass)
+        inflow.comp = out_nucvec
+        inflow.norm_comp()
+        # outflow.copy_pymat_attrs(inflow)  # Copy additional PyNE attributes
+        # print(waste.print_attr())
+        """print("Waste class %s and mass %f g " % (waste.__class__, waste.mass))
         print("Outflow class ", outflow.__class__)
         print("Mass ", outflow.mass, inflow.mass, outflow.mass - inflow.mass)
         print("Density ", outflow.density, inflow.density)
@@ -82,9 +91,11 @@ class Process():
         print("Volume  ", outflow.vol == inflow.vol)
         print("Burnup ", outflow.burnup == inflow.burnup)
         print("Metadata ", outflow.metadata, inflow.metadata)
-        print(waste.print_attr())
-        print(outflow.print_attr())"""
-        return outflow, waste
+        print("Flow After reprocessing ^^^^\n\n", inflow.print_attr())
+        print("Xe concentration in inflow after %f g" % inflow['Xe136'])
+        print("Waste mass %f g" % waste.mass)"""
+        del out_nucvec, waste_nucvec, el_name
+        return waste
 
     def check_mass_conservation(self):
         """ Checking that (outflow + waste_stream) == inflow

@@ -166,6 +166,7 @@ class Materialflow(pymat):
         else:
             NotImplemented
 
+
 """
 fuel = Materialflow({922350: 0.04, 922380: 0.96},
                     122000000,

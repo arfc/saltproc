@@ -27,13 +27,13 @@ process = Process(mass_flowrate=10,
 def test_element_removal():
     mats = serpent.read_dep_comp(input_file, 1)
     # print(mats['fuel'])
-    outflow, waste = process.rem_elements(mats['fuel'])
-    assert outflow[541350000] == 0.0
-    assert outflow[541260000] == 0.0
-    assert outflow[541280000] == 0.0
-    assert outflow[541470000] == 0.0
-    np.testing.assert_almost_equal(outflow[360790000], 6.420212330439721e-17)
-    np.testing.assert_almost_equal(outflow[360800000], 8.664348138870117e-08)
-    np.testing.assert_almost_equal(outflow[360920000], 1.4341550909931305e-05)
-    np.testing.assert_almost_equal(outflow[360860000], 1.4130164673249996)
+    waste = process.rem_elements(mats['fuel'])
+    np.testing.assert_almost_equal(waste[541350000], 19.79776930513891)
+    np.testing.assert_almost_equal(waste[541360000], 176.44741987005173)
+    np.testing.assert_almost_equal(waste[541280000], 9.911913132605642e-05)
+    np.testing.assert_almost_equal(waste[541390000], 0.026158507248944377)
+    np.testing.assert_almost_equal(waste[360790000], 6.420212330439721e-17)
+    np.testing.assert_almost_equal(waste[360800000], 1.6462261463853208e-06)
+    np.testing.assert_almost_equal(waste[360920000], 0.0002724894672886946)
+    np.testing.assert_almost_equal(waste[360860000], 26.847312879174968)
     assert waste.mass == 531.0633118374121

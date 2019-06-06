@@ -36,6 +36,7 @@ simulation = Simulation(sim_name='Integration test',
 
 
 @pytest.mark.slow
+#@pytest.mark.skip
 def test_integration_3step_saltproc_no_reproc_heavy():
     simulation.runsim_no_reproc()
     saltproc_out = sss_file + '_dep.m'
