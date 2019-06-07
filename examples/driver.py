@@ -30,7 +30,7 @@ restart_flag = False
 pc_type = 'pc'  # 'bw', 'falcon'
 # Number of cores and nodes to use in cluster
 cores = 4
-steps = 30
+steps = 2
 # Monte Carlo method parameters
 neutron_pop = 100  # 100
 active_cycles = 20  # 20
@@ -105,39 +105,40 @@ def reprocessing(mat):
         waste[mname] = {}
         extracted_mass[mname] = {}
         inmass[mname] = float(mat[mname].mass)
+        print("Material mass before reprocessing %f g" % inmass[mname])
         if mname == 'fuel':
-            p = ['heat_exchanger',
-                 'sparger',
+            p = ['sparger',
                  'entrainment_separator',
                  'nickel_filter',
-                 'liquid_me_extraction']
+                 'liquid_me_extraction',
+                 'heat_exchanger']
             w = ['waste_' + s for s in p]  # modify reprocessing nodes names
-            # 1 via Heat exchanger
+            # 1 via Sparger
             waste[mname][w[0]] = prcs[mname][p[0]].rem_elements(mat[mname])
-            # 2 via sparger
+            # 2 via entrainment_entrainment
             waste[mname][w[1]] = prcs[mname][p[1]].rem_elements(mat[mname])
-            # 3 via entrainment entrainment
+            # 3 via nickel_filter
             waste[mname][w[2]] = prcs[mname][p[2]].rem_elements(mat[mname])
             # Split to two paralell flows A and B
-            # A, 50% of mass flowrate
-            inflowA = 0.5*mat[mname]
+            # A, 10% of mass flowrate
+            inflowA = 0.1*mat[mname]
+            # 4 via liquid metal process
             waste[mname][w[3]] = prcs[mname][p[3]].rem_elements(inflowA)
-            # B, 10% of mass flowrate
-            inflowB = 0.1*mat[mname]
-            waste[mname][w[4]] = prcs[mname][p[4]].rem_elements(inflowB)
-            # C. rest of mass flow
-            outflowC = 0.4*mat[mname]
+            # C. rest of mass flow 90%
+            outflowC = 0.9*mat[mname]
             # Feed here
-            # Merge out flows
-            mat[mname] = inflowA + inflowB + outflowC
-            print('\nMass balance %f g = %f + %f + %f + %f + %f' %
+            # Merge out flows 5 via heat exchanger
+            mat[mname] = inflowA + outflowC
+            waste[mname][w[4]] = prcs[mname][p[4]].rem_elements(mat[mname])
+            print('\nMass balance %f g = %f + %f + %f + %f + %f + %f' %
                   (inmass[mname],
                    mat[mname].mass,
+                   waste[mname][w[0]].mass,
                    waste[mname][w[1]].mass,
                    waste[mname][w[2]].mass,
                    waste[mname][w[3]].mass,
                    waste[mname][w[4]].mass))
-            print('\nMass balance', mat[mname].mass+waste[mname][w[1]].mass+waste[mname][w[2]].mass+waste[mname][w[3]].mass+waste[mname][w[4]].mass)
+            print('\nMass balance', mat[mname].mass+waste[mname][w[0]].mass+waste[mname][w[1]].mass+waste[mname][w[2]].mass+waste[mname][w[3]].mass+waste[mname][w[4]].mass)
             """print('Volume ', inflowA.vol, inflowB.vol, inflowA.vol+inflowB.vol)
             print('Mass flowrate ', inflowA.mass_flowrate, inflowB.mass_flowrate, out[mname].mass_flowrate)
             print('Burnup ', inflowA.burnup, inflowB.burnup)
@@ -149,16 +150,18 @@ def reprocessing(mat):
             # Print data about reprocessing for current step
             print("\nBalance in %f t / out %f t" % (1e-6*inmass[mname], 1e-6*out[mname].mass))"""
             print("Removed FPs %f g" % (inmass[mname]-mat[mname].mass))
-            print("Total waste %f g" % (waste[mname][w[1]].mass + waste[mname][w[2]].mass +
-                                        waste[mname][w[3]].mass+waste[mname][w[4]].mass))
-            del inflowA, inflowB, outflowC
+            print("Total waste %f g" % (waste[mname][w[0]].mass +
+                                        waste[mname][w[1]].mass +
+                                        waste[mname][w[2]].mass +
+                                        waste[mname][w[3]].mass +
+                                        waste[mname][w[4]].mass))
+            del inflowA, outflowC
         if mname == 'ctrlPois':
             # print("\n\nPois In ^^^", mat[mname].__class__, mat[mname].print_attr())
             waste[mname]['removal_tb_dy'] = \
                 prcs[mname]['removal_tb_dy'].rem_elements(mat[mname])
         extracted_mass[mname] = inmass[mname] - float(mat[mname].mass)
-    # del outflow, inflowA, inflowB, outflowC, mname, prcs
-    del prcs, inmass
+    del prcs, inmass, mname
     return waste, extracted_mass
 
 
