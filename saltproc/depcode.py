@@ -98,9 +98,21 @@ class Depcode:
             "fission_mass_eds": []
             }
 
-    def run_depcode(self, cores):
+    def run_depcode(self, cores, nodes):
         """ Runs depletion code as subprocess with the given parameters"""
-        args = (self.exec_path, '-omp', str(cores), self.input_fname)
+        if self.exec_path.startswith('/projects/sciteam/bahg/'):  # check if BW
+            args = (
+                "aprun",
+                "-n",
+                str(nodes),
+                "-d",
+                str(32),
+                "self.exec_path",
+                "-omp",
+                str(32),
+                self.input_fname)
+        else:
+            args = (self.exec_path, '-omp', str(cores), self.input_fname)
         print('Running %s' % (self.codename))
         try:
             subprocess.check_call(args,

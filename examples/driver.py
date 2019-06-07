@@ -30,6 +30,7 @@ restart_flag = False
 pc_type = 'pc'  # 'bw', 'falcon'
 # Number of cores and nodes to use in cluster
 cores = 4
+nodes = 2
 steps = 2
 # Monte Carlo method parameters
 neutron_pop = 100  # 100
@@ -240,7 +241,7 @@ def main():
         print ("\n\n\nStep #%i has been started" % (dts+1))
         if dts == 0:  # First step
             serpent.write_depcode_input(template_file, input_file)
-            serpent.run_depcode(cores)
+            serpent.run_depcode(cores, nodes)
             # Read general simulation data which never changes
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dts
@@ -249,7 +250,7 @@ def main():
         # Finish of First step
         # Main sequence
         else:
-            serpent.run_depcode(cores)
+            serpent.run_depcode(cores, nodes)
         mats = serpent.read_dep_comp(input_file, 1)
         simulation.store_mat_data(mats, dts, 'before_reproc')
         simulation.store_run_step_info()
