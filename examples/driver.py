@@ -17,8 +17,8 @@ import objgraph
 import resource
 
 
-# input_path = os.path.dirname(os.path.abspath(__file__)) + '/../saltproc/'
-input_path = '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
+input_path = os.path.dirname(os.path.abspath(__file__)) + '/../saltproc/'
+# input_path = '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
 input_file = os.path.join(input_path, 'data/saltproc_tap')
 template_file = os.path.join(input_path, 'data/tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
@@ -26,11 +26,11 @@ db_file = os.path.join(input_path, 'data/db_saltproc.h5')
 compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
 # executable path of Serpent
 exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
-restart_flag = True
+restart_flag = False
 pc_type = 'pc'  # 'bw', 'falcon'
 # Number of cores and nodes to use in cluster
 cores = 4
-steps = 10
+steps = 30
 # Monte Carlo method parameters
 neutron_pop = 100  # 100
 active_cycles = 20  # 20
@@ -79,7 +79,8 @@ def read_feeds_from_input():
         # print(feeds['fuel']['leu'].print_attr())
         return feeds
 
-@profile
+
+# @profile
 def reprocessing(mat):
     """ Applies reprocessing scheme to selected material
 
@@ -96,12 +97,13 @@ def reprocessing(mat):
         value: Materialflow object containing waste streams data
     """
     inmass = {}
+    extracted_mass = {}
     waste = OrderedDict()
-    out = OrderedDict()
+    # out = OrderedDict()
     prcs = read_processes_from_input()
     for mname in prcs.keys():  # iterate over materials
         waste[mname] = {}
-        out[mname] = {}
+        extracted_mass[mname] = {}
         inmass[mname] = float(mat[mname].mass)
         if mname == 'fuel':
             p = ['heat_exchanger',
@@ -109,33 +111,34 @@ def reprocessing(mat):
                  'entrainment_separator',
                  'nickel_filter',
                  'liquid_me_extraction']
+            w = ['waste_' + s for s in p]  # modify reprocessing nodes names
             # 1 via Heat exchanger
-            waste[mname][p[0]] = prcs[mname][p[0]].rem_elements(mat[mname])
+            waste[mname][w[0]] = prcs[mname][p[0]].rem_elements(mat[mname])
             # 2 via sparger
-            waste[mname][p[1]] = prcs[mname][p[1]].rem_elements(mat[mname])
+            waste[mname][w[1]] = prcs[mname][p[1]].rem_elements(mat[mname])
             # 3 via entrainment entrainment
-            waste[mname][p[2]] = prcs[mname][p[2]].rem_elements(mat[mname])
+            waste[mname][w[2]] = prcs[mname][p[2]].rem_elements(mat[mname])
             # Split to two paralell flows A and B
             # A, 50% of mass flowrate
             inflowA = 0.5*mat[mname]
-            waste[mname][p[3]] = prcs[mname][p[3]].rem_elements(inflowA)
+            waste[mname][w[3]] = prcs[mname][p[3]].rem_elements(inflowA)
             # B, 10% of mass flowrate
             inflowB = 0.1*mat[mname]
-            waste[mname][p[4]] = prcs[mname][p[4]].rem_elements(inflowB)
+            waste[mname][w[4]] = prcs[mname][p[4]].rem_elements(inflowB)
             # C. rest of mass flow
             outflowC = 0.4*mat[mname]
             # Feed here
             # Merge out flows
-            out[mname] = inflowA + inflowB + outflowC
+            mat[mname] = inflowA + inflowB + outflowC
             print('\nMass balance %f g = %f + %f + %f + %f + %f' %
                   (inmass[mname],
-                   out[mname].mass,
-                   waste[mname][p[1]].mass,
-                   waste[mname][p[2]].mass,
-                   waste[mname][p[3]].mass,
-                   waste[mname][p[4]].mass))
-            print('\nMass balance', out[mname].mass+waste[mname][p[1]].mass+waste[mname][p[2]].mass+waste[mname][p[3]].mass+waste[mname][p[4]].mass)
-            print('Volume ', inflowA.vol, inflowB.vol, inflowA.vol+inflowB.vol)
+                   mat[mname].mass,
+                   waste[mname][w[1]].mass,
+                   waste[mname][w[2]].mass,
+                   waste[mname][w[3]].mass,
+                   waste[mname][w[4]].mass))
+            print('\nMass balance', mat[mname].mass+waste[mname][w[1]].mass+waste[mname][w[2]].mass+waste[mname][w[3]].mass+waste[mname][w[4]].mass)
+            """print('Volume ', inflowA.vol, inflowB.vol, inflowA.vol+inflowB.vol)
             print('Mass flowrate ', inflowA.mass_flowrate, inflowB.mass_flowrate, out[mname].mass_flowrate)
             print('Burnup ', inflowA.burnup, inflowB.burnup)
             print('\n\n')
@@ -144,59 +147,57 @@ def reprocessing(mat):
             print("\nIn ^^^", mat[mname].__class__, mat[mname].print_attr())
             print("\nOut ^^^", out[mname].__class__, out[mname].print_attr())
             # Print data about reprocessing for current step
-            print("\nBalance in %f t / out %f t" % (1e-6*inmass[mname], 1e-6*out[mname].mass))
-            print("Removed FPs %f g" % (inmass[mname]-out[mname].mass))
-            print("Total waste %f g" % (waste[mname][p[1]].mass + waste[mname][p[2]].mass +
-                                        waste[mname][p[3]].mass+waste[mname][p[4]].mass))
+            print("\nBalance in %f t / out %f t" % (1e-6*inmass[mname], 1e-6*out[mname].mass))"""
+            print("Removed FPs %f g" % (inmass[mname]-mat[mname].mass))
+            print("Total waste %f g" % (waste[mname][w[1]].mass + waste[mname][w[2]].mass +
+                                        waste[mname][w[3]].mass+waste[mname][w[4]].mass))
             del inflowA, inflowB, outflowC
         if mname == 'ctrlPois':
             # print("\n\nPois In ^^^", mat[mname].__class__, mat[mname].print_attr())
             waste[mname]['removal_tb_dy'] = \
                 prcs[mname]['removal_tb_dy'].rem_elements(mat[mname])
-            out[mname] = mat[mname]
-            print("\nPois Out ^^^", out[mname].__class__, out[mname].print_attr())
-            print("\nPois Waste ^^^",
-                  waste[mname]['removal_tb_dy'].__class__)
-                 #  waste[mname]['removal_tb_dy'].mass,
-                  # waste[mname]['removal_tb_dy'].print_attr())
-        # print(sys.getrefcount(outflow))
-        # print(weakref.getweakrefs(outflow))
-        # del outflow
-        # gc.collect()
+        extracted_mass[mname] = inmass[mname] - float(mat[mname].mass)
     # del outflow, inflowA, inflowB, outflowC, mname, prcs
-    del prcs
-    return out, waste
+    del prcs, inmass
+    return waste, extracted_mass
 
 
-def refill(mat, before_mat):
+def refill(mat, extracted_mass, waste_dict):
     """ Applies reprocessing scheme to selected material
 
     Parameters:
     -----------
-    mat: Materialflow object`
+    mat: dictionary
+        key: Material name
+        value: Materialflow object`
         Material data right after reprocessing plant
+    extracted_mass: dictionary
+        key: Material name
+        value: float
+        Mass removed as waste in reprocessing function for each material
     Returns:
     --------
-    out: Materialflow object
+    refill_stream: Materialflow object
         Material data after refill
     """
+    print('Fuel before refill ^^^', mat['fuel'].print_attr())
     feeds = read_feeds_from_input()
     refill_mat = OrderedDict()
-    out = OrderedDict()
+    # out = OrderedDict()
     # print (feeds['fuel'])
     for mn, v in feeds.items():  # iterate over materials
         refill_mat[mn] = {}
-        out[mn] = {}
+        # out[mn] = {}
         for feed_n, fval in feeds[mn].items():  # works with one feed only
-            scale = (before_mat[mn].mass-mat[mn].mass)/feeds[mn][feed_n].mass
+            scale = extracted_mass[mn]/feeds[mn][feed_n].mass
             refill_mat[mn] = scale * feeds[mn][feed_n]
-        out[mn] = mat[mn] + refill_mat[mn]
-    """print('Refilled fresh fuel %f g' % refill_mat['fuel'].mass)
+            waste_dict[mn]['feed_'+str(feed_n)] = refill_mat[mn]
+        mat[mn] += refill_mat[mn]
+    print('Refilled fresh fuel %f g' % refill_mat['fuel'].mass)
     print('Refilled fresh Gd %f g' % refill_mat['ctrlPois'].mass)
-    print(refill_mat['fuel'].print_attr())
-    print('Fuel after reproc ^^^', mat['fuel'].print_attr())
-    print('Fuel after refill ^^^', out['fuel'].print_attr())"""
-    return out
+    print('Refill Material ^^^', refill_mat['fuel'].print_attr())
+    print('Fuel after refill ^^^', mat['fuel'].print_attr())
+    return waste_dict
 
 
 def check_restart():
@@ -207,6 +208,7 @@ def check_restart():
             os.remove(input_file)
         except OSError as e:
             print("Error while deleting file, ", e)
+
 
 def main():
     """ Inititialize main run
@@ -232,40 +234,48 @@ def main():
     # simulation.runsim_no_reproc()
     # Start sequence
     for dts in range(steps):
-        print ("\nStep #%i has been started" % (dts+1))
+        print ("\n\n\nStep #%i has been started" % (dts+1))
         if dts == 0:  # First step
-            # serpent.write_depcode_input(template_file, input_file)
-            # serpent.run_depcode(cores)
+            serpent.write_depcode_input(template_file, input_file)
+            serpent.run_depcode(cores)
             # Read general simulation data which never changes
-            # simulation.store_run_init_info()
+            simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dts
-            # mats = serpent.read_dep_comp(input_file, 0)  # 0)
-            # simulation.store_mat_data(mats, dts-1, 'before_reproc')
-            # Testing stuff
-            print('test')
+            mats = serpent.read_dep_comp(input_file, 0)  # 0)
+            simulation.store_mat_data(mats, dts-1, 'before_reproc')
         # Finish of First step
         # Main sequence
-        # else:
-            # serpent.run_depcode(cores)
+        else:
+            serpent.run_depcode(cores)
         mats = serpent.read_dep_comp(input_file, 1)
-        # simulation.store_mat_data(mats, dts, 'before_reproc')
-        # simulation.store_run_step_info()
+        simulation.store_mat_data(mats, dts, 'before_reproc')
+        simulation.store_run_step_info()
         # Reprocessing here
-        mats_after_repr, waste_st = reprocessing(mats)
-        """mats_after_refill = refill(mats_after_repr, mats)
-        print("\nMass of fuel material before \
-             %f g and after %f g" % (mats['fuel'].mass,
-                                     mats_after_refill['fuel'].mass))
-        print("\nMass of ctrlPois material before \
-             %f g and after %f g" % (mats['ctrlPois'].mass,
-                                     mats_after_refill['ctrlPois'].mass))
+        print("\nMass and volume of fuel before reproc %f g; %f cm3" %
+                                                        (mats['fuel'].mass,
+                                                         mats['fuel'].vol))
+        print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
+                                                        (mats['ctrlPois'].mass,
+                                                         mats['ctrlPois'].vol))
+        waste_st, rem_mass = reprocessing(mats)
+        print("\nMass and volume of fuel after reproc %f g; %f cm3" %
+                                                        (mats['fuel'].mass,
+                                                         mats['fuel'].vol))
+        print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
+                                                        (mats['ctrlPois'].mass,
+                                                         mats['ctrlPois'].vol))
+        refill(mats, rem_mass, waste_st)
+        print("\nMass and volume of fuel after REFILL %f g; %f cm3" %
+                                                        (mats['fuel'].mass,
+                                                         mats['fuel'].vol))
+        print("Mass and volume of ctrlPois after REFILL %f g; %f cm3" %
+                                                        (mats['ctrlPois'].mass,
+                                                         mats['ctrlPois'].vol))
+        print("Removed mass [g]:", rem_mass)
         # Store in DB after reprocessing and refill (right before next depl)
-        # simulation.store_after_repr(mats_after_refill, waste_st, dts)
-        serpent.write_mat_file(mats_after_refill,
-                               iter_matfile,
-                               dts)"""
-        # serpent.write_mat_file(mats, iter_matfile, dts)
-        del mats, mats_after_repr, waste_st
+        simulation.store_after_repr(mats, waste_st, dts)
+        serpent.write_mat_file(mats, iter_matfile, dts)
+        del mats, waste_st, rem_mass
         gc.collect()
 
 

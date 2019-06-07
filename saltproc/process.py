@@ -81,6 +81,8 @@ class Process():
         inflow.mass = float(inflow.mass - waste.mass)
         inflow.comp = out_nucvec
         inflow.norm_comp()
+        # Recalculate volume too (assumed constant density)
+        # inflow.vol = float(inflow.mass * inflow.density)
         # outflow.copy_pymat_attrs(inflow)  # Copy additional PyNE attributes
         # print(waste.print_attr())
         """print("Waste class %s and mass %f g " % (waste.__class__, waste.mass))
@@ -90,9 +92,9 @@ class Process():
         print("atoms_per_molecule ", outflow.atoms_per_molecule == inflow.atoms_per_molecule)
         print("Volume  ", outflow.vol == inflow.vol)
         print("Burnup ", outflow.burnup == inflow.burnup)
-        print("Metadata ", outflow.metadata, inflow.metadata)
-        print("Flow After reprocessing ^^^^\n\n", inflow.print_attr())
-        print("Xe concentration in inflow after %f g" % inflow['Xe136'])
+        print("Metadata ", outflow.metadata, inflow.metadata)"""
+        # print("Flow After reprocessing ^^^^\n\n", inflow.print_attr())
+        """print("Xe concentration in inflow after %f g" % inflow['Xe136'])
         print("Waste mass %f g" % waste.mass)"""
         del out_nucvec, waste_nucvec, el_name
         return waste

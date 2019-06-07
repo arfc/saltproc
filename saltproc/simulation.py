@@ -124,16 +124,17 @@ class Simulation():
     def store_after_repr(self, after_mats, waste_dict, step):
         """ Adds to HDF5 database waste streams data for each process (g/step).
         """
+        streams_gr = 'in_out_streams'
         db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
         for mn in waste_dict.keys():  # iterate over materials
             mat_node = getattr(db.root.materials, mn)
-            if not hasattr(mat_node, 'waste_streams'):
+            if not hasattr(mat_node, streams_gr):
                 waste_group = db.create_group(
                                 mat_node,
-                                'waste_streams',
+                                streams_gr,
                                 'Waste Material streams data for each process')
             else:
-                waste_group = getattr(mat_node, 'waste_streams')
+                waste_group = getattr(mat_node, streams_gr)
             for proc in waste_dict[mn].keys():
                 # proc_node = db.create_group(waste_group, proc)
                 # iso_idx[proc] = OrderedDict()
