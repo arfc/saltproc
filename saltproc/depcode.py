@@ -111,7 +111,14 @@ class Depcode:
                 "-omp",
                 str(32),
                 self.input_fname)
-        else:
+        elif self.exec_path.startswith('/home/rykhandr/'):  # check if Falcon
+            args = (
+                'mpiexec',
+                self.exec.path,
+		self.input_file,
+		'-omp',
+		str(18))
+	else:
             args = (self.exec_path, '-omp', str(cores), self.input_fname)
         print('Running %s' % (self.codename))
         try:
