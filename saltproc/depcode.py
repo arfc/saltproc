@@ -115,7 +115,7 @@ class Depcode:
             args = (
                 'mpiexec',
                 self.exec_path,
-                self.input_file,
+                self.input_fname,
                 '-omp',
                 str(18))
         else:
