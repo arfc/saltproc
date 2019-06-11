@@ -1,7 +1,7 @@
-include "/home/rykhandr/meitner/mat_comp/saltproc_prepr_comp.ini"
+include "/u/sciteam/rykhlevs/meitner/mat_comp/saltproc_prepr_comp.ini"
 
-include "/home/rykhandr/meitner/mat_comp/non_burnable_mats.ini"
-include "/home/rykhandr/meitner/geometry/core_cr_withdr.ini"
+include "/u/sciteam/rykhlevs/meitner/mat_comp/non_burnable_mats.ini"
+include "/u/sciteam/rykhlevs/meitner/geometry/core_cr_withdr.ini"
 
 
 %therm zrh_h 900 hzr05.32t hzr06.32t   % 900K H-Zr

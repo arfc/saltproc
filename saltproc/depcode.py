@@ -101,16 +101,7 @@ class Depcode:
     def run_depcode(self, cores, nodes):
         """ Runs depletion code as subprocess with the given parameters"""
         if self.exec_path.startswith('/projects/sciteam/bahg/'):  # check if BW
-            args = (
-                "aprun",
-                "-n",
-                str(nodes),
-                "-d",
-                str(32),
-                "self.exec_path",
-                "-omp",
-                str(32),
-                self.input_fname)
+            args = ('aprun', '-n', str(nodes), '-d', str(32), self.exec_path, '-omp', str(32), self.input_fname)
         elif self.exec_path.startswith('/home/rykhandr/'):  # check if Falcon
             args = (
                 'mpiexec',
@@ -122,11 +113,11 @@ class Depcode:
             args = (self.exec_path, '-omp', str(cores), self.input_fname)
         print('Running %s' % (self.codename))
         try:
-            subprocess.check_call(args,
-                                  stdout=subprocess.DEVNULL,
-                                  stderr=subprocess.STDOUT)
+            subprocess.check_output(args)
+                                  # stdout=subprocess.DEVNULL,
+                                  # stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
-            print(error.output)
+            print(error.output, error.returncode)
             raise ValueError('\n %s RUN FAILED\n' % (self.codename))
         print('Finished Serpent Run')
 
