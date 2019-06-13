@@ -26,11 +26,11 @@ exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
 restart_flag = True
 pc_type = 'pc'  # 'bw', 'falcon'
 # Number of cores and nodes to use in cluster
-cores = 4  # doesn't used on Falcon (grabbing it from PBS)
-nodes = 1  # doesn't use on Falcon (grabbing it from PBS)
+cores = 4  # doesn't used on Falcon (grabbing it from PBS) 32
+nodes = 1  # doesn't use on Falcon (grabbing it from PBS)  16
 steps = 2
 # Monte Carlo method parameters
-neutron_pop = 6000  # 10 000, 400, 100: 35pcm; 12 000, 400, 200: 31pcm
+neutron_pop = 6000  # 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
 active_cycles = 100  # 20
 inactive_cycles = 60  # 5
 # Define materials (should read from input file)
