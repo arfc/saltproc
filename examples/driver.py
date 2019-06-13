@@ -14,6 +14,7 @@ import gc
 
 input_path = os.path.dirname(os.path.abspath(__file__)) + '/../saltproc/'
 # input_path = '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
+spc_inp_file = os.path.join(input_path, '../examples/input_1979leu.json')
 input_file = os.path.join(input_path, 'data/saltproc_tap')
 template_file = os.path.join(input_path, 'data/tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
@@ -27,10 +28,10 @@ pc_type = 'pc'  # 'bw', 'falcon'
 # Number of cores and nodes to use in cluster
 cores = 4  # doesn't used on Falcon (grabbing it from PBS)
 nodes = 1  # doesn't use on Falcon (grabbing it from PBS)
-steps = 16
+steps = 2
 # Monte Carlo method parameters
-neutron_pop = 6000  # 10 000, 400, 100: 35pcm
-active_cycles = 120  # 20
+neutron_pop = 6000  # 10 000, 400, 100: 35pcm; 12 000, 400, 200: 31pcm
+active_cycles = 100  # 20
 inactive_cycles = 60  # 5
 # Define materials (should read from input file)
 core_massflow_rate = 9.92e+6  # g/s
@@ -38,7 +39,7 @@ core_massflow_rate = 9.92e+6  # g/s
 
 def read_processes_from_input():
     processes = OrderedDict()
-    with open('input.json') as f:
+    with open(spc_inp_file) as f:
         j = json.load(f)
         # print(j)
         for mat, value in j.items():
@@ -59,7 +60,7 @@ def read_processes_from_input():
 
 def read_feeds_from_input():
     feeds = OrderedDict()
-    with open('input.json') as f:
+    with open(spc_inp_file) as f:
         j = json.load(f)
         # print(j['feeds'])
         for mat, val in j.items():
