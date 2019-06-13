@@ -8,6 +8,7 @@ include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/crw/geometry/core_cr_w
 %include "/u/sciteam/rykhlevs/meitner/mat_comp/non_burnable_mats.ini"
 %include "/u/sciteam/rykhlevs/meitner/geometry/core_cr_withdr.ini"
 
+set title "TAP MSR test 3-d step"
 
 %therm zrh_h 900 hzr05.32t hzr06.32t   % 900K H-Zr
 %set acelib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff312.xsdata"

@@ -6,7 +6,6 @@ from saltproc import Process
 # from simulation import Simulation
 # from materialflow import Materialflow
 import os
-import copy
 import tables as tb
 import json
 from collections import OrderedDict
@@ -21,17 +20,18 @@ iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
 db_file = os.path.join(input_path, 'data/db_saltproc.h5')
 compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
 # executable path of Serpent
-exec_path = '/projects/sciteam/bahg/serpent/src2.1.31/sss2'
-restart_flag = False
+exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
+# exec_path = '/projects/sciteam/bahg/serpent/src2.1.31/sss2'  # BW
+restart_flag = True
 pc_type = 'pc'  # 'bw', 'falcon'
 # Number of cores and nodes to use in cluster
-cores = 18  # doesn't used on BW or Falcon
-nodes = 16  # doesn't use on Falcon
-steps = 1000
+cores = 4  # doesn't used on Falcon (grabbing it from PBS)
+nodes = 1  # doesn't use on Falcon (grabbing it from PBS)
+steps = 16
 # Monte Carlo method parameters
-neutron_pop = 30000  # 10 000, 400, 100: 35pcm
-active_cycles = 400  # 20
-inactive_cycles = 150  # 5
+neutron_pop = 6000  # 10 000, 400, 100: 35pcm
+active_cycles = 120  # 20
+inactive_cycles = 60  # 5
 # Define materials (should read from input file)
 core_massflow_rate = 9.92e+6  # g/s
 
@@ -225,6 +225,7 @@ def main():
     simulation = Simulation(sim_name='Super test',
                             sim_depcode=serpent,
                             core_number=cores,
+                            node_number=nodes,
                             h5_file=db_file,
                             compression=compression_prop,
                             iter_matfile=iter_matfile,
@@ -235,7 +236,7 @@ def main():
     # Start sequence
     for dts in range(steps):
         print ("\n\n\nStep #%i has been started" % (dts+1))
-        if dts == 0:  # First step
+        if dts == 0 and restart_flag is False:  # First step
             serpent.write_depcode_input(template_file, input_file)
             serpent.run_depcode(cores, nodes)
             # Read general simulation data which never changes

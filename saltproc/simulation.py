@@ -1,6 +1,4 @@
-import copy
 from pyne import nucname as pyname
-import pandas as pd
 import numpy as np
 import tables as tb
 from collections import OrderedDict
@@ -15,11 +13,12 @@ class Simulation():
             self,
             sim_name="default",
             sim_depcode="SERPENT",
-            core_number=0,
+            core_number=1,
+            node_number=1,
             h5_file="db_saltproc.h5",
             compression=None,
             iter_matfile="default",
-            timesteps=0):
+            timesteps=1):
         """Initializes the class
 
         Parameters:
@@ -61,6 +60,7 @@ class Simulation():
         self.sim_name = sim_name
         self.sim_depcode = sim_depcode
         self.core_number = core_number
+        self.node_number = node_number
         self.h5_file = h5_file
         self.compression = compression
         self.iter_matfile = iter_matfile
@@ -74,23 +74,27 @@ class Simulation():
             print ("\nStep #%i has been started" % (dts+1))
             if dts == 0:  # First step
                 self.sim_depcode.write_depcode_input(
-                                    self.sim_depcode.template_fname,
-                                    self.sim_depcode.input_fname)
-                self.sim_depcode.run_depcode(self.core_number)
+                                        self.sim_depcode.template_fname,
+                                        self.sim_depcode.input_fname)
+                self.sim_depcode.run_depcode(
+                                        self.core_number,
+                                        self.node_number)
                 # Read general simulation data which never changes
                 self.store_run_init_info()
                 # Parse and store data for initial state (beginning of dts)
                 mats = self.sim_depcode.read_dep_comp(
-                                            self.sim_depcode.input_fname,
-                                            0)
+                                        self.sim_depcode.input_fname,
+                                        0)
                 self.store_mat_data(mats, dts, 'before_reproc')
             # Finish of First step
             # Main sequence
             else:
-                self.sim_depcode.run_depcode(self.core_number)
+                self.sim_depcode.run_depcode(
+                                        self.core_number,
+                                        self.node_number)
             mats = self.sim_depcode.read_dep_comp(
-                                              self.sim_depcode.input_fname,
-                                              1)
+                                        self.sim_depcode.input_fname,
+                                        1)
             self.store_mat_data(mats, dts, 'before_reproc')
             self.store_run_step_info()
             self.sim_depcode.write_mat_file(mats, self.iter_matfile, dts)
@@ -327,11 +331,11 @@ class Simulation():
                     ('neutron_population',       int),
                     ('active_cycles',            int),
                     ('inactive_cycles',          int),
-                    ('serpent_version',         'S7'),
-                    ('title',                  'S50'),
-                    ('serpent_input_filename', 'S80'),
-                    ('serpent_working_dir',    'S80'),
-                    ('xs_data_path',           'S80'),
+                    ('serpent_version',         'S20'),
+                    ('title',                  'S90'),
+                    ('serpent_input_filename', 'S90'),
+                    ('serpent_working_dir',    'S90'),
+                    ('xs_data_path',           'S90'),
                     ('OMP_threads',              int),
                     ('MPI_tasks',                int),
                     ('memory_optimization_mode', int)
