@@ -28,10 +28,10 @@ pc_type = 'pc'  # 'bw', 'falcon'
 # Number of cores and nodes to use in cluster
 cores = 4  # doesn't used on Falcon (grabbing it from PBS) 32
 nodes = 1  # doesn't use on Falcon (grabbing it from PBS)  16
-steps = 2
+steps = 5
 # Monte Carlo method parameters
-neutron_pop = 6000  # 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
-active_cycles = 100  # 20
+neutron_pop = 10000  # 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
+active_cycles = 100  # 20; 50'000, 400, 250: 16pcm
 inactive_cycles = 60  # 5
 # Define materials (should read from input file)
 core_massflow_rate = 9.92e+6  # g/s
