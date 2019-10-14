@@ -27,12 +27,12 @@ set pop 300 40 10
 % --- Depletion parameters
 % --- Options for burnup calculation:
 set bumode  2  % CRAM method
-set pcc     1  % Predictor-corrector calculation on
+set pcc     2  % Predictor-corrector calculation off (Linear extrapolation)
 %set xscalc  2  % Cross sections from spectrum
 %set bunorm 2
 %set opti 3
 
-set power 1.250E+09 dep daytot 3
+set power 1.250E+09 dep daytot 10
 
 %set printm 1 0.0
 
