@@ -14,7 +14,7 @@ import re
 class saltproc:
     """ Class saltproc runs SERPENT and manipulates its input and output files
         to reprocess its material, while storing the SERPENT run results in a
-        HDF5 database. 
+        HDF5 database.
     """
 
     def __init__(self, steps, cores, nodes, bw, exec_path, restart=False,

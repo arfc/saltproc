@@ -28,7 +28,7 @@ depcode = Depcode(codename='SERPENT',
                   inactive_cycles=5)
 simulation = Simulation(sim_name='Integration test',
                         sim_depcode=depcode,
-                        core_number=4,
+                        core_number=12,
                         node_number=1,
                         h5_file=db_file,
                         compression=None,

@@ -1,0 +1,372 @@
+include "/home/andrei2/Desktop/git/saltproc/develop/saltproc/tests/integration_tests/int_test_mat"
+
+
+%therm zrh_h 900 hzr05.32t hzr06.32t   % 900K H-Zr
+%set acelib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff312.xsdata"
+%set declib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.dec"
+%set nfylib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.nfy"
+%set sfylib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.sfy"
+
+set acelib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff312.xsdata"
+set declib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.dec"
+set nfylib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.nfy"
+set sfylib "/home/andrei2/serpent/xsdata/jeff312/sss_jeff33.sfy"
+% --- Neutron population and criticality cycles:
+
+set pop 100 20 5
+%set gcu -1
+% --- Depletion parameters
+% --- Options for burnup calculation:
+set bumode  2  % CRAM method
+set pcc     1  % Predictor-corrector calculation on
+%set xscalc  2  % Cross sections from spectrum
+%set bunorm 2
+%set opti 3
+
+set power 1.250E+09 dep daytot 3
+
+%set printm 1 0.0
+
+set inventory all
+
+%set rfw 1 restart
+%set rfr idx 321 restart
+set seed 46549345296
+
+mat zrh -5.66 tmp 900 rgb 68 1 84 moder zrh_h 1001 %moder zrh_z 40090     % g/cm3 UNVERIFIED
+40090.09c -0.49793        % Mass fraction of Zr -90
+40091.09c -0.10980        % Mass fraction of Zr -91
+40092.09c -0.16967        % Mass fraction of Zr -92
+40094.09c -0.17569        % Mass fraction of Zr -94
+40096.09c -0.028908        % Mass fraction of Zr -96
+1001.09c  -0.018007        % Mass fraction of H - 1
+1002.09c  -0.0000041389        % Mass fraction of H - 2
+%therm zrh_h h-zr.15t % h-zr.26t  % Scattering XS for H from MCNP ACE lib
+%therm zrh_z zr-h.15t % zr-h.26t  % Scattering XS for Zr from MCNP ACE lib
+therm zrh_h 900 hzr05.32t hzr06.32t   % 900K H-Zr for JEFF-3.1.2 ACE lib (BW)
+
+mat sic -3.21 tmp 900       % g/cm3 UNVERIFIED
+14028.09c  -0.64365       % Mass fraction of Si - 28
+14029.09c  -0.033866       % Mass fraction of Si - 29
+14030.09c  -0.02312       % Mass fraction of Si - 30
+6000.09c   -0.29936       % Mass fraction of C
+
+mat hast   -8.86 tmp 900 rgb 127 205 187  % g/cm3 for mixture
+%28000.09c   -6.29060      % Mass fraction of Ni
+28058.09c   -4.28245176   % Mass fraction of Ni-58
+28060.09c   -1.649584     % Mass fraction of Ni-60
+28061.09c   -0.07171284   % Mass fraction of Ni-61
+28061.09c   -0.22866331   % Mass fraction of Ni-62
+28064.09c   -0.058251     % Mass fraction of Ni-64
+%24000.09c   -0.62020      % Mass fraction of Cr
+24050.09c   -0.0269477    % Mass fraction of Cr-50
+24052.09c   -0.51965938   % Mass fraction of Cr-52
+24053.09c   -0.0589252    % Mass fraction of Cr-53
+24054.09c   -0.01466773   % Mass fraction of Cr-54
+%42000.09c   -1.41760      % Mass fraction of Mo
+42092.09c   -0.2076784    % Mass fraction of Mo-92
+42094.09c   -0.13027744   % Mass fraction of Mo-94
+42095.09c   -0.22497312   % Mass fraction of Mo-95
+42096.09c   -0.23631392   % Mass fraction of Mo-96
+42097.09c   -0.13580608   % Mass fraction of Mo-97
+42098.09c   -0.34433504   % Mass fraction of Mo-98
+42100.09c   -0.13807424   % Mass fraction of Mo-100
+%26000.09c   -0.28441      % Mass fraction of Fe
+26054.09c   -0.016637985  % Mass fraction of Fe-54
+26056.09c   -0.260946175  % Mass fraction of Fe-56
+26057.09c   -0.006029492  % Mass fraction of Fe-57
+26058.09c   -7.96348E-4   % Mass fraction of Fe-58
+%14000.09c   -0.08063      % Mass fraction of Si
+14028.09c   -0.07434086   % Mass fraction of Si-28
+14029.09c   -3.78961E-3   % Mass fraction of Si-29
+14030.09c   -2.249953E-3  % Mass fraction of Si-30
+25055.09c   -0.05316      % Mass fraction of Mn-55 (100% abundance)
+23000.09c   -0.04430      % Mass fraction of V
+6000.09c    -0.00532      % Mass fraction of C
+27059.09c   -0.00177      % Mass fraction of Co-59 (100% abundance)
+%74000.09c   -0.02658      % Mass fraction of W
+74182.09c   -7.0437E-3    % Mass fraction of W-182
+74183.09c   -3.803598E-3  % Mass fraction of W-183
+74184.09c   -8.144112E-3  % Mass fraction of W-184
+74186.09c   -7.556694E-3  % Mass fraction of W-186
+13027.09c   -0.01772      % Mass fraction of Al-28 (100% abundance)
+%22000.09c   -0.01772      % Mass fraction of Ti
+22046.09c   -1.4619E-3    % Mass fraction of Ti-46
+22047.09c   -1.318368E-3  % Mass fraction of Ti-47
+22048.09c   -0.013063184  % Mass fraction of Ti-48
+22049.09c   -9.58652E-4   % Mass fraction of Ti-49
+22050.09c   -9.17896E-4   % Mass fraction of Ti-50
+
+mat air -0.001225 tmp 900
+8016.09c  0.21
+7014.09c  0.79
+
+%%%%%%%%%%%%%%%%%%%%%%%%% GEOMETRY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+surf 11 inf
+surf 12 inf
+surf 13 inf
+surf 14 inf
+surf 15 inf
+surf 16 inf
+
+cell 100 2 fuel -11
+cell 101 3 zrh -12
+cell 102 4 sic  -13
+cell 103 5 ctrlPois  -14
+cell 104 6 air -15
+cell 105 7 hast -16
+
+
+surf 1 cyl    0.0 0.0 1.15
+surf 2 cyl    0.0 0.0 1.25
+surf 3 sqc    0.0 0.0 1.5
+
+surf 4 pz -150                %Top of Active Core
+surf 5 pz  150                %Borrom of Active Core
+
+surf 6 pz -175                %Top of core
+surf 7 pz  175                %Bottom of core
+
+cell 1  M  fill 3 -1   -5 4
+cell 2  M  fill 4 -2 1 -5 4
+cell 3  M  fill 2 -3 2 -5 4
+cell 4  M  fill 2  -3  -4 6
+cell 5  M  fill 2  -3  -7 5
+
+cell 6  F  fill 2  -3  -7 6
+
+%The CR is said to be in a voided thimble with similar design to MSRE
+%Assumed thickness/outer radius was constant for each material
+%Assumed GT took up  1 moderator rod pitch
+
+surf 120 cyl 0.0 0.0 1.5        %OR for  CR GT
+surf 121 cyl 0.0 0.0 1.425      %IR for  CR GT
+
+surf 122 cyl 0.0 0.0 0.855      %OR for CR clad
+surf 123 cyl 0.0 0.0 0.810      %OR for CR pois
+%surf 124 cyl 0.0 0.0 0.630      %OR for CR clad
+%surf 125 cyl 0.0 0.0 0.5925     %OR for CR air
+surf 124 cyl 0.0 0.0 0.43      %OR for CR clad
+surf 125 cyl 0.0 0.0 0.3925     %OR for CR air
+surf 126 pz -150                % Assumed rod is 300 cm long
+surf 129 pz 150                 % Ignoring end caps
+
+cell cr01 CR0 fill 6 -125     126 -129
+cell cr02 CR0 fill 7 -124 125 126 -129
+cell cr03 CR0 fill 5 -123 124 126 -129
+cell cr04 CR0 fill 7 -122 123 126 -129
+cell cr05 CR0 fill 6 -122          129
+cell cr06 CR0 fill 6 -122    -126
+
+cell cr11 CR1 fill 6 -125     126 -129
+cell cr12 CR1 fill 7 -124 125 126 -129
+cell cr13 CR1 fill 5 -123 124 126 -129
+cell cr14 CR1 fill 7 -122 123 126 -129
+cell cr15 CR1 fill 6 -122          129
+cell cr16 CR1 fill 6 -122    -126
+
+cell cr21 CR2 fill 6 -125     126 -129
+cell cr22 CR2 fill 7 -124 125 126 -129
+cell cr23 CR2 fill 5 -123 124 126 -129
+cell cr24 CR2 fill 7 -122 123 126 -129
+cell cr25 CR2 fill 6 -122          129
+cell cr26 CR2 fill 6 -122    -126
+
+cell cr31 CR3 fill 6 -125     126 -129
+cell cr32 CR3 fill 7 -124 125 126 -129
+cell cr33 CR3 fill 5 -123 124 126 -129
+cell cr34 CR3 fill 7 -122 123 126 -129
+cell cr35 CR3 fill 6 -122          129
+cell cr36 CR3 fill 6 -122    -126
+
+cell cr41 CR4 fill 6 -125     126 -129
+cell cr42 CR4 fill 7 -124 125 126 -129
+cell cr43 CR4 fill 5 -123 124 126 -129
+cell cr44 CR4 fill 7 -122 123 126 -129
+cell cr45 CR4 fill 6 -122          129
+cell cr46 CR4 fill 6 -122    -126
+
+cell cr51 CR5 fill 6 -125     126 -129
+cell cr52 CR5 fill 7 -124 125 126 -129
+cell cr53 CR5 fill 5 -123 124 126 -129
+cell cr54 CR5 fill 7 -122 123 126 -129
+cell cr55 CR5 fill 6 -122          129
+cell cr56 CR5 fill 6 -122    -126
+
+cell cr61 CR6 fill 6 -125     126 -129
+cell cr62 CR6 fill 7 -124 125 126 -129
+cell cr63 CR6 fill 5 -123 124 126 -129
+cell cr64 CR6 fill 7 -122 123 126 -129
+cell cr65 CR6 fill 6 -122          129
+cell cr66 CR6 fill 6 -122    -126
+
+% CONTROL ROD POSITIONS
+% ordered is confusing see lattice
+% full inserted rod sits at z=0 cm
+% for a pulled rod, just move it out of the core. z=300 fully withdrawn
+trans CR0 0.0 0.0  300
+trans CR1 0.0 0.0  300
+trans CR2 0.0 0.0  300
+trans CR3 0.0 0.0  300
+trans CR4 0.0 0.0  300
+trans CR5 0.0 0.0  300
+trans CR6 0.0 0.0  300
+
+cell gt11 GT1 fill CR1 -122     -7 6
+cell gt12 GT1 fill 6   -121 122 -7 6
+cell gt13 GT1 fill 7   -120 121 -7 6
+cell gt14 GT1 fill 2   -3 120   -7 6
+
+cell gt21 GT2 fill CR2 -122     -7 6
+cell gt22 GT2 fill 6   -121 122 -7 6
+cell gt23 GT2 fill 7   -120 121 -7 6
+cell gt24 GT2 fill 2   -3 120   -7 6
+
+cell gt31 GT3 fill CR3 -122     -7 6
+cell gt32 GT3 fill 6   -121 122 -7 6
+cell gt33 GT3 fill 7   -120 121 -7 6
+cell gt34 GT3 fill 2   -3 120   -7 6
+
+cell gt41 GT4 fill CR4 -122     -7 6
+cell gt42 GT4 fill 6   -121 122 -7 6
+cell gt43 GT4 fill 7   -120 121 -7 6
+cell gt44 GT4 fill 2   -3 120   -7 6
+
+cell gt51 GT5 fill CR5 -122     -7 6
+cell gt52 GT5 fill 6   -121 122 -7 6
+cell gt53 GT5 fill 7   -120 121 -7 6
+cell gt54 GT5 fill 2   -3 120   -7 6
+
+cell gt61 GT6 fill CR6 -122     -7 6
+cell gt62 GT6 fill 6   -121 122 -7 6
+cell gt63 GT6 fill 7   -120 121 -7 6
+cell gt64 GT6 fill 2   -3 120   -7 6
+
+surf 1000 cyl 0.0 0.0 150        %Cyl containing lattice
+surf 1100 cyl 0.0 0.0 155        %Outer cyl of vessel
+
+
+lat 11 1 0.0 0.0 5 5 3  %4M
+F F F F F
+F M F M F
+F F F F F
+F M F M F
+F F F F F
+
+lat 11R3 1 0.0 0.0 5 5 3
+GT3 F F F F
+  F M F M F
+  F F F F F
+  F M F M F
+  F F F F F
+
+lat 11R6 1 0.0 0.0 5 5 3
+GT6 F F F F
+  F M F M F
+  F F F F F
+  F M F M F
+  F F F F F
+
+lat 12 1 0.0 0.0 5 5 3 %6M
+F M F M F
+F F F F F
+F M F M F
+F F F F F
+F M F M F
+
+lat 13 1 0.0 0.0 5 5 3 %5M
+F F M F F
+F F F F F
+M F M F M
+F F F F F
+F F M F F
+
+lat 13R1 1 0.0 0.0 5 5 3
+GT1 F M F F
+  F F F F F
+  M F M F M
+  F F F F F
+  F F M F F
+
+lat 13R2 1 0.0 0.0 5 5 3
+GT2 F M F F
+  F F F F F
+  M F M F M
+  F F F F F
+  F F M F F
+
+lat 13R4 1 0.0 0.0 5 5 3
+GT4 F M F F
+  F F F F F
+  M F M F M
+  F F F F F
+  F F M F F
+
+lat 13R5 1 0.0 0.0 5 5 3
+GT5 F M F F
+  F F F F F
+  M F M F M
+  F F F F F
+  F F M F F
+
+lat 14 1 0.0 0.0 5 5 3  %2M
+F F F F F
+F F F F F
+F M F M F
+F F F F F
+F F F F F
+
+lat 15 1 0.0 0.0 5 5 3 %2M
+F F F F F
+F F M F F
+F F F F F
+F F M F F
+F F F F F
+
+lat 16 1 0.0 0.0 5 5 3
+F F F F F
+F F F F F
+F F F F F
+F F F F F
+F F F F F
+
+lat 17 1 0.0 0.0 5 5 3
+F F F F F
+M F M F M
+F F F F F
+M F M F M
+F F F F F
+
+lat 10 1 75.0 75.0 10 10 15
+11   17   11   17   11   17   11   17   11   16
+12 13R1   12 13R2   12   13   12   13   12   16
+11   17 11R3   17   11   17   11   17   11   16
+12 13R4   12 13R5   12   13   12   13   14   16
+11   17   11   17 11R6   17   11   15   16   16
+12   13   12   13   12   13   12   16   16   16
+11   17   11   17   11   17   11   16   16   16
+12   13   12   13   14   16   16   16   16   16
+11   17   11   15   16   16   16   16   16   16
+16   16   16   16   16   16   16   16   16   16
+
+set usym 10 4 0 0
+
+
+set bc 1 1 1
+
+
+%42 is the core lattice
+
+
+cell 200 0 fill 10   -1000  3 -7 6     %lattice
+cell 203 0 fill 7     1000 -1100 -7 6  %baffle
+
+cell gt01 0 fill CR0 -122     -7 6
+cell gt02 0 fill 6   -121 122 -7 6
+cell gt03 0 fill 7   -120 121 -7 6
+cell gt04 0 fill 2   -3 120   -7 6
+
+
+cell 206 0 outside     1100
+cell 207 0 outside    -6
+cell 208 0 outside     7

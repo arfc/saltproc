@@ -182,7 +182,7 @@ handling `numpy` arrays, and they allow to specify the tolerance of the
 comparison through the `decimal` key-word argument.
 
 To run the tests on the command line, change your present working directory to
-the top-level directory of the repository (e.g. `/Users/arokem/code/saltproc`),
+the top-level directory of the repository (e.g. `/user/code/saltproc`),
 and type:
 
     py.test saltproc

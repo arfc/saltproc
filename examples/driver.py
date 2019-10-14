@@ -26,7 +26,7 @@ exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
 restart_flag = True
 pc_type = 'pc'  # 'bw', 'falcon'
 # Number of cores and nodes to use in cluster
-cores = 4  # doesn't used on Falcon (grabbing it from PBS) 32
+cores = 12  # doesn't used on Falcon (grabbing it from PBS) 32
 nodes = 1  # doesn't use on Falcon (grabbing it from PBS)  16
 steps = 5
 # Monte Carlo method parameters
