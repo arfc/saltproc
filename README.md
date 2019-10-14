@@ -260,7 +260,7 @@ directories named "doc". Do all checks except N802 and N806, which enforce
 lowercase-only names for variables and functions.
 
 The `Makefile` contains an instruction for running this command as well:
-
+python setup.py install
     make flake8
 
 ### Documentation
@@ -320,7 +320,8 @@ For installation and distribution we will use the python standard
 library `distutils` module. This module uses a `setup.py` file to
 figure out how to install your software on a particular system. For a
 small project such as this one, managing installation of the software
-modules and the data is rather simple.
+modules and the data is rather simple. To install SaltProc:
+`python setup.py install --user`
 
 A `saltproc/version.py` contains all of the information needed for the
 installation and for setting up the [PyPI
