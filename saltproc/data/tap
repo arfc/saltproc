@@ -1,14 +1,14 @@
-include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/saltproc_prepr_comp.ini"
+%include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/saltproc_prepr_comp.ini"
 
-include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/non_burnable_mats.ini"
-include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/crw/geometry/core_cr_withdr.ini"
+%include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/non_burnable_mats.ini"
+%include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/crw/geometry/core_cr_withdr.ini"
 
-%include "/u/sciteam/rykhlevs/meitner/mat_comp/saltproc_prepr_comp.ini"
+include "/u/sciteam/rykhlevs/meitner/mat_comp/saltproc_prepr_comp.ini"
 
-%include "/u/sciteam/rykhlevs/meitner/mat_comp/non_burnable_mats.ini"
-%include "/u/sciteam/rykhlevs/meitner/geometry/core_cr_withdr.ini"
+include "/u/sciteam/rykhlevs/meitner/mat_comp/non_burnable_mats.ini"
+include "/u/sciteam/rykhlevs/meitner/geometry/core_cr_withdr.ini"
 
-set title "TAP MSR test 3-d step"
+set title "TAP MSR test 30-d step"
 
 %therm zrh_h 900 hzr05.32t hzr06.32t   % 900K H-Zr
 %set acelib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff312.xsdata"
@@ -27,12 +27,12 @@ set pop 300 40 10
 % --- Depletion parameters
 % --- Options for burnup calculation:
 set bumode  2  % CRAM method
-set pcc     2  % Predictor-corrector calculation off (Linear extrapolation)
+set pcc     1  % Predictor-corrector calculation off (Linear extrapolation)
 %set xscalc  2  % Cross sections from spectrum
 %set bunorm 2
 %set opti 3
 
-set power 1.250E+09 dep daytot 10
+set power 1.250E+09 dep daytot 30
 
 %set printm 1 0.0
 

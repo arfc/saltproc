@@ -14,25 +14,25 @@ import gc
 
 input_path = os.path.dirname(os.path.abspath(__file__)) + '/../saltproc/'
 # input_path = '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
-spc_inp_file = os.path.join(input_path, '../examples/input_1979leu.json')
+spc_inp_file = os.path.join(input_path, '../examples/input_5leu.json')
 input_file = os.path.join(input_path, 'data/saltproc_tap')
 template_file = os.path.join(input_path, 'data/tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
 db_file = os.path.join(input_path, 'data/db_saltproc.h5')
 compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
 # executable path of Serpent
-exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
-# exec_path = '/projects/sciteam/bahg/serpent/src2.1.31/sss2'  # BW
+#exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
+exec_path = '/projects/sciteam/bahg/serpent/src2.1.31/sss2'  # BW
 restart_flag = False
-pc_type = 'pc'  # 'bw', 'falcon'
+pc_type = 'bw'  # 'bw', 'falcon', 'pc'
 # Number of cores and nodes to use in cluster
-cores = 12  # doesn't used on Falcon (grabbing it from PBS) 32
-nodes = 1  # doesn't use on Falcon (grabbing it from PBS)  16
-steps = 2
+cores = 8  # doesn't used on Falcon (grabbing it from PBS) 32
+nodes = 64  # doesn't use on Falcon (grabbing it from PBS)  16
+steps = 186
 # Monte Carlo method parameters
-neutron_pop = 1000  # 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
-active_cycles = 40  # 20; 50'000, 400, 250: 16pcm
-inactive_cycles = 20  # 5
+neutron_pop = 15000  # 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
+active_cycles = 400  # 20; 50'000, 400, 250: 16pcm
+inactive_cycles = 200  # 5
 # Define materials (should read from input file)
 core_massflow_rate = 9.92e+6  # g/s
 
