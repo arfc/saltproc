@@ -8,7 +8,7 @@ include "/u/sciteam/rykhlevs/meitner/mat_comp/saltproc_prepr_comp.ini"
 include "/u/sciteam/rykhlevs/meitner/mat_comp/non_burnable_mats.ini"
 include "/u/sciteam/rykhlevs/meitner/geometry/core_cr_withdr.ini"
 
-set title "TAP MSR test 30-d step"
+set title "TAP MSR test 5-d step"
 
 %therm zrh_h 900 hzr05.32t hzr06.32t   % 900K H-Zr
 %set acelib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff312.xsdata"
@@ -32,7 +32,7 @@ set pcc     1  % Predictor-corrector calculation off (Linear extrapolation)
 %set bunorm 2
 %set opti 3
 
-set power 1.250E+09 dep daytot 30
+set power 1.250E+09 dep daytot 5
 
 %set printm 1 0.0
 
