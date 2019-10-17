@@ -110,7 +110,7 @@ class Depcode:
                 '-omp',
                 str(cores),
                 self.input_fname)
-        elif self.exec_path.startswith('/home/rykhandr/'):  # check if Falcon
+        elif self.exec_path.startswith('/apps/exp_ctl/'):  # check if Falcon
             args = (
                 'mpiexec',
                 self.exec_path,

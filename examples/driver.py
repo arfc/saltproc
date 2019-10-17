@@ -22,17 +22,18 @@ db_file = os.path.join(input_path, 'data/db_saltproc.h5')
 compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
 # executable path of Serpent
 #exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
-exec_path = '/projects/sciteam/bahg/serpent/src2.1.31/sss2'  # BW
+#exec_path = '/projects/sciteam/bahg/serpent/src2.1.31/sss2'  # BW
+exec_path = '/apps/exp_ctl/easybuild/software/serpent/2.1.31-goolf-5.5.7/bin/sss2'
 restart_flag = False
-pc_type = 'bw'  # 'bw', 'falcon', 'pc'
+pc_type = 'falcon'  # 'bw', 'falcon', 'pc'
 # Number of cores and nodes to use in cluster
-cores = 8  # doesn't used on Falcon (grabbing it from PBS) 32
+cores = 18  # doesn't used on Falcon (grabbing it from PBS) 32
 nodes = 64  # doesn't use on Falcon (grabbing it from PBS)  16
-steps = 978
+steps = 3 #978
 # Monte Carlo method parameters
-neutron_pop = 15000  # 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
-active_cycles = 400  # 20; 50'000, 400, 250: 16pcm
-inactive_cycles = 200  # 5
+neutron_pop = 15000   # 15 000 400 200; 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
+active_cycles = 400   # 20; 50'000, 400, 250: 16pcm
+inactive_cycles = 200 # 5
 # Define materials (should read from input file)
 core_massflow_rate = 9.92e+6  # g/s
 

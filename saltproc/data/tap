@@ -3,10 +3,13 @@
 %include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/non_burnable_mats.ini"
 %include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/crw/geometry/core_cr_withdr.ini"
 
-include "/u/sciteam/rykhlevs/meitner/mat_comp/saltproc_prepr_comp.ini"
+%include "/u/sciteam/rykhlevs/meitner/mat_comp/saltproc_prepr_comp.ini"
+%include "/u/sciteam/rykhlevs/meitner/mat_comp/non_burnable_mats.ini"
+%include "/u/sciteam/rykhlevs/meitner/geometry/core_cr_withdr.ini"
 
-include "/u/sciteam/rykhlevs/meitner/mat_comp/non_burnable_mats.ini"
-include "/u/sciteam/rykhlevs/meitner/geometry/core_cr_withdr.ini"
+include "/home/rykhandr/tap/mat_comp/saltproc_prepr_comp.ini"
+include "/home/rykhandr/tap/mat_comp/non_burnable_mats.ini"
+include "/home/rykhandr/tap/geometry/core_cr_withdr.ini"
 
 set title "TAP MSR test 5-d step"
 
