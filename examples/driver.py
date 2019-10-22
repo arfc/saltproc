@@ -29,7 +29,7 @@ pc_type = 'falcon'  # 'bw', 'falcon', 'pc'
 # Number of cores and nodes to use in cluster
 cores = 18  # doesn't used on Falcon (grabbing it from PBS) 32
 nodes = 64  # doesn't use on Falcon (grabbing it from PBS)  16
-steps = 3 #978
+steps = 1899 # 978
 # Monte Carlo method parameters
 neutron_pop = 15000   # 15 000 400 200; 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
 active_cycles = 400   # 20; 50'000, 400, 250: 16pcm
