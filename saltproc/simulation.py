@@ -338,7 +338,8 @@ class Simulation():
                     ('xs_data_path',           'S90'),
                     ('OMP_threads',              int),
                     ('MPI_tasks',                int),
-                    ('memory_optimization_mode', int)
+                    ('memory_optimization_mode', int),
+                    ('depletion_timestep', float)
                     ])
         # Read info from depcode _res.m File
         self.sim_depcode.read_depcode_info()
@@ -354,7 +355,8 @@ class Simulation():
                     self.sim_depcode.sim_info['xs_data_path'],
                     self.sim_depcode.sim_info['OMP_threads'],
                     self.sim_depcode.sim_info['MPI_tasks'],
-                    self.sim_depcode.sim_info['memory_optimization_mode']
+                    self.sim_depcode.sim_info['memory_optimization_mode'],
+                    self.sim_depcode.sim_info['depletion_timestep']
                     )
         # print(sim_info_row)
         sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype)

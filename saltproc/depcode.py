@@ -84,7 +84,8 @@ class Depcode:
                 "xs_data_path": [],
                 "OMP_threads": [],
                 "MPI_tasks": [],
-                "memory_optimization_mode": []
+                "memory_optimization_mode": [],
+                "depletion_timestep": []
                 }
     param = {
             "keff_bds": [],
@@ -399,6 +400,8 @@ class Depcode:
         self.sim_info['OMP_threads'] = res['OMP_THREADS'][0]
         self.sim_info['MPI_tasks'] = res['MPI_TASKS'][0]
         self.sim_info['memory_optimization_mode'] = res['OPTIMIZATION_MODE'][0]
+        self.sim_info['depletion_timestep'] = res['BURN_DAYS'][1][0]
+        self.sim_info['depletion_timestep'] = res['BURN_DAYS'][1][0]
 
     def read_depcode_step_param(self):
         """ Parses data from Serpent output for each step and stores it in dict
