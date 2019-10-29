@@ -16,7 +16,14 @@ input_path = os.path.dirname(os.path.abspath(__file__)) + '/../saltproc/'
 # input_path = '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
 spc_inp_file = os.path.join(input_path, '../examples/input_5leu.json')
 template_file = os.path.join(input_path, 'data/tap')  # user's input file
-geo_file_prefix = os.path.join(input_path, 'data/geometry/tap_test')
+# [line number where insrt link to geometry file, 1st geo, 2nd geo, etc
+geo_file = [2,
+            os.path.join(input_path, 'data/geometry/tap_test_000'),
+            os.path.join(input_path, 'data/geometry/tap_test_001'),
+            os.path.join(input_path, 'data/geometry/tap_test_002'),
+            os.path.join(input_path, 'data/geometry/tap_test_003'),
+            os.path.join(input_path, 'data/geometry/tap_test_004'),
+            os.path.join(input_path, 'data/geometry/tap_test_005')]
 
 input_file = os.path.join(input_path, 'data/saltproc_tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
@@ -26,16 +33,18 @@ compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
 exec_path = '/home/andrei2/serpent/serpent2/src_2131/sss2'
 # exec_path = '/projects/sciteam/bahg/serpent/src2.1.31/sss2'  # BW
 # exec_path = '/apps/exp_ctl/easybuild/software/serpent/2.1.31-goolf-5.5.7/bin/sss2'
+
+adjust_geo = True
 restart_flag = False
 pc_type = 'falcon'  # 'bw', 'falcon', 'pc'
 # Number of cores and nodes to use in cluster
 cores = 12  # doesn't used on Falcon (grabbing it from PBS) 32
 nodes = 1  # doesn't use on Falcon (grabbing it from PBS)  16
-steps = 2  # 978
+steps = 3000  # 978
 # Monte Carlo method parameters
-neutron_pop = 150   # 15 000 400 200; 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
-active_cycles = 40   # 20; 50'000, 400, 250: 16pcm
-inactive_cycles = 20 # 5
+neutron_pop = 5000   # 15 000 400 200; 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
+active_cycles = 200   # 20; 50'000, 400, 250: 16pcm
+inactive_cycles = 150 # 5
 # Define materials (should read from input file)
 core_massflow_rate = 9.92e+6  # g/s
 
@@ -223,6 +232,7 @@ def main():
                       input_fname=input_file,
                       output_fname='NONE',
                       iter_matfile=iter_matfile,
+                      geo_file=geo_file,
                       npop=neutron_pop,
                       active_cycles=active_cycles,
                       inactive_cycles=inactive_cycles)
@@ -282,6 +292,15 @@ def main():
         serpent.write_mat_file(mats, iter_matfile, dts)
         del mats, waste_st, rem_mass
         gc.collect()
+        # Switch to another geometry?
+        delta_keff = serpent.param['keff_bds'][0]-serpent.param['keff_eds'][0]
+        min_keff = 1.002 + serpent.param['keff_eds'][1]
+        print("KEFF(BDS)= ", serpent.param['keff_bds'],
+              "\nKEFF(EDS)= ", serpent.param['keff_eds'],
+              "\ncurrent delta keff= ", delta_keff,
+              "\nminimal keff= ", min_keff)
+        if adjust_geo and serpent.param['keff_eds'][0] <= min_keff:
+            simulation.switch_to_next_geometry()
 
 
 if __name__ == "__main__":

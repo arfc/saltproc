@@ -28,6 +28,7 @@ class Depcode:
                 input_fname,
                 output_fname,
                 iter_matfile,
+                geo_file,
                 npop=None,
                 active_cycles=None,
                 inactive_cycles=None):
@@ -73,6 +74,7 @@ class Depcode:
             self.input_fname = input_fname
             self.output_fname = output_fname
             self.iter_matfile = iter_matfile
+            self.geo_file = geo_file
             self.npop = npop
             self.active_cycles = active_cycles
             self.inactive_cycles = inactive_cycles
@@ -155,6 +157,7 @@ class Depcode:
                                            self.inactive_cycles)
         return [s.replace(sim_param[0], args) for s in data]
 
+
     def create_iter_matfile(self, data):
         """ Check <include> with material file, copy in iteration material file,
          and change name of file in <include> """
@@ -185,8 +188,10 @@ class Depcode:
         if os.path.exists(input_file):
             os.remove(input_file)
         data = self.read_depcode_template(template_file)
+        data = self.insert_path_to_geometry(data)
         data = self.change_sim_par(data)
         data = self.create_iter_matfile(data)
+
         if data:
             out_file = open(input_file, 'w')
             out_file.writelines(data)
@@ -450,3 +455,10 @@ class Depcode:
                 # print (zzaaam, line[2], iname, imass)
                 map_dict.update({zzaaam: line[2]})
         self.iso_map = map_dict
+
+    def insert_path_to_geometry(self, data):
+        """ Adds line 'include first_geometry_file' to the Serpent input file
+        """
+        data.insert(int(self.geo_file[0]),
+                    'include \"' + str(self.geo_file[1]) + '\"\n')
+        return data

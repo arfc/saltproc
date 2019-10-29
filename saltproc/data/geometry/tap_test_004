@@ -1,6 +1,6 @@
-% ------ 521 rods per quarter, 67 assemblies, 7.77612rods/assembly
-% SVF=0.854915
-% keff = 1.13001E+00 0.00029; +3326pcm
+% ------ 597 rods per quarter, 67 assemblies, 8.910447761rods/assembly
+% SVF = 0.833751
+% keff = 1.16261E+00 0.00029; +3260pcm
 
 surf 11 inf
 surf 12 inf
@@ -152,7 +152,7 @@ GT6 F F F F
   F M F M F
   F F F F M
   F M F M F
-  F F F F F
+  F F F F M
 
 lat 12 1 0.0 0.0 5 5 3 %6M
 F M F M F
@@ -162,7 +162,7 @@ F F F F F
 F M F M F
 
 lat 13 1 0.0 0.0 5 5 3 %5M
-M F M F M
+M F M F MIMP
 F F F F F
 M F M F M
 F F F F F
@@ -226,37 +226,37 @@ F F F F F
 lat 21 1 0.0 0.0 5 5 3  %7M
 F F F F M
 F M F M F
-F F M F F
+F F M F M
 F M F M F
-M F F F F
+M F M F F
 
 lat 22 1 0.0 0.0 5 5 3  %5M
-M F F F F
+M F M F F
 F M F M F
-F F F F M
+M F F F M
 F M F M F
-F F M F F
+F F M F M
 
 lat 23 1 0.0 0.0 5 5 3 %6M
 F M F M F
-M F F F F
+M F M F F
 F M F M F
-F F F F M
+M F F F M
 F M F M F
 
 lat 28 1 0.0 0.0 5 5 3
-F M F F F
+F M F M F
 M F M F M
-F F F F F
+F M F F F
 M F M F M
 F F F M F
 
 lat 27 1 0.0 0.0 5 5 3
-F F F F F
+F M F F F
 M F M F M
 F F F M F
 M F M F M
-F M F F F
+F M F M F
 
 lat 31 1 0.0 0.0 5 5 3  %4M
 F F M F F
@@ -321,7 +321,7 @@ M F M F M
 F F F M F
 M F M F M
 
-lat 57 1 0.0 0.0 5 5 3
+lat 57 1 0.0 0.0 5 5 31.16331
 F M F F F
 M F M F M
 F F F F F
@@ -333,7 +333,7 @@ F F M F F
 F M F M F
 M F F F F
 F M F M F
-F F F F F
+F F F F M
 
 lat 63 1 0.0 0.0 5 5 3
 M F M F M
@@ -341,16 +341,23 @@ F M F F F
 M F M F M
 F F F F F
 M F M F M
+
+lat 71 1 0.0 0.0 5 5 3
+F F F F M
+F M F M F
+F F M F F
+F M F M F
+F F F F F
 %-------------------------
 
 lat 10 1 75.0 75.0 10 10 15
 21   27   22   28   31   38   21   47   22   16
 19 13R1   23 13R2   32   33   42   53   23   16
 19   19 11R3   38   21   47   22   28   61   16
-19   19   19 13R5   42   53   23   63   14   16
-19   19   19   19 11R6   28   61   15   16   16
-19   19   19   19   19   63   12   16   16   16
-19   19   19   19   19   19   11   16   16   16
+19   19   19 13R5   42   53   23   63   32   16
+19   19   19   19 11R6   28   61   38   16   16
+19   19   19   19   19   63   32   16   16   16
+19   19   19   19   19   19   71   16   16   16
 19   19   19   19   19   19   19   16   16   16
 19   19   19   19   19   19   19   19   19   16
 19   19   19   19   19   19   19   19   19   19

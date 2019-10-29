@@ -1,6 +1,6 @@
-% ------ 406 rods per quarter, 67 assemblies, 6.0597rods/assembly
+% ------ 427 rods per quarter, 67 assemblies, 6.037313rods/assembly
 % SVF=0.886940
-% keff = 1.06676E+00 0.00031; +3345pcm
+% keff = 1.09675E+00 0.00031; +3000pcm
 
 surf 11 inf
 surf 12 inf
@@ -141,9 +141,9 @@ F M F M F
 F F F F F
 
 lat 11R3 1 0.0 0.0 5 5 3
-GT3 F F F F
+GT3 F M F F
   F M F M F
-  F F F F F
+  M F F F F
   F M F M F
   F F F F F
 
@@ -172,12 +172,12 @@ lat 13R1 1 0.0 0.0 5 5 3
 GT1 F M F M
   F F F F F
   M F M F M
-  F F F F F
+  F F F M F
   M F M F M
 
 lat 13R2 1 0.0 0.0 5 5 3
 GT2 F M F M
-  F F F F F
+  F M F F F
   M F M F M
   F F F F F
   M F M F M
@@ -233,9 +233,23 @@ M F F F F
 lat 22 1 0.0 0.0 5 5 3  %5M
 M F F F F
 F M F M F
-F F F F F
+F F F F M
 F M F M F
+F F M F F
+
+lat 23 1 0.0 0.0 5 5 3 %6M
+F M F M F
+M F F F F
+F M F M F
+F F F F M
+F M F M F
+
+lat 28 1 0.0 0.0 5 5 3
+F M F F F
+M F M F M
 F F F F F
+M F M F M
+F F F M F
 
 lat 27 1 0.0 0.0 5 5 3
 F F F F F
@@ -243,11 +257,18 @@ M F M F M
 F F F M F
 M F M F M
 F M F F F
+
+lat 31 1 0.0 0.0 5 5 3  %4M
+F F M F F
+F M F M F
+M F F F F
+F M F M F
+F F F F F
 %-------------------------
 
 lat 10 1 75.0 75.0 10 10 15
-21   27   22   17   11   17   11   17   11   16
-19 13R1   12 13R2   12   13   12   13   12   16
+21   27   22   28   31   17   11   17   11   16
+19 13R1   23 13R2   12   13   12   13   12   16
 19   19 11R3   17   11   17   11   17   11   16
 19   19   19 13R5   12   13   12   13   14   16
 19   19   19   19 11R6   17   11   15   16   16

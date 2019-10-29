@@ -1,6 +1,6 @@
-% ------ 597 rods per quarter, 67 assemblies, 8.910447761rods/assembly
-% SVF = 0.833751
-% keff = 1.16261E+00 0.00029; +3260pcm
+% ------ 688 rods per quarter, 67 assemblies, 10.26865672/assembly
+% SVF = 0.808410
+% keff = 1.19342E+00 0.00027; +3081pcm
 
 surf 11 inf
 surf 12 inf
@@ -148,7 +148,7 @@ GT3 F M F F
   F F F F M
 
 lat 11R6 1 0.0 0.0 5 5 3
-GT6 F F F F
+GT6 F M F F
   F M F M F
   F F F F M
   F M F M F
@@ -170,7 +170,7 @@ M F M F M
 
 lat 13R1 1 0.0 0.0 5 5 3
 GT1 F M F M
-  F F F F F
+  F M F F F
   M F M F M
   F F F M F
   M F M F M
@@ -193,7 +193,7 @@ lat 13R5 1 0.0 0.0 5 5 3
 GT5 F M F M
   F F F M F
   M F M F M
-  F M F F F
+  F M F M F
   M F M F M
 
 lat 14 1 0.0 0.0 5 5 3  %2M
@@ -204,11 +204,11 @@ F F F F F
 F M F M F
 
 lat 15 1 0.0 0.0 5 5 3 %2M
-F F F F F
+F F F M F
 M F M F M
-F F F F F
+F M F M F
 M F M F M
-F F F F F
+F M F F F
 
 surf 19 sqc 0.0 0.0 15.0
 cell 1002 16 fuel -19
@@ -224,9 +224,9 @@ F F F F F
 
 %----- Varying SVF -------
 lat 21 1 0.0 0.0 5 5 3  %7M
-F F F F M
+M F M F M
 F M F M F
-F F M F M
+M F M F M
 F M F M F
 M F M F F
 
@@ -252,9 +252,9 @@ M F M F M
 F F F M F
 
 lat 27 1 0.0 0.0 5 5 3
-F M F F F
+F M F M F
 M F M F M
-F F F M F
+F M F M F
 M F M F M
 F M F M F
 
@@ -267,24 +267,24 @@ F F F F M
 
 lat 32 1 0.0 0.0 5 5 3 %6M
 F M F M F
-F F M F F
+F F M F M
 F M F M F
-M F F F F
+M F M F F
 F M F M F
 
 lat 33 1 0.0 0.0 5 5 3 %5M
 M F M F M
 F F F M F
 M F M F M
-F M F F F
+F M F M F
 M F M F M
 
 lat 38 1 0.0 0.0 5 5 3
 F F F M F
 M F M F M
-F M F F F
+F M F M F
 M F M F M
-F F F F F
+F M F F F
 
 lat 41 1 0.0 0.0 5 5 3
 M F F F F
@@ -295,28 +295,28 @@ F F F F F
 
 lat 42 1 0.0 0.0 5 5 3
 F M F M F
-F F F F M
+M F F F M
 F M F M F
-F F M F F
+F F M F M
 F M F M F
 
 lat 47 1 0.0 0.0 5 5 3
-F F F F F
+F M F F F
 M F M F M
 F F F M F
 M F M F M
-F M F F F
+F M F M F
 
 lat 52 1 0.0 0.0 5 5 3
 F M F M F
 M F F F F
-F M F M F
+F M F M F2.12858E+06
 F F F F F
 F M F M F
 
 lat 53 1 0.0 0.0 5 5 3 %5M
 M F M F M
-F F F F F
+F M F F F
 M F M F M
 F F F M F
 M F M F M
@@ -329,33 +329,40 @@ M F M F M
 F F F F F
 
 lat 61 1 0.0 0.0 5 5 3
-F F M F F
+F F M F M
 F M F M F
-M F F F F
+M F M F F
 F M F M F
-F F F F M
+M F F F M
 
 lat 63 1 0.0 0.0 5 5 3
 M F M F M
-F M F F F
+F M F M F
 M F M F M
-F F F F F
+F M F F F
 M F M F M
 
 lat 71 1 0.0 0.0 5 5 3
-F F F F M
+M F F F M
 F M F M F
-F F M F F
+F F M F M
 F M F M F
-F F F F F
+F F M F M
+
+lat 81 1 0.0 0.0 5 5 3  %7M
+F F M F M
+F M F M F
+M F M F M
+F M F M F
+M F M F M
 %-------------------------
 
 lat 10 1 75.0 75.0 10 10 15
-21   27   22   28   31   38   21   47   22   16
+81   27   22   28   31   38   21   47   22   16
 19 13R1   23 13R2   32   33   42   53   23   16
 19   19 11R3   38   21   47   22   28   61   16
 19   19   19 13R5   42   53   23   63   32   16
-19   19   19   19 11R6   28   61   38   16   16
+19   19   19   19 11R6   28   61   15   16   16
 19   19   19   19   19   63   32   16   16   16
 19   19   19   19   19   19   71   16   16   16
 19   19   19   19   19   19   19   16   16   16

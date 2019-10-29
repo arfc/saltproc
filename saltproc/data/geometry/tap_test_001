@@ -1,5 +1,6 @@
-% ------ 342 rods per quarter, SVF=0.904762 (see http://localhost:8888/notebooks/Desktop/git/ta_xe_equilibrium_test/SVF.ipynb))
-% Keff = 1.03331E+00 0.00033; Base case
+% ------ 406 rods per quarter, 67 assemblies, 6.0597rods/assembly
+% SVF=0.886940
+% keff = 1.06676E+00 0.00031; +3345pcm
 
 surf 11 inf
 surf 12 inf
@@ -161,11 +162,11 @@ F F F F F
 F M F M F
 
 lat 13 1 0.0 0.0 5 5 3 %5M
-F F M F F
+M F M F M
 F F F F F
 M F M F M
 F F F F F
-F F M F F
+M F M F M
 
 lat 13R1 1 0.0 0.0 5 5 3
 GT1 F M F M
@@ -182,35 +183,36 @@ GT2 F M F M
   M F M F M
 
 lat 13R4 1 0.0 0.0 5 5 3
-GT4 F M F F
+GT4 F M F M
   F F F F F
   M F M F M
   F F F F F
-  F F M F F
+  M F M F M
 
 lat 13R5 1 0.0 0.0 5 5 3
-GT5 F M F F
+GT5 F M F M
   F F F F F
   M F M F M
   F F F F F
-  F F M F F
+  M F M F M
 
 lat 14 1 0.0 0.0 5 5 3  %2M
-F F F F F
+F M F M F
 F F F F F
 F M F M F
 F F F F F
-F F F F F
+F M F M F
 
 lat 15 1 0.0 0.0 5 5 3 %2M
 F F F F F
-F F M F F
+M F M F M
 F F F F F
-F F M F F
+M F M F M
 F F F F F
 
 surf 19 sqc 0.0 0.0 15.0
 cell 1002 16 fuel -19
+cell 1003 19 void -19
 
 
 lat 17 1 0.0 0.0 5 5 3
@@ -220,17 +222,40 @@ F F F F F
 M F M F M
 F F F F F
 
+%----- Varying SVF -------
+lat 21 1 0.0 0.0 5 5 3  %7M
+F F F F M
+F M F M F
+F F M F F
+F M F M F
+M F F F F
+
+lat 22 1 0.0 0.0 5 5 3  %5M
+M F F F F
+F M F M F
+F F F F F
+F M F M F
+F F F F F
+
+lat 27 1 0.0 0.0 5 5 3
+F F F F F
+M F M F M
+F F F M F
+M F M F M
+F M F F F
+%-------------------------
+
 lat 10 1 75.0 75.0 10 10 15
-11   17   11   17   11   17   11   17   11   16
-12 13R1   12 13R2   12   13   12   13   12   16
-11   17 11R3   17   11   17   11   17   11   16
-12 13R4   12 13R5   12   13   12   13   14   16
-11   17   11   17 11R6   17   11   15   16   16
-12   13   12   13   12   13   12   16   16   16
-11   17   11   17   11   17   11   16   16   16
-12   13   12   13   14   16   16   16   16   16
-11   17   11   15   16   16   16   16   16   16
-16   16   16   16   16   16   16   16   16   16
+21   27   22   17   11   17   11   17   11   16
+19 13R1   12 13R2   12   13   12   13   12   16
+19   19 11R3   17   11   17   11   17   11   16
+19   19   19 13R5   12   13   12   13   14   16
+19   19   19   19 11R6   17   11   15   16   16
+19   19   19   19   19   13   12   16   16   16
+19   19   19   19   19   19   11   16   16   16
+19   19   19   19   19   19   19   16   16   16
+19   19   19   19   19   19   19   19   19   16
+19   19   19   19   19   19   19   19   19   19
 
 set usym 10 3 2 0.0 0.0 0.0 45.0
 

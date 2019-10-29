@@ -400,3 +400,27 @@ class Simulation():
         mats = self.sim_depcode.read_dep_comp(self.sim_depcode.input_fname, 0)
         print('Creating new material composition file: %s' % self.iter_matfile)
         self.sim_depcode.write_mat_file(mats, self.iter_matfile, 0)
+
+    def switch_to_next_geometry(self):
+        """ Substitute line which includes geometry in Serpent input file
+        with a line with path to next geometry file """
+        geo_line_n = self.sim_depcode.geo_file[0]
+        f = open(self.sim_depcode.input_fname, 'r')
+        data = f.readlines()
+        f.close()
+
+        current_geo_file = data[geo_line_n].split('\"')[1]
+        current_geo_idx = self.sim_depcode.geo_file.index(current_geo_file)
+        try:
+            new_geo_file = self.sim_depcode.geo_file[current_geo_idx+1]
+        except IndexError:
+            print('No more geometry files available \
+                  and the system went subcritical \n\n')
+            print('Simulation ended')
+            return
+        new_data = [d.replace(current_geo_file, new_geo_file) for d in data]
+        print('Switching to next geometry file: ', new_geo_file)
+
+        f = open(self.sim_depcode.input_fname, 'w')
+        f.writelines(new_data)
+        f.close()

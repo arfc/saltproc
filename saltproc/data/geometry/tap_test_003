@@ -1,6 +1,6 @@
-% ------ 427 rods per quarter, 67 assemblies, 6.037313rods/assembly
-% SVF=0.886940
-% keff = 1.09675E+00 0.00031; +3000pcm
+% ------ 521 rods per quarter, 67 assemblies, 7.77612rods/assembly
+% SVF=0.854915
+% keff = 1.13001E+00 0.00029; +3326pcm
 
 surf 11 inf
 surf 12 inf
@@ -45,7 +45,7 @@ cell 8  F  fill 7  -3  -6 8
 %Assumed GT took up  1 moderator rod pitch
 
 surf 120 cyl 0.0 0.0 1.5        %OR for  CR GT
-surf 121 cyl 0.0 0.0 1.425      %IR for  CR GT
+surf 121 cyl 0.0 0.0 1.425      %IR for  CR GTinclude "../geometry/various_svf_2/427.ini"
 
 surf 122 cyl 0.0 0.0 0.855      %OR for CR clad
 surf 123 cyl 0.0 0.0 0.810      %OR for CR pois
@@ -145,12 +145,12 @@ GT3 F M F F
   F M F M F
   M F F F F
   F M F M F
-  F F F F F
+  F F F F M
 
 lat 11R6 1 0.0 0.0 5 5 3
 GT6 F F F F
   F M F M F
-  F F F F F
+  F F F F M
   F M F M F
   F F F F F
 
@@ -191,9 +191,9 @@ GT4 F M F M
 
 lat 13R5 1 0.0 0.0 5 5 3
 GT5 F M F M
-  F F F F F
+  F F F M F
   M F M F M
-  F F F F F
+  F M F F F
   M F M F M
 
 lat 14 1 0.0 0.0 5 5 3  %2M
@@ -263,16 +263,93 @@ F F M F F
 F M F M F
 M F F F F
 F M F M F
+F F F F M
+
+lat 32 1 0.0 0.0 5 5 3 %6M
+F M F M F
+F F M F F
+F M F M F
+M F F F F
+F M F M F
+
+lat 33 1 0.0 0.0 5 5 3 %5M
+M F M F M
+F F F M F
+M F M F M
+F M F F F
+M F M F M
+
+lat 38 1 0.0 0.0 5 5 3
+F F F M F
+M F M F M
+F M F F F
+M F M F M
 F F F F F
+
+lat 41 1 0.0 0.0 5 5 3
+M F F F F
+F M F M F
+F F F F F
+F M F M F
+F F F F F
+
+lat 42 1 0.0 0.0 5 5 3
+F M F M F
+F F F F M
+F M F M F
+F F M F F
+F M F M F
+
+lat 47 1 0.0 0.0 5 5 3
+F F F F F
+M F M F M
+F F F M F
+M F M F M
+F M F F F
+
+lat 52 1 0.0 0.0 5 5 3
+F M F M F
+M F F F F
+F M F M F
+F F F F F
+F M F M F
+
+lat 53 1 0.0 0.0 5 5 3 %5M
+M F M F M
+F F F F F
+M F M F M
+F F F M F
+M F M F M
+
+lat 57 1 0.0 0.0 5 5 3
+F M F F F
+M F M F M
+F F F F F
+M F M F M
+F F F F F
+
+lat 61 1 0.0 0.0 5 5 3
+F F M F F
+F M F M F
+M F F F F
+F M F M F
+F F F F F
+
+lat 63 1 0.0 0.0 5 5 3
+M F M F M
+F M F F F
+M F M F M
+F F F F F
+M F M F M
 %-------------------------
 
 lat 10 1 75.0 75.0 10 10 15
-21   27   22   28   31   17   11   17   11   16
-19 13R1   23 13R2   12   13   12   13   12   16
-19   19 11R3   17   11   17   11   17   11   16
-19   19   19 13R5   12   13   12   13   14   16
-19   19   19   19 11R6   17   11   15   16   16
-19   19   19   19   19   13   12   16   16   16
+21   27   22   28   31   38   21   47   22   16
+19 13R1   23 13R2   32   33   42   53   23   16
+19   19 11R3   38   21   47   22   28   61   16
+19   19   19 13R5   42   53   23   63   14   16
+19   19   19   19 11R6   28   61   15   16   16
+19   19   19   19   19   63   12   16   16   16
 19   19   19   19   19   19   11   16   16   16
 19   19   19   19   19   19   19   16   16   16
 19   19   19   19   19   19   19   19   19   16
