@@ -63,7 +63,7 @@ class Materialflow(pymat):
         print("Void fraction %f " % self.void_frac)
         print("Burnup %f MWd/kgU" % self.burnup)
         print("U-235 mass %f g" % self[922350000])
-        print("Li-7 mass %f g" % self[30070000])
+        # print("Li-7 mass %f g" % self[30070000])
 
     def scale_matflow(self, f=1.0):
         """ Returns nuclide vector dictionary, obtained from self and scaled by

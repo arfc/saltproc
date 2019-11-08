@@ -20,12 +20,16 @@ template_file = os.path.join(input_path, 'data/tap')  # user's input file
 geo_file = [2,
             os.path.join(input_path, '../examples/geometry/347_base.ini'),
             os.path.join(input_path, '../examples/geometry/406.ini'),
-            os.path.join(input_path, '../examples/geometry/425.ini'),
+            os.path.join(input_path, '../examples/geometry/427.ini'),
             os.path.join(input_path, '../examples/geometry/505.ini'),
-            os.path.join(input_path, '../examples/geometry/578.ini'),
-            os.path.join(input_path, '../examples/geometry/647.ini'),
-            os.path.join(input_path, '../examples/geometry/749.ini'),
-            os.path.join(input_path, '../examples/geometry/850.ini')]
+            os.path.join(input_path, '../examples/geometry/576.ini'),
+            os.path.join(input_path, '../examples/geometry/635.ini'),
+            os.path.join(input_path, '../examples/geometry/683.ini'),
+            os.path.join(input_path, '../examples/geometry/840.ini'),
+            os.path.join(input_path, '../examples/geometry/994.ini'),
+            os.path.join(input_path, '../examples/geometry/1154.ini'),
+            os.path.join(input_path, '../examples/geometry/1446.ini'),
+            os.path.join(input_path, '../examples/geometry/1668.ini')]
 
 input_file = os.path.join(input_path, 'data/saltproc_tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')

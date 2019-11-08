@@ -1,5 +1,6 @@
-include "/home/andrei2/Desktop/git/meitner-task-2/serpent/mat_comp/saltproc_prepr_comp.ini"
-include "/home/andrei2/Desktop/git/meitner-task-2/serpent/mat_comp/non_burnable_mats.ini"
+include "/home/andrei2/Desktop/git/saltproc/develop/examples/mats/saltproc_prepr_comp.ini"
+include "/home/andrei2/Desktop/git/saltproc/develop/examples/mats/non_burnable_mats.ini"
+
 
 
 
@@ -13,7 +14,7 @@ include "/home/andrei2/Desktop/git/meitner-task-2/serpent/mat_comp/non_burnable_
 %include "/home/rykhandr/tap/mat_comp/non_burnable_mats.ini"
 %include "/home/rykhandr/tap/geometry/core_cr_withdr.ini"
 
-set title "TAP MSR test 3-d step"
+set title "TAP MSR test 5-d step"
 
 %therm zrh_h 900 hzr05.32t hzr06.32t   % 900K H-Zr
 %set acelib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff312.xsdata"
@@ -27,7 +28,7 @@ set nfylib "sss_jeff33.nfy"
 set sfylib "sss_jeff33.sfy"
 % --- Neutron population and criticality cycles:
 
-set pop 300 40 10
+set pop 15000 500 200
 %set gcu -1
 
 % --- Reproducibility off (set value to 1 and define seed to set on):
@@ -57,7 +58,7 @@ set pcc     2  % Predictor-corrector calculation off (Linear extrapolation)
 %set bunorm 2
 %set opti 3
 
-set power 1.250E+09 dep daytot 3.0
+set power 1.250E+09 dep daytot 5.0
 
 %set printm 1 0.0
 
