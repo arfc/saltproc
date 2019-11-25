@@ -23,13 +23,16 @@ geo_file = [2,
             os.path.join(input_path, '../examples/geometry/427.ini'),
             os.path.join(input_path, '../examples/geometry/505.ini'),
             os.path.join(input_path, '../examples/geometry/576.ini'),
-            os.path.join(input_path, '../examples/geometry/635.ini'),
-            os.path.join(input_path, '../examples/geometry/683.ini'),
+            os.path.join(input_path, '../examples/geometry/633.ini'),
+            os.path.join(input_path, '../examples/geometry/681.ini'),
             os.path.join(input_path, '../examples/geometry/840.ini'),
-            os.path.join(input_path, '../examples/geometry/994.ini'),
-            os.path.join(input_path, '../examples/geometry/1154.ini'),
-            os.path.join(input_path, '../examples/geometry/1446.ini'),
-            os.path.join(input_path, '../examples/geometry/1668.ini')]
+            os.path.join(input_path, '../examples/geometry/880.ini'),
+            os.path.join(input_path, '../examples/geometry/900.ini'),
+            os.path.join(input_path, '../examples/geometry/998.ini'),
+            os.path.join(input_path, '../examples/geometry/1070.ini'),
+            os.path.join(input_path, '../examples/geometry/1274.ini'),
+            os.path.join(input_path, '../examples/geometry/1498.ini'),
+            os.path.join(input_path, '../examples/geometry/1668_all.ini')]
 
 input_file = os.path.join(input_path, 'data/saltproc_tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
@@ -46,11 +49,11 @@ pc_type = 'falcon'  # 'bw', 'falcon', 'pc'
 # Number of cores and nodes to use in cluster
 cores = 12  # doesn't used on Falcon (grabbing it from PBS) 32
 nodes = 1  # doesn't use on Falcon (grabbing it from PBS)  16
-steps = 2000  # 978
+steps = 2000  # 2000
 # Monte Carlo method parameters
-neutron_pop = 5000   # 15 000 400 200; 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
-active_cycles = 160   # 20; 50'000, 400, 250: 16pcm
-inactive_cycles = 50 # 5
+neutron_pop = 5000   # 5000; 15 000 400 200; 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
+active_cycles = 160   # 160; 20; 50'000, 400, 250: 16pcm
+inactive_cycles = 100 # 50
 # Define materials (should read from input file)
 core_massflow_rate = 9.92e+6  # g/s
 
@@ -299,13 +302,7 @@ def main():
         del mats, waste_st, rem_mass
         gc.collect()
         # Switch to another geometry?
-        delta_keff = serpent.param['keff_bds'][0]-serpent.param['keff_eds'][0]
-        min_keff = 1.0005 + serpent.param['keff_eds'][1]
-        print("KEFF(BDS)= ", serpent.param['keff_bds'],
-              "\nKEFF(EDS)= ", serpent.param['keff_eds'],
-              "\ncurrent delta keff= ", delta_keff,
-              "\nminimal keff= ", min_keff)
-        if adjust_geo and serpent.param['keff_eds'][0] <= min_keff:
+        if adjust_geo and simulation.read_k_eds_delta(dts, restart_flag):
             simulation.switch_to_next_geometry()
 
 

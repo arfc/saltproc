@@ -424,3 +424,20 @@ class Simulation():
         f = open(self.sim_depcode.input_fname, 'w')
         f.writelines(new_data)
         f.close()
+
+    def read_k_eds_delta(self, current_timestep, restart):
+        """ Read from database delta between previous and current keff at the
+        end of depletion step
+        """
+        if current_timestep > 3 or restart:
+            # Open or restore db and read data
+            db = tb.open_file(self.h5_file, mode='r')
+            sim_param = db.root.simulation_parameters
+            k_eds = np.array([x['keff_eds'][0] for x in sim_param.iterrows()])
+            db.close()
+            delta_keff = np.diff(k_eds)
+            avrg_keff_drop = abs(np.mean(delta_keff[-4:-1]))
+            print("Average drop", avrg_keff_drop)
+            print("Last keff_eds", k_eds)
+            if k_eds[-1] - avrg_keff_drop < 1.0:
+                return True
