@@ -14,7 +14,8 @@ serpent = Depcode(codename='SERPENT',
                   input_fname=directory+'/test',
                   output_fname='NONE',
                   iter_matfile=directory+'/material',
-                  geo_file='NONE')
+                  geo_file=[2,
+                            os.path.join(directory, '../test_geo.inp')])
 
 
 def test_get_tra_or_dec():
@@ -101,3 +102,38 @@ def test_read_depcode_step_param():
     assert serpent.param['fission_mass_bds'] == [70081]
     assert serpent.param['fission_mass_eds'] == [70077.1]
     assert serpent.param['breeding_ratio'][1] == 5.20000e-04
+
+
+def test_read_dep_comp():
+    mats = serpent.read_dep_comp(serpent.input_fname, 1)
+    assert mats['fuel']['U235'] == 3499538.3359278883
+    assert mats['fuel']['U238'] == 66580417.24509208
+    assert mats['fuel']['F19'] == 37145139.35897285
+    assert mats['fuel']['Li7'] == 5449107.821098938
+    assert mats['fuel']['Cm240'] == 8.787897203694538e-22
+    assert mats['fuel']['Pu239'] == 1231.3628804629795
+    assert mats['ctrlPois']['Gd155'] == 5812.83289505528
+    assert mats['ctrlPois']['O16'] == 15350.701473655872
+
+
+def test_write_mat_file():
+    mats = serpent.read_dep_comp(serpent.input_fname, 1)
+    mat_file = serpent.input_fname + '.mat'
+    serpent.write_mat_file(mats, mat_file)
+    mat_str = serpent.read_depcode_template(mat_file)
+    assert mat_str[0] == '% Material compositions (after 12.000000 days)\n'
+    if 'fuel' in mat_str[3]:
+        assert mat_str[3].split()[-1] == '2.27175E+07'
+        assert mat_str[3].split()[2] == '-4.960200000E+00'
+        assert mat_str[1663].split()[-1] == '1.11635E+04'
+        assert mat_str[1664] == '            1001.09c  -1.21000137902945E-35\n'
+    elif 'ctrlPois' in mat_str[3]:
+        assert mat_str[3].split()[-1] == '1.11635E+04'
+        assert mat_str[4] == '            1001.09c  -1.21000137902945E-35\n'
+    os.remove(mat_file)
+
+
+def test_insert_path_to_geometry():
+    d = serpent.read_depcode_template(serpent.template_fname)
+    d_new = serpent.insert_path_to_geometry(d)
+    assert d_new[2].split('/')[-1] == 'test_geo.inp"\n'

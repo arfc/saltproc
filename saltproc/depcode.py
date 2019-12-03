@@ -157,7 +157,6 @@ class Depcode:
                                            self.inactive_cycles)
         return [s.replace(sim_param[0], args) for s in data]
 
-
     def create_iter_matfile(self, data):
         """ Check <include> with material file, copy in iteration material file,
          and change name of file in <include> """
@@ -316,7 +315,7 @@ class Depcode:
         self.get_tra_or_dec()
         return mats
 
-    def write_mat_file(self, dep_dict, mat_file, step):
+    def write_mat_file(self, dep_dict, mat_file, step=3):
         """ Writes the input fuel composition input file block
         """
         matf = open(mat_file, 'w')
