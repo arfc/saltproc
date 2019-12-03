@@ -28,9 +28,9 @@ geo_file = [2,
             os.path.join(input_path, '../examples/geometry/840.ini'),
             os.path.join(input_path, '../examples/geometry/880.ini'),
             os.path.join(input_path, '../examples/geometry/900.ini'),
-            os.path.join(input_path, '../examples/geometry/998.ini'),
-            os.path.join(input_path, '../examples/geometry/1070.ini'),
-            os.path.join(input_path, '../examples/geometry/1274.ini'),
+            os.path.join(input_path, '../examples/geometry/988.ini'),
+            os.path.join(input_path, '../examples/geometry/1126.ini'),
+            os.path.join(input_path, '../examples/geometry/1338.ini'),
             os.path.join(input_path, '../examples/geometry/1498.ini'),
             os.path.join(input_path, '../examples/geometry/1668_all.ini')]
 
