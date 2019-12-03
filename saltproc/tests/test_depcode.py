@@ -13,7 +13,8 @@ serpent = Depcode(codename='SERPENT',
                   template_fname=directory+'/template.inp',
                   input_fname=directory+'/test',
                   output_fname='NONE',
-                  iter_matfile=directory+'/material')
+                  iter_matfile=directory+'/material',
+                  geo_file='NONE')
 
 
 def test_get_tra_or_dec():
