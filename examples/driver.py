@@ -17,7 +17,7 @@ input_path = os.path.dirname(os.path.abspath(__file__)) + '/../saltproc/'
 spc_inp_file = os.path.join(input_path, '../examples/input_5leu_ideal.json')
 template_file = os.path.join(input_path, 'data/tap')  # user's input file
 # [line number where insrt link to geometry file, 1st geo, 2nd geo, etc
-geo_file = [2,
+geo_file = [2,  # number of line in Serpent input where to insert 'include geo'
             os.path.join(input_path, '../examples/geometry/347_base.ini'),
             os.path.join(input_path, '../examples/geometry/406.ini'),
             os.path.join(input_path, '../examples/geometry/427.ini'),
