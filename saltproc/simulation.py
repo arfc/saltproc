@@ -67,7 +67,8 @@ class Simulation():
         self.timesteps = timesteps
 
     def runsim_no_reproc(self):
-        """ Run simulation sequence """
+        """ Run simulation sequence for integral test. No reprocessing imvolved,
+        just re-running Serpent for comparstion with model output."""
         ######################################################################
         # Start sequence
         for dts in range(self.timesteps):

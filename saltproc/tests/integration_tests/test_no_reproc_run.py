@@ -23,12 +23,14 @@ depcode = Depcode(codename='SERPENT',
                   input_fname=sss_file,
                   output_fname='NONE',
                   iter_matfile=iter_matfile,
+                  geo_file=[2,
+                            os.path.join(directory, '../test_geo.inp')],
                   npop=100,
                   active_cycles=20,
                   inactive_cycles=5)
 simulation = Simulation(sim_name='Integration test',
                         sim_depcode=depcode,
-                        core_number=12,
+                        core_number=1,
                         node_number=1,
                         h5_file=db_file,
                         compression=None,
@@ -37,7 +39,7 @@ simulation = Simulation(sim_name='Integration test',
 
 
 @pytest.mark.slow
-#@pytest.mark.skip
+# @pytest.mark.skip
 def test_integration_3step_saltproc_no_reproc_heavy():
     simulation.runsim_no_reproc()
     saltproc_out = sss_file + '_dep.m'
