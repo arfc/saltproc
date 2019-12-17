@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, print_function
+#  __future__ import absolute_import, division, print_function
 from saltproc import Depcode
 from saltproc import Simulation
 from pyne import serpent
@@ -24,7 +24,7 @@ depcode = Depcode(codename='SERPENT',
                   output_fname='NONE',
                   iter_matfile=iter_matfile,
                   geo_file=[2,
-                            os.path.join(directory, '../test_geo.inp')],
+                            os.path.join(directory, '../../test_geo.inp')],
                   npop=100,
                   active_cycles=20,
                   inactive_cycles=5)

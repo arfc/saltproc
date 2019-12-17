@@ -14,7 +14,7 @@ import gc
 
 input_path = os.path.dirname(os.path.abspath(__file__)) + '/../saltproc/'
 # input_path = '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
-spc_inp_file = os.path.join(input_path, '../examples/input_5leu_ideal.json')
+spc_inp_file = os.path.join(input_path, '../examples/input_5leu.json')
 template_file = os.path.join(input_path, 'data/tap')  # user's input file
 # [line number where insrt link to geometry file, 1st geo, 2nd geo, etc
 geo_file = [2,  # number of line in Serpent input where to insert 'include geo'
@@ -49,11 +49,11 @@ pc_type = 'falcon'  # 'bw', 'falcon', 'pc'
 # Number of cores and nodes to use in cluster
 cores = 12  # doesn't used on Falcon (grabbing it from PBS) 32
 nodes = 1  # doesn't use on Falcon (grabbing it from PBS)  16
-steps = 2000  # 2000
+steps = 2  # 2000
 # Monte Carlo method parameters
-neutron_pop = 5000   # 5000; 15 000 400 200; 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
-active_cycles = 160   # 160; 20; 50'000, 400, 250: 16pcm
-inactive_cycles = 100 # 50
+neutron_pop = 50   # 5000; 15 000 400 200; 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
+active_cycles = 20   # 160; 20; 50'000, 400, 250: 16pcm
+inactive_cycles = 20 # 100
 # Define materials (should read from input file)
 core_massflow_rate = 9.92e+6  # g/s
 
