@@ -68,7 +68,6 @@ set inventory all
 %set rfr idx 321 restart
 %set seed 46549345296
 set seed 7812324546562
-%set seed 2358907456230438
 
 % ---- All CR inserted by default - withdrawn
 trans CR0 0.0 0.0 400.0

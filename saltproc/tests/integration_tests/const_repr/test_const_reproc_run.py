@@ -5,6 +5,7 @@ import os
 import sys
 import numpy as np
 import pytest
+import tables as tb
 
 path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
@@ -14,7 +15,9 @@ directory = os.path.dirname(path)
 
 sss_file = directory+'/int_test'
 iter_matfile = directory+'/int_test_mat'
-db_file = directory+'/db_test.h5'
+
+db_exp_file = directory+'/2step_non_ideal.h5'
+db_file = directory+'/../../../data/db_saltproc.h5'
 
 serpent = Depcode(codename='SERPENT',
                   exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
@@ -38,37 +41,44 @@ simulation = Simulation(sim_name='Integration test with const extraction rate',
 
 
 @pytest.mark.slow
-@pytest.mark.skip
-def test_integration_2step_constant_ideal_removal_heavy():
-    for dts in range(simulation.timesteps):
-        print ("\n\n\nStep #%i has been started" % (dts+1))
-        if dts == 0:  # First step
-            serpent.write_depcode_input(serpent.template_fname,
-                                        serpent.input_fname)
-            serpent.run_depcode(simulation.core_number, simulation.node_number)
-            # Read general simulation data which never changes
-            simulation.store_run_init_info()
-            # Parse and store data for initial state (beginning of dts
-            mats = serpent.read_dep_comp(serpent.input_fname, 0)  # 0)
-            simulation.store_mat_data(mats, dts-1, 'before_reproc')
-        # Finish of First step
-        # Main sequence
-        else:
-            serpent.run_depcode(simulation.core_number, simulation.node_number)
-        mats = serpent.read_dep_comp(serpent.input_fname, 1)
-        simulation.store_mat_data(mats, dts, 'before_reproc')
-        simulation.store_run_step_info()
-        # Reprocessing here
-        waste_st, rem_mass = reprocessing(mats)
-        refill(mats, rem_mass, waste_st)
-        # Store in DB after reprocessing and refill (right before next depl)
-        simulation.store_after_repr(mats, waste_st, dts)
-        serpent.write_mat_file(mats, iter_matfile, dts)
-        del mats, waste_st, rem_mass
-        gc.collect()
+# @pytest.mark.skip
+def read_keff_h5(file):
+    db = tb.open_file(file, mode='r')
+    sim_param = db.root.simulation_parameters
+    init_param = db.root.initial_depcode_siminfo
+    # Keff at t=0 depletion step
+    k_0 = np.array([x['keff_bds'][0] for x in sim_param.iterrows()])
+    k_0_e = np.array([x['keff_bds'][1] for x in sim_param.iterrows()])
+    # Keff at t=end depletion step
+    k_1 = np.array([x['keff_eds'][0] for x in sim_param.iterrows()])
+    k_1_e = np.array([x['keff_eds'][1] for x in sim_param.iterrows()])
+    depstep = [x['depletion_timestep'] for x in init_param.iterrows()][0]
+    db.close()
+    return k_0, k_1, k_0_e, k_1_e, depstep
 
-#def test_integration_3step_saltproc_no_reproc_heavy():
-#    simulation.runsim_no_reproc()
+
+def read_iso_m_h5(db_file):
+    db = tb.open_file(db_file, mode='r')
+    fuel_before = db.root.materials.fuel.before_reproc.comp
+    fuel_after = db.root.materials.fuel.after_reproc.comp
+    isomap = fuel_before.attrs.iso_map
+
+    mass_b = {}
+    mass_a = {}
+
+    for iso in isomap:
+        mass_b[iso] = np.array([row[isomap[iso]] for row in fuel_before])
+        mass_a[iso] = np.array([row1[isomap[iso]] for row1 in fuel_after])
+    db.close()
+    return mass_b, mass_a
+
+
+def test_integration_2step_constant_ideal_removal_heavy():
+    #np.testing.assert_equal(read_keff_h5(db_file), read_keff_h5(db_exp_file))
+    np.testing.assert_equal(read_iso_m_h5(db_file), read_iso_m_h5(db_exp_file))
+
+# def test_integration_3step_saltproc_no_reproc_heavy():
+#    simulation.runsim_constant_reproc()
 #    saltproc_out = sss_file + '_dep.m'
 #    dep_ser = serpent.parse_dep(directory+'/serpent_9d_dep.m', make_mats=False)
 #    dep_sp = serpent.parse_dep(saltproc_out, make_mats=False)
