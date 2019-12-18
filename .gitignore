@@ -1,8 +1,10 @@
 *.pyc
 *~
 *.DS_Store
+*.h5
 _build/
 auto_examples/
 gen_api/
 saltproc.egg-info/
 .ipynb_checkpoints/
+saltproc/data/saltproc_*
