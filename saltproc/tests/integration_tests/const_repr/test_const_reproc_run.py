@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 from saltproc import Depcode
 from saltproc import Simulation
+from saltproc import app
 import os
 import sys
 import numpy as np
@@ -74,7 +75,7 @@ def read_iso_m_h5(db_file):
 
 
 def test_integration_2step_constant_ideal_removal_heavy():
-    #np.testing.assert_equal(read_keff_h5(db_file), read_keff_h5(db_exp_file))
+    app.run()
     np.testing.assert_equal(read_iso_m_h5(db_file), read_iso_m_h5(db_exp_file))
 
 # def test_integration_3step_saltproc_no_reproc_heavy():

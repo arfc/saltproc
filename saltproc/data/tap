@@ -67,8 +67,8 @@ set inventory all
 %set rfw 1 restart
 %set rfr idx 321 restart
 %set seed 46549345296
-set seed 7812324546562
-%set seed 2358907456230438
+set seed 7812324546562      % for 2-step test (5d)
+%set seed 2358907456230438  % for 7-step test (2d)
 
 % ---- All CR inserted by default - withdrawn
 trans CR0 0.0 0.0 400.0

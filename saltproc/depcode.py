@@ -20,18 +20,17 @@ class Depcode:
       output, write new input for the depletion code.
     """
 
-    def __init__(
-                self,
-                codename,
-                exec_path,
-                template_fname,
-                input_fname,
-                output_fname,
-                iter_matfile,
-                geo_file,
-                npop=None,
-                active_cycles=None,
-                inactive_cycles=None):
+    def __init__(self,
+                 codename,
+                 exec_path,
+                 template_fname,
+                 input_fname,
+                 output_fname,
+                 iter_matfile,
+                 geo_file,
+                 npop=50,
+                 active_cycles=20,
+                 inactive_cycles=20):
             """ Initializes the class
 
             Parameters:
@@ -124,9 +123,9 @@ class Depcode:
             args = (self.exec_path, '-omp', str(cores), self.input_fname)
         print('Running %s' % (self.codename))
         try:
-            subprocess.check_call(args,
-                                  stdout=subprocess.DEVNULL,
-                                  stderr=subprocess.STDOUT)
+            subprocess.check_call(args)
+                                  # stdout=subprocess.DEVNULL,
+                                  # stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
             print(error.output, error.returncode)
             raise ValueError('\n %s RUN FAILED\n' % (self.codename))

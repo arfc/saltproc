@@ -11,17 +11,16 @@ class Process():
      composition, direction, etc.
      """
 
-    def __init__(
-                self,
-                mass_flowrate,
-                capacity,
-                volume,
-                # inflow,
-                # outflow,
-                # waste_stream_name,
-                efficiency,
-                # rem_iso
-                ):
+    def __init__(self,
+                 mass_flowrate,
+                 capacity,
+                 volume,
+                 # inflow,
+                 # outflow,
+                 # waste_stream_name,
+                 efficiency,
+                 # rem_iso
+                 ):
         """ Initializes the class
 
         Parameters:
