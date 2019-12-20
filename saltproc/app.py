@@ -10,11 +10,14 @@ import tables as tb
 import json
 from collections import OrderedDict
 import gc
+import networkx as nx
+import pydotplus
 
 
 input_path = os.path.dirname(os.path.abspath(__file__))
 # input_path = '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
 spc_inp_file = os.path.join(input_path, '../examples/input_5leu.json')
+dot_inp_file = os.path.join(input_path, '../../dot/di_graph.dot')
 template_file = os.path.join(input_path, 'data/tap')  # user's input file
 # [line number where insrt link to geometry file, 1st geo, 2nd geo, etc
 geo_file = [2,  # number of line in Serpent input where to insert 'include geo'
@@ -49,7 +52,7 @@ pc_type = 'falcon'  # 'bw', 'falcon', 'pc'
 # Number of cores and nodes to use in cluster
 cores = 12  # doesn't used on Falcon (grabbing it from PBS) 32
 nodes = 1  # doesn't use on Falcon (grabbing it from PBS)  16
-steps = 2  # 2000
+steps = 1  # 2000
 # Monte Carlo method parameters
 neutron_pop = 50   # 5000; 15 000 400 200; 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
 active_cycles = 20   # 160; 20; 50'000, 400, 250: 16pcm
@@ -99,7 +102,17 @@ def read_feeds_from_input():
         return feeds
 
 
-# @profile
+def read_dot(dotf):
+    """ Reads directed graph from *.dot files
+    Returns:
+    --------
+    digraph: networkx.classes.multidigraph.MultiDiGraph Object
+    """
+    graph_pydot = pydotplus.graph_from_dot_file(dotf)
+    digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
+    return digraph
+
+
 def reprocessing(mat):
     """ Applies reprocessing scheme to selected material
 
@@ -274,21 +287,21 @@ def run():
     # Start sequence
     for dts in range(steps):
         print ("\n\n\nStep #%i has been started" % (dts+1))
-        if dts == 0 and restart_flag is False:  # First step
-            serpent.write_depcode_input(template_file, input_file)
-            serpent.run_depcode(cores, nodes)
+        #if dts == 0 and restart_flag is False:  # First step
+        #    serpent.write_depcode_input(template_file, input_file)
+        #    serpent.run_depcode(cores, nodes)
             # Read general simulation data which never changes
-            simulation.store_run_init_info()
+        #    simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dts
-            mats = serpent.read_dep_comp(input_file, 0)  # 0)
-            simulation.store_mat_data(mats, dts-1, 'before_reproc')
+            #mats = serpent.read_dep_comp(input_file, 0)  # 0)
+            #simulation.store_mat_data(mats, dts-1, 'before_reproc')
         # Finish of First step
         # Main sequence
-        else:
-            serpent.run_depcode(cores, nodes)
+        #else:
+        #    serpent.run_depcode(cores, nodes)
         mats = serpent.read_dep_comp(input_file, 1)
-        simulation.store_mat_data(mats, dts, 'before_reproc')
-        simulation.store_run_step_info()
+        # simulation.store_mat_data(mats, dts, 'before_reproc')
+        # simulation.store_run_step_info()
         # Reprocessing here
         print("\nMass and volume of fuel before reproc %f g; %f cm3" %
               (mats['fuel'].mass,
@@ -312,8 +325,8 @@ def run():
                mats['ctrlPois'].vol))
         print("Removed mass [g]:", rem_mass)
         # Store in DB after reprocessing and refill (right before next depl)
-        simulation.store_after_repr(mats, waste_st, dts)
-        serpent.write_mat_file(mats, iter_matfile, dts)
+        # simulation.store_after_repr(mats, waste_st, dts)
+        # serpent.write_mat_file(mats, iter_matfile, dts)
         del mats, waste_st, rem_mass
         gc.collect()
         # Switch to another geometry?
