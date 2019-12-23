@@ -74,9 +74,34 @@ def read_iso_m_h5(db_file):
     return mass_b, mass_a
 
 
+def read_inout_h5(db_file):
+    db = tb.open_file(db_file, mode='r')
+    waste_sprg = db.root.materials.fuel.in_out_streams.waste_sparger
+    waste_s = db.root.materials.fuel.in_out_streams.waste_entrainment_separator
+    waste_ni = db.root.materials.fuel.in_out_streams.waste_nickel_filter
+    feed_leu = db.root.materials.fuel.in_out_streams.feed_leu
+    isomap = waste_ni.attrs.iso_map
+    isomap_f = feed_leu.attrs.iso_map
+    mass_w_sprg = {}
+    mass_w_s = {}
+    mass_w_ni = {}
+    mass_feed_leu = {}
+
+    for iso in isomap:
+        mass_w_sprg[iso] = np.array([row[isomap[iso]] for row in waste_sprg])
+        mass_w_s[iso] = np.array([row[isomap[iso]] for row in waste_s])
+        mass_w_ni[iso] = np.array([row[isomap[iso]] for row in waste_ni])
+    for iso in isomap_f:
+        mass_feed_leu[iso] = np.array([row[isomap_f[iso]] for row in feed_leu])
+    db.close()
+    return mass_w_sprg, mass_w_s, mass_w_ni, mass_feed_leu
+
+
 def test_integration_2step_constant_ideal_removal_heavy():
     app.run()
+    np.testing.assert_equal(read_keff_h5(db_file), read_keff_h5(db_exp_file))
     np.testing.assert_equal(read_iso_m_h5(db_file), read_iso_m_h5(db_exp_file))
+    np.testing.assert_equal(read_inout_h5(db_file), read_inout_h5(db_exp_file))
 
 # def test_integration_3step_saltproc_no_reproc_heavy():
 #    simulation.runsim_constant_reproc()

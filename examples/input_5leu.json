@@ -2,6 +2,20 @@
   {
     "extraction_processes":
             {
+              "core_inlet":
+                    {
+                      "capacity": 9.92E+6,
+                      "efficiency": {},
+                      "mass_flowrate": 9.92E+6,
+                      "volume": 0.0
+                    },
+              "core_outlet":
+                    {
+                      "capacity": 9.92E+6,
+                      "efficiency": {},
+                      "mass_flowrate": 9.92E+6,
+                      "volume": 0.0
+                      },
               "heat_exchanger":
                     {
                       "capacity": 9.92E+6,
@@ -9,6 +23,13 @@
                       "mass_flowrate": 9.92E+6,
                       "volume": 1.37E+7
                     },
+              "bypass":
+                    {
+                      "capacity": 9.92E+6,
+                      "efficiency": {},
+                      "mass_flowrate": 8.928E+6,
+                      "volume": 1.0E+9
+                      },
                 "sparger":
                     {
                       "capacity": 9.92E+6,
@@ -61,9 +82,9 @@
                       "mass_flowrate": 9.92E+6,
                       "volume": 11.0
                     },
-                "liquid_me_extraction":
+                "liquid_metal":
                     {
-                      "capacity": 9.92E+6,
+                      "capacity": 9.92E+5,
                       "efficiency":
                                   {
                                     "Y":  0.6,
@@ -127,7 +148,7 @@
                                       "Tb": 0.0,
                                       "Dy": 0.0
                                     },
-                        "mass_flowrate": 1.0E+3,
+                        "mass_flowrate": 0.0,
                         "volume": 11.0
                       }
 

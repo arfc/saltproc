@@ -1,7 +1,6 @@
 from saltproc import Materialflow
 from pyne import nucname as pyname
 import numpy as np
-import copy
 import json
 import gc
 
@@ -59,10 +58,15 @@ class Process():
         """ Returns PyNE material after removal target isotopes from inflow
          with specified efficiency and waste stream PyNE material
         """
+        # print("Flow Before reprocessing %f g" % inflow.mass)
+        # inflow.mass = inflow.mass*(self.mass_flowrate/9.92E+6)
+        # inflow.norm_comp()
         waste_nucvec = {}
         out_nucvec = {}
-        # print("Flow Before reprocessing ^^^^\n\n", inflow.print_attr())
-        # print("\n\nXe concentration in inflow before % f g" % inflow['Xe136'])
+        # mass flow fraction via the processes
+        # m_frac = float(self.mass_flowrate/9.92e+6)
+        # print("Flow Before reprocessing % g" % inflow.mass)
+        print("Xe concentration in inflow before % f g" % inflow['Xe136'])
         for iso in inflow.comp.keys():
             el_name = pyname.serpent(iso).split('-')[0]
             if el_name in self.efficiency:
@@ -93,8 +97,8 @@ class Process():
         print("Burnup ", outflow.burnup == inflow.burnup)
         print("Metadata ", outflow.metadata, inflow.metadata)"""
         # print("Flow After reprocessing ^^^^\n\n", inflow.print_attr())
-        """print("Xe concentration in inflow after %f g" % inflow['Xe136'])
-        print("Waste mass %f g" % waste.mass)"""
+        print("Xe concentration in inflow after %f g" % inflow['Xe136'])
+        print("Waste mass %f g\n" % waste.mass)
         del out_nucvec, waste_nucvec, el_name
         return waste
 
@@ -103,3 +107,7 @@ class Process():
         """
         out_stream = self.outflow + self.waste_stream
         np.testing.assert_array_equal(out_stream, self.inflow)
+
+    def change_mass_flowrate(self, flow, core_rate):
+        outflow = float(self.mass_flowrate/core_rate)*flow
+        return outflow

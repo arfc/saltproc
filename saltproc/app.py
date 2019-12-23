@@ -6,6 +6,7 @@ from saltproc import Process
 # from simulation import Simulation
 # from materialflow import Materialflow
 import os
+import copy
 import tables as tb
 import json
 from collections import OrderedDict
@@ -17,7 +18,7 @@ import pydotplus
 input_path = os.path.dirname(os.path.abspath(__file__))
 # input_path = '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
 spc_inp_file = os.path.join(input_path, '../examples/input_5leu.json')
-dot_inp_file = os.path.join(input_path, '../../dot/di_graph.dot')
+dot_inp_file = os.path.join(input_path, '../../dot/di_graph_bypass.dot')
 template_file = os.path.join(input_path, 'data/tap')  # user's input file
 # [line number where insrt link to geometry file, 1st geo, 2nd geo, etc
 geo_file = [2,  # number of line in Serpent input where to insert 'include geo'
@@ -52,13 +53,13 @@ pc_type = 'falcon'  # 'bw', 'falcon', 'pc'
 # Number of cores and nodes to use in cluster
 cores = 12  # doesn't used on Falcon (grabbing it from PBS) 32
 nodes = 1  # doesn't use on Falcon (grabbing it from PBS)  16
-steps = 1  # 2000
+steps = 2  # 2000
 # Monte Carlo method parameters
 neutron_pop = 50   # 5000; 15 000 400 200; 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
 active_cycles = 20   # 160; 20; 50'000, 400, 250: 16pcm
 inactive_cycles = 20 # 100
 # Define materials (should read from input file)
-core_massflow_rate = 9.92e+6  # g/s
+core_massflow_rate = 9.92E+6  # g/s
 
 
 def read_processes_from_input():
@@ -110,7 +111,15 @@ def read_dot(dotf):
     """
     graph_pydot = pydotplus.graph_from_dot_file(dotf)
     digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
-    return digraph
+    mat_name = digraph.__str__()
+    # iterate over all possible paths between 'core_outlet' and 'core_inlet'
+    paths_list = []
+    all_simple_paths = nx.all_simple_paths(digraph,
+                                           source='core_outlet',
+                                           target='core_inlet')
+    for path in all_simple_paths:
+        paths_list.append(path)
+    return mat_name, paths_list
 
 
 def reprocessing(mat):
@@ -142,7 +151,7 @@ def reprocessing(mat):
             p = ['sparger',
                  'entrainment_separator',
                  'nickel_filter',
-                 'liquid_me_extraction',
+                 'liquid_metal',
                  'heat_exchanger']
             w = ['waste_' + s for s in p]  # modify reprocessing nodes names
             # 1 via Sparger
@@ -188,6 +197,105 @@ def reprocessing(mat):
                                         waste[mname][w[3]].mass +
                                         waste[mname][w[4]].mass))
             del inflowA, outflowC
+        if mname == 'ctrlPois':
+            # print("\n\nPois In ^^^", mat[mname].__class__, mat[mname].print_attr())
+            waste[mname]['removal_tb_dy'] = \
+                prcs[mname]['removal_tb_dy'].rem_elements(mat[mname])
+        extracted_mass[mname] = inmass[mname] - float(mat[mname].mass)
+    del prcs, inmass, mname
+    return waste, extracted_mass
+
+
+def reprocessing_test(mat):
+    """ Applies reprocessing scheme to selected material
+
+    Parameters:
+    -----------
+    mat: Materialflow object`
+        Material data right after irradiation in the core/vesel
+    Returns:
+    --------
+    out: Materialflow object
+        Material data after performing all removals
+    waste: dictionary
+        key: process name
+        value: Materialflow object containing waste streams data
+    """
+    inmass = {}
+    extracted_mass = {}
+    waste = OrderedDict()
+    forked_mat = OrderedDict()
+    # out = OrderedDict()
+    prcs = read_processes_from_input()
+    mat_name_dot, paths = read_dot(dot_inp_file)
+    for mname in prcs.keys():  # iterate over materials
+        waste[mname] = {}
+        forked_mat[mname] = []
+        inmass[mname] = float(mat[mname].mass)
+        print("Material mass before reprocessing %f g" % inmass[mname])
+        if mname == 'fuel' and mat_name_dot == 'fuel':
+            w = 'waste_'
+            ctr = 0
+            for path in paths:
+                forked_mat[mname].append(copy.deepcopy(mat[mname]))
+                print("Material mass %f" % mat[mname].mass)
+                for p in path:
+                    print('Process %s' % p)
+                    waste[mname][w+p] = \
+                        prcs[mname][p].rem_elements(forked_mat[mname][ctr])
+                ctr += 1
+            mat[mname] = (forked_mat[mname][0] + forked_mat[mname][1])
+            # print(paths[p])
+            # print(prcs[mname][paths[0][1]].mass_flowrate)
+
+            # 1 via Sparger
+            # waste[mname][w+paths[p][1]] = \
+            #    prcs[mname][paths[p][1]].rem_elements(mat[mname])
+            # 2 via entrainment_entrainment
+            #waste[mname][w+paths[p][2]] = \
+            #    prcs[mname][paths[p][2]].rem_elements(mat[mname])
+            # 3 via nickel_filter
+            #waste[mname][w+paths[p][3]] = \
+            #    prcs[mname][paths[p][3]].rem_elements(mat[mname])
+            # Split to two paralell flows A and B
+            # A, 10% of mass flowrate
+            # inflowA = 0.1*mat[mname]
+            # 4 via liquid metal process
+            # waste[mname][w+paths[0][4]] = prcs[mname][paths[0][4]].rem_elements(inflowA)
+            # C. rest of mass flow 90%
+            # outflowC = 0.9*mat[mname]
+            # Feed here
+            # Merge out flows 5 via heat exchanger
+            # mat[mname] = outflowC  # inflowA +
+            #waste[mname][w+paths[p][4]] = \
+            #    prcs[mname][paths[p][4]].rem_elements(mat[mname])
+            print('1 Forked material mass %f' % (forked_mat[mname][0].mass))
+            print('2 Forked material mass %f' % (forked_mat[mname][1].mass))
+            print(waste[mname].keys())
+            """print('\nMass balance %f g = %f + %f + %f + %f + %f' %
+                  (inmass[mname],
+                   mat[mname].mass,
+                   waste[mname]['waste_sparger'].mass,
+                   waste[mname]['waste_entrainment_separator'].mass,
+                   waste[mname]['waste_nickel_filter'].mass,
+                   waste[mname]['waste_bypass'].mass))"""
+            #print('\nMass balance', mat[mname].mass+waste[mname][w[0]].mass+waste[mname][w[1]].mass+waste[mname][w[2]].mass+waste[mname][w[3]].mass+waste[mname][w[4]].mass)
+            """print('Volume ', inflowA.vol, inflowB.vol, inflowA.vol+inflowB.vol)
+            print('Mass flowrate ', inflowA.mass_flowrate, inflowB.mass_flowrate, out[mname].mass_flowrate)
+            print('Burnup ', inflowA.burnup, inflowB.burnup)
+            print('\n\n')
+            # print('\nInflowA attrs ^^^ \n', inflowA.print_attr())
+            # print('\nInflowB attrs ^^^ \n ', inflowB.print_attr())
+            print("\nIn ^^^", mat[mname].__class__, mat[mname].print_attr())
+            print("\nOut ^^^", out[mname].__class__, out[mname].print_attr())
+            # Print data about reprocessing for current step
+            print("\nBalance in %f t / out %f t" % (1e-6*inmass[mname], 1e-6*out[mname].mass))"""
+            print("Removed FPs %f g" % (inmass[mname]-mat[mname].mass))
+            """print("Total waste %f g" % (waste[mname]['waste_sparger'].mass +
+                                        waste[mname]['waste_entrainment_separator'].mass +
+                                        waste[mname]['waste_nickel_filter'].mass +
+                                        waste[mname]['waste_bypass'].mass))"""
+            # del inflowA, outflowC
         if mname == 'ctrlPois':
             # print("\n\nPois In ^^^", mat[mname].__class__, mat[mname].print_attr())
             waste[mname]['removal_tb_dy'] = \
@@ -287,21 +395,21 @@ def run():
     # Start sequence
     for dts in range(steps):
         print ("\n\n\nStep #%i has been started" % (dts+1))
-        #if dts == 0 and restart_flag is False:  # First step
-        #    serpent.write_depcode_input(template_file, input_file)
-        #    serpent.run_depcode(cores, nodes)
+        if dts == 0 and restart_flag is False:  # First step
+            serpent.write_depcode_input(template_file, input_file)
+            serpent.run_depcode(cores, nodes)
             # Read general simulation data which never changes
-        #    simulation.store_run_init_info()
+            simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dts
-            #mats = serpent.read_dep_comp(input_file, 0)  # 0)
-            #simulation.store_mat_data(mats, dts-1, 'before_reproc')
+            mats = serpent.read_dep_comp(input_file, 0)  # 0)
+            simulation.store_mat_data(mats, dts-1, 'before_reproc')
         # Finish of First step
         # Main sequence
-        #else:
-        #    serpent.run_depcode(cores, nodes)
+        else:
+            serpent.run_depcode(cores, nodes)
         mats = serpent.read_dep_comp(input_file, 1)
-        # simulation.store_mat_data(mats, dts, 'before_reproc')
-        # simulation.store_run_step_info()
+        simulation.store_mat_data(mats, dts, 'before_reproc')
+        simulation.store_run_step_info()
         # Reprocessing here
         print("\nMass and volume of fuel before reproc %f g; %f cm3" %
               (mats['fuel'].mass,
@@ -325,8 +433,8 @@ def run():
                mats['ctrlPois'].vol))
         print("Removed mass [g]:", rem_mass)
         # Store in DB after reprocessing and refill (right before next depl)
-        # simulation.store_after_repr(mats, waste_st, dts)
-        # serpent.write_mat_file(mats, iter_matfile, dts)
+        simulation.store_after_repr(mats, waste_st, dts)
+        serpent.write_mat_file(mats, iter_matfile, dts)
         del mats, waste_st, rem_mass
         gc.collect()
         # Switch to another geometry?
