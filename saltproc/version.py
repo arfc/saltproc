@@ -78,7 +78,7 @@ URL = "http://github.com/arfc/saltproc"
 DOWNLOAD_URL = ""
 LICENSE = "BSD-3"
 AUTHOR = "Andrei Rykhlevskii"
-AUTHOR_EMAIL = "andrewyh@illinois.edu"
+AUTHOR_EMAIL = "andrewryh@gmail.com"
 PLATFORMS = "OS Independent"
 MAJOR = _version_major
 MINOR = _version_minor
@@ -86,5 +86,5 @@ MICRO = _version_micro
 VERSION = __version__
 PACKAGE_DATA = {'saltproc': [pjoin('data', '*')]}
 PACKAGES = ["saltproc",
-        "saltproc.tests"]
-REQUIRES = ["numpy", "pyne"]
+     "saltproc.tests"]
+REQUIRES = ["numpy", "pyne", "networkx", "pydotplus", "pytest"]

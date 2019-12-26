@@ -240,45 +240,31 @@ def reprocessing_test(mat):
                 forked_mat[mname].append(copy.deepcopy(mat[mname]))
                 print("Material mass %f" % mat[mname].mass)
                 for p in path:
-                    print('Process %s' % p)
+                    # Calculate fraction of the flow going to the process p
+                    divisor = float(prcs[mname][p].mass_flowrate /
+                                    prcs[mname]['core_outlet'].mass_flowrate)
+                    print('Process %s, divisor=%f' % (p, divisor))
+                    # Update materialflow byt multiplying it by flow fraction
+                    forked_mat[mname][ctr] = \
+                        divisor * copy.deepcopy(forked_mat[mname][ctr])
                     waste[mname][w+p] = \
                         prcs[mname][p].rem_elements(forked_mat[mname][ctr])
                 ctr += 1
-            mat[mname] = (forked_mat[mname][0] + forked_mat[mname][1])
-            # print(paths[p])
-            # print(prcs[mname][paths[0][1]].mass_flowrate)
-
-            # 1 via Sparger
-            # waste[mname][w+paths[p][1]] = \
-            #    prcs[mname][paths[p][1]].rem_elements(mat[mname])
-            # 2 via entrainment_entrainment
-            #waste[mname][w+paths[p][2]] = \
-            #    prcs[mname][paths[p][2]].rem_elements(mat[mname])
-            # 3 via nickel_filter
-            #waste[mname][w+paths[p][3]] = \
-            #    prcs[mname][paths[p][3]].rem_elements(mat[mname])
-            # Split to two paralell flows A and B
-            # A, 10% of mass flowrate
-            # inflowA = 0.1*mat[mname]
-            # 4 via liquid metal process
-            # waste[mname][w+paths[0][4]] = prcs[mname][paths[0][4]].rem_elements(inflowA)
-            # C. rest of mass flow 90%
-            # outflowC = 0.9*mat[mname]
-            # Feed here
-            # Merge out flows 5 via heat exchanger
-            # mat[mname] = outflowC  # inflowA +
-            #waste[mname][w+paths[p][4]] = \
-            #    prcs[mname][paths[p][4]].rem_elements(mat[mname])
+            # Sum all forked material objects together
+            mat[mname] = forked_mat[mname][0]  # initilize correct obj instance
+            for idx in range(1, len(forked_mat[mname])):
+                mat[mname] += forked_mat[mname][idx]
             print('1 Forked material mass %f' % (forked_mat[mname][0].mass))
             print('2 Forked material mass %f' % (forked_mat[mname][1].mass))
             print(waste[mname].keys())
-            """print('\nMass balance %f g = %f + %f + %f + %f + %f' %
+            print('\nMass balance %f g = %f + %f + %f + %f + %f + %f' %
                   (inmass[mname],
                    mat[mname].mass,
                    waste[mname]['waste_sparger'].mass,
                    waste[mname]['waste_entrainment_separator'].mass,
                    waste[mname]['waste_nickel_filter'].mass,
-                   waste[mname]['waste_bypass'].mass))"""
+                   waste[mname]['waste_bypass'].mass,
+                   waste[mname]['waste_liquid_metal'].mass))
             #print('\nMass balance', mat[mname].mass+waste[mname][w[0]].mass+waste[mname][w[1]].mass+waste[mname][w[2]].mass+waste[mname][w[3]].mass+waste[mname][w[4]].mass)
             """print('Volume ', inflowA.vol, inflowB.vol, inflowA.vol+inflowB.vol)
             print('Mass flowrate ', inflowA.mass_flowrate, inflowB.mass_flowrate, out[mname].mass_flowrate)
@@ -301,7 +287,7 @@ def reprocessing_test(mat):
             waste[mname]['removal_tb_dy'] = \
                 prcs[mname]['removal_tb_dy'].rem_elements(mat[mname])
         extracted_mass[mname] = inmass[mname] - float(mat[mname].mass)
-    del prcs, inmass, mname
+    del prcs, inmass, mname, forked_mat, mat_name_dot, paths, divisor
     return waste, extracted_mass
 
 
@@ -394,7 +380,7 @@ def run():
     # Run sequence
     # Start sequence
     for dts in range(steps):
-        print ("\n\n\nStep #%i has been started" % (dts+1))
+        print("\n\n\nStep #%i has been started" % (dts+1))
         if dts == 0 and restart_flag is False:  # First step
             serpent.write_depcode_input(template_file, input_file)
             serpent.run_depcode(cores, nodes)
@@ -417,7 +403,7 @@ def run():
         print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
               (mats['ctrlPois'].mass,
                mats['ctrlPois'].vol))
-        waste_st, rem_mass = reprocessing(mats)
+        waste_st, rem_mass = reprocessing_test(mats)
         print("\nMass and volume of fuel after reproc %f g; %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
