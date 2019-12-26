@@ -142,20 +142,6 @@ def assert_h5_almost_equal(db, dbe):
 @pytest.mark.slow
 # @pytest.mark.skip
 def test_integration_2step_constant_ideal_removal_heavy():
-    app.run()
+    # app.run()
     np.testing.assert_equal(read_keff_h5(db_file), read_keff_h5(db_exp_file))
     assert_h5_almost_equal(db_file, db_exp_file)
-
-# def test_integration_3step_saltproc_no_reproc_heavy():
-#    simulation.runsim_constant_reproc()
-#    saltproc_out = sss_file + '_dep.m'
-#    dep_ser = serpent.parse_dep(directory+'/serpent_9d_dep.m', make_mats=False)
-#    dep_sp = serpent.parse_dep(saltproc_out, make_mats=False)
-#    err_expec = np.loadtxt(directory+'/sss_vs_sp_no_reproc_error')
-#    fuel_mdens_serpent_eoc = dep_ser['MAT_fuel_MDENS'][:, -2]
-#    fuel_mdens_sp_eoc = dep_sp['MAT_fuel_MDENS'][:, -1]
-#    err_res = np.array(fuel_mdens_serpent_eoc-fuel_mdens_sp_eoc)
-    # print(err_res.shape)
-    # print(err_expec.shape)
-    # print(err_res)
-#    np.testing.assert_array_equal(err_res, err_expec)
