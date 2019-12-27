@@ -142,6 +142,6 @@ def assert_h5_almost_equal(db, dbe):
 @pytest.mark.slow
 # @pytest.mark.skip
 def test_integration_2step_constant_ideal_removal_heavy():
-    # app.run()
+    app.run()
     np.testing.assert_equal(read_keff_h5(db_file), read_keff_h5(db_exp_file))
     assert_h5_almost_equal(db_file, db_exp_file)

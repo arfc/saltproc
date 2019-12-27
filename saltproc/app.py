@@ -17,9 +17,9 @@ import pydotplus
 
 input_path = os.path.dirname(os.path.abspath(__file__))
 # input_path = '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
-spc_inp_file = os.path.join(input_path, '../examples/input_5leu.json')
-dot_inp_file = os.path.join(input_path, '../../dot/di_graph_bypass.dot')
-template_file = os.path.join(input_path, 'data/tap')  # user's input file
+spc_inp_file = os.path.join(input_path, '../examples/tap_objects.json')
+dot_inp_file = os.path.join(input_path, '../examples/tap.dot')
+template_file = os.path.join(input_path, '../examples/tap.serpent')  # user's input file
 # [line number where insrt link to geometry file, 1st geo, 2nd geo, etc
 geo_file = [2,  # number of line in Serpent input where to insert 'include geo'
             os.path.join(input_path, '../examples/geometry/347_base.ini'),
