@@ -38,9 +38,9 @@
       "entrainment_separator": {
         "capacity": 9920000,
         "efficiency": {
-          "Kr": 0.97,
-          "Xe": 0.97,
-          "H": 0.97
+          "Kr": 0.87,
+          "Xe": 0.8,
+          "H": 0.15
         },
         "mass_flowrate": 9920000,
         "volume": 11
