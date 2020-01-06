@@ -415,9 +415,10 @@ class Depcode:
         self.param['breeding_ratio'] = res['CONVERSION_RATIO'][1]
         self.param['execution_time'] = res['RUNNING_TIME'][1]
         self.param['memory_usage'] = res['MEMSIZE'][0]
-        self.param['beta_eff'] = res['FWD_ANA_BETA_ZERO'][1].reshape((9, 2))
+        b_l = int(.5*len(res['FWD_ANA_BETA_ZERO'][1]))
+        self.param['beta_eff'] = res['FWD_ANA_BETA_ZERO'][1].reshape((b_l, 2))
         self.param['delayed_neutrons_lambda'] = \
-            res['FWD_ANA_LAMBDA'][1].reshape((9, 2))
+            res['FWD_ANA_LAMBDA'][1].reshape((b_l, 2))
         self.param['fission_mass_bds'] = res['INI_FMASS'][1]
         self.param['fission_mass_eds'] = res['TOT_FMASS'][1]
 
