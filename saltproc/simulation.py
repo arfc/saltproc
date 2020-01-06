@@ -273,6 +273,11 @@ class Simulation():
         """ Write to database important SERPENT and Saltproc run parameters,
             breeding ratio, beta, etc for each timestep
         """
+        # Read info from depcode _res.m File
+        self.sim_depcode.read_depcode_step_param()
+        # Initialize beta groups number
+        b_g = len(self.sim_depcode.param['beta_eff'])
+
         # numpy arraw row storage for run info
         class Step_info(tb.IsDescription):
             keff_bds = tb.Float32Col((2,))
@@ -280,12 +285,10 @@ class Simulation():
             breeding_ratio = tb.Float32Col((2,))
             step_execution_time = tb.Float32Col()
             memory_usage = tb.Float32Col()
-            beta_eff_eds = tb.Float32Col((9, 2))
-            delayed_neutrons_lambda_eds = tb.Float32Col((9, 2))
+            beta_eff_eds = tb.Float32Col((b_g, 2))
+            delayed_neutrons_lambda_eds = tb.Float32Col((b_g, 2))
             fission_mass_bds = tb.Float32Col()
             fission_mass_eds = tb.Float32Col()
-        # Read info from depcode _res.m File
-        self.sim_depcode.read_depcode_step_param()
         # Open or restore db and append datat to it
         db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
         try:
