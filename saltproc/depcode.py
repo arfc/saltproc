@@ -123,9 +123,9 @@ class Depcode:
             args = (self.exec_path, '-omp', str(cores), self.input_fname)
         print('Running %s' % (self.codename))
         try:
-            subprocess.check_call(args)
-                                  # stdout=subprocess.DEVNULL,
-                                  # stderr=subprocess.STDOUT)
+            subprocess.check_call(args,
+                                  stdout=subprocess.DEVNULL,
+                                  stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
             print(error.output, error.returncode)
             raise ValueError('\n %s RUN FAILED\n' % (self.codename))
