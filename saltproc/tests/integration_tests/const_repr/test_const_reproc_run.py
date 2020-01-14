@@ -1,45 +1,17 @@
 from __future__ import absolute_import, division, print_function
-from saltproc import Depcode
-from saltproc import Simulation
-from saltproc import app
 import os
 import sys
 import numpy as np
 import pytest
 import tables as tb
+import subprocess
 
 path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
-
-# global class object
 directory = os.path.dirname(path)
-
-sss_file = directory+'/int_test'
-iter_matfile = directory+'/int_test_mat'
-
 db_exp_file = directory+'/2step_non_ideal_2.h5'
-db_file = directory+'/../../../data/db_saltproc.h5'
-tol = 1e-6
-
-serpent = Depcode(codename='SERPENT',
-                  exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-                  template_fname=directory+'/tap_template.inp',
-                  input_fname=sss_file,
-                  output_fname='NONE',
-                  iter_matfile=iter_matfile,
-                  geo_file=[2,
-                            os.path.join(directory, '../../test_geo.inp')],
-                  npop=100,
-                  active_cycles=20,
-                  inactive_cycles=5)
-simulation = Simulation(sim_name='Integration test with const extraction rate',
-                        sim_depcode=serpent,
-                        core_number=1,
-                        node_number=1,
-                        h5_file=db_file,
-                        compression=None,
-                        iter_matfile=iter_matfile,
-                        timesteps=2)
+db_file = directory+'/db_saltproc.h5'
+tol = 1e-8
 
 
 def read_keff_h5(file):
@@ -142,6 +114,11 @@ def assert_h5_almost_equal(db, dbe):
 @pytest.mark.slow
 # @pytest.mark.skip
 def test_integration_2step_constant_ideal_removal_heavy():
-    app.run()
+    # app.run()
+    subprocess.check_call([
+        'python',
+        'saltproc',
+        '-i',
+        'saltproc/tests/integration_tests/const_repr/tap_main_test.json'])
     np.testing.assert_equal(read_keff_h5(db_file), read_keff_h5(db_exp_file))
     assert_h5_almost_equal(db_file, db_exp_file)

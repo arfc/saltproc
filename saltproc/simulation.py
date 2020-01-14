@@ -406,9 +406,9 @@ class Simulation():
         self.sim_depcode.write_mat_file(mats, self.iter_matfile, 0)
 
     def switch_to_next_geometry(self):
-        """ Substitute line which includes geometry in Serpent input file
-        with a line with path to next geometry file """
-        geo_line_n = self.sim_depcode.geo_file[0]
+        """ Insert line with path to next Serpent geometry file at the
+         beginning of the Serpent iteration file"""
+        geo_line_n = 5
         f = open(self.sim_depcode.input_fname, 'r')
         data = f.readlines()
         f.close()

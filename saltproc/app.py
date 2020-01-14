@@ -13,53 +13,100 @@ from collections import OrderedDict
 import gc
 import networkx as nx
 import pydotplus
+import argparse
 
 
 input_path = os.path.dirname(os.path.abspath(__file__))
-# spc_inp_file = os.path.join(input_path, '../examples/input_5leu.json')
-spc_inp_file = os.path.join(input_path, '../examples/tap_objects.json')
-dot_inp_file = os.path.join(input_path, '../examples/tap.dot')
-template_file = os.path.join(input_path, '../examples/tap.serpent')  # user's input file
-# [line number where insrt link to geometry file, 1st geo, 2nd geo, etc
-geo_file = [2,  # number of line in Serpent input where to insert 'include geo'
-            os.path.join(input_path, '../examples/geometry/347_base.ini'),
-            os.path.join(input_path, '../examples/geometry/406.ini'),
-            os.path.join(input_path, '../examples/geometry/427.ini'),
-            os.path.join(input_path, '../examples/geometry/505.ini'),
-            os.path.join(input_path, '../examples/geometry/576.ini'),
-            os.path.join(input_path, '../examples/geometry/633.ini'),
-            os.path.join(input_path, '../examples/geometry/681.ini'),
-            os.path.join(input_path, '../examples/geometry/840.ini'),
-            os.path.join(input_path, '../examples/geometry/880.ini'),
-            os.path.join(input_path, '../examples/geometry/900.ini'),
-            os.path.join(input_path, '../examples/geometry/988.ini'),
-            os.path.join(input_path, '../examples/geometry/1126.ini'),
-            os.path.join(input_path, '../examples/geometry/1338.ini'),
-            os.path.join(input_path, '../examples/geometry/1498.ini'),
-            os.path.join(input_path, '../examples/geometry/1668_all.ini')]
 
 input_file = os.path.join(input_path, 'data/saltproc_tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
-db_file = os.path.join(input_path, 'data/db_saltproc.h5')
 compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
-# executable path of Serpent
-exec_path = 'sss2'
-# exec_path = '/projects/sciteam/bahg/serpent/src2.1.31/sss2'  # BW
-# exec_path = '/apps/exp_ctl/easybuild/software/serpent/2.1.31-goolf-5.5.7/bin/sss2'
+# pc_type = 'falcon'  # 'bw', 'falcon', 'pc'
 
-adjust_geo = True
-restart_flag = False
-pc_type = 'falcon'  # 'bw', 'falcon', 'pc'
-# Number of cores and nodes to use in cluster
-cores = 12  # doesn't used on Falcon (grabbing it from PBS) 32
-nodes = 1  # doesn't use on Falcon (grabbing it from PBS)  16
-steps = 5  # 2000
-# Monte Carlo method parameters
-neutron_pop = 50   # 5000; 15 000 400 200; 10 000, 400, 100: 35pcm; 15 000, 400, 200: 30pcm
-active_cycles = 20   # 160; 20; 50'000, 400, 250: 16pcm
-inactive_cycles = 20 # 100
-# Define materials (should read from input file)
-core_massflow_rate = 9.92E+6  # g/s
+
+def parse_arguments():
+    """ Parse arguments from command line
+
+    Parameters:
+    -----------
+
+    Returns:
+    --------
+    steps: int
+        Number of depletion steps
+    nodes: int
+        Number of nodes for use in Serpent simulation
+    cores: int
+        Number of cores for use in Serpent simulation
+    input: str
+        Path and name of main SaltpRoc input file (json format)
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-stp',      # Number of steps
+                        type=int,
+                        default=2,
+                        help='number of depletion steps to run')
+    parser.add_argument('-n',      # Number of nodes to use
+                        type=int,
+                        default=1,
+                        help='number of cluster nodes to use in Serpent')
+    parser.add_argument('-d',      # Number of nodes to use
+                        type=int,
+                        default=12,
+                        help='number of threads to use in Serpent')
+    parser.add_argument('-i',      # main input file
+                        type=str,
+                        default=None,
+                        help='path and name of SaltProc main input file')
+    args = parser.parse_args()
+    return int(args.stp), int(args.n), int(args.d), str(args.i)
+
+
+def read_main_input(main_inp_file):
+    """ Read main SaltProc input file (json format)
+
+    Parameters:
+    -----------
+    main_inp_file: str
+        Absolute path to SaltProc main input file and name of this file
+    """
+    with open(main_inp_file) as f:
+        j = json.load(f)
+        global exec_path, spc_inp_file, dot_inp_file, template_file, db_file
+        exec_path = j["Path to Serpent executable"]
+        spc_inp_file = os.path.join(
+                        os.path.dirname(f.name),
+                        j["File containing processing system objects"])
+        dot_inp_file = os.path.join(
+                        os.path.dirname(f.name),
+                        j["Graph file containing processing system structure"])
+        template_file = os.path.join(
+                        os.path.dirname(f.name),
+                        j["User's Serpent input file with reactor model"])
+        db_path = j["Path output data storing folder"]
+        db_file = os.path.join(
+                        os.path.dirname(f.name),
+                        db_path,
+                        j["Output HDF5 database file name"])
+        # Read Monte Carlo setups
+        global neutron_pop, active_cycles, inactive_cycles
+        neutron_pop = j["Number of neutrons per generation"]
+        active_cycles = j["Number of active generations"]
+        inactive_cycles = j["Number of inactive generations"]
+        # Read advanced simulatiion parameters
+        global adjust_geo, restart_flag, core_massflow_rate
+        adjust_geo = j["Switch to another geometry when keff drops below 1?"]
+        restart_flag = j["Restart simulation from the step when it stopped?"]
+        core_massflow_rate = \
+            j["Salt mass flow rate throughout reactor core (g/s)"]
+        # Read paths to geometry files
+        global geo_file
+        if adjust_geo:
+            geo_list = j["Geometry file/files to use in Serpent runs"]
+            geo_file = [os.path.dirname(f.name) + '/' + g for g in geo_list]
+        elif not adjust_geo:
+            geo_file = [os.path.dirname(f.name)+'/' +
+                        j["Geometry file/files to use in Serpent runs"]]
 
 
 def read_processes_from_input():
@@ -236,12 +283,16 @@ def check_restart():
             os.remove(iter_matfile)
             os.remove(input_file)
         except OSError as e:
-            print("Error while deleting file, ", e)
+            print("Error while deleting file: ", e)
 
 
 def run():
     """ Inititialize main run
     """
+    # Parse arguments from command-lines
+    steps, nodes, cores, sp_input = parse_arguments()
+    # Read main input file
+    read_main_input(sp_input)
     # Print out input information
     print('Initiating Saltproc:\n'
           '\tRestart = ' + str(restart_flag) + '\n'

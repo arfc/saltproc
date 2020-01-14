@@ -14,8 +14,7 @@ serpent = Depcode(codename='SERPENT',
                   input_fname=directory+'/test',
                   output_fname='NONE',
                   iter_matfile=directory+'/material',
-                  geo_file=[2,
-                            os.path.join(directory, '../test_geo.inp')])
+                  geo_file=[os.path.join(directory, '../test_geo.inp')])
 
 
 def test_get_tra_or_dec():
@@ -136,4 +135,5 @@ def test_write_mat_file():
 def test_insert_path_to_geometry():
     d = serpent.read_depcode_template(serpent.template_fname)
     d_new = serpent.insert_path_to_geometry(d)
-    assert d_new[2].split('/')[-1] == 'test_geo.inp"\n'
+    print(d_new)
+    assert d_new[5].split('/')[-1] == 'test_geo.inp"\n'

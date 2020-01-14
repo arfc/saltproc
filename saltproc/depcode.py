@@ -456,8 +456,9 @@ class Depcode:
         self.iso_map = map_dict
 
     def insert_path_to_geometry(self, data):
-        """ Adds line 'include first_geometry_file' to the Serpent input file
+        """ Adds line 'include first_geometry_file' to the end of Serpent input
+        file
         """
-        data.insert(int(self.geo_file[0]),
-                    'include \"' + str(self.geo_file[1]) + '\"\n')
+        data.insert(5,  # Insert as a 5th line
+                    'include \"' + str(self.geo_file[0]) + '\"\n')
         return data

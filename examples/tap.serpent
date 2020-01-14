@@ -1,8 +1,8 @@
-include "/home/andrei2/Desktop/git/saltproc/develop/examples/mats/saltproc_prepr_comp_endf.ini"
-include "/home/andrei2/Desktop/git/saltproc/develop/examples/mats/non_burnable_mats_no_s.ini"
-
-
-
+% Include file with burnable material composition on the line below
+include "/home/andrei2/Desktop/git/saltproc/develop/examples/mats/saltproc_prepr_comp.ini"
+% Include file with non-burnable material composition on the line below
+include "/home/andrei2/Desktop/git/saltproc/develop/examples/mats/non_burnable_mats.ini"
+% Geometry import will be added by SaltProc on  the next line
 
 %include "/home/andrei2/Desktop/git/meitner-task-2/serpent/geometry/various_svf_2/342_base.ini"
 
@@ -17,14 +17,14 @@ include "/home/andrei2/Desktop/git/saltproc/develop/examples/mats/non_burnable_m
 set title "TAP MSR test 5-d step"
 
 %therm zrh_h 900 hzr05.32t hzr06.32t   % 900K H-Zr
-set acelib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.xsdata"
-set declib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.dec"
-set nfylib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.nfy"
+%set acelib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.xsdata"
+%set declib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.dec"
+%set nfylib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.nfy"
 
-%set acelib "sss_jeff312.xsdata"
-%set declib "sss_jeff33.dec"
-%set nfylib "sss_jeff33.nfy"
-%set sfylib "sss_jeff33.sfy"
+set acelib "sss_jeff312.xsdata"
+set declib "sss_jeff33.dec"
+set nfylib "sss_jeff33.nfy"
+set sfylib "sss_jeff33.sfy"
 % --- Neutron population and criticality cycles:
 
 set pop 15000 500 200
@@ -64,7 +64,7 @@ set inventory all
 %set rfw 1 restart
 %set rfr idx 321 restart
 %set seed 46549345296
-%set seed 7812324546562      % for 2-step test (5d)
+set seed 7812324546562      % for 2-step test (5d)
 %set seed 2358907456230438  % for 7-step test (2d)
 
 % ---- All CR inserted by default - withdrawn
