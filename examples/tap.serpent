@@ -2,7 +2,9 @@
 include "/home/andrei2/Desktop/git/saltproc/develop/examples/mats/saltproc_prepr_comp.ini"
 % Include file with non-burnable material composition on the line below
 include "/home/andrei2/Desktop/git/saltproc/develop/examples/mats/non_burnable_mats.ini"
-% Geometry import will be added by SaltProc on  the next line
+% Geometry import will be added by SaltProc on the next line
+
+% Burnup settings will be added on next line
 
 %include "/home/andrei2/Desktop/git/meitner-task-2/serpent/geometry/various_svf_2/342_base.ini"
 
@@ -57,7 +59,7 @@ set pcc     2  % Predictor-corrector calculation off (Linear extrapolation)
 %set bunorm 2
 %set opti 3
 
-set power 1.250E+09 dep daytot 5.0
+%set power 1.250E+09 dep daytot 5.0
 
 set inventory all
 

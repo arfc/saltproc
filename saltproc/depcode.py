@@ -187,6 +187,7 @@ class Depcode:
             os.remove(input_file)
         data = self.read_depcode_template(template_file)
         data = self.insert_path_to_geometry(data)
+        data = self.insert_burnup_parameters(data, 1.25E+9, 5.0)
         data = self.change_sim_par(data)
         data = self.create_iter_matfile(data)
 
@@ -414,6 +415,7 @@ class Depcode:
         self.param['keff_eds'] = res['IMP_KEFF'][1]
         self.param['breeding_ratio'] = res['CONVERSION_RATIO'][1]
         self.param['execution_time'] = res['RUNNING_TIME'][1]
+        self.param['burn_time'] = res['BURN_DAYS'][1][0]
         self.param['memory_usage'] = res['MEMSIZE'][0]
         b_l = int(.5*len(res['FWD_ANA_BETA_ZERO'][1]))
         self.param['beta_eff'] = res['FWD_ANA_BETA_ZERO'][1].reshape((b_l, 2))
@@ -459,6 +461,14 @@ class Depcode:
         """ Adds line 'include first_geometry_file' to the end of Serpent input
         file
         """
-        data.insert(5,  # Insert as a 5th line
+        data.insert(5,  # Insert on 6th line
                     'include \"' + str(self.geo_file[0]) + '\"\n')
+        return data
+
+    def insert_burnup_parameters(self, data, power, daystep):
+        """ Adds line with depletion history and power levels
+        """
+        data.insert(8,  # Insert on 9th line
+                    'set power  ' + str(power) + \
+                    '  dep daystep  ' + str(daystep) + '\n')
         return data

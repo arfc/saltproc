@@ -58,7 +58,7 @@ set pcc     2  % Predictor-corrector calculation off (Linear extrapolation)
 %set bunorm 2
 %set opti 3
 
-set power 1.250E+09 dep daytot 5.0
+%set power 1.250E+09 dep daystep 5.0
 
 %set printm 1 0.0
 

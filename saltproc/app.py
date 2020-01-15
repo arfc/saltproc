@@ -97,8 +97,6 @@ def read_main_input(main_inp_file):
         global adjust_geo, restart_flag, core_massflow_rate
         adjust_geo = j["Switch to another geometry when keff drops below 1?"]
         restart_flag = j["Restart simulation from the step when it stopped?"]
-        core_massflow_rate = \
-            j["Salt mass flow rate throughout reactor core (g/s)"]
         # Read paths to geometry files
         global geo_file
         if adjust_geo:
@@ -107,6 +105,12 @@ def read_main_input(main_inp_file):
         elif not adjust_geo:
             geo_file = [os.path.dirname(f.name)+'/' +
                         j["Geometry file/files to use in Serpent runs"]]
+        core_massflow_rate = \
+            j["Salt mass flow rate throughout reactor core (g/s)"]
+        global cumulative_time, power_hist
+        cumulative_time = \
+            j["Depletion step interval or Depletion step list (d)"]
+        power_hist = j["Reactor fission power or power step list (W)"]
 
 
 def read_processes_from_input():
@@ -219,7 +223,7 @@ def reprocessing(mat):
                 mat[mname] += forked_mat[mname][idx]
             print('1 Forked material mass %f' % (forked_mat[mname][0].mass))
             print('2 Forked material mass %f' % (forked_mat[mname][1].mass))
-            print(waste[mname].keys())
+            # print(waste[mname].keys())
             print('\nMass balance %f g = %f + %f + %f + %f + %f + %f' %
                   (inmass[mname],
                    mat[mname].mass,
@@ -377,5 +381,5 @@ def run():
         # Switch to another geometry?
         if adjust_geo and simulation.read_k_eds_delta(dts, restart_flag):
             simulation.switch_to_next_geometry()
-
-        print("\nSimulation succeeded.\n")
+        print("\nSimulation clock: current time is %fd" % simulation.burn_time)
+        print("Simulation succeeded.\n")

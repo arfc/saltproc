@@ -18,7 +18,7 @@ class Simulation():
             h5_file="db_saltproc.h5",
             compression=None,
             iter_matfile="default",
-            timesteps=1):
+            timesteps=2):
         """Initializes the class
 
         Parameters:
@@ -67,12 +67,12 @@ class Simulation():
         self.timesteps = timesteps
 
     def runsim_no_reproc(self):
-        """ Run simulation sequence for integral test. No reprocessing imvolved,
+        """ Run simulation sequence for integral test. No reprocessing involved,
         just re-running Serpent for comparstion with model output."""
         ######################################################################
         # Start sequence
         for dts in range(self.timesteps):
-            print ("\nStep #%i has been started" % (dts+1))
+            print("\nStep #%i has been started" % (dts+1))
             if dts == 0:  # First step
                 self.sim_depcode.write_depcode_input(
                                         self.sim_depcode.template_fname,
@@ -120,7 +120,7 @@ class Simulation():
 
         # self.mat_comp_preprosessor()
 
-    def steptime(self):
+    def currenttime(self):
         return 1
 
     def loadinput_sp(self):
@@ -277,33 +277,38 @@ class Simulation():
         self.sim_depcode.read_depcode_step_param()
         # Initialize beta groups number
         b_g = len(self.sim_depcode.param['beta_eff'])
+        # numpy array row storage for run info
 
-        # numpy arraw row storage for run info
         class Step_info(tb.IsDescription):
             keff_bds = tb.Float32Col((2,))
             keff_eds = tb.Float32Col((2,))
             breeding_ratio = tb.Float32Col((2,))
             step_execution_time = tb.Float32Col()
+            burn_time = tb.Float32Col()
             memory_usage = tb.Float32Col()
             beta_eff_eds = tb.Float32Col((b_g, 2))
             delayed_neutrons_lambda_eds = tb.Float32Col((b_g, 2))
             fission_mass_bds = tb.Float32Col()
             fission_mass_eds = tb.Float32Col()
-        # Open or restore db and append datat to it
+        # Open or restore db and append data to it
         db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
         try:
             step_info_table = db.get_node(
                                          db.root,
                                          'simulation_parameters')
+            # Read burn_time from previous step
+            self.burn_time = step_info_table.col('burn_time')[-1]
         except Exception:
             step_info_table = db.create_table(
                                 db.root,
                                 'simulation_parameters',
                                 Step_info,
                                 "Simulation parameters after each timestep")
+            # Intializing burn_time array at the first depletion step
+            self.burn_time = 0.0
+        self.burn_time += self.sim_depcode.param['burn_time']
         # Define row of table as step_info
         step_info = step_info_table.row
-
         # Define all values in the row
         step_info['keff_bds'] = self.sim_depcode.param['keff_bds']
         step_info['keff_eds'] = self.sim_depcode.param['keff_eds']
@@ -311,6 +316,7 @@ class Simulation():
                                         'breeding_ratio']
         step_info['step_execution_time'] = self.sim_depcode.param[
                                         'execution_time']
+        step_info['burn_time'] = self.burn_time
         step_info['memory_usage'] = self.sim_depcode.param[
                                         'memory_usage']
         step_info['beta_eff_eds'] = self.sim_depcode.param[

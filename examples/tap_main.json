@@ -27,5 +27,7 @@
     "geometry/1668_all.ini"
   ],
   "Switch to another geometry when keff drops below 1?": true,
-  "Salt mass flow rate throughout reactor core (g/s)": 9.92E+6
+  "Salt mass flow rate throughout reactor core (g/s)": 9.92E+6,
+  "Depletion step interval or Depletion step list (d)": 5.0,
+  "Reactor fission power or power step list (W)": 1.250E+09
 }
