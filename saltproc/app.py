@@ -2,6 +2,7 @@ from saltproc import Depcode
 from saltproc import Simulation
 from saltproc import Materialflow
 from saltproc import Process
+from saltproc import Reactor
 # from depcode import Depcode
 # from simulation import Simulation
 # from materialflow import Materialflow
@@ -14,6 +15,7 @@ import gc
 import networkx as nx
 import pydotplus
 import argparse
+import numpy as np
 
 
 input_path = os.path.dirname(os.path.abspath(__file__))
@@ -42,10 +44,6 @@ def parse_arguments():
         Path and name of main SaltpRoc input file (json format)
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-stp',      # Number of steps
-                        type=int,
-                        default=2,
-                        help='number of depletion steps to run')
     parser.add_argument('-n',      # Number of nodes to use
                         type=int,
                         default=1,
@@ -59,7 +57,7 @@ def parse_arguments():
                         default=None,
                         help='path and name of SaltProc main input file')
     args = parser.parse_args()
-    return int(args.stp), int(args.n), int(args.d), str(args.i)
+    return int(args.n), int(args.d), str(args.i)
 
 
 def read_main_input(main_inp_file):
@@ -107,10 +105,24 @@ def read_main_input(main_inp_file):
                         j["Geometry file/files to use in Serpent runs"]]
         core_massflow_rate = \
             j["Salt mass flow rate throughout reactor core (g/s)"]
-        global cumulative_time, power_hist
-        cumulative_time = \
-            j["Depletion step interval or Depletion step list (d)"]
+        global depl_hist, power_hist
+        depl_hist = \
+            j["Depletion step interval or Cumulative step list (d)"]
         power_hist = j["Reactor fission power or power step list (W)"]
+        depsteps = \
+            j["Number of steps for constant power and depletion interval case"]
+        if depsteps is not None and isinstance(depl_hist, (float, int)):
+            if depsteps < 0.0 or not int:
+                raise ValueError('Depletion step interval cannot be negative')
+            else:
+                step = int(depsteps)
+                deptot = float(depl_hist)*step
+                depl_hist = np.linspace(float(depl_hist), deptot, num=step)
+                power_hist = float(power_hist) * np.ones_like(depl_hist)
+        elif depsteps is None and isinstance(depl_hist, (np.ndarray, list)):
+            if len(depl_hist) != len(power_hist):
+                raise ValueError(
+                  'Depletion step list and power list shape mismatch')
 
 
 def read_processes_from_input():
@@ -122,14 +134,6 @@ def read_processes_from_input():
             processes[mat] = OrderedDict()
             for obj_name, obj_data in j[mat]['extraction_processes'].items():
                 processes[mat][obj_name] = Process(**obj_data)
-        """print(processes)
-        print('\nFuel mat', processes['fuel'])
-        print('\nPoison rods mat', processes['ctrlPois'])
-        print('\nProcess objects attributes:')
-        print("Sparger efficiency ", processes['fuel']['sparger'].efficiency)
-        # print("Ni filter efficiency", processes['nickel_filter'].efficiency)
-        print(processes['fuel']['sparger'].mass_flowrate)
-        print(processes['ctrlPois']['removal_tb_dy'].efficiency)"""
         gc.collect()
         return processes
 
@@ -294,7 +298,7 @@ def run():
     """ Inititialize main run
     """
     # Parse arguments from command-lines
-    steps, nodes, cores, sp_input = parse_arguments()
+    nodes, cores, sp_input = parse_arguments()
     # Read main input file
     read_main_input(sp_input)
     # Print out input information
@@ -328,17 +332,20 @@ def run():
                             h5_file=db_file,
                             compression=compression_prop,
                             iter_matfile=iter_matfile,
-                            timesteps=steps)
-
+                            timesteps=len(depl_hist))
+    msr = Reactor(volume=1.0,
+                  mass_flowrate=core_massflow_rate,
+                  power_levels=power_hist,
+                  depl_hist=depl_hist)
     # Check: Restarting previous simulation or starting new?
     check_restart()
     # Run sequence
     # Start sequence
-    for dts in range(steps):
+    for dts in range(len(depl_hist)):
         print("\n\n\nStep #%i has been started" % (dts+1))
+        serpent.write_depcode_input(template_file, input_file, msr, dts)
+        serpent.run_depcode(cores, nodes)
         if dts == 0 and restart_flag is False:  # First step
-            serpent.write_depcode_input(template_file, input_file)
-            serpent.run_depcode(cores, nodes)
             # Read general simulation data which never changes
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dts
@@ -346,8 +353,6 @@ def run():
             simulation.store_mat_data(mats, dts-1, 'before_reproc')
         # Finish of First step
         # Main sequence
-        else:
-            serpent.run_depcode(cores, nodes)
         mats = serpent.read_dep_comp(input_file, 1)
         simulation.store_mat_data(mats, dts, 'before_reproc')
         simulation.store_run_step_info()
@@ -383,3 +388,7 @@ def run():
             simulation.switch_to_next_geometry()
         print("\nSimulation clock: current time is %fd" % simulation.burn_time)
         print("Simulation succeeded.\n")
+        print("Reactor object data.\n",
+              msr.mass_flowrate,
+              msr.power_levels,
+              msr.depl_hist)

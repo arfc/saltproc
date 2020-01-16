@@ -12,6 +12,7 @@
   "Geometry file/files to use in Serpent runs": "347_base.ini",
   "Switch to another geometry when keff drops below 1?": false,
   "Salt mass flow rate throughout reactor core (g/s)": 9.92E+6,
-  "Depletion step interval or Depletion step list (d)": 5,
+  "Number of steps for constant power and depletion interval case": 2,
+  "Depletion step interval or Cumulative step list (d)": 5,
   "Reactor fission power or power step list (W)": 1.250E+9
 }

@@ -181,15 +181,16 @@ class Depcode:
         shutil.copy2(abs_src_matfile, self.iter_matfile)
         return [s.replace(src_file, self.iter_matfile) for s in data]
 
-    def write_depcode_input(self, template_file, input_file):
+    def write_depcode_input(self, template_file, input_file, reactor, dts):
         """ Write prepared data into depletion code input file """
-        if os.path.exists(input_file):
-            os.remove(input_file)
-        data = self.read_depcode_template(template_file)
-        data = self.insert_path_to_geometry(data)
-        data = self.insert_burnup_parameters(data, 1.25E+9, 5.0)
-        data = self.change_sim_par(data)
-        data = self.create_iter_matfile(data)
+        if dts == 0:
+            data = self.read_depcode_template(template_file)
+            data = self.insert_path_to_geometry(data)
+            data = self.change_sim_par(data)
+            data = self.create_iter_matfile(data)
+        elif dts > 0:
+            data = self.read_depcode_template(input_file)
+        data = self.replace_burnup_parameters(data, reactor, dts)
 
         if data:
             out_file = open(input_file, 'w')
@@ -465,10 +466,23 @@ class Depcode:
                     'include \"' + str(self.geo_file[0]) + '\"\n')
         return data
 
-    def insert_burnup_parameters(self, data, power, daystep):
-        """ Adds line with depletion history and power levels
+    def replace_burnup_parameters(self, data, reactor, current_depstep_idx):
+        """ Adds or replace line with depletion history and power levels
         """
-        data.insert(8,  # Insert on 9th line
-                    'set power  ' + str(power) + \
-                    '  dep daystep  ' + str(daystep) + '\n')
+        line_idx = 8  # burnup setting line index by default
+        current_depstep_power = reactor.power_levels[current_depstep_idx]
+        if current_depstep_idx == 0:
+            current_depstep = reactor.depl_hist[0]
+        else:
+            current_depstep = reactor.depl_hist[current_depstep_idx] - \
+                              reactor.depl_hist[current_depstep_idx-1]
+        for line in data:
+            if line.startswith('set    power   '):
+                line_idx = data.index(line)
+                del data[line_idx]
+
+        data.insert(line_idx,  # Insert on 9th line
+                    'set    power   %5.9E   dep daystep   %7.5E\n' %
+                    (current_depstep_power,
+                     current_depstep))
         return data
