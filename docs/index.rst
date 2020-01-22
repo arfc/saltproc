@@ -5,7 +5,7 @@
 
 
 SaltProc
-====
+=========
 
 **SaltProc** is a python package for liquid-fueled nuclear reactor depletion
 calculations. It couples directly with the Serpent 2 Monte Carlo depletion

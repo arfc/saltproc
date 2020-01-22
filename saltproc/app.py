@@ -27,12 +27,12 @@ compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
 
 
 def parse_arguments():
-    """ Parse arguments from command line
+    """Parse arguments from command line
 
-    Parameters:
+    Parameters
     -----------
 
-    Returns:
+    Returns
     --------
     steps: int
         Number of depletion steps
@@ -41,7 +41,8 @@ def parse_arguments():
     cores: int
         Number of cores for use in Serpent simulation
     input: str
-        Path and name of main SaltpRoc input file (json format)
+        Path and name of main SaltProc input file (json format)
+
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('-n',      # Number of nodes to use
@@ -63,7 +64,7 @@ def parse_arguments():
 def read_main_input(main_inp_file):
     """ Read main SaltProc input file (json format)
 
-    Parameters:
+    Parameters
     -----------
     main_inp_file: str
         Absolute path to SaltProc main input file and name of this file
@@ -159,13 +160,19 @@ def read_feeds_from_input():
         return feeds
 
 
-def read_dot(dotf):
-    """ Reads directed graph from *.dot files
-    Returns:
+def read_dot(dot_file):
+    """Reads directed graph from `*.dot` files.
+
+    Parameters
+    ----------
+
+    Returns
     --------
     digraph: networkx.classes.multidigraph.MultiDiGraph Object
+        Directed graph describes reprocessing system as NetworkX MultiDiGraph.
+
     """
-    graph_pydot = pydotplus.graph_from_dot_file(dotf)
+    graph_pydot = pydotplus.graph_from_dot_file(dot_file)
     digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
     mat_name = digraph.__str__()
     # iterate over all possible paths between 'core_outlet' and 'core_inlet'
@@ -179,19 +186,21 @@ def read_dot(dotf):
 
 
 def reprocessing(mat):
-    """ Applies reprocessing scheme to selected material
+    """Applies reprocessing scheme to selected material
 
-    Parameters:
+    Parameters
     -----------
     mat: Materialflow object`
         Material data right after irradiation in the core/vesel
-    Returns:
+
+    Returns
     --------
     out: Materialflow object
         Material data after performing all removals
     waste: dictionary
         key: process name
         value: Materialflow object containing waste streams data
+
     """
     inmass = {}
     extracted_mass = {}
@@ -250,7 +259,7 @@ def reprocessing(mat):
 def refill(mat, extracted_mass, waste_dict):
     """ Applies reprocessing scheme to selected material
 
-    Parameters:
+    Parameters
     -----------
     mat: dictionary
         key: Material name
@@ -260,7 +269,8 @@ def refill(mat, extracted_mass, waste_dict):
         key: Material name
         value: float
         Mass removed as waste in reprocessing function for each material
-    Returns:
+
+    Returns
     --------
     refill_stream: Materialflow object
         Material data after refill
@@ -296,7 +306,7 @@ def check_restart():
 
 
 def run():
-    """ Inititialize main run
+    """ Inititializes main run
     """
     # Parse arguments from command-lines
     nodes, cores, sp_input = parse_arguments()

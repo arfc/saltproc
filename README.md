@@ -265,53 +265,18 @@ python setup.py install
 
 ### Documentation
 
-Documenting your software is a good idea. Not only as a way to communicate to
-others about how to use the software, but also as a way of reminding yourself
-what the issues are that you faced, and how you dealt with them, in a few
-months/years, when you return to look at the code.
+The documentation for SaltProc can be found at
+[saltproc.github.io](http://saltproc.github.io). Additionally, the entire contents of that
+website can be built from the doc directory in the source code using the
+following steps
 
-The first step in this direction is to document every function in your module
-code. We recommend following the [numpy docstring
-standard](https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt),
-which specifies in detail the inputs/outputs of every function, and specifies
-how to document additional details, such as references to scientific articles,
-notes about the mathematics behind the implementation, etc.
+1. `pip install sphinx`
+2. `pip install sphinx_rtd_theme`.
+3. `sphinx-apidoc --separate --force --output-dir=src/ ../saltproc`
+4. `make clean`
+5. `make html`
 
-This standard also plays well with a system that allows you to create more
-comprehensive documentation of your project. Writing such documentation allows
-you to provide more elaborate explanations of the decisions you made when you
-were developing the software, as well as provide some examples of usage,
-explanations of the relevant scientific concepts, and references to the relevant
-literature.
-
-To document `saltproc` we use the [sphinx documentation
-system](http://sphinx-doc.org/). You can follow the instructions on the sphinx
-website, and the example [here](http://matplotlib.org/sampledoc/) to set up the
-system, but we have also already initialized and commited a skeleton
-documentation system in the `docs` directory, that you can build upon.
-
-Sphinx uses a `Makefile` to build different outputs of your documentation. For
-example, if you want to generate the HTML rendering of the documentation (web
-pages that you can upload to a website to explain the software), you will type:
-
-	make html
-
-This will generate a set of static webpages in the `doc/_build/html`, which you
-can then upload to a website of your choice.
-
-Alternatively, [readthedocs.org](https://readthedocs.org) (careful,
-*not* readthedocs.**com**) is a service that will run sphinx for you,
-and upload the documentation to their website. To use this service,
-you will need to register with RTD. After you have done that, you will
-need to "import your project" from your github account, through the
-RTD web interface. To make things run smoothly, you also will need to
-go to the "admin" panel of the project on RTD, and navigate into the
-"advanced settings" so that you can tell it that your Python
-configuration file is in `doc/conf.py`:
-
-![RTD conf](https://github.com/uwescience/saltproc/blob/master/doc/_static/RTD-advanced-conf.png)
-
- http://saltproc.readthedocs.org/en/latest/
+After these steps, the website will be found in `saltproc/doc/_build/html`.
 
 
 ### Installation

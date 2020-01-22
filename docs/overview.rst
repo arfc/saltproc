@@ -14,7 +14,7 @@ simulation with following capabilities:
 
 
 How SaltProc works
----------
+-------------------
 
 SaltProc is a driver for Serpent to simulate online fuel salt reprocessing for
 Molten Salt Reactors. It performs three major functions:
@@ -26,18 +26,22 @@ Molten Salt Reactors. It performs three major functions:
 
 
 The code logic flow is the following:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  1. Runs Serpent (`saltproc.depcode.run_depcode()``)
-  2. Parses through the output *_dep.m file and create PyNE Material object for each burnable material.
+
+  1. Runs Serpent (`saltproc.depcode.run_depcode()`)
+  2. Parses through the output `*_dep.m` file and create PyNE Material object for each burnable material.
   3. Processes Fuel (`saltproc.app.reprocessing()` and `saltproc.refill`):
+
     * Passes fuel composition throughout Processes objects (reprocessing system components) to remove poisons with specific efficiency.
     * Add back fissile and/or fertile material to make-up loss of material.
+
   4. Records data:
+
     - Depleted fuel composition (`materials/fuel/before_reproc` table in HDF5)
     - Reprocessed fuel composition (`materials/fuel/after_reproc` table in HDF5)
     - Multiplication factor at the beginning and at the end of depletion step (`simulation_parameters/keff_bds`, `simulation_parameters/keff_eds`)
     - Effective Delayed Neutron Fraction (:math:`\beta_{eff}`) at the end of the depletion step (`simulation_parameters/beta_eff_eds`)
     - Waste and feed streams from each `Process` (`materials/in_out_streams/`)
+
   5. Repeat 1-4.
 
 

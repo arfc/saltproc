@@ -14,10 +14,11 @@ from pyne.material import Material as pymat
 
 
 class Depcode:
-    """ Class contains information about input, output, geometry, and template
-    file for running depletion simulation code. Also contains information about
-     neutrons population, active and inactive cycle, etc. Read template and
-      output, write new input for the depletion code.
+    """
+    Class contains information about input, output, geometry, and template file
+    for running depletion simulation code. Also contains information about
+    neutrons population, active and inactive cycle, etc. Read template and
+    output, write new input for the depletion code.
     """
 
     def __init__(self,
@@ -188,7 +189,7 @@ class Depcode:
             out_file.close()
 
     def read_bumat(self, input_file, munits, moment):
-        """ Reads depletion code output *.bumatx file and store it in two dict:
+        """ Reads Serpent `*.bumatx` output file and store it in two dict:
             depl_dict (nuclide codes are keys) and depl_dict_n (nuclide nuclide
             names are keys).
         """
@@ -418,7 +419,7 @@ class Depcode:
 
     def get_tra_or_dec(self, input_file):
         """ Returns the isotopes map to tranform isotope zzaaam code to SERPENT.
-            Using Serpent *.out file with list of all isotopes in simulation.
+            Using Serpent `*.out` file with list of all isotopes in simulation.
 
         Parameters
         -----------
@@ -430,8 +431,9 @@ class Depcode:
         iso_map: dict
             | contains mapping for isotopes names from zzaaam format to SERPENT
             | key: zzaaam name of specific isotope
-            | value: Serpent-oriented name (i.e. 92235.09c for transport
-                   isotope or 982510 for decay only isotope).
+            | value: Serpent-oriented name (i.e., 92235.09c for transport
+             isotope or 982510 for decay only isotope).
+
         """
         map_dict = {}
         # Construct path to the *.out File

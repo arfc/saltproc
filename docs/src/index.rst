@@ -1,5 +1,5 @@
 SaltProc API
-========
+=============
 
 This is automatically generated API documentation from SaltProc source files.
 
