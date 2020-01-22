@@ -107,8 +107,9 @@ def read_main_input(main_inp_file):
             j["Salt mass flow rate throughout reactor core (g/s)"]
         global depl_hist, power_hist
         depl_hist = \
-            j["Depletion step interval or Cumulative step list (d)"]
-        power_hist = j["Reactor fission power or power step list (W)"]
+            j["Depletion step interval or Cumulative time (end of step) (d)"]
+        power_hist = \
+            j["Reactor power or power step list during depletion step (W)"]
         depsteps = \
             j["Number of steps for constant power and depletion interval case"]
         if depsteps is not None and isinstance(depl_hist, (float, int)):
@@ -386,9 +387,10 @@ def run():
         # Switch to another geometry?
         if adjust_geo and simulation.read_k_eds_delta(dts, restart_flag):
             simulation.switch_to_next_geometry()
-        print("\nSimulation clock: current time is %fd" % simulation.burn_time)
+        print("\nTime at the end of current depletion step %fd" %
+              simulation.burn_time)
         print("Simulation succeeded.\n")
-        print("Reactor object data.\n",
+        '''print("Reactor object data.\n",
               msr.mass_flowrate,
               msr.power_levels,
-              msr.depl_hist)
+              msr.depl_hist)'''

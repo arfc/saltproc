@@ -1,6 +1,6 @@
+pyne
 numpy
 scipy
-h5py
-matplotlib
-pandas
-pyne
+pytables
+networkx
+pydotplus

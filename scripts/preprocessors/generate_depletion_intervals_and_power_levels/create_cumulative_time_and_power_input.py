@@ -94,8 +94,8 @@ fig_1.savefig('power.png')
 
 json_dict = {}
 
-json_dict["Depletion step interval or Cumulative step list (d)"] = dep_hist
-json_dict["Reactor fission power or power step list (W)"] = pow_hist
+json_dict["Depletion step interval or Cumulative time (end of step) (d)"] = dep_hist
+json_dict["Reactor power or power step list during depletion step (W)"] = pow_hist
 # Write list in json file file
 path = os.path.dirname(os.path.abspath(__file__))
 json_file = os.path.join(path, 'cumulative_time_and_power_inout.json')

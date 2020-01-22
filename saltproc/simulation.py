@@ -284,7 +284,8 @@ class Simulation():
             keff_eds = tb.Float32Col((2,))
             breeding_ratio = tb.Float32Col((2,))
             step_execution_time = tb.Float32Col()
-            burn_time = tb.Float32Col()
+            cumulative_time_at_eds = tb.Float32Col()
+            power_level = tb.Float32Col()
             memory_usage = tb.Float32Col()
             beta_eff_eds = tb.Float32Col((b_g, 2))
             delayed_neutrons_lambda_eds = tb.Float32Col((b_g, 2))
@@ -297,7 +298,7 @@ class Simulation():
                                          db.root,
                                          'simulation_parameters')
             # Read burn_time from previous step
-            self.burn_time = step_info_table.col('burn_time')[-1]
+            self.burn_time = step_info_table.col('cumulative_time_at_eds')[-1]
         except Exception:
             step_info_table = db.create_table(
                                 db.root,
@@ -306,7 +307,7 @@ class Simulation():
                                 "Simulation parameters after each timestep")
             # Intializing burn_time array at the first depletion step
             self.burn_time = 0.0
-        self.burn_time += self.sim_depcode.param['burn_time']
+        self.burn_time += self.sim_depcode.param['burn_days']
         # Define row of table as step_info
         step_info = step_info_table.row
         # Define all values in the row
@@ -316,7 +317,8 @@ class Simulation():
                                         'breeding_ratio']
         step_info['step_execution_time'] = self.sim_depcode.param[
                                         'execution_time']
-        step_info['burn_time'] = self.burn_time
+        step_info['cumulative_time_at_eds'] = self.burn_time
+        step_info['power_level'] = self.sim_depcode.param['power_level']
         step_info['memory_usage'] = self.sim_depcode.param[
                                         'memory_usage']
         step_info['beta_eff_eds'] = self.sim_depcode.param[

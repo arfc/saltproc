@@ -88,17 +88,7 @@ class Depcode:
                 "memory_optimization_mode": [],
                 "depletion_timestep": []
                 }
-    param = {
-            "keff_bds": [],
-            "keff_eds": [],
-            "breeding_ratio": [],
-            "execution_time": [],
-            "memory_usage": [],
-            "beta_eff": [],
-            "delayed_neutrons_lambda": [],
-            "fission_mass_bds": [],
-            "fission_mass_eds": []
-            }
+    param = {}
 
     def run_depcode(self, cores, nodes):
         """ Runs depletion code as subprocess with the given parameters"""
@@ -313,7 +303,7 @@ class Depcode:
         # print(mat1_composition[170370000])
         # print(mat1_composition[pyname.id('Cl37')])
         # Generate map for transforming iso name fprm zas to SERPENT
-        self.get_tra_or_dec()
+        self.get_tra_or_dec(self.input_fname)
         return mats
 
     def write_mat_file(self, dep_dict, mat_file, step=3):
@@ -416,7 +406,8 @@ class Depcode:
         self.param['keff_eds'] = res['IMP_KEFF'][1]
         self.param['breeding_ratio'] = res['CONVERSION_RATIO'][1]
         self.param['execution_time'] = res['RUNNING_TIME'][1]
-        self.param['burn_time'] = res['BURN_DAYS'][1][0]
+        self.param['burn_days'] = res['BURN_DAYS'][1][0]
+        self.param['power_level'] = res['TOT_POWER'][1][0]
         self.param['memory_usage'] = res['MEMSIZE'][0]
         b_l = int(.5*len(res['FWD_ANA_BETA_ZERO'][1]))
         self.param['beta_eff'] = res['FWD_ANA_BETA_ZERO'][1].reshape((b_l, 2))
@@ -425,23 +416,26 @@ class Depcode:
         self.param['fission_mass_bds'] = res['INI_FMASS'][1]
         self.param['fission_mass_eds'] = res['TOT_FMASS'][1]
 
-    def get_tra_or_dec(self):
-        """ Returns the isotopes map to tranform isotope zzaaam code to SERPENT
+    def get_tra_or_dec(self, input_file):
+        """ Returns the isotopes map to tranform isotope zzaaam code to SERPENT.
+            Using Serpent *.out file with list of all isotopes in simulation.
 
-        Parameters:
+        Parameters
         -----------
+        input_file: str
+            Serpent input file name and path
 
-        Returns:
+        Returns
         --------
         iso_map: dict
-            contain mapping for isotopes names from zzaaam fprmat to SERPENT
-            key: zzaaam name of specific isotope
-            value: Serpent-oriented name (i.e. 92235.09c for transport isotope
-                   or 982510 for decay only isotope)
+            | contains mapping for isotopes names from zzaaam format to SERPENT
+            | key: zzaaam name of specific isotope
+            | value: Serpent-oriented name (i.e. 92235.09c for transport
+                   isotope or 982510 for decay only isotope).
         """
         map_dict = {}
         # Construct path to the *.out File
-        out_file = os.path.join('%s.out' % self.input_fname)
+        out_file = os.path.join('%s.out' % input_file)
         file = open(out_file, 'r')
         str_list = file.read().split('\n')
         # Stop-line

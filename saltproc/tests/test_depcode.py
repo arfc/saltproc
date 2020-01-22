@@ -18,7 +18,7 @@ serpent = Depcode(codename='SERPENT',
 
 
 def test_get_tra_or_dec():
-    serpent.get_tra_or_dec()
+    serpent.get_tra_or_dec(serpent.input_fname)
     # print(serpent.iso_map)
     assert serpent.iso_map[380880] == '38088.09c'
     assert serpent.iso_map[962400] == '96240.09c'
