@@ -266,7 +266,8 @@ python setup.py install
 ### Documentation
 
 The documentation for SaltProc can be found at
-[saltproc.github.io](http://saltproc.github.io). Additionally, the entire contents of that
+[arfc.github.io/saltproc/](http://arfc.github.io/saltproc/). 
+Additionally, the entire contents of that
 website can be built from the doc directory in the source code using the
 following steps
 
