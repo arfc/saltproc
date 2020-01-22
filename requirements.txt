@@ -1,6 +1,0 @@
-pyne
-numpy
-scipy
-pytables
-networkx
-pydotplus

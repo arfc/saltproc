@@ -1,0 +1,18 @@
+saltproc.tests package
+======================
+
+Submodules
+----------
+
+.. toctree::
+
+   saltproc.tests.test_depcode
+   saltproc.tests.test_process
+
+Module contents
+---------------
+
+.. automodule:: saltproc.tests
+   :members:
+   :undoc-members:
+   :show-inheritance:

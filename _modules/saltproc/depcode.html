@@ -1,0 +1,675 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>saltproc.depcode &mdash; Saltproc  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Saltproc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Saltproc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>saltproc.depcode</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for saltproc.depcode</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Materialflow</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">from</span> <span class="nn">re</span> <span class="kn">import</span> <span class="nb">compile</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">const</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">nucname</span> <span class="k">as</span> <span class="n">pyname</span>
+<span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">serpent</span>
+<span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">data</span> <span class="k">as</span> <span class="n">pydata</span>
+<span class="kn">from</span> <span class="nn">pyne.material</span> <span class="kn">import</span> <span class="n">Material</span> <span class="k">as</span> <span class="n">pymat</span>
+
+
+<div class="viewcode-block" id="Depcode"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode">[docs]</a><span class="k">class</span> <span class="nc">Depcode</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class contains information about input, output, geometry, and template file</span>
+<span class="sd">    for running depletion simulation code. Also contains information about</span>
+<span class="sd">    neutrons population, active and inactive cycle, etc. Read template and</span>
+<span class="sd">    output, write new input for the depletion code.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">codename</span><span class="p">,</span>
+                 <span class="n">exec_path</span><span class="p">,</span>
+                 <span class="n">template_fname</span><span class="p">,</span>
+                 <span class="n">input_fname</span><span class="p">,</span>
+                 <span class="n">output_fname</span><span class="p">,</span>
+                 <span class="n">iter_matfile</span><span class="p">,</span>
+                 <span class="n">geo_file</span><span class="p">,</span>
+                 <span class="n">npop</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+                 <span class="n">active_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                 <span class="n">inactive_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot; Initializes the class</span>
+
+<span class="sd">            Parameters:</span>
+<span class="sd">            -----------</span>
+<span class="sd">            codename: string</span>
+<span class="sd">                name of the code for depletion</span>
+<span class="sd">            exec_path: string</span>
+<span class="sd">                path to depletion code executable</span>
+<span class="sd">            template_fname: string</span>
+<span class="sd">                name of user input file for depletion code with geometry and</span>
+<span class="sd">                 initial composition</span>
+<span class="sd">            input_fname: string</span>
+<span class="sd">                name of input file for depletion code rerunning</span>
+<span class="sd">            output_fname: string</span>
+<span class="sd">                name of output file for depletion code rerunning</span>
+<span class="sd">            iter_matfile: string</span>
+<span class="sd">                name of iterative rewritable material file for depletion code</span>
+<span class="sd">                 rerunning</span>
+<span class="sd">            npop: int</span>
+<span class="sd">                size of neutron population for Monte-Carlo code</span>
+<span class="sd">            active_cycles: int</span>
+<span class="sd">                number of active cycles</span>
+<span class="sd">            inactive_cycles: int</span>
+<span class="sd">                number of inactive cycles</span>
+<span class="sd">            depl_dict: dict</span>
+<span class="sd">                key: material name</span>
+<span class="sd">                value: density, volume, dict: &#39;nuclides&#39;</span>
+<span class="sd">                key: nuclide code in Serpent format (95342.09c or 952421)</span>
+<span class="sd">                value: atomic density</span>
+<span class="sd">            depl_dict_n: dict</span>
+<span class="sd">                key: material name</span>
+<span class="sd">                value: density, volume, dict: &#39;nuclides&#39;</span>
+<span class="sd">                key: nuclide name in human readable format (Am-242m1)</span>
+<span class="sd">                value: atomic density</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># initialize all object attributes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">codename</span> <span class="o">=</span> <span class="n">codename</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span> <span class="o">=</span> <span class="n">exec_path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">template_fname</span> <span class="o">=</span> <span class="n">template_fname</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span> <span class="o">=</span> <span class="n">input_fname</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_fname</span> <span class="o">=</span> <span class="n">output_fname</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">=</span> <span class="n">iter_matfile</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geo_file</span> <span class="o">=</span> <span class="n">geo_file</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">npop</span> <span class="o">=</span> <span class="n">npop</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span> <span class="o">=</span> <span class="n">active_cycles</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span> <span class="o">=</span> <span class="n">inactive_cycles</span>
+    <span class="n">sim_info</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;serpent_version&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;serpent_input_filename&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;serpent_working_dir&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;xs_data_path&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;OMP_threads&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;MPI_tasks&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;memory_optimization_mode&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;depletion_timestep&quot;</span><span class="p">:</span> <span class="p">[]</span>
+                <span class="p">}</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="Depcode.run_depcode"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.run_depcode">[docs]</a>    <span class="k">def</span> <span class="nf">run_depcode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Runs depletion code as subprocess with the given parameters&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/projects/sciteam/bahg/&#39;</span><span class="p">):</span>  <span class="c1"># check if BW</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;aprun&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-n&#39;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span>
+                <span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span>
+                <span class="s1">&#39;-omp&#39;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/apps/exp_ctl/&#39;</span><span class="p">):</span>  <span class="c1"># check if Falcon</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;mpiexec&#39;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">,</span>
+                <span class="s1">&#39;-omp&#39;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="mi">18</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span> <span class="s1">&#39;-omp&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">args</span><span class="p">,</span>
+                                  <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+                                  <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">error</span><span class="o">.</span><span class="n">returncode</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> RUN FAILED</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished Serpent Run&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Depcode.read_depcode_template"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.read_depcode_template">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_fname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Reads prepared template (input) file for Depeletion code for</span>
+<span class="sd">         further changes in the file to prepare input file for multiple runs&quot;&quot;&quot;</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">template_fname</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">str_list</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">str_list</span></div>
+
+<div class="viewcode-block" id="Depcode.change_sim_par"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.change_sim_par">[docs]</a>    <span class="k">def</span> <span class="nf">change_sim_par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Check simulation parameters (neutron population, cycles) and change</span>
+<span class="sd">         to parameters from SaltProc input &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">npop</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span><span class="p">:</span>
+            <span class="n">sim_param</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;set pop&quot;</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sim_param</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Template file </span><span class="si">%s</span><span class="s1"> contains multiple lines with &#39;</span>
+                      <span class="s1">&#39;simulation parameters:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_fname</span><span class="p">),</span> <span class="n">sim_param</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sim_param</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Template file </span><span class="si">%s</span><span class="s1"> does not contain line with &#39;</span>
+                      <span class="s1">&#39;simulation parameters.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_fname</span><span class="p">))</span>
+                <span class="k">return</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="s1">&#39;set pop </span><span class="si">%i</span><span class="s1"> </span><span class="si">%i</span><span class="s1"> </span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">npop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span><span class="p">,</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">sim_param</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">args</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Depcode.create_iter_matfile"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.create_iter_matfile">[docs]</a>    <span class="k">def</span> <span class="nf">create_iter_matfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Check &lt;include&gt; with material file, copy in iteration material file,</span>
+<span class="sd">         and change name of file in &lt;include&gt; &quot;&quot;&quot;</span>
+        <span class="n">data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_fname</span><span class="p">)</span>
+        <span class="n">include_str</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;include &quot;</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_str</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Template file </span><span class="si">%s</span><span class="s1"> has no &lt;include &quot;material_file&quot;&gt;&#39;</span>
+                  <span class="s1">&#39; statements &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_fname</span><span class="p">))</span>
+            <span class="k">return</span>
+        <span class="n">src_file</span> <span class="o">=</span> <span class="n">include_str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">src_file</span><span class="p">):</span>
+            <span class="n">abs_src_matfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">src_file</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">abs_src_matfile</span> <span class="o">=</span> <span class="n">src_file</span>
+            <span class="k">if</span> <span class="s1">&#39;mat &#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">abs_src_matfile</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Template file </span><span class="si">%s</span><span class="s1"> has not include file with&#39;</span>
+                      <span class="s1">&#39; materials description or &lt;include &quot;material_file&quot;&gt;&#39;</span>
+                      <span class="s1">&#39; statement is not appears&#39;</span>
+                      <span class="s1">&#39; as first &lt;include&gt; statement</span><span class="se">\n</span><span class="s1">&#39;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_fname</span><span class="p">))</span>
+                <span class="k">return</span>
+        <span class="c1"># Create file with path for SaltProc rewritable iterative material file</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">abs_src_matfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">src_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Depcode.write_depcode_input"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.write_depcode_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_depcode_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_file</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Write prepared data into depletion code input file &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dts</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_depcode_template</span><span class="p">(</span><span class="n">template_file</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insert_path_to_geometry</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_sim_par</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_iter_matfile</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_depcode_template</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace_burnup_parameters</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dts</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">out_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+            <span class="n">out_file</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">out_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Depcode.read_bumat"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.read_bumat">[docs]</a>    <span class="k">def</span> <span class="nf">read_bumat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">munits</span><span class="p">,</span> <span class="n">moment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Reads Serpent `*.bumatx` output file and store it in two dict:</span>
+<span class="sd">            depl_dict (nuclide codes are keys) and depl_dict_n (nuclide nuclide</span>
+<span class="sd">            names are keys).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bu_format</span> <span class="o">=</span> <span class="nb">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s+Material compositions\s+\(([0-9E\.\+-]+) &#39;</span>
+                            <span class="sa">r</span><span class="s1">&#39;MWd/kgU\s+/\s+([0-9E\.\+-]+)&#39;</span><span class="p">)</span>
+
+        <span class="n">depl_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">depl_dict_h</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">nucvec</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">bu_match</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">mat_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">bumat_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_file</span> <span class="o">+</span> <span class="s2">&quot;.bumat&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">moment</span><span class="p">))</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">bumat_fname</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">str_list</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">str_list</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">bu_match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">bu_match</span> <span class="o">=</span> <span class="n">bu_format</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">bu_match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">burnup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">days</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">bu_match</span><span class="o">.</span><span class="n">groups</span><span class="p">()]</span>
+                    <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;%&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;mat&#39;</span><span class="p">:</span>
+                <span class="n">mat_name</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">density</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="k">if</span> <span class="s1">&#39;fix&#39;</span> <span class="ow">in</span> <span class="n">z</span><span class="p">:</span>
+                    <span class="n">vol</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="mi">7</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">vol</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+                <span class="n">depl_dict</span><span class="p">[</span><span class="n">mat_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;density&#39;</span><span class="p">:</span> <span class="n">density</span><span class="p">,</span>
+                    <span class="s1">&#39;volume&#39;</span><span class="p">:</span> <span class="n">vol</span><span class="p">,</span>
+                    <span class="s1">&#39;lib_temp&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s1">&#39;nuclides&#39;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({}),</span>
+                <span class="p">}</span>
+                <span class="n">depl_dict_h</span><span class="p">[</span><span class="n">mat_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">depl_dict</span><span class="p">[</span><span class="n">mat_name</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nuc_code</span><span class="p">,</span> <span class="n">adens</span> <span class="o">=</span> <span class="n">z</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">nuc_code</span> <span class="ow">and</span> <span class="n">depl_dict</span><span class="p">[</span><span class="n">mat_name</span><span class="p">][</span><span class="s1">&#39;lib_temp&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">lib_code</span> <span class="o">=</span> <span class="n">nuc_code</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">temp_val</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">lib_code</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+                    <span class="n">depl_dict</span><span class="p">[</span><span class="n">mat_name</span><span class="p">][</span><span class="s1">&#39;lib_temp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lib_code</span>
+                    <span class="n">depl_dict_h</span><span class="p">[</span><span class="n">mat_name</span><span class="p">][</span><span class="s1">&#39;lib_temp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lib_code</span>
+                    <span class="n">depl_dict</span><span class="p">[</span><span class="n">mat_name</span><span class="p">][</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_val</span>
+                    <span class="n">depl_dict_h</span><span class="p">[</span><span class="n">mat_name</span><span class="p">][</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_val</span>
+                <span class="n">nuc_name</span><span class="p">,</span> <span class="n">nuc_zzaaam</span><span class="p">,</span> <span class="n">atomic_mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nuc_name</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+                <span class="n">depl_dict</span><span class="p">[</span><span class="n">mat_name</span><span class="p">][</span><span class="s1">&#39;nuclides&#39;</span><span class="p">][</span><span class="n">nuc_code</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">adens</span><span class="p">)</span>
+                <span class="c1"># Make dictionary with isotopes names and mass to store in hdf5</span>
+                <span class="c1"># determine multiplier for mass units convertion</span>
+                <span class="k">if</span> <span class="n">munits</span> <span class="ow">is</span> <span class="s2">&quot;g&quot;</span><span class="p">:</span>
+                    <span class="n">mul_m</span> <span class="o">=</span> <span class="mf">1.</span>
+                <span class="k">elif</span> <span class="n">munits</span> <span class="ow">is</span> <span class="s2">&quot;kg&quot;</span><span class="p">:</span>
+                    <span class="n">mul_m</span> <span class="o">=</span> <span class="mf">1.E-3</span>
+                <span class="k">elif</span> <span class="n">munits</span> <span class="ow">is</span> <span class="s2">&quot;t&quot;</span> <span class="ow">or</span> <span class="s2">&quot;ton&quot;</span> <span class="ow">or</span> <span class="s2">&quot;tonne&quot;</span> <span class="ow">or</span> <span class="s2">&quot;MT&quot;</span><span class="p">:</span>
+                    <span class="n">mul_m</span> <span class="o">=</span> <span class="mf">1.E-6</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                          <span class="s1">&#39;Mass units does not supported or does not defined&#39;</span><span class="p">)</span>
+                <span class="n">mass</span> <span class="o">=</span> <span class="n">vol</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1e+24</span><span class="o">*</span><span class="n">mul_m</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">adens</span><span class="p">)</span><span class="o">*</span><span class="n">atomic_mass</span><span class="p">)</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">N_A</span>
+                <span class="n">depl_dict_h</span><span class="p">[</span><span class="n">mat_name</span><span class="p">][</span><span class="s1">&#39;nuclides&#39;</span><span class="p">][</span><span class="n">nuc_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">mass</span><span class="p">]</span>
+                <span class="c1"># print (&#39;%5s, %8s, zzaaam %7s, aensity %5e, at mass %5f&#39;</span>
+                <span class="c1">#        % (mat_name, nuc_name, nuc_zzaaam, float(adens),</span>
+                <span class="c1">#           atomic_mass))</span>
+                <span class="n">nucvec</span><span class="p">[</span><span class="n">nuc_zzaaam</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">adens</span><span class="p">)</span>
+        <span class="n">mat_name</span> <span class="o">=</span> <span class="n">pymat</span><span class="p">()</span>
+        <span class="n">mat_name</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="mf">3.6</span>
+        <span class="n">mat_name</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="mf">200.E+6</span>
+        <span class="n">mat_name</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">mat_name</span><span class="p">)</span>
+        <span class="n">mat_name</span><span class="o">.</span><span class="n">atoms_per_molecule</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+        <span class="n">mat_name</span><span class="o">.</span><span class="n">from_atom_frac</span><span class="p">(</span><span class="n">nucvec</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">depl_dict</span><span class="p">,</span> <span class="n">depl_dict_h</span></div>
+
+<div class="viewcode-block" id="Depcode.read_dep_comp"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.read_dep_comp">[docs]</a>    <span class="k">def</span> <span class="nf">read_dep_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">moment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Reads the SERPENT _dep.m file and return mat_composition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dep_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_dep.m&#39;</span> <span class="o">%</span> <span class="n">input_file</span><span class="p">)</span>
+        <span class="n">dep</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_dep</span><span class="p">(</span><span class="n">dep_file</span><span class="p">,</span> <span class="n">make_mats</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">days</span> <span class="o">=</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;DAYS&#39;</span><span class="p">][</span><span class="n">moment</span><span class="p">]</span>
+        <span class="c1"># Read materials names from the file</span>
+        <span class="n">mat_name</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mats</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dep</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;MAT_(.+?)_VOLUME&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                <span class="n">mat_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">zai</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;ZAI&#39;</span><span class="p">][:</span><span class="o">-</span><span class="mi">2</span><span class="p">]))</span>  <span class="c1"># zzaaam codes of isotopes</span>
+
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mat_name</span><span class="p">:</span>
+            <span class="n">volume</span> <span class="o">=</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;MAT_&#39;</span><span class="o">+</span><span class="n">m</span><span class="o">+</span><span class="s1">&#39;_VOLUME&#39;</span><span class="p">][</span><span class="n">moment</span><span class="p">]</span>
+            <span class="n">nucvec</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">zai</span><span class="p">,</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;MAT_&#39;</span><span class="o">+</span><span class="n">m</span><span class="o">+</span><span class="s1">&#39;_MDENS&#39;</span><span class="p">][:,</span> <span class="n">moment</span><span class="p">]))</span>
+            <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">Materialflow</span><span class="p">(</span><span class="n">nucvec</span><span class="p">)</span>
+            <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;MAT_&#39;</span><span class="o">+</span><span class="n">m</span><span class="o">+</span><span class="s1">&#39;_MDENS&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">moment</span><span class="p">]</span>
+            <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">density</span><span class="o">*</span><span class="n">volume</span>
+            <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="n">volume</span>
+            <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">burnup</span> <span class="o">=</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;MAT_&#39;</span><span class="o">+</span><span class="n">m</span><span class="o">+</span><span class="s1">&#39;_BURNUP&#39;</span><span class="p">][</span><span class="n">moment</span><span class="p">]</span>
+        <span class="c1"># mat_name.atoms_per_molecule = -1.0</span>
+        <span class="c1"># print (mats[&#39;fuel&#39;])</span>
+        <span class="c1"># print (mats[&#39;ctrlPois&#39;].mass)</span>
+        <span class="c1"># print (mats[&#39;ctrlPois&#39;][&#39;O16&#39;])</span>
+        <span class="c1"># print (mats[&#39;ctrlPois&#39;][&#39;Al27&#39;])</span>
+        <span class="c1"># print (mats[&#39;ctrlPois&#39;])</span>
+        <span class="c1"># for key, value in mats.items():</span>
+        <span class="c1">#    print (&quot;Object material:&quot;, key, &quot;\n&quot;, value)</span>
+        <span class="c1"># print (mat1.metadata)</span>
+        <span class="c1"># mat1_composition = mat1.comp</span>
+        <span class="c1"># print(mat1_composition[170370000])</span>
+        <span class="c1"># print(mat1_composition[pyname.id(&#39;Cl37&#39;)])</span>
+        <span class="c1"># Generate map for transforming iso name fprm zas to SERPENT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_tra_or_dec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mats</span></div>
+
+<div class="viewcode-block" id="Depcode.write_mat_file"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.write_mat_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_mat_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_dict</span><span class="p">,</span> <span class="n">mat_file</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Writes the input fuel composition input file block</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matf</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">mat_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">matf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%%</span><span class="s1"> Material compositions (after </span><span class="si">%f</span><span class="s1"> days)</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+                   <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">days</span><span class="o">*</span><span class="p">(</span><span class="n">step</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dep_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">matf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;mat  </span><span class="si">%s</span><span class="s1">  </span><span class="si">%5.9E</span><span class="s1"> burn 1 fix </span><span class="si">%3s</span><span class="s1"> </span><span class="si">%4i</span><span class="s1"> vol </span><span class="si">%7.5E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
+                       <span class="p">(</span><span class="n">key</span><span class="p">,</span>
+                        <span class="o">-</span><span class="n">dep_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
+                        <span class="s1">&#39;09c&#39;</span><span class="p">,</span>
+                        <span class="n">dep_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span>
+                        <span class="n">dep_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">nuc_code</span><span class="p">,</span> <span class="n">wt_frac</span> <span class="ow">in</span> <span class="n">dep_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># Transforms iso name from zas to zzaaam and then to SERPENT</span>
+                <span class="n">iso_name_serpent</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+                <span class="n">matf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;           </span><span class="si">%9s</span><span class="s1">  </span><span class="si">%7.14E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
+                           <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iso_map</span><span class="p">[</span><span class="n">iso_name_serpent</span><span class="p">],</span>
+                            <span class="o">-</span><span class="n">wt_frac</span><span class="p">))</span>
+        <span class="n">matf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Depcode.sss_meta_zzz"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.sss_meta_zzz">[docs]</a>    <span class="k">def</span> <span class="nf">sss_meta_zzz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Check special SERPENT meta stable-flag for zzaaam (i.e. 47310 insead</span>
+<span class="sd">            of 471101)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zz</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">znum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+        <span class="n">aa</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">anum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">aa</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">zz</span> <span class="o">&gt;</span> <span class="mi">76</span><span class="p">:</span>
+                <span class="n">aa_new</span> <span class="o">=</span> <span class="n">aa</span><span class="o">-</span><span class="mi">100</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">aa_new</span> <span class="o">=</span> <span class="n">aa</span><span class="o">-</span><span class="mi">200</span>
+            <span class="n">zzaaam</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">zz</span><span class="p">)</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">aa_new</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;1&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">zzaaam</span> <span class="o">=</span> <span class="n">nuc_code</span>
+        <span class="c1"># print(nuc_code, zzaaam)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">zzaaam</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Depcode.get_nuc_name"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.get_nuc_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_nuc_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get nuclide name human readable notation. The chemical symbol(one</span>
+<span class="sd">             or two characters), dash, and the atomic weight. Lastly if the</span>
+<span class="sd">             nuclide metastable, the letter m is concatenated with number of</span>
+<span class="sd">             excited state. Example &#39;Am-242m1&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">):</span>
+            <span class="n">nuc_code</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zzzaaa_to_id</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nuc_code</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">zz</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">znum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+            <span class="n">aa</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">anum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+            <span class="n">aa_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span>
+            <span class="c1"># at_mass = pydata.atomic_mass(nuc_code_id)</span>
+            <span class="k">if</span> <span class="n">aa</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">zz</span> <span class="o">&gt;</span> <span class="mi">76</span><span class="p">:</span>
+                    <span class="n">aa_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">aa</span><span class="o">-</span><span class="mi">100</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;m1&#39;</span>
+                    <span class="n">aa</span> <span class="o">=</span> <span class="n">aa</span><span class="o">-</span><span class="mi">100</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">aa_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">aa</span><span class="o">-</span><span class="mi">200</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;m1&#39;</span>
+                    <span class="n">aa</span> <span class="o">=</span> <span class="n">aa</span><span class="o">-</span><span class="mi">200</span>
+                <span class="n">nuc_zzaaam</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">zz</span><span class="p">)</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;1&#39;</span>
+            <span class="k">elif</span> <span class="n">aa</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">aa_str</span> <span class="o">=</span> <span class="s1">&#39;nat&#39;</span>
+            <span class="n">nuc_name</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zz_name</span><span class="p">[</span><span class="n">zz</span><span class="p">]</span> <span class="o">+</span> <span class="n">aa_str</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">meta_flag</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">snum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+            <span class="n">at_mass</span> <span class="o">=</span> <span class="n">pydata</span><span class="o">.</span><span class="n">atomic_mass</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">meta_flag</span><span class="p">:</span>
+                <span class="n">nuc_name</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">name</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;m&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">meta_flag</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nuc_name</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">name</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+        <span class="n">nuc_zzaaam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sss_meta_zzz</span><span class="p">(</span><span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">))</span>
+        <span class="n">at_mass</span> <span class="o">=</span> <span class="n">pydata</span><span class="o">.</span><span class="n">atomic_mass</span><span class="p">(</span><span class="n">pyname</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="n">nuc_zzaaam</span><span class="p">))</span>
+        <span class="c1"># print (&quot;Nuclide %s; zzaaam %i&quot; % (nuc_name, nuc_zzaaam))</span>
+        <span class="k">return</span> <span class="n">nuc_name</span><span class="p">,</span> <span class="n">nuc_zzaaam</span><span class="p">,</span> <span class="n">at_mass</span>  <span class="c1"># .encode(&#39;utf8&#39;)</span></div>
+
+<div class="viewcode-block" id="Depcode.read_depcode_info"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.read_depcode_info">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Parses initial simulation info data from Serpent output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span> <span class="o">+</span> <span class="s2">&quot;_res.m&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;serpent_version&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">res</span><span class="p">[</span><span class="s1">&#39;VERSION&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TITLE&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;serpent_input_filename&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">res</span><span class="p">[</span><span class="s1">&#39;INPUT_FILE_NAME&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;serpent_working_dir&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">res</span><span class="p">[</span><span class="s1">&#39;WORKING_DIRECTORY&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;xs_data_path&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">res</span><span class="p">[</span><span class="s1">&#39;XS_DATA_FILE_PATH&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;OMP_threads&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;OMP_THREADS&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;MPI_tasks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;MPI_TASKS&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;memory_optimization_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;OPTIMIZATION_MODE&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;BURN_DAYS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;BURN_DAYS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Depcode.read_depcode_step_param"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.read_depcode_step_param">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_step_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Parses data from Serpent output for each step and stores it in dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span> <span class="o">+</span> <span class="s2">&quot;_res.m&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IMP_KEFF&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IMP_KEFF&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;breeding_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;CONVERSION_RATIO&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;execution_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;RUNNING_TIME&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;burn_days&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;BURN_DAYS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;power_level&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TOT_POWER&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;memory_usage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;MEMSIZE&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">b_l</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;FWD_ANA_BETA_ZERO&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;beta_eff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;FWD_ANA_BETA_ZERO&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">b_l</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;delayed_neutrons_lambda&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">res</span><span class="p">[</span><span class="s1">&#39;FWD_ANA_LAMBDA&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">b_l</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;fission_mass_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;INI_FMASS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;fission_mass_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TOT_FMASS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Depcode.get_tra_or_dec"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.get_tra_or_dec">[docs]</a>    <span class="k">def</span> <span class="nf">get_tra_or_dec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns the isotopes map to tranform isotope zzaaam code to SERPENT.</span>
+<span class="sd">            Using Serpent `*.out` file with list of all isotopes in simulation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        input_file: str</span>
+<span class="sd">            Serpent input file name and path</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        iso_map: dict</span>
+<span class="sd">            | contains mapping for isotopes names from zzaaam format to SERPENT</span>
+<span class="sd">            | key: zzaaam name of specific isotope</span>
+<span class="sd">            | value: Serpent-oriented name (i.e., 92235.09c for transport</span>
+<span class="sd">             isotope or 982510 for decay only isotope).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">map_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Construct path to the *.out File</span>
+        <span class="n">out_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.out&#39;</span> <span class="o">%</span> <span class="n">input_file</span><span class="p">)</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">str_list</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># Stop-line</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="s1">&#39; --- Table  2: Reaction and decay data: &#39;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">str_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="s1">&#39;c  TRA&#39;</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="s1">&#39;c  DEC&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">iname</span><span class="p">,</span> <span class="n">zzaaam</span><span class="p">,</span> <span class="n">imass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nuc_name</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="c1"># print (zzaaam, line[2], iname, imass)</span>
+                <span class="n">map_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">zzaaam</span><span class="p">:</span> <span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iso_map</span> <span class="o">=</span> <span class="n">map_dict</span></div>
+
+<div class="viewcode-block" id="Depcode.insert_path_to_geometry"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.insert_path_to_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">insert_path_to_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Adds line &#39;include first_geometry_file&#39; to the end of Serpent input</span>
+<span class="sd">        file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span>  <span class="c1"># Insert on 6th line</span>
+                    <span class="s1">&#39;include </span><span class="se">\&quot;</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geo_file</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\&quot;\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="Depcode.replace_burnup_parameters"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.replace_burnup_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">replace_burnup_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">current_depstep_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Adds or replace line with depletion history and power levels</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">line_idx</span> <span class="o">=</span> <span class="mi">8</span>  <span class="c1"># burnup setting line index by default</span>
+        <span class="n">current_depstep_power</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">power_levels</span><span class="p">[</span><span class="n">current_depstep_idx</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">current_depstep_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">current_depstep</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">depl_hist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">current_depstep</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">depl_hist</span><span class="p">[</span><span class="n">current_depstep_idx</span><span class="p">]</span> <span class="o">-</span> \
+                              <span class="n">reactor</span><span class="o">.</span><span class="n">depl_hist</span><span class="p">[</span><span class="n">current_depstep_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;set    power   &#39;</span><span class="p">):</span>
+                <span class="n">line_idx</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">del</span> <span class="n">data</span><span class="p">[</span><span class="n">line_idx</span><span class="p">]</span>
+
+        <span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">line_idx</span><span class="p">,</span>  <span class="c1"># Insert on 9th line</span>
+                    <span class="s1">&#39;set    power   </span><span class="si">%5.9E</span><span class="s1">   dep daystep   </span><span class="si">%7.5E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="n">current_depstep_power</span><span class="p">,</span>
+                     <span class="n">current_depstep</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">data</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

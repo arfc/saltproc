@@ -1,0 +1,30 @@
+saltproc package
+================
+
+Subpackages
+-----------
+
+.. toctree::
+
+   saltproc.tests
+
+Submodules
+----------
+
+.. toctree::
+
+   saltproc.app
+   saltproc.depcode
+   saltproc.materialflow
+   saltproc.process
+   saltproc.reactor
+   saltproc.simulation
+   saltproc.version
+
+Module contents
+---------------
+
+.. automodule:: saltproc
+   :members:
+   :undoc-members:
+   :show-inheritance:
