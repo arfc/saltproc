@@ -1,7 +1,0 @@
-[run]
-branch = True
-source = saltproc/*
-include = saltproc/*
-omit = */setup.py
-[report]
-include = saltproc/*
