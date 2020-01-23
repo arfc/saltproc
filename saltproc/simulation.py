@@ -1,12 +1,11 @@
-from pyne import nucname as pyname
 import numpy as np
 import tables as tb
 from collections import OrderedDict
 
 
 class Simulation():
-    """ Class setups parameters for simulation, runs SERPENT, parse output,
-    create input.
+    """Class sets up parameters for simulation, runs Serpent, parses output,
+    creates input.
     """
 
     def __init__(
@@ -16,45 +15,30 @@ class Simulation():
             core_number=1,
             node_number=1,
             h5_file="db_saltproc.h5",
-            compression=None,
-            iter_matfile="default",
-            timesteps=2):
-        """Initializes the class
+            compression=tb.Filters(complevel=9,
+                                   complib='blosc',
+                                   fletcher32=True),
+            iter_matfile="./saltproc_mat"):
+        """Initializes the Simulation object.
 
-        Parameters:
-        -----------
-        sim_name: string
-            name of simulation may contain number of reference case, paper name
-             or other specific information to identify simulation
-        sim_depcode: object
-            object of depletiob code initiated using depcode class
+        Parameters
+        ----------
+        sim_name: str
+            Name of simulation may contain number of reference case, paper name
+            or other specific information to identify simulation.
+        sim_depcode: obj
+            Depcode object initiated using Depcode class.
         cores: int
-            number of cores to use for SERPENT run
+            Number of cores to use for Serpent run (`-omp` flag in Serpent).
         nodes: int
-            number of nodes to use for SERPENT run
-        bw: string
-            # !! if 'True', runs saltproc on Blue Waters
-        sss_exec_path: string
-            path to SERPENT executable
-        restart: bool
-            if 'True', restarts simulation using existing HDF5  database
-        timesteps: int
-            duration of each depletion simulation
-        t_0: int
-            beggining of simulation moment in time (0 for new run, >0 when
-             restarting)
-        t_final: int
-            duration of whole Saltproc simulation
-        input_filename: string
-            name of JSON input file with reprocessing scheme and parameters for
-             Saltproc simulation
-        h5_file: string
-            name of HDF5 database
+            Number of nodes to use for Serpent run (`-mpi` flag in Serpent).
+        h5_file: str
+            Name of HDF5 database.
         compression: Pytables filter object
-            HDF5 fatabase compression parameters
-        connection_graph: dict
-            key: ???
-            value: ???
+            HDF5 database compression parameters.
+        iter_matfile: str
+            Name of file containing burnable materials composition used in
+            Serpent runs and update after each depletion step.
         """
         # initialize all object attributes
         self.sim_name = sim_name
@@ -64,19 +48,31 @@ class Simulation():
         self.h5_file = h5_file
         self.compression = compression
         self.iter_matfile = iter_matfile
-        self.timesteps = timesteps
 
-    def runsim_no_reproc(self):
-        """ Run simulation sequence for integral test. No reprocessing involved,
-        just re-running Serpent for comparstion with model output."""
+    def runsim_no_reproc(self, reactor, nsteps):
+        """Run simulation sequence for integral test. No reprocessing involved,
+        just re-running Serpent for comparision with model output.
+
+        Parameters
+        ----------
+        reactor : Reactor
+            Contains information about power load curve and cumulative
+            depletion time for the integration test.
+        nsteps : int
+            Number of depletion time steps in integration test run.
+
+        """
+
         ######################################################################
         # Start sequence
-        for dts in range(self.timesteps):
+        for dts in range(nsteps):
             print("\nStep #%i has been started" % (dts+1))
             if dts == 0:  # First step
                 self.sim_depcode.write_depcode_input(
                                         self.sim_depcode.template_fname,
-                                        self.sim_depcode.input_fname)
+                                        self.sim_depcode.input_fname,
+                                        reactor,
+                                        dts)
                 self.sim_depcode.run_depcode(
                                         self.core_number,
                                         self.node_number)
@@ -99,35 +95,22 @@ class Simulation():
             self.store_mat_data(mats, dts, 'before_reproc')
             self.store_run_step_info()
             self.sim_depcode.write_mat_file(mats, self.iter_matfile, dts)
-##############################################################################
-        # self.sim_depcode.write_depcode_input(
-        #                     self.sim_depcode.template_fname,
-        #                     self.sim_depcode.input_fname)
-        # self.sim_depcode.run_depcode(self.core_number)
-        # mats = self.sim_depcode.read_dep_comp(self.sim_depcode.input_fname,0)
-        # print(len(self.sim_depcode.iso_map))
-        # print (len(mats['fuel'].comp))
-        # print (len(mats['ctrlPois'].comp))
-        # self.store_mat_data(mats, 111)
-        # self.sim_depcode.write_mat_file(mats, self.iter_matfile, 1)
-#############################################################################
-        # self.store_mat_data(mats)
-
-        # self.sim_depcode.get_tra_or_dec()
-
-        # self.store_run_step_info()
-        # self.store_mat_data(mats)
-
-        # self.mat_comp_preprosessor()
-
-    def currenttime(self):
-        return 1
-
-    def loadinput_sp(self):
-        return
 
     def store_after_repr(self, after_mats, waste_dict, step):
-        """ Adds to HDF5 database waste streams data for each process (g/step).
+        """Adds to HDF5 database waste streams data for each process after
+        reprocessing was performed (grams per depletion step).
+
+        Parameters
+        ----------
+        after_mats : `Materialflow`
+            Burnable material stream object after performing reprocessing.
+        waste_dict : dict
+            Dictionary that maps `processes` to waste `Materialflow` objects.
+            The key is Processes name (`str`). The value is `Materialflow`
+            object containing waste streams data.
+        step : int
+            Current depletion step.
+
         """
         streams_gr = 'in_out_streams'
         db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
@@ -174,11 +157,27 @@ class Simulation():
         db.close()
 
     def store_mat_data(self, mats, d_step, moment):
-        """ Initializes HDF5 database (if not exist) or append depletion
-            step data to it.
+        """Initializes HDF5/Pytables database (if not exist) or append burnable
+        material composition, mass, density, volume, temperature, burnup,
+        mass_flowrate, void_fraction, at the current depletion step to it.
+
+        Parameters
+        ----------
+        mats : dict
+            Dictionaty that contains `Materialflow` objects.
+
+            ``key``
+                Name of burnable material.
+            ``value``
+                `Materialflow` object holding composition and properties.
+        d_step : int
+            Current depletion step.
+        moment : int
+            Indicates at which moment in the depletion step store the data. `0`
+            refers the beginning, `1` refers the end of depletion step.
+
         """
         # Moment when store compositions
-        # moment = 'before_reproc'
         iso_idx = OrderedDict()
         # numpy array row storage data for material physical properties
         mpar_dtype = np.dtype([
@@ -270,9 +269,12 @@ class Simulation():
         db.close()
 
     def store_run_step_info(self):
-        """ Write to database important SERPENT and Saltproc run parameters,
-            breeding ratio, beta, etc for each timestep
+        """Adds to database Serpent and Saltproc simulation parameters
+        (execution time, memory usage), multiplication factor, breeding ratio,
+        delayed neutron precursor data, fission mass, cumulative depletion
+        time, power level for the current time step.
         """
+
         # Read info from depcode _res.m File
         self.sim_depcode.read_depcode_step_param()
         # Initialize beta groups number
@@ -335,15 +337,15 @@ class Simulation():
         db.close()
 
     def store_run_init_info(self):
-        """ Write to database important SERPENT and Saltproc run parameters
-            before starting depletion sequence
+        """Adds to database Serpent and Saltproc simulation parameters before
+        starting depletion sequence.
         """
         # numpy arraw row storage for run info
         sim_info_dtype = np.dtype([
                     ('neutron_population',       int),
                     ('active_cycles',            int),
                     ('inactive_cycles',          int),
-                    ('serpent_version',         'S20'),
+                    ('serpent_version',        'S20'),
                     ('title',                  'S90'),
                     ('serpent_input_filename', 'S90'),
                     ('serpent_working_dir',    'S90'),
@@ -351,7 +353,7 @@ class Simulation():
                     ('OMP_threads',              int),
                     ('MPI_tasks',                int),
                     ('memory_optimization_mode', int),
-                    ('depletion_timestep', float)
+                    ('depletion_timestep',     float)
                     ])
         # Read info from depcode _res.m File
         self.sim_depcode.read_depcode_info()
@@ -385,37 +387,10 @@ class Simulation():
         sim_info_table.flush()
         db.close()
 
-    def get_mass_units(self, units):
-        """ Returns multiplicator to convert mass to different mass_units
-        """
-        if units is "g":
-            mul_m = 1.
-        elif units is "kg":
-            mul_m = 1.E-3
-        elif units is "t" or "ton" or "tonne" or "MT":
-            mul_m = 1.E-6
-        else:
-            raise ValueError(
-                          'Mass units does not supported or does not defined')
-        return mul_m
-
-    def mat_comp_preprosessor(self):
-        """ Reads Serpent input file with burnable materials and overwrites it
-        with full list of isotopes based on short Serpent run.
-        """
-        print('Prepare files to start Serpent run')
-        self.sim_depcode.write_depcode_input(
-                             self.sim_depcode.template_fname,
-                             self.sim_depcode.input_fname)
-        print('Running Serpent to generate list of all isotopes for depletion')
-        self.sim_depcode.run_depcode(self.core_number)
-        mats = self.sim_depcode.read_dep_comp(self.sim_depcode.input_fname, 0)
-        print('Creating new material composition file: %s' % self.iter_matfile)
-        self.sim_depcode.write_mat_file(mats, self.iter_matfile, 0)
-
     def switch_to_next_geometry(self):
-        """ Insert line with path to next Serpent geometry file at the
-         beginning of the Serpent iteration file"""
+        """Inserts line with path to next Serpent geometry file at the
+        beginning of the Serpent iteration input file.
+        """
         geo_line_n = 5
         f = open(self.sim_depcode.input_fname, 'r')
         data = f.readlines()
@@ -438,9 +413,24 @@ class Simulation():
         f.close()
 
     def read_k_eds_delta(self, current_timestep, restart):
-        """ Read from database delta between previous and current keff at the
-        end of depletion step
+        """Reads from database delta between previous and current `keff` at the
+        end of depletion step and returns `True` if predicted `keff` at the
+        next depletion step drops below 1.
+
+        Parameters
+        ----------
+        current_timestep : int
+            number of current depletion time step.
+        restart : bool
+            was this simulation restarted?
+
+        Returns
+        -------
+        bool
+            is the reactor will become subcritical at the next step?
+
         """
+
         if current_timestep > 3 or restart:
             # Open or restore db and read data
             db = tb.open_file(self.h5_file, mode='r')
