@@ -88,11 +88,9 @@ class Process():
         return waste
 
     def check_mass_conservation(self):
-        """ Checking that (outflow + waste_stream) == inflow
+        """Checking that Process.outflow + Process.waste_stream is equal
+        Process.inflow and the total mass is being conserved. Returns `True` if
+        the mass conserved or `False` if its mismatched.
         """
         out_stream = self.outflow + self.waste_stream
         np.testing.assert_array_equal(out_stream, self.inflow)
-
-    def change_mass_flowrate(self, flow, core_rate):
-        outflow = float(self.mass_flowrate/core_rate)*flow
-        return outflow
