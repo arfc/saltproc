@@ -11,7 +11,7 @@ sys.path.append(os.path.dirname(os.path.dirname(path)))
 directory = os.path.dirname(path)
 db_exp_file = directory+'/2step_non_ideal_2.h5'
 db_file = directory+'/db_saltproc.h5'
-tol = 1e-8
+tol = 1e-9
 
 
 def read_keff_h5(file):
@@ -27,7 +27,7 @@ def read_keff_h5(file):
     return k_0, k_1, k_0_e, k_1_e
 
 
-def read_h5(file):
+def read_fuel_h5(file):
     db = tb.open_file(file, mode='r')
     fuel = db.root.materials.fuel
     out_data = {}
@@ -38,8 +38,15 @@ def read_h5(file):
         for iso in isomap:
             out_data[node._v_name][iso] = \
                 np.array([row[isomap[iso]] for row in node])
+    # Read table with material parameters (density, temperature, mass)
+    tmp = fuel.after_reproc.parameters.read()
+    # Convert structured array to simple array
+    param = tmp.view(np.float64).reshape(tmp.shape + (-1,))
+    print(param, type(param))
+    print(param[0])
+    print(param[1])
     db.close()
-    return out_data
+    return out_data, param
 
 
 def read_iso_m_h5(db_file):
@@ -104,11 +111,14 @@ def assert_iso_m_check_eq_h5(db, dbe):
 
 
 def assert_h5_almost_equal(db, dbe):
-    data_exp = read_h5(dbe)
-    data = read_h5(db)
+    data_exp, param_exp = read_fuel_h5(dbe)
+    data, param = read_fuel_h5(db)
+    # Compare materials composition
     for node_nm, node in data_exp.items():
         for iso, mass_arr in node.items():
             np.testing.assert_allclose(mass_arr, data[node_nm][iso], rtol=tol)
+    # Compare material properties
+    np.testing.assert_allclose(param, param_exp, rtol=tol)
 
 
 @pytest.mark.slow
