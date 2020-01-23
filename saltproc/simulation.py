@@ -203,16 +203,14 @@ class Simulation():
             coun = 0
             # Create group for each material
             if not hasattr(db.root.materials, key):
-                m_group = db.create_group(comp_group,
-                                          key)
+                db.create_group(comp_group,
+                                key)
             # Create group for composition and parameters before reprocessing
-            # if not hasattr(db.root.materials, key + '/' + moment):
             mat_node = getattr(db.root.materials, key)
             if not hasattr(mat_node, moment):
-                before_group = db.create_group(
-                                    mat_node,
-                                    moment,
-                                    'Material data before reprocessing')
+                db.create_group(mat_node,
+                                moment,
+                                'Material data before reprocessing')
             comp_pfx = '/materials/' + str(key) + '/' + str(moment)
             # Read isotopes from Materialflow for material
             for nuc_code, wt_frac in mats[key].comp.items():
@@ -258,9 +256,6 @@ class Simulation():
             print('Dumping Material %s data %s to %s.' %
                   (key, moment, str(self.h5_file)))
             # Add row for the timestep to EArray and Material Parameters table
-            # print (iso_wt_frac)
-            # print (np.array([iso_wt_frac], dtype=np.float64))
-            # print (np.array([iso_wt_frac], dtype=np.float64).shape)
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
             mpar_table.append(mpar_array)
             del (iso_wt_frac)
@@ -372,7 +367,6 @@ class Simulation():
                     self.sim_depcode.sim_info['memory_optimization_mode'],
                     self.sim_depcode.sim_info['depletion_timestep']
                     )
-        # print(sim_info_row)
         sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype)
         # Open or restore db and append datat to it
         db = tb.open_file(self.h5_file, mode='a', filters=self.compression)

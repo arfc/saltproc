@@ -3,12 +3,11 @@ class Reactor ():
     Class contains information about current state of the reactor.
     """
 
-    def __init__(
-            self,
-            volume,
-            mass_flowrate,
-            power_levels,
-            depl_hist):
+    def __init__(self,
+                 volume=1.0,
+                 mass_flowrate=0.0,
+                 power_levels=[0.0],
+                 depl_hist=[1]):
         """Initializes the class.
 
         Parameters

@@ -37,7 +37,7 @@ class Materialflow(pymat):
             material burnup at the end of depletion step [MWd/kgU]
         """
         # initialize parent class attributes
-        super().__init__()
+        # super().__init__()
         # initialize all object attributes
         self.vol = vol
         self.temp = temp
