@@ -42,13 +42,22 @@ release = ''
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
     'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
+    'sphinx.ext.napoleon',
 ]
+
+# Napoleon settings
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = True
+napoleon_include_private_with_doc = True
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = True
+napoleon_use_admonition_for_notes = True
+napoleon_use_admonition_for_references = True
+napoleon_use_ivar = False
+napoleon_use_param = True
+napoleon_use_rtype = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -77,6 +86,8 @@ exclude_patterns = ['_build']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# If true, keep warnings as "system message" paragraphs in the built documents.
+# keep_warnings = False
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -166,7 +177,5 @@ texinfo_documents = [
 ]
 
 # autodoc default options
-autodoc_default_flags = [
-                         'members', 'undoc-members', 'show-inheritance',
-                         'private-members'
-                         ]
+autodoc_default_flags = ['members', 'undoc-members', 'show-inheritance',
+                         'inherited-members', 'private-members']
