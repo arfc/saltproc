@@ -1,5 +1,6 @@
 class Reactor ():
-    """ Class contains information about current state of the reactor.
+    """
+    Class contains information about current state of the reactor.
     """
 
     def __init__(
@@ -8,17 +9,19 @@ class Reactor ():
             mass_flowrate,
             power_levels,
             depl_hist):
-        """ Initializes the class
-        Parameters:
-        -----------
-        volume: float
-            total volume of reactor core (cm**3)
-        mass_flowrate: float
-            total mass flowrate through reactor (g/s)
-        power_levels: array [Tx1]
-            normalized power level in Watts for each depletion step
-        dep_hist: array [Tx1]
-            metric tons of heavy metals for the end of each time step (MTHM)
+        """Initializes the class.
+
+        Parameters
+        ----------
+        volume : float
+            Total volume of the reactor core (:math:`cm^3`).
+        mass_flowrate : float
+            Total mass flowrate through reactor (g/s).
+        power_levels : array [:math:`N_{steps}` x1]
+            Normalized power level for each depletion step (W).
+        depl_hist : array [:math:`N_{steps}` x1]
+            Cumulative depletion time (d).
+
         """
         # initialize all object attributes
         self.volume = volume
