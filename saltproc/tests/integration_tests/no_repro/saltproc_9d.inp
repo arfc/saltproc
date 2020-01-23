@@ -23,7 +23,7 @@ set pcc     1  % Predictor-corrector calculation on
 %set bunorm 2
 %set opti 1
 
-set power 1.250E+09 dep daytot 3
+%set power 1.250E+09 dep daytot 3
 
 %set printm 1 0.0
 
