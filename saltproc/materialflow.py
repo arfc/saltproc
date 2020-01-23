@@ -1,12 +1,11 @@
 from pyne.material import Material as pymat
 import copy
-import sys
 from collections import Counter
 
 
 class Materialflow(pymat):
-    """ Class contains information about material flow and methods how insert
-     and extract elements to|from the flow.
+    """ Class contains information about burnable material flow. Based on PyNE
+        Material.
     """
 
     def __init__(
@@ -21,20 +20,20 @@ class Materialflow(pymat):
             mass_flowrate=0.0,
             void_frac=0.0,
             burnup=0.0):
-        """Initializes the class
+        """Initializes the Materialflow object.
 
-        Parameters:
-        -----------
-        PyNE.Material: class
+        Parameters
+        ----------
+        PyNE.Material : class
             PyNE Material parent class containing nuclide vector, density,
             mass, atoms_per_molecule, metadata
-        temp: float
+        temp : float
             temperature of the material flow (K)
-        mass_flowrate: float
+        mass_flowrate : float
             mass flow rate of the material flow (g/s)
-        void_frac: float
+        void_frac : float
             void fraction in the material (%)
-        burnup: float
+        burnup : float
             material burnup at the end of depletion step [MWd/kgU]
         """
         # initialize parent class attributes
@@ -46,13 +45,20 @@ class Materialflow(pymat):
         self.void_frac = void_frac
         self.burnup = burnup
 
-    def conservationchecker(self):
-        return
-
     def get_mass(self):
+        """Returns total mass of the material descibed in Materialflow object.
+
+        Returns
+        -------
+        float
+            The mass of the object.
+
+        """
         return self.mass
 
     def print_attr(self):
+        """Prints various attributes of Materialflow object.
+        """
         print("Volume %f cm3" % self.vol)
         print("Mass %f g" % self.mass)
         print("Density %f g/cm3" % self.density)
@@ -63,20 +69,39 @@ class Materialflow(pymat):
         print("Void fraction %f " % self.void_frac)
         print("Burnup %f MWd/kgU" % self.burnup)
         print("U-235 mass %f g" % self[922350000])
-        # print("Li-7 mass %f g" % self[30070000])
 
     def scale_matflow(self, f=1.0):
-        """ Returns nuclide vector dictionary, obtained from self and scaled by
-         f
+        """Returns nuclide vector dictionary, obtained from object attrs and
+        then scaled by factor.
+
+        Parameters
+        ----------
+        f : float
+            Scaling factor.
+
+        Returns
+        -------
+        dict
+            Materialflow nuclide component dictionary of relative mass.
+            The keys of `new_mat_comp` are preserved from PyNE Material
+            (integers representing nuclides in id-form). The values are floats
+            for each nuclide’s mass fraction, multiplied by factor f.
+
         """
         old_dict = dict(self.comp)
-        old_nucvec = {}
+        new_mat_comp = {}
         for key, value in old_dict.items():
-            old_nucvec[key] = f * self.mass * value
-        return old_nucvec
+            new_mat_comp[key] = f * self.mass * value
+        return new_mat_comp
 
     def copy_pymat_attrs(self, src):
-        """ Modifies Materialflow object by copying PyNE attributites from src
+        """Copies PyNE attributites from source object (`src`) to target object.
+
+        Parameters
+        ----------
+        src : obj
+            Materialflow object to copy attributes from.
+
         """
         setattr(self, 'density', copy.deepcopy(src.density))
         setattr(self,
@@ -84,27 +109,22 @@ class Materialflow(pymat):
                 copy.deepcopy(src.atoms_per_molecule))
         self.metadata = src.metadata
 
-    def copy_and_scale(self, f):
-        """ Returns new copied Materialflow based on self, with composition
-         and mass flowrate scale by factor of f
-        """
-        # Initiate new object my copying class from self
-        outflow = copy.deepcopy(self)
-        # print ("Scale outflow ", outflow.__class__)
-        # Scale Materialflow an renormilize
-        outflow.mass = f * self.mass
-        outflow.norm_comp()
-        # Scale mass flowrate and volume too
-        setattr(outflow, 'mass_flowrate', copy.deepcopy(f*self.mass_flowrate))
-        setattr(outflow, 'vol', copy.deepcopy(f*self.vol))
-        # print("Mass ", outflow.mass, self.mass)
-        # print("Flow ", outflow.mass_flowrate, self.mass_flowrate)
-        # print("Vol ", outflow.vol, self.vol)
-        # print("Density ", outflow.density, self.density)
-        # print("Atoms ", outflow.atoms_per_molecule, self.atoms_per_molecule)
-        return outflow
-
     def __deepcopy__(self, memo):
+        """Return a deep copy of compound object `self`.
+
+        Parameters
+        ----------
+        self : obj
+            Compound object.
+        memo : dict, optional
+            Id-to-object correspondence to control for recursion.
+
+        Returns
+        -------
+        obj
+            New compound object copied from `self`.
+
+        """
         # Initiate new object my copying class from self
         cls = self.__class__
         result = cls.__new__(cls)
@@ -119,6 +139,22 @@ class Materialflow(pymat):
         return result
 
     def __eq__(self, other):
+        """Overrides Python ``=`` operation to compare two Materialflow objects.
+        Compares objects total mass, density, atoms_per_molecule, temperature,
+        mass flowrate, and masses of important isotopes: uranium-235 and
+        uranium-238.
+
+        Parameters
+        ----------
+        other : obj
+            Materialflow object to compare with.
+
+        Returns
+        -------
+        bool
+            Are the objects equal?
+
+        """
         if not isinstance(other, Materialflow):
             # don't attempt to compare against unrelated types
             return NotImplemented
@@ -128,13 +164,27 @@ class Materialflow(pymat):
             and self.temp == other.temp \
             and self.mass_flowrate == other.mass_flowrate \
             and self[922350000] == other[922350000] \
-            and self[922380000] == other[922380000] \
-            and self[721780001] == other[721780001]
+            and self[922380000] == other[922380000]
     #
-    # Materialflow operation Overloads
+    # Materialflow math operation Overloads
     #
 
     def __add__(x, y):
+        """Overrides Python adding operation for Materialflow objects.
+
+        Parameters
+        ----------
+        x : obj
+            Materialflow object #1.
+        y : obj
+            Materialflow object #2.
+
+        Returns
+        -------
+        obj
+            Materialflow which is a sum of isotope masses from `x` and `y`.
+
+        """
         cls = x.__class__
         result = cls.__new__(cls)
         result.mass = x.mass + y.mass
@@ -154,35 +204,28 @@ class Materialflow(pymat):
         result.void_frac = (x.void_frac*x.vol + y.void_frac*y.vol)/result.vol
         return result
 
-    def __rmul__(self, other):
-        if isinstance(other, (int, float)):
+    def __rmul__(self, scaling_factor):
+        """Overrides Python multiplication operation for Materialflow objects.
+
+        Parameters
+        ----------
+        scaling_factor : float or int
+            Scaling factor.
+
+        Returns
+        -------
+        obj
+            Materialflow object which has mass of each isotope and
+            mass_flowrate scaled by `other`.
+
+        """
+        if isinstance(scaling_factor, (int, float)):
             result = copy.deepcopy(self)
-            result.mass = other * self.mass
+            result.mass = scaling_factor * self.mass
             result.norm_comp()
-            result.vol = other * self.vol
-            result.mass_flowrate = other * self.mass_flowrate
+            result.vol = scaling_factor * self.vol
+            result.mass_flowrate = scaling_factor * self.mass_flowrate
             # result.temp = (x.temp*x.mass + y.temp*y.mass)/result.mass
             return result
         else:
             NotImplemented
-
-
-"""
-fuel = Materialflow({922350: 0.04, 922380: 0.96},
-                    122000000,
-                    4.9602,
-                    temp=923,
-                    mass_flowrate=0.5e+6,
-                    void_frac=1.0)
-
-print(fuel)
-print(fuel.comp)
-print(fuel.mass)
-print(fuel.density)
-print(fuel.atoms_per_molecule)
-print(fuel.metadata)
-
-print('Fuel salt temperature %f K' % fuel.temp)
-print('Mass flowrate %f g/s' % fuel.mass_flowrate)
-print('Void fraction %f %%' % fuel.void_frac)
-print('Mass %f g' % fuel.get_mass())"""
