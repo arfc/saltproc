@@ -14,65 +14,53 @@ from pyne.material import Material as pymat
 
 
 class Depcode:
-    """
-    Class contains information about input, output, geometry, and template file
-    for running depletion simulation code. Also contains information about
-    neutrons population, active and inactive cycle, etc. Read template and
-    output, write new input for the depletion code.
+    """Class contains information about input, output, geometry, and template
+    file for running depletion simulation code. Also contains neutrons
+    population, active and inactive cycle. Contains methods to read template
+    and output, write new input for the depletion code.
     """
 
     def __init__(self,
-                 codename,
-                 exec_path,
-                 template_fname,
-                 input_fname,
-                 output_fname,
-                 iter_matfile,
-                 geo_file,
+                 codename="Serpent",
+                 exec_path="sss2",
+                 template_fname="reactor.serpent",
+                 input_fname="data/saltproc_reactor",
+                 iter_matfile="data/saltproc_mat",
+                 geo_file=None,
                  npop=50,
                  active_cycles=20,
                  inactive_cycles=20):
-            """ Initializes the class
+            """Initializes the Depcode object.
 
-            Parameters:
-            -----------
-            codename: string
-                name of the code for depletion
-            exec_path: string
-                path to depletion code executable
-            template_fname: string
-                name of user input file for depletion code with geometry and
-                 initial composition
-            input_fname: string
-                name of input file for depletion code rerunning
-            output_fname: string
-                name of output file for depletion code rerunning
-            iter_matfile: string
-                name of iterative rewritable material file for depletion code
-                 rerunning
-            npop: int
-                size of neutron population for Monte-Carlo code
-            active_cycles: int
-                number of active cycles
-            inactive_cycles: int
-                number of inactive cycles
-            depl_dict: dict
-                key: material name
-                value: density, volume, dict: 'nuclides'
-                key: nuclide code in Serpent format (95342.09c or 952421)
-                value: atomic density
-            depl_dict_n: dict
-                key: material name
-                value: density, volume, dict: 'nuclides'
-                key: nuclide name in human readable format (Am-242m1)
-                value: atomic density
+            Parameters
+            ----------
+            codename : str
+                Name of depletion code.
+            exec_path : str
+                Path to depletion code executable.
+            template_fname : str
+                Name of user input file for depletion code.
+            input_fname : str
+                Name of input file for depletion code rerunning.
+            iter_matfile : str
+                Name of iterative, rewritable material file for depletion code
+                rerunning. This file is being modified during simulation.
+            geo_file : str or list
+                Path to file that contains the reactor geometry.
+                List of `str` if reactivity control by
+                switching geometry is `On` or just `str` otherwise.
+            npop : int
+                Size of neutron population per cycle for Monte Carlo.
+            active_cycles : int
+                Number of active cycles.
+            inactive_cycles : int
+                Number of inactive cycles.
             """
             # initialize all object attributes
             self.codename = codename
             self.exec_path = exec_path
             self.template_fname = template_fname
             self.input_fname = input_fname
-            self.output_fname = output_fname
             self.iter_matfile = iter_matfile
             self.geo_file = geo_file
             self.npop = npop
@@ -124,14 +112,39 @@ class Depcode:
 
     def read_depcode_template(self, template_fname):
         """ Reads prepared template (input) file for Depeletion code for
-         further changes in the file to prepare input file for multiple runs"""
+         further changes in the file to prepare input file for multiple runs.
+
+        Parameters
+        ----------
+        template_fname: str
+            name of user input file for depletion code
+
+        Returns
+        -------
+        str_list: list
+            list of lines from user input file for depletion code
+
+         """
         file = open(template_fname, 'r')
         str_list = file.readlines()
         return str_list
 
     def change_sim_par(self, data):
-        """ Check simulation parameters (neutron population, cycles) and change
-         to parameters from SaltProc input """
+        """Finds simulation parameters (neutron population, cycles) in input file
+        and change those to parameters from SaltProc input.
+
+        Parameters
+        ----------
+        data : list
+            List of strings parsed from user template file.
+
+        Returns
+        -------
+        list
+            List of strings containing modified user template file with new
+            simulation parameters.
+
+        """
         if self.npop and self.active_cycles and self.inactive_cycles:
             sim_param = [s for s in data if s.startswith("set pop")]
             if len(sim_param) > 1:
@@ -148,8 +161,21 @@ class Depcode:
         return [s.replace(sim_param[0], args) for s in data]
 
     def create_iter_matfile(self, data):
-        """ Check <include> with material file, copy in iteration material file,
-         and change name of file in <include> """
+        """Finds `include` line with path to material file, copies content of
+        this file to iteration material file, changes path in `include` line to
+        newly created iteration material file.
+
+        Parameters
+        ----------
+        data : list
+            List of strings parsed from user template file.
+
+        Returns
+        -------
+        list
+            List of strings containing modified user template file.
+
+        """
         data_dir = os.path.dirname(self.template_fname)
         include_str = [s for s in data if s.startswith("include ")]
         if not include_str:
@@ -187,86 +213,6 @@ class Depcode:
             out_file = open(input_file, 'w')
             out_file.writelines(data)
             out_file.close()
-
-    def read_bumat(self, input_file, munits, moment):
-        """ Reads Serpent `*.bumatx` output file and store it in two dict:
-            depl_dict (nuclide codes are keys) and depl_dict_n (nuclide nuclide
-            names are keys).
-        """
-        bu_format = compile(r'\s+Material compositions\s+\(([0-9E\.\+-]+) '
-                            r'MWd/kgU\s+/\s+([0-9E\.\+-]+)')
-
-        depl_dict = OrderedDict()
-        depl_dict_h = OrderedDict()
-        nucvec = {}
-        bu_match = None
-        mat_name = None
-        bumat_fname = os.path.join(input_file + ".bumat" + str(moment))
-        file = open(bumat_fname, 'r')
-        str_list = file.read().split('\n')
-        for line in str_list:
-            line = line.strip()
-            if not line:
-                continue
-            if bu_match is None:
-                bu_match = bu_format.search(line)
-                if bu_match is not None:
-                    self.burnup, self.days = [
-                        float(z) for z in bu_match.groups()]
-                    continue
-            elif line[0] == '%':
-                continue
-            z = line.split()
-            if z[0] == 'mat':
-                mat_name = z[1]
-                density = float(z[2])
-                if 'fix' in z:
-                    vol = float(z[7])
-                else:
-                    vol = float(z[4])
-                depl_dict[mat_name] = {
-                    'density': density,
-                    'volume': vol,
-                    'lib_temp': None,
-                    'temperature': None,
-                    'nuclides': OrderedDict({}),
-                }
-                depl_dict_h[mat_name] = copy.deepcopy(depl_dict[mat_name])
-            else:
-                nuc_code, adens = z[:2]
-                if '.' in nuc_code and depl_dict[mat_name]['lib_temp'] is None:
-                    lib_code = nuc_code.split('.')[1]
-                    temp_val = 100 * int(lib_code.replace('c', ''))
-                    depl_dict[mat_name]['lib_temp'] = lib_code
-                    depl_dict_h[mat_name]['lib_temp'] = lib_code
-                    depl_dict[mat_name]['temperature'] = temp_val
-                    depl_dict_h[mat_name]['temperature'] = temp_val
-                nuc_name, nuc_zzaaam, atomic_mass = self.get_nuc_name(nuc_code)
-                depl_dict[mat_name]['nuclides'][nuc_code] = float(adens)
-                # Make dictionary with isotopes names and mass to store in hdf5
-                # determine multiplier for mass units convertion
-                if munits is "g":
-                    mul_m = 1.
-                elif munits is "kg":
-                    mul_m = 1.E-3
-                elif munits is "t" or "ton" or "tonne" or "MT":
-                    mul_m = 1.E-6
-                else:
-                    raise ValueError(
-                          'Mass units does not supported or does not defined')
-                mass = vol * (1e+24*mul_m*float(adens)*atomic_mass) / const.N_A
-                depl_dict_h[mat_name]['nuclides'][nuc_name] = [mass]
-                # print ('%5s, %8s, zzaaam %7s, aensity %5e, at mass %5f'
-                #        % (mat_name, nuc_name, nuc_zzaaam, float(adens),
-                #           atomic_mass))
-                nucvec[nuc_zzaaam] = float(adens)
-        mat_name = pymat()
-        mat_name.density = 3.6
-        mat_name.mass = 200.E+6
-        mat_name.metadata = str(mat_name)
-        mat_name.atoms_per_molecule = -1.0
-        mat_name.from_atom_frac(nucvec)
-        return depl_dict, depl_dict_h
 
     def read_dep_comp(self, input_file, moment):
         """ Reads the SERPENT _dep.m file and return mat_composition.
@@ -346,11 +292,25 @@ class Depcode:
         return int(zzaaam)
 
     def get_nuc_name(self, nuc_code):
-        """ Get nuclide name human readable notation. The chemical symbol(one
-             or two characters), dash, and the atomic weight. Lastly if the
-             nuclide metastable, the letter m is concatenated with number of
-             excited state. Example 'Am-242m1'.
+        """Returns nuclide name in human-readable notation: chemical symbol (one
+        or two characters), dash, and the atomic weight. Lastly, if the nuclide
+        is in metastable state, the letter `m` is concatenated with number of
+        excited state. For example, 'Am-242m1'.
+
+        Parameters
+        ----------
+        nuc_code : str
+            Name of nuclide in Serpent form. For instance, `Am-242m`.
+
+        Returns
+        -------
+        nuc_name : str
+            Name of nuclide in human-readable notation.
+        nuc_zzaaam : str
+            Name of nuclide in `zzaaam` form. For example, 952421.
+
         """
+
         if '.' in str(nuc_code):
             nuc_code = pyname.zzzaaa_to_id(int(nuc_code.split('.')[0]))
             zz = pyname.znum(nuc_code)
@@ -376,9 +336,7 @@ class Depcode:
             else:
                 nuc_name = pyname.name(nuc_code)
         nuc_zzaaam = self.sss_meta_zzz(pyname.zzaaam(nuc_code))
-        at_mass = pydata.atomic_mass(pyname.id(nuc_zzaaam))
-        # print ("Nuclide %s; zzaaam %i" % (nuc_name, nuc_zzaaam))
-        return nuc_name, nuc_zzaaam, at_mass  # .encode('utf8')
+        return nuc_name, nuc_zzaaam
 
     def read_depcode_info(self):
         """ Parses initial simulation info data from Serpent output
@@ -400,7 +358,7 @@ class Depcode:
         self.sim_info['depletion_timestep'] = res['BURN_DAYS'][1][0]
 
     def read_depcode_step_param(self):
-        """ Parses data from Serpent output for each step and stores it in dict
+        """ Parses data from Serpent output for each step and stores it in dict.
         """
         res = serpent.parse_res(self.input_fname + "_res.m")
         self.param['keff_bds'] = res['IMP_KEFF'][0]
@@ -418,8 +376,8 @@ class Depcode:
         self.param['fission_mass_eds'] = res['TOT_FMASS'][1]
 
     def get_tra_or_dec(self, input_file):
-        """ Returns the isotopes map to tranform isotope zzaaam code to SERPENT.
-            Using Serpent `*.out` file with list of all isotopes in simulation.
+        """Returns the isotopes map to transform isotope zzaaam code to SERPENT.
+        Using Serpent `*.out` file with list of all isotopes in simulation.
 
         Parameters
         -----------
@@ -428,11 +386,14 @@ class Depcode:
 
         Returns
         --------
-        iso_map: dict
-            | contains mapping for isotopes names from zzaaam format to SERPENT
-            | key: zzaaam name of specific isotope
-            | value: Serpent-oriented name (i.e., 92235.09c for transport
-             isotope or 982510 for decay only isotope).
+        `dict`
+            Contains mapping for isotopes names from zzaaam format to SERPENT:
+
+            ``key``
+                zzaaam name of isotope
+            ``value``
+                Serpent-oriented name (i.e., 92235.09c for transport isotope or
+                982510 for decay only isotope)
 
         """
         map_dict = {}
@@ -449,7 +410,7 @@ class Depcode:
                 break
             if 'c  TRA' in line or 'c  DEC' in line:
                 line = line.split()
-                iname, zzaaam, imass = self.get_nuc_name(line[2])
+                iname, zzaaam = self.get_nuc_name(line[2])
                 # print (zzaaam, line[2], iname, imass)
                 map_dict.update({zzaaam: line[2]})
         self.iso_map = map_dict
