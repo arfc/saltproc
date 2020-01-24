@@ -152,96 +152,199 @@
 <span id="saltproc-app-module"></span><h1>saltproc.app module<a class="headerlink" href="#module-saltproc.app" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="saltproc.app.check_restart">
-<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">check_restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#check_restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.app.check_restart" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">check_restart</code><span class="sig-paren">(</span><em class="sig-param">restart_flag</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.app.check_restart" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the user set <cite>Restart simulation from the step when it stopped?</cite>
+for <cite>False</cite> clean out iteration files and database from previous run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>restart_flag</strong> (<em>bool</em>) – Is the current simulation restarted?</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="saltproc.app.parse_arguments">
-<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">parse_arguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#parse_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.app.parse_arguments" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse arguments from command line</p>
-<dl class="simple">
-<dt>steps: int</dt><dd><p>Number of depletion steps</p>
-</dd>
-<dt>nodes: int</dt><dd><p>Number of nodes for use in Serpent simulation</p>
-</dd>
-<dt>cores: int</dt><dd><p>Number of cores for use in Serpent simulation</p>
-</dd>
-<dt>input: str</dt><dd><p>Path and name of main SaltProc input file (json format)</p>
+<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">parse_arguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.app.parse_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses arguments from command line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Number of nodes for use in Serpent simulation.</p></li>
+<li><p><strong>d</strong> (<em>int</em>) – Number of cores for use in Serpent simulation.</p></li>
+<li><p><strong>i</strong> (<em>str</em>) – Path and name of main SaltProc input file (json format).</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="saltproc.app.read_dot">
-<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">read_dot</code><span class="sig-paren">(</span><em class="sig-param">dot_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#read_dot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.app.read_dot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads directed graph from <cite>*.dot</cite> files.</p>
-<dl class="simple">
-<dt>digraph: networkx.classes.multidigraph.MultiDiGraph Object</dt><dd><p>Directed graph describes reprocessing system as NetworkX MultiDiGraph.</p>
+<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">read_dot</code><span class="sig-paren">(</span><em class="sig-param">dot_file</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.app.read_dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads directed graph that describes fuel reprocessing system structure
+from <cite>*.dot</cite> file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dot_file</strong> (<em>str</em>) – Path to <cite>.dot</cite> file with reprocessing system structure.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>mat_name</strong> – Name of burnable material which reprocessing scheme described in <cite>.dot</cite>
+file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="saltproc.app.read_feeds_from_input">
-<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">read_feeds_from_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#read_feeds_from_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.app.read_feeds_from_input" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">read_feeds_from_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.app.read_feeds_from_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses <code class="docutils literal notranslate"><span class="pre">feed</span></code> data from <cite>.json</cite> file with <cite>Materialflow</cite> objects
+description. Then returns dictionary of <cite>Materialflow</cite> objects describing
+fresh fuel feeds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p><strong>mats</strong> – Dictionary that contains <cite>Materialflow</cite> objects with feeds.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object holding composition and properties of feed.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="saltproc.app.read_main_input">
-<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">read_main_input</code><span class="sig-paren">(</span><em class="sig-param">main_inp_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#read_main_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.app.read_main_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read main SaltProc input file (json format)</p>
-<dl class="simple">
-<dt>main_inp_file: str</dt><dd><p>Absolute path to SaltProc main input file and name of this file</p>
+<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">read_main_input</code><span class="sig-paren">(</span><em class="sig-param">main_inp_file</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.app.read_main_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads main SaltProc input file (json format).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>main_inp_file</strong> (<em>str</em>) – Path to SaltProc main input file and name of this file.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="saltproc.app.read_processes_from_input">
-<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">read_processes_from_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#read_processes_from_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.app.read_processes_from_input" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">read_processes_from_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.app.read_processes_from_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses <code class="docutils literal notranslate"><span class="pre">removal</span></code> data from <cite>.json</cite> file with <cite>Process</cite> objects
+description. Then returns dictionary of <cite>Process</cite> objects describing
+extraction process efficiency for each target chemical element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p><strong>mats</strong> – Dictionary that contains <cite>Process</cite> objects.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Process</cite> object holding extraction process parameters.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="saltproc.app.refill">
-<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">refill</code><span class="sig-paren">(</span><em class="sig-param">mat</em>, <em class="sig-param">extracted_mass</em>, <em class="sig-param">waste_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#refill"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.app.refill" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies reprocessing scheme to selected material</p>
-<dl class="simple">
-<dt>mat: dictionary</dt><dd><p>key: Material name
-value: Materialflow object`
-Material data right after reprocessing plant</p>
+<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">refill</code><span class="sig-paren">(</span><em class="sig-param">mat</em>, <em class="sig-param">extracted_mass</em>, <em class="sig-param">waste_dict</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.app.refill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes up material loss in removal processes by adding fresh fuel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mat</strong> (<em>dict</em>) – <dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
 </dd>
-<dt>extracted_mass: dictionary</dt><dd><p>key: Material name
-value: float
-Mass removed as waste in reprocessing function for each material</p>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object after performing all removals.</p>
 </dd>
 </dl>
+</p></li>
+<li><p><strong>extracted_mass</strong> (<em>dict</em>) – <dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>Mass removed as waste in reprocessing function for each material.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>waste</strong> (<em>dict</em>) – <dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Process name.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object containing waste streams data.</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Dictionary that contains <cite>Materialflow</cite> objects.</p>
 <dl class="simple">
-<dt>refill_stream: Materialflow object</dt><dd><p>Material data after refill</p>
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object after adding fresh fuel.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="saltproc.app.reprocessing">
-<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">reprocessing</code><span class="sig-paren">(</span><em class="sig-param">mat</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#reprocessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.app.reprocessing" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies reprocessing scheme to selected material</p>
+<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">reprocessing</code><span class="sig-paren">(</span><em class="sig-param">mat</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.app.reprocessing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies reprocessing scheme to burnable materials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mats</strong> (<em>dict</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects with burnable material
+data right after irradiation in the core.</p>
 <dl class="simple">
-<dt>mat: Materialflow object`</dt><dd><p>Material data right after irradiation in the core/vesel</p>
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object holding composition and properties.</p>
 </dd>
 </dl>
-<dl class="simple">
-<dt>out: Materialflow object</dt><dd><p>Material data after performing all removals</p>
+</p>
 </dd>
-<dt>waste: dictionary</dt><dd><p>key: process name
-value: Materialflow object containing waste streams data</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul>
+<li><p><strong>waste</strong> (<em>dict</em>) –</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Process name.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object containing waste streams data.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>extracted_mass</strong> (<em>dict</em>) –</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>Mass removed as waste in reprocessing function for each material
+(g).</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="saltproc.app.run">
-<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.app.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Inititializes main run</p>
+<code class="sig-prename descclassname">saltproc.app.</code><code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.app.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inititializes main run.</p>
 </dd></dl>
 
 </div>
