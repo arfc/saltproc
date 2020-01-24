@@ -19,7 +19,8 @@ install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  # Useful for debugging any issues with conda
+  - conda create -n pyne-env python=3.5
+  - conda activate pyne-env
   - conda info -a
   - conda install -c anaconda h5py
   - conda install -c conda-forge pyne
