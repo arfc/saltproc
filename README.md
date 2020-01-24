@@ -6,9 +6,9 @@ How to run script (with default flags):
 
 python run_saltproc.py -n 1 -d 1 -i None
 ```
--n     		   number of cluster nodes to use in Serpent
--d     	     number of threads to use in Serpent
--i    		   path and name of SaltProc main input file
+-n          number of cluster nodes to use in Serpent
+-d          number of threads to use in Serpent
+-i          path and name of SaltProc main input file
 ```
 
 ### Installation
