@@ -1,7 +1,10 @@
 from __future__ import absolute_import, division, print_function
 from saltproc import Depcode
+from saltproc import Reactor
 import os
 import sys
+import numpy as np
+
 path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
 
@@ -15,10 +18,13 @@ serpent = Depcode(codename='SERPENT',
                   iter_matfile=directory+'/material',
                   geo_file=[os.path.join(directory, '../test_geo.inp')])
 
+msr = Reactor(volume=1.0,
+              power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
+              depl_hist=[111.111, 2101.9, 3987.5])
+
 
 def test_get_tra_or_dec():
     serpent.get_tra_or_dec(serpent.input_fname)
-    # print(serpent.iso_map)
     assert serpent.iso_map[380880] == '38088.09c'
     assert serpent.iso_map[962400] == '96240.09c'
     assert serpent.iso_map[952421] == '95342.09c'
@@ -41,7 +47,6 @@ def test_sss_meta_zzz():
 
 def test_read_depcode_template():
     template_str = serpent.read_depcode_template(serpent.template_fname)
-    # print(template_str)
     assert template_str[18] == 'set pop 30 20 10\n'
     assert template_str[22] == 'set bumode  2\n'
     assert template_str[23] == 'set pcc     1\n'
@@ -55,7 +60,6 @@ def test_change_sim_par():
     out = serpent.change_sim_par(
                     serpent.read_depcode_template(serpent.template_fname)
                     )
-    # print(out)
     assert out[18] == 'set pop %i %i %i\n' % (
                                               serpent.npop,
                                               serpent.active_cycles,
@@ -81,7 +85,6 @@ def test_get_nuc_name():
 
 def test_read_depcode_info():
     serpent.read_depcode_info()
-    # print(serpent.sim_info)
     assert serpent.sim_info['serpent_version'] == 'Serpent 2.1.31'
     assert serpent.sim_info['title'] == 'Untitled'
     assert serpent.sim_info['MPI_tasks'] == 1
@@ -91,8 +94,6 @@ def test_read_depcode_info():
 
 def test_read_depcode_step_param():
     serpent.read_depcode_step_param()
-    # print(serpent.param)
-    # print(serpent.param['keff_bds'][0][0])
     assert serpent.param['memory_usage'] == [10552.84]
     assert serpent.param['execution_time'] == [81.933]
     assert serpent.param['keff_bds'][0] == 1.00651e+00
@@ -134,5 +135,29 @@ def test_write_mat_file():
 def test_insert_path_to_geometry():
     d = serpent.read_depcode_template(serpent.template_fname)
     d_new = serpent.insert_path_to_geometry(d)
-    print(d_new)
     assert d_new[5].split('/')[-1] == 'test_geo.inp"\n'
+
+
+def test_replace_burnup_parameters():
+    time = msr.depl_hist.copy()
+    time.insert(0, 0.0)
+    depsteps = np.diff(time)
+    print(depsteps, msr.depl_hist[0])
+    d = serpent.read_depcode_template(serpent.template_fname)
+    for idx in range(len(msr.power_levels)):
+        d = serpent.replace_burnup_parameters(d,
+                                              msr,
+                                              idx)
+        out_file = open(serpent.template_fname+str(idx), 'w')
+        out_file.writelines(d)
+        out_file.close()
+        d_new = serpent.read_depcode_template(serpent.template_fname+str(idx))
+        assert d_new[8].split()[4] == 'daystep'
+        assert d_new[8].split()[2] == str("%5.9E" % msr.power_levels[idx])
+        assert d_new[8].split()[5] == str("%7.5E" % depsteps[idx])
+
+
+def test_create_iter_matfile():
+    d = serpent.read_depcode_template(serpent.template_fname)
+    out = serpent.create_iter_matfile(d)
+    assert out[0].split()[-1] == '\"' + serpent.iter_matfile + '\"'

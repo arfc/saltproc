@@ -20,13 +20,11 @@ serpent = Depcode(codename='SERPENT',
 process = Process(mass_flowrate=10,
                   capacity=100.0,
                   volume=1.0,
-                  # inflow=None,
                   efficiency={'Xe': 1., 'Kr': 0.95})
 
 
-def test_element_removal():
+def test_rem_elements():
     mats = serpent.read_dep_comp(input_file, 1)
-    # print(mats['fuel'])
     waste = process.rem_elements(mats['fuel'])
     np.testing.assert_almost_equal(waste[541350000], 19.79776930513891)
     np.testing.assert_almost_equal(waste[541360000], 176.44741987005173)
