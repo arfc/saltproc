@@ -94,7 +94,10 @@ class Simulation():
                                         1)
             self.store_mat_data(mats, dts, 'before_reproc')
             self.store_run_step_info()
-            self.sim_depcode.write_mat_file(mats, self.iter_matfile, dts)
+            self.sim_depcode.write_mat_file(
+                                        mats,
+                                        self.iter_matfile,
+                                        self.burn_time)
 
     def store_after_repr(self, after_mats, waste_dict, step):
         """Adds to HDF5 database waste streams data for each process after

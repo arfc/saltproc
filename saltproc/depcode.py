@@ -39,7 +39,7 @@ class Depcode:
             exec_path : str
                 Path to depletion code executable.
             template_fname : str
-                Name of user input file for depletion code.
+                Path to user input file for depletion code.
             input_fname : str
                 Name of input file for depletion code rerunning.
             iter_matfile : str
@@ -66,68 +66,8 @@ class Depcode:
             self.npop = npop
             self.active_cycles = active_cycles
             self.inactive_cycles = inactive_cycles
-    sim_info = {
-                "serpent_version": [],
-                "title": [],
-                "serpent_input_filename": [],
-                "serpent_working_dir": [],
-                "xs_data_path": [],
-                "OMP_threads": [],
-                "MPI_tasks": [],
-                "memory_optimization_mode": [],
-                "depletion_timestep": []
-                }
-    param = {}
-
-    def run_depcode(self, cores, nodes):
-        """ Runs depletion code as subprocess with the given parameters"""
-        if self.exec_path.startswith('/projects/sciteam/bahg/'):  # check if BW
-            args = (
-                'aprun',
-                '-n',
-                str(nodes),
-                '-d', str(cores),
-                self.exec_path,
-                '-omp',
-                str(cores),
-                self.input_fname)
-        elif self.exec_path.startswith('/apps/exp_ctl/'):  # check if Falcon
-            args = (
-                'mpiexec',
-                self.exec_path,
-                self.input_fname,
-                '-omp',
-                str(18))
-        else:
-            args = (self.exec_path, '-omp', str(cores), self.input_fname)
-        print('Running %s' % (self.codename))
-        try:
-            subprocess.check_call(args,
-                                  stdout=subprocess.DEVNULL,
-                                  stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as error:
-            print(error.output, error.returncode)
-            raise ValueError('\n %s RUN FAILED\n' % (self.codename))
-        print('Finished Serpent Run')
-
-    def read_depcode_template(self, template_fname):
-        """ Reads prepared template (input) file for Depeletion code for
-         further changes in the file to prepare input file for multiple runs.
-
-        Parameters
-        ----------
-        template_fname: str
-            name of user input file for depletion code
-
-        Returns
-        -------
-        str_list: list
-            list of lines from user input file for depletion code
-
-         """
-        file = open(template_fname, 'r')
-        str_list = file.readlines()
-        return str_list
+            self.param = {}
+            self.sim_info = {}
 
     def change_sim_par(self, data):
         """Finds simulation parameters (neutron population, cycles) in input file
@@ -161,9 +101,9 @@ class Depcode:
         return [s.replace(sim_param[0], args) for s in data]
 
     def create_iter_matfile(self, data):
-        """Finds `include` line with path to material file, copies content of
-        this file to iteration material file, changes path in `include` line to
-        newly created iteration material file.
+        """Finds ``include`` line with path to material file, copies content of
+        this file to iteration material file, changes path in ``include`` line
+        to newly created iteration material file.
 
         Parameters
         ----------
@@ -198,104 +138,11 @@ class Depcode:
         shutil.copy2(abs_src_matfile, self.iter_matfile)
         return [s.replace(src_file, self.iter_matfile) for s in data]
 
-    def write_depcode_input(self, template_file, input_file, reactor, dts):
-        """ Write prepared data into depletion code input file """
-        if dts == 0:
-            data = self.read_depcode_template(template_file)
-            data = self.insert_path_to_geometry(data)
-            data = self.change_sim_par(data)
-            data = self.create_iter_matfile(data)
-        elif dts > 0:
-            data = self.read_depcode_template(input_file)
-        data = self.replace_burnup_parameters(data, reactor, dts)
-
-        if data:
-            out_file = open(input_file, 'w')
-            out_file.writelines(data)
-            out_file.close()
-
-    def read_dep_comp(self, input_file, moment):
-        """ Reads the SERPENT _dep.m file and return mat_composition.
-        """
-        dep_file = os.path.join('%s_dep.m' % input_file)
-        dep = serpent.parse_dep(dep_file, make_mats=False)
-        self.days = dep['DAYS'][moment]
-        # Read materials names from the file
-        mat_name = []
-        mats = {}
-        for key in dep.keys():
-            m = re.search('MAT_(.+?)_VOLUME', key)
-            if m:
-                mat_name.append(m.group(1))
-        zai = list(map(int, dep['ZAI'][:-2]))  # zzaaam codes of isotopes
-
-        for m in mat_name:
-            volume = dep['MAT_'+m+'_VOLUME'][moment]
-            nucvec = dict(zip(zai, dep['MAT_'+m+'_MDENS'][:, moment]))
-            mats[m] = Materialflow(nucvec)
-            mats[m].density = dep['MAT_'+m+'_MDENS'][-1, moment]
-            mats[m].mass = mats[m].density*volume
-            mats[m].vol = volume
-            mats[m].burnup = dep['MAT_'+m+'_BURNUP'][moment]
-        # mat_name.atoms_per_molecule = -1.0
-        # print (mats['fuel'])
-        # print (mats['ctrlPois'].mass)
-        # print (mats['ctrlPois']['O16'])
-        # print (mats['ctrlPois']['Al27'])
-        # print (mats['ctrlPois'])
-        # for key, value in mats.items():
-        #    print ("Object material:", key, "\n", value)
-        # print (mat1.metadata)
-        # mat1_composition = mat1.comp
-        # print(mat1_composition[170370000])
-        # print(mat1_composition[pyname.id('Cl37')])
-        # Generate map for transforming iso name fprm zas to SERPENT
-        self.get_tra_or_dec(self.input_fname)
-        return mats
-
-    def write_mat_file(self, dep_dict, mat_file, step=3):
-        """ Writes the input fuel composition input file block
-        """
-        matf = open(mat_file, 'w')
-        matf.write('%% Material compositions (after %f days)\n\n'
-                   % (self.days*(step+1)))
-        for key, value in dep_dict.items():
-            matf.write('mat  %s  %5.9E burn 1 fix %3s %4i vol %7.5E\n' %
-                       (key,
-                        -dep_dict[key].density,
-                        '09c',
-                        dep_dict[key].temp,
-                        dep_dict[key].vol))
-            for nuc_code, wt_frac in dep_dict[key].comp.items():
-                # Transforms iso name from zas to zzaaam and then to SERPENT
-                iso_name_serpent = pyname.zzaaam(nuc_code)
-                matf.write('           %9s  %7.14E\n' %
-                           (self.iso_map[iso_name_serpent],
-                            -wt_frac))
-        matf.close()
-
-    def sss_meta_zzz(self, nuc_code):
-        """ Check special SERPENT meta stable-flag for zzaaam (i.e. 47310 insead
-            of 471101)
-        """
-        zz = pyname.znum(nuc_code)
-        aa = pyname.anum(nuc_code)
-        if aa > 300:
-            if zz > 76:
-                aa_new = aa-100
-            else:
-                aa_new = aa-200
-            zzaaam = str(zz)+str(aa_new)+'1'
-        else:
-            zzaaam = nuc_code
-        # print(nuc_code, zzaaam)
-        return int(zzaaam)
-
     def get_nuc_name(self, nuc_code):
         """Returns nuclide name in human-readable notation: chemical symbol (one
         or two characters), dash, and the atomic weight. Lastly, if the nuclide
         is in metastable state, the letter `m` is concatenated with number of
-        excited state. For example, 'Am-242m1'.
+        excited state. For example, `Am-242m1`.
 
         Parameters
         ----------
@@ -305,9 +152,9 @@ class Depcode:
         Returns
         -------
         nuc_name : str
-            Name of nuclide in human-readable notation.
+            Name of nuclide in human-readable notation (`Am-242m1`).
         nuc_zzaaam : str
-            Name of nuclide in `zzaaam` form. For example, 952421.
+            Name of nuclide in `zzaaam` form (`952421`).
 
         """
 
@@ -330,7 +177,6 @@ class Depcode:
             nuc_name = pyname.zz_name[zz] + aa_str
         else:
             meta_flag = pyname.snum(nuc_code)
-            at_mass = pydata.atomic_mass(nuc_code)
             if meta_flag:
                 nuc_name = pyname.name(nuc_code)[:-1] + 'm'+str(meta_flag)
             else:
@@ -338,62 +184,27 @@ class Depcode:
         nuc_zzaaam = self.sss_meta_zzz(pyname.zzaaam(nuc_code))
         return nuc_name, nuc_zzaaam
 
-    def read_depcode_info(self):
-        """ Parses initial simulation info data from Serpent output
-        """
-        res = serpent.parse_res(self.input_fname + "_res.m")
-        self.sim_info['serpent_version'] = \
-            res['VERSION'][0].decode('utf-8')
-        self.sim_info['title'] = res['TITLE'][0].decode('utf-8')
-        self.sim_info['serpent_input_filename'] = \
-            res['INPUT_FILE_NAME'][0].decode('utf-8')
-        self.sim_info['serpent_working_dir'] = \
-            res['WORKING_DIRECTORY'][0].decode('utf-8')
-        self.sim_info['xs_data_path'] = \
-            res['XS_DATA_FILE_PATH'][0].decode('utf-8')
-        self.sim_info['OMP_threads'] = res['OMP_THREADS'][0]
-        self.sim_info['MPI_tasks'] = res['MPI_TASKS'][0]
-        self.sim_info['memory_optimization_mode'] = res['OPTIMIZATION_MODE'][0]
-        self.sim_info['depletion_timestep'] = res['BURN_DAYS'][1][0]
-        self.sim_info['depletion_timestep'] = res['BURN_DAYS'][1][0]
-
-    def read_depcode_step_param(self):
-        """ Parses data from Serpent output for each step and stores it in dict.
-        """
-        res = serpent.parse_res(self.input_fname + "_res.m")
-        self.param['keff_bds'] = res['IMP_KEFF'][0]
-        self.param['keff_eds'] = res['IMP_KEFF'][1]
-        self.param['breeding_ratio'] = res['CONVERSION_RATIO'][1]
-        self.param['execution_time'] = res['RUNNING_TIME'][1]
-        self.param['burn_days'] = res['BURN_DAYS'][1][0]
-        self.param['power_level'] = res['TOT_POWER'][1][0]
-        self.param['memory_usage'] = res['MEMSIZE'][0]
-        b_l = int(.5*len(res['FWD_ANA_BETA_ZERO'][1]))
-        self.param['beta_eff'] = res['FWD_ANA_BETA_ZERO'][1].reshape((b_l, 2))
-        self.param['delayed_neutrons_lambda'] = \
-            res['FWD_ANA_LAMBDA'][1].reshape((b_l, 2))
-        self.param['fission_mass_bds'] = res['INI_FMASS'][1]
-        self.param['fission_mass_eds'] = res['TOT_FMASS'][1]
-
     def get_tra_or_dec(self, input_file):
-        """Returns the isotopes map to transform isotope zzaaam code to SERPENT.
-        Using Serpent `*.out` file with list of all isotopes in simulation.
+        """Returns the isotopes map to transform isotope `zzaaam` code to Serpent.
+        Uses Serpent `*.out` file with list of all isotopes in simulation.
 
         Parameters
         -----------
         input_file: str
-            Serpent input file name and path
+            Serpent input file name and path.
 
         Returns
         --------
-        `dict`
-            Contains mapping for isotopes names from zzaaam format to SERPENT:
+        dict
+            Contains mapping for isotopes names from `zzaaam` to Serpent name
+            imported from Serpent ouput file:
 
             ``key``
-                zzaaam name of isotope
+                The key is nuclide name in `zzaaam` format. For example,
+                `922350` or `982510`.
             ``value``
-                Serpent-oriented name (i.e., 92235.09c for transport isotope or
-                982510 for decay only isotope)
+                Serpent-oriented name. For instance, 92235.09c for transport
+                isotope or 982510 for decay only isotope).
 
         """
         map_dict = {}
@@ -416,16 +227,151 @@ class Depcode:
         self.iso_map = map_dict
 
     def insert_path_to_geometry(self, data):
-        """ Adds line 'include first_geometry_file' to the end of Serpent input
-        file
+        """Inserts ``include <first_geometry_file>`` line on th 6th line of
+        Serpent input file.
+
+        Parameters
+        ----------
+        data : list
+            List of strings parsed from user template file.
+
+        Returns
+        -------
+        list
+            List of strings containing modified in this function template file.
+
         """
-        data.insert(5,  # Insert on 6th line
+        data.insert(5,  # Inserts on 6th line
                     'include \"' + str(self.geo_file[0]) + '\"\n')
         return data
 
-    def replace_burnup_parameters(self, data, reactor, current_depstep_idx):
-        """ Adds or replace line with depletion history and power levels
+    def read_dep_comp(self, input_file, moment):
+        """Reads the Serpent `*_dep.m` file and returns dictionary with
+        `Materialflow` object for each burnable material.
+
+        Parameters
+        ----------
+        input_file : str
+            Path to Serpent input file.
+        moment : int
+            Indicates at which moment in the depletion step read the data. `0`
+            refers the beginning, `1` refers the end of depletion step.
+
+        Returns
+        -------
+        mats : dict
+            Dictionaty that contains `Materialflow` objects.
+
+            ``key``
+                Name of burnable material.
+            ``value``
+                `Materialflow` object holding composition and properties.
+
         """
+        dep_file = os.path.join('%s_dep.m' % input_file)
+        dep = serpent.parse_dep(dep_file, make_mats=False)
+        self.days = dep['DAYS'][moment]
+        # Read materials names from the file
+        mat_name = []
+        mats = {}
+        for key in dep.keys():
+            m = re.search('MAT_(.+?)_VOLUME', key)
+            if m:
+                mat_name.append(m.group(1))
+        zai = list(map(int, dep['ZAI'][:-2]))  # zzaaam codes of isotopes
+
+        for m in mat_name:
+            volume = dep['MAT_'+m+'_VOLUME'][moment]
+            nucvec = dict(zip(zai, dep['MAT_'+m+'_MDENS'][:, moment]))
+            mats[m] = Materialflow(nucvec)
+            mats[m].density = dep['MAT_'+m+'_MDENS'][-1, moment]
+            mats[m].mass = mats[m].density*volume
+            mats[m].vol = volume
+            mats[m].burnup = dep['MAT_'+m+'_BURNUP'][moment]
+        self.get_tra_or_dec(self.input_fname)
+        return mats
+
+    def read_depcode_info(self):
+        """Parses initial simulation info data from Serpent output and stores
+        it in `Depcode` object ``sim_info`` attributes.
+        """
+        res = serpent.parse_res(self.input_fname + "_res.m")
+        self.sim_info['serpent_version'] = \
+            res['VERSION'][0].decode('utf-8')
+        self.sim_info['title'] = res['TITLE'][0].decode('utf-8')
+        self.sim_info['serpent_input_filename'] = \
+            res['INPUT_FILE_NAME'][0].decode('utf-8')
+        self.sim_info['serpent_working_dir'] = \
+            res['WORKING_DIRECTORY'][0].decode('utf-8')
+        self.sim_info['xs_data_path'] = \
+            res['XS_DATA_FILE_PATH'][0].decode('utf-8')
+        self.sim_info['OMP_threads'] = res['OMP_THREADS'][0]
+        self.sim_info['MPI_tasks'] = res['MPI_TASKS'][0]
+        self.sim_info['memory_optimization_mode'] = res['OPTIMIZATION_MODE'][0]
+        self.sim_info['depletion_timestep'] = res['BURN_DAYS'][1][0]
+        self.sim_info['depletion_timestep'] = res['BURN_DAYS'][1][0]
+
+    def read_depcode_step_param(self):
+        """Parses data from Serpent output for each step and stores it in
+        `Depcode` object ``param`` attributes.
+        """
+        res = serpent.parse_res(self.input_fname + "_res.m")
+        self.param['keff_bds'] = res['IMP_KEFF'][0]
+        self.param['keff_eds'] = res['IMP_KEFF'][1]
+        self.param['breeding_ratio'] = res['CONVERSION_RATIO'][1]
+        self.param['execution_time'] = res['RUNNING_TIME'][1]
+        self.param['burn_days'] = res['BURN_DAYS'][1][0]
+        self.param['power_level'] = res['TOT_POWER'][1][0]
+        self.param['memory_usage'] = res['MEMSIZE'][0]
+        b_l = int(.5*len(res['FWD_ANA_BETA_ZERO'][1]))
+        self.param['beta_eff'] = res['FWD_ANA_BETA_ZERO'][1].reshape((b_l, 2))
+        self.param['delayed_neutrons_lambda'] = \
+            res['FWD_ANA_LAMBDA'][1].reshape((b_l, 2))
+        self.param['fission_mass_bds'] = res['INI_FMASS'][1]
+        self.param['fission_mass_eds'] = res['TOT_FMASS'][1]
+
+    def read_depcode_template(self, template_fname):
+        """Reads prepared template (input) file for depeletion code for further
+        changes in the file to prepare input file for multiple runs.
+
+        Parameters
+        ----------
+        template_fname: str
+            Path to user template file for depletion code.
+
+        Returns
+        -------
+        list
+            List of strings containing user template file.
+
+         """
+        file = open(template_fname, 'r')
+        str_list = file.readlines()
+        return str_list
+
+    def replace_burnup_parameters(self, data, reactor, current_depstep_idx):
+        """Adds or replaces ``set power P dep daystep DEPSTEP`` line in Serpent
+        input file. The line defines depletion history and power levels with
+        depletion step in the single run and activates depletion calculation
+        mode.
+
+        Parameters
+        ----------
+        data : list
+            List of strings parsed from user template file.
+        reactor : Reactor
+            Contains information about power load curve and cumulative
+            depletion time for the integration test.
+        current_depstep_idx : int
+            Current depletion step.
+
+        Returns
+        -------
+        list
+            List of strings containing modified in this function template file.
+
+        """
+
         line_idx = 8  # burnup setting line index by default
         current_depstep_power = reactor.power_levels[current_depstep_idx]
         if current_depstep_idx == 0:
@@ -443,3 +389,147 @@ class Depcode:
                     (current_depstep_power,
                      current_depstep))
         return data
+
+    def run_depcode(self, cores, nodes):
+        """Runs depletion code as subprocess with the given parameters.
+
+        Parameters
+        ----------
+        cores: int
+            Number of cores to use for Serpent run (`-omp` flag in Serpent).
+        nodes: int
+            Number of nodes to use for Serpent run (`-mpi` flag in Serpent).
+
+        """
+
+        if self.exec_path.startswith('/projects/sciteam/bahg/'):  # check if BW
+            args = (
+                'aprun',
+                '-n',
+                str(nodes),
+                '-d', str(cores),
+                self.exec_path,
+                '-omp',
+                str(cores),
+                self.input_fname)
+        elif self.exec_path.startswith('/apps/exp_ctl/'):  # check if Falcon
+            args = (
+                'mpiexec',
+                self.exec_path,
+                self.input_fname,
+                '-omp',
+                str(18))
+        else:
+            args = (self.exec_path, '-omp', str(cores), self.input_fname)
+        print('Running %s' % (self.codename))
+        try:
+            subprocess.check_call(args,
+                                  stdout=subprocess.DEVNULL,
+                                  stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as error:
+            print(error.output, error.returncode)
+            raise ValueError('\n %s RUN FAILED\n' % (self.codename))
+        print('Finished Serpent Run')
+
+    def sss_meta_zzz(self, nuc_code):
+        """Checks Serpent-specific meta stable-flag for zzaaam. For instance,
+        47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented
+        with `aaa` started with ``3``.
+
+        Parameters
+        ----------
+        nuc_code : str
+            Name of nuclide in Serpent form. For instance, `47310`.
+
+        Returns
+        -------
+        int
+            Name of nuclide in `zzaaam` form (`471101`).
+
+        """
+        zz = pyname.znum(nuc_code)
+        aa = pyname.anum(nuc_code)
+        if aa > 300:
+            if zz > 76:
+                aa_new = aa-100
+            else:
+                aa_new = aa-200
+            zzaaam = str(zz)+str(aa_new)+'1'
+        else:
+            zzaaam = nuc_code
+        return int(zzaaam)
+
+    def write_depcode_input(self, template_file, input_file, reactor, dts):
+        """Writes prepared data into the depletion code input file.
+
+        Parameters
+        ----------
+        template_file : str
+            Path to user template file for depletion code..
+        input_file : str
+            Path to input file for depletion code rerunning.
+        reactor : Reactor
+            Contains information about power load curve and cumulative
+            depletion time for the integration test.
+        dts : int
+            Current depletion time step.
+
+        Returns
+        -------
+        type
+            Description of returned object.
+
+        """
+
+        if dts == 0:
+            data = self.read_depcode_template(template_file)
+            data = self.insert_path_to_geometry(data)
+            data = self.change_sim_par(data)
+            data = self.create_iter_matfile(data)
+        elif dts > 0:
+            data = self.read_depcode_template(input_file)
+        data = self.replace_burnup_parameters(data, reactor, dts)
+
+        if data:
+            out_file = open(input_file, 'w')
+            out_file.writelines(data)
+            out_file.close()
+
+    def write_mat_file(self, dep_dict, mat_file, cumulative_time_at_eds):
+        """Writes the iteration input file containing burnable materials
+        composition used in depletion runs and updated after each depletion
+        step.
+
+        Parameters
+        ----------
+        mats : dict
+            Dictionaty that contains `Materialflow` objects.
+
+            ``key``
+                Name of burnable material.
+            ``value``
+                `Materialflow` object holding composition and properties.
+        mat_file : str
+            Path to file containing burnable materials composition.
+        cumulative_time_at_eds : float
+            Current time at the end of the depletion step (d).
+
+        """
+
+        matf = open(mat_file, 'w')
+        matf.write('%% Material compositions (after %f days)\n\n'
+                   % cumulative_time_at_eds)
+        for key, value in dep_dict.items():
+            matf.write('mat  %s  %5.9E burn 1 fix %3s %4i vol %7.5E\n' %
+                       (key,
+                        -dep_dict[key].density,
+                        '09c',
+                        dep_dict[key].temp,
+                        dep_dict[key].vol))
+            for nuc_code, wt_frac in dep_dict[key].comp.items():
+                # Transforms iso name from zas to zzaaam and then to SERPENT
+                iso_name_serpent = pyname.zzaaam(nuc_code)
+                matf.write('           %9s  %7.14E\n' %
+                           (self.iso_map[iso_name_serpent],
+                            -wt_frac))
+        matf.close()

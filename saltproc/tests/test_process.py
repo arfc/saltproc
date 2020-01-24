@@ -14,9 +14,8 @@ serpent = Depcode(codename='SERPENT',
                   exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
                   template_fname=directory+'/template.inp',
                   input_fname=input_file,
-                  output_fname='NONE',
                   iter_matfile=directory+'/material',
-                  geo_file='NONE')
+                  geo_file=None)
 
 process = Process(mass_flowrate=10,
                   capacity=100.0,

@@ -12,7 +12,6 @@ serpent = Depcode(codename='SERPENT',
                   exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
                   template_fname=directory+'/template.inp',
                   input_fname=directory+'/test',
-                  output_fname='NONE',
                   iter_matfile=directory+'/material',
                   geo_file=[os.path.join(directory, '../test_geo.inp')])
 
@@ -118,7 +117,7 @@ def test_read_dep_comp():
 def test_write_mat_file():
     mats = serpent.read_dep_comp(serpent.input_fname, 1)
     mat_file = serpent.input_fname + '.mat'
-    serpent.write_mat_file(mats, mat_file)
+    serpent.write_mat_file(mats, mat_file, 12.0)
     mat_str = serpent.read_depcode_template(mat_file)
     assert mat_str[0] == '% Material compositions (after 12.000000 days)\n'
     if 'fuel' in mat_str[3]:

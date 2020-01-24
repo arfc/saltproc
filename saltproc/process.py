@@ -1,8 +1,6 @@
 from saltproc import Materialflow
 from pyne import nucname as pyname
 import numpy as np
-import json
-import gc
 
 
 class Process():
