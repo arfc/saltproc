@@ -1,7 +1,6 @@
 language: python
 python:
-  - 2.7
-  - 3.6
+  - 3.5
 
 # Setup anaconda
 install:
@@ -32,4 +31,4 @@ install:
 
 # run
 script:
-  - pytest ./saltproc/tests/saltproc_test.py
+  - pytest saltproc

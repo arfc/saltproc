@@ -167,7 +167,7 @@ class Simulation():
         Parameters
         ----------
         mats : dict
-            Dictionaty that contains `Materialflow` objects.
+            Dictionary that contains `Materialflow` objects.
 
             ``key``
                 Name of burnable material.
