@@ -1,46 +1,54 @@
 ## saltproc
-Online fuel salt reprocesing for Molten Salt Reactors
+Online fuel salt reprocessing for Molten Salt Reactors
 [![Build Status](https://travis-ci.org/uwescience/saltproc.svg?branch=master)](https://travis-ci.org/uwescience/saltproc)
 
 How to run script (with default flags):
 
-python run_saltproc.py -n 1 -r /False -bw True/False -steps 5
+python run_saltproc.py -n 1 -d 1 -i None
 ```
--n     		   number of nodes
--r     	           continue previous simulation? True/False
--bw    		   running on Blue Waters? True/False
--steps 	           number of reprocessing steps to run
+-n     		   number of cluster nodes to use in Serpent
+-d     	     number of threads to use in Serpent
+-i    		   path and name of SaltProc main input file
 ```
-### Rooms for Improvement
-Note that the SERPENT input file path, output database file path, and SERPENT mat file path
-are hard-coded in `run_saltproc.py`. The user must edit this to the correct input files.
 
-Note that the executable paths for SERPENT for both the Blue Waters mode and Local mode are
-hardcoded in `saltproc.py`. The user must edit this to the correct executable path.
+### Installation
 
-### How saltproc works:
-Saltproc is a driver for SERPENT to simulate online fuel salt reprocessing for Molten Salt Reactors.
-It performs three major functions:
-  * runs SERPENT
-  * parsers and stores SERPENT output data in hdf5
-  * creates and edits SERPENT input file (`reprocesses`)
+For installation and distribution we will use the python standard
+library `distutils` module. This module uses a `setup.py` file to
+figure out how to install your software on a particular system. For a
+small project such as this one, managing installation of the software
+modules and the data is rather simple. To install SaltProc:
 
-The code logic flow is the following:
-  1. Checks for restart ()
-    * restart ON: it reads from the database and starts where the database took off (`saltproc.reopen_db()`)
-  2. Runs SERPENT (`saltproc.run_serpent()`)
-    * restart OFF : if first run, initializes database with isotopic vectors from the output bumat file (`saltproc.init_db()`)
-  3. 'Processes Fuel' (`saltproc.process_fuel()`)
-    * It parses through the output bumat file to:
-      1. remove isotope groups periodically with specific efficiency
-      2. add back fissile and/or fertile streams
-  4. Records data:
-    * Depleted fuel composition (`core adensity before reproc`)
-    * Reprocessed fuel composition (`core adensity after reproc`)
-    * EOC / BOC Keff (`keff_EOC`, `keff_BOC`)
-    * Th tank inventory (`Th tank adensity`)
-  5. Repeat 2-4.
+	python setup.py install --user
 
+A `saltproc/version.py` contains all of the information needed for the
+installation and for setting up the [PyPI
+page](https://pypi.python.org/pypi/saltproc) for the software. This
+also makes it possible to install your software with using `pip` and
+`easy_install`, which are package managers for Python software. The
+`setup.py` file reads this information from there and passes it to the
+`setup` function which takes care of the rest.
+
+Much more information on packaging Python software can be found in the
+[Hitchhiker's guide to
+packaging](https://the-hitchhikers-guide-to-packaging.readthedocs.org).
+
+### Documentation
+
+The documentation for SaltProc can be found at
+[arfc.github.io/saltproc/](http://arfc.github.io/saltproc/).
+Additionally, the entire contents of that
+website can be built from the doc directory in the source code using the
+following steps
+
+1. `pip install sphinx`
+2. `pip install sphinx_rtd_theme`.
+3. `cd doc/`
+4. `sphinx-apidoc --separate --force --output-dir=src/ ../saltproc`
+5. `make clean`
+6. `make html`
+
+After these steps, the website will be found in `saltproc/doc/_build/html`.
 
 ### Organization of the  project
 
@@ -262,47 +270,6 @@ lowercase-only names for variables and functions.
 The `Makefile` contains an instruction for running this command as well:
 python setup.py install
     make flake8
-
-### Documentation
-
-The documentation for SaltProc can be found at
-[arfc.github.io/saltproc/](http://arfc.github.io/saltproc/).
-Additionally, the entire contents of that
-website can be built from the doc directory in the source code using the
-following steps
-
-1. `pip install sphinx`
-2. `pip install sphinx_rtd_theme`.
-3. `cd doc/`
-4. `sphinx-apidoc --separate --force --output-dir=src/ ../saltproc`
-5. `make clean`
-6. `make html`
-
-After these steps, the website will be found in `saltproc/doc/_build/html`.
-
-
-### Installation
-
-For installation and distribution we will use the python standard
-library `distutils` module. This module uses a `setup.py` file to
-figure out how to install your software on a particular system. For a
-small project such as this one, managing installation of the software
-modules and the data is rather simple. To install SaltProc:
-
-	python setup.py install --user
-
-A `saltproc/version.py` contains all of the information needed for the
-installation and for setting up the [PyPI
-page](https://pypi.python.org/pypi/saltproc) for the software. This
-also makes it possible to install your software with using `pip` and
-`easy_install`, which are package managers for Python software. The
-`setup.py` file reads this information from there and passes it to the
-`setup` function which takes care of the rest.
-
-Much more information on packaging Python software can be found in the
-[Hitchhiker's guide to
-packaging](https://the-hitchhikers-guide-to-packaging.readthedocs.org).
-
 
 ### Continuous integration
 
