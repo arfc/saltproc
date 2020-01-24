@@ -21,6 +21,7 @@ install:
   - conda update -q conda
   - conda create -n pyne-env python=3.5
   - conda init bash
+  - eval "$(conda shell.bash hook)"
   - conda activate pyne-env
   - conda info -a
   - conda install -c anaconda h5py
