@@ -8,7 +8,6 @@ from saltproc import Reactor
 # from materialflow import Materialflow
 import os
 import copy
-import tables as tb
 import json
 from collections import OrderedDict
 import gc
@@ -22,26 +21,40 @@ input_path = os.path.dirname(os.path.abspath(__file__))
 
 input_file = os.path.join(input_path, 'data/saltproc_tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
-compression_prop = tb.Filters(complevel=9, complib='blosc', fletcher32=True)
-# pc_type = 'falcon'  # 'bw', 'falcon', 'pc'
+
+
+def check_restart(restart_flag):
+    """If the user set `Restart simulation from the step when it stopped?`
+    for `False` clean out iteration files and database from previous run.
+
+    Parameters
+    ----------
+    restart_flag : bool
+        Is the current simulation restarted?
+    """
+    if not restart_flag:
+        try:
+            os.remove(db_file)
+            os.remove(iter_matfile)
+            os.remove(input_file)
+        except OSError as e:
+            print("Error while deleting file: ", e)
 
 
 def parse_arguments():
-    """Parse arguments from command line
+    """Parses arguments from command line.
 
     Parameters
     -----------
 
     Returns
     --------
-    steps: int
-        Number of depletion steps
-    nodes: int
-        Number of nodes for use in Serpent simulation
-    cores: int
-        Number of cores for use in Serpent simulation
-    input: str
-        Path and name of main SaltProc input file (json format)
+    n: int
+        Number of nodes for use in Serpent simulation.
+    d: int
+        Number of cores for use in Serpent simulation.
+    i: str
+        Path and name of main SaltProc input file (json format).
 
     """
     parser = argparse.ArgumentParser()
@@ -51,7 +64,7 @@ def parse_arguments():
                         help='number of cluster nodes to use in Serpent')
     parser.add_argument('-d',      # Number of nodes to use
                         type=int,
-                        default=12,
+                        default=1,
                         help='number of threads to use in Serpent')
     parser.add_argument('-i',      # main input file
                         type=str,
@@ -62,12 +75,12 @@ def parse_arguments():
 
 
 def read_main_input(main_inp_file):
-    """ Read main SaltProc input file (json format)
+    """Reads main SaltProc input file (json format).
 
     Parameters
     -----------
-    main_inp_file: str
-        Absolute path to SaltProc main input file and name of this file
+    main_inp_file : str
+        Path to SaltProc main input file and name of this file.
     """
     with open(main_inp_file) as f:
         j = json.load(f)
@@ -128,6 +141,21 @@ def read_main_input(main_inp_file):
 
 
 def read_processes_from_input():
+    """Parses ``removal`` data from `.json` file with `Process` objects
+    description. Then returns dictionary of `Process` objects describing
+    extraction process efficiency for each target chemical element.
+
+    Returns
+    -------
+    mats : dict
+        Dictionary that contains `Process` objects.
+
+        ``key``
+            Name of burnable material.
+        ``value``
+            `Process` object holding extraction process parameters.
+
+    """
     processes = OrderedDict()
     with open(spc_inp_file) as f:
         j = json.load(f)
@@ -141,6 +169,20 @@ def read_processes_from_input():
 
 
 def read_feeds_from_input():
+    """Parses ``feed`` data from `.json` file with `Materialflow` objects
+    description. Then returns dictionary of `Materialflow` objects describing
+    fresh fuel feeds.
+
+    Returns
+    -------
+    mats : dict
+        Dictionary that contains `Materialflow` objects with feeds.
+
+        ``key``
+            Name of burnable material.
+        ``value``
+            `Materialflow` object holding composition and properties of feed.
+    """
     feeds = OrderedDict()
     with open(spc_inp_file) as f:
         j = json.load(f)
@@ -154,22 +196,23 @@ def read_feeds_from_input():
                 feeds[mat][obj_name].mass = obj_data['mass']
                 feeds[mat][obj_name].density = obj_data['density']
                 feeds[mat][obj_name].vol = obj_data['volume']
-        # print(feeds['fuel']['leu'])
-        # print(feeds['ctrlPois']['pure_gd'])
-        # print(feeds['fuel']['leu'].print_attr())
         return feeds
 
 
 def read_dot(dot_file):
-    """Reads directed graph from `*.dot` files.
+    """Reads directed graph that describes fuel reprocessing system structure
+    from `*.dot` file.
 
     Parameters
     ----------
+    dot_file : str
+        Path to `.dot` file with reprocessing system structure.
 
     Returns
     --------
-    digraph: networkx.classes.multidigraph.MultiDiGraph Object
-        Directed graph describes reprocessing system as NetworkX MultiDiGraph.
+    mat_name : str
+        Name of burnable material which reprocessing scheme described in `.dot`
+        file.
 
     """
     graph_pydot = pydotplus.graph_from_dot_file(dot_file)
@@ -186,27 +229,40 @@ def read_dot(dot_file):
 
 
 def reprocessing(mat):
-    """Applies reprocessing scheme to selected material
+    """Applies reprocessing scheme to burnable materials.
 
     Parameters
     -----------
-    mat: Materialflow object`
-        Material data right after irradiation in the core/vesel
+    mats : dict
+        Dictionary that contains `Materialflow` objects with burnable material
+        data right after irradiation in the core.
+
+        ``key``
+            Name of burnable material.
+        ``value``
+            `Materialflow` object holding composition and properties.
 
     Returns
     --------
-    out: Materialflow object
-        Material data after performing all removals
-    waste: dictionary
-        key: process name
-        value: Materialflow object containing waste streams data
+    waste : dict
+
+        ``key``
+            Process name.
+        ``value``
+            `Materialflow` object containing waste streams data.
+    extracted_mass: dict
+
+        ``key``
+            Name of burnable material.
+        ``value``
+            Mass removed as waste in reprocessing function for each material
+            (g).
 
     """
     inmass = {}
     extracted_mass = {}
     waste = OrderedDict()
     forked_mat = OrderedDict()
-    # out = OrderedDict()
     prcs = read_processes_from_input()
     mat_name_dot, paths = read_dot(dot_inp_file)
     for mname in prcs.keys():  # iterate over materials
@@ -257,23 +313,38 @@ def reprocessing(mat):
 
 
 def refill(mat, extracted_mass, waste_dict):
-    """ Applies reprocessing scheme to selected material
+    """Makes up material loss in removal processes by adding fresh fuel.
 
     Parameters
     -----------
-    mat: dictionary
-        key: Material name
-        value: Materialflow object`
-        Material data right after reprocessing plant
-    extracted_mass: dictionary
-        key: Material name
-        value: float
-        Mass removed as waste in reprocessing function for each material
+    mat : dict
+
+        ``key``
+            Name of burnable material.
+        ``value``
+            `Materialflow` object after performing all removals.
+    extracted_mass: dict
+
+        ``key``
+            Name of burnable material.
+        ``value``
+            Mass removed as waste in reprocessing function for each material.
+    waste : dict
+
+        ``key``
+            Process name.
+        ``value``
+            `Materialflow` object containing waste streams data.
 
     Returns
     --------
-    refill_stream: Materialflow object
-        Material data after refill
+    dict
+        Dictionary that contains `Materialflow` objects.
+
+        ``key``
+            Name of burnable material.
+        ``value``
+            `Materialflow` object after adding fresh fuel.
     """
     print('Fuel before refill ^^^', mat['fuel'].print_attr())
     feeds = read_feeds_from_input()
@@ -295,18 +366,8 @@ def refill(mat, extracted_mass, waste_dict):
     return waste_dict
 
 
-def check_restart():
-    if not restart_flag:
-        try:
-            os.remove(db_file)
-            os.remove(iter_matfile)
-            os.remove(input_file)
-        except OSError as e:
-            print("Error while deleting file: ", e)
-
-
 def run():
-    """ Inititializes main run
+    """ Inititializes main run.
     """
     # Parse arguments from command-lines
     nodes, cores, sp_input = parse_arguments()
@@ -326,30 +387,30 @@ def run():
           # '\tOutput DB File Path = ' + db_file + '\n'
           )
     # Intializing objects
-    serpent = Depcode(codename='SERPENT',
-                      exec_path=exec_path,
-                      template_fname=template_file,
-                      input_fname=input_file,
-                      output_fname='NONE',
-                      iter_matfile=iter_matfile,
-                      geo_file=geo_file,
-                      npop=neutron_pop,
-                      active_cycles=active_cycles,
-                      inactive_cycles=inactive_cycles)
-    simulation = Simulation(sim_name='Super test',
-                            sim_depcode=serpent,
-                            core_number=cores,
-                            node_number=nodes,
-                            h5_file=db_file,
-                            compression=compression_prop,
-                            iter_matfile=iter_matfile,
-                            timesteps=len(depl_hist))
-    msr = Reactor(volume=1.0,
-                  mass_flowrate=core_massflow_rate,
-                  power_levels=power_hist,
-                  depl_hist=depl_hist)
+    serpent = Depcode(
+                codename='SERPENT',
+                exec_path=exec_path,
+                template_fname=template_file,
+                input_fname=input_file,
+                iter_matfile=iter_matfile,
+                geo_file=geo_file,
+                npop=neutron_pop,
+                active_cycles=active_cycles,
+                inactive_cycles=inactive_cycles)
+    simulation = Simulation(
+                sim_name='Super test',
+                sim_depcode=serpent,
+                core_number=cores,
+                node_number=nodes,
+                h5_file=db_file,
+                iter_matfile=iter_matfile)
+    msr = Reactor(
+                volume=1.0,
+                mass_flowrate=core_massflow_rate,
+                power_levels=power_hist,
+                depl_hist=depl_hist)
     # Check: Restarting previous simulation or starting new?
-    check_restart()
+    check_restart(restart_flag)
     # Run sequence
     # Start sequence
     for dts in range(len(depl_hist)):
@@ -391,7 +452,7 @@ def run():
         print("Removed mass [g]:", rem_mass)
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_st, dts)
-        serpent.write_mat_file(mats, iter_matfile, dts)
+        serpent.write_mat_file(mats, iter_matfile, simulation.burn_time)
         del mats, waste_st, rem_mass
         gc.collect()
         # Switch to another geometry?

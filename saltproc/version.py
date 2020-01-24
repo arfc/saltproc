@@ -87,4 +87,11 @@ VERSION = __version__
 PACKAGE_DATA = {'saltproc': [pjoin('data', '*')]}
 PACKAGES = ["saltproc",
             "saltproc.tests"]
-REQUIRES = ["numpy", "pyne", "networkx", "pydotplus", "pytest"]
+REQUIRES = ["numpy",
+            "pyne",
+            "networkx",
+            "pydotplus",
+            "pytest",
+            "argparse",
+            "os",
+            "copy"]

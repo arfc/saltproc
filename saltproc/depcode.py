@@ -1,16 +1,10 @@
 from saltproc import Materialflow
 import subprocess
 import os
-import copy
 import shutil
-from re import compile
 import re
-from scipy import constants as const
-from collections import OrderedDict
 from pyne import nucname as pyname
 from pyne import serpent
-from pyne import data as pydata
-from pyne.material import Material as pymat
 
 
 class Depcode:
@@ -260,7 +254,7 @@ class Depcode:
         Returns
         -------
         mats : dict
-            Dictionaty that contains `Materialflow` objects.
+            Dictionary that contains `Materialflow` objects.
 
             ``key``
                 Name of burnable material.
@@ -503,7 +497,7 @@ class Depcode:
         Parameters
         ----------
         mats : dict
-            Dictionaty that contains `Materialflow` objects.
+            Dictionary that contains `Materialflow` objects.
 
             ``key``
                 Name of burnable material.
