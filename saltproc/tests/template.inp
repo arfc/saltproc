@@ -1,5 +1,5 @@
-include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/saltproc_prepr_comp.ini"
-include "/home/andrei2/Desktop/git/ta_xe_equilibrium_test/mat_comp/non_burnable_mats.ini"
+include "../../examples/mats/saltproc_prepr_comp.ini"
+include "../../examples/mats/non_burnable_mats.ini"
 
 
 

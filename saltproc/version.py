@@ -92,6 +92,4 @@ REQUIRES = ["numpy",
             "networkx",
             "pydotplus",
             "pytest",
-            "argparse",
-            "os",
-            "copy"]
+            "argparse"]

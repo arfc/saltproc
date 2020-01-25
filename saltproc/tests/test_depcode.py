@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(path)))
 directory = os.path.dirname(path)
 
 serpent = Depcode(codename='SERPENT',
-                  exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
+                  exec_path='sss2',
                   template_fname=directory+'/template.inp',
                   input_fname=directory+'/test',
                   iter_matfile=directory+'/material',
@@ -155,6 +155,7 @@ def test_replace_burnup_parameters():
         assert d_new[8].split()[4] == 'daystep'
         assert d_new[8].split()[2] == str("%5.9E" % msr.power_levels[idx])
         assert d_new[8].split()[5] == str("%7.5E" % depsteps[idx])
+        os.remove(serpent.template_fname+str(idx))
 
 
 def test_create_iter_matfile():

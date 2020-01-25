@@ -1,5 +1,5 @@
-include "/home/andrei2/Desktop/git/saltproc/develop/examples/mats/saltproc_prepr_comp.ini"
-include "/home/andrei2/Desktop/git/saltproc/develop/examples/mats/non_burnable_mats.ini"
+include "../../../../examples/mats/saltproc_prepr_comp.ini"
+include "../../../../examples/mats/non_burnable_mats.ini"
 
 
 
