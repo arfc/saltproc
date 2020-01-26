@@ -47,10 +47,10 @@ def test_sss_meta_zzz():
 
 def test_read_depcode_template():
     template_str = serpent.read_depcode_template(serpent.template_fname)
+    assert template_str[6]  == '%therm zrh_h 900 hzr05.32t hzr06.32t\n'
     assert template_str[18] == 'set pop 30 20 10\n'
     assert template_str[22] == 'set bumode  2\n'
     assert template_str[23] == 'set pcc     1\n'
-    assert template_str[28] == 'set power 1.250E+09 dep daytot 3\n'
 
 
 def test_change_sim_par():
@@ -142,7 +142,6 @@ def test_replace_burnup_parameters():
     time = msr.depl_hist.copy()
     time.insert(0, 0.0)
     depsteps = np.diff(time)
-    print(depsteps, msr.depl_hist[0])
     d = serpent.read_depcode_template(serpent.template_fname)
     for idx in range(len(msr.power_levels)):
         d = serpent.replace_burnup_parameters(d,
@@ -162,3 +161,20 @@ def test_create_iter_matfile():
     d = serpent.read_depcode_template(serpent.template_fname)
     out = serpent.create_iter_matfile(d)
     assert out[0].split()[-1] == '\"' + serpent.iter_matfile + '\"'
+    os.remove(serpent.iter_matfile)
+
+
+def test_write_depcode_input():
+    serpent.write_depcode_input(serpent.template_fname,
+                                serpent.input_fname+'_write_test',
+                                msr,
+                                0)
+    d = serpent.read_depcode_template(serpent.input_fname+'_write_test')
+    assert d[0].split('/')[7] == 'tests'
+    assert d[0].split('/')[8] == 'material"\n'
+    assert d[8].split()[2] == '1.250000000E+09'
+    assert d[8].split()[4] == 'daystep'
+    assert d[8].split()[-1] == '1.11111E+02'
+    assert d[20] == 'set pop 1111 101 33\n'
+    os.remove(serpent.input_fname+'_write_test')
+    os.remove(serpent.iter_matfile)
