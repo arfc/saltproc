@@ -1,6 +1,6 @@
 ## saltproc
 Online fuel salt reprocessing for Molten Salt Reactors
-[![Build Status](https://travis-ci.org/uwescience/saltproc.svg?branch=master)](https://travis-ci.org/uwescience/saltproc)
+[![Build Status](https://travis-ci.org/andrewryh/saltproc.svg?branch=develop)](https://travis-ci.org/andrewryh/saltproc)
 
 How to run script (with default flags):
 
