@@ -29,4 +29,4 @@ install:
 
 # run
 script:
-  - pytest saltproc
+  - pytest --ignore tests/integration_tests saltproc

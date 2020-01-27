@@ -47,7 +47,7 @@ def test_sss_meta_zzz():
 
 def test_read_depcode_template():
     template_str = serpent.read_depcode_template(serpent.template_fname)
-    assert template_str[6]  == '%therm zrh_h 900 hzr05.32t hzr06.32t\n'
+    assert template_str[6] == '%therm zrh_h 900 hzr05.32t hzr06.32t\n'
     assert template_str[18] == 'set pop 30 20 10\n'
     assert template_str[22] == 'set bumode  2\n'
     assert template_str[23] == 'set pcc     1\n'
