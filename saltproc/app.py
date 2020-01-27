@@ -113,10 +113,9 @@ def read_main_input(main_inp_file):
         global geo_file
         if adjust_geo:
             geo_list = j["Geometry file/files to use in Serpent runs"]
-            geo_file = [os.path.dirname(f.name) + '/' + g for g in geo_list]
+            geo_file = [g for g in geo_list]
         elif not adjust_geo:
-            geo_file = [os.path.dirname(f.name)+'/' +
-                        j["Geometry file/files to use in Serpent runs"]]
+            geo_file = [j["Geometry file/files to use in Serpent runs"]]
         core_massflow_rate = \
             j["Salt mass flow rate throughout reactor core (g/s)"]
         global depl_hist, power_hist

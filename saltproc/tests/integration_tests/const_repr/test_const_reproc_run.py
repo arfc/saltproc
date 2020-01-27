@@ -122,7 +122,7 @@ def assert_h5_almost_equal(db, dbe):
 
 
 @pytest.mark.slow
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_integration_2step_constant_ideal_removal_heavy():
     # app.run()
     subprocess.check_call([

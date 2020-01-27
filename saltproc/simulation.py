@@ -440,3 +440,5 @@ class Simulation():
             print("Last keff_eds", k_eds)
             if k_eds[-1] - avrg_keff_drop < 1.0:
                 return True
+            else:
+                return False
