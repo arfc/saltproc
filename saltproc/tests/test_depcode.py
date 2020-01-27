@@ -170,8 +170,9 @@ def test_write_depcode_input():
                                 msr,
                                 0)
     d = serpent.read_depcode_template(serpent.input_fname+'_write_test')
-    assert d[0].split('/')[7] == 'tests'
-    assert d[0].split('/')[8] == 'material"\n'
+    print(d[0])
+    assert d[0].split('/')[-2] == 'tests'
+    assert d[0].split('/')[-1] == 'material"\n'
     assert d[8].split()[2] == '1.250000000E+09'
     assert d[8].split()[4] == 'daystep'
     assert d[8].split()[-1] == '1.11111E+02'

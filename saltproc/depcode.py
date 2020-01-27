@@ -216,7 +216,6 @@ class Depcode:
             if 'c  TRA' in line or 'c  DEC' in line:
                 line = line.split()
                 iname, zzaaam = self.get_nuc_name(line[2])
-                # print (zzaaam, line[2], iname, imass)
                 map_dict.update({zzaaam: line[2]})
         self.iso_map = map_dict
 
