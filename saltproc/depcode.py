@@ -24,44 +24,43 @@ class Depcode:
                  npop=50,
                  active_cycles=20,
                  inactive_cycles=20):
-            """ Initializes the Depcode object.
+        """Initializes the Depcode object.
 
-            Parameters
-            ----------
-            codename : str
-                Name of depletion code.
-            exec_path : str
-                Path to depletion code executable.
-            template_fname : str
-                Path to user input file for depletion code.
-            input_fname : str
-                Name of input file for depletion code rerunning.
-            iter_matfile : str
-                Name of iterative, rewritable material file for depletion code
-                rerunning. This file is being modified during simulation.
-            geo_file : str or list
-                Path to file that contains the reactor geometry.
-                List of `str` if reactivity control by
-                switching geometry is `On` or just `str` otherwise.
-            npop : int
-                Size of neutron population per cycle for Monte Carlo.
-            active_cycles : int
-                Number of active cycles.
-            inactive_cycles : int
-                Number of inactive cycles.
-            """
-            # initialize all object attributes
-            self.codename = codename
-            self.exec_path = exec_path
-            self.template_fname = template_fname
-            self.input_fname = input_fname
-            self.iter_matfile = iter_matfile
-            self.geo_file = geo_file
-            self.npop = npop
-            self.active_cycles = active_cycles
-            self.inactive_cycles = inactive_cycles
-            self.param = {}
-            self.sim_info = {}
+        Parameters
+        ----------
+        codename : str
+            Name of depletion code.
+        exec_path : str
+            Path to depletion code executable.
+        template_fname : str
+            Path to user input file for depletion code.
+        input_fname : str
+            Name of input file for depletion code rerunning.
+        iter_matfile : str
+            Name of iterative, rewritable material file for depletion code
+            rerunning. This file is being modified during simulation.
+        geo_file : str or list
+            Path to file that contains the reactor geometry.
+            List of `str` if reactivity control by
+            switching geometry is `On` or just `str` otherwise.
+        npop : int
+            Size of neutron population per cycle for Monte Carlo.
+        active_cycles : int
+            Number of active cycles.
+        inactive_cycles : int
+            Number of inactive cycles.
+        """
+        self.codename = codename
+        self.exec_path = exec_path
+        self.template_fname = template_fname
+        self.input_fname = input_fname
+        self.iter_matfile = iter_matfile
+        self.geo_file = geo_file
+        self.npop = npop
+        self.active_cycles = active_cycles
+        self.inactive_cycles = inactive_cycles
+        self.param = {}
+        self.sim_info = {}
 
     def change_sim_par(self, data):
         """Finds simulation parameters (neutron population, cycles) in input
