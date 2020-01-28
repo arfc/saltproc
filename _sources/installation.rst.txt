@@ -3,7 +3,7 @@ Installation
 
 SaltProc has the following dependencies:
 
-  #. `Serpent`_ (>=2.1.29)
+  #. `Serpent`_ (>=2.1.31)
   #. `PyNE`_ (>=0.5.11)
   #. `Python 3.5`_
   #. `NumPy`_ (>=1.14.0)
