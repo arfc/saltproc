@@ -152,7 +152,7 @@
 <span id="saltproc-materialflow-module"></span><h1>saltproc.materialflow module<a class="headerlink" href="#module-saltproc.materialflow" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="saltproc.materialflow.Materialflow">
-<em class="property">class </em><code class="sig-prename descclassname">saltproc.materialflow.</code><code class="sig-name descname">Materialflow</code><span class="sig-paren">(</span><em class="sig-param">comp=None</em>, <em class="sig-param">mass=-1.0</em>, <em class="sig-param">density=1.0</em>, <em class="sig-param">atoms_per_molecule=-1.0</em>, <em class="sig-param">metadata=None</em>, <em class="sig-param">vol=1.0</em>, <em class="sig-param">temp=900</em>, <em class="sig-param">mass_flowrate=0.0</em>, <em class="sig-param">void_frac=0.0</em>, <em class="sig-param">burnup=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">saltproc.materialflow.</code><code class="sig-name descname">Materialflow</code><span class="sig-paren">(</span><em class="sig-param">comp=None</em>, <em class="sig-param">mass=-1.0</em>, <em class="sig-param">density=1.0</em>, <em class="sig-param">atoms_per_molecule=-1.0</em>, <em class="sig-param">metadata=None</em>, <em class="sig-param">vol=1.0</em>, <em class="sig-param">temp=900</em>, <em class="sig-param">mass_flowrate=0.0</em>, <em class="sig-param">void_frac=0.0</em>, <em class="sig-param">burnup=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pyne.material.Material</span></code></p>
 <p>Class contains information about burnable material flow. Based on PyNE
 Material.</p>
@@ -163,7 +163,7 @@ Material.</p>
 
 <dl class="method">
 <dt id="saltproc.materialflow.Materialflow.__add__">
-<code class="sig-name descname">__add__</code><span class="sig-paren">(</span><em class="sig-param">y</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.__add__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__add__</code><span class="sig-paren">(</span><em class="sig-param">y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.__add__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.__add__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overrides Python adding operation for Materialflow objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -183,7 +183,7 @@ Material.</p>
 
 <dl class="method">
 <dt id="saltproc.materialflow.Materialflow.__deepcopy__">
-<code class="sig-name descname">__deepcopy__</code><span class="sig-paren">(</span><em class="sig-param">memo</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.__deepcopy__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__deepcopy__</code><span class="sig-paren">(</span><em class="sig-param">memo</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.__deepcopy__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.__deepcopy__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a deep copy of compound object <cite>self</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -203,11 +203,11 @@ Material.</p>
 
 <dl class="method">
 <dt id="saltproc.materialflow.Materialflow.__eq__">
-<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param">other</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.__eq__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overrides Python <code class="docutils literal notranslate"><span class="pre">=</span></code> operation to compare two Materialflow objects.
-Compares objects total mass, density, atoms_per_molecule, temperature,
-mass flowrate, and masses of important isotopes: uranium-235 and
-uranium-238.</p>
+<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param">other</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.__eq__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides Python <code class="docutils literal notranslate"><span class="pre">=</span></code> operation to compare two Materialflow
+objects. Compares objects total mass, density, atoms_per_molecule,
+temperature, mass flowrate, and masses of important isotopes:
+uranium-235 and uranium-238.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>other</strong> (<em>obj</em>) – Materialflow object to compare with.</p>
@@ -223,7 +223,7 @@ uranium-238.</p>
 
 <dl class="method">
 <dt id="saltproc.materialflow.Materialflow.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">comp=None</em>, <em class="sig-param">mass=-1.0</em>, <em class="sig-param">density=1.0</em>, <em class="sig-param">atoms_per_molecule=-1.0</em>, <em class="sig-param">metadata=None</em>, <em class="sig-param">vol=1.0</em>, <em class="sig-param">temp=900</em>, <em class="sig-param">mass_flowrate=0.0</em>, <em class="sig-param">void_frac=0.0</em>, <em class="sig-param">burnup=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">comp=None</em>, <em class="sig-param">mass=-1.0</em>, <em class="sig-param">density=1.0</em>, <em class="sig-param">atoms_per_molecule=-1.0</em>, <em class="sig-param">metadata=None</em>, <em class="sig-param">vol=1.0</em>, <em class="sig-param">temp=900</em>, <em class="sig-param">mass_flowrate=0.0</em>, <em class="sig-param">void_frac=0.0</em>, <em class="sig-param">burnup=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the Materialflow object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -241,7 +241,7 @@ mass, atoms_per_molecule, metadata</p></li>
 
 <dl class="method">
 <dt id="saltproc.materialflow.Materialflow.__rmul__">
-<code class="sig-name descname">__rmul__</code><span class="sig-paren">(</span><em class="sig-param">scaling_factor</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.__rmul__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__rmul__</code><span class="sig-paren">(</span><em class="sig-param">scaling_factor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.__rmul__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.__rmul__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overrides Python multiplication operation for Materialflow objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -343,8 +343,9 @@ the set nucset. This function returns a copy of the material.</p>
 
 <dl class="method">
 <dt id="saltproc.materialflow.Materialflow.copy_pymat_attrs">
-<code class="sig-name descname">copy_pymat_attrs</code><span class="sig-paren">(</span><em class="sig-param">src</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.copy_pymat_attrs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Copies PyNE attributites from source object (<cite>src</cite>) to target object.</p>
+<code class="sig-name descname">copy_pymat_attrs</code><span class="sig-paren">(</span><em class="sig-param">src</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.copy_pymat_attrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.copy_pymat_attrs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copies PyNE attributites from source object (<cite>src</cite>) to target
+object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>src</strong> (<em>obj</em>) – Materialflow object to copy attributes from.</p>
@@ -731,7 +732,7 @@ Initialization is therefore a two-step process:</p>
 
 <dl class="method">
 <dt id="saltproc.materialflow.Materialflow.get_mass">
-<code class="sig-name descname">get_mass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.get_mass" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_mass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.get_mass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.get_mass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns total mass of the material descibed in Materialflow object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -921,13 +922,13 @@ intensities</p>
 
 <dl class="method">
 <dt id="saltproc.materialflow.Materialflow.print_attr">
-<code class="sig-name descname">print_attr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.print_attr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">print_attr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.print_attr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.print_attr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints various attributes of Materialflow object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="saltproc.materialflow.Materialflow.scale_matflow">
-<code class="sig-name descname">scale_matflow</code><span class="sig-paren">(</span><em class="sig-param">f=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.scale_matflow" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scale_matflow</code><span class="sig-paren">(</span><em class="sig-param">f=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.scale_matflow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.scale_matflow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns nuclide vector dictionary, obtained from object attrs and
 then scaled by factor.</p>
 <dl class="field-list simple">

@@ -152,7 +152,7 @@
 <span id="saltproc-depcode-module"></span><h1>saltproc.depcode module<a class="headerlink" href="#module-saltproc.depcode" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="saltproc.depcode.Depcode">
-<em class="property">class </em><code class="sig-prename descclassname">saltproc.depcode.</code><code class="sig-name descname">Depcode</code><span class="sig-paren">(</span><em class="sig-param">codename='Serpent'</em>, <em class="sig-param">exec_path='sss2'</em>, <em class="sig-param">template_fname='reactor.serpent'</em>, <em class="sig-param">input_fname='data/saltproc_reactor'</em>, <em class="sig-param">iter_matfile='data/saltproc_mat'</em>, <em class="sig-param">geo_file=None</em>, <em class="sig-param">npop=50</em>, <em class="sig-param">active_cycles=20</em>, <em class="sig-param">inactive_cycles=20</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">saltproc.depcode.</code><code class="sig-name descname">Depcode</code><span class="sig-paren">(</span><em class="sig-param">codename='Serpent'</em>, <em class="sig-param">exec_path='sss2'</em>, <em class="sig-param">template_fname='reactor.serpent'</em>, <em class="sig-param">input_fname='data/saltproc_reactor'</em>, <em class="sig-param">iter_matfile='data/saltproc_mat'</em>, <em class="sig-param">geo_file=None</em>, <em class="sig-param">npop=50</em>, <em class="sig-param">active_cycles=20</em>, <em class="sig-param">inactive_cycles=20</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class contains information about input, output, geometry, and template
 file for running depletion simulation code. Also contains neutrons
@@ -160,7 +160,7 @@ population, active and inactive cycle. Contains methods to read template
 and output, write new input for the depletion code.</p>
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">codename='Serpent'</em>, <em class="sig-param">exec_path='sss2'</em>, <em class="sig-param">template_fname='reactor.serpent'</em>, <em class="sig-param">input_fname='data/saltproc_reactor'</em>, <em class="sig-param">iter_matfile='data/saltproc_mat'</em>, <em class="sig-param">geo_file=None</em>, <em class="sig-param">npop=50</em>, <em class="sig-param">active_cycles=20</em>, <em class="sig-param">inactive_cycles=20</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">codename='Serpent'</em>, <em class="sig-param">exec_path='sss2'</em>, <em class="sig-param">template_fname='reactor.serpent'</em>, <em class="sig-param">input_fname='data/saltproc_reactor'</em>, <em class="sig-param">iter_matfile='data/saltproc_mat'</em>, <em class="sig-param">geo_file=None</em>, <em class="sig-param">npop=50</em>, <em class="sig-param">active_cycles=20</em>, <em class="sig-param">inactive_cycles=20</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the Depcode object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -184,9 +184,9 @@ switching geometry is <cite>On</cite> or just <cite>str</cite> otherwise.</p></l
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.change_sim_par">
-<code class="sig-name descname">change_sim_par</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.change_sim_par" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds simulation parameters (neutron population, cycles) in input file
-and change those to parameters from SaltProc input.</p>
+<code class="sig-name descname">change_sim_par</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.change_sim_par"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.change_sim_par" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds simulation parameters (neutron population, cycles) in input
+file and change those to parameters from SaltProc input.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>list</em>) – List of strings parsed from user template file.</p>
@@ -203,7 +203,7 @@ simulation parameters.</p>
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.create_iter_matfile">
-<code class="sig-name descname">create_iter_matfile</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.create_iter_matfile" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_iter_matfile</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.create_iter_matfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.create_iter_matfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds <code class="docutils literal notranslate"><span class="pre">include</span></code> line with path to material file, copies content of
 this file to iteration material file, changes path in <code class="docutils literal notranslate"><span class="pre">include</span></code> line
 to newly created iteration material file.</p>
@@ -222,11 +222,11 @@ to newly created iteration material file.</p>
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.get_nuc_name">
-<code class="sig-name descname">get_nuc_name</code><span class="sig-paren">(</span><em class="sig-param">nuc_code</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.get_nuc_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns nuclide name in human-readable notation: chemical symbol (one
-or two characters), dash, and the atomic weight. Lastly, if the nuclide
-is in metastable state, the letter <cite>m</cite> is concatenated with number of
-excited state. For example, <cite>Am-242m1</cite>.</p>
+<code class="sig-name descname">get_nuc_name</code><span class="sig-paren">(</span><em class="sig-param">nuc_code</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.get_nuc_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.get_nuc_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns nuclide name in human-readable notation: chemical symbol
+(one or two characters), dash, and the atomic weight. Lastly, if the
+nuclide is in metastable state, the letter <cite>m</cite> is concatenated with
+number of excited state. For example, <cite>Am-242m1</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>nuc_code</strong> (<em>str</em>) – Name of nuclide in Serpent form. For instance, <cite>Am-242m</cite>.</p>
@@ -243,9 +243,10 @@ excited state. For example, <cite>Am-242m1</cite>.</p>
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.get_tra_or_dec">
-<code class="sig-name descname">get_tra_or_dec</code><span class="sig-paren">(</span><em class="sig-param">input_file</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.get_tra_or_dec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the isotopes map to transform isotope <cite>zzaaam</cite> code to Serpent.
-Uses Serpent <cite>*.out</cite> file with list of all isotopes in simulation.</p>
+<code class="sig-name descname">get_tra_or_dec</code><span class="sig-paren">(</span><em class="sig-param">input_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.get_tra_or_dec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.get_tra_or_dec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the isotopes map to transform isotope <cite>zzaaam</cite> code to
+Serpent. Uses Serpent <cite>*.out</cite> file with list of all isotopes in
+simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_file</strong> (<em>str</em>) – Serpent input file name and path.</p>
@@ -271,7 +272,7 @@ isotope or 982510 for decay only isotope).</p>
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.insert_path_to_geometry">
-<code class="sig-name descname">insert_path_to_geometry</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.insert_path_to_geometry" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">insert_path_to_geometry</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.insert_path_to_geometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.insert_path_to_geometry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inserts <code class="docutils literal notranslate"><span class="pre">include</span> <span class="pre">&lt;first_geometry_file&gt;</span></code> line on th 6th line of
 Serpent input file.</p>
 <dl class="field-list simple">
@@ -289,7 +290,7 @@ Serpent input file.</p>
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.read_dep_comp">
-<code class="sig-name descname">read_dep_comp</code><span class="sig-paren">(</span><em class="sig-param">input_file</em>, <em class="sig-param">moment</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.read_dep_comp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">read_dep_comp</code><span class="sig-paren">(</span><em class="sig-param">input_file</em>, <em class="sig-param">moment</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.read_dep_comp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.read_dep_comp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the Serpent <cite>*_dep.m</cite> file and returns dictionary with
 <cite>Materialflow</cite> object for each burnable material.</p>
 <dl class="field-list simple">
@@ -318,21 +319,21 @@ refers the beginning, <cite>1</cite> refers the end of depletion step.</p></li>
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.read_depcode_info">
-<code class="sig-name descname">read_depcode_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.read_depcode_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">read_depcode_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.read_depcode_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.read_depcode_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses initial simulation info data from Serpent output and stores
 it in <cite>Depcode</cite> object <code class="docutils literal notranslate"><span class="pre">sim_info</span></code> attributes.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.read_depcode_step_param">
-<code class="sig-name descname">read_depcode_step_param</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.read_depcode_step_param" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">read_depcode_step_param</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.read_depcode_step_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.read_depcode_step_param" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses data from Serpent output for each step and stores it in
 <cite>Depcode</cite> object <code class="docutils literal notranslate"><span class="pre">param</span></code> attributes.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.read_depcode_template">
-<code class="sig-name descname">read_depcode_template</code><span class="sig-paren">(</span><em class="sig-param">template_fname</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.read_depcode_template" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">read_depcode_template</code><span class="sig-paren">(</span><em class="sig-param">template_fname</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.read_depcode_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.read_depcode_template" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads prepared template (input) file for depeletion code for further
 changes in the file to prepare input file for multiple runs.</p>
 <dl class="field-list simple">
@@ -350,7 +351,7 @@ changes in the file to prepare input file for multiple runs.</p>
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.replace_burnup_parameters">
-<code class="sig-name descname">replace_burnup_parameters</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">reactor</em>, <em class="sig-param">current_depstep_idx</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.replace_burnup_parameters" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">replace_burnup_parameters</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">reactor</em>, <em class="sig-param">current_depstep_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.replace_burnup_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.replace_burnup_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds or replaces <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">power</span> <span class="pre">P</span> <span class="pre">dep</span> <span class="pre">daystep</span> <span class="pre">DEPSTEP</span></code> line in Serpent
 input file. The line defines depletion history and power levels with
 depletion step in the single run and activates depletion calculation
@@ -375,7 +376,7 @@ depletion time for the integration test.</p></li>
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.run_depcode">
-<code class="sig-name descname">run_depcode</code><span class="sig-paren">(</span><em class="sig-param">cores</em>, <em class="sig-param">nodes</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.run_depcode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run_depcode</code><span class="sig-paren">(</span><em class="sig-param">cores</em>, <em class="sig-param">nodes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.run_depcode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.run_depcode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs depletion code as subprocess with the given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -389,7 +390,7 @@ depletion time for the integration test.</p></li>
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.sss_meta_zzz">
-<code class="sig-name descname">sss_meta_zzz</code><span class="sig-paren">(</span><em class="sig-param">nuc_code</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.sss_meta_zzz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sss_meta_zzz</code><span class="sig-paren">(</span><em class="sig-param">nuc_code</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.sss_meta_zzz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.sss_meta_zzz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks Serpent-specific meta stable-flag for zzaaam. For instance,
 47310 instead of 471101 for <cite>Ag-110m1</cite>. Metastable isotopes represented
 with <cite>aaa</cite> started with <code class="docutils literal notranslate"><span class="pre">3</span></code>.</p>
@@ -408,7 +409,7 @@ with <cite>aaa</cite> started with <code class="docutils literal notranslate"><s
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.write_depcode_input">
-<code class="sig-name descname">write_depcode_input</code><span class="sig-paren">(</span><em class="sig-param">template_file</em>, <em class="sig-param">input_file</em>, <em class="sig-param">reactor</em>, <em class="sig-param">dts</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.write_depcode_input" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_depcode_input</code><span class="sig-paren">(</span><em class="sig-param">template_file</em>, <em class="sig-param">input_file</em>, <em class="sig-param">reactor</em>, <em class="sig-param">dts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.write_depcode_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.write_depcode_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes prepared data into the depletion code input file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -431,7 +432,7 @@ depletion time for the integration test.</p></li>
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.write_mat_file">
-<code class="sig-name descname">write_mat_file</code><span class="sig-paren">(</span><em class="sig-param">dep_dict</em>, <em class="sig-param">mat_file</em>, <em class="sig-param">cumulative_time_at_eds</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.depcode.Depcode.write_mat_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_mat_file</code><span class="sig-paren">(</span><em class="sig-param">dep_dict</em>, <em class="sig-param">mat_file</em>, <em class="sig-param">cumulative_time_at_eds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.write_mat_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.write_mat_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the iteration input file containing burnable materials
 composition used in depletion runs and updated after each depletion
 step.</p>

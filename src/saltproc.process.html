@@ -152,13 +152,13 @@
 <span id="saltproc-process-module"></span><h1>saltproc.process module<a class="headerlink" href="#module-saltproc.process" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="saltproc.process.Process">
-<em class="property">class </em><code class="sig-prename descclassname">saltproc.process.</code><code class="sig-name descname">Process</code><span class="sig-paren">(</span><em class="sig-param">mass_flowrate=0.0</em>, <em class="sig-param">capacity=0.0</em>, <em class="sig-param">volume=0.0</em>, <em class="sig-param">efficiency=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.process.Process" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">saltproc.process.</code><code class="sig-name descname">Process</code><span class="sig-paren">(</span><em class="sig-param">mass_flowrate=0.0</em>, <em class="sig-param">capacity=0.0</em>, <em class="sig-param">volume=0.0</em>, <em class="sig-param">efficiency=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class describes process which must be applied to Materialflow to change
 burnable material composition.</p>
 <dl class="method">
 <dt id="saltproc.process.Process.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">mass_flowrate=0.0</em>, <em class="sig-param">capacity=0.0</em>, <em class="sig-param">volume=0.0</em>, <em class="sig-param">efficiency=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.process.Process.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">mass_flowrate=0.0</em>, <em class="sig-param">capacity=0.0</em>, <em class="sig-param">volume=0.0</em>, <em class="sig-param">efficiency=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the Process object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -181,7 +181,7 @@ can handle (g/s)</p></li>
 
 <dl class="method">
 <dt id="saltproc.process.Process.check_mass_conservation">
-<code class="sig-name descname">check_mass_conservation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.process.Process.check_mass_conservation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">check_mass_conservation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.check_mass_conservation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.check_mass_conservation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checking that Process.outflow + Process.waste_stream is equal
 Process.inflow and the total mass is being conserved. Returns <cite>True</cite> if
 the mass conserved or <cite>False</cite> if its mismatched.</p>
@@ -189,7 +189,7 @@ the mass conserved or <cite>False</cite> if its mismatched.</p>
 
 <dl class="method">
 <dt id="saltproc.process.Process.rem_elements">
-<code class="sig-name descname">rem_elements</code><span class="sig-paren">(</span><em class="sig-param">inflow</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.process.Process.rem_elements" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rem_elements</code><span class="sig-paren">(</span><em class="sig-param">inflow</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.rem_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.rem_elements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates Materialflow object <cite>inflow</cite> after removal target isotopes
 with specific efficiency in single component of fuel reprocessing
 system and returns waste stream Materialflow object.</p>

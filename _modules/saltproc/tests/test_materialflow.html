@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>saltproc.tests.test_process &mdash; Saltproc  documentation</title>
+  <title>saltproc.tests.test_materialflow &mdash; Saltproc  documentation</title>
   
 
   
@@ -131,7 +131,7 @@
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
-      <li>saltproc.tests.test_process</li>
+      <li>saltproc.tests.test_materialflow</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -146,13 +146,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for saltproc.tests.test_process</h1><div class="highlight"><pre>
+  <h1>Source code for saltproc.tests.test_materialflow</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Process</span>
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Depcode</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
 <span class="c1"># global class object</span>
@@ -166,24 +164,37 @@
                   <span class="n">iter_matfile</span><span class="o">=</span><span class="n">directory</span><span class="o">+</span><span class="s1">&#39;/material&#39;</span><span class="p">,</span>
                   <span class="n">geo_file</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-<span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">mass_flowrate</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                  <span class="n">capacity</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
-                  <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-                  <span class="n">efficiency</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Xe&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="s1">&#39;Kr&#39;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">})</span>
 
-
-<div class="viewcode-block" id="test_rem_elements"><a class="viewcode-back" href="../../../src/saltproc.tests.test_process.html#saltproc.tests.test_process.test_rem_elements">[docs]</a><span class="k">def</span> <span class="nf">test_rem_elements</span><span class="p">():</span>
+<div class="viewcode-block" id="test_get_mass"><a class="viewcode-back" href="../../../src/saltproc.tests.test_materialflow.html#saltproc.tests.test_materialflow.test_get_mass">[docs]</a><span class="k">def</span> <span class="nf">test_get_mass</span><span class="p">():</span>
     <span class="n">mats</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">waste</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">rem_elements</span><span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">])</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">541350000</span><span class="p">],</span> <span class="mf">19.79776930513891</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">541360000</span><span class="p">],</span> <span class="mf">176.44741987005173</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">541280000</span><span class="p">],</span> <span class="mf">9.911913132605642e-05</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">541390000</span><span class="p">],</span> <span class="mf">0.026158507248944377</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">360790000</span><span class="p">],</span> <span class="mf">6.420212330439721e-17</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">360800000</span><span class="p">],</span> <span class="mf">1.6462261463853208e-06</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">360920000</span><span class="p">],</span> <span class="mf">0.0002724894672886946</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">360860000</span><span class="p">],</span> <span class="mf">26.847312879174968</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">waste</span><span class="o">.</span><span class="n">mass</span> <span class="o">==</span> <span class="mf">531.0633118374121</span></div>
+    <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_mass</span><span class="p">()</span> <span class="o">==</span> <span class="mf">112683343.50000001</span>
+    <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;U235&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">3499538.3359278883</span>
+    <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;U238&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">66580417.24509208</span>
+    <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;F19&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">37145139.35897285</span>
+    <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;Li7&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">5449107.821098938</span>
+    <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;Cm240&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">8.787897203694538e-22</span>
+    <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;Pu239&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">1231.3628804629795</span>
+    <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_mass</span><span class="p">()</span> <span class="o">==</span> <span class="mf">65563.2355</span>
+    <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">][</span><span class="s1">&#39;Gd155&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">5812.83289505528</span>
+    <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">][</span><span class="s1">&#39;O16&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">15350.701473655872</span></div>
+
+
+<div class="viewcode-block" id="test_scale_matflow"><a class="viewcode-back" href="../../../src/saltproc.tests.test_materialflow.html#saltproc.tests.test_materialflow.test_scale_matflow">[docs]</a><span class="k">def</span> <span class="nf">test_scale_matflow</span><span class="p">():</span>
+    <span class="n">mats</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">scale_factor</span> <span class="o">=</span> <span class="mf">0.7</span>
+    <span class="n">scaled_matflow</span> <span class="o">=</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">scale_matflow</span><span class="p">(</span><span class="n">scale_factor</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">scaled_matflow</span><span class="p">[</span><span class="mi">922350000</span><span class="p">]</span> <span class="o">==</span> <span class="n">scale_factor</span> <span class="o">*</span> <span class="mf">3499538.3359278883</span>
+    <span class="k">assert</span> <span class="n">scaled_matflow</span><span class="p">[</span><span class="mi">922380000</span><span class="p">]</span> <span class="o">==</span> <span class="n">scale_factor</span> <span class="o">*</span> <span class="mf">66580417.24509208</span>
+    <span class="k">assert</span> <span class="n">scaled_matflow</span><span class="p">[</span><span class="mi">90190000</span><span class="p">]</span> <span class="o">==</span> <span class="n">scale_factor</span> <span class="o">*</span> <span class="mf">37145139.35897285</span>
+    <span class="k">assert</span> <span class="n">scaled_matflow</span><span class="p">[</span><span class="mi">30070000</span><span class="p">]</span> <span class="o">==</span> <span class="n">scale_factor</span> <span class="o">*</span> <span class="mf">5449107.821098938</span></div>
+
+
+<div class="viewcode-block" id="test_copy_pymat_attrs"><a class="viewcode-back" href="../../../src/saltproc.tests.test_materialflow.html#saltproc.tests.test_materialflow.test_copy_pymat_attrs">[docs]</a><span class="k">def</span> <span class="nf">test_copy_pymat_attrs</span><span class="p">():</span>
+    <span class="n">mats</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">target_mat</span> <span class="o">=</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span>
+    <span class="n">target_mat</span><span class="o">.</span><span class="n">copy_pymat_attrs</span><span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">target_mat</span><span class="o">.</span><span class="n">density</span> <span class="o">==</span> <span class="mf">5.873</span>
+    <span class="k">assert</span> <span class="n">target_mat</span><span class="o">.</span><span class="n">atoms_per_molecule</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1.0</span></div>
 </pre></div>
 
            </div>

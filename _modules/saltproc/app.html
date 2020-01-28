@@ -157,7 +157,6 @@
 <span class="c1"># from materialflow import Materialflow</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">tables</span> <span class="k">as</span> <span class="nn">tb</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">gc</span>
@@ -171,26 +170,40 @@
 
 <span class="n">input_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="s1">&#39;data/saltproc_tap&#39;</span><span class="p">)</span>
 <span class="n">iter_matfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="s1">&#39;data/saltproc_mat&#39;</span><span class="p">)</span>
-<span class="n">compression_prop</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Filters</span><span class="p">(</span><span class="n">complevel</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">complib</span><span class="o">=</span><span class="s1">&#39;blosc&#39;</span><span class="p">,</span> <span class="n">fletcher32</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="c1"># pc_type = &#39;falcon&#39;  # &#39;bw&#39;, &#39;falcon&#39;, &#39;pc&#39;</span>
+
+
+<div class="viewcode-block" id="check_restart"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.check_restart">[docs]</a><span class="k">def</span> <span class="nf">check_restart</span><span class="p">(</span><span class="n">restart_flag</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;If the user set `Restart simulation from the step when it stopped?`</span>
+<span class="sd">    for `False` clean out iteration files and database from previous run.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    restart_flag : bool</span>
+<span class="sd">        Is the current simulation restarted?</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">restart_flag</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">iter_matfile</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error while deleting file: &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="parse_arguments"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.parse_arguments">[docs]</a><span class="k">def</span> <span class="nf">parse_arguments</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Parse arguments from command line</span>
+    <span class="sd">&quot;&quot;&quot;Parses arguments from command line.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    -----------</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    --------</span>
-<span class="sd">    steps: int</span>
-<span class="sd">        Number of depletion steps</span>
-<span class="sd">    nodes: int</span>
-<span class="sd">        Number of nodes for use in Serpent simulation</span>
-<span class="sd">    cores: int</span>
-<span class="sd">        Number of cores for use in Serpent simulation</span>
-<span class="sd">    input: str</span>
-<span class="sd">        Path and name of main SaltProc input file (json format)</span>
+<span class="sd">    n: int</span>
+<span class="sd">        Number of nodes for use in Serpent simulation.</span>
+<span class="sd">    d: int</span>
+<span class="sd">        Number of cores for use in Serpent simulation.</span>
+<span class="sd">    i: str</span>
+<span class="sd">        Path and name of main SaltProc input file (json format).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
@@ -200,7 +213,7 @@
                         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;number of cluster nodes to use in Serpent&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span>      <span class="c1"># Number of nodes to use</span>
                         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
-                        <span class="n">default</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;number of threads to use in Serpent&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span>      <span class="c1"># main input file</span>
                         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
@@ -211,12 +224,12 @@
 
 
 <div class="viewcode-block" id="read_main_input"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.read_main_input">[docs]</a><span class="k">def</span> <span class="nf">read_main_input</span><span class="p">(</span><span class="n">main_inp_file</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Read main SaltProc input file (json format)</span>
+    <span class="sd">&quot;&quot;&quot;Reads main SaltProc input file (json format).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    -----------</span>
-<span class="sd">    main_inp_file: str</span>
-<span class="sd">        Absolute path to SaltProc main input file and name of this file</span>
+<span class="sd">    main_inp_file : str</span>
+<span class="sd">        Path to SaltProc main input file and name of this file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">main_inp_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -249,10 +262,9 @@
         <span class="k">global</span> <span class="n">geo_file</span>
         <span class="k">if</span> <span class="n">adjust_geo</span><span class="p">:</span>
             <span class="n">geo_list</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s2">&quot;Geometry file/files to use in Serpent runs&quot;</span><span class="p">]</span>
-            <span class="n">geo_file</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">g</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">geo_list</span><span class="p">]</span>
+            <span class="n">geo_file</span> <span class="o">=</span> <span class="p">[</span><span class="n">g</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">geo_list</span><span class="p">]</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">adjust_geo</span><span class="p">:</span>
-            <span class="n">geo_file</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span>
-                        <span class="n">j</span><span class="p">[</span><span class="s2">&quot;Geometry file/files to use in Serpent runs&quot;</span><span class="p">]]</span>
+            <span class="n">geo_file</span> <span class="o">=</span> <span class="p">[</span><span class="n">j</span><span class="p">[</span><span class="s2">&quot;Geometry file/files to use in Serpent runs&quot;</span><span class="p">]]</span>
         <span class="n">core_massflow_rate</span> <span class="o">=</span> \
             <span class="n">j</span><span class="p">[</span><span class="s2">&quot;Salt mass flow rate throughout reactor core (g/s)&quot;</span><span class="p">]</span>
         <span class="k">global</span> <span class="n">depl_hist</span><span class="p">,</span> <span class="n">power_hist</span>
@@ -277,6 +289,21 @@
 
 
 <div class="viewcode-block" id="read_processes_from_input"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.read_processes_from_input">[docs]</a><span class="k">def</span> <span class="nf">read_processes_from_input</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Parses ``removal`` data from `.json` file with `Process` objects</span>
+<span class="sd">    description. Then returns dictionary of `Process` objects describing</span>
+<span class="sd">    extraction process efficiency for each target chemical element.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mats : dict</span>
+<span class="sd">        Dictionary that contains `Process` objects.</span>
+
+<span class="sd">        ``key``</span>
+<span class="sd">            Name of burnable material.</span>
+<span class="sd">        ``value``</span>
+<span class="sd">            `Process` object holding extraction process parameters.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">processes</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">spc_inp_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -290,6 +317,20 @@
 
 
 <div class="viewcode-block" id="read_feeds_from_input"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.read_feeds_from_input">[docs]</a><span class="k">def</span> <span class="nf">read_feeds_from_input</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Parses ``feed`` data from `.json` file with `Materialflow` objects</span>
+<span class="sd">    description. Then returns dictionary of `Materialflow` objects describing</span>
+<span class="sd">    fresh fuel feeds.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mats : dict</span>
+<span class="sd">        Dictionary that contains `Materialflow` objects with feeds.</span>
+
+<span class="sd">        ``key``</span>
+<span class="sd">            Name of burnable material.</span>
+<span class="sd">        ``value``</span>
+<span class="sd">            `Materialflow` object holding composition and properties of feed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">feeds</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">spc_inp_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -303,22 +344,26 @@
                 <span class="n">feeds</span><span class="p">[</span><span class="n">mat</span><span class="p">][</span><span class="n">obj_name</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">obj_data</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">]</span>
                 <span class="n">feeds</span><span class="p">[</span><span class="n">mat</span><span class="p">][</span><span class="n">obj_name</span><span class="p">]</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">obj_data</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span>
                 <span class="n">feeds</span><span class="p">[</span><span class="n">mat</span><span class="p">][</span><span class="n">obj_name</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="n">obj_data</span><span class="p">[</span><span class="s1">&#39;volume&#39;</span><span class="p">]</span>
-        <span class="c1"># print(feeds[&#39;fuel&#39;][&#39;leu&#39;])</span>
-        <span class="c1"># print(feeds[&#39;ctrlPois&#39;][&#39;pure_gd&#39;])</span>
-        <span class="c1"># print(feeds[&#39;fuel&#39;][&#39;leu&#39;].print_attr())</span>
         <span class="k">return</span> <span class="n">feeds</span></div>
 
 
 <div class="viewcode-block" id="read_dot"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.read_dot">[docs]</a><span class="k">def</span> <span class="nf">read_dot</span><span class="p">(</span><span class="n">dot_file</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Reads directed graph from `*.dot` files.</span>
+    <span class="sd">&quot;&quot;&quot;Reads directed graph that describes fuel reprocessing system structure</span>
+<span class="sd">    from `*.dot` file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
+<span class="sd">    dot_file : str</span>
+<span class="sd">        Path to `.dot` file with reprocessing system structure.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    --------</span>
-<span class="sd">    digraph: networkx.classes.multidigraph.MultiDiGraph Object</span>
-<span class="sd">        Directed graph describes reprocessing system as NetworkX MultiDiGraph.</span>
+<span class="sd">    mat_name : str</span>
+<span class="sd">        Name of burnable material which reprocessing scheme described in `.dot`</span>
+<span class="sd">        file.</span>
+<span class="sd">    paths_list : list</span>
+<span class="sd">        List of lists containing all possible paths between `core_outlet` and</span>
+<span class="sd">        `core_inlet`.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">graph_pydot</span> <span class="o">=</span> <span class="n">pydotplus</span><span class="o">.</span><span class="n">graph_from_dot_file</span><span class="p">(</span><span class="n">dot_file</span><span class="p">)</span>
@@ -335,27 +380,40 @@
 
 
 <div class="viewcode-block" id="reprocessing"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.reprocessing">[docs]</a><span class="k">def</span> <span class="nf">reprocessing</span><span class="p">(</span><span class="n">mat</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Applies reprocessing scheme to selected material</span>
+    <span class="sd">&quot;&quot;&quot;Applies reprocessing scheme to burnable materials.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    -----------</span>
-<span class="sd">    mat: Materialflow object`</span>
-<span class="sd">        Material data right after irradiation in the core/vesel</span>
+<span class="sd">    mats : dict</span>
+<span class="sd">        Dictionary that contains `Materialflow` objects with burnable material</span>
+<span class="sd">        data right after irradiation in the core.</span>
+
+<span class="sd">        ``key``</span>
+<span class="sd">            Name of burnable material.</span>
+<span class="sd">        ``value``</span>
+<span class="sd">            `Materialflow` object holding composition and properties.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    --------</span>
-<span class="sd">    out: Materialflow object</span>
-<span class="sd">        Material data after performing all removals</span>
-<span class="sd">    waste: dictionary</span>
-<span class="sd">        key: process name</span>
-<span class="sd">        value: Materialflow object containing waste streams data</span>
+<span class="sd">    waste : dict</span>
+
+<span class="sd">        ``key``</span>
+<span class="sd">            Process name.</span>
+<span class="sd">        ``value``</span>
+<span class="sd">            `Materialflow` object containing waste streams data.</span>
+<span class="sd">    extracted_mass: dict</span>
+
+<span class="sd">        ``key``</span>
+<span class="sd">            Name of burnable material.</span>
+<span class="sd">        ``value``</span>
+<span class="sd">            Mass removed as waste in reprocessing function for each material</span>
+<span class="sd">            (g).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">inmass</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">extracted_mass</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">waste</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
     <span class="n">forked_mat</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
-    <span class="c1"># out = OrderedDict()</span>
     <span class="n">prcs</span> <span class="o">=</span> <span class="n">read_processes_from_input</span><span class="p">()</span>
     <span class="n">mat_name_dot</span><span class="p">,</span> <span class="n">paths</span> <span class="o">=</span> <span class="n">read_dot</span><span class="p">(</span><span class="n">dot_inp_file</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">mname</span> <span class="ow">in</span> <span class="n">prcs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>  <span class="c1"># iterate over materials</span>
@@ -386,7 +444,6 @@
                 <span class="n">mat</span><span class="p">[</span><span class="n">mname</span><span class="p">]</span> <span class="o">+=</span> <span class="n">forked_mat</span><span class="p">[</span><span class="n">mname</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;1 Forked material mass </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">forked_mat</span><span class="p">[</span><span class="n">mname</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;2 Forked material mass </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">forked_mat</span><span class="p">[</span><span class="n">mname</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">))</span>
-            <span class="c1"># print(waste[mname].keys())</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Mass balance </span><span class="si">%f</span><span class="s1"> g = </span><span class="si">%f</span><span class="s1"> + </span><span class="si">%f</span><span class="s1"> + </span><span class="si">%f</span><span class="s1"> + </span><span class="si">%f</span><span class="s1"> + </span><span class="si">%f</span><span class="s1"> + </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span>
                   <span class="p">(</span><span class="n">inmass</span><span class="p">[</span><span class="n">mname</span><span class="p">],</span>
                    <span class="n">mat</span><span class="p">[</span><span class="n">mname</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
@@ -395,7 +452,6 @@
                    <span class="n">waste</span><span class="p">[</span><span class="n">mname</span><span class="p">][</span><span class="s1">&#39;waste_nickel_filter&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
                    <span class="n">waste</span><span class="p">[</span><span class="n">mname</span><span class="p">][</span><span class="s1">&#39;waste_bypass&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
                    <span class="n">waste</span><span class="p">[</span><span class="n">mname</span><span class="p">][</span><span class="s1">&#39;waste_liquid_metal&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">))</span>
-            <span class="c1"># del inflowA, outflowC</span>
         <span class="c1"># Bootstrap for many materials</span>
         <span class="k">if</span> <span class="n">mname</span> <span class="o">==</span> <span class="s1">&#39;ctrlPois&#39;</span><span class="p">:</span>
             <span class="n">waste</span><span class="p">[</span><span class="n">mname</span><span class="p">][</span><span class="s1">&#39;removal_tb_dy&#39;</span><span class="p">]</span> <span class="o">=</span> \
@@ -406,32 +462,44 @@
 
 
 <div class="viewcode-block" id="refill"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.refill">[docs]</a><span class="k">def</span> <span class="nf">refill</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">extracted_mass</span><span class="p">,</span> <span class="n">waste_dict</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Applies reprocessing scheme to selected material</span>
+    <span class="sd">&quot;&quot;&quot;Makes up material loss in removal processes by adding fresh fuel.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    -----------</span>
-<span class="sd">    mat: dictionary</span>
-<span class="sd">        key: Material name</span>
-<span class="sd">        value: Materialflow object`</span>
-<span class="sd">        Material data right after reprocessing plant</span>
-<span class="sd">    extracted_mass: dictionary</span>
-<span class="sd">        key: Material name</span>
-<span class="sd">        value: float</span>
-<span class="sd">        Mass removed as waste in reprocessing function for each material</span>
+<span class="sd">    mat : dict</span>
+
+<span class="sd">        ``key``</span>
+<span class="sd">            Name of burnable material.</span>
+<span class="sd">        ``value``</span>
+<span class="sd">            `Materialflow` object after performing all removals.</span>
+<span class="sd">    extracted_mass: dict</span>
+
+<span class="sd">        ``key``</span>
+<span class="sd">            Name of burnable material.</span>
+<span class="sd">        ``value``</span>
+<span class="sd">            Mass removed as waste in reprocessing function for each material.</span>
+<span class="sd">    waste : dict</span>
+
+<span class="sd">        ``key``</span>
+<span class="sd">            Process name.</span>
+<span class="sd">        ``value``</span>
+<span class="sd">            `Materialflow` object containing waste streams data.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    --------</span>
-<span class="sd">    refill_stream: Materialflow object</span>
-<span class="sd">        Material data after refill</span>
+<span class="sd">    dict</span>
+<span class="sd">        Dictionary that contains `Materialflow` objects.</span>
+
+<span class="sd">        ``key``</span>
+<span class="sd">            Name of burnable material.</span>
+<span class="sd">        ``value``</span>
+<span class="sd">            `Materialflow` object after adding fresh fuel.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fuel before refill ^^^&#39;</span><span class="p">,</span> <span class="n">mat</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">print_attr</span><span class="p">())</span>
     <span class="n">feeds</span> <span class="o">=</span> <span class="n">read_feeds_from_input</span><span class="p">()</span>
     <span class="n">refill_mat</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
-    <span class="c1"># out = OrderedDict()</span>
-    <span class="c1"># print (feeds[&#39;fuel&#39;])</span>
     <span class="k">for</span> <span class="n">mn</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">feeds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>  <span class="c1"># iterate over materials</span>
         <span class="n">refill_mat</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="c1"># out[mn] = {}</span>
         <span class="k">for</span> <span class="n">feed_n</span><span class="p">,</span> <span class="n">fval</span> <span class="ow">in</span> <span class="n">feeds</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>  <span class="c1"># works with one feed only</span>
             <span class="n">scale</span> <span class="o">=</span> <span class="n">extracted_mass</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span><span class="o">/</span><span class="n">feeds</span><span class="p">[</span><span class="n">mn</span><span class="p">][</span><span class="n">feed_n</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span>
             <span class="n">refill_mat</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">feeds</span><span class="p">[</span><span class="n">mn</span><span class="p">][</span><span class="n">feed_n</span><span class="p">]</span>
@@ -444,18 +512,8 @@
     <span class="k">return</span> <span class="n">waste_dict</span></div>
 
 
-<div class="viewcode-block" id="check_restart"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.check_restart">[docs]</a><span class="k">def</span> <span class="nf">check_restart</span><span class="p">():</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">restart_flag</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">iter_matfile</span><span class="p">)</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error while deleting file: &quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="run"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot; Inititializes main run</span>
+    <span class="sd">&quot;&quot;&quot; Inititializes main run.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Parse arguments from command-lines</span>
     <span class="n">nodes</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">sp_input</span> <span class="o">=</span> <span class="n">parse_arguments</span><span class="p">()</span>
@@ -475,30 +533,30 @@
           <span class="c1"># &#39;\tOutput DB File Path = &#39; + db_file + &#39;\n&#39;</span>
           <span class="p">)</span>
     <span class="c1"># Intializing objects</span>
-    <span class="n">serpent</span> <span class="o">=</span> <span class="n">Depcode</span><span class="p">(</span><span class="n">codename</span><span class="o">=</span><span class="s1">&#39;SERPENT&#39;</span><span class="p">,</span>
-                      <span class="n">exec_path</span><span class="o">=</span><span class="n">exec_path</span><span class="p">,</span>
-                      <span class="n">template_fname</span><span class="o">=</span><span class="n">template_file</span><span class="p">,</span>
-                      <span class="n">input_fname</span><span class="o">=</span><span class="n">input_file</span><span class="p">,</span>
-                      <span class="n">output_fname</span><span class="o">=</span><span class="s1">&#39;NONE&#39;</span><span class="p">,</span>
-                      <span class="n">iter_matfile</span><span class="o">=</span><span class="n">iter_matfile</span><span class="p">,</span>
-                      <span class="n">geo_file</span><span class="o">=</span><span class="n">geo_file</span><span class="p">,</span>
-                      <span class="n">npop</span><span class="o">=</span><span class="n">neutron_pop</span><span class="p">,</span>
-                      <span class="n">active_cycles</span><span class="o">=</span><span class="n">active_cycles</span><span class="p">,</span>
-                      <span class="n">inactive_cycles</span><span class="o">=</span><span class="n">inactive_cycles</span><span class="p">)</span>
-    <span class="n">simulation</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">sim_name</span><span class="o">=</span><span class="s1">&#39;Super test&#39;</span><span class="p">,</span>
-                            <span class="n">sim_depcode</span><span class="o">=</span><span class="n">serpent</span><span class="p">,</span>
-                            <span class="n">core_number</span><span class="o">=</span><span class="n">cores</span><span class="p">,</span>
-                            <span class="n">node_number</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
-                            <span class="n">h5_file</span><span class="o">=</span><span class="n">db_file</span><span class="p">,</span>
-                            <span class="n">compression</span><span class="o">=</span><span class="n">compression_prop</span><span class="p">,</span>
-                            <span class="n">iter_matfile</span><span class="o">=</span><span class="n">iter_matfile</span><span class="p">,</span>
-                            <span class="n">timesteps</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">depl_hist</span><span class="p">))</span>
-    <span class="n">msr</span> <span class="o">=</span> <span class="n">Reactor</span><span class="p">(</span><span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-                  <span class="n">mass_flowrate</span><span class="o">=</span><span class="n">core_massflow_rate</span><span class="p">,</span>
-                  <span class="n">power_levels</span><span class="o">=</span><span class="n">power_hist</span><span class="p">,</span>
-                  <span class="n">depl_hist</span><span class="o">=</span><span class="n">depl_hist</span><span class="p">)</span>
+    <span class="n">serpent</span> <span class="o">=</span> <span class="n">Depcode</span><span class="p">(</span>
+                <span class="n">codename</span><span class="o">=</span><span class="s1">&#39;SERPENT&#39;</span><span class="p">,</span>
+                <span class="n">exec_path</span><span class="o">=</span><span class="n">exec_path</span><span class="p">,</span>
+                <span class="n">template_fname</span><span class="o">=</span><span class="n">template_file</span><span class="p">,</span>
+                <span class="n">input_fname</span><span class="o">=</span><span class="n">input_file</span><span class="p">,</span>
+                <span class="n">iter_matfile</span><span class="o">=</span><span class="n">iter_matfile</span><span class="p">,</span>
+                <span class="n">geo_file</span><span class="o">=</span><span class="n">geo_file</span><span class="p">,</span>
+                <span class="n">npop</span><span class="o">=</span><span class="n">neutron_pop</span><span class="p">,</span>
+                <span class="n">active_cycles</span><span class="o">=</span><span class="n">active_cycles</span><span class="p">,</span>
+                <span class="n">inactive_cycles</span><span class="o">=</span><span class="n">inactive_cycles</span><span class="p">)</span>
+    <span class="n">simulation</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span>
+                <span class="n">sim_name</span><span class="o">=</span><span class="s1">&#39;Super test&#39;</span><span class="p">,</span>
+                <span class="n">sim_depcode</span><span class="o">=</span><span class="n">serpent</span><span class="p">,</span>
+                <span class="n">core_number</span><span class="o">=</span><span class="n">cores</span><span class="p">,</span>
+                <span class="n">node_number</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
+                <span class="n">h5_file</span><span class="o">=</span><span class="n">db_file</span><span class="p">,</span>
+                <span class="n">iter_matfile</span><span class="o">=</span><span class="n">iter_matfile</span><span class="p">)</span>
+    <span class="n">msr</span> <span class="o">=</span> <span class="n">Reactor</span><span class="p">(</span>
+                <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                <span class="n">mass_flowrate</span><span class="o">=</span><span class="n">core_massflow_rate</span><span class="p">,</span>
+                <span class="n">power_levels</span><span class="o">=</span><span class="n">power_hist</span><span class="p">,</span>
+                <span class="n">depl_hist</span><span class="o">=</span><span class="n">depl_hist</span><span class="p">)</span>
     <span class="c1"># Check: Restarting previous simulation or starting new?</span>
-    <span class="n">check_restart</span><span class="p">()</span>
+    <span class="n">check_restart</span><span class="p">(</span><span class="n">restart_flag</span><span class="p">)</span>
     <span class="c1"># Run sequence</span>
     <span class="c1"># Start sequence</span>
     <span class="k">for</span> <span class="n">dts</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">depl_hist</span><span class="p">)):</span>
@@ -530,7 +588,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mass and volume of ctrlPois after reproc </span><span class="si">%f</span><span class="s2"> g; </span><span class="si">%f</span><span class="s2"> cm3&quot;</span> <span class="o">%</span>
               <span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
                <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
-        <span class="n">refill</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">rem_mass</span><span class="p">,</span> <span class="n">waste_st</span><span class="p">)</span>
+        <span class="n">waste_feed_st</span> <span class="o">=</span> <span class="n">refill</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">rem_mass</span><span class="p">,</span> <span class="n">waste_st</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Mass and volume of fuel after REFILL </span><span class="si">%f</span><span class="s2"> g; </span><span class="si">%f</span><span class="s2"> cm3&quot;</span> <span class="o">%</span>
               <span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
                <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
@@ -539,9 +597,9 @@
                <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Removed mass [g]:&quot;</span><span class="p">,</span> <span class="n">rem_mass</span><span class="p">)</span>
         <span class="c1"># Store in DB after reprocessing and refill (right before next depl)</span>
-        <span class="n">simulation</span><span class="o">.</span><span class="n">store_after_repr</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">waste_st</span><span class="p">,</span> <span class="n">dts</span><span class="p">)</span>
-        <span class="n">serpent</span><span class="o">.</span><span class="n">write_mat_file</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">iter_matfile</span><span class="p">,</span> <span class="n">dts</span><span class="p">)</span>
-        <span class="k">del</span> <span class="n">mats</span><span class="p">,</span> <span class="n">waste_st</span><span class="p">,</span> <span class="n">rem_mass</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">store_after_repr</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">waste_feed_st</span><span class="p">,</span> <span class="n">dts</span><span class="p">)</span>
+        <span class="n">serpent</span><span class="o">.</span><span class="n">write_mat_file</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">iter_matfile</span><span class="p">,</span> <span class="n">simulation</span><span class="o">.</span><span class="n">burn_time</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">mats</span><span class="p">,</span> <span class="n">waste_st</span><span class="p">,</span> <span class="n">waste_feed_st</span><span class="p">,</span> <span class="n">rem_mass</span>
         <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
         <span class="c1"># Switch to another geometry?</span>
         <span class="k">if</span> <span class="n">adjust_geo</span> <span class="ow">and</span> <span class="n">simulation</span><span class="o">.</span><span class="n">read_k_eds_delta</span><span class="p">(</span><span class="n">dts</span><span class="p">,</span> <span class="n">restart_flag</span><span class="p">):</span>

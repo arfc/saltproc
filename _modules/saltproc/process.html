@@ -150,71 +150,62 @@
 <span></span><span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Materialflow</span>
 <span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">nucname</span> <span class="k">as</span> <span class="n">pyname</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">gc</span>
 
 
 <div class="viewcode-block" id="Process"><a class="viewcode-back" href="../../src/saltproc.process.html#saltproc.process.Process">[docs]</a><span class="k">class</span> <span class="nc">Process</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot; Class describes process which must be applied to Materialflow to change</span>
-<span class="sd">     composition, direction, etc.</span>
+    <span class="sd">&quot;&quot;&quot;Class describes process which must be applied to Materialflow to change</span>
+<span class="sd">     burnable material composition.</span>
 <span class="sd">     &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">mass_flowrate</span><span class="p">,</span>
-                 <span class="n">capacity</span><span class="p">,</span>
-                 <span class="n">volume</span><span class="p">,</span>
-                 <span class="c1"># inflow,</span>
-                 <span class="c1"># outflow,</span>
-                 <span class="c1"># waste_stream_name,</span>
-                 <span class="n">efficiency</span><span class="p">,</span>
-                 <span class="c1"># rem_iso</span>
+<div class="viewcode-block" id="Process.__init__"><a class="viewcode-back" href="../../src/saltproc.process.html#saltproc.process.Process.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">mass_flowrate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                 <span class="n">capacity</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                 <span class="n">volume</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                 <span class="n">efficiency</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
                  <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initializes the class</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the Process object.</span>
 
-<span class="sd">        Parameters:</span>
-<span class="sd">        -----------</span>
-<span class="sd">        mass_flowrate: float</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mass_flowrate : float</span>
 <span class="sd">            mass flow rate of the material flow (g/s)</span>
-<span class="sd">        capacity: float</span>
-<span class="sd">            maximum mass flow rate of the material flow which current</span>
-<span class="sd">             process can handle (g/s)</span>
-<span class="sd">        volume: float</span>
-<span class="sd">            total volume of the current facility (cm**3)</span>
-<span class="sd">        inflow: Materialflow object</span>
-<span class="sd">            array with isotope vectors from other processes and/or reactor</span>
-<span class="sd">             with mass moving into the current process (g)</span>
-<span class="sd">        outflow: Materialflow object</span>
-<span class="sd">            array with isotope vectors from other processes and/or reactor</span>
-<span class="sd">             with mass moving from the current procces back to the core (g)/s?</span>
-<span class="sd">        waste_stream: Materialflow object</span>
-<span class="sd">            array with isotope vectors from other processes and/or reactor</span>
-<span class="sd">             with mass moving from the current procces to waste stream (g)/s?</span>
-<span class="sd">        efficiency: dict</span>
-<span class="sd">                    key: element name for removal (not isotope)</span>
-<span class="sd">                    value: removal efficency for the isotope (weight fraction)</span>
+<span class="sd">        capacity : float</span>
+<span class="sd">            maximum mass flow rate of the material flow which current process</span>
+<span class="sd">            can handle (g/s)</span>
+<span class="sd">        volume : float</span>
+<span class="sd">            total volume of the current facility (:math:`cm^3`)</span>
+<span class="sd">        efficiency : dict</span>
+
+<span class="sd">            ``key``</span>
+<span class="sd">                element name for removal (not isotope)</span>
+<span class="sd">            ``value``</span>
+<span class="sd">                removal efficency for the isotope (weight fraction)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># initialize all object attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mass_flowrate</span> <span class="o">=</span> <span class="n">mass_flowrate</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span> <span class="o">=</span> <span class="n">capacity</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">volume</span>
-        <span class="c1"># self.inflow = inflow</span>
-        <span class="c1"># self.outflow = outflow</span>
-        <span class="c1"># self.waste_stream_name = waste_stream_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="n">efficiency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="n">efficiency</span></div>
 
-    <span class="c1"># @profile</span>
 <div class="viewcode-block" id="Process.rem_elements"><a class="viewcode-back" href="../../src/saltproc.process.html#saltproc.process.Process.rem_elements">[docs]</a>    <span class="k">def</span> <span class="nf">rem_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inflow</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Returns PyNE material after removal target isotopes from inflow</span>
-<span class="sd">         with specified efficiency and waste stream PyNE material</span>
+        <span class="sd">&quot;&quot;&quot;Updates Materialflow object `inflow` after removal target isotopes</span>
+<span class="sd">        with specific efficiency in single component of fuel reprocessing</span>
+<span class="sd">        system and returns waste stream Materialflow object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inflow : Materialflow obj</span>
+<span class="sd">            Target material stream to remove poisons from.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Materialflow object</span>
+<span class="sd">            Waste stream from the reprocessing system component.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># print(&quot;Flow Before reprocessing %f g&quot; % inflow.mass)</span>
-        <span class="c1"># inflow.mass = inflow.mass*(self.mass_flowrate/9.92E+6)</span>
-        <span class="c1"># inflow.norm_comp()</span>
+
         <span class="n">waste_nucvec</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">out_nucvec</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="c1"># mass flow fraction via the processes</span>
-        <span class="c1"># m_frac = float(self.mass_flowrate/9.92e+6)</span>
-        <span class="c1"># print(&quot;Flow Before reprocessing % g&quot; % inflow.mass)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Xe concentration in inflow before </span><span class="si">% f</span><span class="s2"> g&quot;</span> <span class="o">%</span> <span class="n">inflow</span><span class="p">[</span><span class="s1">&#39;Xe136&#39;</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">iso</span> <span class="ow">in</span> <span class="n">inflow</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">el_name</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">serpent</span><span class="p">(</span><span class="n">iso</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -224,8 +215,6 @@
                     <span class="nb">float</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="n">el_name</span><span class="p">])</span>
                 <span class="n">waste_nucvec</span><span class="p">[</span><span class="n">iso</span><span class="p">]</span> <span class="o">=</span> \
                     <span class="nb">float</span><span class="p">(</span><span class="n">inflow</span><span class="p">[</span><span class="n">iso</span><span class="p">])</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="n">el_name</span><span class="p">])</span>
-                <span class="c1"># print(el_name, iso, inflow[iso], waste_nucvec[iso],</span>
-                <span class="c1">#       self.efficiency[el_name])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">out_nucvec</span><span class="p">[</span><span class="n">iso</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">inflow</span><span class="o">.</span><span class="n">comp</span><span class="p">[</span><span class="n">iso</span><span class="p">])</span>
                 <span class="n">waste_nucvec</span><span class="p">[</span><span class="n">iso</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># zeroes everywhere else</span>
@@ -233,33 +222,18 @@
         <span class="n">inflow</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">inflow</span><span class="o">.</span><span class="n">mass</span> <span class="o">-</span> <span class="n">waste</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
         <span class="n">inflow</span><span class="o">.</span><span class="n">comp</span> <span class="o">=</span> <span class="n">out_nucvec</span>
         <span class="n">inflow</span><span class="o">.</span><span class="n">norm_comp</span><span class="p">()</span>
-        <span class="c1"># Recalculate volume too (assumed constant density)</span>
-        <span class="c1"># inflow.vol = float(inflow.mass * inflow.density)</span>
-        <span class="c1"># outflow.copy_pymat_attrs(inflow)  # Copy additional PyNE attributes</span>
-        <span class="c1"># print(waste.print_attr())</span>
-        <span class="sd">&quot;&quot;&quot;print(&quot;Waste class %s and mass %f g &quot; % (waste.__class__, waste.mass))</span>
-<span class="sd">        print(&quot;Outflow class &quot;, outflow.__class__)</span>
-<span class="sd">        print(&quot;Mass &quot;, outflow.mass, inflow.mass, outflow.mass - inflow.mass)</span>
-<span class="sd">        print(&quot;Density &quot;, outflow.density, inflow.density)</span>
-<span class="sd">        print(&quot;atoms_per_molecule &quot;, outflow.atoms_per_molecule == inflow.atoms_per_molecule)</span>
-<span class="sd">        print(&quot;Volume  &quot;, outflow.vol == inflow.vol)</span>
-<span class="sd">        print(&quot;Burnup &quot;, outflow.burnup == inflow.burnup)</span>
-<span class="sd">        print(&quot;Metadata &quot;, outflow.metadata, inflow.metadata)&quot;&quot;&quot;</span>
-        <span class="c1"># print(&quot;Flow After reprocessing ^^^^\n\n&quot;, inflow.print_attr())</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Xe concentration in inflow after </span><span class="si">%f</span><span class="s2"> g&quot;</span> <span class="o">%</span> <span class="n">inflow</span><span class="p">[</span><span class="s1">&#39;Xe136&#39;</span><span class="p">])</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Waste mass </span><span class="si">%f</span><span class="s2"> g</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">waste</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
         <span class="k">del</span> <span class="n">out_nucvec</span><span class="p">,</span> <span class="n">waste_nucvec</span><span class="p">,</span> <span class="n">el_name</span>
         <span class="k">return</span> <span class="n">waste</span></div>
 
 <div class="viewcode-block" id="Process.check_mass_conservation"><a class="viewcode-back" href="../../src/saltproc.process.html#saltproc.process.Process.check_mass_conservation">[docs]</a>    <span class="k">def</span> <span class="nf">check_mass_conservation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Checking that (outflow + waste_stream) == inflow</span>
+        <span class="sd">&quot;&quot;&quot;Checking that Process.outflow + Process.waste_stream is equal</span>
+<span class="sd">        Process.inflow and the total mass is being conserved. Returns `True` if</span>
+<span class="sd">        the mass conserved or `False` if its mismatched.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">out_stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outflow</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">waste_stream</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">out_stream</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflow</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Process.change_mass_flowrate"><a class="viewcode-back" href="../../src/saltproc.process.html#saltproc.process.Process.change_mass_flowrate">[docs]</a>    <span class="k">def</span> <span class="nf">change_mass_flowrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">core_rate</span><span class="p">):</span>
-        <span class="n">outflow</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_flowrate</span><span class="o">/</span><span class="n">core_rate</span><span class="p">)</span><span class="o">*</span><span class="n">flow</span>
-        <span class="k">return</span> <span class="n">outflow</span></div></div>
+        <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">out_stream</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflow</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

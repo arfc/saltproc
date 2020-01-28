@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>saltproc.reactor &mdash; Saltproc  documentation</title>
+  <title>collections.abc &mdash; Saltproc  documentation</title>
   
 
   
@@ -131,7 +131,7 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
-      <li>saltproc.reactor</li>
+      <li>collections.abc</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -146,36 +146,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for saltproc.reactor</h1><div class="highlight"><pre>
-<div class="viewcode-block" id="Reactor"><a class="viewcode-back" href="../../src/saltproc.reactor.html#saltproc.reactor.Reactor">[docs]</a><span></span><span class="k">class</span> <span class="nc">Reactor</span> <span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class contains information about current state of the reactor.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="Reactor.__init__"><a class="viewcode-back" href="../../src/saltproc.reactor.html#saltproc.reactor.Reactor.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-                 <span class="n">mass_flowrate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-                 <span class="n">power_levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
-                 <span class="n">depl_hist</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the class.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        volume : float</span>
-<span class="sd">            Total volume of the reactor core (:math:`cm^3`).</span>
-<span class="sd">        mass_flowrate : float</span>
-<span class="sd">            Total mass flowrate through reactor (g/s).</span>
-<span class="sd">        power_levels : array [:math:`N_{steps}` x1]</span>
-<span class="sd">            Normalized power level for each depletion step (W).</span>
-<span class="sd">        depl_hist : array [:math:`N_{steps}` x1]</span>
-<span class="sd">            Cumulative depletion time (d).</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># initialize all object attributes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">volume</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mass_flowrate</span> <span class="o">=</span> <span class="n">mass_flowrate</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">power_levels</span> <span class="o">=</span> <span class="n">power_levels</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">depl_hist</span> <span class="o">=</span> <span class="n">depl_hist</span></div></div>
+  <h1>Source code for collections.abc</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">_collections_abc</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">_collections_abc</span> <span class="kn">import</span> <span class="n">__all__</span>
 </pre></div>
 
            </div>
