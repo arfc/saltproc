@@ -6,8 +6,11 @@ Submodules
 
 .. toctree::
 
+   saltproc.tests.test_app
    saltproc.tests.test_depcode
+   saltproc.tests.test_materialflow
    saltproc.tests.test_process
+   saltproc.tests.test_simulation
 
 Module contents
 ---------------
