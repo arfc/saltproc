@@ -23,10 +23,8 @@ install:
   - conda activate pyne-env
   - conda info -a
   - conda install -c conda-forge pyne
-  - pip install -U pip
-  - pip install -U pytest
-  - pip install networkx
-  - pip install pydotplus
+  - conda install -c conda-forge networkx
+  - conda install -c conda-forge pydotplus
 
 # run
 script:
