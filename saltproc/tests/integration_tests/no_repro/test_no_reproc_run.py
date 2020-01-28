@@ -40,7 +40,7 @@ tap = Reactor(volume=1.0,
 
 
 @pytest.mark.slow
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_integration_3step_saltproc_no_reproc_heavy():
     simulation.runsim_no_reproc(tap, 2)
     saltproc_out = sss_file + '_dep.m'

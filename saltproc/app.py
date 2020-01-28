@@ -212,6 +212,9 @@ def read_dot(dot_file):
     mat_name : str
         Name of burnable material which reprocessing scheme described in `.dot`
         file.
+    paths_list : list
+        List of lists containing all possible paths between `core_outlet` and
+        `core_inlet`.
 
     """
     graph_pydot = pydotplus.graph_from_dot_file(dot_file)
@@ -292,7 +295,6 @@ def reprocessing(mat):
                 mat[mname] += forked_mat[mname][idx]
             print('1 Forked material mass %f' % (forked_mat[mname][0].mass))
             print('2 Forked material mass %f' % (forked_mat[mname][1].mass))
-            # print(waste[mname].keys())
             print('\nMass balance %f g = %f + %f + %f + %f + %f + %f' %
                   (inmass[mname],
                    mat[mname].mass,
@@ -301,7 +303,6 @@ def reprocessing(mat):
                    waste[mname]['waste_nickel_filter'].mass,
                    waste[mname]['waste_bypass'].mass,
                    waste[mname]['waste_liquid_metal'].mass))
-            # del inflowA, outflowC
         # Bootstrap for many materials
         if mname == 'ctrlPois':
             waste[mname]['removal_tb_dy'] = \
@@ -348,11 +349,8 @@ def refill(mat, extracted_mass, waste_dict):
     print('Fuel before refill ^^^', mat['fuel'].print_attr())
     feeds = read_feeds_from_input()
     refill_mat = OrderedDict()
-    # out = OrderedDict()
-    # print (feeds['fuel'])
     for mn, v in feeds.items():  # iterate over materials
         refill_mat[mn] = {}
-        # out[mn] = {}
         for feed_n, fval in feeds[mn].items():  # works with one feed only
             scale = extracted_mass[mn]/feeds[mn][feed_n].mass
             refill_mat[mn] = scale * feeds[mn][feed_n]
@@ -441,7 +439,7 @@ def run():
         print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
               (mats['ctrlPois'].mass,
                mats['ctrlPois'].vol))
-        refill(mats, rem_mass, waste_st)
+        waste_feed_st = refill(mats, rem_mass, waste_st)
         print("\nMass and volume of fuel after REFILL %f g; %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
@@ -450,9 +448,9 @@ def run():
                mats['ctrlPois'].vol))
         print("Removed mass [g]:", rem_mass)
         # Store in DB after reprocessing and refill (right before next depl)
-        simulation.store_after_repr(mats, waste_st, dts)
+        simulation.store_after_repr(mats, waste_feed_st, dts)
         serpent.write_mat_file(mats, iter_matfile, simulation.burn_time)
-        del mats, waste_st, rem_mass
+        del mats, waste_st, waste_feed_st, rem_mass
         gc.collect()
         # Switch to another geometry?
         if adjust_geo and simulation.read_k_eds_delta(dts, restart_flag):
