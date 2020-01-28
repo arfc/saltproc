@@ -1,7 +1,11 @@
 language: python
 python:
   - 3.5
-
+branches:
+  only:
+    - develop
+    - master
+    
 # Setup anaconda
 install:
   - sudo apt-get install libhdf5-serial-dev
