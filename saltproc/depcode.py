@@ -24,7 +24,7 @@ class Depcode:
                  npop=50,
                  active_cycles=20,
                  inactive_cycles=20):
-            """Initializes the Depcode object.
+            """ Initializes the Depcode object.
 
             Parameters
             ----------
@@ -64,8 +64,8 @@ class Depcode:
             self.sim_info = {}
 
     def change_sim_par(self, data):
-        """Finds simulation parameters (neutron population, cycles) in input file
-        and change those to parameters from SaltProc input.
+        """Finds simulation parameters (neutron population, cycles) in input
+        file and change those to parameters from SaltProc input.
 
         Parameters
         ----------
@@ -133,10 +133,10 @@ class Depcode:
         return [s.replace(src_file, self.iter_matfile) for s in data]
 
     def get_nuc_name(self, nuc_code):
-        """Returns nuclide name in human-readable notation: chemical symbol (one
-        or two characters), dash, and the atomic weight. Lastly, if the nuclide
-        is in metastable state, the letter `m` is concatenated with number of
-        excited state. For example, `Am-242m1`.
+        """Returns nuclide name in human-readable notation: chemical symbol
+        (one or two characters), dash, and the atomic weight. Lastly, if the
+        nuclide is in metastable state, the letter `m` is concatenated with
+        number of excited state. For example, `Am-242m1`.
 
         Parameters
         ----------
@@ -179,8 +179,9 @@ class Depcode:
         return nuc_name, nuc_zzaaam
 
     def get_tra_or_dec(self, input_file):
-        """Returns the isotopes map to transform isotope `zzaaam` code to Serpent.
-        Uses Serpent `*.out` file with list of all isotopes in simulation.
+        """Returns the isotopes map to transform isotope `zzaaam` code to
+        Serpent. Uses Serpent `*.out` file with list of all isotopes in
+        simulation.
 
         Parameters
         -----------

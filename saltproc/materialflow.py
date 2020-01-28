@@ -20,7 +20,7 @@ class Materialflow(pymat):
             mass_flowrate=0.0,
             void_frac=0.0,
             burnup=0.0):
-        """Initializes the Materialflow object.
+        """ Initializes the Materialflow object.
 
         Parameters
         ----------
@@ -95,7 +95,8 @@ class Materialflow(pymat):
         return new_mat_comp
 
     def copy_pymat_attrs(self, src):
-        """Copies PyNE attributites from source object (`src`) to target object.
+        """Copies PyNE attributites from source object (`src`) to target
+        object.
 
         Parameters
         ----------
@@ -139,10 +140,10 @@ class Materialflow(pymat):
         return result
 
     def __eq__(self, other):
-        """Overrides Python ``=`` operation to compare two Materialflow objects.
-        Compares objects total mass, density, atoms_per_molecule, temperature,
-        mass flowrate, and masses of important isotopes: uranium-235 and
-        uranium-238.
+        """Overrides Python ``=`` operation to compare two Materialflow
+        objects. Compares objects total mass, density, atoms_per_molecule,
+        temperature, mass flowrate, and masses of important isotopes:
+        uranium-235 and uranium-238.
 
         Parameters
         ----------

@@ -73,13 +73,6 @@ class Process():
         inflow.mass = float(inflow.mass - waste.mass)
         inflow.comp = out_nucvec
         inflow.norm_comp()
-        """print("Waste class %s and mass %f g " % (waste.__class__, waste.mass))
-        print("Outflow class ", outflow.__class__)
-        print("Mass ", outflow.mass, inflow.mass, outflow.mass - inflow.mass)
-        print("Density ", outflow.density, inflow.density)
-        print("Volume  ", outflow.vol == inflow.vol)
-        print("Burnup ", outflow.burnup == inflow.burnup)
-        print("Metadata ", outflow.metadata, inflow.metadata)"""
         print("Xe concentration in inflow after %f g" % inflow['Xe136'])
         print("Waste mass %f g\n" % waste.mass)
         del out_nucvec, waste_nucvec, el_name
