@@ -1,5 +1,5 @@
-digraph fuel {  # The name of directed graph must match name of material
-/*
+digraph fuel {  /* The name of directed graph must match name of material
+
 Structure of the reprocessing system described using DOT language:
 https://en.wikipedia.org/wiki/DOT_(graph_description_language)
 Parameter 'label' and 'fontsize' are needed for nice plotting.
