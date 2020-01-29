@@ -37,6 +37,7 @@ Then run the following commands from the directory above cloned repository:
 
 .. code-block:: bash
 
+   git clone https://github.com/arfc/saltproc.git
    cd saltproc/
    python setup.py install --user
 
