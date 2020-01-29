@@ -1,10 +1,12 @@
 digraph fuel {  # The name of directed graph must match name of material
 /*
-Structure of the reprocessing system desctived using DOT language:
+Structure of the reprocessing system described using DOT language:
 https://en.wikipedia.org/wiki/DOT_(graph_description_language)
 Parameter 'label' and 'fontsize' are needed for nice plotting.
 Mass flow rate, extraction efficiency and list of elements for removing must be
 specified in the 'input.proccess' file
+This DOT file can be also using for reprocessing scheme visualization:
+http://www.webgraphviz.com/
 */
 # ==============================================================================
   core_outlet -> sparger [label="100%", fontsize=20]
@@ -40,13 +42,13 @@ specified in the 'input.proccess' file
     nickel_filter
     waste_nickel_filter
   }
-  
+
   subgraph liqme {
     rank=same
     liquid_metal
     waste_liquid_metal
   }
-  
+
   subgraph feed {
     rank=same
     LEU_feed
@@ -58,7 +60,7 @@ specified in the 'input.proccess' file
   waste_nickel_filter [shape=diamond, fontsize=24]
   waste_liquid_metal [shape=diamond, fontsize=24]
   LEU_feed [shape=box, fontsize=24]
-    
+
   core_outlet [fontsize=24]
   sparger [fontsize=24]
   entrainment_separator [fontsize=24]
