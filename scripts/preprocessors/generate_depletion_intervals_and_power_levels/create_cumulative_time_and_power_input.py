@@ -1,3 +1,21 @@
+#############################################################################
+# This script demonstrating how to generate input entries
+# "Depletion step interval or Cumulative time (end of step) (d)" and
+# "Reactor power or power step list during depletion step (W)" for the main
+# SaltProc input file (i.e., examples/tap_main.json) in order to simulate
+# time-dependent total fission power with non-uniform depletion time grid.
+# For this case, main input file should have folllowing line:
+# "Number of steps for constant power and depletion interval case": null,
+#
+# If you need uniform time grid with constant power over whole simulation,
+# use input block example below:
+#
+#  "Number of steps for constant power and depletion interval case": 7,
+#  "Depletion step interval or Cumulative time (end of step) (d)": 3,
+#  "Reactor power or power step list during depletion step (W)": 1E+9
+#
+##############################################################################
+
 import numpy as np
 import json
 import os
@@ -88,9 +106,9 @@ pow_hist5 = power_level1*np.ones_like(dep_hist5)
 
 print(dep_hist5, pow_hist5, nsteps5)
 
-# Six period
+# Sixth period
 
-# Cue everything together
+# Stick together everything together
 dep_hist = [*dep_hist1, *dep_hist2, *dep_hist3, *dep_hist4, *dep_hist5]
 pow_hist = [*pow_hist1, *pow_hist2, *pow_hist3, *pow_hist4, *pow_hist5]
 
@@ -102,7 +120,7 @@ ax = fig_1.add_subplot(111)
 ax.grid(True)
 ax.plot(dep_hist, pow_hist, '+-')
 
-# ax.legend(loc=0)
+ax.legend(loc=0)
 ax.set_ylabel(r'Power level [W]')
 ax.set_xlabel('EFPD')
 ax.set_title(r'Power dynamics during load folowing')
