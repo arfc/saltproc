@@ -1,0 +1,501 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>saltproc.depcode module &mdash; Saltproc  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Saltproc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">SaltProc API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Saltproc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>saltproc.depcode module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/src/saltproc.depcode.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-saltproc.depcode">
+<span id="saltproc-depcode-module"></span><h1>saltproc.depcode module<a class="headerlink" href="#module-saltproc.depcode" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="saltproc.depcode.Depcode">
+<em class="property">class </em><code class="sig-prename descclassname">saltproc.depcode.</code><code class="sig-name descname">Depcode</code><span class="sig-paren">(</span><em class="sig-param">codename='Serpent'</em>, <em class="sig-param">exec_path='sss2'</em>, <em class="sig-param">template_fname='reactor.serpent'</em>, <em class="sig-param">input_fname='data/saltproc_reactor'</em>, <em class="sig-param">iter_matfile='data/saltproc_mat'</em>, <em class="sig-param">geo_file=None</em>, <em class="sig-param">npop=50</em>, <em class="sig-param">active_cycles=20</em>, <em class="sig-param">inactive_cycles=20</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class contains information about input, output, geometry, and template
+file for running depletion simulation code. Also contains neutrons
+population, active and inactive cycle. Contains methods to read template
+and output, write new input for the depletion code.</p>
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">codename='Serpent'</em>, <em class="sig-param">exec_path='sss2'</em>, <em class="sig-param">template_fname='reactor.serpent'</em>, <em class="sig-param">input_fname='data/saltproc_reactor'</em>, <em class="sig-param">iter_matfile='data/saltproc_mat'</em>, <em class="sig-param">geo_file=None</em>, <em class="sig-param">npop=50</em>, <em class="sig-param">active_cycles=20</em>, <em class="sig-param">inactive_cycles=20</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the Depcode object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>codename</strong> (<em>str</em>) – Name of depletion code.</p></li>
+<li><p><strong>exec_path</strong> (<em>str</em>) – Path to depletion code executable.</p></li>
+<li><p><strong>template_fname</strong> (<em>str</em>) – Path to user input file for depletion code.</p></li>
+<li><p><strong>input_fname</strong> (<em>str</em>) – Name of input file for depletion code rerunning.</p></li>
+<li><p><strong>iter_matfile</strong> (<em>str</em>) – Name of iterative, rewritable material file for depletion code
+rerunning. This file is being modified during simulation.</p></li>
+<li><p><strong>geo_file</strong> (<em>str</em><em> or </em><em>list</em>) – Path to file that contains the reactor geometry.
+List of <cite>str</cite> if reactivity control by
+switching geometry is <cite>On</cite> or just <cite>str</cite> otherwise.</p></li>
+<li><p><strong>npop</strong> (<em>int</em>) – Size of neutron population per cycle for Monte Carlo.</p></li>
+<li><p><strong>active_cycles</strong> (<em>int</em>) – Number of active cycles.</p></li>
+<li><p><strong>inactive_cycles</strong> (<em>int</em>) – Number of inactive cycles.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.change_sim_par">
+<code class="sig-name descname">change_sim_par</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.change_sim_par"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.change_sim_par" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds simulation parameters (neutron population, cycles) in input
+file and change those to parameters from SaltProc input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>list</em>) – List of strings parsed from user template file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of strings containing modified user template file with new
+simulation parameters.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.create_iter_matfile">
+<code class="sig-name descname">create_iter_matfile</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.create_iter_matfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.create_iter_matfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds <code class="docutils literal notranslate"><span class="pre">include</span></code> line with path to material file, copies content of
+this file to iteration material file, changes path in <code class="docutils literal notranslate"><span class="pre">include</span></code> line
+to newly created iteration material file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>list</em>) – List of strings parsed from user template file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of strings containing modified user template file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.get_nuc_name">
+<code class="sig-name descname">get_nuc_name</code><span class="sig-paren">(</span><em class="sig-param">nuc_code</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.get_nuc_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.get_nuc_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns nuclide name in human-readable notation: chemical symbol
+(one or two characters), dash, and the atomic weight. Lastly, if the
+nuclide is in metastable state, the letter <cite>m</cite> is concatenated with
+number of excited state. For example, <cite>Am-242m1</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nuc_code</strong> (<em>str</em>) – Name of nuclide in Serpent form. For instance, <cite>Am-242m</cite>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>nuc_name</strong> (<em>str</em>) – Name of nuclide in human-readable notation (<cite>Am-242m1</cite>).</p></li>
+<li><p><strong>nuc_zzaaam</strong> (<em>str</em>) – Name of nuclide in <cite>zzaaam</cite> form (<cite>952421</cite>).</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.get_tra_or_dec">
+<code class="sig-name descname">get_tra_or_dec</code><span class="sig-paren">(</span><em class="sig-param">input_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.get_tra_or_dec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.get_tra_or_dec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the isotopes map to transform isotope <cite>zzaaam</cite> code to
+Serpent. Uses Serpent <cite>*.out</cite> file with list of all isotopes in
+simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_file</strong> (<em>str</em>) – Serpent input file name and path.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Contains mapping for isotopes names from <cite>zzaaam</cite> to Serpent name
+imported from Serpent ouput file:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>The key is nuclide name in <cite>zzaaam</cite> format. For example,
+<cite>922350</cite> or <cite>982510</cite>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>Serpent-oriented name. For instance, 92235.09c for transport
+isotope or 982510 for decay only isotope).</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.insert_path_to_geometry">
+<code class="sig-name descname">insert_path_to_geometry</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.insert_path_to_geometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.insert_path_to_geometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts <code class="docutils literal notranslate"><span class="pre">include</span> <span class="pre">&lt;first_geometry_file&gt;</span></code> line on th 6th line of
+Serpent input file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>list</em>) – List of strings parsed from user template file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of strings containing modified in this function template file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.read_dep_comp">
+<code class="sig-name descname">read_dep_comp</code><span class="sig-paren">(</span><em class="sig-param">input_file</em>, <em class="sig-param">moment</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.read_dep_comp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.read_dep_comp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the Serpent <cite>*_dep.m</cite> file and returns dictionary with
+<cite>Materialflow</cite> object for each burnable material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_file</strong> (<em>str</em>) – Path to Serpent input file.</p></li>
+<li><p><strong>moment</strong> (<em>int</em>) – Indicates at which moment in the depletion step read the data. <cite>0</cite>
+refers the beginning, <cite>1</cite> refers the end of depletion step.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>mats</strong> – Dictionary that contains <cite>Materialflow</cite> objects.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object holding composition and properties.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.read_depcode_info">
+<code class="sig-name descname">read_depcode_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.read_depcode_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.read_depcode_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses initial simulation info data from Serpent output and stores
+it in <cite>Depcode</cite> object <code class="docutils literal notranslate"><span class="pre">sim_info</span></code> attributes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.read_depcode_step_param">
+<code class="sig-name descname">read_depcode_step_param</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.read_depcode_step_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.read_depcode_step_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses data from Serpent output for each step and stores it in
+<cite>Depcode</cite> object <code class="docutils literal notranslate"><span class="pre">param</span></code> attributes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.read_depcode_template">
+<code class="sig-name descname">read_depcode_template</code><span class="sig-paren">(</span><em class="sig-param">template_fname</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.read_depcode_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.read_depcode_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads prepared template (input) file for depeletion code for further
+changes in the file to prepare input file for multiple runs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>template_fname</strong> (<em>str</em>) – Path to user template file for depletion code.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of strings containing user template file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.replace_burnup_parameters">
+<code class="sig-name descname">replace_burnup_parameters</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">reactor</em>, <em class="sig-param">current_depstep_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.replace_burnup_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.replace_burnup_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds or replaces <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">power</span> <span class="pre">P</span> <span class="pre">dep</span> <span class="pre">daystep</span> <span class="pre">DEPSTEP</span></code> line in Serpent
+input file. The line defines depletion history and power levels with
+depletion step in the single run and activates depletion calculation
+mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>list</em>) – List of strings parsed from user template file.</p></li>
+<li><p><strong>reactor</strong> (<a class="reference internal" href="saltproc.reactor.html#saltproc.reactor.Reactor" title="saltproc.reactor.Reactor"><em>Reactor</em></a>) – Contains information about power load curve and cumulative
+depletion time for the integration test.</p></li>
+<li><p><strong>current_depstep_idx</strong> (<em>int</em>) – Current depletion step.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of strings containing modified in this function template file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.run_depcode">
+<code class="sig-name descname">run_depcode</code><span class="sig-paren">(</span><em class="sig-param">cores</em>, <em class="sig-param">nodes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.run_depcode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.run_depcode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs depletion code as subprocess with the given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cores</strong> (<em>int</em>) – Number of cores to use for Serpent run (<cite>-omp</cite> flag in Serpent).</p></li>
+<li><p><strong>nodes</strong> (<em>int</em>) – Number of nodes to use for Serpent run (<cite>-mpi</cite> flag in Serpent).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.sss_meta_zzz">
+<code class="sig-name descname">sss_meta_zzz</code><span class="sig-paren">(</span><em class="sig-param">nuc_code</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.sss_meta_zzz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.sss_meta_zzz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks Serpent-specific meta stable-flag for zzaaam. For instance,
+47310 instead of 471101 for <cite>Ag-110m1</cite>. Metastable isotopes represented
+with <cite>aaa</cite> started with <code class="docutils literal notranslate"><span class="pre">3</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nuc_code</strong> (<em>str</em>) – Name of nuclide in Serpent form. For instance, <cite>47310</cite>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Name of nuclide in <cite>zzaaam</cite> form (<cite>471101</cite>).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.write_depcode_input">
+<code class="sig-name descname">write_depcode_input</code><span class="sig-paren">(</span><em class="sig-param">template_file</em>, <em class="sig-param">input_file</em>, <em class="sig-param">reactor</em>, <em class="sig-param">dts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.write_depcode_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.write_depcode_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes prepared data into the depletion code input file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>template_file</strong> (<em>str</em>) – Path to user template file for depletion code..</p></li>
+<li><p><strong>input_file</strong> (<em>str</em>) – Path to input file for depletion code rerunning.</p></li>
+<li><p><strong>reactor</strong> (<a class="reference internal" href="saltproc.reactor.html#saltproc.reactor.Reactor" title="saltproc.reactor.Reactor"><em>Reactor</em></a>) – Contains information about power load curve and cumulative
+depletion time for the integration test.</p></li>
+<li><p><strong>dts</strong> (<em>int</em>) – Current depletion time step.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Description of returned object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.depcode.Depcode.write_mat_file">
+<code class="sig-name descname">write_mat_file</code><span class="sig-paren">(</span><em class="sig-param">dep_dict</em>, <em class="sig-param">mat_file</em>, <em class="sig-param">cumulative_time_at_eds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.write_mat_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.write_mat_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the iteration input file containing burnable materials
+composition used in depletion runs and updated after each depletion
+step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mats</strong> (<em>dict</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object holding composition and properties.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>mat_file</strong> (<em>str</em>) – Path to file containing burnable materials composition.</p></li>
+<li><p><strong>cumulative_time_at_eds</strong> (<em>float</em>) – Current time at the end of the depletion step (d).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

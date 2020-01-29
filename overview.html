@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Overview &mdash; Saltproc  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="prev" title="SaltProc" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Saltproc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-saltproc-works">How SaltProc works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-future">The Future</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/index.html">SaltProc API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Saltproc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Overview</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/overview.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>SaltProc couples directly with the Monte Carlo neutron transport code Serpent 2
+and enables sophisticated, multi-component online fuel reprocessing system
+modeling. SaltProc is the first open-source tool for liquid-fueled MSR
+depletion simulation with the following capabilities:</p>
+<ul class="simple">
+<li><p>neutron poison removal with user-defined efficiency,</p></li>
+<li><p>make-up mass loss by fresh fuel injection,</p></li>
+<li><p>reactivity control by adjusting fuel feed rate or geometry change,</p></li>
+<li><p>can model any reactor design,</p></li>
+<li><p>potentially, can couple with any depletion tool (i.e., MCNP, SCALE, OpenMC).</p></li>
+</ul>
+<div class="section" id="how-saltproc-works">
+<h2>How SaltProc works<a class="headerlink" href="#how-saltproc-works" title="Permalink to this headline">¶</a></h2>
+<p>SaltProc is a driver for Serpent to simulate online fuel salt reprocessing for
+Molten Salt Reactors. It performs three major functions:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>runs SERPENT</p></li>
+<li><p>parses and stores Serpent output data in HDF5</p></li>
+<li><p>modifies parsed material composition (<cite>reprocesses</cite>)</p></li>
+<li><p>creates Serpent input file</p></li>
+</ul>
+</div></blockquote>
+<p>The code logic flow is the following:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Runs Serpent (<cite>saltproc.depcode.run_depcode()</cite>)</p></li>
+<li><p>Parses through the output <cite>*_dep.m</cite> file and creates PyNE Material object
+for each burnable material.</p></li>
+<li><p>Processes Fuel (<cite>saltproc.app.reprocessing()</cite> and <cite>saltproc.refill</cite>):</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>Passes fuel composition throughout Processes objects (reprocessing system
+components) to remove poisons with specific efficiency.</p></li>
+<li><p>Adds back fissile and/or fertile material to make-up loss of material.</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p>Records data:</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>Depleted fuel composition (<cite>materials/fuel/before_reproc</cite> table in HDF5)</p></li>
+<li><p>Reprocessed fuel composition (<cite>materials/fuel/after_reproc</cite> table in
+HDF5)</p></li>
+<li><p>Multiplication factor at the beginning and at the end of depletion step
+(<cite>simulation_parameters/keff_bds</cite>, <cite>simulation_parameters/keff_eds</cite>)</p></li>
+<li><p>Effective Delayed Neutron Fraction (<span class="math notranslate nohighlight">\(\beta_{eff}\)</span>) at the end of
+the depletion step (<cite>simulation_parameters/beta_eff_eds</cite>)</p></li>
+<li><p>Waste and feed streams from each <cite>Process</cite> (<cite>materials/in_out_streams/</cite>)</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>Repeats 1-4.</p></li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="the-future">
+<h2>The Future<a class="headerlink" href="#the-future" title="Permalink to this headline">¶</a></h2>
+<p>A number of features will be implemented in SaltProc soon. Support of various
+depletion codes (e.g., OpenMC) will be added.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>SaltProc is a relatively new project and is still under heavy development.
+Although we will make our best effort to maintain compatibility with the
+current API, inevitably the API will change in future versions as SaltProc
+matures.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="SaltProc" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,1385 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>saltproc.materialflow module &mdash; Saltproc  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Saltproc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">SaltProc API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Saltproc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>saltproc.materialflow module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/src/saltproc.materialflow.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-saltproc.materialflow">
+<span id="saltproc-materialflow-module"></span><h1>saltproc.materialflow module<a class="headerlink" href="#module-saltproc.materialflow" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="saltproc.materialflow.Materialflow">
+<em class="property">class </em><code class="sig-prename descclassname">saltproc.materialflow.</code><code class="sig-name descname">Materialflow</code><span class="sig-paren">(</span><em class="sig-param">comp=None</em>, <em class="sig-param">mass=-1.0</em>, <em class="sig-param">density=1.0</em>, <em class="sig-param">atoms_per_molecule=-1.0</em>, <em class="sig-param">metadata=None</em>, <em class="sig-param">vol=1.0</em>, <em class="sig-param">temp=900</em>, <em class="sig-param">mass_flowrate=0.0</em>, <em class="sig-param">void_frac=0.0</em>, <em class="sig-param">burnup=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pyne.material.Material</span></code></p>
+<p>Class contains information about burnable material flow. Based on PyNE
+Material.</p>
+<dl class="attribute">
+<dt id="saltproc.materialflow.Materialflow._MutableMapping__marker">
+<code class="sig-name descname">_MutableMapping__marker</code><em class="property"> = &lt;object object&gt;</em><a class="headerlink" href="#saltproc.materialflow.Materialflow._MutableMapping__marker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.__add__">
+<code class="sig-name descname">__add__</code><span class="sig-paren">(</span><em class="sig-param">y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.__add__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.__add__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides Python adding operation for Materialflow objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>obj</em>) – Materialflow object #1.</p></li>
+<li><p><strong>y</strong> (<em>obj</em>) – Materialflow object #2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Materialflow which is a sum of isotope masses from <cite>x</cite> and <cite>y</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>obj</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.__deepcopy__">
+<code class="sig-name descname">__deepcopy__</code><span class="sig-paren">(</span><em class="sig-param">memo</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.__deepcopy__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.__deepcopy__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a deep copy of compound object <cite>self</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> (<em>obj</em>) – Compound object.</p></li>
+<li><p><strong>memo</strong> (<em>dict</em><em>, </em><em>optional</em>) – Id-to-object correspondence to control for recursion.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New compound object copied from <cite>self</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>obj</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.__eq__">
+<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param">other</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.__eq__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides Python <code class="docutils literal notranslate"><span class="pre">=</span></code> operation to compare two Materialflow
+objects. Compares objects total mass, density, atoms_per_molecule,
+temperature, mass flowrate, and masses of important isotopes:
+uranium-235 and uranium-238.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>obj</em>) – Materialflow object to compare with.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Are the objects equal?</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">comp=None</em>, <em class="sig-param">mass=-1.0</em>, <em class="sig-param">density=1.0</em>, <em class="sig-param">atoms_per_molecule=-1.0</em>, <em class="sig-param">metadata=None</em>, <em class="sig-param">vol=1.0</em>, <em class="sig-param">temp=900</em>, <em class="sig-param">mass_flowrate=0.0</em>, <em class="sig-param">void_frac=0.0</em>, <em class="sig-param">burnup=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the Materialflow object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>PyNE.Material</strong> (<em>class</em>) – PyNE Material parent class containing nuclide vector, density,
+mass, atoms_per_molecule, metadata</p></li>
+<li><p><strong>temp</strong> (<em>float</em>) – temperature of the material flow (K)</p></li>
+<li><p><strong>mass_flowrate</strong> (<em>float</em>) – mass flow rate of the material flow (g/s)</p></li>
+<li><p><strong>void_frac</strong> (<em>float</em>) – void fraction in the material (%)</p></li>
+<li><p><strong>burnup</strong> (<em>float</em>) – material burnup at the end of depletion step [MWd/kgU]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.__rmul__">
+<code class="sig-name descname">__rmul__</code><span class="sig-paren">(</span><em class="sig-param">scaling_factor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.__rmul__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.__rmul__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides Python multiplication operation for Materialflow objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>scaling_factor</strong> (<em>float</em><em> or </em><em>int</em>) – Scaling factor.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Materialflow object which has mass of each isotope and
+mass_flowrate scaled by <cite>other</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>obj</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="saltproc.materialflow.Materialflow._abc_cache">
+<code class="sig-name descname">_abc_cache</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#saltproc.materialflow.Materialflow._abc_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="saltproc.materialflow.Materialflow._abc_negative_cache">
+<code class="sig-name descname">_abc_negative_cache</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#saltproc.materialflow.Materialflow._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="saltproc.materialflow.Materialflow._abc_negative_cache_version">
+<code class="sig-name descname">_abc_negative_cache_version</code><em class="property"> = 192</em><a class="headerlink" href="#saltproc.materialflow.Materialflow._abc_negative_cache_version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="saltproc.materialflow.Materialflow._abc_registry">
+<code class="sig-name descname">_abc_registry</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#saltproc.materialflow.Materialflow._abc_registry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="saltproc.materialflow.Materialflow._free_mat">
+<code class="sig-name descname">_free_mat</code><a class="headerlink" href="#saltproc.materialflow.Materialflow._free_mat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.activity">
+<code class="sig-name descname">activity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.activity" title="Permalink to this definition">¶</a></dt>
+<dd><p>This provides the activity of the comp of the material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>nucvec</strong> – For a Material mat</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.alara">
+<code class="sig-name descname">alara</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.alara" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns an ALARA material in string form, with relevant
+attributes as ALARA valid comments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>s</strong> – The MCNP material card.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="saltproc.materialflow.Materialflow.atoms_per_molecule">
+<code class="sig-name descname">atoms_per_molecule</code><a class="headerlink" href="#saltproc.materialflow.Materialflow.atoms_per_molecule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.clear">
+<code class="sig-name descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None.  Remove all items from D.<a class="headerlink" href="#saltproc.materialflow.Materialflow.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.collapse_elements">
+<code class="sig-name descname">collapse_elements</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">nucset</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.collapse_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collapses the elements in the material, excluding the nucids in
+the set nucset. This function returns a copy of the material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>newmat</strong> – A copied and collapsed material.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="saltproc.materialflow.Materialflow.comp">
+<code class="sig-name descname">comp</code><a class="headerlink" href="#saltproc.materialflow.Materialflow.comp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.copy_pymat_attrs">
+<code class="sig-name descname">copy_pymat_attrs</code><span class="sig-paren">(</span><em class="sig-param">src</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.copy_pymat_attrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.copy_pymat_attrs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copies PyNE attributites from source object (<cite>src</cite>) to target
+object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>src</strong> (<em>obj</em>) – Materialflow object to copy attributes from.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.cram">
+<code class="sig-name descname">cram</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.cram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transmutes the material via the CRAM method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>1D array-like</em>) – The transmutation matrix [unitless]</p></li>
+<li><p><strong>order</strong> (<em>int</em><em>, </em><em>optional</em>) – The CRAM approximation order (default 14).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A new material which has been transmuted.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.decay">
+<code class="sig-name descname">decay</code><span class="sig-paren">(</span><em class="sig-param">double t</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.decay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decays a material for a time t, in seconds. Returns a new material.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.decay_heat">
+<code class="sig-name descname">decay_heat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.decay_heat" title="Permalink to this definition">¶</a></dt>
+<dd><p>This provides the decay heat using the comp of the the Material. It
+assumes that the composition of material is given in units of [grams]
+and returns decay heat in units of [MW].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>nucvec</strong> – For a Material mat</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.del_mat">
+<code class="sig-name descname">del_mat</code><span class="sig-paren">(</span><em class="sig-param">nuc_sequence</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.del_mat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a subset of the material and returns a new material
+comprised of only the non-specified nuclides.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nuc_sequence</strong> (<em>sequence</em>) – Nuclides to be taken out of the current material.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>submaterial</strong> – A new material object that only has the members not given in
+nuc_sequence.  The mass of the submaterial is calculated based on
+the mass fraction composition and mass of the original material.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Material</p>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The input here is seen as a suggestion and so no error is raised if a
+nuclide is asked for via nuc_sequence that is not present in the
+original material.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.del_range">
+<code class="sig-name descname">del_range</code><span class="sig-paren">(</span><em class="sig-param">lower=0</em>, <em class="sig-param">upper=INT_MAX</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.del_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a range [lower, upper) of nuclides from this material and
+returns a submaterial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lower</strong> (<em>nuclide-name</em><em>, </em><em>optional</em>) – Lower bound on nuclide range.</p></li>
+<li><p><strong>upper</strong> (<em>nuclide-name</em><em>, </em><em>optional</em>) – Upper bound on nuclide range.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>submaterial</strong> – A new mass stream object that does not contain nuclides on the
+given range.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="saltproc.materialflow.Materialflow.density">
+<code class="sig-name descname">density</code><a class="headerlink" href="#saltproc.materialflow.Materialflow.density" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.dose_per_g">
+<code class="sig-name descname">dose_per_g</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.dose_per_g" title="Permalink to this definition">¶</a></dt>
+<dd><p>This provides the dose per gram using the comp of the the Material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dose_type</strong> (<em>string</em>) – One of: ext_air, ext_soil, ingest, inhale</p></li>
+<li><p><strong>source</strong> (<em>int</em>) – optional; default is EPA
+0 for EPA, 1 for DOE, 2 for GENII</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>nucvec</strong> – For a Material mat:
+ext_air_dose returns mrem/h per g per m^3
+ext_soil_dose returns mrem/h per g per m^2
+ingest_dose returns mrem per g
+inhale_dose returns mrem per g</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.dump_json">
+<code class="sig-name descname">dump_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.dump_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dumps the material to a JSON object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>val</strong> – An object-type JSON value.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>jsoncpp.Value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.expand_elements">
+<code class="sig-name descname">expand_elements</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.expand_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exapnds the elements (‘U’, ‘C’, etc) in the material by replacing them
+with their natural isotopic distributions.  This function returns a copy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>newmat</strong> – A copied and expanded material.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.fluka">
+<code class="sig-name descname">fluka</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.fluka" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a fluka material record if there is only one component,
+otherwise return the compound material record and the fluka
+compound record
+:param The sequential material id starting from 26 unless predefined:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.fluka_compound_str">
+<code class="sig-name descname">fluka_compound_str</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.fluka_compound_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the FLUKA MATERIAL record for the compound, and the
+FLUKA COMPOUND record for the components
+:param The sequential compound id starting from 26 unless predefined:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.fluka_format_field">
+<code class="sig-name descname">fluka_format_field</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.fluka_format_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string for a single field in the FLUKA MATERIAL record
+:param The field value:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.fluka_material_component">
+<code class="sig-name descname">fluka_material_component</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.fluka_material_component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the FLUKA MATERIAL record with the given id, nucid and name.
+:param The sequential material id, the (single) nucid, and the fluka name:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.fluka_material_line">
+<code class="sig-name descname">fluka_material_line</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.fluka_material_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the FLUKA MATERIAL record with the given znum, atomic mass, id,
+and fluka name
+:param The znum, atomic mass, material id, and the fluka name:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.fluka_material_str">
+<code class="sig-name descname">fluka_material_str</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.fluka_material_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the FLUKA MATERIAL record with the given id.
+A single-component material is expected
+:param The sequential material id starting from 26 unless predefined:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.from_atom_frac">
+<code class="sig-name descname">from_atom_frac</code><span class="sig-paren">(</span><em class="sig-param">atom_fracs</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.from_atom_frac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the material composition based on a mapping of atom fractions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>atom_fracs</strong> (<em>dict</em>) – Dictionary that maps nuclides or materials to atom fractions for
+the material.  The keys may be intergers, strings, or materials.
+The values must be castable to floats.</p>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<p>To get a material from water, based on atom fractions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">h2o</span> <span class="o">=</span> <span class="p">{</span><span class="mi">10010</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s1">&#39;O16&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+<span class="n">mat</span> <span class="o">=</span> <span class="n">Material</span><span class="p">()</span>
+<span class="n">mat</span><span class="o">.</span><span class="n">from_atom_frac</span><span class="p">(</span><span class="n">h2o</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or for Uranium-Oxide, based on an initial fuel vector:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define initial heavy metal</span>
+<span class="n">ihm</span> <span class="o">=</span> <span class="n">Material</span><span class="p">()</span>
+<span class="n">ihm</span><span class="o">.</span><span class="n">from_atom_frac</span><span class="p">({</span><span class="s1">&#39;U235&#39;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s1">&#39;U238&#39;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">})</span>
+
+<span class="c1"># Define Uranium-Oxide</span>
+<span class="n">uox</span> <span class="o">=</span> <span class="p">{</span><span class="n">ihm</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">80160</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">}</span>
+<span class="n">mat</span> <span class="o">=</span> <span class="n">Material</span><span class="p">()</span>
+<span class="n">mat</span><span class="o">.</span><span class="n">from_atom_frac</span><span class="p">(</span><span class="n">uox</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the initial heavy metal was used as a key in a dictionary.
+This is possible because Materials are hashable.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.from_hdf5">
+<code class="sig-name descname">from_hdf5</code><span class="sig-paren">(</span><em class="sig-param">char * filename</em>, <em class="sig-param">char * datapath</em>, <em class="sig-param">int row=-1</em>, <em class="sig-param">int protocol=1</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a Material object from an HDF5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Path to HDF5 file that contains the data to read in.</p></li>
+<li><p><strong>datapath</strong> (<em>str</em>) – Path to HDF5 table or group that represents the data.
+In the example below, datapath = “/material”.</p></li>
+<li><p><strong>row</strong> (<em>int</em><em>, </em><em>optional</em>) – The index of the arrays from which to read the data.  This
+ranges from 0 to N-1.  Defaults to the last element of the array.
+Negative indexing is allowed (row[-N] = row[0]).</p></li>
+<li><p><strong>protocol</strong> (<em>int</em><em>, </em><em>optional</em>) – Specifies the protocol to use to read in the data.  Different
+protocols are used to represent different internal structures in
+the HDF5 file.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>There are currently two protocols which are implemented for how to
+store materials inside of an HDF5 file.  Protocol 0 is the older,
+deprecated method using a group of arrays.  Protocol 1 is the newer,
+prefered method which uses a table of materials plus a side array of
+nuclides.</p>
+<p>The Protocol 0 HDF5 representation of a Material is a group that holds
+several extendable array datasets.  One array is entitled “Mass” while
+the other datasets are nuclide names in name form (“U235”, “NP237”,
+<em>etc</em>).  For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">file</span><span class="o">.</span><span class="n">h5</span> <span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="o">|--</span> <span class="n">material</span> <span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="o">|--</span> <span class="n">Mass</span> <span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="o">|--</span> <span class="n">H1</span> <span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="o">|--</span> <span class="n">O16</span> <span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="o">|--</span> <span class="n">U235</span> <span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="o">|--</span> <span class="n">PU239</span> <span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="o">|--</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>The arrays are all of length N, where each row typically represents a
+different fuel cycle pass.  The sum of all of the nuclide arrays should
+sum to one, like Material.comp. This method is deprecated.</p>
+<p>Protocol 1 is the newer, more efficient protocol for storing many
+materials.  It consists of a table which stores the material
+information and an array that stores the nuclides (id) which index
+the comp array:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">file</span><span class="o">.</span><span class="n">h5</span> <span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="o">|--</span> <span class="n">material</span> <span class="p">(</span><span class="n">table</span><span class="p">)</span>
+        <span class="o">|--</span> <span class="n">mass</span> <span class="p">(</span><span class="n">double</span> <span class="n">col</span><span class="p">)</span>
+        <span class="o">|--</span> <span class="n">density</span> <span class="p">(</span><span class="n">double</span> <span class="n">col</span><span class="p">)</span>
+        <span class="o">|--</span> <span class="n">atoms_per_molecule</span> <span class="p">(</span><span class="n">double</span> <span class="n">col</span><span class="p">)</span>
+        <span class="o">|--</span> <span class="n">comp</span> <span class="p">(</span><span class="n">double</span> <span class="n">array</span> <span class="n">col</span><span class="p">,</span> <span class="nb">len</span> <span class="n">of</span> <span class="n">nuc_zz</span><span class="p">)</span>
+    <span class="o">|--</span> <span class="n">nuc_zz</span> <span class="p">(</span><span class="nb">int</span> <span class="n">array</span><span class="p">)</span>
+    <span class="o">|--</span> <span class="n">material_attr</span> <span class="p">(</span><span class="n">variable</span> <span class="n">length</span> <span class="n">char</span> <span class="n">array</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The material table has a string attribute called ‘nucpath’ which holds
+the path to the nuclide array inside this HDF5 file.  The same nucpath
+may be used for multiple material tables.  The length of the nucpath
+must match the length of the comp arrays.</p>
+</div>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<p>This method loads data into a pre-existing <code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code>.
+Initialization is therefore a two-step process:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mat</span> <span class="o">=</span> <span class="n">Material</span><span class="p">()</span>
+<span class="n">mat</span><span class="o">.</span><span class="n">from_hdf5</span><span class="p">(</span><span class="s2">&quot;afile.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;/foo/bar/mat&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.from_json">
+<code class="sig-name descname">from_json</code><span class="sig-paren">(</span><em class="sig-param">char * filename</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a Material object from a JSON file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Path to text file that contains the data to read in.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.from_text">
+<code class="sig-name descname">from_text</code><span class="sig-paren">(</span><em class="sig-param">char * filename</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.from_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a Material object from a simple text file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Path to text file that contains the data to read in.</p>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The text representation of Materials are nuclide identifiers in the
+first column and mass or weight values in the second column.  For
+example, for natural uranium:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">922340</span>  <span class="mf">0.000055</span>
+<span class="n">U235</span>    <span class="mf">0.00720</span>
+<span class="mi">92238</span>   <span class="mf">0.992745</span>
+</pre></div>
+</div>
+<p>Data in this file must be whitespace separated.  Any valid nuclide
+naming scheme may be used for the nuclide identifiers.  Moreover,
+material metadata may be optionally supplied:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span>    <span class="n">NatU</span>
+<span class="n">Mass</span>    <span class="mf">42.0</span>
+<span class="n">APerM</span>   <span class="mi">1</span>
+<span class="mi">922340</span>  <span class="mf">0.000055</span>
+<span class="n">U235</span>    <span class="mf">0.00720</span>
+<span class="mi">92238</span>   <span class="mf">0.992745</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<p>This method loads data into a pre-existing Material.
+Initialization is therefore a two-step process:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mat</span> <span class="o">=</span> <span class="n">Material</span><span class="p">()</span>
+<span class="n">mat</span><span class="o">.</span><span class="n">from_text</span><span class="p">(</span><span class="s2">&quot;natu.txt&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This method is most often called implicitly by the Material constructor.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.gammas">
+<code class="sig-name descname">gammas</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.gammas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a vector of gamma rays and intensities in decays/s/atom material</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>gammas</strong> – intensities are in decays/s/atom material</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>a vector of pairs of gamma-rays and intensities. The</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param">k</em><span class="optional">[</span>, <em class="sig-param">d</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; D[k] if k in D, else d.  d defaults to None.<a class="headerlink" href="#saltproc.materialflow.Materialflow.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.get_mass">
+<code class="sig-name descname">get_mass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.get_mass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.get_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns total mass of the material descibed in Materialflow object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The mass of the object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.items">
+<code class="sig-name descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a set-like object providing a view on D's items<a class="headerlink" href="#saltproc.materialflow.Materialflow.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.keys">
+<code class="sig-name descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a set-like object providing a view on D's keys<a class="headerlink" href="#saltproc.materialflow.Materialflow.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.load_json">
+<code class="sig-name descname">load_json</code><span class="sig-paren">(</span><em class="sig-param">json</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.load_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a JSON instance into this Material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>json</strong> (<em>jsoncpp.Value</em>) – An object-type JSON value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="saltproc.materialflow.Materialflow.mass">
+<code class="sig-name descname">mass</code><a class="headerlink" href="#saltproc.materialflow.Materialflow.mass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.mass_density">
+<code class="sig-name descname">mass_density</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">num_dens=-1.0</em>, <em class="sig-param">atoms_per_molecule=-1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.mass_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes, sets, and returns the mass density when num_dens is greater
+than or equal zero.  If num_dens is negative, this simply returns the
+current value of the density attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_dens</strong> (<em>float</em><em>, </em><em>optional</em>) – The number density from which to compute the mass density in units
+of [1/cc].</p></li>
+<li><p><strong>atoms_per_molecule</strong> (<em>float</em><em>, </em><em>optional</em>) – Number of atoms to per molecule of material. For example, this value
+for water is 3.0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>density</strong> – The density attr [g/cc].</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.mcnp">
+<code class="sig-name descname">mcnp</code><span class="sig-paren">(</span><em class="sig-param">frac_type</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.mcnp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an mcnp card
+:param int 0 means use “mass” as the frac_type:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="saltproc.materialflow.Materialflow.metadata">
+<code class="sig-name descname">metadata</code><a class="headerlink" href="#saltproc.materialflow.Materialflow.metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.molecular_mass">
+<code class="sig-name descname">molecular_mass</code><span class="sig-paren">(</span><em class="sig-param">atoms_per_molecule=-1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.molecular_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the molecular mass of the comp of this
+material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>atoms_per_molecule</strong> (<em>double</em><em>, </em><em>optional</em>) – Number of atoms to per molecule of material.  Needed to obtain
+proper scaling.  For example, this value for water is 3.0.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>mol_mass</strong> – Molecular mass in [amu].</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.mult_by_mass">
+<code class="sig-name descname">mult_by_mass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.mult_by_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>This multiplies comp by mass and returns the resultant
+nuctopic vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p><strong>nucvec</strong> – For a Material mat,</p>
+<div class="math notranslate nohighlight">
+\[\mbox{nucvec[nuc]} = \mbox{mat.comp[nuc]} \times \mbox{mat.mass}\]</div>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.norm_comp">
+<code class="sig-name descname">norm_comp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.norm_comp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the composition, preserving the mass of the nuclide
+vector as mass.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.normalize">
+<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>This convenience method normalizes the mass stream by setting its
+mass = 1.0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.not_fluka_builtin">
+<code class="sig-name descname">not_fluka_builtin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.not_fluka_builtin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether a string is in the fluka built-in list
+:param A string representing a FLUKA material name:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.number_density">
+<code class="sig-name descname">number_density</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">mass_dens=-1.0</em>, <em class="sig-param">atoms_per_molecule=-1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.number_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes and returns the number density from the mass_dens argument if this
+is greater than or equal zero.  If mass_dens is negative, then the number
+density is computed using the current value of the density attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mass_dens</strong> (<em>float</em><em>, </em><em>optional</em>) – The mass density from which to compute the number density in units
+of [g/cc].</p></li>
+<li><p><strong>atoms_per_molecule</strong> (<em>float</em><em>, </em><em>optional</em>) – Number of atoms to per molecule of material. For example, this value
+for water is 3.0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>num_dens</strong> – The number density [1/cc] of the material.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.photons">
+<code class="sig-name descname">photons</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.photons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a vector of photons and intensities in decays/s/atom material.
+This vector is the combination of X-rays and gamma-rays produced in the
+decay of the material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>norm</strong> (<em>boolean</em>) – Whether or not to normalize the returned data if True then
+intensities</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>photons</strong> – intensities are in decays/s/atom material</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>a vector of pairs of photon energies and intensities. The</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.pop">
+<code class="sig-name descname">pop</code><span class="sig-paren">(</span><em class="sig-param">k</em><span class="optional">[</span>, <em class="sig-param">d</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; v, remove specified key and return the corresponding value.<a class="headerlink" href="#saltproc.materialflow.Materialflow.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>If key is not found, d is returned if given, otherwise KeyError is raised.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.popitem">
+<code class="sig-name descname">popitem</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; (k, v), remove and return some (key, value) pair<a class="headerlink" href="#saltproc.materialflow.Materialflow.popitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>as a 2-tuple; but raise KeyError if D is empty.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.print_attr">
+<code class="sig-name descname">print_attr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.print_attr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.print_attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints various attributes of Materialflow object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.scale_matflow">
+<code class="sig-name descname">scale_matflow</code><span class="sig-paren">(</span><em class="sig-param">f=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/materialflow.html#Materialflow.scale_matflow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.materialflow.Materialflow.scale_matflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns nuclide vector dictionary, obtained from object attrs and
+then scaled by factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>f</strong> (<em>float</em>) – Scaling factor.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Materialflow nuclide component dictionary of relative mass.
+The keys of <cite>new_mat_comp</cite> are preserved from PyNE Material
+(integers representing nuclides in id-form). The values are floats
+for each nuclide’s mass fraction, multiplied by factor f.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.set_mat">
+<code class="sig-name descname">set_mat</code><span class="sig-paren">(</span><em class="sig-param">nuc_sequence</em>, <em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.set_mat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets a subset of the material to a new value and returns a new
+material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nuc_sequence</strong> (<em>sequence</em>) – Nuctopes –OR– elements to be taken from current stream.
+Members of this list must be integers.  For example, [922350, 942390]
+would take U-235 and Pu-239.</p></li>
+<li><p><strong>value</strong> (<em>float</em>) – Mass value to set all nuclides in sequence to on the material.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>submaterial</strong> – A new material object whose members in nuc_sequence have the
+cooresponding mass value.  The mass of the submaterial is
+calculated based on the mass fraction composition and mass of the
+original material.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.set_range">
+<code class="sig-name descname">set_range</code><span class="sig-paren">(</span><em class="sig-param">lower=0</em>, <em class="sig-param">upper=INT_MAX</em>, <em class="sig-param">value=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.set_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets a sub-material from this mat based on a range [lower, upper) to
+a new mass weight value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lower</strong> (<em>nuclide-name</em><em>, </em><em>optional</em>) – Lower bound on nuclide range.</p></li>
+<li><p><strong>upper</strong> (<em>nuclide-name</em><em>, </em><em>optional</em>) – Upper bound on nuclide range.</p></li>
+<li><p><strong>value</strong> (<em>float</em>) – Mass value to set all nuclides on the range to on the material.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>submaterial</strong> – A new mass stream object that only has nuclides on the given range.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.setdefault">
+<code class="sig-name descname">setdefault</code><span class="sig-paren">(</span><em class="sig-param">k</em><span class="optional">[</span>, <em class="sig-param">d</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; D.get(k,d), also set D[k]=d if k not in D<a class="headerlink" href="#saltproc.materialflow.Materialflow.setdefault" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.sub_act">
+<code class="sig-name descname">sub_act</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.sub_act" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method that gets the Actinide portion of a mass stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>submaterial</strong> – A new mass stream object that only has Actinide members.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.sub_elem">
+<code class="sig-name descname">sub_elem</code><span class="sig-paren">(</span><em class="sig-param">element</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.sub_elem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grabs a subset of the material and returns a new material comprised of
+only the nuclides of the specified element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>submaterial</strong> – A new mass stream object that only has members of the given element.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.sub_fp">
+<code class="sig-name descname">sub_fp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.sub_fp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method that gets the Fission Product portion of a mass
+stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>submaterial</strong> – A new mass stream object that only has Fission Product members.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.sub_lan">
+<code class="sig-name descname">sub_lan</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.sub_lan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method that gets the Lanthanide portion of a mass stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>submaterial</strong> – A new mass stream object that only has Lanthanide members.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.sub_ma">
+<code class="sig-name descname">sub_ma</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.sub_ma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method that gets the Minor Actinide portion of a mass
+stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>submaterial</strong> – A new mass stream object that only has Minor Actinide members.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.sub_mat">
+<code class="sig-name descname">sub_mat</code><span class="sig-paren">(</span><em class="sig-param">nuc_sequence</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.sub_mat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grabs a subset of the material and returns a new material comprised
+of only the specified nuclides.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nuc_sequence</strong> (<em>sequence</em>) – Nuctopes –OR– elements to be taken from current stream.
+Members of this list must be integers.  For example, [922350, 942390]
+would take U-235 and Pu-239.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>submaterial</strong> – A new mass stream object that only
+has the members given in nuc_sequence.  The mass of the submaterial
+is calculated based on the mass fraction composition and mass
+of the original mass stream.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Material</p>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The input here is seen as a suggestion and so no error is raised if a
+nuclide is asked for via nuc_sequence that is not present in the
+original material.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.sub_pu">
+<code class="sig-name descname">sub_pu</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.sub_pu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method that gets the Plutonium portion of a mass stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>submaterial</strong> – A new mass stream object that only has Plutonium members.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.sub_range">
+<code class="sig-name descname">sub_range</code><span class="sig-paren">(</span><em class="sig-param">lower=0</em>, <em class="sig-param">upper=INT_MAX</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.sub_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grabs a sub-material from this mat based on a range [lower, upper)
+of values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lower</strong> (<em>nuclide-name</em><em>, </em><em>optional</em>) – Lower bound on nuclide range.</p></li>
+<li><p><strong>upper</strong> (<em>nuclide-name</em><em>, </em><em>optional</em>) – Upper bound on nuclide range.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>submaterial</strong> – A new mass stream object that only has nuclides on the given range.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.sub_tru">
+<code class="sig-name descname">sub_tru</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.sub_tru" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method that gets the Transuranic portion of a mass
+stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>submaterial</strong> – A new mass stream object that only has Transuranic members.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.sub_u">
+<code class="sig-name descname">sub_u</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.sub_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method that gets the Uranium portion of a mass stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>submaterial</strong> – A new mass stream object that only has Uranium members.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Material</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.to_atom_dens">
+<code class="sig-name descname">to_atom_dens</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.to_atom_dens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the material to a map of nuclides to atom densities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>atom_dens</strong> – Dictionary-like object that maps nuclides to atom densites in the
+material.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>mapping</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.to_atom_frac">
+<code class="sig-name descname">to_atom_frac</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.to_atom_frac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the material to a map of nuclides to atom fractions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>atom_fracs</strong> – Dictionary-like object that maps nuclides to atom fractions in the
+material.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>mapping</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param">E</em>, <span class="optional">]</span><em class="sig-param">**F</em><span class="sig-paren">)</span> &#x2192; None.  Update D from mapping/iterable E and F.<a class="headerlink" href="#saltproc.materialflow.Materialflow.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>If E present and has a .keys() method, does:     for k in E: D[k] = E[k]
+If E present and lacks .keys() method, does:     for (k, v) in E: D[k] = v
+In either case, this is followed by: for k, v in F.items(): D[k] = v</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.values">
+<code class="sig-name descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; an object providing a view on D's values<a class="headerlink" href="#saltproc.materialflow.Materialflow.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.write_alara">
+<code class="sig-name descname">write_alara</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.write_alara" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method appends an ALARA material d$efinition, with attributes
+to the file with the supplied filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The file to append the material definition to.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.write_hdf5">
+<code class="sig-name descname">write_hdf5</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">datapath=&quot;/material&quot;</em>, <em class="sig-param">nucpath=&quot;/nucid&quot;</em>, <em class="sig-param">row=-0.0</em>, <em class="sig-param">chunksize=100</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.write_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the material to an HDF5 file, using Protocol 1 (see the
+from_hdf5() method).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Path to HDF5 file to write the data out to.  If the file does not
+exist, it will be created.</p></li>
+<li><p><strong>datapath</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to HDF5 table that represents the data.  If the table does not
+exist, it will be created.</p></li>
+<li><p><strong>nucpath</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to id array of nuclides to write out.  If this array does
+not exist, it is created with the nuclides present in this
+material. Nuclides present in this material but not in nucpath will
+not be written out.</p></li>
+<li><p><strong>row</strong> (<em>float</em><em>, </em><em>optional</em>) – The row index of the HDF5 table to write this material to.  This
+ranges from 0 to N.  Negative indexing is allowed (row[-N] =
+row[0]).  Defaults to the appending this material to the table
+(row[N] = row[-0.0]).  This value must be a float since in integer
+repesentation 0 <strong>is</strong> -0, but in float representation 0.0 <strong>is
+not</strong> -0.0.</p></li>
+<li><p><strong>chunksize</strong> (<em>int</em><em>, </em><em>optional</em>) – In Protocol 1, materials are stored in an HDF5 table which is an
+extensible data type. The chunksize determines the number of rows
+per chunk.  For better performance, this number should be as close
+as possible to the final table size.  This parameter is only
+relevant if a new table is being created.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<p>The following writes out ten low-enriched uranium materials to a new
+table:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">leu</span> <span class="o">=</span> <span class="n">Material</span><span class="p">({</span><span class="s1">&#39;U235&#39;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span> <span class="s1">&#39;U238&#39;</span><span class="p">:</span> <span class="mf">0.96</span><span class="p">},</span> <span class="mf">4.2</span><span class="p">,</span> <span class="s2">&quot;LEU&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">leu</span><span class="o">.</span><span class="n">write_hdf5</span><span class="p">(</span><span class="s1">&#39;proto1.h5&#39;</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
+    <span class="n">leu</span> <span class="o">=</span> <span class="n">Material</span><span class="p">({</span><span class="s1">&#39;U235&#39;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span> <span class="s1">&#39;U238&#39;</span><span class="p">:</span> <span class="mf">0.96</span><span class="p">},</span> <span class="n">i</span><span class="o">*</span><span class="mf">4.2</span><span class="p">,</span> <span class="s2">&quot;LEU&quot;</span><span class="p">,</span>
+                   <span class="mf">1.0</span><span class="o">*</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">leu</span><span class="o">.</span><span class="n">write_hdf5</span><span class="p">(</span><span class="s1">&#39;proto1.h5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.write_json">
+<code class="sig-name descname">write_json</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.write_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the material to a JSON file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Path to text file to write the data to.  If the file already
+exists, it will be overwritten.</p>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<p>The following writes out a low-enriched uranium material to a new file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">leu</span> <span class="o">=</span> <span class="n">Material</span><span class="p">({</span><span class="s1">&#39;U235&#39;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span> <span class="s1">&#39;U238&#39;</span><span class="p">:</span> <span class="mf">0.96</span><span class="p">},</span> <span class="mf">42.0</span><span class="p">,</span> <span class="s2">&quot;LEU&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">leu</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="s1">&#39;leu.json&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.write_mcnp">
+<code class="sig-name descname">write_mcnp</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">filename</em>, <em class="sig-param">frac_type='mass'</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.write_mcnp" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method appends an MCNP mass fraction definition, with
+attributes to the file with the supplied filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The file to append the material definition to.</p></li>
+<li><p><strong>frac_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Either ‘mass’ or ‘atom’. Speficies whether mass or atom fractions
+are used to describe material composition.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.write_text">
+<code class="sig-name descname">write_text</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.write_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the material to a plain text file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Path to text file to write the data to.  If the file already
+exists, it will be overwritten.</p>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<p>The following writes out a low-enriched uranium material to a new file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">leu</span> <span class="o">=</span> <span class="n">Material</span><span class="p">({</span><span class="s1">&#39;U235&#39;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span> <span class="s1">&#39;U238&#39;</span><span class="p">:</span> <span class="mf">0.96</span><span class="p">},</span> <span class="mf">42.0</span><span class="p">,</span> <span class="s2">&quot;LEU&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">leu</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;leu.txt&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.materialflow.Materialflow.xrays">
+<code class="sig-name descname">xrays</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#saltproc.materialflow.Materialflow.xrays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a vector of X rays and intensities in decays/s/atom material.
+Includes only X rays from internal conversion and electron capture</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>x-rays</strong> – intensities are in decays/s/atom material</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>a vector of pairs of X-rays and intensities. The</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
