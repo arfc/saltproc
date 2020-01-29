@@ -156,15 +156,15 @@
             
   <div class="section" id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
-<p>SaltProc couples directly with the Monte Carlo neutron transport Serpent 2 and
-enables sophisticated, multi-component online fuel reprocessing system modeling.
-SaltProc is the first open-source tool for liquid-fueled MSR depletion
-simulation with following capabilities:</p>
+<p>SaltProc couples directly with the Monte Carlo neutron transport code Serpent 2
+and enables sophisticated, multi-component online fuel reprocessing system
+modeling. SaltProc is the first open-source tool for liquid-fueled MSR
+depletion simulation with the following capabilities:</p>
 <ul class="simple">
 <li><p>neutron poison removal with user-defined efficiency,</p></li>
 <li><p>make-up mass loss by fresh fuel injection,</p></li>
 <li><p>reactivity control by adjusting fuel feed rate or geometry change,</p></li>
-<li><p>for any reactor design,</p></li>
+<li><p>can model any reactor design,</p></li>
 <li><p>potentially, can couple with any depletion tool (i.e., MCNP, SCALE, OpenMC).</p></li>
 </ul>
 <div class="section" id="how-saltproc-works">
@@ -183,13 +183,15 @@ Molten Salt Reactors. It performs three major functions:</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li><p>Runs Serpent (<cite>saltproc.depcode.run_depcode()</cite>)</p></li>
-<li><p>Parses through the output <cite>*_dep.m</cite> file and create PyNE Material object for each burnable material.</p></li>
+<li><p>Parses through the output <cite>*_dep.m</cite> file and creates PyNE Material object
+for each burnable material.</p></li>
 <li><p>Processes Fuel (<cite>saltproc.app.reprocessing()</cite> and <cite>saltproc.refill</cite>):</p></li>
 </ol>
 <blockquote>
 <div><ul class="simple">
-<li><p>Passes fuel composition throughout Processes objects (reprocessing system components) to remove poisons with specific efficiency.</p></li>
-<li><p>Add back fissile and/or fertile material to make-up loss of material.</p></li>
+<li><p>Passes fuel composition throughout Processes objects (reprocessing system
+components) to remove poisons with specific efficiency.</p></li>
+<li><p>Adds back fissile and/or fertile material to make-up loss of material.</p></li>
 </ul>
 </div></blockquote>
 <ol class="arabic simple" start="4">
@@ -198,25 +200,28 @@ Molten Salt Reactors. It performs three major functions:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>Depleted fuel composition (<cite>materials/fuel/before_reproc</cite> table in HDF5)</p></li>
-<li><p>Reprocessed fuel composition (<cite>materials/fuel/after_reproc</cite> table in HDF5)</p></li>
-<li><p>Multiplication factor at the beginning and at the end of depletion step (<cite>simulation_parameters/keff_bds</cite>, <cite>simulation_parameters/keff_eds</cite>)</p></li>
-<li><p>Effective Delayed Neutron Fraction (<span class="math notranslate nohighlight">\(\beta_{eff}\)</span>) at the end of the depletion step (<cite>simulation_parameters/beta_eff_eds</cite>)</p></li>
+<li><p>Reprocessed fuel composition (<cite>materials/fuel/after_reproc</cite> table in
+HDF5)</p></li>
+<li><p>Multiplication factor at the beginning and at the end of depletion step
+(<cite>simulation_parameters/keff_bds</cite>, <cite>simulation_parameters/keff_eds</cite>)</p></li>
+<li><p>Effective Delayed Neutron Fraction (<span class="math notranslate nohighlight">\(\beta_{eff}\)</span>) at the end of
+the depletion step (<cite>simulation_parameters/beta_eff_eds</cite>)</p></li>
 <li><p>Waste and feed streams from each <cite>Process</cite> (<cite>materials/in_out_streams/</cite>)</p></li>
 </ul>
 </div></blockquote>
 <ol class="arabic simple" start="5">
-<li><p>Repeat 1-4.</p></li>
+<li><p>Repeats 1-4.</p></li>
 </ol>
 </div></blockquote>
 </div>
 <div class="section" id="the-future">
 <h2>The Future<a class="headerlink" href="#the-future" title="Permalink to this headline">¶</a></h2>
-<p>Number of features will be implemented in SaltProc soon. Support of various
+<p>A number of features will be implemented in SaltProc soon. Support of various
 depletion codes (e.g., OpenMC) will be added.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>SaltProc is a relatively new project and is still under heavy development.
-Although we will make a best effort to maintain compatibility with the
+Although we will make our best effort to maintain compatibility with the
 current API, inevitably the API will change in future versions as SaltProc
 matures.</p>
 </div>

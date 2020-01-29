@@ -155,6 +155,16 @@
 <p>A number of examples are present in the [examples
 directory](<a class="reference external" href="https://github.com/arfc/saltproc/tree/master/examples">https://github.com/arfc/saltproc/tree/master/examples</a>)
 provided with the source code.</p>
+<p>Transatomic Power Molten Salt Reactor example can be run with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /path/to/saltproc
+python saltproc -i examples/tap_main.json
+</pre></div>
+</div>
+<p>In the example above, <code class="docutils literal notranslate"><span class="pre">path/to/saltproc</span></code> is, of course, the path to the main
+saltproc directory, containing <code class="docutils literal notranslate"><span class="pre">setup.py</span></code>. The <code class="docutils literal notranslate"><span class="pre">`tap_main.json</span></code> is the main
+Saltproc input file, which contains paths to Serpent input file
+(<code class="docutils literal notranslate"><span class="pre">`tap.serpent</span></code>), DOT-file with reprocessing scheme (<code class="docutils literal notranslate"><span class="pre">tap.dot</span></code>), and
+reprocessing system components detailed description (<code class="docutils literal notranslate"><span class="pre">tap_objects.json</span></code>).</p>
 </div>
 
 
