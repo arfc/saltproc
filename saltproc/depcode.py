@@ -127,6 +127,11 @@ class Depcode:
                       ' as first <include> statement\n'
                       % (self.template_fname))
                 return
+        # Create data directory
+        try:
+            os.mkdir(os.path.dirname(self.iter_matfile))
+        except FileExistsError:
+            pass
         # Create file with path for SaltProc rewritable iterative material file
         shutil.copy2(abs_src_matfile, self.iter_matfile)
         return [s.replace(src_file, self.iter_matfile) for s in data]

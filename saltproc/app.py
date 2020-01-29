@@ -37,8 +37,9 @@ def check_restart(restart_flag):
             os.remove(db_file)
             os.remove(iter_matfile)
             os.remove(input_file)
+            print("Previous run output files were deleted.")
         except OSError as e:
-            print("Error while deleting file: ", e)
+            pass
 
 
 def parse_arguments():
