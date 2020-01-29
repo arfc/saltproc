@@ -18,4 +18,4 @@ In the example above, ``path/to/saltproc`` is, of course, the path to the main
 saltproc directory, containing ``setup.py``. The ``tap_main.json`` is the main
 Saltproc input file, which contains paths to Serpent input file
 (``tap.serpent``), DOT-file with reprocessing scheme (``tap.dot``), and
-reprocessing system components detailed description (``tap_objects.json``).
+reprocessing system components' detailed description (``tap_objects.json``).
