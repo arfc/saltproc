@@ -114,7 +114,7 @@ json_dict["Depletion step interval or Cumulative time (end of step) (d)"] = \
             dep_hist
 json_dict["Reactor power or power step list during depletion step (W)"] = \
             pow_hist
-# Write list in json file file
+# Write list in json file
 path = os.path.dirname(os.path.abspath(__file__))
 json_file = os.path.join(path, 'cumulative_time_and_power_inout.json')
 with open(json_file, 'w') as f:
