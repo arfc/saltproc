@@ -4,6 +4,7 @@ from saltproc import Simulation
 from saltproc import Reactor
 from pyne import serpent
 import os
+import glob
 import sys
 import numpy as np
 import pytest
@@ -51,3 +52,10 @@ def test_integration_3step_saltproc_no_reproc_heavy():
     fuel_mdens_sp_eoc = dep_sp['MAT_fuel_MDENS'][:, -1]
     err_res = np.array(fuel_mdens_serpent_eoc-fuel_mdens_sp_eoc)
     np.testing.assert_array_equal(err_res, err_expec)
+    # Cleaning after testing
+    out_file_list = glob.glob(directory+'/int_test*')
+    for file in out_file_list:
+        try:
+            os.remove(file)
+        except OSError:
+            print("Error while deleting file : ", file)
