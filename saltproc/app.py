@@ -374,15 +374,11 @@ def run():
     # Print out input information
     print('Initiating Saltproc:\n'
           '\tRestart = ' + str(restart_flag) + '\n'
-          # '\tNodes = ' + str(nodes) + '\n'
-          '\tCores = ' + str(cores) + '\n'
-          # '\tSteps = ' + str(steps) + '\n'
-          # '\tBlue Waters = ' + str(bw) + '\n'
-          '\tSerpent Path = ' + exec_path + '\n'
-          '\tTemplate File Path = ' + template_file + '\n'
-          '\tInput File Path = ' + input_file + '\n'
-          # '\tMaterial File Path = ' + mat_file + '\n'
-          # '\tOutput DB File Path = ' + db_file + '\n'
+          '\tSerpent executable  = ' + os.path.abspath(exec_path) + '\n'
+          '\tTemplate File Path  = ' + os.path.abspath(template_file) + '\n'
+          '\tInput File Path     = ' + os.path.abspath(input_file) + '\n'
+          '\tMaterial File Path  = ' + os.path.abspath(iter_matfile) + '\n'
+          '\tOutput HDF5 DB Path = ' + os.path.abspath(db_file) + '\n'
           )
     # Intializing objects
     serpent = Depcode(

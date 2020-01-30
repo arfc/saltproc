@@ -1,5 +1,6 @@
 import numpy as np
 import tables as tb
+import os
 from collections import OrderedDict
 
 
@@ -257,7 +258,7 @@ class Simulation():
                                 np.empty(0, dtype=mpar_dtype),
                                 "Material parameters data")
             print('Dumping Material %s data %s to %s.' %
-                  (key, moment, str(self.h5_file)))
+                  (key, moment, os.path.abspath(self.h5_file)))
             # Add row for the timestep to EArray and Material Parameters table
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
             mpar_table.append(mpar_array)
