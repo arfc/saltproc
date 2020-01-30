@@ -418,14 +418,14 @@ class Simulation():
         Parameters
         ----------
         current_timestep : int
-            number of current depletion time step.
+            Number of current depletion time step.
         restart : bool
-            was this simulation restarted?
+            Was this simulation restarted?
 
         Returns
         -------
         bool
-            is the reactor will become subcritical at the next step?
+            Is the reactor will become subcritical at the next step?
 
         """
 
@@ -443,3 +443,25 @@ class Simulation():
                 return True
             else:
                 return False
+
+    def check_switch_geo_trigger(self, current_time, switch_time):
+        """Compares current timestep with user defined time to switch geometry.
+        Returns `True` if its time.
+
+        Parameters
+        ----------
+        current_timestep : int
+            Current time after depletion started.
+        switch_time : list
+            List containing moments in time when geometry have to be switched.
+
+        Returns
+        -------
+        bool
+            is the next geometry must be used at the next step?
+
+        """
+        if current_time in switch_time:
+            return True
+        else:
+            return False
