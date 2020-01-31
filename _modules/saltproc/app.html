@@ -170,6 +170,9 @@
 
 <span class="n">input_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="s1">&#39;data/saltproc_tap&#39;</span><span class="p">)</span>
 <span class="n">iter_matfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="s1">&#39;data/saltproc_mat&#39;</span><span class="p">)</span>
+<span class="c1"># To match JEFF simulation</span>
+<span class="n">geo_switch_timer</span> <span class="o">=</span> <span class="p">[</span><span class="mi">339</span><span class="p">,</span> <span class="mi">693</span><span class="p">,</span> <span class="mi">1143</span><span class="p">,</span> <span class="mi">1686</span><span class="p">,</span> <span class="mi">2337</span><span class="p">,</span> <span class="mi">3060</span><span class="p">,</span> <span class="mi">3864</span><span class="p">,</span> <span class="mi">4632</span><span class="p">,</span> <span class="mi">5325</span><span class="p">,</span>
+                    <span class="mi">5955</span><span class="p">,</span> <span class="mi">6615</span><span class="p">,</span> <span class="mi">7191</span><span class="p">,</span> <span class="mi">7692</span><span class="p">,</span> <span class="mi">8088</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="check_restart"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.check_restart">[docs]</a><span class="k">def</span> <span class="nf">check_restart</span><span class="p">(</span><span class="n">restart_flag</span><span class="p">):</span>
@@ -523,15 +526,10 @@
     <span class="c1"># Print out input information</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Initiating Saltproc:</span><span class="se">\n</span><span class="s1">&#39;</span>
           <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Restart = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">restart_flag</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="c1"># &#39;\tNodes = &#39; + str(nodes) + &#39;\n&#39;</span>
-          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Cores = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="c1"># &#39;\tSteps = &#39; + str(steps) + &#39;\n&#39;</span>
-          <span class="c1"># &#39;\tBlue Waters = &#39; + str(bw) + &#39;\n&#39;</span>
-          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Serpent Path = &#39;</span> <span class="o">+</span> <span class="n">exec_path</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Template File Path = &#39;</span> <span class="o">+</span> <span class="n">template_file</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Input File Path = &#39;</span> <span class="o">+</span> <span class="n">input_file</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="c1"># &#39;\tMaterial File Path = &#39; + mat_file + &#39;\n&#39;</span>
-          <span class="c1"># &#39;\tOutput DB File Path = &#39; + db_file + &#39;\n&#39;</span>
+          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Template File Path  = &#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">template_file</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Input File Path     = &#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Material File Path  = &#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">iter_matfile</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Output HDF5 DB Path = &#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
           <span class="p">)</span>
     <span class="c1"># Intializing objects</span>
     <span class="n">serpent</span> <span class="o">=</span> <span class="n">Depcode</span><span class="p">(</span>
@@ -603,7 +601,10 @@
         <span class="k">del</span> <span class="n">mats</span><span class="p">,</span> <span class="n">waste_st</span><span class="p">,</span> <span class="n">waste_feed_st</span><span class="p">,</span> <span class="n">rem_mass</span>
         <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
         <span class="c1"># Switch to another geometry?</span>
-        <span class="k">if</span> <span class="n">adjust_geo</span> <span class="ow">and</span> <span class="n">simulation</span><span class="o">.</span><span class="n">read_k_eds_delta</span><span class="p">(</span><span class="n">dts</span><span class="p">,</span> <span class="n">restart_flag</span><span class="p">):</span>
+        <span class="c1"># if adjust_geo and simulation.read_k_eds_delta(dts, restart_flag):</span>
+        <span class="k">if</span> <span class="n">adjust_geo</span> <span class="ow">and</span> <span class="n">simulation</span><span class="o">.</span><span class="n">check_switch_geo_trigger</span><span class="p">(</span>
+                        <span class="n">simulation</span><span class="o">.</span><span class="n">burn_time</span><span class="p">,</span>
+                        <span class="n">geo_switch_timer</span><span class="p">):</span>
             <span class="n">simulation</span><span class="o">.</span><span class="n">switch_to_next_geometry</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Time at the end of current depletion step </span><span class="si">%f</span><span class="s2">d&quot;</span> <span class="o">%</span>
               <span class="n">simulation</span><span class="o">.</span><span class="n">burn_time</span><span class="p">)</span>
