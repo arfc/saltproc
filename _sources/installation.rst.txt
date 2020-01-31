@@ -5,7 +5,7 @@ SaltProc has the following dependencies:
 
   #. `Serpent`_ (>=2.1.31)
   #. `PyNE`_ (>=0.5.11)
-  #. `Python 3.5`_
+  #. `Python`_ (>=3.5)
   #. `NumPy`_ (>=1.14.0)
   #. `PyTables`_
   #. `NetworkX`_
@@ -13,7 +13,7 @@ SaltProc has the following dependencies:
 
 .. _Serpent: http://montecarlo.vtt.fi
 .. _PyNE: http://pyne.io
-.. _Python 3.5: http://python.org
+.. _Python: http://python.org
 .. _NumPy: http://numpy.org
 .. _PyTables: http://pytables.org
 .. _NetworkX: http://networkx.github.io
@@ -37,6 +37,7 @@ Then run the following commands from the directory above cloned repository:
 
 .. code-block:: bash
 
+   git clone https://github.com/arfc/saltproc.git
    cd saltproc/
    python setup.py install --user
 
