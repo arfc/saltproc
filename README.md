@@ -22,7 +22,7 @@ code from GitHub:
 
 	git clone https://github.com/arfc/saltproc.git
 
-Then run the following commands from the unzipped directory:
+Then run the following commands:
 
 	cd saltproc/
 	python setup.py install --user
