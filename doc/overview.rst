@@ -17,7 +17,7 @@ How SaltProc works
 -------------------
 
 SaltProc is a driver for Serpent to simulate online fuel salt reprocessing for
-Molten Salt Reactors. It performs three major functions:
+Molten Salt Reactors. It performs following major functions:
 
   - runs SERPENT
   - parses and stores Serpent output data in HDF5

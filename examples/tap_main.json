@@ -1,6 +1,6 @@
 {
   "Path to Serpent executable": "sss2",
-  "File containing processing system objects": "input_5leu.json",
+  "File containing processing system objects": "tap_objects.json",
   "Graph file containing processing system structure": "tap.dot",
   "User's Serpent input file with reactor model": "tap.serpent",
   "Path output data storing folder": "../saltproc/data/",
@@ -28,7 +28,7 @@
   ],
   "Switch to another geometry when keff drops below 1?": true,
   "Salt mass flow rate throughout reactor core (g/s)": 9920000,
-  "Number of steps for constant power and depletion interval case": 7,
+  "Number of steps for constant power and depletion interval case": 9,
   "Depletion step interval or Cumulative time (end of step) (d)": 2,
   "Reactor power or power step list during depletion step (W)": 1250000000
 }

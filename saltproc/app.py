@@ -21,9 +21,6 @@ input_path = os.path.dirname(os.path.abspath(__file__))
 
 input_file = os.path.join(input_path, 'data/saltproc_tap')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
-# To match JEFF simulation
-geo_switch_timer = [339, 693, 1143, 1686, 2337, 3060, 3864, 4632, 5325,
-                    5955, 6615, 7191, 7692, 8088]
 
 
 def check_restart(restart_flag):
@@ -452,10 +449,7 @@ def run():
         del mats, waste_st, waste_feed_st, rem_mass
         gc.collect()
         # Switch to another geometry?
-        # if adjust_geo and simulation.read_k_eds_delta(dts, restart_flag):
-        if adjust_geo and simulation.check_switch_geo_trigger(
-                        simulation.burn_time,
-                        geo_switch_timer):
+        if adjust_geo and simulation.read_k_eds_delta(dts, restart_flag):
             simulation.switch_to_next_geometry()
         print("\nTime at the end of current depletion step %fd" %
               simulation.burn_time)

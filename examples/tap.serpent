@@ -6,7 +6,7 @@ include "mats/non_burnable_mats.ini"
 
 % Burnup settings will be added on next line
 
-%include "/home/andrei2/Desktop/git/meitner-task-2/serpent/geometry/various_svf_2/342_base.ini"
+%include "geometry/347_base.ini"
 
 %include "/u/sciteam/rykhlevs/meitner/mat_comp/saltproc_prepr_comp.ini"
 %include "/u/sciteam/rykhlevs/meitner/mat_comp/non_burnable_mats.ini"
