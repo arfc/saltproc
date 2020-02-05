@@ -1,0 +1,72 @@
+digraph fuel {  /* The name of directed graph must match name of material
+
+Structure of the reprocessing system described using DOT language:
+https://en.wikipedia.org/wiki/DOT_(graph_description_language)
+Parameter 'label' and 'fontsize' are needed for nice plotting.
+Mass flow rate, extraction efficiency and list of elements for removing must be
+specified in the 'input.proccess' file
+This DOT file can be also using for reprocessing scheme visualization:
+http://www.webgraphviz.com/
+*/
+# ==============================================================================
+  core_outlet -> sparger [label="100%", fontsize=20]
+  sparger -> waste_sparger [label="60% of\nXe, Kr, H", fontsize=20]
+  sparger -> entrainment_separator [label="100%", fontsize=20]
+  entrainment_separator -> nickel_filter [label="100%", fontsize=20]
+  entrainment_separator -> waste_entrainment_separator [label="97% of\nXe, Kr, H", fontsize=20]
+  nickel_filter -> bypass [label="90%", fontsize=20]
+  bypass -> heat_exchanger [label="90%", fontsize=20]
+  nickel_filter -> waste_nickel_filter [label="100% of noble metals", fontsize=20]
+  nickel_filter -> liquid_metal [label="10%", fontsize=20]
+  liquid_metal -> heat_exchanger [label="10%", fontsize=20]
+  liquid_metal -> waste_liquid_metal [label="57% of seminoble metals \n& RE", fontsize=20]
+  heat_exchanger -> core_inlet [label="100%", fontsize=20]
+  LEU_feed -> core_inlet
+# ==============================================================================
+# Optional parameters to obtain pretty plots
+# Section only needed to have 'waste' blocks on level with process
+  subgraph sprg {
+    rank=same
+    sparger
+    waste_sparger
+  }
+
+  subgraph separ {
+    rank=same
+    entrainment_separator
+    waste_entrainment_separator
+  }
+
+  subgraph ni {
+    rank=same
+    nickel_filter
+    waste_nickel_filter
+  }
+
+  subgraph liqme {
+    rank=same
+    liquid_metal
+    waste_liquid_metal
+  }
+
+  subgraph feed {
+    rank=same
+    LEU_feed
+    core_inlet
+  }
+# Section only needed to change font of the text and specify shapes of blocks
+  waste_sparger [shape=diamond, fontsize=24]
+  waste_entrainment_separator [shape=diamond, fontsize=24]
+  waste_nickel_filter [shape=diamond, fontsize=24]
+  waste_liquid_metal [shape=diamond, fontsize=24]
+  LEU_feed [shape=box, fontsize=24]
+
+  core_outlet [fontsize=24]
+  sparger [fontsize=24]
+  entrainment_separator [fontsize=24]
+  nickel_filter [fontsize=24]
+  bypass [fontsize=24]
+  heat_exchanger [fontsize=24]
+  liquid_metal [fontsize=24]
+  core_inlet [fontsize=24]
+}

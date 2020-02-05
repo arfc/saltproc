@@ -1,8 +1,11 @@
 language: python
 python:
-  - 2.7
-  - 3.6
-
+  - 3.5
+branches:
+  only:
+    - develop
+    - master
+    
 # Setup anaconda
 install:
   - sudo apt-get install libhdf5-serial-dev
@@ -14,22 +17,22 @@ install:
   - sudo apt-get install liblapack-dev
   - sudo apt-get install git
   - sudo apt-get update
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  # Useful for debugging any issues with conda
+  - conda create -n pyne-env python=3.5
+  - conda init bash
+  - eval "$(conda shell.bash hook)"
+  - conda activate pyne-env
   - conda info -a
-  - conda install -c anaconda h5py
   - conda install -c conda-forge pyne
   - conda install -c anaconda pytest
+  - conda install -c conda-forge networkx
+  - conda install -c conda-forge pydotplus
 
 # run
 script:
-  - pytest ./saltproc/tests/saltproc_test.py
+  - pytest --ignore saltproc/tests/integration_tests saltproc -vv
