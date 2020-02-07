@@ -421,14 +421,14 @@ class Depcode:
             args = (self.exec_path, '-omp', str(cores), self.input_fname)
         print('Running %s' % (self.codename))
         try:
-            print(os.getcwd())
-            subprocess.check_call(args,
-                                  cwd=os.path.split(self.template_fname)[0],
-                                  stdout=subprocess.DEVNULL,
-                                  stderr=subprocess.STDOUT)
+            subprocess.check_output(
+                            args,
+                            cwd=os.path.split(self.template_fname)[0],
+                            stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
-            print(error.output, error.returncode)
-            raise ValueError('\n %s RUN FAILED\n' % (self.codename))
+            print(error.output.decode("utf-8"))
+            raise RuntimeError('\n %s RUN FAILED\n see error message above'
+                               % (self.codename))
         print('Finished Serpent Run')
 
     def sss_meta_zzz(self, nuc_code):
