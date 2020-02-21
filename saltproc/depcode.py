@@ -459,7 +459,7 @@ class Depcode:
             zzaaam = nuc_code
         return int(zzaaam)
 
-    def write_depcode_input(self, template_file, input_file, reactor, dts):
+    def write_depcode_input(self, temp_file, inp_file, reactor, dts, restart):
         """Writes prepared data into the depletion code input file.
 
         Parameters
@@ -473,6 +473,8 @@ class Depcode:
             depletion time for the integration test.
         dts : int
             Current depletion time step.
+        restart : bool
+            Is the current simulation restarted?
 
         Returns
         -------
@@ -481,17 +483,17 @@ class Depcode:
 
         """
 
-        if dts == 0:
-            data = self.read_depcode_template(template_file)
+        if dts == 0 and not restart:
+            data = self.read_depcode_template(temp_file)
             data = self.insert_path_to_geometry(data)
             data = self.change_sim_par(data)
             data = self.create_iter_matfile(data)
-        elif dts > 0:
-            data = self.read_depcode_template(input_file)
+        else:
+            data = self.read_depcode_template(inp_file)
         data = self.replace_burnup_parameters(data, reactor, dts)
 
         if data:
-            out_file = open(input_file, 'w')
+            out_file = open(inp_file, 'w')
             out_file.writelines(data)
             out_file.close()
 

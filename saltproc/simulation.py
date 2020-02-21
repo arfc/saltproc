@@ -73,7 +73,8 @@ class Simulation():
                                         self.sim_depcode.template_fname,
                                         self.sim_depcode.input_fname,
                                         reactor,
-                                        dts)
+                                        dts,
+                                        False)
                 self.sim_depcode.run_depcode(
                                         self.core_number,
                                         self.node_number)

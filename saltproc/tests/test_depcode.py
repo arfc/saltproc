@@ -168,7 +168,8 @@ def test_write_depcode_input():
     serpent.write_depcode_input(serpent.template_fname,
                                 serpent.input_fname+'_write_test',
                                 msr,
-                                0)
+                                0,
+                                False)
     d = serpent.read_depcode_template(serpent.input_fname+'_write_test')
     print(d[0])
     assert d[0].split('/')[-2] == 'tests'

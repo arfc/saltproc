@@ -408,7 +408,11 @@ def run():
     # Start sequence
     for dts in range(len(depl_hist)):
         print("\n\n\nStep #%i has been started" % (dts+1))
-        serpent.write_depcode_input(template_file, input_file, msr, dts)
+        serpent.write_depcode_input(template_file,
+                                    input_file,
+                                    msr,
+                                    dts,
+                                    restart_flag)
         serpent.run_depcode(cores, nodes)
         if dts == 0 and restart_flag is False:  # First step
             # Read general simulation data which never changes
