@@ -1,0 +1,18 @@
+{
+  "Path to Serpent executable": "sss2",
+  "File containing processing system objects": "msbr_objects.json",
+  "Graph file containing processing system structure": "msbr.dot",
+  "User's Serpent input file with reactor model": "msbr.serpent",
+  "Path output data storing folder": "../../saltproc/data/",
+  "Output HDF5 database file name": "msbr_kl_100_saltproc.h5",
+  "Number of neutrons per generation": 50,
+  "Number of active generations": 20,
+  "Number of inactive generations": 20,
+  "Restart simulation from the step when it stopped?": false,
+  "Geometry file/files to use in Serpent runs": "geometry/msbr_full.ini",
+  "Switch to another geometry when keff drops below 1?": false,
+  "Salt mass flow rate throughout reactor core (g/s)": 9920000,
+  "Number of steps for constant power and depletion interval case": 12,
+  "Depletion step interval or Cumulative time (end of step) (d)": 3,
+  "Reactor power or power step list during depletion step (W)": 2250000000
+}

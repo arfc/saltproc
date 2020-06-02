@@ -1,10 +1,12 @@
-include "../../../../examples/tap/mats/saltproc_prepr_comp.ini"
-include "../../../../examples/tap/mats/non_burnable_mats.ini"
+% Include file with burnable material composition on the line below
+include "../scripts/postprocessors/new_mat_composition_no_dec.ini"
+% Include file with non-burnable material composition on the line below
+include "mats/non_burnable_mats_ctrl.ini"
+% Geometry import will be added by SaltProc on the next line
 
+% Burnup settings will be added on next line
 
-
-
-%include "/home/andrei2/Desktop/git/meitner-task-2/serpent/geometry/various_svf_2/342_base.ini"
+include "geometry/347_base.ini"
 
 %include "/u/sciteam/rykhlevs/meitner/mat_comp/saltproc_prepr_comp.ini"
 %include "/u/sciteam/rykhlevs/meitner/mat_comp/non_burnable_mats.ini"
@@ -17,10 +19,9 @@ include "../../../../examples/tap/mats/non_burnable_mats.ini"
 set title "TAP MSR test 5-d step"
 
 %therm zrh_h 900 hzr05.32t hzr06.32t   % 900K H-Zr
-%set acelib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff312.xsdata"
-%set declib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.dec"
-%set nfylib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.nfy"
-%set sfylib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.sfy"
+%set acelib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.xsdata"
+%set declib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.dec"
+%set nfylib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.nfy"
 
 set acelib "sss_jeff312.xsdata"
 set declib "sss_jeff33.dec"
@@ -28,7 +29,7 @@ set nfylib "sss_jeff33.nfy"
 set sfylib "sss_jeff33.sfy"
 % --- Neutron population and criticality cycles:
 
-set pop 15000 500 200
+set pop 30000 600 200  %15000 500 200
 %set gcu -1
 
 % --- Reproducibility off (set value to 1 and define seed to set on):
@@ -47,7 +48,12 @@ set fpcut   1E-6
 set stabcut 1E-12
 
 % --- Geometry and mesh plots:
-%plot 33 3100 2100 4.5 0 155.0 0 105.0
+%trans 10 0 0 0 0 0 45
+
+plot 33 2800 2100 4.5 0 140.0 0 105.0
+
+%plot 13 1550 3400 0.0 -155 0
+%plot 13 1000 1000 0 -20 20 135 175
 %plot 13 2000 2000 16.5
 
 % --- Depletion parameters
@@ -58,18 +64,24 @@ set pcc     2  % Predictor-corrector calculation off (Linear extrapolation)
 %set bunorm 2
 %set opti 3
 
-%set power 1.250E+09 dep daystep 5.0
-
-%set printm 1 0.0
+%set power 1.250E+09 dep daytot 5.0
 
 set inventory all
 
 %set rfw 1 restart
 %set rfr idx 321 restart
 %set seed 46549345296
-set seed 7812324546562
+%set seed 7812324546562      % for 2-step test (5d)
+%set seed 2358907456230438  % for 7-step test (2d)
 
 % ---- All CR inserted by default - withdrawn
+%trans CR0 0.0 0.0 -25.0
+%trans CR1 0.0 0.0 -25.0
+%trans CR2 0.0 0.0 -25.0
+%trans CR3 0.0 0.0 -25.0
+%trans CR4 0.0 0.0 -25.0
+%trans CR5 0.0 0.0 -25.0
+%trans CR6 0.0 0.0 -25.0 320.
 trans CR0 0.0 0.0 400.0
 trans CR1 0.0 0.0 400.0
 trans CR2 0.0 0.0 400.0

@@ -438,8 +438,8 @@ class Simulation():
             db.close()
             delta_keff = np.diff(k_eds)
             avrg_keff_drop = abs(np.mean(delta_keff[-4:-1]))
-            print("Average drop", avrg_keff_drop)
-            print("Last keff_eds", k_eds)
+            print("Average keff drop per step ", avrg_keff_drop)
+            print("keff at the end of last step ", k_eds)
             if k_eds[-1] - avrg_keff_drop < 1.0:
                 return True
             else:

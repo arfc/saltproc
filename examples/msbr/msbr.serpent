@@ -1,0 +1,106 @@
+% Include file with burnable material composition on the line below
+include "mats/msbr_saltproc_prepr_comp.ini"
+%include "/home/andrei2/Desktop/git/publications/2020-rykhl-dissertation/data/load-following/msbr/fuel_comp_025U"
+% Include file with non-burnable material composition on the line below
+%include "mats/non_burnable_mats.ini"
+% Geometry import will be added by SaltProc on the next line
+
+% Burnup settings will be added on next line
+
+
+
+
+
+%include "geometry/msbr_full.ini"
+% --- Moderator graphite:
+mat moder    -1.84 tmp 900 rgb 68 1 84 moder gr 6000 6000.09c    -1.0 %tmp 908
+% --- Hastelloy N
+mat hast     -8.671
+rgb 127 205 187
+% Natural Ni
+28000.09c    -0.677
+%28058.09c   -0.4562614
+%28060.09c   -0.1804391
+%28061.09c   -0.0079425
+%28062.09c   -0.0256463
+%28064.09c   -0.0067108
+
+% Natural W
+74000.09c   -0.250
+%74180.09c   -0.0003417
+%74182.09c   -0.0757228
+%74183.09c   -0.0004134
+%74184.09c   -0.0893641
+%74186.09c   -0.0841580
+
+% Natural Cr
+24000.09c   -0.070
+%24050.09c   -0.0029250
+%24052.09c   -0.0585905
+%24053.09c   -0.0067708
+%24054.09c   -0.0017137
+
+% Al
+13027.09c   -0.003
+
+% --- Thermal scattering data for graphite:
+%therm gr 900 gr05.32t gr06.32t  % 900K C-nat
+therm gr 900 gre7.18t gre7.20t  % 900K C-nat
+
+
+set title "MSBR Saltproc long-term, 91% removal, BOL, fresh fuel, ENDF"
+
+
+set acelib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.xsdata"
+set declib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.dec"
+set nfylib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.nfy"
+
+%set acelib "sss_jeff312.xsdata"
+%set declib "sss_jeff33.dec"
+%set nfylib "sss_jeff33.nfy"
+%set sfylib "sss_jeff33.sfy"
+% --- Neutron population and criticality cycles:
+
+set pop 300 400 10 1.0 1 %500 400 60 1.0 1  %30000 400 100 1.0 1
+%set gcu -1
+%set usym 0 3 2 0.0 0.0 0 90
+
+% --- Reproducibility off (set value to 1 and define seed to set on):
+
+%set repro 0  % try speedup
+%set shbuf 1  % try speedup
+
+%set samarium 0
+% --- Reduce unionized energy grid size in order to save some memory
+%     Use grid thinning with 5e-5 reconstruction tolerance between
+%     1e-8 and 15 MeV.
+
+set egrid 5e-5 1e-10 15.0
+
+% --- Cut-offs:
+
+set fpcut   1E-6
+set stabcut 1E-12
+
+% --- Geometry and mesh plots:
+%plot 33 3000 3000 150.5
+%trans 10 0 0 0 0 0 45
+
+%plot 13 1550 3400 0.0 -155 0
+%plot 13 1000 1000 0 -20 20 135 175
+%plot 13 2000 2000 16.5
+
+% --- Depletion parameters
+% --- Options for burnup calculation:
+set bumode  2  % CRAM method
+set pcc     2  % Predictor-corrector calculation off (Linear extrapolation)
+%set xscalc  2  % Cross sections from spectrum
+%set bunorm 2
+%set opti 3
+
+%set power 2.25E+9 dep daytot 60000.0
+
+%set rfw 1 restart
+set inventory fuel all
+
+%set printm 1 0.0

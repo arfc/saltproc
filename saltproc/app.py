@@ -357,10 +357,9 @@ def refill(mat, extracted_mass, waste_dict):
             refill_mat[mn] = scale * feeds[mn][feed_n]
             waste_dict[mn]['feed_'+str(feed_n)] = refill_mat[mn]
         mat[mn] += refill_mat[mn]
-    print('Refilled fresh fuel %f g' % refill_mat['fuel'].mass)
-    print('Refilled fresh Gd %f g' % refill_mat['ctrlPois'].mass)
-    print('Refill Material ^^^', refill_mat['fuel'].print_attr())
-    print('Fuel after refill ^^^', mat['fuel'].print_attr())
+        print('Refilled fresh material %s %f g' % (mn, refill_mat[mn].mass))
+        print('Refill Material ^^^', refill_mat[mn].print_attr())
+        print('Fuel after refill ^^^', mat[mn].print_attr())
     return waste_dict
 
 
@@ -429,23 +428,23 @@ def run():
         print("\nMass and volume of fuel before reproc %f g; %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
-        print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
-              (mats['ctrlPois'].mass,
-               mats['ctrlPois'].vol))
+        # print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
+        #       (mats['ctrlPois'].mass,
+        #        mats['ctrlPois'].vol))
         waste_st, rem_mass = reprocessing(mats)
         print("\nMass and volume of fuel after reproc %f g; %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
-        print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
-              (mats['ctrlPois'].mass,
-               mats['ctrlPois'].vol))
+        # print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
+        #       (mats['ctrlPois'].mass,
+        #        mats['ctrlPois'].vol))
         waste_feed_st = refill(mats, rem_mass, waste_st)
         print("\nMass and volume of fuel after REFILL %f g; %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
-        print("Mass and volume of ctrlPois after REFILL %f g; %f cm3" %
-              (mats['ctrlPois'].mass,
-               mats['ctrlPois'].vol))
+        # print("Mass and volume of ctrlPois after REFILL %f g; %f cm3" %
+        #       (mats['ctrlPois'].mass,
+        #        mats['ctrlPois'].vol))
         print("Removed mass [g]:", rem_mass)
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_feed_st, dts)

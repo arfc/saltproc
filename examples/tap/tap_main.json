@@ -3,7 +3,7 @@
   "File containing processing system objects": "tap_objects.json",
   "Graph file containing processing system structure": "tap.dot",
   "User's Serpent input file with reactor model": "tap.serpent",
-  "Path output data storing folder": "../saltproc/data/",
+  "Path output data storing folder": "../../saltproc/data/",
   "Output HDF5 database file name": "db_saltproc.h5",
   "Number of neutrons per generation": 50,
   "Number of active generations": 20,
