@@ -18,9 +18,9 @@ serpent = Depcode(codename='SERPENT',
                   geo_file=None)
 
 process = Process(mass_flowrate=10,
-                  capacity=100.0,
-                  volume=1.0,
-                  efficiency={'Xe': 1., 'Kr': 0.95})
+                  capacity=99.0,
+                  volume=95.0,
+                  efficiency={'Xe': 1.0, 'Kr': '9.5/self.mass_flowrate'})
 
 
 def test_rem_elements():

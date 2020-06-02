@@ -1,5 +1,6 @@
 from saltproc import Materialflow
 from pyne import nucname as pyname
+from math import *
 import numpy as np
 
 
@@ -8,12 +9,7 @@ class Process():
      burnable material composition.
      """
 
-    def __init__(self,
-                 mass_flowrate=0.0,
-                 capacity=0.0,
-                 volume=0.0,
-                 efficiency=1.0,
-                 ):
+    def __init__(self, *initial_data, **kwargs):
         """ Initializes the Process object.
 
         Parameters
@@ -32,11 +28,11 @@ class Process():
             ``value``
                 removal efficency for the isotope (weight fraction)
         """
-        # initialize all object attributes
-        self.mass_flowrate = mass_flowrate
-        self.capacity = capacity
-        self.volume = volume
-        self.efficiency = efficiency
+        for dictionary in initial_data:
+            for key in dictionary:
+                setattr(self, key, dictionary[key])
+        for key in kwargs:
+            setattr(self, key, kwargs[key])
 
     def rem_elements(self, inflow):
         """Updates Materialflow object `inflow` after removal target isotopes
@@ -57,15 +53,19 @@ class Process():
 
         waste_nucvec = {}
         out_nucvec = {}
-        print("Xe concentration in inflow before % f g" % inflow['Xe136'])
+        # print("Xe concentration in inflow before % f g" % inflow['Xe136'])
+        # print("Current time %f" % (t))
         for iso in inflow.comp.keys():
             el_name = pyname.serpent(iso).split('-')[0]
             if el_name in self.efficiency:
+                # Evaluate removal efficiency for el_name (float)
+                self.efficiency[el_name] = eval(str(self.efficiency[el_name]))
+                print("Epsilon(%s)=%f" % (el_name, self.efficiency[el_name]))
                 out_nucvec[iso] = \
                     float(inflow.comp[iso]) * \
                     float(1.0 - self.efficiency[el_name])
                 waste_nucvec[iso] = \
-                    float(inflow[iso]) * float(self.efficiency[el_name])
+                    float(inflow[iso]) * self.efficiency[el_name]
             else:
                 out_nucvec[iso] = float(inflow.comp[iso])
                 waste_nucvec[iso] = 0.0  # zeroes everywhere else
