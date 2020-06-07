@@ -39,15 +39,19 @@
         "capacity": 9920000,
         "efficiency": {
           "Kr": 0.87,
-          "Xe": "(1-84/425)/(1+1/self.he_flowrate)",
+          "Xe": "0.95*(1-exp(-K_L*((6/d_b)*(QHe/(QHe+mass_flowrate/4.9602e6)))*volume*(1+(R*T*mass_flowrate/4.9602e6)/(HXe*QHe))*4.9602e6/mass_flowrate))/(1+(R*T*mass_flowrate/4.9602e6)/(HXe*QHe))",
           "H": 0.15
         },
         "mass_flowrate": 9920000,
-        "volume": 11,
-        "he_flowrate": 340,
-        "T": 700,
+        "volume": 1.3948671381938682,
+        "QHe": 0.1,
+        "T": 900,
         "R": 8314.46261815324,
-        "H_xe": 141951200000
+        "HXe": 141951215734.3127,
+        "K_L": 0.00471468496564777378,
+        "d_b": 0.000508,
+        "xs_area": 0.12566370614359174,
+        "length": 11.1
       },
       "nickel_filter": {
         "capacity": 9920000,

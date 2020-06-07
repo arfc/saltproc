@@ -20,7 +20,7 @@ serpent = Depcode(codename='SERPENT',
 process = Process(mass_flowrate=10,
                   capacity=99.0,
                   volume=95.0,
-                  efficiency={'Xe': 1.0, 'Kr': '9.5/self.mass_flowrate'})
+                  efficiency={'Xe': 1.0, 'Kr': '9.5/mass_flowrate'})
 
 
 def test_rem_elements():
