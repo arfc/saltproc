@@ -97,7 +97,7 @@ class Process():
             if el_name in self.efficiency:
                 # Evaluate removal efficiency for el_name (float)
                 self.efficiency[el_name] = self.calc_rem_efficiency(el_name)
-                print("Epsilon(%s)=%f" % (el_name, self.efficiency[el_name]))
+                print("Epsilon(%s)=%.20f" % (el_name, self.efficiency[el_name]))
                 out_nucvec[iso] = \
                     float(inflow.comp[iso]) * \
                     float(1.0 - self.efficiency[el_name])

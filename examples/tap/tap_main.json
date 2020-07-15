@@ -28,7 +28,7 @@
   ],
   "Switch to another geometry when keff drops below 1?": true,
   "Salt mass flow rate throughout reactor core (g/s)": 9920000,
-  "Number of steps for constant power and depletion interval case": 9,
+  "Number of steps for constant power and depletion interval case": 3,
   "Depletion step interval or Cumulative time (end of step) (d)": 2,
   "Reactor power or power step list during depletion step (W)": 1250000000
 }
