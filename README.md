@@ -17,16 +17,6 @@ python run_saltproc.py -n 4 -d 1 -i examples/tap_main.json
 
 ### Installation
 
-Installing SaltProc from source is a two-step process. First, clone the source
-code from GitHub:
-
-	git clone https://github.com/arfc/saltproc.git
-
-Then run the following commands:
-
-	cd saltproc/
-	python setup.py install --user
-
 Detailed installation instructions can be found in the
 [User's Guide](https://arfc.github.io/saltproc/installation.html).
 
