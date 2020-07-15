@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
             
@@ -570,14 +571,14 @@
             <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span> <span class="s1">&#39;-omp&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
-            <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">args</span><span class="p">,</span>
-                                  <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_fname</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
-                                  <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
-                                  <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
+                            <span class="n">args</span><span class="p">,</span>
+                            <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_fname</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">error</span><span class="o">.</span><span class="n">returncode</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> RUN FAILED</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> RUN FAILED</span><span class="se">\n</span><span class="s1"> see error message above&#39;</span>
+                               <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished Serpent Run&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Depcode.sss_meta_zzz"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.sss_meta_zzz">[docs]</a>    <span class="k">def</span> <span class="nf">sss_meta_zzz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
@@ -608,7 +609,7 @@
             <span class="n">zzaaam</span> <span class="o">=</span> <span class="n">nuc_code</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">zzaaam</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Depcode.write_depcode_input"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.write_depcode_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_depcode_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_file</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dts</span><span class="p">):</span>
+<div class="viewcode-block" id="Depcode.write_depcode_input"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.write_depcode_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_depcode_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp_file</span><span class="p">,</span> <span class="n">inp_file</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dts</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Writes prepared data into the depletion code input file.</span>
 
 <span class="sd">        Parameters</span>
@@ -622,6 +623,8 @@
 <span class="sd">            depletion time for the integration test.</span>
 <span class="sd">        dts : int</span>
 <span class="sd">            Current depletion time step.</span>
+<span class="sd">        restart : bool</span>
+<span class="sd">            Is the current simulation restarted?</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -630,17 +633,17 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">dts</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_depcode_template</span><span class="p">(</span><span class="n">template_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dts</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">restart</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_depcode_template</span><span class="p">(</span><span class="n">temp_file</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insert_path_to_geometry</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_sim_par</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_iter_matfile</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">dts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_depcode_template</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_depcode_template</span><span class="p">(</span><span class="n">inp_file</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace_burnup_parameters</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dts</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">out_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+            <span class="n">out_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">inp_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
             <span class="n">out_file</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">out_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -694,7 +697,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
 
     </p>
   </div>

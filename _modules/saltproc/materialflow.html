@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
             
@@ -216,9 +217,8 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mass flowrate </span><span class="si">%f</span><span class="s2"> g/s&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_flowrate</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Temperature </span><span class="si">%f</span><span class="s2"> K&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Void fraction </span><span class="si">%f</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">void_frac</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Burnup </span><span class="si">%f</span><span class="s2"> MWd/kgU&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">burnup</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;U-235 mass </span><span class="si">%f</span><span class="s2"> g&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="p">[</span><span class="mi">922350000</span><span class="p">])</span></div>
-
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Burnup </span><span class="si">%f</span><span class="s2"> MWd/kgU&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">burnup</span><span class="p">)</span></div>
+        
 <div class="viewcode-block" id="Materialflow.scale_matflow"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.scale_matflow">[docs]</a>    <span class="k">def</span> <span class="nf">scale_matflow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns nuclide vector dictionary, obtained from object attrs and</span>
 <span class="sd">        then scaled by factor.</span>
@@ -391,7 +391,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
 
     </p>
   </div>

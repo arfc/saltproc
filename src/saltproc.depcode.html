@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
             
@@ -409,7 +410,7 @@ with <cite>aaa</cite> started with <code class="docutils literal notranslate"><s
 
 <dl class="method">
 <dt id="saltproc.depcode.Depcode.write_depcode_input">
-<code class="sig-name descname">write_depcode_input</code><span class="sig-paren">(</span><em class="sig-param">template_file</em>, <em class="sig-param">input_file</em>, <em class="sig-param">reactor</em>, <em class="sig-param">dts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.write_depcode_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.write_depcode_input" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_depcode_input</code><span class="sig-paren">(</span><em class="sig-param">temp_file</em>, <em class="sig-param">inp_file</em>, <em class="sig-param">reactor</em>, <em class="sig-param">dts</em>, <em class="sig-param">restart</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#Depcode.write_depcode_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.depcode.Depcode.write_depcode_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes prepared data into the depletion code input file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -419,6 +420,7 @@ with <cite>aaa</cite> started with <code class="docutils literal notranslate"><s
 <li><p><strong>reactor</strong> (<a class="reference internal" href="saltproc.reactor.html#saltproc.reactor.Reactor" title="saltproc.reactor.Reactor"><em>Reactor</em></a>) – Contains information about power load curve and cumulative
 depletion time for the integration test.</p></li>
 <li><p><strong>dts</strong> (<em>int</em>) – Current depletion time step.</p></li>
+<li><p><strong>restart</strong> (<em>bool</em>) – Is the current simulation restarted?</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -469,7 +471,6 @@ step.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
 
     </p>
   </div>

@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
             
@@ -222,7 +223,8 @@
                                         <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">template_fname</span><span class="p">,</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">input_fname</span><span class="p">,</span>
                                         <span class="n">reactor</span><span class="p">,</span>
-                                        <span class="n">dts</span><span class="p">)</span>
+                                        <span class="n">dts</span><span class="p">,</span>
+                                        <span class="kc">False</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">run_depcode</span><span class="p">(</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">core_number</span><span class="p">,</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">node_number</span><span class="p">)</span>
@@ -586,8 +588,8 @@
             <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="n">delta_keff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">k_eds</span><span class="p">)</span>
             <span class="n">avrg_keff_drop</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">delta_keff</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average drop&quot;</span><span class="p">,</span> <span class="n">avrg_keff_drop</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Last keff_eds&quot;</span><span class="p">,</span> <span class="n">k_eds</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average keff drop per step &quot;</span><span class="p">,</span> <span class="n">avrg_keff_drop</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;keff at the end of last step &quot;</span><span class="p">,</span> <span class="n">k_eds</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">k_eds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">avrg_keff_drop</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
@@ -626,7 +628,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
 
     </p>
   </div>

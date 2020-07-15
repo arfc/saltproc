@@ -86,6 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
             
@@ -152,12 +153,10 @@
             
   <div class="section" id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
-<p>A number of examples are present in the [examples
-directory](<a class="reference external" href="https://github.com/arfc/saltproc/tree/master/examples">https://github.com/arfc/saltproc/tree/master/examples</a>)
-provided with the source code.</p>
+<p>A number of examples are present in the <a class="reference external" href="https://github.com/arfc/saltproc/tree/master/examples">examples directory</a> provided with the source code.</p>
 <p>Transatomic Power Molten Salt Reactor example can be run with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /path/to/saltproc
-python saltproc -i examples/tap_main.json
+python saltproc -i examples/tap/tap_main.json
 </pre></div>
 </div>
 <p>In the example above, <code class="docutils literal notranslate"><span class="pre">path/to/saltproc</span></code> is, of course, the path to the main
@@ -165,6 +164,10 @@ saltproc directory, containing <code class="docutils literal notranslate"><span 
 Saltproc input file, which contains paths to Serpent input file
 (<code class="docutils literal notranslate"><span class="pre">tap.serpent</span></code>), DOT-file with reprocessing scheme (<code class="docutils literal notranslate"><span class="pre">tap.dot</span></code>), and
 reprocessing system components’ detailed description (<code class="docutils literal notranslate"><span class="pre">tap_objects.json</span></code>).</p>
+<p>Similarly, Molten Salt Breeder Reactor example can be run with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python saltproc -i examples/msbr/msbr_main.json
+</pre></div>
+</div>
 </div>
 
 
@@ -187,7 +190,6 @@ reprocessing system components’ detailed description (<code class="docutils li
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
 
     </p>
   </div>

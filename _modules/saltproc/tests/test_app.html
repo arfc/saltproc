@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
             
@@ -184,16 +185,17 @@
 <div class="viewcode-block" id="test_read_processes_from_input"><a class="viewcode-back" href="../../../src/saltproc.tests.test_app.html#saltproc.tests.test_app.test_read_processes_from_input">[docs]</a><span class="k">def</span> <span class="nf">test_read_processes_from_input</span><span class="p">():</span>
     <span class="n">app</span><span class="o">.</span><span class="n">read_main_input</span><span class="p">(</span><span class="n">main_input</span><span class="p">)</span>
     <span class="n">procs</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">read_processes_from_input</span><span class="p">()</span>
+    <span class="n">xe_expect</span> <span class="o">=</span> <span class="s2">&quot;7936000/self.mass_flowrate&quot;</span>
     <span class="k">assert</span> <span class="n">procs</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;heat_exchanger&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">volume</span> <span class="o">==</span> <span class="mf">1.37E+7</span>
-    <span class="k">assert</span> <span class="n">procs</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;sparger&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">==</span> <span class="p">{</span><span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
-                                                   <span class="s1">&#39;Kr&#39;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
-                                                   <span class="s1">&#39;Xe&#39;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">}</span>
-    <span class="k">assert</span> <span class="n">procs</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;entrainment_separator&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">==</span> <span class="p">{</span><span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
-                                                                 <span class="s1">&#39;Kr&#39;</span><span class="p">:</span> <span class="mf">0.87</span><span class="p">,</span>
-                                                                 <span class="s1">&#39;Xe&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="n">procs</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;sparger&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.6</span>
+    <span class="k">assert</span> <span class="n">procs</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;sparger&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="s1">&#39;Kr&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.6</span>
+    <span class="k">assert</span> <span class="n">procs</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;sparger&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="s1">&#39;Xe&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.6</span>
+    <span class="k">assert</span> <span class="n">procs</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;entrainment_separator&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.15</span>
+    <span class="k">assert</span> <span class="n">procs</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;entrainment_separator&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="s1">&#39;Kr&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.87</span>
+    <span class="c1"># assert procs[&#39;fuel&#39;][&#39;entrainment_separator&#39;].efficiency[&#39;Xe&#39;] == xe_expect</span>
     <span class="k">assert</span> <span class="n">procs</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">][</span><span class="s1">&#39;removal_tb_dy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">volume</span> <span class="o">==</span> <span class="mf">11.0</span>
-    <span class="k">assert</span> <span class="n">procs</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">][</span><span class="s1">&#39;removal_tb_dy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">==</span> <span class="p">{</span><span class="s1">&#39;Tb&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-                                                             <span class="s1">&#39;Dy&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span></div>
+    <span class="k">assert</span> <span class="n">procs</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">][</span><span class="s1">&#39;removal_tb_dy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="s1">&#39;Tb&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="n">procs</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">][</span><span class="s1">&#39;removal_tb_dy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="s1">&#39;Dy&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="test_read_feeds_from_input"><a class="viewcode-back" href="../../../src/saltproc.tests.test_app.html#saltproc.tests.test_app.test_read_feeds_from_input">[docs]</a><span class="k">def</span> <span class="nf">test_read_feeds_from_input</span><span class="p">():</span>
@@ -243,7 +245,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
 
     </p>
   </div>

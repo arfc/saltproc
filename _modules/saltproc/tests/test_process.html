@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
             
@@ -167,9 +168,9 @@
                   <span class="n">geo_file</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
 <span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">mass_flowrate</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                  <span class="n">capacity</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
-                  <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-                  <span class="n">efficiency</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Xe&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="s1">&#39;Kr&#39;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">})</span>
+                  <span class="n">capacity</span><span class="o">=</span><span class="mf">99.0</span><span class="p">,</span>
+                  <span class="n">volume</span><span class="o">=</span><span class="mf">95.0</span><span class="p">,</span>
+                  <span class="n">efficiency</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Xe&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;Kr&#39;</span><span class="p">:</span> <span class="s1">&#39;9.5/mass_flowrate&#39;</span><span class="p">})</span>
 
 
 <div class="viewcode-block" id="test_rem_elements"><a class="viewcode-back" href="../../../src/saltproc.tests.test_process.html#saltproc.tests.test_process.test_rem_elements">[docs]</a><span class="k">def</span> <span class="nf">test_rem_elements</span><span class="p">():</span>
@@ -196,7 +197,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
 
     </p>
   </div>

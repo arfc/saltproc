@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
             
@@ -317,7 +318,8 @@
     <span class="n">serpent</span><span class="o">.</span><span class="n">write_depcode_input</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_fname</span><span class="p">,</span>
                                 <span class="n">serpent</span><span class="o">.</span><span class="n">input_fname</span><span class="o">+</span><span class="s1">&#39;_write_test&#39;</span><span class="p">,</span>
                                 <span class="n">msr</span><span class="p">,</span>
-                                <span class="mi">0</span><span class="p">)</span>
+                                <span class="mi">0</span><span class="p">,</span>
+                                <span class="kc">False</span><span class="p">)</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_depcode_template</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">input_fname</span><span class="o">+</span><span class="s1">&#39;_write_test&#39;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">assert</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;tests&#39;</span>
@@ -340,7 +342,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
 
     </p>
   </div>
