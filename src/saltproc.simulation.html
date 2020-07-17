@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
             
@@ -178,6 +179,27 @@ Serpent runs and update after each depletion step.</p></li>
 </dd></dl>
 
 <dl class="method">
+<dt id="saltproc.simulation.Simulation.check_switch_geo_trigger">
+<code class="sig-name descname">check_switch_geo_trigger</code><span class="sig-paren">(</span><em class="sig-param">current_time</em>, <em class="sig-param">switch_time</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.check_switch_geo_trigger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.simulation.Simulation.check_switch_geo_trigger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares current timestep with user defined time to switch geometry.
+Returns <cite>True</cite> if its time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>current_timestep</strong> (<em>int</em>) – Current time after depletion started.</p></li>
+<li><p><strong>switch_time</strong> (<em>list</em>) – List containing moments in time when geometry have to be switched.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>is the next geometry must be used at the next step?</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="saltproc.simulation.Simulation.read_k_eds_delta">
 <code class="sig-name descname">read_k_eds_delta</code><span class="sig-paren">(</span><em class="sig-param">current_timestep</em>, <em class="sig-param">restart</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.read_k_eds_delta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.simulation.Simulation.read_k_eds_delta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads from database delta between previous and current <cite>keff</cite> at the
@@ -186,12 +208,12 @@ next depletion step drops below 1.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>current_timestep</strong> (<em>int</em>) – number of current depletion time step.</p></li>
-<li><p><strong>restart</strong> (<em>bool</em>) – was this simulation restarted?</p></li>
+<li><p><strong>current_timestep</strong> (<em>int</em>) – Number of current depletion time step.</p></li>
+<li><p><strong>restart</strong> (<em>bool</em>) – Was this simulation restarted?</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>is the reactor will become subcritical at the next step?</p>
+<dd class="field-even"><p>Is the reactor will become subcritical at the next step?</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>bool</p>
@@ -296,7 +318,6 @@ beginning of the Serpent iteration input file.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
 
     </p>
   </div>

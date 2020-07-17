@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
             
@@ -308,10 +309,10 @@
     <span class="n">processes</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">spc_inp_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-        <span class="c1"># print(j)</span>
         <span class="k">for</span> <span class="n">mat</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">processes</span><span class="p">[</span><span class="n">mat</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">obj_name</span><span class="p">,</span> <span class="n">obj_data</span> <span class="ow">in</span> <span class="n">j</span><span class="p">[</span><span class="n">mat</span><span class="p">][</span><span class="s1">&#39;extraction_processes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Processs object data&quot;</span><span class="p">,</span> <span class="n">obj_data</span><span class="p">)</span>
                 <span class="n">processes</span><span class="p">[</span><span class="n">mat</span><span class="p">][</span><span class="n">obj_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="o">**</span><span class="n">obj_data</span><span class="p">)</span>
         <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">processes</span></div>
@@ -506,10 +507,9 @@
             <span class="n">refill_mat</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">feeds</span><span class="p">[</span><span class="n">mn</span><span class="p">][</span><span class="n">feed_n</span><span class="p">]</span>
             <span class="n">waste_dict</span><span class="p">[</span><span class="n">mn</span><span class="p">][</span><span class="s1">&#39;feed_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">feed_n</span><span class="p">)]</span> <span class="o">=</span> <span class="n">refill_mat</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span>
         <span class="n">mat</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span> <span class="o">+=</span> <span class="n">refill_mat</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Refilled fresh fuel </span><span class="si">%f</span><span class="s1"> g&#39;</span> <span class="o">%</span> <span class="n">refill_mat</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Refilled fresh Gd </span><span class="si">%f</span><span class="s1"> g&#39;</span> <span class="o">%</span> <span class="n">refill_mat</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Refill Material ^^^&#39;</span><span class="p">,</span> <span class="n">refill_mat</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">print_attr</span><span class="p">())</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fuel after refill ^^^&#39;</span><span class="p">,</span> <span class="n">mat</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">print_attr</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Refilled fresh material </span><span class="si">%s</span><span class="s1"> </span><span class="si">%f</span><span class="s1"> g&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mn</span><span class="p">,</span> <span class="n">refill_mat</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Refill Material ^^^&#39;</span><span class="p">,</span> <span class="n">refill_mat</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span><span class="o">.</span><span class="n">print_attr</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fuel after refill ^^^&#39;</span><span class="p">,</span> <span class="n">mat</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span><span class="o">.</span><span class="n">print_attr</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">waste_dict</span></div>
 
 
@@ -523,15 +523,10 @@
     <span class="c1"># Print out input information</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Initiating Saltproc:</span><span class="se">\n</span><span class="s1">&#39;</span>
           <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Restart = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">restart_flag</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="c1"># &#39;\tNodes = &#39; + str(nodes) + &#39;\n&#39;</span>
-          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Cores = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="c1"># &#39;\tSteps = &#39; + str(steps) + &#39;\n&#39;</span>
-          <span class="c1"># &#39;\tBlue Waters = &#39; + str(bw) + &#39;\n&#39;</span>
-          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Serpent Path = &#39;</span> <span class="o">+</span> <span class="n">exec_path</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Template File Path = &#39;</span> <span class="o">+</span> <span class="n">template_file</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Input File Path = &#39;</span> <span class="o">+</span> <span class="n">input_file</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="c1"># &#39;\tMaterial File Path = &#39; + mat_file + &#39;\n&#39;</span>
-          <span class="c1"># &#39;\tOutput DB File Path = &#39; + db_file + &#39;\n&#39;</span>
+          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Template File Path  = &#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">template_file</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Input File Path     = &#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Material File Path  = &#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">iter_matfile</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Output HDF5 DB Path = &#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
           <span class="p">)</span>
     <span class="c1"># Intializing objects</span>
     <span class="n">serpent</span> <span class="o">=</span> <span class="n">Depcode</span><span class="p">(</span>
@@ -562,7 +557,11 @@
     <span class="c1"># Start sequence</span>
     <span class="k">for</span> <span class="n">dts</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">depl_hist</span><span class="p">)):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">Step #</span><span class="si">%i</span><span class="s2"> has been started&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dts</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-        <span class="n">serpent</span><span class="o">.</span><span class="n">write_depcode_input</span><span class="p">(</span><span class="n">template_file</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">msr</span><span class="p">,</span> <span class="n">dts</span><span class="p">)</span>
+        <span class="n">serpent</span><span class="o">.</span><span class="n">write_depcode_input</span><span class="p">(</span><span class="n">template_file</span><span class="p">,</span>
+                                    <span class="n">input_file</span><span class="p">,</span>
+                                    <span class="n">msr</span><span class="p">,</span>
+                                    <span class="n">dts</span><span class="p">,</span>
+                                    <span class="n">restart_flag</span><span class="p">)</span>
         <span class="n">serpent</span><span class="o">.</span><span class="n">run_depcode</span><span class="p">(</span><span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dts</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">restart_flag</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>  <span class="c1"># First step</span>
             <span class="c1"># Read general simulation data which never changes</span>
@@ -579,23 +578,23 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Mass and volume of fuel before reproc </span><span class="si">%f</span><span class="s2"> g; </span><span class="si">%f</span><span class="s2"> cm3&quot;</span> <span class="o">%</span>
               <span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
                <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mass and volume of ctrlPois before reproc </span><span class="si">%f</span><span class="s2"> g; </span><span class="si">%f</span><span class="s2"> cm3&quot;</span> <span class="o">%</span>
-              <span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
-               <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
+        <span class="c1"># print(&quot;Mass and volume of ctrlPois before reproc %f g; %f cm3&quot; %</span>
+        <span class="c1">#       (mats[&#39;ctrlPois&#39;].mass,</span>
+        <span class="c1">#        mats[&#39;ctrlPois&#39;].vol))</span>
         <span class="n">waste_st</span><span class="p">,</span> <span class="n">rem_mass</span> <span class="o">=</span> <span class="n">reprocessing</span><span class="p">(</span><span class="n">mats</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Mass and volume of fuel after reproc </span><span class="si">%f</span><span class="s2"> g; </span><span class="si">%f</span><span class="s2"> cm3&quot;</span> <span class="o">%</span>
               <span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
                <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mass and volume of ctrlPois after reproc </span><span class="si">%f</span><span class="s2"> g; </span><span class="si">%f</span><span class="s2"> cm3&quot;</span> <span class="o">%</span>
-              <span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
-               <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
+        <span class="c1"># print(&quot;Mass and volume of ctrlPois after reproc %f g; %f cm3&quot; %</span>
+        <span class="c1">#       (mats[&#39;ctrlPois&#39;].mass,</span>
+        <span class="c1">#        mats[&#39;ctrlPois&#39;].vol))</span>
         <span class="n">waste_feed_st</span> <span class="o">=</span> <span class="n">refill</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">rem_mass</span><span class="p">,</span> <span class="n">waste_st</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Mass and volume of fuel after REFILL </span><span class="si">%f</span><span class="s2"> g; </span><span class="si">%f</span><span class="s2"> cm3&quot;</span> <span class="o">%</span>
               <span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
                <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mass and volume of ctrlPois after REFILL </span><span class="si">%f</span><span class="s2"> g; </span><span class="si">%f</span><span class="s2"> cm3&quot;</span> <span class="o">%</span>
-              <span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
-               <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
+        <span class="c1"># print(&quot;Mass and volume of ctrlPois after REFILL %f g; %f cm3&quot; %</span>
+        <span class="c1">#       (mats[&#39;ctrlPois&#39;].mass,</span>
+        <span class="c1">#        mats[&#39;ctrlPois&#39;].vol))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Removed mass [g]:&quot;</span><span class="p">,</span> <span class="n">rem_mass</span><span class="p">)</span>
         <span class="c1"># Store in DB after reprocessing and refill (right before next depl)</span>
         <span class="n">simulation</span><span class="o">.</span><span class="n">store_after_repr</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">waste_feed_st</span><span class="p">,</span> <span class="n">dts</span><span class="p">)</span>
@@ -624,7 +623,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
 
     </p>
   </div>

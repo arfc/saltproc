@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
             
@@ -149,6 +150,7 @@
   <h1>Source code for saltproc.simulation</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tables</span> <span class="k">as</span> <span class="nn">tb</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 
 
@@ -221,7 +223,8 @@
                                         <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">template_fname</span><span class="p">,</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">input_fname</span><span class="p">,</span>
                                         <span class="n">reactor</span><span class="p">,</span>
-                                        <span class="n">dts</span><span class="p">)</span>
+                                        <span class="n">dts</span><span class="p">,</span>
+                                        <span class="kc">False</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">run_depcode</span><span class="p">(</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">core_number</span><span class="p">,</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">node_number</span><span class="p">)</span>
@@ -406,7 +409,7 @@
                                 <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">mpar_dtype</span><span class="p">),</span>
                                 <span class="s2">&quot;Material parameters data&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dumping Material </span><span class="si">%s</span><span class="s1"> data </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span>
-                  <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">moment</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5_file</span><span class="p">)))</span>
+                  <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">moment</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5_file</span><span class="p">)))</span>
             <span class="c1"># Add row for the timestep to EArray and Material Parameters table</span>
             <span class="n">earr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">iso_wt_frac</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
             <span class="n">mpar_table</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mpar_array</span><span class="p">)</span>
@@ -566,14 +569,14 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        current_timestep : int</span>
-<span class="sd">            number of current depletion time step.</span>
+<span class="sd">            Number of current depletion time step.</span>
 <span class="sd">        restart : bool</span>
-<span class="sd">            was this simulation restarted?</span>
+<span class="sd">            Was this simulation restarted?</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
-<span class="sd">            is the reactor will become subcritical at the next step?</span>
+<span class="sd">            Is the reactor will become subcritical at the next step?</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -585,12 +588,34 @@
             <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="n">delta_keff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">k_eds</span><span class="p">)</span>
             <span class="n">avrg_keff_drop</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">delta_keff</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average drop&quot;</span><span class="p">,</span> <span class="n">avrg_keff_drop</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Last keff_eds&quot;</span><span class="p">,</span> <span class="n">k_eds</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average keff drop per step &quot;</span><span class="p">,</span> <span class="n">avrg_keff_drop</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;keff at the end of last step &quot;</span><span class="p">,</span> <span class="n">k_eds</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">k_eds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">avrg_keff_drop</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span></div></div>
+                <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Simulation.check_switch_geo_trigger"><a class="viewcode-back" href="../../src/saltproc.simulation.html#saltproc.simulation.Simulation.check_switch_geo_trigger">[docs]</a>    <span class="k">def</span> <span class="nf">check_switch_geo_trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_time</span><span class="p">,</span> <span class="n">switch_time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compares current timestep with user defined time to switch geometry.</span>
+<span class="sd">        Returns `True` if its time.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        current_timestep : int</span>
+<span class="sd">            Current time after depletion started.</span>
+<span class="sd">        switch_time : list</span>
+<span class="sd">            List containing moments in time when geometry have to be switched.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            is the next geometry must be used at the next step?</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">current_time</span> <span class="ow">in</span> <span class="n">switch_time</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div></div>
 </pre></div>
 
            </div>
@@ -603,7 +628,6 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
 
     </p>
   </div>

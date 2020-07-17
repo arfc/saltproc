@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
             
@@ -152,13 +153,13 @@
 <span id="saltproc-process-module"></span><h1>saltproc.process module<a class="headerlink" href="#module-saltproc.process" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="saltproc.process.Process">
-<em class="property">class </em><code class="sig-prename descclassname">saltproc.process.</code><code class="sig-name descname">Process</code><span class="sig-paren">(</span><em class="sig-param">mass_flowrate=0.0</em>, <em class="sig-param">capacity=0.0</em>, <em class="sig-param">volume=0.0</em>, <em class="sig-param">efficiency=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">saltproc.process.</code><code class="sig-name descname">Process</code><span class="sig-paren">(</span><em class="sig-param">*initial_data</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class describes process which must be applied to Materialflow to change
 burnable material composition.</p>
 <dl class="method">
 <dt id="saltproc.process.Process.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">mass_flowrate=0.0</em>, <em class="sig-param">capacity=0.0</em>, <em class="sig-param">volume=0.0</em>, <em class="sig-param">efficiency=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">*initial_data</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the Process object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -174,7 +175,29 @@ can handle (g/s)</p></li>
 </dd>
 </dl>
 </p></li>
+<li><p><strong>optional_parameter</strong> (<em>float</em>) – user can define any castom parameter in the input file describing
+processes and use it in efficiency function</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="saltproc.process.Process.calc_rem_efficiency">
+<code class="sig-name descname">calc_rem_efficiency</code><span class="sig-paren">(</span><em class="sig-param">el_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.calc_rem_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.calc_rem_efficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Based on data from json file with Processes description calculate
+value (float) of the removal efficiency. If it was str describing
+efficiecny as a function (eps(x,m,t,P,L)) then calculating value. If it
+constant (float in processes.json) then just keep it as is.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>el_name</strong> (<em>str</em>) – Name of target element to be removed.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>efficiency</strong> – Extraction efficiency for el_name element.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -221,7 +244,6 @@ system and returns waste stream Materialflow object.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff
 
     </p>
   </div>
