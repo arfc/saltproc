@@ -35,14 +35,12 @@ def test_read_main_input():
 def test_read_processes_from_input():
     app.read_main_input(main_input)
     procs = app.read_processes_from_input()
-    xe_expect = "7936000/self.mass_flowrate"
     assert procs['fuel']['heat_exchanger'].volume == 1.37E+7
     assert procs['fuel']['sparger'].efficiency['H'] == 0.6
     assert procs['fuel']['sparger'].efficiency['Kr'] == 0.6
     assert procs['fuel']['sparger'].efficiency['Xe'] == 0.6
     assert procs['fuel']['entrainment_separator'].efficiency['H'] == 0.15
     assert procs['fuel']['entrainment_separator'].efficiency['Kr'] == 0.87
-    # assert procs['fuel']['entrainment_separator'].efficiency['Xe'] == xe_expect
     assert procs['ctrlPois']['removal_tb_dy'].volume == 11.0
     assert procs['ctrlPois']['removal_tb_dy'].efficiency['Tb'] == 0
     assert procs['ctrlPois']['removal_tb_dy'].efficiency['Dy'] == 0

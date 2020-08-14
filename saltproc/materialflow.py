@@ -68,7 +68,7 @@ class Materialflow(pymat):
         print("Temperature %f K" % self.temp)
         print("Void fraction %f " % self.void_frac)
         print("Burnup %f MWd/kgU" % self.burnup)
-        
+
     def scale_matflow(self, f=1.0):
         """Returns nuclide vector dictionary, obtained from object attrs and
         then scaled by factor.

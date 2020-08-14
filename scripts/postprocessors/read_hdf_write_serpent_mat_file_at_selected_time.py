@@ -3,7 +3,7 @@ import tables as tb
 from pyne import nucname
 
 
-db_file = '/home/andrei2/Desktop/git/publications/2020-rykhl-dissertation/data/db/base_case/base_case_void_011867_3d_9600d.h5'
+db_file = './saltproc_database.h5'
 new_mat_file = './mat_prepr_comp_geo_1_boc.ini'
 
 time_after_startup = 6.0   # days, extract the composition after n days startup
@@ -14,7 +14,7 @@ xs_path = '/home/andrei2/serpent/xsdata/jeff312/sss_jeff312.xsdata'
 
 lib_temp = '.09c'
 
-mat_head = 'mat  fuel  -4.9596113793080425 rgb 253 231 37 burn 1 fix 09c  900 vol 4.435305E+7\n'
+mat_head = 'mat  fuel  -4.95 burn 1 fix 09c  900 vol 4.435305E+7\n'
 
 
 def check_isotope_in_library(isotope, lib_isos):
@@ -50,6 +50,7 @@ def get_library_isotopes(acelib_path):
             lib_isos_list.append(iso)
     return lib_isos_list
 
+
 def read_all_iso_at_step(db_file, time_after_startup):
     db = tb.open_file(db_file, mode='r')
     sim_param = db.root.simulation_parameters
@@ -61,8 +62,8 @@ def read_all_iso_at_step(db_file, time_after_startup):
 
     fuel_after = db.root.materials.fuel.after_reproc.comp
 
-    composition_at_time_before = fuel_before[dts,:]
-    composition_at_time_after = fuel_after[dts,:]
+    composition_at_time_before = fuel_before[dts, :]
+    composition_at_time_after = fuel_after[dts, :]
     db.close()
 
     mass_b = {}
@@ -72,6 +73,7 @@ def read_all_iso_at_step(db_file, time_after_startup):
         mass_b[iso] = composition_at_time_before[isomap[iso]]
         mass_a[iso] = composition_at_time_after[isomap[iso]]
     return mass_b, mass_a, isomap
+
 
 def convert_to_serpent_tra(isoname, lib_temp):
     metastable_flag = 0
@@ -86,9 +88,11 @@ def convert_to_serpent_tra(isoname, lib_temp):
         serpent_name = nucname.serpent(isoname) + lib_temp
     return serpent_name, metastable_flag
 
+
 def convert_to_serpent_dec(isoname, meta):
     serpent_name = str(nucname.zzzaaa(isoname.split('.')[0])) + str(meta)
     return serpent_name
+
 
 def update_density(file, void):
     f = open(file, 'r')
@@ -97,13 +101,20 @@ def update_density(file, void):
     density = mat_str[2]
     new_density = (1-void)*float(density)
     mat_str[2] = str(new_density)
-    data[2]=" ".join(mat_str) + '\n'
+    data[2] = " ".join(mat_str) + '\n'
     f.close()
     f = open(file, 'w')
     f.writelines(data)
     f.close()
 
-def filter_out_and_store(isos, lib_isos, file, t, lib_temp, decay_isos, mat_head):
+
+def filter_out_and_store(isos,
+                         lib_isos,
+                         file,
+                         t,
+                         lib_temp,
+                         decay_isos,
+                         mat_head):
     """ Filter out isotopes which are not in XS library and
      stores new list in Serpent input file
     Parameters:
@@ -124,7 +135,7 @@ def filter_out_and_store(isos, lib_isos, file, t, lib_temp, decay_isos, mat_head
         if check_isotope_in_library(iso_sss, lib_isos):
             mass_no_decay_isos += wt_frac
             matf.write('           %9s  %7.14E\n' %
-                      (iso_sss, -wt_frac))
+                       (iso_sss, -wt_frac))
         else:
             mass_decay_isos += wt_frac
             if decay_isos:
@@ -132,12 +143,14 @@ def filter_out_and_store(isos, lib_isos, file, t, lib_temp, decay_isos, mat_head
                            (convert_to_serpent_dec(iso_sss, meta), -wt_frac))
     matf.close()
     if not decay_isos:
-        update_density(file, mass_decay_isos/(mass_decay_isos+mass_no_decay_isos))
+        update_density(file,
+                       mass_decay_isos/(mass_decay_isos+mass_no_decay_isos))
 
 
-mass_before, mass_after, iso_map = read_all_iso_at_step(db_file, time_after_startup)
+mass_before, mass_after, iso_map = read_all_iso_at_step(db_file,
+                                                        time_after_startup)
 
-lib_isos  = get_library_isotopes(xs_path)
+lib_isos = get_library_isotopes(xs_path)
 filter_out_and_store(mass_after,
                      lib_isos,
                      new_mat_file,

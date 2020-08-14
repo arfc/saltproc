@@ -1,6 +1,6 @@
 from saltproc import Depcode
 # serpent_dep_m_out = './tap.serpent'
-serpent_dep_m_out = '/home/andrei2/Desktop/git/saltproc/develop/examples/msbr/msbr.serpent'
+serpent_dep_m_out = '../../examples/msbr/msbr.serpent'
 new_mat_file = './msbr_saltproc_prepr_comp.ini'
 
 depcode = Depcode(codename='SERPENT',
