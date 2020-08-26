@@ -159,10 +159,10 @@ def read_processes_from_input():
     processes = OrderedDict()
     with open(spc_inp_file) as f:
         j = json.load(f)
-        # print(j)
         for mat, value in j.items():
             processes[mat] = OrderedDict()
             for obj_name, obj_data in j[mat]['extraction_processes'].items():
+                print("Processs object data", obj_data)
                 processes[mat][obj_name] = Process(**obj_data)
         gc.collect()
         return processes
@@ -357,10 +357,9 @@ def refill(mat, extracted_mass, waste_dict):
             refill_mat[mn] = scale * feeds[mn][feed_n]
             waste_dict[mn]['feed_'+str(feed_n)] = refill_mat[mn]
         mat[mn] += refill_mat[mn]
-    print('Refilled fresh fuel %f g' % refill_mat['fuel'].mass)
-    print('Refilled fresh Gd %f g' % refill_mat['ctrlPois'].mass)
-    print('Refill Material ^^^', refill_mat['fuel'].print_attr())
-    print('Fuel after refill ^^^', mat['fuel'].print_attr())
+        print('Refilled fresh material %s %f g' % (mn, refill_mat[mn].mass))
+        print('Refill Material ^^^', refill_mat[mn].print_attr())
+        print('Fuel after refill ^^^', mat[mn].print_attr())
     return waste_dict
 
 
@@ -408,7 +407,11 @@ def run():
     # Start sequence
     for dts in range(len(depl_hist)):
         print("\n\n\nStep #%i has been started" % (dts+1))
-        serpent.write_depcode_input(template_file, input_file, msr, dts)
+        serpent.write_depcode_input(template_file,
+                                    input_file,
+                                    msr,
+                                    dts,
+                                    restart_flag)
         serpent.run_depcode(cores, nodes)
         if dts == 0 and restart_flag is False:  # First step
             # Read general simulation data which never changes
@@ -425,23 +428,23 @@ def run():
         print("\nMass and volume of fuel before reproc %f g; %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
-        print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
-              (mats['ctrlPois'].mass,
-               mats['ctrlPois'].vol))
+        # print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
+        #       (mats['ctrlPois'].mass,
+        #        mats['ctrlPois'].vol))
         waste_st, rem_mass = reprocessing(mats)
         print("\nMass and volume of fuel after reproc %f g; %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
-        print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
-              (mats['ctrlPois'].mass,
-               mats['ctrlPois'].vol))
+        # print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
+        #       (mats['ctrlPois'].mass,
+        #        mats['ctrlPois'].vol))
         waste_feed_st = refill(mats, rem_mass, waste_st)
         print("\nMass and volume of fuel after REFILL %f g; %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
-        print("Mass and volume of ctrlPois after REFILL %f g; %f cm3" %
-              (mats['ctrlPois'].mass,
-               mats['ctrlPois'].vol))
+        # print("Mass and volume of ctrlPois after REFILL %f g; %f cm3" %
+        #       (mats['ctrlPois'].mass,
+        #        mats['ctrlPois'].vol))
         print("Removed mass [g]:", rem_mass)
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_feed_st, dts)

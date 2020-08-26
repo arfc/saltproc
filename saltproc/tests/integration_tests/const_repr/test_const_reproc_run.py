@@ -42,9 +42,6 @@ def read_fuel_h5(file):
     tmp = fuel.after_reproc.parameters.read()
     # Convert structured array to simple array
     param = tmp.view(np.float64).reshape(tmp.shape + (-1,))
-    print(param, type(param))
-    print(param[0])
-    print(param[1])
     db.close()
     return out_data, param
 

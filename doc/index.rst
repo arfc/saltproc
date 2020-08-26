@@ -3,7 +3,6 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-
 SaltProc
 =========
 
@@ -33,6 +32,7 @@ Documentation
    installation
    examples
    src/index
+   How to cite <https://github.com/arfc/saltproc/blob/master/CITATION.md>
 
 Indices and tables
 ------------------
@@ -40,6 +40,7 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
 
 
 Citation
@@ -54,9 +55,22 @@ file.
 Get in touch
 ------------
 
-Please report bugs, suggest feature ideas, and browse the source code `on GitHub`_.
+- Please report bugs, suggest feature ideas, and browse the source code `on GitHub`_.
+- There, new contributors can also find `a guide to contributing`_.
+- Good start point for new contributors is `current open issues`_.
 
+.. _a guide to contributing: https://github.com/arfc/saltproc/blob/master/CONTRIBUTING.md
+.. _current open issues: https://github.com/arfc/saltproc/issues?q=is%3Aopen+is%3Aissue
 .. _on GitHub: http://github.com/arfc/saltproc
+
+Acknowledgment
+--------------
+
+SaltProc uses `Shablona`_ template which is universal solution for small
+scientific python projects developed at University of Washington `eScience Insititute`_.
+
+.. _Shablona: https://github.com/uwescience/shablona
+.. _eScience Insititute: https://escience.washington.edu
 
 License
 -------

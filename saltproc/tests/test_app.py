@@ -36,15 +36,14 @@ def test_read_processes_from_input():
     app.read_main_input(main_input)
     procs = app.read_processes_from_input()
     assert procs['fuel']['heat_exchanger'].volume == 1.37E+7
-    assert procs['fuel']['sparger'].efficiency == {'H': 0.6,
-                                                   'Kr': 0.6,
-                                                   'Xe': 0.6}
-    assert procs['fuel']['entrainment_separator'].efficiency == {'H': 0.15,
-                                                                 'Kr': 0.87,
-                                                                 'Xe': 0.8}
+    assert procs['fuel']['sparger'].efficiency['H'] == 0.6
+    assert procs['fuel']['sparger'].efficiency['Kr'] == 0.6
+    assert procs['fuel']['sparger'].efficiency['Xe'] == 0.6
+    assert procs['fuel']['entrainment_separator'].efficiency['H'] == 0.15
+    assert procs['fuel']['entrainment_separator'].efficiency['Kr'] == 0.87
     assert procs['ctrlPois']['removal_tb_dy'].volume == 11.0
-    assert procs['ctrlPois']['removal_tb_dy'].efficiency == {'Tb': 0.0,
-                                                             'Dy': 0.0}
+    assert procs['ctrlPois']['removal_tb_dy'].efficiency['Tb'] == 0
+    assert procs['ctrlPois']['removal_tb_dy'].efficiency['Dy'] == 0
 
 
 def test_read_feeds_from_input():
