@@ -76,6 +76,8 @@ def eps(H, K_L):
 
 if __name__ == '__main__':
 
+    subprocess.run('mkdir outputs', shell=True)
+
     #  Saltproc input/output files for editing
     work_dir = os.getcwd() + '/'
     inp_dir = work_dir + 'inputs/'
