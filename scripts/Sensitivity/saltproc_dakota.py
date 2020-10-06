@@ -21,7 +21,7 @@ be installed within the Python environment you are running this script in.
 To run the dakota code and start to make sensitivity analysis,
 use follwowing command:
 
-dakota -i msbr_dakota.in -o msbr_dakota.out > msbr_dakota.stdout
+dakota -i msbr_dakota.in -o outputs/msbr_dakota.out > outputs/msbr_dakota.stdout
 
 Notes
 -----
