@@ -1,7 +1,7 @@
 
 # Dakota Input File: tap_sa_dakota.in
 # Usage:
-#   dakota -i msbr_dakota.in -o msbr_dakota.out > msbr_dakota.stdout
+#   dakota -i msbr_dakota.in -o outputs/msbr_dakota.out > outputs/msbr_dakota.stdout
 
 environment
   tabular_data
