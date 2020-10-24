@@ -77,6 +77,7 @@ def eps(H, K_L):
 if __name__ == '__main__':
 
     subprocess.run('mkdir outputs', shell=True)
+    saltproc_path = '/path/to/saltproc/saltproc'
 
     #  Saltproc input/output files for editing
     work_dir = os.getcwd() + '/'
@@ -87,6 +88,8 @@ if __name__ == '__main__':
     results_file = 'msbr_results.csv'
 
     #  Variables for saltproc main input file
+    node = 1
+    processor = 6
     power_rampup_rate = 0  # percent per minute
     power_ramp = np.linspace(1e-10, 2250000000, 10, endpoint=False)
     depletion_step = 25  # in days
@@ -134,8 +137,8 @@ if __name__ == '__main__':
 
     #  Simulate saltproc
     # command = 'python /path/to/saltproc/saltproc -i' + main_input
-    command = 'python /path/to/saltproc/saltproc -n 1 -d 6 -i'\
-              + work_dir + main_input
+    command = 'python ' + saltproc_path + ' -n %i -d %i' % (node, processor) +\
+              ' -i ' + work_dir + main_input
     subprocess.run(command, shell=True)
 
     #  Extract output parameters from h5 file
