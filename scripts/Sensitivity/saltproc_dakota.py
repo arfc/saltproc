@@ -7,7 +7,7 @@ entrainment separator efficiency of molten salt breeder reactor. The
 script modifies saltproc input files (dot and json) and puts the results
 into results.cvs file.
 
-This main script requires that \n
+The main script dependencies \n
 'os'
 'subprocess'\n
 'pandas'\n
