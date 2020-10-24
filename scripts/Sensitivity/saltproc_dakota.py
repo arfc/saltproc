@@ -133,8 +133,8 @@ if __name__ == '__main__':
         json.dump(object_data, obj_file)
 
     #  Simulate saltproc
-    # command = 'python /home/memo/Github/saltproc/saltproc -i' + main_input
-    command = 'python /home/memo/Github/saltproc/saltproc -n 1 -d 6 -i'\
+    # command = 'python /path/to/saltproc/saltproc -i' + main_input
+    command = 'python /path/to/saltproc/saltproc -n 1 -d 6 -i'\
               + work_dir + main_input
     subprocess.run(command, shell=True)
 
