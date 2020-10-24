@@ -19,7 +19,7 @@ The main script dependencies \n
 be installed within the Python environment you are running this script in.
 
 To run the dakota code and start to make sensitivity analysis,
-use follwowing command:
+use following command:
 
 dakota -i msbr_dakota.in -o outputs/msbr_dakota.out > outputs/msbr_dakota.stdout
 
