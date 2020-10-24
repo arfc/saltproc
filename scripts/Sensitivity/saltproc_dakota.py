@@ -26,7 +26,7 @@ dakota -i msbr_dakota.in -o outputs/msbr_dakota.out > outputs/msbr_dakota.stdout
 Notes
 -----
 Change the following paramaters according to where your codes are:
-    'command' for path to saltproc code
+    "saltproc_path" variable for the saltproc code
 
 """
 
