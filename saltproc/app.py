@@ -17,9 +17,9 @@ import argparse
 import numpy as np
 
 
-input_path = os.path.dirname(os.path.abspath(__file__))
+input_path = os.getcwd()
 
-input_file = os.path.join(input_path, 'data/saltproc_tap')
+input_file = os.path.join(input_path, 'data/saltproc_serpent')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
 
 
