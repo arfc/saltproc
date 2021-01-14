@@ -164,16 +164,16 @@ def read_processes_from_input():
         for mat, value in j.items():
             processes[mat] = OrderedDict()
             for obj_name, obj_data in j[mat]['extraction_processes'].items():
-                
+
                 if obj_name == 'sparger':
                     j[mat]['extraction_processes'][obj_name]['efficiency'] =\
-                    Sparger().eff()
+                        Sparger().eff()
                 elif obj_name == 'entrainment_separator':
                     j[mat]['extraction_processes'][obj_name]['efficiency'] =\
-                    Separator().eff()
+                        Separator().eff()
 
             for obj_name, obj_data in j[mat]['extraction_processes'].items():
-                
+
                 print("Processs object data: ", obj_name, obj_data)
                 processes[mat][obj_name] = Process(**obj_data)
 
