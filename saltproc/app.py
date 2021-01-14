@@ -174,7 +174,7 @@ def read_processes_from_input():
 
             for obj_name, obj_data in j[mat]['extraction_processes'].items():
 
-                print("Processs object data: ", obj_data)
+                print("Processs object data", obj_data)
                 processes[mat][obj_name] = Process(**obj_data)
 
         gc.collect()
