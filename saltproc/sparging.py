@@ -3,7 +3,7 @@ import numpy as np
 
 class Sparger():
     """Class evaluates gas removal efficiency in sparger (bubble generator).
-    
+
     """
 
     def __init__(self, Q_salt=0.1, Q_He=0.005, L=10,
@@ -31,8 +31,7 @@ class Sparger():
         self.L = L
         self.ds = ds
         self.db = db
-        self.Tsalt =Tsalt
-
+        self.Tsalt = Tsalt
 
     def eff(self):
         """Evaluates gas removal efficiency in sparger (bubble generator).
@@ -43,7 +42,7 @@ class Sparger():
             ``key``
                 Name of target isotope.
             ``value``
-                Henry's law of constant.        
+                Henry's law of constant.
         vl : float
             average liquid velocity (m/s)
         mu : float
@@ -61,7 +60,7 @@ class Sparger():
             ``key``
                 Name of target isotope.
             ``value``
-                Henry's law of constant.   
+                Henry's law of constant.
         R : real
             universal gas constant (Pa.m3/mol-K)
         D : real
@@ -73,7 +72,7 @@ class Sparger():
         rem_eff : dict
             Dictionary that contains removal efficiency of each target
             element.
-    
+
             ``key``
                 Name of target isotope.
             ``value``
@@ -81,11 +80,10 @@ class Sparger():
 
         Note
         ----
-        Henry's law of constant (Pa.m3/mol) for Xe, Kr, H from 
+        Henry's law of constant (Pa.m3/mol) for Xe, Kr, H from
         Sander, R.: Compilation of Henry's law constants (version 4.0)
         for water as solvent, Atmos. Chem. Phys., 15, 4399–4981
         """
-
 
         def eps(H, K_L):
             """Evaluates gas removal efficiency in sparger (bubble generator)
@@ -102,8 +100,7 @@ class Sparger():
 
             return (1-np.exp(-beta))/(1+alpha)
 
-
-        H = {'Xe':4.3e-5, 'Kr':2.5e-5, 'H':2.6e-6}
+        H = {'Xe': 4.3e-5, 'Kr': 2.5e-5, 'H': 2.6e-6}
         H['Xe'] = 1 / (H['Xe'] * np.exp(2300 * (1/self.Tsalt - 1/298.15)))
         H['Kr'] = 1 / (H['Kr'] * np.exp(1900 * (1/self.Tsalt - 1/298.15)))
         H['H'] = 1 / (H['H'] * np.exp(0 * (1/self.Tsalt - 1/298.15)))
@@ -116,14 +113,12 @@ class Sparger():
         vl = self.Q_salt / Ac
         N_Re = self.ds * vl / nu
         N_Sc = nu / D
-        N_Sh = 2.06972 * (N_Re**0.555) * (N_Sc**0.5) 
+        N_Sh = 2.06972 * (N_Re**0.555) * (N_Sc**0.5)
         #  An alternative correlation for Sherwood from ORNL-TM-2245 Eq.36
         # N_Sh = 0.0096 * (N_Re**0.913) * (N_Sc**0.346)
-        coeff_K_L = N_Sh * D / self.ds # m/s
+        coeff_K_L = N_Sh * D / self.ds  # m/s
 
         rem_eff = {}
-        # rem_eff['K_L'] = np.around(coeff_K_L*1000, 3) # mm/s
-        # rem_eff['Re'] = np.around(N_Re, 1)
         for key in H:
             rem_eff[key] = np.around(eps(H[key], coeff_K_L), 3)
 
@@ -132,9 +127,8 @@ class Sparger():
 
 class Separator():
     """Class evaluates gas removal efficiency in separator (bubble separator).
-    
-     """
 
+     """
 
     def __init__(self, Qe=0.1, Qg=0.005, Pgamma=10, X=0.05):
         """ Initializes the Separator object.
@@ -156,7 +150,6 @@ class Separator():
         self.Qg = Qg
         self.Pgamma = Pgamma
         self.X = X
-
 
     def eff(self):
         """ Evaluates gas removal efficiency in bubble separator
