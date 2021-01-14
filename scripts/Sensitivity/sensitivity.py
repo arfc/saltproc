@@ -140,11 +140,5 @@ def plot_result():
 
 if __name__ == '__main__':
 
-    rem_eff = Sparger().eff()
-    print(rem_eff)
-
-    sep_eff = Separator().eff()
-    print(sep_eff)
-
     sensitivity()
     plot_result()
