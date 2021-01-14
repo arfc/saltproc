@@ -22,10 +22,10 @@ python sensitivity.py
 """
 
 import sys
-sys.path.append('../../saltproc/')
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+sys.path.append('../../saltproc/')
 
 from itertools import product
 from sparging import Sparger
@@ -48,17 +48,17 @@ def referans_design():
         bubble diameter (m) for bubble generator/separator
     Tsalt : float
         salt temperature (K)
-    
+
     """
 
     Q_salt = 0.1
-    Q_He = Q_salt*0.05 # up to 5% of total salt flow rate
+    Q_He = Q_salt * 0.05  # up to 5% of total salt flow rate
     L = 10
     ds = 0.1
     db = 0.001
     Tsalt = 900
-    
-    param_dict = {'Q_salt': Q_salt, 'Q_He': Q_He, 
+
+    param_dict = {'Q_salt': Q_salt, 'Q_He': Q_He,
                   'L': L, 'ds': ds, 'db': db, 'Tsalt': Tsalt}
 
     return param_dict
@@ -68,7 +68,7 @@ def sensitivity():
     """Sensitivity Analysis for Sparger Sysytem
 
     This script allows the user to find the optimum designs for optimal
-    total removal efficiency of molten salt breeder reactor. 
+    total removal efficiency of molten salt breeder reactor.
 
     """
 
@@ -104,18 +104,17 @@ def plot_result():
                         'fname': 'helium_flow_rate',
                         'ref': pdict['Q_He']},
                'L': {'xaxis': 'sparger pipe length ${(m)}$',
-                        'fname': 'sparger_pipe_length',
-                        'ref': pdict['L']},
+                     'fname': 'sparger_pipe_length',
+                     'ref': pdict['L']},
                'ds': {'xaxis': 'sparger pipe diameter ${(m)}$',
-                        'fname': 'sparger_pipe_diameter',
-                        'ref': pdict['ds']},
+                      'fname': 'sparger_pipe_diameter',
+                      'ref': pdict['ds']},
                'db': {'xaxis': 'bubble diameter ${(m)}$',
-                        'fname': 'bubble_diameter',
-                        'ref': pdict['db']},
+                      'fname': 'bubble_diameter',
+                      'ref': pdict['db']},
                'Tsalt': {'xaxis': 'average salt temperature ${(K)}$',
-                        'fname': 'average_salt_temperature',
-                        'ref': pdict['Tsalt']}
-              }
+                         'fname': 'average_salt_temperature',
+                         'ref': pdict['Tsalt']}}
 
     for key, value in pltdict.items():
         df = pd.read_csv('results.csv')
@@ -131,7 +130,7 @@ def plot_result():
         plt.plot(xdata, ydata, 'bo', linestyle="--")
         plt.xlabel(value['xaxis'])
         plt.ylabel("Xe removal effficiency (%)")
-        plt.ticklabel_format(axis="x", style="sci", scilimits=(-2,4))
+        plt.ticklabel_format(axis="x", style="sci", scilimits=(-2, 4))
         figname = str('Xe_eff_vs_%s' % (value['fname']))
         ftype = 'png'
         plt.savefig(figname+'.'+ftype, dpi=300, format=ftype,
@@ -146,8 +145,6 @@ if __name__ == '__main__':
 
     sep_eff = Separator().eff()
     print(sep_eff)
-    
+
     sensitivity()
     plot_result()
-
-    
