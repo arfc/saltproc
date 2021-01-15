@@ -129,7 +129,7 @@ def plot_result():
         fig = plt.figure(figsize=(5, 5))
         plt.plot(xdata, ydata, 'bo', linestyle="--")
         plt.xlabel(value['xaxis'])
-        plt.ylabel("Xe removal effficiency (%)")
+        plt.ylabel("Xe removal efficiency (%)")
         plt.ticklabel_format(axis="x", style="sci", scilimits=(-2, 4))
         figname = str('Xe_eff_vs_%s' % (value['fname']))
         ftype = 'png'
