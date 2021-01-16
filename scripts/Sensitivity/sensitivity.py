@@ -3,7 +3,7 @@
 ===============================
 
 This script allows the user to find the optimum designs for optimal
-sparger (bubble generator) and entraintment separator efficiency of
+sparger (bubble generator) and entrainment separator efficiency of
 molten salt breeder reactor. The script will put all output/plots
 into 'data' directory under the working directory. Results are provided
 in results.cvs file.
@@ -33,7 +33,7 @@ from sparging import Separator
 
 
 def referans_design():
-    """Referans sparger design based on Jiaqi's simulation
+    """Reference sparger design based on Jiaqi's simulation
     Parameters
     ----------
     Q_salt : float
@@ -65,7 +65,7 @@ def referans_design():
 
 
 def sensitivity():
-    """Sensitivity Analysis for Sparger Sysytem
+    """Sensitivity Analysis for Sparger System
 
     This script allows the user to find the optimum designs for optimal
     total removal efficiency of molten salt breeder reactor.
