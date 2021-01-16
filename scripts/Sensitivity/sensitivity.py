@@ -32,7 +32,7 @@ from sparging import Sparger
 from sparging import Separator
 
 
-def referans_design():
+def reference_design():
     """Reference sparger design based on Jiaqi's simulation
     Parameters
     ----------
@@ -72,7 +72,7 @@ def sensitivity():
 
     """
 
-    param_dict = referans_design()
+    param_dict = reference_design()
     sen_coeff = np.array([0.5, 0.75, 1.0, 1.5, 2])
 
     for key, value in param_dict.items():
@@ -96,7 +96,7 @@ def plot_result():
 
     """
 
-    pdict = referans_design()
+    pdict = reference_design()
     pltdict = {'Q_salt': {'xaxis': 'salt flow rate ${(m^3/s)}$',
                           'fname': 'salt_flow_rate'},
                'Q_He': {'xaxis': 'helium flow rate ${(m^3/s)}$',
