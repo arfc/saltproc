@@ -116,26 +116,49 @@ def plot_result():
                          'fname': 'average_salt_temperature',
                          'ref': pdict['Tsalt']}}
 
+    #  Individual removal efficiency plot for each parameter
     for key, value in pltdict.items():
         df = pd.read_csv('results.csv')
-
         for par, res in pltdict.items():
             if key != par:
                 df = df.loc[df[par] == res['ref']]
-
         xdata = (df[key]).to_list()
         ydata = (df['Xe']*100).to_list()
 
-        fig = plt.figure(figsize=(5, 5))
+        plt.figure(figsize=(5, 5))
         plt.plot(xdata, ydata, 'bo', linestyle="--")
         plt.xlabel(value['xaxis'])
         plt.ylabel("Xe removal efficiency (%)")
         plt.ticklabel_format(axis="x", style="sci", scilimits=(-2, 4))
-        figname = str('Xe_eff_vs_%s' % (value['fname']))
+        figname = str('figs/Xe_eff_vs_%s' % key)
         ftype = 'png'
         plt.savefig(figname+'.'+ftype, dpi=300, format=ftype,
                     bbox_inches='tight')
         plt.close()
+
+    #  2-D removal efficiency counter plots for two selected parameters
+    sens = [*pltdict]
+    for key1, value1 in pltdict.items():
+        sens.remove(key1)
+        for key2 in sens:
+            df = pd.read_csv('results.csv')
+            for par, res in pltdict.items():
+                if key1 != par and key2 != par:
+                    df = df.loc[df[par] == res['ref']]
+            xdata = (df[key1]).to_list()
+            ydata = (df[key2]).to_list()
+            zdata = (df['Xe'] * 100).to_list()
+            plt.tricontourf(xdata, ydata, zdata, 15)
+            plt.colorbar()
+            plt.title('Xe removal efficiency')
+            plt.xlabel(pltdict[key1]['xaxis'])
+            plt.ylabel(pltdict[key2]['xaxis'])
+            plt.ticklabel_format(axis="both", style="sci", scilimits=(-2, 4))
+            figname = str('figs/%s_vs_%s' % (key1, key2))
+            ftype = 'png'
+            plt.savefig(figname + '.' + ftype, dpi=300, format=ftype,
+                        bbox_inches='tight')
+            plt.close()
 
 
 if __name__ == '__main__':
