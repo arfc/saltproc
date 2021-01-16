@@ -98,37 +98,38 @@ def plot_result():
 
     pdict = referans_design()
     pltdict = {'Q_salt': {'xaxis': 'salt flow rate ${(m^3/s)}$',
-                          'fname': 'salt_flow_rate',
-                          'ref': pdict['Q_salt']},
-               'Q_He': {'xaxis': 'Helium flow rate ${(m^3/s)}$',
-                        'fname': 'helium_flow_rate',
-                        'ref': pdict['Q_He']},
+                          'fname': 'salt_flow_rate'},
+               'Q_He': {'xaxis': 'helium flow rate ${(m^3/s)}$',
+                        'fname': 'helium_flow_rate'},
                'L': {'xaxis': 'sparger pipe length ${(m)}$',
-                     'fname': 'sparger_pipe_length',
-                     'ref': pdict['L']},
+                     'fname': 'sparger_pipe_length'},
                'ds': {'xaxis': 'sparger pipe diameter ${(m)}$',
-                      'fname': 'sparger_pipe_diameter',
-                      'ref': pdict['ds']},
+                      'fname': 'sparger_pipe_diameter'},
                'db': {'xaxis': 'bubble diameter ${(m)}$',
-                      'fname': 'bubble_diameter',
-                      'ref': pdict['db']},
+                      'fname': 'bubble_diameter'},
                'Tsalt': {'xaxis': 'average salt temperature ${(K)}$',
-                         'fname': 'average_salt_temperature',
-                         'ref': pdict['Tsalt']}}
+                         'fname': 'average_salt_temperature',}
+               }
 
-    #  Individual removal efficiency plot for each parameter
+    #  Individual line plot for each parameter
     for key, value in pltdict.items():
         df = pd.read_csv('results.csv')
         for par, res in pltdict.items():
             if key != par:
-                df = df.loc[df[par] == res['ref']]
+                df = df.loc[df[par] == pdict[par]]
         xdata = (df[key]).to_list()
         ydata = (df['Xe']*100).to_list()
-
         plt.figure(figsize=(5, 5))
-        plt.plot(xdata, ydata, 'bo', linestyle="--")
+        plt.plot(xdata, ydata, 'bo', linestyle="--", label='Xe',
+                 markerfacecolor='None')
+        ydata = (df['Kr'] * 100).to_list()
+        plt.plot(xdata, ydata, 'rx', linestyle="-", label='Kr')
+        ydata = (df['H'] * 100).to_list()
+        plt.plot(xdata, ydata, 'g^', linestyle="dotted", label='H',
+                 markerfacecolor='None')
+        plt.legend()
         plt.xlabel(value['xaxis'])
-        plt.ylabel("Xe removal efficiency (%)")
+        plt.ylabel("removal efficiency (%)")
         plt.ticklabel_format(axis="x", style="sci", scilimits=(-2, 4))
         figname = str('figs/Xe_eff_vs_%s' % key)
         ftype = 'png'
