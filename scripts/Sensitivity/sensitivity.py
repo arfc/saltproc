@@ -22,19 +22,19 @@ python sensitivity.py
 """
 
 import sys
+sys.path.append('../../')
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-sys.path.append('../../saltproc/')
 
 from itertools import product
 from sparging import Sparger
 from sparging import Separator
 
 
-def reference_design():
+def ref_sparger_design():
     """Reference sparger design based on Jiaqi's simulation
-    Parameters
+    Constants
     ----------
     Q_salt : float
         volumetric salt flow rate (m3/s)
@@ -49,6 +49,12 @@ def reference_design():
     Tsalt : float
         salt temperature (K)
 
+    Return
+    ------
+    param_dict: dict
+        containing values for reference separator design
+    pltdict: dict
+        containing parameters for plotting
     """
 
     Q_salt = 0.1
@@ -58,45 +64,8 @@ def reference_design():
     db = 0.001
     Tsalt = 900
 
-    param_dict = {'Q_salt': Q_salt, 'Q_He': Q_He,
-                  'L': L, 'ds': ds, 'db': db, 'Tsalt': Tsalt}
-
-    return param_dict
-
-
-def sensitivity():
-    """Sensitivity Analysis for Sparger System
-
-    This script allows the user to find the optimum designs for optimal
-    total removal efficiency of molten salt breeder reactor.
-
-    """
-
-    param_dict = reference_design()
-    sen_coeff = np.array([0.5, 0.75, 1.0, 1.5, 2])
-
-    for key, value in param_dict.items():
-        param_dict[key] = value * sen_coeff
-
-    results = []
-    # print([value for key, value in param_dict.items()])
-
-    for comb in product(*[value for key, value in param_dict.items()]):
-        eff = dict(zip(param_dict.keys(), comb))
-        eff.update(Sparger(*comb).eff())
-        results.append(eff)
-
-    df = pd.DataFrame(results)
-    df.to_csv('results.csv', header=True, index=True)
-
-
-def plot_result():
-    """This function plots change in performance metrics of sparging system
-    with sensitivity parameters for sensitivity analysis.
-
-    """
-
-    pdict = reference_design()
+    param_dict = {'Q_salt': Q_salt, 'Q_He': Q_He, 'L': L,
+                  'ds': ds, 'db': db, 'Tsalt': Tsalt}
     pltdict = {'Q_salt': {'xaxis': 'salt flow rate ${(m^3/s)}$',
                           'fname': 'salt_flow_rate'},
                'Q_He': {'xaxis': 'helium flow rate ${(m^3/s)}$',
@@ -108,15 +77,92 @@ def plot_result():
                'db': {'xaxis': 'bubble diameter ${(m)}$',
                       'fname': 'bubble_diameter'},
                'Tsalt': {'xaxis': 'average salt temperature ${(K)}$',
-                         'fname': 'average_salt_temperature',}
+                         'fname': 'average_salt_temperature'}
                }
 
+    return param_dict, pltdict
+
+
+def ref_separator_design():
+    """Reference sparger design based on Jiaqi's simulation
+    Constants
+    ----------
+    Qe : float
+        liquid flow rate (m3/s)
+    Qg : float
+        gas flow rate (m3/s)
+    Pgamma : float
+        pressure at the densitometer station
+    X : float
+        the gas injection rate
+        default: 5% 0f total flow
+
+    Return
+    ------
+    param_dict: dict
+        containing values for reference separator design
+    pltdict: dict
+        containing parameters for plotting
+    """
+
+    Qe = 0.1
+    Qg = 0.005
+    Pgamma = 10
+    X = 0.05
+
+    param_dict = {'Qe': Qe, 'Qg': Qg, 'Pgamma': Pgamma, 'X': X}
+    pltdict = {'Qe': {'xaxis': 'liquid flow rate ${(m^3/s)}$',
+                      'fname': 'liquid_flow_rate'},
+               'Qg': {'xaxis': 'gas flow rate ${(m^3/s)}$',
+                      'fname': 'gas_flow_rate'},
+               'Pgamma': {'xaxis': 'densitometer pressure ${(Pa)}$',
+                          'fname': 'densitometer_pressure'},
+               'X': {'xaxis': 'the gas injection rate ${(m)}$',
+                     'fname': 'the gas_injection_rate'},
+               }
+
+    return param_dict, pltdict
+
+
+def sensitivity(func, param_dict, fn='results.csv'):
+    """Sensitivity Analysis for Sparger System
+
+    This script allows the user to find the optimum designs for optimal
+    total removal efficiency of molten salt breeder reactor.
+
+    """
+    param_dict = param_dict[0]
+    sen_coeff = np.array([0.5, 0.75, 0.9, 1.0, 1.1, 1.25, 1.5])
+
+    for key, value in param_dict.items():
+        param_dict[key] = value * sen_coeff
+
+    results = []
+
+    for comb in product(*[value for key, value in param_dict.items()]):
+        eff = dict(zip(param_dict.keys(), comb))
+        eff.update(func(*comb).eff())
+        results.append(eff)
+
+    df = pd.DataFrame(results)
+    df.to_csv(fn, header=True, index=True)
+
+
+def plot_result(param_dict, fn='results.csv'):
+    """This function plots change in performance metrics of sparging system
+    for sensitivity parameters in sensitivity analysis.
+
+    """
+    plt_dict = param_dict[1]
+    param_dict = param_dict[0]
+    datafile = pd.read_csv(fn)
+
     #  Individual line plot for each parameter
-    for key, value in pltdict.items():
-        df = pd.read_csv('results.csv')
-        for par, res in pltdict.items():
+    for key, value in plt_dict.items():
+        df = datafile
+        for par, res in plt_dict.items():
             if key != par:
-                df = df.loc[df[par] == pdict[par]]
+                df = df.loc[df[par] == param_dict[par]]
         xdata = (df[key]).to_list()
         ydata = (df['Xe']*100).to_list()
         plt.figure(figsize=(5, 5))
@@ -138,22 +184,22 @@ def plot_result():
         plt.close()
 
     #  2-D removal efficiency counter plots for two selected parameters
-    sens = [*pltdict]
-    for key1, value1 in pltdict.items():
+    sens = [*plt_dict]
+    for key1, value1 in plt_dict.items():
         sens.remove(key1)
         for key2 in sens:
-            df = pd.read_csv('results.csv')
-            for par, res in pltdict.items():
+            df = datafile
+            for par, res in plt_dict.items():
                 if key1 != par and key2 != par:
-                    df = df.loc[df[par] == res['ref']]
+                    df = df.loc[df[par] == param_dict[par]]
             xdata = (df[key1]).to_list()
             ydata = (df[key2]).to_list()
             zdata = (df['Xe'] * 100).to_list()
             plt.tricontourf(xdata, ydata, zdata, 15)
             plt.colorbar()
-            plt.title('Xe removal efficiency')
-            plt.xlabel(pltdict[key1]['xaxis'])
-            plt.ylabel(pltdict[key2]['xaxis'])
+            plt.title('Xe removal efficiency (%)')
+            plt.xlabel(plt_dict[key1]['xaxis'])
+            plt.ylabel(plt_dict[key2]['xaxis'])
             plt.ticklabel_format(axis="both", style="sci", scilimits=(-2, 4))
             figname = str('figs/%s_vs_%s' % (key1, key2))
             ftype = 'png'
@@ -161,8 +207,38 @@ def plot_result():
                         bbox_inches='tight')
             plt.close()
 
+    #  United 2-D removal efficiency counter plots for two selected parameters
+    sens = [*plt_dict]
+    index = 1
+    plt.figure(figsize=(16, 32))
+    for key1, value1 in plt_dict.items():
+        sens.remove(key1)
+        for key2 in sens:
+            df = datafile
+            for par, res in plt_dict.items():
+                if key1 != par and key2 != par:
+                    df = df.loc[df[par] == param_dict[par]]
+            plt.subplot(8, 2, index)
+            index += 1
+            xdata = (df[key1]).to_list()
+            ydata = (df[key2]).to_list()
+            zdata = (df['Xe'] * 100).to_list()
+            plt.tricontourf(xdata, ydata, zdata, 15)
+            plt.colorbar()
+            plt.xlabel(plt_dict[key1]['xaxis'])
+            plt.ylabel(plt_dict[key2]['xaxis'])
+            plt.ticklabel_format(axis="both", style="sci", scilimits=(-2, 4))
+            plt.tight_layout()
+            figname = 'figs/Xe_removal_eff_' + fn.split(".")[0]
+            ftype = 'png'
+            plt.savefig(figname + '.' + ftype, dpi=500, format=ftype,
+                        bbox_inches='tight')
+    plt.close()
+
 
 if __name__ == '__main__':
 
-    sensitivity()
-    plot_result()
+    sensitivity(Sparger, ref_sparger_design(), 'results_sparger.csv')
+    plot_result(ref_sparger_design(), 'results_sparger.csv')
+    sensitivity(Separator, ref_separator_design(), 'results_separator.csv')
+    plot_result(ref_separator_design(), 'results_separator.csv')
