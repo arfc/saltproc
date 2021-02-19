@@ -83,7 +83,6 @@ class Sparger():
         Sander, R.: Compilation of Henry's law constants (version 4.0)
         for water as solvent, Atmos. Chem. Phys., 15, 4399–4981
         """
-
         def eps(H, K_L):
             """Evaluates gas removal efficiency in sparger (bubble generator)
             using Eq. 4 from Peebles report (ORNL-TM-2245).
