@@ -5,7 +5,6 @@ class Sparger():
     """Class evaluates gas removal efficiency in sparger (bubble generator).
 
     """
-
     def __init__(self, q_salt=0.1, q_he=0.005, l=10,
                  ds=0.1, db=0.001, salt_temp=900):
         """ Initializes the Sparger object.
