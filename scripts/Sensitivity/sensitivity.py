@@ -158,7 +158,6 @@ class Sensitivity(Sparger):
         results = []
         for comb in product(*[value for key, value in coeff.items()]):
             efficiency = dict(zip(coeff.keys(), comb))
-            # efficiency.update(Separator(*comb).eff())
             super().__init__(*comb)
             efficiency.update(super().eff())
             results.append(efficiency)
