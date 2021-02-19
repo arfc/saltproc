@@ -15,7 +15,7 @@ class Sparger():
         Q_salt : float
             volumetric salt flow rate (m3/s)
         Q_He : float
-            volumetric helium flow rate (m3/s)
+            volumetric helium flow rate (m^3/s)
         L : float
             sparger/contractor length (m)
         ds : float
