@@ -13,7 +13,7 @@ class Sparger():
         Parameters
         ----------
         Q_salt : float
-            volumetric salt flow rate (m3/s)
+            volumetric salt flow rate (m^3/s)
         Q_He : float
             volumetric helium flow rate (m^3/s)
         L : float
