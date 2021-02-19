@@ -199,7 +199,3 @@ class Sparger(Process):
         rem_eff = {key: self.eps(hh[key], kl) for key in self.h_const}
 
         return rem_eff
-
-
-if __name__ == '__main__':
-    print(Sparger().eff())
