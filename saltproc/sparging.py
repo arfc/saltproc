@@ -6,8 +6,8 @@ class Sparger():
 
     """
 
-    def __init__(self, Q_salt=0.1, Q_He=0.005, L=10,
-                 ds=0.1, db=0.001, Tsalt=900):
+    def __init__(self, q_salt=0.1, q_he=0.005, l=10,
+                 ds=0.1, db=0.001, salt_temp=900):
         """ Initializes the Sparger object.
 
         Parameters
