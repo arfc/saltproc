@@ -48,7 +48,7 @@ class Sparger():
         mu : float
             kinematic viscosity Pa.s
         Ac : float
-            contractor cross-section (m2)
+            contactor cross-section (m2)
         rho : float
             density kg/m3
         N_Sh: float
