@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Sparger():
+class Sparger(Process):
     """Class evaluates gas removal efficiency in sparger (bubble generator).
 
     """
