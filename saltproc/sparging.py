@@ -136,7 +136,7 @@ class Separator():
         Parameters
         ----------
         Qe : float
-            liquid flow rate (m3/s)
+            liquid flow rate (m^3/s)
         Qg : float
             gas flow rate (m3/s)
         Pgamma : float
