@@ -123,7 +123,7 @@ class Sparger():
         return rem_eff
 
 
-class Separator():
+class Separator(Process):
     """Class evaluates gas removal efficiency in separator (bubble separator).
 
      """
