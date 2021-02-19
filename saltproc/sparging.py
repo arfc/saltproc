@@ -41,7 +41,7 @@ class Sparger():
             ``key``
                 Name of target isotope.
             ``value``
-                Henry's law of constant.
+                Henry's law constant.
         vl : float
             average liquid velocity (m/s)
         mu : float
