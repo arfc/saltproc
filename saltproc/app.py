@@ -3,8 +3,6 @@ from saltproc import Simulation
 from saltproc import Materialflow
 from saltproc import Process
 from saltproc import Reactor
-from saltproc import Sparger
-from saltproc import Separator
 # from depcode import Depcode
 # from simulation import Simulation
 # from materialflow import Materialflow
@@ -164,18 +162,6 @@ def read_processes_from_input():
         for mat, value in j.items():
             processes[mat] = OrderedDict()
             for obj_name, obj_data in j[mat]['extraction_processes'].items():
-
-                st = j[mat]['extraction_processes'][obj_name]['efficiency']
-                if st == {}:
-                    if obj_name == 'sparger':
-                        j[mat]['extraction_processes'][obj_name]['efficiency']\
-                           = Sparger().eff()
-                    elif obj_name == 'entrainment_separator':
-                        j[mat]['extraction_processes'][obj_name]['efficiency']\
-                           = Separator().eff()
-
-            for obj_name, obj_data in j[mat]['extraction_processes'].items():
-
                 print("Processs object data: ", obj_name, obj_data)
                 processes[mat][obj_name] = Process(**obj_data)
 
