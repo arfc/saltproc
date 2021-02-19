@@ -98,7 +98,3 @@ class Separator(Process):
         rem_eff = {'Xe': sep_eff, 'Kr': sep_eff, 'H': sep_eff}
 
         return rem_eff
-
-
-if __name__ == '__main__':
-    print(Separator().eff())
