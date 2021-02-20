@@ -21,8 +21,11 @@ class Separator(Process):
     Methods
     -------
     eff()
-        Evaluates gas removal efficiency using Equation 6
-         from Gabbard's report. [1]
+        Evaluates gas removal efficiency using Eq. 6 from Gabbard's report. [1]
+    description()
+        Contains a dictionary of plot properties.
+    calc_rem_efficiency(el_name)
+        Overrides exiting method in Parent class.
 
     References
     ----------
@@ -31,7 +34,8 @@ class Separator(Process):
     1974. Web. doi:10.2172/4324438.
     """
 
-    def __init__(self, qe=0.1, qg=0.005, pgamma=10, x=0.05):
+    def __init__(self, qe=0.1, qg=0.005, pgamma=10, x=0.05,
+                 *initial_data, **kwargs):
         """ Initializes the Separator object.
 
         Parameters
@@ -49,22 +53,40 @@ class Separator(Process):
             the gas injection rate
             default: 5% of total flow
         """
-
-        # super().__init__(*initial_data, **kwargs)
+        super().__init__(*initial_data, **kwargs)
         self.qe = qe
         self.qg = qg
         self.pgamma = pgamma
         self.x = x
 
+    def calc_rem_efficiency(self, el_name):
+        """Overrides the existing method in Process class to provide
+        efficiency values of target isotopes calculated in eff() function.
+
+        Parameters
+        ----------
+        el_name : str
+            Name of target element to be removed.
+
+        Returns
+        -------
+        efficiency : float
+            Extraction efficiency for el_name element.
+
+        """
+        efficiency = self.eff()[el_name]
+
+        return efficiency
+
     def description(self):
-        """Class attributes' descriptions for plotting purpose in sensitivity
-        analysis
-        Return
+        """Class attributes' descriptions for plotting purpose in
+        sensitivity analysis
+
+        Returns
         ------
         pltdict: dict
             contains instances' information
         """
-
         plt_dict = {'qe': {'xaxis': 'liquid flow rate ${(m^3/s)}$',
                            'fname': 'liquid_flow_rate'},
                     'qg': {'xaxis': 'gas flow rate ${(m^3/s)}$',
@@ -92,7 +114,6 @@ class Separator(Process):
             ``value``
                 removal efficiency.
         """
-
         sep_eff = (2116.8 * self.qg) /\
                   (self.x * self.qe * self.pgamma + 2116.8 * self.qg)
         rem_eff = {'Xe': sep_eff, 'Kr': sep_eff, 'H': sep_eff}
