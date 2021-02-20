@@ -45,6 +45,12 @@ class Sparger(Process):
         using Eq. 4 from Peebles report (ORNL-TM-2245). [2]
     eff()
         Evaluates gas removal efficiencies for target isotopes.
+    sherwood()
+        Contains Sherwood number correlations from different sources.
+    description()
+        Contains a dictionary of plot properties.
+    calc_rem_efficiency(el_name)
+        Overrides exiting method in Parent class.
 
     References
     ----------
@@ -66,7 +72,8 @@ class Sparger(Process):
     exp_const = {'Xe': 2300, 'Kr': 1900, 'H': 0}
 
     def __init__(self, q_salt=0.1, q_he=0.005, length=10,
-                 ds=0.1, db=0.001, temp_salt=900, corr='Jiaqi'):
+                 ds=0.1, db=0.001, temp_salt=900, corr='Jiaqi',
+                 *initial_data, **kwargs):
         """ Initializes the Sparger object.
 
         Parameters
@@ -95,7 +102,7 @@ class Sparger(Process):
         -----
         Default values comes from Jiaqi's simulation
         """
-        # super().__init__(*initial_data, **kwargs)
+        super().__init__(*initial_data, **kwargs)
         self.q_salt = q_salt
         self.q_he = q_he
         self.length = length
@@ -105,6 +112,25 @@ class Sparger(Process):
         self.area = np.pi * (self.ds / 2) ** 2
         self.corr = corr
 
+    def calc_rem_efficiency(self, el_name):
+        """Overrides the existing method in Process class to provide
+        efficiency values of target isotopes calculated in eff() function.
+
+        Parameters
+        ----------
+        el_name : str
+            Name of target element to be removed.
+
+        Returns
+        -------
+        efficiency : float
+            Extraction efficiency for el_name element.
+
+        """
+        efficiency = self.eff()[el_name]
+
+        return efficiency
+
     def description(self):
         """Class attributes' descriptions for plotting purpose in sensitivity
         analysis
@@ -113,7 +139,6 @@ class Sparger(Process):
         pltdict: dict
             contains instances' information
         """
-
         plt_dict = {'q_salt': {'xaxis': 'salt flow rate ${(m^3/s)}$',
                                'fname': 'salt_flow_rate'},
                     'q_he': {'xaxis': 'helium flow rate ${(m^3/s)}$',
@@ -140,7 +165,6 @@ class Sparger(Process):
             removal efficiency of a specific chemical element.
 
         """
-
         a = (6/self.db) * (self.q_he / (self.q_he + self.q_salt))
         alpha = (self.gas_const * self.temp_salt / h_const) *\
                 (self.q_salt / self.q_he)
@@ -156,7 +180,6 @@ class Sparger(Process):
              (2) ORNL-TM-2245 Eq.36
              default: Sherwood correlation from ORNL-TM-2245 Eq.36
          """
-
         sh_corr = {
             'ORNL-TM-2245': '0.0096 * (number_re**0.913) * (number_sc**0.346)',
             'Jiaqi': '2.06972 * (number_re ** 0.555) * (number_sc ** 0.5)'}
@@ -180,7 +203,6 @@ class Sparger(Process):
             ``value``
                 removal efficiency.
         """
-
         hh = {}
         for key in self.h_const:
             hh[key] = 1 / (self.h_const[key] *
