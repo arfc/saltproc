@@ -1,5 +1,5 @@
 import numpy as np
-from process import Process
+from saltproc import Process
 
 
 class Sparger(Process):
