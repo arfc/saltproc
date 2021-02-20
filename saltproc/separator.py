@@ -1,4 +1,4 @@
-from process import Process
+from saltproc import Process
 
 
 class Separator(Process):
