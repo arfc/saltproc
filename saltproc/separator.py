@@ -58,6 +58,7 @@ class Separator(Process):
         self.qg = qg
         self.pgamma = pgamma
         self.x = x
+        self.efficiency = self.eff()
 
     def calc_rem_efficiency(self, el_name):
         """Overrides the existing method in Process class to provide
