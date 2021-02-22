@@ -111,6 +111,7 @@ class Sparger(Process):
         self.temp_salt = temp_salt
         self.area = np.pi * (self.ds / 2) ** 2
         self.corr = corr
+        self.efficiency = self.eff()
 
     def calc_rem_efficiency(self, el_name):
         """Overrides the existing method in Process class to provide
