@@ -54,7 +54,7 @@ class Sparger(Process):
 
     References
     ----------
-    [1] Henry's law of constant (Pa.m3/mol) for Xe, Kr, H from
+    [1] Henry's law constants (Pa.m3/mol) for Xe, Kr, H from
     Sander, R.: Compilation of Henry's law constants (version 4.0)
     for water as solvent, Atmos. Chem. Phys., 15, 4399–4981,
     https://doi.org/10.5194/acp-15-4399-2015, 2015.
