@@ -1,0 +1,27 @@
+
+# Dakota Input File: tap_sa_dakota.in
+# Usage:
+#   dakota -i msbr_dakota.in -o outputs/msbr_dakota.out > outputs/msbr_dakota.stdout
+
+environment
+  tabular_data
+    tabular_data_file = 'outputs/msbr_dakota.dat'
+
+method
+  multidim_parameter_study
+    partitions = 2
+
+variables
+  continuous_design = 1
+    descriptors      "K_L" 
+    lower_bounds     1
+    upper_bounds     100
+
+interface
+  fork
+	analysis_drivers = 'python saltproc_dakota.py'
+	  
+responses
+  num_objective_functions = 8	
+  no_gradients
+  no_hessians

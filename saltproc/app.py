@@ -3,6 +3,8 @@ from saltproc import Simulation
 from saltproc import Materialflow
 from saltproc import Process
 from saltproc import Reactor
+from saltproc import Sparger
+from saltproc import Separator
 # from depcode import Depcode
 # from simulation import Simulation
 # from materialflow import Materialflow
@@ -17,9 +19,9 @@ import argparse
 import numpy as np
 
 
-input_path = os.path.dirname(os.path.abspath(__file__))
+input_path = os.getcwd()
 
-input_file = os.path.join(input_path, 'data/saltproc_tap')
+input_file = os.path.join(input_path, 'data/saltproc_serpent')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
 
 
@@ -162,8 +164,15 @@ def read_processes_from_input():
         for mat, value in j.items():
             processes[mat] = OrderedDict()
             for obj_name, obj_data in j[mat]['extraction_processes'].items():
-                print("Processs object data", obj_data)
-                processes[mat][obj_name] = Process(**obj_data)
+                print("Processs object data: ", obj_data)
+                st = obj_data['efficiency']
+                if obj_name == 'sparger' and st == "self":
+                    processes[mat][obj_name] = Sparger(**obj_data)
+                elif obj_name == 'entrainment_separator' and st == "self":
+                    processes[mat][obj_name] = Separator(**obj_data)
+                else:
+                    processes[mat][obj_name] = Process(**obj_data)
+
         gc.collect()
         return processes
 

@@ -10,3 +10,5 @@ from .depcode import *
 from .simulation import *
 from .process import *
 from .reactor import *
+from .sparger import *
+from .separator import *

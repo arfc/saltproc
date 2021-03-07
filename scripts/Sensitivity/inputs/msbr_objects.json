@@ -1,0 +1,119 @@
+{
+  "fuel": {
+    "extraction_processes": {
+      "core_inlet": {
+        "capacity": 9920000,
+        "efficiency": {},
+        "mass_flowrate": 9920000,
+        "volume": 0
+      },
+      "core_outlet": {
+        "capacity": 9920000,
+        "efficiency": {},
+        "mass_flowrate": 9920000,
+        "volume": 0
+      },
+      "heat_exchanger": {
+        "capacity": 9920000,
+        "efficiency": {},
+        "mass_flowrate": 9920000,
+        "volume": 13700000
+      },
+      "bypass": {
+        "capacity": 9920000,
+        "efficiency": {},
+        "mass_flowrate": 8928000,
+        "volume": 1000000000
+      },
+      "sparger": {
+        "capacity": 9920000,
+        "efficiency": {
+          "Kr": 0,
+          "Xe": 0,
+          "H": 0
+        },
+        "mass_flowrate": 9920000,
+        "volume": 10000000
+      },
+      "entrainment_separator": {
+        "capacity": 9920000,
+        "efficiency": {
+          "Kr": 0.9115218695901359,
+          "Xe": 0.9148573428740562,
+          "H": 0.8613075730406585
+        },
+        "mass_flowrate": 9920000,
+        "volume": 11
+      },
+      "nickel_filter": {
+        "capacity": 9920000,
+        "efficiency": {
+          "Se": 0,
+          "Nb": 0,
+          "Mo": 0,
+          "Tc": 0,
+          "Ru": 0,
+          "Rh": 0,
+          "Pd": 0,
+          "Ag": 0,
+          "Sb": 0,
+          "Te": 0,
+          "Cd": 0,
+          "In": 0,
+          "Sn": 0,
+          "Br": 0,
+          "I": 0,
+          "Zn": 0,
+          "Ga": 0,
+          "Ge": 0,
+          "As": 0
+        },
+        "mass_flowrate": 9920000,
+        "volume": 11
+      },
+      "liquid_metal": {
+        "capacity": 992000,
+        "efficiency": {
+          "Pa": 0.006597222,
+          "Y": 0,
+          "La": 0,
+          "Ce": 0,
+          "Pr": 0,
+          "Nd": 0,
+          "Pm": 0,
+          "Sm": 0,
+          "Gd": 0,
+          "Zr": 0,
+          "Eu": 0,
+          "Rb": 0,
+          "Sr": 0,
+          "Cs": 0,
+          "Ba": 0,
+          "Ti": 0,
+          "V": 0,
+          "Cr": 0,
+          "Cu": 0,
+          "Mn": 0,
+          "Fe": 0,
+          "Co": 0,
+          "Ni": 0,
+          "Sc": 0,
+          "Ca": 0
+        },
+        "mass_flowrate": 992000,
+        "volume": 11
+      }
+    },
+    "feeds": {
+      "leu": {
+        "density": 4.9602,
+        "volume": 100000000,
+        "mass": 496020000,
+        "comp": {
+          "Th-232": 0.55,
+          "U-233": 0.45
+        }
+      }
+    }
+  }
+}

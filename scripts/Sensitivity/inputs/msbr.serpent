@@ -1,0 +1,63 @@
+% Include file with burnable material composition on the line below
+include "mats/mat_kl_25_bol.ini"
+% Include file with non-burnable material composition on the line below
+%include "mats/non_burnable_mats.ini"
+% Geometry import will be added by SaltProc on the next line
+
+% Burnup settings will be added on next line
+
+%include "geometry/msbr_full.ini"
+% --- Moderator graphite:
+mat moder    -1.84 tmp 900 rgb 68 1 84 moder gr 6000 6000.09c    -1.0 %tmp 908
+% --- Hastelloy N
+mat hast     -8.671
+rgb 127 205 187
+% Natural Ni
+28058.09c   -0.4562614
+28060.09c   -0.1804391
+28061.09c   -0.0079425
+28062.09c   -0.0256463
+28064.09c   -0.0067108
+
+% Natural W
+74182.09c   -0.0757228
+74183.09c   -0.0004134
+74184.09c   -0.0893641
+74186.09c   -0.0841580
+
+% Natural Cr
+24050.09c   -0.0029250
+24052.09c   -0.0585905
+24053.09c   -0.0067708
+24054.09c   -0.0017137
+
+% Al
+13027.09c   -0.003
+
+% --- Thermal scattering data for graphite:
+therm gr 900 gre7.18t gre7.20t  % 900K C-nat ENDFB_7
+
+set title "MSBR test load-following transient, 53.6% removal, BOL, 30d"
+
+set acelib "/home/memo/msfr/Serpent/c757mnyws00/xsdata/sss_endfb7u.xsdata"
+set declib "/home/memo/msfr/Serpent/c757mnyws00/xsdata/sss_endfb7.dec"
+set nfylib "/home/memo/msfr/Serpent/c757mnyws00/xsdata/sss_endfb7.nfy"
+
+% --- Neutron population and criticality cycles:
+
+set pop 500 60 20 1.0 1  %30000 400 100 1.0 1
+set egrid 5e-5 1e-10 15.0
+
+% --- Cut-offs:
+
+set fpcut   1E-6
+set stabcut 1E-12
+
+% --- Depletion parameters
+% --- Options for burnup calculation:
+set bumode  2  % CRAM method
+set pcc     2  % Predictor-corrector calculation off (Linear extrapolation)
+
+set gcu -1
+set inventory fuel all
+
