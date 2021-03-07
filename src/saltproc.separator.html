@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>saltproc.separator module &mdash; Saltproc  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Saltproc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Saltproc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>saltproc.separator module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/src/saltproc.separator.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-saltproc.separator">
+<span id="saltproc-separator-module"></span><h1>saltproc.separator module<a class="headerlink" href="#module-saltproc.separator" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="saltproc.separator.Separator">
+<em class="property">class </em><code class="sig-prename descclassname">saltproc.separator.</code><code class="sig-name descname">Separator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">qe</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">qg</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">pgamma</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">x</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="saltproc.process.html#saltproc.process.Process" title="saltproc.process.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.process.Process</span></code></a></p>
+<p>Class evaluates gas removal efficiency in separator (bubble separator).</p>
+<dl class="py attribute">
+<dt id="saltproc.separator.Separator.qe">
+<code class="sig-name descname">qe</code><a class="headerlink" href="#saltproc.separator.Separator.qe" title="Permalink to this definition">¶</a></dt>
+<dd><p>liquid flow rate (m^3/s)
+default: same as the value in q_salt defined in sparger class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="saltproc.separator.Separator.qg">
+<code class="sig-name descname">qg</code><a class="headerlink" href="#saltproc.separator.Separator.qg" title="Permalink to this definition">¶</a></dt>
+<dd><p>gas flow rate (m^3/s)
+default: same as the value in q_he defined in sparger class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="saltproc.separator.Separator.pgamma">
+<code class="sig-name descname">pgamma</code><a class="headerlink" href="#saltproc.separator.Separator.pgamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>the pressure at the densitometer station</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="saltproc.separator.Separator.x">
+<code class="sig-name descname">x</code><a class="headerlink" href="#saltproc.separator.Separator.x" title="Permalink to this definition">¶</a></dt>
+<dd><p>the gas injection rate
+default: 5% of total flow</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="saltproc.separator.Separator.eff">
+<code class="sig-name descname">eff</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator.eff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates gas removal efficiency using Eq. 6 from Gabbard’s report. [1]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="saltproc.separator.Separator.description">
+<code class="sig-name descname">description</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains a dictionary of plot properties.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="saltproc.separator.Separator.calc_rem_efficiency">
+<code class="sig-name descname">calc_rem_efficiency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">el_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.calc_rem_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator.calc_rem_efficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides exiting method in Parent class.</p>
+</dd></dl>
+
+<div class="admonition-references admonition">
+<p class="admonition-title">References</p>
+<p>[1] Gabbard, C. H. Development of an axial-flow centrifugal gas bubble
+separator for use in MSR xenon removal system. United States: N. p.,
+1974. Web. doi:10.2172/4324438.</p>
+</div>
+<dl class="py method">
+<dt id="saltproc.separator.Separator.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">qe</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">qg</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">pgamma</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">x</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the Separator object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qe</strong> (<em>float</em>) – liquid flow rate (m^3/s)
+default: same as the value in q_salt defined in sparger class</p></li>
+<li><p><strong>qg</strong> (<em>float</em>) – gas flow rate (m^3/s)
+default: same as the value in q_he defined in sparger class</p></li>
+<li><p><strong>pgamma</strong> (<em>float</em>) – the pressure at the densitometer station
+default: from Gabbard’s report [1]</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – the gas injection rate
+default: 5% of total flow</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id0">
+<code class="sig-name descname">calc_rem_efficiency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">el_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.calc_rem_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides the existing method in Process class to provide
+efficiency values of target isotopes calculated in eff() function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>el_name</strong> (<em>str</em>) – Name of target element to be removed.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>efficiency</strong> – Extraction efficiency for el_name element.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id1">
+<code class="sig-name descname">description</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class attributes’ descriptions for plotting purpose in
+sensitivity analysis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>pltdict</strong> – contains instances’ information</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id2">
+<code class="sig-name descname">eff</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates gas removal efficiency using Equation 6
+from Gabbard’s report. [1]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p><strong>rem_eff</strong> – Dictionary that contains removal efficiency of each target
+element.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of target isotope.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>removal efficiency.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
