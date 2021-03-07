@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>saltproc.tests.test_process &mdash; Saltproc  documentation</title>
+  <title>saltproc.tests.test_separator &mdash; Saltproc  documentation</title>
   
 
   
@@ -140,7 +140,7 @@
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
-      <li>saltproc.tests.test_process</li>
+      <li>saltproc.tests.test_separator</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -155,9 +155,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for saltproc.tests.test_process</h1><div class="highlight"><pre>
+  <h1>Source code for saltproc.tests.test_separator</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Process</span>
+<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Separator</span>
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Depcode</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -175,24 +175,24 @@
                   <span class="n">iter_matfile</span><span class="o">=</span><span class="n">directory</span><span class="o">+</span><span class="s1">&#39;/material&#39;</span><span class="p">,</span>
                   <span class="n">geo_file</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-<span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">mass_flowrate</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                  <span class="n">capacity</span><span class="o">=</span><span class="mf">99.0</span><span class="p">,</span>
-                  <span class="n">volume</span><span class="o">=</span><span class="mf">95.0</span><span class="p">,</span>
-                  <span class="n">efficiency</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Xe&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;Kr&#39;</span><span class="p">:</span> <span class="s1">&#39;9.5/mass_flowrate&#39;</span><span class="p">})</span>
+<span class="n">process</span> <span class="o">=</span> <span class="n">Separator</span><span class="p">(</span><span class="n">mass_flowrate</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                    <span class="n">capacity</span><span class="o">=</span><span class="mf">99.0</span><span class="p">,</span>
+                    <span class="n">volume</span><span class="o">=</span><span class="mf">95.0</span><span class="p">,</span>
+                    <span class="n">efficiency</span><span class="o">=</span><span class="s2">&quot;self&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="test_rem_elements"><a class="viewcode-back" href="../../../src/saltproc.tests.test_process.html#saltproc.tests.test_process.test_rem_elements">[docs]</a><span class="k">def</span> <span class="nf">test_rem_elements</span><span class="p">():</span>
+<div class="viewcode-block" id="test_rem_elements"><a class="viewcode-back" href="../../../src/saltproc.tests.test_separator.html#saltproc.tests.test_separator.test_rem_elements">[docs]</a><span class="k">def</span> <span class="nf">test_rem_elements</span><span class="p">():</span>
     <span class="n">mats</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">waste</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">rem_elements</span><span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">])</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">541350000</span><span class="p">],</span> <span class="mf">19.79776930513891</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">541360000</span><span class="p">],</span> <span class="mf">176.44741987005173</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">541280000</span><span class="p">],</span> <span class="mf">9.911913132605642e-05</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">541390000</span><span class="p">],</span> <span class="mf">0.026158507248944377</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">541350000</span><span class="p">],</span> <span class="mf">19.704682182207094</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">541360000</span><span class="p">],</span> <span class="mf">175.61778182289143</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">541280000</span><span class="p">],</span> <span class="mf">9.865308312535086e-05</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">541390000</span><span class="p">],</span> <span class="mf">0.026035512575026072</span><span class="p">)</span>
     <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">360790000</span><span class="p">],</span> <span class="mf">6.420212330439721e-17</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">360800000</span><span class="p">],</span> <span class="mf">1.6462261463853208e-06</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">360920000</span><span class="p">],</span> <span class="mf">0.0002724894672886946</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">360860000</span><span class="p">],</span> <span class="mf">26.847312879174968</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">waste</span><span class="o">.</span><span class="n">mass</span> <span class="o">==</span> <span class="mf">531.0633118374121</span></div>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">360800000</span><span class="p">],</span> <span class="mf">1.7247218488207868e-06</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">360920000</span><span class="p">],</span> <span class="mf">0.0002854823675582336</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">waste</span><span class="p">[</span><span class="mi">360860000</span><span class="p">],</span> <span class="mf">28.127452116170364</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">waste</span><span class="o">.</span><span class="n">mass</span> <span class="o">==</span> <span class="mf">531.7483879940079</span></div>
 </pre></div>
 
            </div>

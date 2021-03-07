@@ -1,0 +1,326 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>saltproc.separator &mdash; Saltproc  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Saltproc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Saltproc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>saltproc.separator</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for saltproc.separator</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Process</span>
+
+
+<div class="viewcode-block" id="Separator"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator">[docs]</a><span class="k">class</span> <span class="nc">Separator</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class evaluates gas removal efficiency in separator (bubble separator).</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    qe : float</span>
+<span class="sd">        liquid flow rate (m^3/s)</span>
+<span class="sd">        default: same as the value in q_salt defined in sparger class</span>
+<span class="sd">    qg : float</span>
+<span class="sd">        gas flow rate (m^3/s)</span>
+<span class="sd">        default: same as the value in q_he defined in sparger class</span>
+<span class="sd">    pgamma : float</span>
+<span class="sd">        the pressure at the densitometer station</span>
+<span class="sd">    x : float</span>
+<span class="sd">        the gas injection rate</span>
+<span class="sd">        default: 5% of total flow</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    eff()</span>
+<span class="sd">        Evaluates gas removal efficiency using Eq. 6 from Gabbard&#39;s report. [1]</span>
+<span class="sd">    description()</span>
+<span class="sd">        Contains a dictionary of plot properties.</span>
+<span class="sd">    calc_rem_efficiency(el_name)</span>
+<span class="sd">        Overrides exiting method in Parent class.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    [1] Gabbard, C. H. Development of an axial-flow centrifugal gas bubble</span>
+<span class="sd">    separator for use in MSR xenon removal system. United States: N. p.,</span>
+<span class="sd">    1974. Web. doi:10.2172/4324438.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Separator.__init__"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qe</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">qg</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">pgamma</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+                 <span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the Separator object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        qe : float</span>
+<span class="sd">            liquid flow rate (m^3/s)</span>
+<span class="sd">            default: same as the value in q_salt defined in sparger class</span>
+<span class="sd">        qg : float</span>
+<span class="sd">            gas flow rate (m^3/s)</span>
+<span class="sd">            default: same as the value in q_he defined in sparger class</span>
+<span class="sd">        pgamma : float</span>
+<span class="sd">            the pressure at the densitometer station</span>
+<span class="sd">            default: from Gabbard&#39;s report [1]</span>
+<span class="sd">        x : float</span>
+<span class="sd">            the gas injection rate</span>
+<span class="sd">            default: 5% of total flow</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qe</span> <span class="o">=</span> <span class="n">qe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qg</span> <span class="o">=</span> <span class="n">qg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pgamma</span> <span class="o">=</span> <span class="n">pgamma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Separator.calc_rem_efficiency"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator.calc_rem_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">calc_rem_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Overrides the existing method in Process class to provide</span>
+<span class="sd">        efficiency values of target isotopes calculated in eff() function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        el_name : str</span>
+<span class="sd">            Name of target element to be removed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        efficiency : float</span>
+<span class="sd">            Extraction efficiency for el_name element.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()[</span><span class="n">el_name</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">efficiency</span></div>
+
+<div class="viewcode-block" id="Separator.description"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator.description">[docs]</a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Class attributes&#39; descriptions for plotting purpose in</span>
+<span class="sd">        sensitivity analysis</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ------</span>
+<span class="sd">        pltdict: dict</span>
+<span class="sd">            contains instances&#39; information</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;qe&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;liquid flow rate ${(m^3/s)}$&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;liquid_flow_rate&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;qg&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;gas flow rate ${(m^3/s)}$&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;gas_flow_rate&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;pgamma&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;densitometer pressure ${(Pa)}$&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;densitometer_pressure&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;the gas injection rate ${(m)}$&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;the gas_injection_rate&#39;</span><span class="p">},</span>
+                    <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">plt_dict</span></div>
+
+<div class="viewcode-block" id="Separator.eff"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator.eff">[docs]</a>    <span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Evaluates gas removal efficiency using Equation 6</span>
+<span class="sd">        from Gabbard&#39;s report. [1]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        rem_eff : dict</span>
+<span class="sd">            Dictionary that contains removal efficiency of each target</span>
+<span class="sd">            element.</span>
+
+<span class="sd">            ``key``</span>
+<span class="sd">                Name of target isotope.</span>
+<span class="sd">            ``value``</span>
+<span class="sd">                removal efficiency.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sep_eff</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2116.8</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qg</span><span class="p">)</span> <span class="o">/</span>\
+                  <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qe</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">pgamma</span> <span class="o">+</span> <span class="mf">2116.8</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qg</span><span class="p">)</span>
+        <span class="n">rem_eff</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Xe&#39;</span><span class="p">:</span> <span class="n">sep_eff</span><span class="p">,</span> <span class="s1">&#39;Kr&#39;</span><span class="p">:</span> <span class="n">sep_eff</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="n">sep_eff</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">rem_eff</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

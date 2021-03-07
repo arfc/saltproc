@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>saltproc.sparger &mdash; Saltproc  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Saltproc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Saltproc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>saltproc.sparger</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for saltproc.sparger</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Process</span>
+
+
+<div class="viewcode-block" id="Sparger"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger">[docs]</a><span class="k">class</span> <span class="nc">Sparger</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class evaluates gas removal efficiency in sparger (bubble generator).</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    h_const : dict</span>
+<span class="sd">        ``key``</span>
+<span class="sd">            Name of target isotope.</span>
+<span class="sd">        ``value``</span>
+<span class="sd">            Henry&#39;s law constant.</span>
+<span class="sd">    gas_const : real</span>
+<span class="sd">        universal gas constant (Pa.m^3/mol-K)</span>
+<span class="sd">    diffusivity : real</span>
+<span class="sd">        liquid phase diffusivity (cm^2/s)</span>
+<span class="sd">    temp_room: real</span>
+<span class="sd">        room temperature (Kelvin)</span>
+<span class="sd">    exp_const: dict</span>
+<span class="sd">        ``key``</span>
+<span class="sd">            Name of target isotope.</span>
+<span class="sd">        ``value``</span>
+<span class="sd">            exponential constant from following reference</span>
+<span class="sd">    q_salt : float</span>
+<span class="sd">        volumetric salt flow rate (m^3/s)</span>
+<span class="sd">    q_he : float</span>
+<span class="sd">        volumetric helium flow rate (m^3/s)</span>
+<span class="sd">    length : float</span>
+<span class="sd">        sparger/contractor length (m)</span>
+<span class="sd">    ds : float</span>
+<span class="sd">        sparger/contractor (pipe) diameter (m)</span>
+<span class="sd">    db : float</span>
+<span class="sd">        bubble diameter (m) for bubble generator/separator</span>
+<span class="sd">    temp_salt: float</span>
+<span class="sd">        salt temperature (K)</span>
+<span class="sd">    area : float</span>
+<span class="sd">        contactor cross-section (m^2)</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    eps(h_const, kl_const)</span>
+<span class="sd">        Defines gas removal efficiency for sparger (bubble generator)</span>
+<span class="sd">        using Eq. 4 from Peebles report (ORNL-TM-2245). [2]</span>
+<span class="sd">    eff()</span>
+<span class="sd">        Evaluates gas removal efficiencies for target isotopes.</span>
+<span class="sd">    sherwood()</span>
+<span class="sd">        Contains Sherwood number correlations from different sources.</span>
+<span class="sd">    description()</span>
+<span class="sd">        Contains a dictionary of plot properties.</span>
+<span class="sd">    calc_rem_efficiency(el_name)</span>
+<span class="sd">        Overrides exiting method in Parent class.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    [1] Henry&#39;s law constants (Pa.m3/mol) for Xe, Kr, H from</span>
+<span class="sd">    Sander, R.: Compilation of Henry&#39;s law constants (version 4.0)</span>
+<span class="sd">    for water as solvent, Atmos. Chem. Phys., 15, 4399–4981,</span>
+<span class="sd">    https://doi.org/10.5194/acp-15-4399-2015, 2015.</span>
+<span class="sd">    [2] Peebles, F. , 1968, “ Removal of Xenon-135 From Circulating</span>
+<span class="sd">    Fuel Salt of the MSBR by Mass Transfer to Helium Bubbles,” Oak Ridge</span>
+<span class="sd">    National Laboratory, Oak Ridge, TN, Report No. ORNL-TM-2245.</span>
+<span class="sd">    [3] Jiaqi Chen and Caleb S. Brooks. Milestone 1.2 Report: CFD</span>
+<span class="sd">    Sensitivity Analysis. In preparation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">diffusivity</span> <span class="o">=</span> <span class="mf">2.5E-9</span>
+    <span class="n">gas_const</span> <span class="o">=</span> <span class="mf">8.314</span>
+    <span class="n">h_const</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Xe&#39;</span><span class="p">:</span> <span class="mf">4.3e-5</span><span class="p">,</span> <span class="s1">&#39;Kr&#39;</span><span class="p">:</span> <span class="mf">2.5e-5</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="mf">2.6e-6</span><span class="p">}</span>
+    <span class="n">temp_room</span> <span class="o">=</span> <span class="mf">298.15</span>
+    <span class="n">exp_const</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Xe&#39;</span><span class="p">:</span> <span class="mi">2300</span><span class="p">,</span> <span class="s1">&#39;Kr&#39;</span><span class="p">:</span> <span class="mi">1900</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+<div class="viewcode-block" id="Sparger.__init__"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_salt</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">q_he</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                 <span class="n">ds</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">temp_salt</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="s1">&#39;Jiaqi&#39;</span><span class="p">,</span>
+                 <span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the Sparger object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        q_salt : float</span>
+<span class="sd">            volumetric salt flow rate (m^3/s)</span>
+<span class="sd">        q_he : float</span>
+<span class="sd">            volumetric helium flow rate (m^3/s)</span>
+<span class="sd">        length : float</span>
+<span class="sd">            sparger/contractor length (m)</span>
+<span class="sd">        ds : float</span>
+<span class="sd">            sparger/contractor (pipe) diameter (m)</span>
+<span class="sd">        db : float</span>
+<span class="sd">            bubble diameter (m) for bubble generator/separator</span>
+<span class="sd">        temp_salt: float</span>
+<span class="sd">            salt temperature (K)</span>
+<span class="sd">        area : float</span>
+<span class="sd">            contactor cross-section (m^2)</span>
+<span class="sd">        corr: string</span>
+<span class="sd">             Sherwood correlations: ORNL-TM-2245 or Jaiqi&#39;s</span>
+<span class="sd">             (1) milestone report from Jiaqi [3]</span>
+<span class="sd">             (2) ORNL-TM-2245 Eq.36 [2]</span>
+<span class="sd">             default: Sherwood correlation from ORNL-TM-2245 Eq.36</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Default values comes from Jiaqi&#39;s simulation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span> <span class="o">=</span> <span class="n">q_salt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_he</span> <span class="o">=</span> <span class="n">q_he</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temp_salt</span> <span class="o">=</span> <span class="n">temp_salt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corr</span> <span class="o">=</span> <span class="n">corr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Sparger.calc_rem_efficiency"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.calc_rem_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">calc_rem_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Overrides the existing method in Process class to provide</span>
+<span class="sd">        efficiency values of target isotopes calculated in eff() function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        el_name : str</span>
+<span class="sd">            Name of target element to be removed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        efficiency : float</span>
+<span class="sd">            Extraction efficiency for el_name element.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()[</span><span class="n">el_name</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">efficiency</span></div>
+
+<div class="viewcode-block" id="Sparger.description"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.description">[docs]</a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Class attributes&#39; descriptions for plotting purpose in sensitivity</span>
+<span class="sd">        analysis</span>
+<span class="sd">        Return</span>
+<span class="sd">        ------</span>
+<span class="sd">        pltdict: dict</span>
+<span class="sd">            contains instances&#39; information</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;q_salt&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;salt flow rate ${(m^3/s)}$&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;salt_flow_rate&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;q_he&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;helium flow rate ${(m^3/s)}$&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;helium_flow_rate&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;sparger pipe length ${(m)}$&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;sparger_pipe_length&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;ds&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;sparger pipe diameter ${(m)}$&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;sparger_pipe_diameter&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;db&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;bubble diameter ${(m)}$&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;bubble_diameter&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;temp_salt&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;average salt temperature ${(K)}$&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;average_salt_temperature&#39;</span><span class="p">}</span>
+                    <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">plt_dict</span></div>
+
+<div class="viewcode-block" id="Sparger.eps"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.eps">[docs]</a>    <span class="k">def</span> <span class="nf">eps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h_const</span><span class="p">,</span> <span class="n">kl_const</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Evaluates gas removal efficiency using Eq. 4</span>
+<span class="sd">        from Peebles report (ORNL-TM-2245).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        efficiency : float</span>
+<span class="sd">            removal efficiency of a specific chemical element.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">6</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_he</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_he</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span><span class="p">))</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gas_const</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_salt</span> <span class="o">/</span> <span class="n">h_const</span><span class="p">)</span> <span class="o">*</span>\
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_he</span><span class="p">)</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="n">kl_const</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">*</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">beta</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">alpha</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Sparger.sherwood"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.sherwood">[docs]</a>    <span class="k">def</span> <span class="nf">sherwood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Contains Sherwood number correlations.</span>
+<span class="sd">             Sherwood correlations: ORNL-TM-2245 or Jaiqi</span>
+<span class="sd">             (1) Jaiqi Ph.D. dissertation</span>
+<span class="sd">             (2) ORNL-TM-2245 Eq.36</span>
+<span class="sd">             default: Sherwood correlation from ORNL-TM-2245 Eq.36</span>
+<span class="sd">         &quot;&quot;&quot;</span>
+        <span class="n">sh_corr</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;ORNL-TM-2245&#39;</span><span class="p">:</span> <span class="s1">&#39;0.0096 * (number_re**0.913) * (number_sc**0.346)&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Jiaqi&#39;</span><span class="p">:</span> <span class="s1">&#39;2.06972 * (number_re ** 0.555) * (number_sc ** 0.5)&#39;</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">sh_corr</span></div>
+
+<div class="viewcode-block" id="Sparger.eff"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.eff">[docs]</a>    <span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Evaluates gas removal efficiencies for target isotopes.</span>
+<span class="sd">        In this function, vl, mu, rho, number_sh, number_sc, number_re and kl</span>
+<span class="sd">        are average liquid velocity (m/s), kinematic viscosity (Pa.s),</span>
+<span class="sd">        density (kg/m^3), sherwood number from slide 8 developed by Jiaqi,</span>
+<span class="sd">        schmidt number, reynold number and liquid phase mass transfer</span>
+<span class="sd">        coefficient (m/s), respectively.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        rem_eff : dict</span>
+<span class="sd">            Dictionary containing removal efficiency of each target isotope.</span>
+<span class="sd">            ``key``</span>
+<span class="sd">                Name of target isotope.</span>
+<span class="sd">            ``value``</span>
+<span class="sd">                removal efficiency.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hh</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_const</span><span class="p">:</span>
+            <span class="n">hh</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h_const</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">*</span>
+                           <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exp_const</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_salt</span> <span class="o">-</span>
+                                                         <span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_room</span><span class="p">)))</span>
+
+        <span class="n">mu</span> <span class="o">=</span> <span class="mf">1.076111581e-2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_salt</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">4.833549134</span><span class="p">)</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="p">(</span><span class="mf">6.105</span> <span class="o">-</span> <span class="mf">0.001272</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_salt</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">/</span> <span class="n">rho</span>
+        <span class="n">vl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span>
+        <span class="n">number_re</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">*</span> <span class="n">vl</span> <span class="o">/</span> <span class="n">nu</span>
+        <span class="n">number_sc</span> <span class="o">=</span> <span class="n">nu</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity</span>
+        <span class="n">number_sh</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sherwood</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">corr</span><span class="p">],</span>
+                         <span class="p">{</span><span class="s1">&#39;number_sc&#39;</span><span class="p">:</span> <span class="n">number_sc</span><span class="p">,</span> <span class="s1">&#39;number_re&#39;</span><span class="p">:</span> <span class="n">number_re</span><span class="p">})</span>
+        <span class="n">kl</span> <span class="o">=</span> <span class="n">number_sh</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
+        <span class="n">rem_eff</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">(</span><span class="n">hh</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">kl</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_const</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">rem_eff</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
