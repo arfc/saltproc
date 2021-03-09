@@ -25,16 +25,22 @@ class Sparger(Process):
             exponential constant from following reference
     q_salt : float
         volumetric salt flow rate (m^3/s)
+        Default: 0.1
     q_he : float
         volumetric helium flow rate (m^3/s)
+        Default: 0.005
     length : float
         sparger/contractor length (m)
-    ds : float
+        Default: 10
+    dp : float
         sparger/contractor (pipe) diameter (m)
+        Default: 0.1
     db : float
         bubble diameter (m) for bubble generator/separator
+        Default: 0.001
     temp_salt: float
         salt temperature (K)
+        Default: 900
     area : float
         contactor cross-section (m^2)
 
@@ -72,7 +78,7 @@ class Sparger(Process):
     exp_const = {'Xe': 2300, 'Kr': 1900, 'H': 0}
 
     def __init__(self, q_salt=0.1, q_he=0.005, length=10,
-                 ds=0.1, db=0.001, temp_salt=900, corr='Jiaqi',
+                 dp=0.1, db=0.001, temp_salt=900, corr='Jiaqi',
                  *initial_data, **kwargs):
         """ Initializes the Sparger object.
 
@@ -80,16 +86,22 @@ class Sparger(Process):
         ----------
         q_salt : float
             volumetric salt flow rate (m^3/s)
+            Default: 0.1
         q_he : float
             volumetric helium flow rate (m^3/s)
+            Default: 0.005
         length : float
             sparger/contractor length (m)
-        ds : float
+            Default: 10
+        dp : float
             sparger/contractor (pipe) diameter (m)
+            Default: 0.1
         db : float
             bubble diameter (m) for bubble generator/separator
+            Default: 0.001
         temp_salt: float
             salt temperature (K)
+            Default: 900
         area : float
             contactor cross-section (m^2)
         corr: string
@@ -106,10 +118,10 @@ class Sparger(Process):
         self.q_salt = q_salt
         self.q_he = q_he
         self.length = length
-        self.ds = ds
+        self.dp = dp
         self.db = db
         self.temp_salt = temp_salt
-        self.area = np.pi * (self.ds / 2) ** 2
+        self.area = np.pi * (self.dp / 2) ** 2
         self.corr = corr
         self.efficiency = self.eff()
 
@@ -128,9 +140,9 @@ class Sparger(Process):
             Extraction efficiency for el_name element.
 
         """
-        efficiency = self.eff()[el_name]
+        isotope = self.eff()[el_name]
 
-        return efficiency
+        return isotope
 
     def description(self):
         """Class attributes' descriptions for plotting purpose in sensitivity
@@ -141,17 +153,23 @@ class Sparger(Process):
             contains instances' information
         """
         plt_dict = {'q_salt': {'xaxis': 'salt flow rate ${(m^3/s)}$',
-                               'fname': 'salt_flow_rate'},
+                               'yaxis': 'removal efficiency (%)',
+                               'vs': 'sep_eff'},
                     'q_he': {'xaxis': 'helium flow rate ${(m^3/s)}$',
-                             'fname': 'helium_flow_rate'},
+                             'yaxis': 'removal efficiency (%)',
+                             'vs': 'sep_eff'},
                     'length': {'xaxis': 'sparger pipe length ${(m)}$',
-                               'fname': 'sparger_pipe_length'},
-                    'ds': {'xaxis': 'sparger pipe diameter ${(m)}$',
-                           'fname': 'sparger_pipe_diameter'},
+                               'yaxis': 'removal efficiency (%)',
+                               'vs': 'sep_eff'},
+                    'dp': {'xaxis': 'sparger pipe diameter ${(m)}$',
+                           'yaxis': 'removal efficiency (%)',
+                           'vs': 'sep_eff'},
                     'db': {'xaxis': 'bubble diameter ${(m)}$',
-                           'fname': 'bubble_diameter'},
+                           'yaxis': 'removal efficiency (%)',
+                           'vs': 'sep_eff'},
                     'temp_salt': {'xaxis': 'average salt temperature ${(K)}$',
-                                  'fname': 'average_salt_temperature'}
+                                  'yaxis': 'removal efficiency (%)',
+                                  'vs': 'sep_eff'}
                     }
 
         return plt_dict
@@ -214,11 +232,15 @@ class Sparger(Process):
         rho = (6.105 - 0.001272 * self.temp_salt) * 1000
         nu = mu / rho
         vl = self.q_salt / self.area
-        number_re = self.ds * vl / nu
+        number_re = self.dp * vl / nu
         number_sc = nu / self.diffusivity
         number_sh = eval(self.sherwood()[self.corr],
                          {'number_sc': number_sc, 'number_re': number_re})
-        kl = number_sh * self.diffusivity / self.ds
+        kl = number_sh * self.diffusivity / self.dp
         rem_eff = {key: self.eps(hh[key], kl) for key in self.h_const}
 
         return rem_eff
+
+
+if __name__ == '__main__':
+    print(Sparger().eff())
