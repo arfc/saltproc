@@ -156,7 +156,9 @@
            <div itemprop="articleBody">
             
   <h1>Source code for saltproc.separator</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Process</span>
+<span></span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Process</span>
 
 
 <div class="viewcode-block" id="Separator"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator">[docs]</a><span class="k">class</span> <span class="nc">Separator</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
@@ -164,22 +166,36 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    qe : float</span>
-<span class="sd">        liquid flow rate (m^3/s)</span>
-<span class="sd">        default: same as the value in q_salt defined in sparger class</span>
-<span class="sd">    qg : float</span>
-<span class="sd">        gas flow rate (m^3/s)</span>
-<span class="sd">        default: same as the value in q_he defined in sparger class</span>
-<span class="sd">    pgamma : float</span>
-<span class="sd">        the pressure at the densitometer station</span>
-<span class="sd">    x : float</span>
-<span class="sd">        the gas injection rate</span>
-<span class="sd">        default: 5% of total flow</span>
+<span class="sd">    q_salt : float</span>
+<span class="sd">        volumetric salt flow rate (m^3/s)</span>
+<span class="sd">        Default: 0.1</span>
+<span class="sd">    q_he : float</span>
+<span class="sd">        volumetric helium flow rate (m^3/s)</span>
+<span class="sd">        Default: 0.005</span>
+<span class="sd">    do : float</span>
+<span class="sd">        gas outlet diameter (m)</span>
+<span class="sd">        Ranging from 1~3cm in our simulations</span>
+<span class="sd">        Default: 0.02</span>
+<span class="sd">    dp : float</span>
+<span class="sd">        sparger/contractor (pipe) diameter (m)</span>
+<span class="sd">        Default: 0.1</span>
+<span class="sd">    db : float</span>
+<span class="sd">        bubble diameter (m) for bubble generator/separator</span>
+<span class="sd">        Default: 0.001</span>
+<span class="sd">    deltap : float</span>
+<span class="sd">        Pressure difference between the inlet and the gas outlet (Pa)</span>
+<span class="sd">        (from 2e5 to 5e5 Pa)</span>
+<span class="sd">        Default: 4e5</span>
+<span class="sd">    temp_room: real</span>
+<span class="sd">        room temperature (Kelvin)</span>
+<span class="sd">        Default: 900</span>
+<span class="sd">    k : float</span>
+<span class="sd">        Slope of the initial swirling (use 1 for this).</span>
 
 <span class="sd">    Methods</span>
 <span class="sd">    -------</span>
 <span class="sd">    eff()</span>
-<span class="sd">        Evaluates gas removal efficiency using Eq. 6 from Gabbard&#39;s report. [1]</span>
+<span class="sd">        Evaluates gas removal efficiency from Jiaqi&#39;s correlation. [1]</span>
 <span class="sd">    description()</span>
 <span class="sd">        Contains a dictionary of plot properties.</span>
 <span class="sd">    calc_rem_efficiency(el_name)</span>
@@ -187,35 +203,63 @@
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
-<span class="sd">    [1] Gabbard, C. H. Development of an axial-flow centrifugal gas bubble</span>
-<span class="sd">    separator for use in MSR xenon removal system. United States: N. p.,</span>
-<span class="sd">    1974. Web. doi:10.2172/4324438.</span>
+<span class="sd">    [1] Jiaqi Chen and Caleb S. Brooks. Milestone 1.2 Report: CFD</span>
+<span class="sd">    Sensitivity Analysis. In preparation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Separator.__init__"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qe</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">qg</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">pgamma</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
-                 <span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<div class="viewcode-block" id="Separator.__init__"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_salt</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">q_he</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">do</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">dp</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+                 <span class="n">deltap</span><span class="o">=</span><span class="mf">4e5</span><span class="p">,</span> <span class="n">temp_salt</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initializes the Separator object.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        qe : float</span>
-<span class="sd">            liquid flow rate (m^3/s)</span>
-<span class="sd">            default: same as the value in q_salt defined in sparger class</span>
-<span class="sd">        qg : float</span>
-<span class="sd">            gas flow rate (m^3/s)</span>
-<span class="sd">            default: same as the value in q_he defined in sparger class</span>
-<span class="sd">        pgamma : float</span>
-<span class="sd">            the pressure at the densitometer station</span>
-<span class="sd">            default: from Gabbard&#39;s report [1]</span>
-<span class="sd">        x : float</span>
-<span class="sd">            the gas injection rate</span>
-<span class="sd">            default: 5% of total flow</span>
+<span class="sd">        q_salt : float</span>
+<span class="sd">            volumetric salt flow rate (m^3/s)</span>
+<span class="sd">            Default: 0.1</span>
+<span class="sd">        q_he : float</span>
+<span class="sd">            volumetric helium flow rate (m^3/s)</span>
+<span class="sd">            Default: 0.005</span>
+<span class="sd">        do : float</span>
+<span class="sd">            gas outlet diameter (m)</span>
+<span class="sd">            Ranging from 1~3cm in our simulations</span>
+<span class="sd">            Default: 0.02</span>
+<span class="sd">        dp : float</span>
+<span class="sd">            sparger/contractor (pipe) diameter (m)</span>
+<span class="sd">            Default: 0.1</span>
+<span class="sd">        db : float</span>
+<span class="sd">            bubble diameter (m) for bubble generator/separator</span>
+<span class="sd">            Default: 0.001</span>
+<span class="sd">        deltap : float</span>
+<span class="sd">            Pressure difference between the inlet and the gas outlet (Pa)</span>
+<span class="sd">            (from 2e5 to 5e5 Pa)</span>
+<span class="sd">            Default: 4e5</span>
+<span class="sd">        temp_room: real</span>
+<span class="sd">            room temperature (Kelvin)</span>
+<span class="sd">            Default: 900</span>
+<span class="sd">        area : float</span>
+<span class="sd">            contactor cross-section (m^2)</span>
+<span class="sd">        jl : float</span>
+<span class="sd">            liquid superficial velocity (m/s)</span>
+<span class="sd">        alpha : float</span>
+<span class="sd">            void fraction</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Default values from Jiaqi&#39;s simulation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qe</span> <span class="o">=</span> <span class="n">qe</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qg</span> <span class="o">=</span> <span class="n">qg</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pgamma</span> <span class="o">=</span> <span class="n">pgamma</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span> <span class="o">=</span> <span class="n">q_salt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_he</span> <span class="o">=</span> <span class="n">q_he</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">do</span> <span class="o">=</span> <span class="n">do</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deltap</span> <span class="o">=</span> <span class="n">deltap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">=</span> <span class="n">dp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temp_salt</span> <span class="o">=</span> <span class="n">temp_salt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_he</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_he</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">area</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Separator.calc_rem_efficiency"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator.calc_rem_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">calc_rem_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el_name</span><span class="p">):</span>
@@ -246,21 +290,33 @@
 <span class="sd">        pltdict: dict</span>
 <span class="sd">            contains instances&#39; information</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;qe&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;liquid flow rate ${(m^3/s)}$&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;liquid_flow_rate&#39;</span><span class="p">},</span>
-                    <span class="s1">&#39;qg&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;gas flow rate ${(m^3/s)}$&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;gas_flow_rate&#39;</span><span class="p">},</span>
-                    <span class="s1">&#39;pgamma&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;densitometer pressure ${(Pa)}$&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;densitometer_pressure&#39;</span><span class="p">},</span>
-                    <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;the gas injection rate ${(m)}$&#39;</span><span class="p">,</span>
-                          <span class="s1">&#39;fname&#39;</span><span class="p">:</span> <span class="s1">&#39;the gas_injection_rate&#39;</span><span class="p">},</span>
+        <span class="n">plt_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;q_salt&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;salt flow rate ${(m^3/s)}$&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;yaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;bubble separation efficiency (%)&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;vs&#39;</span><span class="p">:</span> <span class="s1">&#39;Xe_eff&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;q_he&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;helium flow rate ${(m^3/s)}$&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;yaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;bubble separation efficiency (%)&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;vs&#39;</span><span class="p">:</span> <span class="s1">&#39;Xe_eff&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;do&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;gas outlet diameter ${(m)}$&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;yaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;bubble separation efficiency (%)&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;vs&#39;</span><span class="p">:</span> <span class="s1">&#39;Xe_eff&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;dp&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;pipe diameter ${(m)}$&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;yaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;bubble separation efficiency (%)&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;vs&#39;</span><span class="p">:</span> <span class="s1">&#39;Xe_eff&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;db&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;bubble diameter ${(m)}$&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;yaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;bubble separation efficiency (%)&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;vs&#39;</span><span class="p">:</span> <span class="s1">&#39;Xe_eff&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;deltap&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;pressure difference ${(Pa)}$&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;yaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;bubble separation efficiency (%)&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;vs&#39;</span><span class="p">:</span> <span class="s1">&#39;Xe_eff&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;temp_salt&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;xaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;average salt temperature ${(K)}$&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;yaxis&#39;</span><span class="p">:</span> <span class="s1">&#39;bubble separation efficiency (%)&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;vs&#39;</span><span class="p">:</span> <span class="s1">&#39;Xe_eff&#39;</span><span class="p">}</span>
                     <span class="p">}</span>
 
         <span class="k">return</span> <span class="n">plt_dict</span></div>
 
 <div class="viewcode-block" id="Separator.eff"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator.eff">[docs]</a>    <span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Evaluates gas removal efficiency using Equation 6</span>
-<span class="sd">        from Gabbard&#39;s report. [1]</span>
+        <span class="sd">&quot;&quot;&quot; Evaluates gas/bubble separation efficiency from Jiaqi&#39;s correlation.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -272,13 +328,28 @@
 <span class="sd">                Name of target isotope.</span>
 <span class="sd">            ``value``</span>
 <span class="sd">                removal efficiency.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">sep_eff</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2116.8</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qg</span><span class="p">)</span> <span class="o">/</span>\
-                  <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qe</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">pgamma</span> <span class="o">+</span> <span class="mf">2116.8</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qg</span><span class="p">)</span>
+
+        <span class="n">dc</span> <span class="o">=</span> <span class="mf">3.41</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">do</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="mf">1.076111581e-2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_salt</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">4.833549134</span><span class="p">)</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="p">(</span><span class="mf">6.105</span> <span class="o">-</span> <span class="mf">0.001272</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_salt</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">/</span> <span class="n">rho</span>
+        <span class="n">vl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span>
+        <span class="n">number_re</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">*</span> <span class="n">vl</span> <span class="o">/</span> <span class="n">nu</span>
+        <span class="n">etha</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mf">3.2</span> <span class="o">*</span> <span class="n">rho</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">jl</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dc</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">do</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltap</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">dvoid</span> <span class="o">=</span> <span class="p">(</span><span class="mf">4.89</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">)</span><span class="o">**</span><span class="mf">1.27</span><span class="p">)</span> <span class="o">/</span>\
+                <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="o">**</span><span class="mi">4</span> <span class="o">*</span> <span class="n">number_re</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">do</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">do</span> <span class="o">+</span> <span class="n">dvoid</span> <span class="o">/</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">sep_eff</span> <span class="o">=</span> <span class="n">df</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">0.23</span> <span class="o">*</span> <span class="n">etha</span><span class="p">)</span> <span class="o">+</span> <span class="mf">3.26</span> <span class="o">*</span> <span class="n">etha</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">df</span><span class="p">)</span> <span class="o">*</span> <span class="n">df</span>
         <span class="n">rem_eff</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Xe&#39;</span><span class="p">:</span> <span class="n">sep_eff</span><span class="p">,</span> <span class="s1">&#39;Kr&#39;</span><span class="p">:</span> <span class="n">sep_eff</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="n">sep_eff</span><span class="p">}</span>
 
         <span class="k">return</span> <span class="n">rem_eff</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">Separator</span><span class="p">()</span><span class="o">.</span><span class="n">eff</span><span class="p">())</span>
 </pre></div>
 
            </div>
