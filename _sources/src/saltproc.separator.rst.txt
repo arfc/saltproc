@@ -1,0 +1,7 @@
+saltproc.separator module
+=========================
+
+.. automodule:: saltproc.separator
+   :members:
+   :undoc-members:
+   :show-inheritance:
