@@ -25,7 +25,7 @@ Molten Salt Reactors. It performs following major functions:
   - creates Serpent input file
 
 
-The code logic flow is as follows:
+The code logic flow is the following:
 
   1. Runs Serpent (`saltproc.depcode.run_depcode()`)
   2. Parses through the output `*_dep.m` file and creates PyNE Material object
@@ -49,7 +49,6 @@ The code logic flow is as follows:
 
   5. Repeats 1-4.
 
-
 Updates
 -------
 
@@ -61,7 +60,8 @@ comprises `Sparging System package` that calculates removal efficiencies for
 various target isotopes (i.e., Xe, Kr, and H). To enable this feature, use
 the `"self"` command in the input file in the `"efficiency"` object names of
 Sparger and Separator components. Each component can be employed separately.
-An example is given below:
+An example is given below. In the example, capacity and mass flow rate are in
+`g/s` unit while volume is in `cm`:math:`^3` unit.ass
 
 "sparger": { "capacity": 9920000,
 			 "efficiency": "self",
