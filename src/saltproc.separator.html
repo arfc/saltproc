@@ -161,14 +161,14 @@
 <span id="saltproc-separator-module"></span><h1>saltproc.separator module<a class="headerlink" href="#module-saltproc.separator" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="saltproc.separator.Separator">
-<em class="property">class </em><code class="sig-prename descclassname">saltproc.separator.</code><code class="sig-name descname">Separator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">qe</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">qg</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">pgamma</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">x</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">saltproc.separator.</code><code class="sig-name descname">Separator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q_salt</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">q_he</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">do</span><span class="o">=</span><span class="default_value">0.02</span></em>, <em class="sig-param"><span class="n">dp</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">db</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">deltap</span><span class="o">=</span><span class="default_value">400000.0</span></em>, <em class="sig-param"><span class="n">temp_salt</span><span class="o">=</span><span class="default_value">900</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="saltproc.process.html#saltproc.process.Process" title="saltproc.process.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.process.Process</span></code></a></p>
 <p>Class evaluates gas removal efficiency in separator (bubble separator).</p>
 <dl class="py attribute">
-<dt id="saltproc.separator.Separator.qe">
-<code class="sig-name descname">qe</code><a class="headerlink" href="#saltproc.separator.Separator.qe" title="Permalink to this definition">¶</a></dt>
-<dd><p>liquid flow rate (m^3/s)
-default: same as the value in q_salt defined in sparger class</p>
+<dt id="saltproc.separator.Separator.q_salt">
+<code class="sig-name descname">q_salt</code><a class="headerlink" href="#saltproc.separator.Separator.q_salt" title="Permalink to this definition">¶</a></dt>
+<dd><p>volumetric salt flow rate (m^3/s)
+Default: 0.1</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -177,10 +177,10 @@ default: same as the value in q_salt defined in sparger class</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.separator.Separator.qg">
-<code class="sig-name descname">qg</code><a class="headerlink" href="#saltproc.separator.Separator.qg" title="Permalink to this definition">¶</a></dt>
-<dd><p>gas flow rate (m^3/s)
-default: same as the value in q_he defined in sparger class</p>
+<dt id="saltproc.separator.Separator.q_he">
+<code class="sig-name descname">q_he</code><a class="headerlink" href="#saltproc.separator.Separator.q_he" title="Permalink to this definition">¶</a></dt>
+<dd><p>volumetric helium flow rate (m^3/s)
+Default: 0.005</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -189,9 +189,11 @@ default: same as the value in q_he defined in sparger class</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.separator.Separator.pgamma">
-<code class="sig-name descname">pgamma</code><a class="headerlink" href="#saltproc.separator.Separator.pgamma" title="Permalink to this definition">¶</a></dt>
-<dd><p>the pressure at the densitometer station</p>
+<dt id="saltproc.separator.Separator.do">
+<code class="sig-name descname">do</code><a class="headerlink" href="#saltproc.separator.Separator.do" title="Permalink to this definition">¶</a></dt>
+<dd><p>gas outlet diameter (m)
+Ranging from 1~3cm in our simulations
+Default: 0.02</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -200,10 +202,58 @@ default: same as the value in q_he defined in sparger class</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.separator.Separator.x">
-<code class="sig-name descname">x</code><a class="headerlink" href="#saltproc.separator.Separator.x" title="Permalink to this definition">¶</a></dt>
-<dd><p>the gas injection rate
-default: 5% of total flow</p>
+<dt id="saltproc.separator.Separator.dp">
+<code class="sig-name descname">dp</code><a class="headerlink" href="#saltproc.separator.Separator.dp" title="Permalink to this definition">¶</a></dt>
+<dd><p>sparger/contractor (pipe) diameter (m)
+Default: 0.1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="saltproc.separator.Separator.db">
+<code class="sig-name descname">db</code><a class="headerlink" href="#saltproc.separator.Separator.db" title="Permalink to this definition">¶</a></dt>
+<dd><p>bubble diameter (m) for bubble generator/separator
+Default: 0.001</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="saltproc.separator.Separator.deltap">
+<code class="sig-name descname">deltap</code><a class="headerlink" href="#saltproc.separator.Separator.deltap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pressure difference between the inlet and the gas outlet (Pa)
+(from 2e5 to 5e5 Pa)
+Default: 4e5</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="saltproc.separator.Separator.temp_room">
+<code class="sig-name descname">temp_room</code><a class="headerlink" href="#saltproc.separator.Separator.temp_room" title="Permalink to this definition">¶</a></dt>
+<dd><p>room temperature (Kelvin)
+Default: 900</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>real</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="saltproc.separator.Separator.k">
+<code class="sig-name descname">k</code><a class="headerlink" href="#saltproc.separator.Separator.k" title="Permalink to this definition">¶</a></dt>
+<dd><p>Slope of the initial swirling (use 1 for this).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -214,7 +264,7 @@ default: 5% of total flow</p>
 <dl class="py method">
 <dt id="saltproc.separator.Separator.eff">
 <code class="sig-name descname">eff</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator.eff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluates gas removal efficiency using Eq. 6 from Gabbard’s report. [1]</p>
+<dd><p>Evaluates gas removal efficiency from Jiaqi’s correlation. [1]</p>
 </dd></dl>
 
 <dl class="py method">
@@ -231,28 +281,42 @@ default: 5% of total flow</p>
 
 <div class="admonition-references admonition">
 <p class="admonition-title">References</p>
-<p>[1] Gabbard, C. H. Development of an axial-flow centrifugal gas bubble
-separator for use in MSR xenon removal system. United States: N. p.,
-1974. Web. doi:10.2172/4324438.</p>
+<p>[1] Jiaqi Chen and Caleb S. Brooks. Milestone 1.2 Report: CFD
+Sensitivity Analysis. In preparation</p>
 </div>
 <dl class="py method">
 <dt id="saltproc.separator.Separator.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">qe</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">qg</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">pgamma</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">x</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q_salt</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">q_he</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">do</span><span class="o">=</span><span class="default_value">0.02</span></em>, <em class="sig-param"><span class="n">dp</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">db</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">deltap</span><span class="o">=</span><span class="default_value">400000.0</span></em>, <em class="sig-param"><span class="n">temp_salt</span><span class="o">=</span><span class="default_value">900</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the Separator object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>qe</strong> (<em>float</em>) – liquid flow rate (m^3/s)
-default: same as the value in q_salt defined in sparger class</p></li>
-<li><p><strong>qg</strong> (<em>float</em>) – gas flow rate (m^3/s)
-default: same as the value in q_he defined in sparger class</p></li>
-<li><p><strong>pgamma</strong> (<em>float</em>) – the pressure at the densitometer station
-default: from Gabbard’s report [1]</p></li>
-<li><p><strong>x</strong> (<em>float</em>) – the gas injection rate
-default: 5% of total flow</p></li>
+<li><p><strong>q_salt</strong> (<em>float</em>) – volumetric salt flow rate (m^3/s)
+Default: 0.1</p></li>
+<li><p><strong>q_he</strong> (<em>float</em>) – volumetric helium flow rate (m^3/s)
+Default: 0.005</p></li>
+<li><p><strong>do</strong> (<em>float</em>) – gas outlet diameter (m)
+Ranging from 1~3cm in our simulations
+Default: 0.02</p></li>
+<li><p><strong>dp</strong> (<em>float</em>) – sparger/contractor (pipe) diameter (m)
+Default: 0.1</p></li>
+<li><p><strong>db</strong> (<em>float</em>) – bubble diameter (m) for bubble generator/separator
+Default: 0.001</p></li>
+<li><p><strong>deltap</strong> (<em>float</em>) – Pressure difference between the inlet and the gas outlet (Pa)
+(from 2e5 to 5e5 Pa)
+Default: 4e5</p></li>
+<li><p><strong>temp_room</strong> (<em>real</em>) – room temperature (Kelvin)
+Default: 900</p></li>
+<li><p><strong>area</strong> (<em>float</em>) – contactor cross-section (m^2)</p></li>
+<li><p><strong>jl</strong> (<em>float</em>) – liquid superficial velocity (m/s)</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – void fraction</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Default values from Jiaqi’s simulation</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -291,8 +355,7 @@ sensitivity analysis</p>
 <dl class="py method">
 <dt id="id2">
 <code class="sig-name descname">eff</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluates gas removal efficiency using Equation 6
-from Gabbard’s report. [1]</p>
+<dd><p>Evaluates gas/bubble separation efficiency from Jiaqi’s correlation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><p><strong>rem_eff</strong> – Dictionary that contains removal efficiency of each target
@@ -310,6 +373,11 @@ element.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py attribute">
+<dt id="id3">
+<code class="sig-name descname">k</code><em class="property"> = 1.0</em><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

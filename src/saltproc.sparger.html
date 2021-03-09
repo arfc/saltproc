@@ -161,7 +161,7 @@
 <span id="saltproc-sparger-module"></span><h1>saltproc.sparger module<a class="headerlink" href="#module-saltproc.sparger" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="saltproc.sparger.Sparger">
-<em class="property">class </em><code class="sig-prename descclassname">saltproc.sparger.</code><code class="sig-name descname">Sparger</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q_salt</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">q_he</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">length</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">ds</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">db</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">temp_salt</span><span class="o">=</span><span class="default_value">900</span></em>, <em class="sig-param"><span class="n">corr</span><span class="o">=</span><span class="default_value">'Jiaqi'</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.sparger.Sparger" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">saltproc.sparger.</code><code class="sig-name descname">Sparger</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q_salt</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">q_he</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">length</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">dp</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">db</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">temp_salt</span><span class="o">=</span><span class="default_value">900</span></em>, <em class="sig-param"><span class="n">corr</span><span class="o">=</span><span class="default_value">'Jiaqi'</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.sparger.Sparger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="saltproc.process.html#saltproc.process.Process" title="saltproc.process.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.process.Process</span></code></a></p>
 <p>Class evaluates gas removal efficiency in sparger (bubble generator).</p>
 <dl class="py attribute">
@@ -232,7 +232,8 @@
 <dl class="py attribute">
 <dt id="saltproc.sparger.Sparger.q_salt">
 <code class="sig-name descname">q_salt</code><a class="headerlink" href="#saltproc.sparger.Sparger.q_salt" title="Permalink to this definition">¶</a></dt>
-<dd><p>volumetric salt flow rate (m^3/s)</p>
+<dd><p>volumetric salt flow rate (m^3/s)
+Default: 0.1</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -243,7 +244,8 @@
 <dl class="py attribute">
 <dt id="saltproc.sparger.Sparger.q_he">
 <code class="sig-name descname">q_he</code><a class="headerlink" href="#saltproc.sparger.Sparger.q_he" title="Permalink to this definition">¶</a></dt>
-<dd><p>volumetric helium flow rate (m^3/s)</p>
+<dd><p>volumetric helium flow rate (m^3/s)
+Default: 0.005</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -254,7 +256,8 @@
 <dl class="py attribute">
 <dt id="saltproc.sparger.Sparger.length">
 <code class="sig-name descname">length</code><a class="headerlink" href="#saltproc.sparger.Sparger.length" title="Permalink to this definition">¶</a></dt>
-<dd><p>sparger/contractor length (m)</p>
+<dd><p>sparger/contractor length (m)
+Default: 10</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -263,9 +266,10 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.ds">
-<code class="sig-name descname">ds</code><a class="headerlink" href="#saltproc.sparger.Sparger.ds" title="Permalink to this definition">¶</a></dt>
-<dd><p>sparger/contractor (pipe) diameter (m)</p>
+<dt id="saltproc.sparger.Sparger.dp">
+<code class="sig-name descname">dp</code><a class="headerlink" href="#saltproc.sparger.Sparger.dp" title="Permalink to this definition">¶</a></dt>
+<dd><p>sparger/contractor (pipe) diameter (m)
+Default: 0.1</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -276,7 +280,8 @@
 <dl class="py attribute">
 <dt id="saltproc.sparger.Sparger.db">
 <code class="sig-name descname">db</code><a class="headerlink" href="#saltproc.sparger.Sparger.db" title="Permalink to this definition">¶</a></dt>
-<dd><p>bubble diameter (m) for bubble generator/separator</p>
+<dd><p>bubble diameter (m) for bubble generator/separator
+Default: 0.001</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -287,7 +292,8 @@
 <dl class="py attribute">
 <dt id="saltproc.sparger.Sparger.temp_salt">
 <code class="sig-name descname">temp_salt</code><a class="headerlink" href="#saltproc.sparger.Sparger.temp_salt" title="Permalink to this definition">¶</a></dt>
-<dd><p>salt temperature (K)</p>
+<dd><p>salt temperature (K)
+Default: 900</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -351,17 +357,23 @@ Sensitivity Analysis. In preparation</p>
 </div>
 <dl class="py method">
 <dt id="saltproc.sparger.Sparger.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q_salt</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">q_he</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">length</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">ds</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">db</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">temp_salt</span><span class="o">=</span><span class="default_value">900</span></em>, <em class="sig-param"><span class="n">corr</span><span class="o">=</span><span class="default_value">'Jiaqi'</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.sparger.Sparger.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q_salt</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">q_he</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">length</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">dp</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">db</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">temp_salt</span><span class="o">=</span><span class="default_value">900</span></em>, <em class="sig-param"><span class="n">corr</span><span class="o">=</span><span class="default_value">'Jiaqi'</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.sparger.Sparger.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the Sparger object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>q_salt</strong> (<em>float</em>) – volumetric salt flow rate (m^3/s)</p></li>
-<li><p><strong>q_he</strong> (<em>float</em>) – volumetric helium flow rate (m^3/s)</p></li>
-<li><p><strong>length</strong> (<em>float</em>) – sparger/contractor length (m)</p></li>
-<li><p><strong>ds</strong> (<em>float</em>) – sparger/contractor (pipe) diameter (m)</p></li>
-<li><p><strong>db</strong> (<em>float</em>) – bubble diameter (m) for bubble generator/separator</p></li>
-<li><p><strong>temp_salt</strong> (<em>float</em>) – salt temperature (K)</p></li>
+<li><p><strong>q_salt</strong> (<em>float</em>) – volumetric salt flow rate (m^3/s)
+Default: 0.1</p></li>
+<li><p><strong>q_he</strong> (<em>float</em>) – volumetric helium flow rate (m^3/s)
+Default: 0.005</p></li>
+<li><p><strong>length</strong> (<em>float</em>) – sparger/contractor length (m)
+Default: 10</p></li>
+<li><p><strong>dp</strong> (<em>float</em>) – sparger/contractor (pipe) diameter (m)
+Default: 0.1</p></li>
+<li><p><strong>db</strong> (<em>float</em>) – bubble diameter (m) for bubble generator/separator
+Default: 0.001</p></li>
+<li><p><strong>temp_salt</strong> (<em>float</em>) – salt temperature (K)
+Default: 900</p></li>
 <li><p><strong>area</strong> (<em>float</em>) – contactor cross-section (m^2)</p></li>
 <li><p><strong>corr</strong> (<em>string</em>) – Sherwood correlations: ORNL-TM-2245 or Jaiqi’s
 (1) milestone report from Jiaqi [3]
