@@ -61,7 +61,7 @@ various target isotopes (i.e., Xe, Kr, and H). To enable this feature, use
 the `"self"` command in the input file in the `"efficiency"` object names of
 Sparger and Separator components. Each component can be employed separately.
 An example is given below. In the example, capacity and mass flow rate are in
-g/s unit while volume is in cm^3 unit.ass
+g/s unit while volume is in cm^3 unit.
 
 "sparger": { "capacity": 9920000,
 			 "efficiency": "self",
