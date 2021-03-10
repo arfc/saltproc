@@ -154,22 +154,22 @@ class Sparger(Process):
         """
         plt_dict = {'q_salt': {'xaxis': 'salt flow rate ${(m^3/s)}$',
                                'yaxis': 'removal efficiency (%)',
-                               'vs': 'sep_eff'},
+                               'vs': 'Xe_eff'},
                     'q_he': {'xaxis': 'helium flow rate ${(m^3/s)}$',
                              'yaxis': 'removal efficiency (%)',
-                             'vs': 'sep_eff'},
+                             'vs': 'Xe_eff'},
                     'length': {'xaxis': 'sparger pipe length ${(m)}$',
                                'yaxis': 'removal efficiency (%)',
-                               'vs': 'sep_eff'},
+                               'vs': 'Xe_eff'},
                     'dp': {'xaxis': 'sparger pipe diameter ${(m)}$',
                            'yaxis': 'removal efficiency (%)',
-                           'vs': 'sep_eff'},
+                           'vs': 'Xe_eff'},
                     'db': {'xaxis': 'bubble diameter ${(m)}$',
                            'yaxis': 'removal efficiency (%)',
-                           'vs': 'sep_eff'},
+                           'vs': 'Xe_eff'},
                     'temp_salt': {'xaxis': 'average salt temperature ${(K)}$',
                                   'yaxis': 'removal efficiency (%)',
-                                  'vs': 'sep_eff'}
+                                  'vs': 'Xe_eff'}
                     }
 
         return plt_dict
