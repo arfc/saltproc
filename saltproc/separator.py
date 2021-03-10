@@ -134,25 +134,25 @@ class Separator(Process):
         """
         plt_dict = {'q_salt': {'xaxis': 'salt flow rate ${(m^3/s)}$',
                                'yaxis': 'bubble separation efficiency (%)',
-                               'vs': 'Xe_eff'},
+                               'vs': 'sep_eff'},
                     'q_he': {'xaxis': 'helium flow rate ${(m^3/s)}$',
                              'yaxis': 'bubble separation efficiency (%)',
-                             'vs': 'Xe_eff'},
+                             'vs': 'sep_eff'},
                     'do': {'xaxis': 'gas outlet diameter ${(m)}$',
                            'yaxis': 'bubble separation efficiency (%)',
-                           'vs': 'Xe_eff'},
+                           'vs': 'sep_eff'},
                     'dp': {'xaxis': 'pipe diameter ${(m)}$',
                            'yaxis': 'bubble separation efficiency (%)',
-                           'vs': 'Xe_eff'},
+                           'vs': 'sep_eff'},
                     'db': {'xaxis': 'bubble diameter ${(m)}$',
                            'yaxis': 'bubble separation efficiency (%)',
-                           'vs': 'Xe_eff'},
+                           'vs': 'sep_eff'},
                     'deltap': {'xaxis': 'pressure difference ${(Pa)}$',
                                'yaxis': 'bubble separation efficiency (%)',
-                               'vs': 'Xe_eff'},
+                               'vs': 'sep_eff'},
                     'temp_salt': {'xaxis': 'average salt temperature ${(K)}$',
                                   'yaxis': 'bubble separation efficiency (%)',
-                                  'vs': 'Xe_eff'}
+                                  'vs': 'sep_eff'}
                     }
 
         return plt_dict
