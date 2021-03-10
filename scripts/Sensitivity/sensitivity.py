@@ -55,7 +55,7 @@ class Sensitivity(Sparger):
 
     def __init__(self):
         super().__init__()
-
+        self.base = self.__class__.__bases__[0].__name__
         self.param_dict = {key: self.__dict__[key]
                            for key in self.description().keys()}
 
@@ -85,19 +85,25 @@ class Sensitivity(Sparger):
                         df = df.loc[df[par] == self.param_dict[par]]
 
                 #  2-D removal efficiency counter plots
-                figname = str('figs/%s_vs_%s' % (key1, key2))
+                figname = str('figs/%s_%s_vs_%s' % (self.base, key1, key2))
 
                 if united is not None:
-                    plt.subplot(8, 2, index)
+                    plt.subplot(len(self.param_dict)*2, 2, index)
                     index += 1
-                    figname = 'figs/Xe_removal_eff_' + self.tofile.split(".")[0]
+                    figname = 'figs/' + self.base + '_' +\
+                              self.tofile.split(".")[0]
+                else:
+                    if self.base == 'Sparger':
+                        plt.title('Xe removal efficiency (%)')
+                    else:
+                        plt.title('bubble separation efficiency (%)')
 
                 xdata = (df[key1]).to_list()
                 ydata = (df[key2]).to_list()
                 zdata = (df['Xe'] * 100).to_list()
                 plt.tricontourf(xdata, ydata, zdata, 15)
                 plt.colorbar()
-                plt.title('Xe removal efficiency (%)')
+
                 plt.xlabel(self.description()[key1]['xaxis'])
                 plt.ylabel(self.description()[key2]['xaxis'])
                 plt.ticklabel_format(axis="both", style="sci",
@@ -137,9 +143,9 @@ class Sensitivity(Sparger):
                      markerfacecolor='None')
             plt.legend()
             plt.xlabel(value['xaxis'])
-            plt.ylabel("removal efficiency (%)")
+            plt.ylabel(value['yaxis'])
             plt.ticklabel_format(axis="x", style="sci", scilimits=(-2, 4))
-            figname = str('figs/Xe_eff_vs_%s' % key)
+            figname = str('figs/%s_%s_vs_%s' % (self.base, value['vs'], key))
             ftype = 'png'
             plt.savefig(figname+'.'+ftype, dpi=300, format=ftype,
                         bbox_inches='tight')
@@ -158,6 +164,7 @@ class Sensitivity(Sparger):
         results = []
         for comb in product(*[value for key, value in coeff.items()]):
             efficiency = dict(zip(coeff.keys(), comb))
+            # print(comb)
             super().__init__(*comb)
             efficiency.update(super().eff())
             results.append(efficiency)
@@ -169,7 +176,7 @@ class Sensitivity(Sparger):
         #  Plots of results
         self.line(df)
         self.contour(df)
-        plt.figure(figsize=(16, 40))
+        plt.figure(figsize=(len(self.param_dict)*3, len(self.param_dict)*8))
         self.contour(df, united='united')
 
 

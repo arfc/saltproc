@@ -1,3 +1,5 @@
+
+import numpy as np
 from saltproc import Process
 
 
@@ -6,22 +8,36 @@ class Separator(Process):
 
     Attributes
     ----------
-    qe : float
-        liquid flow rate (m^3/s)
-        default: same as the value in q_salt defined in sparger class
-    qg : float
-        gas flow rate (m^3/s)
-        default: same as the value in q_he defined in sparger class
-    pgamma : float
-        the pressure at the densitometer station
-    x : float
-        the gas injection rate
-        default: 5% of total flow
+    q_salt : float
+        volumetric salt flow rate (m^3/s)
+        Default: 0.1
+    q_he : float
+        volumetric helium flow rate (m^3/s)
+        Default: 0.005
+    do : float
+        gas outlet diameter (m)
+        Ranging from 1~3cm in our simulations
+        Default: 0.02
+    dp : float
+        sparger/contractor (pipe) diameter (m)
+        Default: 0.1
+    db : float
+        bubble diameter (m) for bubble generator/separator
+        Default: 0.001
+    deltap : float
+        Pressure difference between the inlet and the gas outlet (Pa)
+        (from 2e5 to 5e5 Pa)
+        Default: 4e5
+    temp_room: real
+        room temperature (Kelvin)
+        Default: 900
+    k : float
+        Slope of the initial swirling (use 1 for this).
 
     Methods
     -------
     eff()
-        Evaluates gas removal efficiency using Eq. 6 from Gabbard's report. [1]
+        Evaluates gas removal efficiency from Jiaqi's correlation. [1]
     description()
         Contains a dictionary of plot properties.
     calc_rem_efficiency(el_name)
@@ -29,35 +45,63 @@ class Separator(Process):
 
     References
     ----------
-    [1] Gabbard, C. H. Development of an axial-flow centrifugal gas bubble
-    separator for use in MSR xenon removal system. United States: N. p.,
-    1974. Web. doi:10.2172/4324438.
+    [1] Jiaqi Chen and Caleb S. Brooks. Milestone 1.2 Report: CFD
+    Sensitivity Analysis. In preparation
     """
 
-    def __init__(self, qe=0.1, qg=0.005, pgamma=10, x=0.05,
-                 *initial_data, **kwargs):
+    k = 1.0
+
+    def __init__(self, q_salt=0.1, q_he=0.005, do=0.02, dp=0.1, db=0.001,
+                 deltap=4e5, temp_salt=900, *initial_data, **kwargs):
         """ Initializes the Separator object.
 
         Parameters
         ----------
-        qe : float
-            liquid flow rate (m^3/s)
-            default: same as the value in q_salt defined in sparger class
-        qg : float
-            gas flow rate (m^3/s)
-            default: same as the value in q_he defined in sparger class
-        pgamma : float
-            the pressure at the densitometer station
-            default: from Gabbard's report [1]
-        x : float
-            the gas injection rate
-            default: 5% of total flow
+        q_salt : float
+            volumetric salt flow rate (m^3/s)
+            Default: 0.1
+        q_he : float
+            volumetric helium flow rate (m^3/s)
+            Default: 0.005
+        do : float
+            gas outlet diameter (m)
+            Ranging from 1~3cm in our simulations
+            Default: 0.02
+        dp : float
+            sparger/contractor (pipe) diameter (m)
+            Default: 0.1
+        db : float
+            bubble diameter (m) for bubble generator/separator
+            Default: 0.001
+        deltap : float
+            Pressure difference between the inlet and the gas outlet (Pa)
+            (from 2e5 to 5e5 Pa)
+            Default: 4e5
+        temp_room: real
+            room temperature (Kelvin)
+            Default: 900
+        area : float
+            contactor cross-section (m^2)
+        jl : float
+            liquid superficial velocity (m/s)
+        alpha : float
+            void fraction
+
+        Notes
+        -----
+        Default values from Jiaqi's simulation
         """
         super().__init__(*initial_data, **kwargs)
-        self.qe = qe
-        self.qg = qg
-        self.pgamma = pgamma
-        self.x = x
+        self.q_salt = q_salt
+        self.q_he = q_he
+        self.do = do
+        self.deltap = deltap
+        self.db = db
+        self.dp = dp
+        self.temp_salt = temp_salt
+        self.area = np.pi * (self.dp / 2) ** 2
+        self.alpha = self.q_he / (self.q_he + self.q_salt)
+        self.jl = self.q_salt/self.area
         self.efficiency = self.eff()
 
     def calc_rem_efficiency(self, el_name):
@@ -88,21 +132,33 @@ class Separator(Process):
         pltdict: dict
             contains instances' information
         """
-        plt_dict = {'qe': {'xaxis': 'liquid flow rate ${(m^3/s)}$',
-                           'fname': 'liquid_flow_rate'},
-                    'qg': {'xaxis': 'gas flow rate ${(m^3/s)}$',
-                           'fname': 'gas_flow_rate'},
-                    'pgamma': {'xaxis': 'densitometer pressure ${(Pa)}$',
-                               'fname': 'densitometer_pressure'},
-                    'x': {'xaxis': 'the gas injection rate ${(m)}$',
-                          'fname': 'the gas_injection_rate'},
+        plt_dict = {'q_salt': {'xaxis': 'salt flow rate ${(m^3/s)}$',
+                               'yaxis': 'bubble separation efficiency (%)',
+                               'vs': 'sep_eff'},
+                    'q_he': {'xaxis': 'helium flow rate ${(m^3/s)}$',
+                             'yaxis': 'bubble separation efficiency (%)',
+                             'vs': 'sep_eff'},
+                    'do': {'xaxis': 'gas outlet diameter ${(m)}$',
+                           'yaxis': 'bubble separation efficiency (%)',
+                           'vs': 'sep_eff'},
+                    'dp': {'xaxis': 'pipe diameter ${(m)}$',
+                           'yaxis': 'bubble separation efficiency (%)',
+                           'vs': 'sep_eff'},
+                    'db': {'xaxis': 'bubble diameter ${(m)}$',
+                           'yaxis': 'bubble separation efficiency (%)',
+                           'vs': 'sep_eff'},
+                    'deltap': {'xaxis': 'pressure difference ${(Pa)}$',
+                               'yaxis': 'bubble separation efficiency (%)',
+                               'vs': 'sep_eff'},
+                    'temp_salt': {'xaxis': 'average salt temperature ${(K)}$',
+                                  'yaxis': 'bubble separation efficiency (%)',
+                                  'vs': 'sep_eff'}
                     }
 
         return plt_dict
 
     def eff(self):
-        """ Evaluates gas removal efficiency using Equation 6
-         from Gabbard's report. [1]
+        """ Evaluates gas/bubble separation efficiency from Jiaqi's correlation
 
         Returns
         -------
@@ -115,8 +171,24 @@ class Separator(Process):
             ``value``
                 removal efficiency.
         """
-        sep_eff = (2116.8 * self.qg) /\
-                  (self.x * self.qe * self.pgamma + 2116.8 * self.qg)
+
+        dc = 3.41 * self.do
+        mu = 1.076111581e-2 * (self.temp_salt / 1000)**(-4.833549134)
+        rho = (6.105 - 0.001272 * self.temp_salt) * 1000
+        nu = mu / rho
+        vl = self.q_salt / self.area
+        number_re = self.dp * vl / nu
+        etha = 1 / (3.2 * rho * self.jl**2 * dc**2 /
+                    (self.do**2 * self.deltap) + 1)
+        dvoid = (4.89 * self.dp * (self.dp / self.db)**1.27) /\
+                (1 + self.k**4 * number_re)
+        df = self.do / (self.do + dvoid / (100 * self.alpha)**0.5)
+        sep_eff = df / (1 + 0.23 * etha) + 3.26 * etha * (1-df) * df
         rem_eff = {'Xe': sep_eff, 'Kr': sep_eff, 'H': sep_eff}
 
         return rem_eff
+
+
+if __name__ == "__main__":
+
+    print(Separator().eff())

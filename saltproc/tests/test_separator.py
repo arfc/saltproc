@@ -26,12 +26,12 @@ process = Separator(mass_flowrate=10,
 def test_rem_elements():
     mats = serpent.read_dep_comp(input_file, 1)
     waste = process.rem_elements(mats['fuel'])
-    np.testing.assert_almost_equal(waste[541350000], 19.704682182207094)
-    np.testing.assert_almost_equal(waste[541360000], 175.61778182289143)
-    np.testing.assert_almost_equal(waste[541280000], 9.865308312535086e-05)
-    np.testing.assert_almost_equal(waste[541390000], 0.026035512575026072)
-    np.testing.assert_almost_equal(waste[360790000], 6.420212330439721e-17)
-    np.testing.assert_almost_equal(waste[360800000], 1.7247218488207868e-06)
-    np.testing.assert_almost_equal(waste[360920000], 0.0002854823675582336)
-    np.testing.assert_almost_equal(waste[360860000], 28.127452116170364)
-    assert waste.mass == 531.7483879940079
+    np.testing.assert_almost_equal(waste[541350000], 19.5320018359295)
+    np.testing.assert_almost_equal(waste[541360000], 174.0787699729534)
+    np.testing.assert_almost_equal(waste[541280000], 9.778854502227908e-05)
+    np.testing.assert_almost_equal(waste[541390000], 0.025807352522232645)
+    np.testing.assert_almost_equal(waste[360790000], 1.2668053364239955e-15)
+    np.testing.assert_almost_equal(waste[360800000], 1.709607392097611e-06)
+    np.testing.assert_almost_equal(waste[360920000], 0.0002829805665329617)
+    np.testing.assert_almost_equal(waste[360860000], 27.88095952489617)
+    assert waste.mass == 527.0884551454453
