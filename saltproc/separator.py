@@ -158,7 +158,7 @@ class Separator(Process):
         return plt_dict
 
     def eff(self):
-        """ Evaluates gas/bubble separation efficiency from Jiaqi's correlation.
+        """ Evaluates gas/bubble separation efficiency from Jiaqi's correlation
 
         Returns
         -------
