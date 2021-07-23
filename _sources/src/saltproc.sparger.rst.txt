@@ -1,0 +1,7 @@
+saltproc.sparger module
+=======================
+
+.. automodule:: saltproc.sparger
+   :members:
+   :undoc-members:
+   :show-inheritance:

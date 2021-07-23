@@ -1,39 +1,43 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>saltproc.process module &mdash; Saltproc  documentation</title>
   
 
   
-  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
   
   
 
   
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
 </head>
@@ -72,6 +76,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -90,6 +95,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -124,18 +130,20 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>saltproc.process module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/src/saltproc.process.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -151,15 +159,15 @@
             
   <div class="section" id="module-saltproc.process">
 <span id="saltproc-process-module"></span><h1>saltproc.process module<a class="headerlink" href="#module-saltproc.process" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="saltproc.process.Process">
-<em class="property">class </em><code class="sig-prename descclassname">saltproc.process.</code><code class="sig-name descname">Process</code><span class="sig-paren">(</span><em class="sig-param">*initial_data</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">saltproc.process.</code><code class="sig-name descname">Process</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class describes process which must be applied to Materialflow to change
 burnable material composition.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="saltproc.process.Process.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">*initial_data</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the Process object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -182,9 +190,9 @@ processes and use it in efficiency function</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="saltproc.process.Process.calc_rem_efficiency">
-<code class="sig-name descname">calc_rem_efficiency</code><span class="sig-paren">(</span><em class="sig-param">el_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.calc_rem_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.calc_rem_efficiency" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calc_rem_efficiency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">el_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.calc_rem_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.calc_rem_efficiency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Based on data from json file with Processes description calculate
 value (float) of the removal efficiency. If it was str describing
 efficiecny as a function (eps(x,m,t,P,L)) then calculating value. If it
@@ -202,7 +210,7 @@ constant (float in processes.json) then just keep it as is.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="saltproc.process.Process.check_mass_conservation">
 <code class="sig-name descname">check_mass_conservation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.check_mass_conservation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.check_mass_conservation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checking that Process.outflow + Process.waste_stream is equal
@@ -210,9 +218,9 @@ Process.inflow and the total mass is being conserved. Returns <cite>True</cite> 
 the mass conserved or <cite>False</cite> if its mismatched.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="saltproc.process.Process.rem_elements">
-<code class="sig-name descname">rem_elements</code><span class="sig-paren">(</span><em class="sig-param">inflow</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.rem_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.rem_elements" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rem_elements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inflow</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/process.html#Process.rem_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.process.Process.rem_elements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates Materialflow object <cite>inflow</cite> after removal target isotopes
 with specific efficiency in single component of fuel reprocessing
 system and returns waste stream Materialflow object.</p>
@@ -238,7 +246,6 @@ system and returns waste stream Materialflow object.</p>
            
           </div>
           <footer>
-  
 
   <hr/>
 
@@ -247,10 +254,16 @@ system and returns waste stream Materialflow object.</p>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -258,7 +271,6 @@ system and returns waste stream Materialflow object.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
