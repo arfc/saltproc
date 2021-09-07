@@ -5,50 +5,61 @@ import shutil
 import re
 from pyne import nucname as pyname
 from pyne import serpent
+from abc import  ABC, abstractmethod
 
+# I borrowed this handy doc function from the OpenMC folks.
+# See https://docs.openmc.org/en/stable/_modules/openmc/deplete/abc.html#Integrator
+# yardasol -- 09.07.2022
+def add_params(cls):
+    cls.__doc__ += cls._params
+    return cls
 
-class Depcode:
-    """Class contains information about input, output, geometry, and template
+@add_params
+class Depcode(ABC):
+    r"""Class contains information about input, output, geometry, and template
     file for running depletion simulation code. Also contains neutrons
     population, active and inactive cycle. Contains methods to read template
     and output, write new input for the depletion code.
     """
 
-    def __init__(self,
-                 codename="Serpent",
-                 exec_path="sss2",
-                 template_fname="reactor.serpent",
-                 input_fname="data/saltproc_reactor",
-                 iter_matfile="data/saltproc_mat",
-                 geo_file=None,
-                 npop=50,
-                 active_cycles=20,
-                 inactive_cycles=20):
-        """Initializes the Depcode object.
+    _params = r"""
+    Parameters
+    ----------
+    codename : str
+        Name of depletion code.
+    exec_path : str
+        Path to depletion code executable.
+    template_fname : str
+        Path to user input file for depletion code.
+    input_fname : str
+        Name of input file for depletion code rerunning.
+    iter_matfile : str
+        Name of iterative, rewritable material file for depletion code
+        rerunning. This file is being modified during simulation.
+    geo_file : str or list
+        Path to file that contains the reactor geometry.
+        List of `str` if reactivity control by
+        switching geometry is `On` or just `str` otherwise.
+    npop : int
+        Size of neutron population per cycle for Monte Carlo.
+    active_cycles : int
+        Number of active cycles.
+    inactive_cycles : int
+        Number of inactive cycles.
+    """
 
-        Parameters
-        ----------
-        codename : str
-            Name of depletion code.
-        exec_path : str
-            Path to depletion code executable.
-        template_fname : str
-            Path to user input file for depletion code.
-        input_fname : str
-            Name of input file for depletion code rerunning.
-        iter_matfile : str
-            Name of iterative, rewritable material file for depletion code
-            rerunning. This file is being modified during simulation.
-        geo_file : str or list
-            Path to file that contains the reactor geometry.
-            List of `str` if reactivity control by
-            switching geometry is `On` or just `str` otherwise.
-        npop : int
-            Size of neutron population per cycle for Monte Carlo.
-        active_cycles : int
-            Number of active cycles.
-        inactive_cycles : int
-            Number of inactive cycles.
+
+    def __init__(self,
+                 codename,
+                 exec_path,
+                 template_fname,
+                 input_fname,
+                 iter_matfile,
+                 geo_file,
+                 npop,
+                 active_cycles,
+                 inactive_cycles):
+        """Initializes the Depcode object.
         """
         self.codename = codename
         self.exec_path = exec_path
@@ -61,6 +72,55 @@ class Depcode:
         self.inactive_cycles = inactive_cycles
         self.param = {}
         self.sim_info = {}
+
+    @abstractmethod
+    def write_depcode_input(self, temp, inp, reactor, dts, researt):
+        """ Writes prepared data into depletion code input file(s).
+
+        Parameters
+        ----------
+        termp : str
+            Path to user template file for depletion code
+        inp : str
+            Path to input file for depletion code rerunning
+        reactor : Reactor
+            Contains information about power load curve and cumulative
+            depletion time for the integration test.
+        dts : int
+            Current depletion time step.
+        restart : bool
+            Is the current simulation restarted?
+        """
+
+    @abstractmethod
+    def run_depcode(self, cores, nodes):
+        """Runs depletion code as subprocess with the given parameters.
+        
+        Parameters
+        ----------
+        cores : int
+            Number of cores to use for depletion code run.
+        nodes : int
+            Number of nodes to use for depletion code run.
+        """
+
+@add_params
+class DepcodeOpenMC(Depcode):
+    r"""Class contains information about input, output, geometry, and
+    template file for running OpenMC depletion simulation
+    """
+    self.codename="OpenMC"
+
+    .
+    .
+    .
+
+@add_params
+class DepcodeSerpent(Depcode):
+    r"""Class contains information about input, output, geometry, and
+    template file for running Serpent2 depletion simulation
+    """
+    self.codename="Serpent"
 
     def change_sim_par(self, data):
         """Finds simulation parameters (neutron population, cycles) in input
