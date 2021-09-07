@@ -74,6 +74,46 @@ class Depcode(ABC):
         self.sim_info = {}
 
     @abstractmethod
+    def read_dep_comp(self, dep_file, moment):
+        """Reads the depleted material data from the depcode simulation
+        and returns a dictionary with a `Materialflow` object for each
+        brnable material.
+
+        Parameters
+        ----------
+        dep_file : str
+            Path to file containing results of depletion simulation
+        moment : int
+            The moment in the depletion step to read the data. `0`
+            refers to the beginning of the depletion step, `1`
+            refers to the end of the depeltion step.
+
+        Returns
+        -------
+        mats : dics
+            Dictionary that contains `Materialflow` objects.
+            ``key``
+                Name of burnable material.
+            ``value``
+                `Materialflow` object holding composition and properties.
+        """
+
+
+
+
+    @abstractmethod
+    def run_depcode(self, cores, nodes):
+        """Runs depletion code as subprocess with the given parameters.
+        
+        Parameters
+        ----------
+        cores : int
+            Number of cores to use for depletion code run.
+        nodes : int
+            Number of nodes to use for depletion code run. 
+        """
+
+    @abstractmethod
     def write_depcode_input(self, temp, inp, reactor, dts, researt):
         """ Writes prepared data into depletion code input file(s).
 
@@ -93,16 +133,24 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def run_depcode(self, cores, nodes):
-        """Runs depletion code as subprocess with the given parameters.
-        
+    def write_material_file(self, dep_dict, mat_file, cumulative_time_at_eds):
+        """Writes the iteration input file containing burnable materials
+        composition used in depletion runs and updated after each depletion
+        step.
         Parameters
         ----------
-        cores : int
-            Number of cores to use for depletion code run.
-        nodes : int
-            Number of nodes to use for depletion code run.
+        mats : dict
+            Dictionary that contains `Materialflow` objects.
+            ``key``
+                Name of burnable material.
+            ``value``
+                `Materialflow` object holding composition and properties.
+        mat_file : str
+            Path to file containing burnable materials composition.
+        cumulative_time_at_eds : float
+            Current time at the end of the depletion step (d).
         """
+
 
 @add_params
 class DepcodeOpenMC(Depcode):
@@ -111,9 +159,9 @@ class DepcodeOpenMC(Depcode):
     """
     self.codename="OpenMC"
 
-    .
-    .
-    .
+    
+  
+   
 
 @add_params
 class DepcodeSerpent(Depcode):
