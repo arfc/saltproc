@@ -11,7 +11,7 @@ sys.path.append(os.path.dirname(os.path.dirname(path)))
 # global class object
 directory = os.path.dirname(path)
 
-serpent = DepcodeSerpent(codename='SERPENT',
+serpent = epcodeSerpent(codename='SERPENT',
                   exec_path='sss2',
                   template_fname=directory+'/template.inp',
                   input_fname=directory+'/test',
