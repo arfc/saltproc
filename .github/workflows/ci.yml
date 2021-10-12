@@ -1,0 +1,66 @@
+name: Python Package using Conda
+
+on: [push]
+
+jobs:
+  setup-environment:
+    name: "Setup environment"
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH finish:
+      
+      - name: Create `saltproc-env` environment
+        shell: bash
+        run: |
+          conda activate
+          conda create --name saltproc-env --yes
+          conda activate saltproc-env
+          conda config --env --add channels conda-forge
+          conda config --env --set pip_interop_enabled True
+      
+      - name: Install system dependencies
+        shell: bash
+        run: |
+          sudo apt -y update
+          sudo apt install -y libhdf5-serial-dev \
+                              gfortran \
+                              gcc \
+                              build-essential \
+                              cmake \
+                              libblas-dev \
+                              liblapack-dev
+                          
+      - name: Install packages
+        shell: bash
+        run: |
+          conda install -y pyne \
+                           networkx \
+                           pydotplus \
+                           pytest \
+                           pytables
+    
+  
+  build-saltproc:
+    needs: setup-environment
+    name: "Build SaltProc"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: "Build SaltProc"
+        run: python setup.py build
+      
+      - name: "Install SaltProc"
+        run: python setup.py install
+        
+  test-saltproc:
+    needs: build-saltproc
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: "Run test suite"
+      run: pytest saltproc/tests
