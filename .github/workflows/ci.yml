@@ -7,21 +7,15 @@ jobs:
     name: "Setup environment"
     runs-on: ubuntu-latest
     steps: 
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
       - name: Add conda to system path
-        shell: bash
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
           echo $CONDA/bin >> $GITHUB_PATH
-      
-      - name: Create `saltproc-env` environment
-        shell: bash
-        run: |
-          conda init bash
-          conda activate
-          conda create --name saltproc-env --yes
-          conda activate saltproc-env
-          conda config --env --add channels conda-forge
-          conda config --env --set pip_interop_enabled True
       
       - name: Install system dependencies
         shell: bash
@@ -36,14 +30,8 @@ jobs:
                               liblapack-dev
                           
       - name: Install packages
-        shell: bash
         run: |
-          conda install -y pyne \
-                           networkx \
-                           pydotplus \
-                           pytest \
-                           pytables
-    
+          conda env update --file environment.yml --name base
   
   build-saltproc:
     needs: setup-environment
