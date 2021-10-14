@@ -58,6 +58,7 @@ jobs:
         
   test-saltproc:
     needs: build-saltproc
+    name: "Test SaltProc"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
