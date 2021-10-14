@@ -1,8 +1,9 @@
 channels:
   - conda-forge
 dependencies:
-  - pyne
+  - pyne>=0.5.11
+  - numpy>=1.14.0
+  - pytables
   - networkx
   - pydotplus
   - pytest
-  - pytables
