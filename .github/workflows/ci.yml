@@ -43,7 +43,7 @@ jobs:
         run: python setup.py build
       
       - name: "Install SaltProc"
-        run: python setup.py install
+        run: python setup.py install --user
         
   test-saltproc:
     needs: build-saltproc
