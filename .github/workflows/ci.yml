@@ -10,11 +10,12 @@ jobs:
       - name: Add conda to system path
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH finish:
+          echo $CONDA/bin >> $GITHUB_PATH
       
       - name: Create `saltproc-env` environment
         shell: bash
         run: |
+          conda init bash
           conda activate
           conda create --name saltproc-env --yes
           conda activate saltproc-env
