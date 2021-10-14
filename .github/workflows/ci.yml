@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
       - name: Add conda to system path
+        shell: bash
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
           echo $CONDA/bin >> $GITHUB_PATH
