@@ -30,8 +30,7 @@ jobs:
                               liblapack-dev
                           
       - name: Install packages
-        run: |
-          conda env update --file environment.yml --name base
+        run: conda install -c conda-forge pyne numpy networkx pydotplus pytest
   
   build-saltproc:
     needs: setup-environment
