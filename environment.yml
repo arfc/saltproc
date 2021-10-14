@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+dependencies:
+  - pyne
+  - networkx
+  - pydotplus
+  - pytest
+  - pytables
