@@ -229,7 +229,7 @@ def read_dot(dot_file):
     """
     graph_pydot = pydotplus.graph_from_dot_file(dot_file)
     digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
-    mat_name = digraph.__str__()
+    mat_name = digraph.name
     # iterate over all possible paths between 'core_outlet' and 'core_inlet'
     paths_list = []
     all_simple_paths = nx.all_simple_paths(digraph,
