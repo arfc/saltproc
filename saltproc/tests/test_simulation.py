@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-from saltproc import Depcode
+from saltproc import DepcodeSerpent
 from saltproc import Simulation
 import os
 import sys
@@ -11,12 +11,12 @@ directory = os.path.dirname(path)
 input_file = directory+'/test'
 geo_test_input = directory+'/test_geometry_switch.inp'
 
-serpent = Depcode(codename='SERPENT',
-                  exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-                  template_fname=directory+'/template.inp',
-                  input_fname=input_file,
-                  iter_matfile=directory+'/material',
-                  geo_file=['../../examples/406.inp',
+serpent = DepcodeSerpent(codename='SERPENT',
+                        exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
+                        template_fname=directory+'/template.inp',
+                        input_fname=input_file,
+                        iter_matfile=directory+'/material',
+                        geo_file=['../../examples/406.inp',
                             '../../examples/988.inp'])
 
 simulation = Simulation(sim_name='Simulation unit tests',

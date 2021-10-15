@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-from saltproc import Depcode
+from saltproc import DepcodeSerpent
 import os
 import sys
 path = os.path.realpath(__file__)
@@ -8,12 +8,12 @@ sys.path.append(os.path.dirname(os.path.dirname(path)))
 directory = os.path.dirname(path)
 input_file = directory+'/test'
 
-serpent = Depcode(codename='SERPENT',
-                  exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-                  template_fname=directory+'/template.inp',
-                  input_fname=input_file,
-                  iter_matfile=directory+'/material',
-                  geo_file=None)
+serpent = DepcodeSerpent(codename='SERPENT',
+                        exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
+                        template_fname=directory+'/template.inp',
+                        input_fname=input_file,
+                        iter_matfile=directory+'/material',
+                        geo_file=None)
 
 
 def test_get_mass():

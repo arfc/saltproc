@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-from saltproc import Depcode
+from saltproc import DepcodeSerpent
 from saltproc import app
 import os
 import sys
@@ -12,12 +12,12 @@ input_file = directory+'/test'
 main_input = directory+'/test.json'
 dot_input = directory+'/test.dot'
 
-serpent = Depcode(codename='SERPENT',
-                  exec_path='sss2',
-                  template_fname=directory+'/template.inp',
-                  input_fname=input_file,
-                  iter_matfile=directory+'/material',
-                  geo_file=None)
+serpent = DepcodeSerpent(codename='SERPENT',
+                        exec_path='sss2',
+                        template_fname=directory+'/template.inp',
+                        input_fname=input_file,
+                        iter_matfile=directory+'/material',
+                        geo_file=None)
 
 
 def test_read_main_input():
