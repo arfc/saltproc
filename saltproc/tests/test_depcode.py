@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-from saltproc import Depcode
+from saltproc import DepcodeSerpent
 from saltproc import Reactor
 import os
 import sys
