@@ -55,10 +55,10 @@ class Depcode(ABC):
                  template_fname,
                  input_fname,
                  iter_matfile,
-                 geo_file,
-                 npop,
-                 active_cycles,
-                 inactive_cycles):
+                 geo_file=None,
+                 npop=50,
+                 active_cycles=20,
+                 inactive_cycles=20):
         """Initializes the Depcode object.
         """
         self.codename = codename
@@ -133,7 +133,7 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def write_material_file(self, dep_dict, mat_file, cumulative_time_at_eds):
+    def write_mat_file(self, dep_dict, mat_file, cumulative_time_at_eds):
         """Writes the iteration input file containing burnable materials
         composition used in depletion runs and updated after each depletion
         step.
@@ -152,12 +152,12 @@ class Depcode(ABC):
         """
 
 
-@add_params
-class DepcodeOpenMC(Depcode):
-    r"""Class contains information about input, output, geometry, and
-    template file for running OpenMC depletion simulation
-    """
-    self.codename="OpenMC"
+#@add_params
+#class DepcodeOpenMC(Depcode):
+#    r"""Class contains information about input, output, geometry, and
+#    template file for running OpenMC depletion simulation
+#    """
+#    self.codename="OpenMC"
 
     
   
@@ -168,7 +168,7 @@ class DepcodeSerpent(Depcode):
     r"""Class contains information about input, output, geometry, and
     template file for running Serpent2 depletion simulation
     """
-    self.codename="Serpent"
+    #self.codename="Serpent"
 
     def change_sim_par(self, data):
         """Finds simulation parameters (neutron population, cycles) in input
