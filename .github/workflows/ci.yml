@@ -1,6 +1,6 @@
 name: SaltProc using Conda
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build-saltproc:
