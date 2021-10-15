@@ -1,10 +1,9 @@
-name: Python Package using Conda
+name: SaltProc using Conda
 
 on: [push]
 
 jobs:
-  setup-environment:
-    name: "Setup environment"
+  build-saltproc:
     runs-on: ubuntu-latest
     steps: 
       - uses: actions/checkout@v2
@@ -32,25 +31,11 @@ jobs:
       - name: Install packages
         run: conda install -c conda-forge pyne numpy networkx pydotplus pytest
   
-  build-saltproc:
-    needs: setup-environment
-    name: "Build SaltProc"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        
       - name: "Build SaltProc"
         run: python setup.py build
       
       - name: "Install SaltProc"
         run: python setup.py install --user
         
-  test-saltproc:
-    needs: build-saltproc
-    name: "Test SaltProc"
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    
-    - name: "Run test suite"
-      run: pytest --ignor saltproc/tests/integration_tests saltproc
+      - name: "Run test suite"
+        run: pytest --ignore saltproc/tests/integration_tests saltproc
