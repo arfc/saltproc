@@ -9,11 +9,17 @@ that would be a good quick way to get started. Browse them to see if you want
 to get started on one.
 
 #### Bug Reports
-
+Please use the provided bug report template. In particular:
   - Please include a short but detailed, self-contained Python snippet or
     explanation for reproducing the problem.
 
   - Explain what the expected behavior was, and what you saw instead.
+
+#### Feature Requests
+Please use the provided feature request template.
+
+#### Discussion
+Please the use Github Discussions tab. Make sure to read the pinned post.
 
 ##### Instructions for setting up a development environment
 
@@ -65,6 +71,7 @@ please do not add additional flake8 issues.
   - run flake8 and provide a filename to just run checks on that file
 
 ##### Pull Requests
+Please use the provided pull request template. In particular:
 
   - **Make sure the test suite passes** on your computer. To do so, run
     `py.test saltproc` in the repository directory.
