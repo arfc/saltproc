@@ -51,8 +51,3 @@ thrilled to work with you on improving it.
 This repository is a work in progress. We would love it if you wanted to
 contribute to this code here in this repository. [Here is some information about
 how to do that.](https://github.com/arfc/saltproc/blob/master/CONTRIBUTING.md).
-
-## Other
-
-- You will find the current state of the test suite on our [Travis continuous
-integration servers](https://travis-ci.org/arfc/saltproc).
