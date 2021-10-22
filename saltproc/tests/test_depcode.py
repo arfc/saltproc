@@ -12,11 +12,11 @@ sys.path.append(os.path.dirname(os.path.dirname(path)))
 directory = os.path.dirname(path)
 
 serpent = DepcodeSerpent(codename='SERPENT',
-                  exec_path='sss2',
-                  template_fname=directory+'/template.inp',
-                  input_fname=directory+'/test',
-                  iter_matfile=directory+'/material',
-                  geo_file=[os.path.join(directory, '../test_geo.inp')])
+                         exec_path='sss2',
+                         template_fname=directory+'/template.inp',
+                         input_fname=directory+'/test',
+                         iter_matfile=directory+'/material',
+                         geo_file=[os.path.join(directory, '../test_geo.inp')])
 
 msr = Reactor(volume=1.0,
               power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
@@ -58,12 +58,12 @@ def test_change_sim_par():
     serpent.active_cycles = 101
     serpent.inactive_cycles = 33
     out = serpent.change_sim_par(
-                    serpent.read_depcode_template(serpent.template_fname)
-                    )
+        serpent.read_depcode_template(serpent.template_fname)
+    )
     assert out[18] == 'set pop %i %i %i\n' % (
-                                              serpent.npop,
-                                              serpent.active_cycles,
-                                              serpent.inactive_cycles)
+        serpent.npop,
+        serpent.active_cycles,
+        serpent.inactive_cycles)
 
 
 def test_get_nuc_name():

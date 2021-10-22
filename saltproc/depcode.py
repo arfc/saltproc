@@ -5,14 +5,17 @@ import shutil
 import re
 from pyne import nucname as pyname
 from pyne import serpent
-from abc import  ABC, abstractmethod
+from abc import ABC, abstractmethod
 
 # I borrowed this handy doc function from the OpenMC folks.
 # See https://docs.openmc.org/en/stable/_modules/openmc/deplete/abc.html#Integrator
 # yardasol -- 09.07.2022
+
+
 def add_params(cls):
     cls.__doc__ += cls._params
     return cls
+
 
 @add_params
 class Depcode(ABC):
@@ -47,7 +50,6 @@ class Depcode(ABC):
     inactive_cycles : int
         Number of inactive cycles.
     """
-
 
     def __init__(self,
                  codename,
@@ -98,13 +100,10 @@ class Depcode(ABC):
                 `Materialflow` object holding composition and properties.
         """
 
-
-
-
     @abstractmethod
     def run_depcode(self, cores, nodes):
         """Runs depletion code as subprocess with the given parameters.
-        
+
         Parameters
         ----------
         cores : int
@@ -152,23 +151,20 @@ class Depcode(ABC):
         """
 
 
-#@add_params
-#class DepcodeOpenMC(Depcode):
+# @add_params
+# class DepcodeOpenMC(Depcode):
 #    r"""Class contains information about input, output, geometry, and
 #    template file for running OpenMC depletion simulation
 #    """
 #    self.codename="OpenMC"
 
-    
-  
-   
 
 @add_params
 class DepcodeSerpent(Depcode):
     r"""Class contains information about input, output, geometry, and
     template file for running Serpent2 depletion simulation
     """
-    #self.codename="Serpent"
+    # self.codename="Serpent"
 
     def change_sim_par(self, data):
         """Finds simulation parameters (neutron population, cycles) in input
@@ -484,7 +480,7 @@ class DepcodeSerpent(Depcode):
             current_depstep = reactor.depl_hist[0]
         else:
             current_depstep = reactor.depl_hist[current_depstep_idx] - \
-                              reactor.depl_hist[current_depstep_idx-1]
+                reactor.depl_hist[current_depstep_idx-1]
         for line in data:
             if line.startswith('set    power   '):
                 line_idx = data.index(line)
@@ -530,9 +526,9 @@ class DepcodeSerpent(Depcode):
         print('Running %s' % (self.codename))
         try:
             subprocess.check_output(
-                            args,
-                            cwd=os.path.split(self.template_fname)[0],
-                            stderr=subprocess.STDOUT)
+                args,
+                cwd=os.path.split(self.template_fname)[0],
+                stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
             print(error.output.decode("utf-8"))
             raise RuntimeError('\n %s RUN FAILED\n see error message above'

@@ -11,11 +11,11 @@ directory = os.path.dirname(path)
 input_file = directory+'/test'
 
 serpent = DepcodeSerpent(codename='SERPENT',
-                        exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-                        template_fname=directory+'/template.inp',
-                        input_fname=input_file,
-                        iter_matfile=directory+'/material',
-                        geo_file=None)
+                         exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
+                         template_fname=directory+'/template.inp',
+                         input_fname=input_file,
+                         iter_matfile=directory+'/material',
+                         geo_file=None)
 
 process = Process(mass_flowrate=10,
                   capacity=99.0,
