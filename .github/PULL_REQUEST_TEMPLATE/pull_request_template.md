@@ -9,12 +9,16 @@
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to change)
+
+## Required for Merging
 - [ ] I have read the **CONTRIBUTING** document.
 - [ ] My code follows the code style of this project.
 - [ ] My change requires a change to the documentation.
 - [ ] I have updated the documentation accordingly.
 - [ ] I have added tests to cover my changes.
 - [ ] All new and existing tests passed.
+  - [ ] CI tests pass
+  - [ ] Local tests pass (including Serpent2 integration tests)
 
 ## Associated Issues and PRs
 <!--- Please note any issues or pull requests associated with this pull request -->
@@ -30,5 +34,5 @@
 
 ## Checklist for Reviewers
 
-Reviewers should use [this link](/manual/guides/pull_requests) to get to the 
+Reviewers should use [this link](https://arfc.github.io/manual/guides/pull_requests) to get to the 
 Review Checklist before they begin their review.
