@@ -118,7 +118,7 @@ class Depcode(ABC):
 
         Parameters
         ----------
-        termp : str
+        temp : str
             Path to user template file for depletion code
         inp : str
             Path to input file for depletion code rerunning
