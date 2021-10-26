@@ -92,7 +92,7 @@ class Depcode(ABC):
 
         Returns
         -------
-        mats : dics
+        mats : dict
             Dictionary that contains `Materialflow` objects.
             ``key``
                 Name of burnable material.
