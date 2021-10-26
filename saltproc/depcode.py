@@ -79,7 +79,7 @@ class Depcode(ABC):
     def read_dep_comp(self, dep_file, moment):
         """Reads the depleted material data from the depcode simulation
         and returns a dictionary with a `Materialflow` object for each
-        brnable material.
+        burnable material.
 
         Parameters
         ----------
