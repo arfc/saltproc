@@ -1,4 +1,4 @@
-from saltproc import Depcode
+from saltproc import DepcodeSerpent
 from saltproc import Simulation
 from saltproc import Materialflow
 from saltproc import Process
@@ -388,7 +388,7 @@ def run():
           '\tOutput HDF5 DB Path = ' + os.path.abspath(db_file) + '\n'
           )
     # Intializing objects
-    serpent = SerpentDepcode(
+    serpent = DepcodeSerpent(
                 exec_path=exec_path,
                 template_fname=template_file,
                 input_fname=input_file,
