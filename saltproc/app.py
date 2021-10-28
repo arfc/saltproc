@@ -388,8 +388,7 @@ def run():
           '\tOutput HDF5 DB Path = ' + os.path.abspath(db_file) + '\n'
           )
     # Intializing objects
-    serpent = Depcode(
-                codename='SERPENT',
+    serpent = SerpentDepcode(
                 exec_path=exec_path,
                 template_fname=template_file,
                 input_fname=input_file,
