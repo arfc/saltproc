@@ -40,41 +40,46 @@ The mini Anaconda installs are available at https://conda.io/miniconda.html.
 
 Once your Anaconda package is installed and available, create a Python 3.6
 environment in Anaconda --
-
-- conda create -q -n saltproc-test-environment python=3.6 scipy numpy matplotlib pytest pytables flake8
+```
+conda create -q -n saltproc-test-environment python=3.6 scipy numpy matplotlib pytest pytables flake8
+```
 
 Each of these commands will take a bit of time -- give it a few minutes
 to download and install the packages and their dependences. Once complete,
 switch to each and install additional packages needed to run and test.
 
 Activate the 3.6 environment and install pyne, networkx and pydotplus
-
- - source activate saltproc-test-environment
- - conda install -c conda-forge pyne networkx pydotplus
+```
+source activate saltproc-test-environment
+conda install -c conda-forge pyne networkx pydotplus
+```
 
 ##### Setup Serpent Monte Carlo code environment
 
 The SaltProc assumes that Serpent directory is added in ``$PATH`` as follows:
-
-  - export PATH="/path/to/serpent/executable:$PATH"
+```
+export PATH="/path/to/serpent/executable:$PATH"
+```
 
 ##### Run the tests
 
 Tests are automatically detected and run with pytest. Start in the root
 directory where you have cloned the saltproc repository and run in development
 environment
-
- - source active saltproc-test-environment
- - py.test saltproc
+```
+source active saltproc-test-environment
+py.test saltproc
+```
 
 ##### Run style tests with flake8
 
 Adherance to style checks in flake8 is encouraged though not strictly
 enforced. While you should not feel compelled to fix existing failures,
 please do not add additional flake8 issues.
-
-  - run flake8 from the root of the pyrk working directory to get all flake8 issues
-  - run flake8 and provide a filename to just run checks on that file
+```
+run flake8 from the root of the pyrk working directory to get all flake8 issues
+run flake8 and provide a filename to just run checks on that file
+```
 
 ##### Pull Requests
 Please use the provided pull request template. In particular:
