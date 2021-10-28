@@ -8,8 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(path)))
 directory = os.path.dirname(path)
 input_file = directory+'/test'
 
-serpent = DepcodeSerpent(codename='SERPENT',
-                         exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
+serpent = DepcodeSerpent(exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
                          template_fname=directory+'/template.inp',
                          input_fname=input_file,
                          iter_matfile=directory+'/material',

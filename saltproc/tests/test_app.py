@@ -12,8 +12,7 @@ input_file = directory+'/test'
 main_input = directory+'/test.json'
 dot_input = directory+'/test.dot'
 
-serpent = DepcodeSerpent(codename='SERPENT',
-                         exec_path='sss2',
+serpent = DepcodeSerpent(exec_path='sss2',
                          template_fname=directory+'/template.inp',
                          input_fname=input_file,
                          iter_matfile=directory+'/material',
