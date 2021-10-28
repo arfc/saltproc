@@ -80,7 +80,8 @@ please do not add additional flake8 issues.
 Please use the provided pull request template. In particular:
 
   - **Make sure the test suite passes** on your computer. To do so, run
-    `py.test saltproc` in the repository directory.
+    `py.test saltproc` in the repository directory. At a minumum, you must 
+    run the tests requring serpent locally as they are not tested by our CI
   - Please reference relevant Github issues in your commit message using
     `GH1234` or `#1234`.
   - Changes should be PEP8 compatible [PEP8](http://www.python.org/dev/peps/pep-0008/).
