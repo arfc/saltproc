@@ -24,7 +24,7 @@ Steps to reproduce the behavior:
 If applicable, add screenshots or program output to help explain your problem.
 
 ## System Specifications:
- - Version:
+ - Software version:
  - Platform:
  - Subsystem:
 
