@@ -157,7 +157,27 @@ class DepcodeSerpent(Depcode):
     template file for running Serpent2 depletion simulation
     """
 
-    # self.codename="Serpent"
+    def __init__(self,
+                 exec_path,
+                 template_fname,
+                 input_fname,
+                 iter_matfile,
+                 geo_file=None,
+                 npop=50,
+                 active_cycles=20,
+                 inactive_cycles=20):
+        """Initializes the DepcodeSerpent object.
+        """
+        super().__init__("serpent",
+                         exec_path,
+                         template_fname,
+                         input_fname,
+                         iter_matfile,
+                         geo_file,
+                         npop,
+                         active_cycles,
+                         inactive_cycles)
+
 
     def change_sim_par(self, data):
         """Finds simulation parameters (neutron population, cycles) in input
