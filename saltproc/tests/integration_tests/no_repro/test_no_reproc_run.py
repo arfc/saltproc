@@ -1,5 +1,5 @@
 #  __future__ import absolute_import, division, print_function
-from saltproc import Depcode
+from saltproc import DepcodeSerpent
 from saltproc import Simulation
 from saltproc import Reactor
 from pyne import serpent
@@ -19,7 +19,7 @@ sss_file = directory+'/int_test'
 iter_matfile = directory+'/int_test_mat'
 db_file = directory+'/db_test.h5'
 
-depcode = Depcode(codename='SERPENT',
+depcode = DepcodeSerpent(codename='SERPENT',
                   exec_path='sss2',
                   template_fname=directory+'/saltproc_9d.inp',
                   input_fname=sss_file,
