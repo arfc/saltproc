@@ -113,7 +113,7 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def write_depcode_input(self, temp, inp, reactor, dts, restart):
+    def write_depcode_input(self, temp, inp, reactor, dep_step, restart):
         """ Writes prepared data into depletion code input file(s).
 
         Parameters
@@ -125,7 +125,7 @@ class Depcode(ABC):
         reactor : Reactor
             Contains information about power load curve and cumulative
             depletion time for the integration test.
-        dts : int
+        dep_step : int
             Current depletion time step.
         restart : bool
             Is the current simulation restarted?
@@ -556,7 +556,7 @@ class DepcodeSerpent(Depcode):
             zzaaam = nuc_code
         return int(zzaaam)
 
-    def write_depcode_input(self, temp_file, inp_file, reactor, dts, restart):
+    def write_depcode_input(self, temp_file, inp_file, reactor, dep_step, restart):
         """Writes prepared data into the depletion code input file.
 
         Parameters
@@ -568,7 +568,7 @@ class DepcodeSerpent(Depcode):
         reactor : Reactor
             Contains information about power load curve and cumulative
             depletion time for the integration test.
-        dts : int
+        dep_step : int
             Current depletion time step.
         restart : bool
             Is the current simulation restarted?
@@ -580,14 +580,14 @@ class DepcodeSerpent(Depcode):
 
         """
 
-        if dts == 0 and not restart:
+        if dep_step == 0 and not restart:
             data = self.read_depcode_template(temp_file)
             data = self.insert_path_to_geometry(data)
             data = self.change_sim_par(data)
             data = self.create_iter_matfile(data)
         else:
             data = self.read_depcode_template(inp_file)
-        data = self.replace_burnup_parameters(data, reactor, dts)
+        data = self.replace_burnup_parameters(data, reactor, dep_step)
 
         if data:
             out_file = open(inp_file, 'w')
