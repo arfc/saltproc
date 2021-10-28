@@ -19,15 +19,14 @@ sss_file = directory+'/int_test'
 iter_matfile = directory+'/int_test_mat'
 db_file = directory+'/db_test.h5'
 
-depcode = DepcodeSerpent(codename='SERPENT',
-                  exec_path='sss2',
-                  template_fname=directory+'/saltproc_9d.inp',
-                  input_fname=sss_file,
-                  iter_matfile=iter_matfile,
-                  geo_file=[os.path.join(directory, '../../test_geo.inp')],
-                  npop=100,
-                  active_cycles=20,
-                  inactive_cycles=5)
+depcode = DepcodeSerpent(exec_path='sss2',
+                         template_fname=directory+'/saltproc_9d.inp',
+                         input_fname=sss_file,
+                         iter_matfile=iter_matfile,
+                         geo_file=[os.path.join(directory, '../../test_geo.inp')],
+                         npop=100,
+                         active_cycles=20,
+                         inactive_cycles=5)
 simulation = Simulation(sim_name='Integration test',
                         sim_depcode=depcode,
                         core_number=1,
