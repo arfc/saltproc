@@ -25,7 +25,7 @@ If applicable, add screenshots or program output to help explain your problem.
 
 ## System Specifications:
  - Software version:
- - Platform:
+ - Platform/OS:
  - Subsystem:
 
 ## How can this issue be closed?
