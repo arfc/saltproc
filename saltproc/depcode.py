@@ -113,7 +113,7 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def write_depcode_input(self, temp, inp, reactor, dts, researt):
+    def write_depcode_input(self, temp, inp, reactor, dts, restart):
         """ Writes prepared data into depletion code input file(s).
 
         Parameters
@@ -151,19 +151,12 @@ class Depcode(ABC):
         """
 
 
-# @add_params
-# class DepcodeOpenMC(Depcode):
-#    r"""Class contains information about input, output, geometry, and
-#    template file for running OpenMC depletion simulation
-#    """
-#    self.codename="OpenMC"
-
-
 @add_params
 class DepcodeSerpent(Depcode):
     r"""Class contains information about input, output, geometry, and
     template file for running Serpent2 depletion simulation
     """
+
     # self.codename="Serpent"
 
     def change_sim_par(self, data):
