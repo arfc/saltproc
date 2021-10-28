@@ -9,17 +9,23 @@ that would be a good quick way to get started. Browse them to see if you want
 to get started on one.
 
 #### Bug Reports
-Please use the provided bug report template. In particular:
+Is something in the code not working? Consider making a bug report!
+In particular:
   - Please include a short but detailed, self-contained Python snippet or
     explanation for reproducing the problem.
 
   - Explain what the expected behavior was, and what you saw instead.
 
 #### Feature Requests
-Please use the provided feature request template.
+If you have an idea that could add to or improve SaltProc, and know how to implement it,
+consider making a Feature Request!
 
 #### Discussion
-Please the use Github Discussions tab. Make sure to read the pinned post.
+If you
+- have feedback or a feature idea that aren't concrete/focused enough to go into a Feature Request Issue
+- want to show off cool work you have done with the software 
+
+please use our [Discussions page](https://github.com/arfc/saltproc/discussions)!
 
 ##### Instructions for setting up a development environment
 
