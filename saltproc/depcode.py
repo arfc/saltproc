@@ -132,7 +132,7 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def write_mat_file(self, dep_dict, mat_file, cumulative_time_at_eds):
+    def write_mat_file(self, dep_dict, mat_file, dep_end_time):
         """Writes the iteration input file containing burnable materials
         composition used in depletion runs and updated after each depletion
         step.
@@ -146,7 +146,7 @@ class Depcode(ABC):
                 `Materialflow` object holding composition and properties.
         mat_file : str
             Path to file containing burnable materials composition.
-        cumulative_time_at_eds : float
+        dep_end_time : float
             Current time at the end of the depletion step (d).
         """
 
@@ -594,7 +594,7 @@ class DepcodeSerpent(Depcode):
             out_file.writelines(data)
             out_file.close()
 
-    def write_mat_file(self, dep_dict, mat_file, cumulative_time_at_eds):
+    def write_mat_file(self, dep_dict, mat_file, dep_end_time):
         """Writes the iteration input file containing burnable materials
         composition used in depletion runs and updated after each depletion
         step.
@@ -610,14 +610,14 @@ class DepcodeSerpent(Depcode):
                 `Materialflow` object holding composition and properties.
         mat_file : str
             Path to file containing burnable materials composition.
-        cumulative_time_at_eds : float
+        dep_end_time : float
             Current time at the end of the depletion step (d).
 
         """
 
         matf = open(mat_file, 'w')
         matf.write('%% Material compositions (after %f days)\n\n'
-                   % cumulative_time_at_eds)
+                   % dep_end_time)
         for key, value in dep_dict.items():
             matf.write('mat  %s  %5.9E burn 1 fix %3s %4i vol %7.5E\n' %
                        (key,
