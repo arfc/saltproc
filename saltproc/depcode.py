@@ -138,7 +138,7 @@ class Depcode(ABC):
         step.
         Parameters
         ----------
-        mats : dict
+        dep_dict : dict
             Dictionary that contains `Materialflow` objects.
             ``key``
                 Name of burnable material.
@@ -601,7 +601,7 @@ class DepcodeSerpent(Depcode):
 
         Parameters
         ----------
-        mats : dict
+        dep_dict : dict
             Dictionary that contains `Materialflow` objects.
 
             ``key``
