@@ -1,70 +1,32 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>saltproc.sparger module &mdash; Saltproc  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> Saltproc
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -72,18 +34,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
@@ -92,81 +43,40 @@
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Saltproc</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>saltproc.sparger module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="../_sources/src/saltproc.sparger.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-saltproc.sparger">
+             
+  <section id="module-saltproc.sparger">
 <span id="saltproc-sparger-module"></span><h1>saltproc.sparger module<a class="headerlink" href="#module-saltproc.sparger" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="saltproc.sparger.Sparger">
-<em class="property">class </em><code class="sig-prename descclassname">saltproc.sparger.</code><code class="sig-name descname">Sparger</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q_salt</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">q_he</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">length</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">dp</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">db</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">temp_salt</span><span class="o">=</span><span class="default_value">900</span></em>, <em class="sig-param"><span class="n">corr</span><span class="o">=</span><span class="default_value">'Jiaqi'</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.sparger.Sparger" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">saltproc.sparger.</span></span><span class="sig-name descname"><span class="pre">Sparger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_salt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_he</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_salt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">900</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Jiaqi'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">initial_data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.sparger.Sparger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="saltproc.process.html#saltproc.process.Process" title="saltproc.process.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.process.Process</span></code></a></p>
 <p>Class evaluates gas removal efficiency in sparger (bubble generator).</p>
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.h_const">
-<code class="sig-name descname">h_const</code><a class="headerlink" href="#saltproc.sparger.Sparger.h_const" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.h_const">
+<span class="sig-name descname"><span class="pre">h_const</span></span><a class="headerlink" href="#saltproc.sparger.Sparger.h_const" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of target isotope.</p>
 </dd>
@@ -181,8 +91,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.gas_const">
-<code class="sig-name descname">gas_const</code><a class="headerlink" href="#saltproc.sparger.Sparger.gas_const" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.gas_const">
+<span class="sig-name descname"><span class="pre">gas_const</span></span><a class="headerlink" href="#saltproc.sparger.Sparger.gas_const" title="Permalink to this definition">¶</a></dt>
 <dd><p>universal gas constant (Pa.m^3/mol-K)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -192,8 +102,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.diffusivity">
-<code class="sig-name descname">diffusivity</code><a class="headerlink" href="#saltproc.sparger.Sparger.diffusivity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.diffusivity">
+<span class="sig-name descname"><span class="pre">diffusivity</span></span><a class="headerlink" href="#saltproc.sparger.Sparger.diffusivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>liquid phase diffusivity (cm^2/s)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -203,8 +113,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.temp_room">
-<code class="sig-name descname">temp_room</code><a class="headerlink" href="#saltproc.sparger.Sparger.temp_room" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.temp_room">
+<span class="sig-name descname"><span class="pre">temp_room</span></span><a class="headerlink" href="#saltproc.sparger.Sparger.temp_room" title="Permalink to this definition">¶</a></dt>
 <dd><p>room temperature (Kelvin)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -214,8 +124,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.exp_const">
-<code class="sig-name descname">exp_const</code><a class="headerlink" href="#saltproc.sparger.Sparger.exp_const" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.exp_const">
+<span class="sig-name descname"><span class="pre">exp_const</span></span><a class="headerlink" href="#saltproc.sparger.Sparger.exp_const" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of target isotope.</p>
 </dd>
@@ -230,8 +140,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.q_salt">
-<code class="sig-name descname">q_salt</code><a class="headerlink" href="#saltproc.sparger.Sparger.q_salt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.q_salt">
+<span class="sig-name descname"><span class="pre">q_salt</span></span><a class="headerlink" href="#saltproc.sparger.Sparger.q_salt" title="Permalink to this definition">¶</a></dt>
 <dd><p>volumetric salt flow rate (m^3/s)
 Default: 0.1</p>
 <dl class="field-list simple">
@@ -242,8 +152,8 @@ Default: 0.1</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.q_he">
-<code class="sig-name descname">q_he</code><a class="headerlink" href="#saltproc.sparger.Sparger.q_he" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.q_he">
+<span class="sig-name descname"><span class="pre">q_he</span></span><a class="headerlink" href="#saltproc.sparger.Sparger.q_he" title="Permalink to this definition">¶</a></dt>
 <dd><p>volumetric helium flow rate (m^3/s)
 Default: 0.005</p>
 <dl class="field-list simple">
@@ -254,8 +164,8 @@ Default: 0.005</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.length">
-<code class="sig-name descname">length</code><a class="headerlink" href="#saltproc.sparger.Sparger.length" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.length">
+<span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#saltproc.sparger.Sparger.length" title="Permalink to this definition">¶</a></dt>
 <dd><p>sparger/contractor length (m)
 Default: 10</p>
 <dl class="field-list simple">
@@ -266,8 +176,8 @@ Default: 10</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.dp">
-<code class="sig-name descname">dp</code><a class="headerlink" href="#saltproc.sparger.Sparger.dp" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.dp">
+<span class="sig-name descname"><span class="pre">dp</span></span><a class="headerlink" href="#saltproc.sparger.Sparger.dp" title="Permalink to this definition">¶</a></dt>
 <dd><p>sparger/contractor (pipe) diameter (m)
 Default: 0.1</p>
 <dl class="field-list simple">
@@ -278,8 +188,8 @@ Default: 0.1</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.db">
-<code class="sig-name descname">db</code><a class="headerlink" href="#saltproc.sparger.Sparger.db" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.db">
+<span class="sig-name descname"><span class="pre">db</span></span><a class="headerlink" href="#saltproc.sparger.Sparger.db" title="Permalink to this definition">¶</a></dt>
 <dd><p>bubble diameter (m) for bubble generator/separator
 Default: 0.001</p>
 <dl class="field-list simple">
@@ -290,8 +200,8 @@ Default: 0.001</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.temp_salt">
-<code class="sig-name descname">temp_salt</code><a class="headerlink" href="#saltproc.sparger.Sparger.temp_salt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.temp_salt">
+<span class="sig-name descname"><span class="pre">temp_salt</span></span><a class="headerlink" href="#saltproc.sparger.Sparger.temp_salt" title="Permalink to this definition">¶</a></dt>
 <dd><p>salt temperature (K)
 Default: 900</p>
 <dl class="field-list simple">
@@ -302,8 +212,8 @@ Default: 900</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.sparger.Sparger.area">
-<code class="sig-name descname">area</code><a class="headerlink" href="#saltproc.sparger.Sparger.area" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.area">
+<span class="sig-name descname"><span class="pre">area</span></span><a class="headerlink" href="#saltproc.sparger.Sparger.area" title="Permalink to this definition">¶</a></dt>
 <dd><p>contactor cross-section (m^2)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -313,33 +223,33 @@ Default: 900</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="saltproc.sparger.Sparger.eps">
-<code class="sig-name descname">eps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h_const</span></em>, <em class="sig-param"><span class="n">kl_const</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.eps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.sparger.Sparger.eps" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.eps">
+<span class="sig-name descname"><span class="pre">eps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h_const</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kl_const</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.eps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.sparger.Sparger.eps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines gas removal efficiency for sparger (bubble generator)
 using Eq. 4 from Peebles report (ORNL-TM-2245). [2]</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="saltproc.sparger.Sparger.eff">
-<code class="sig-name descname">eff</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.sparger.Sparger.eff" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.eff">
+<span class="sig-name descname"><span class="pre">eff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.eff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.sparger.Sparger.eff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates gas removal efficiencies for target isotopes.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="saltproc.sparger.Sparger.sherwood">
-<code class="sig-name descname">sherwood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.sherwood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.sparger.Sparger.sherwood" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.sherwood">
+<span class="sig-name descname"><span class="pre">sherwood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.sherwood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.sparger.Sparger.sherwood" title="Permalink to this definition">¶</a></dt>
 <dd><p>Contains Sherwood number correlations from different sources.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="saltproc.sparger.Sparger.description">
-<code class="sig-name descname">description</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.sparger.Sparger.description" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.description">
+<span class="sig-name descname"><span class="pre">description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.sparger.Sparger.description" title="Permalink to this definition">¶</a></dt>
 <dd><p>Contains a dictionary of plot properties.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="saltproc.sparger.Sparger.calc_rem_efficiency">
-<code class="sig-name descname">calc_rem_efficiency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">el_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.calc_rem_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.sparger.Sparger.calc_rem_efficiency" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.calc_rem_efficiency">
+<span class="sig-name descname"><span class="pre">calc_rem_efficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.calc_rem_efficiency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.sparger.Sparger.calc_rem_efficiency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overrides exiting method in Parent class.</p>
 </dd></dl>
 
@@ -356,8 +266,8 @@ National Laboratory, Oak Ridge, TN, Report No. ORNL-TM-2245.
 Sensitivity Analysis. In preparation</p>
 </div>
 <dl class="py method">
-<dt id="saltproc.sparger.Sparger.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q_salt</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">q_he</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">length</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">dp</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">db</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">temp_salt</span><span class="o">=</span><span class="default_value">900</span></em>, <em class="sig-param"><span class="n">corr</span><span class="o">=</span><span class="default_value">'Jiaqi'</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.sparger.Sparger.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.sparger.Sparger.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_salt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_he</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_salt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">900</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Jiaqi'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">initial_data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.sparger.Sparger.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the Sparger object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -389,8 +299,8 @@ default: Sherwood correlation from ORNL-TM-2245 Eq.36</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="id0">
-<code class="sig-name descname">calc_rem_efficiency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">el_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.calc_rem_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">calc_rem_efficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.calc_rem_efficiency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overrides the existing method in Process class to provide
 efficiency values of target isotopes calculated in eff() function.</p>
 <dl class="field-list simple">
@@ -407,8 +317,8 @@ efficiency values of target isotopes calculated in eff() function.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="id1">
-<code class="sig-name descname">description</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class attributes’ descriptions for plotting purpose in sensitivity
 analysis
 :returns: <strong>pltdict</strong> – contains instances’ information
@@ -416,13 +326,13 @@ analysis
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="id2">
-<code class="sig-name descname">diffusivity</code><em class="property"> = 2.5e-09</em><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">diffusivity</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2.5e-09</span></em><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="id3">
-<code class="sig-name descname">eff</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">eff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.eff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates gas removal efficiencies for target isotopes.
 In this function, vl, mu, rho, number_sh, number_sc, number_re and kl
 are average liquid velocity (m/s), kinematic viscosity (Pa.s),
@@ -449,8 +359,8 @@ coefficient (m/s), respectively.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="id4">
-<code class="sig-name descname">eps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h_const</span></em>, <em class="sig-param"><span class="n">kl_const</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.eps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">eps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h_const</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kl_const</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.eps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates gas removal efficiency using Eq. 4
 from Peebles report (ORNL-TM-2245).</p>
 <dl class="field-list simple">
@@ -464,23 +374,23 @@ from Peebles report (ORNL-TM-2245).</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="id5">
-<code class="sig-name descname">exp_const</code><em class="property"> = {'H': 0, 'Kr': 1900, 'Xe': 2300}</em><a class="headerlink" href="#id5" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">exp_const</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'H':</span> <span class="pre">0,</span> <span class="pre">'Kr':</span> <span class="pre">1900,</span> <span class="pre">'Xe':</span> <span class="pre">2300}</span></em><a class="headerlink" href="#id5" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="id6">
-<code class="sig-name descname">gas_const</code><em class="property"> = 8.314</em><a class="headerlink" href="#id6" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">gas_const</span></span><em class="property"> <span class="pre">=</span> <span class="pre">8.314</span></em><a class="headerlink" href="#id6" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="id7">
-<code class="sig-name descname">h_const</code><em class="property"> = {'H': 2.6e-06, 'Kr': 2.5e-05, 'Xe': 4.3e-05}</em><a class="headerlink" href="#id7" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">h_const</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'H':</span> <span class="pre">2.6e-06,</span> <span class="pre">'Kr':</span> <span class="pre">2.5e-05,</span> <span class="pre">'Xe':</span> <span class="pre">4.3e-05}</span></em><a class="headerlink" href="#id7" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="id8">
-<code class="sig-name descname">sherwood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.sherwood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id8" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id8">
+<span class="sig-name descname"><span class="pre">sherwood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/sparger.html#Sparger.sherwood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id8" title="Permalink to this definition">¶</a></dt>
 <dd><p>Contains Sherwood number correlations.
 Sherwood correlations: ORNL-TM-2245 or Jaiqi
 (1) Jaiqi Ph.D. dissertation
@@ -489,55 +399,40 @@ default: Sherwood correlation from ORNL-TM-2245 Eq.36</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="id9">
-<code class="sig-name descname">temp_room</code><em class="property"> = 298.15</em><a class="headerlink" href="#id9" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">temp_room</span></span><em class="property"> <span class="pre">=</span> <span class="pre">298.15</span></em><a class="headerlink" href="#id9" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-
-    </p>
+    <p></p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

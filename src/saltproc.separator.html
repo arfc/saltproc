@@ -1,70 +1,32 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>saltproc.separator module &mdash; Saltproc  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> Saltproc
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -72,18 +34,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
@@ -92,81 +43,40 @@
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Saltproc</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>saltproc.separator module</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="../_sources/src/saltproc.separator.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-saltproc.separator">
+             
+  <section id="module-saltproc.separator">
 <span id="saltproc-separator-module"></span><h1>saltproc.separator module<a class="headerlink" href="#module-saltproc.separator" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="saltproc.separator.Separator">
-<em class="property">class </em><code class="sig-prename descclassname">saltproc.separator.</code><code class="sig-name descname">Separator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q_salt</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">q_he</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">do</span><span class="o">=</span><span class="default_value">0.02</span></em>, <em class="sig-param"><span class="n">dp</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">db</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">deltap</span><span class="o">=</span><span class="default_value">400000.0</span></em>, <em class="sig-param"><span class="n">temp_salt</span><span class="o">=</span><span class="default_value">900</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">saltproc.separator.</span></span><span class="sig-name descname"><span class="pre">Separator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_salt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_he</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_salt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">900</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">initial_data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.separator.Separator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="saltproc.process.html#saltproc.process.Process" title="saltproc.process.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.process.Process</span></code></a></p>
 <p>Class evaluates gas removal efficiency in separator (bubble separator).</p>
 <dl class="py attribute">
-<dt id="saltproc.separator.Separator.q_salt">
-<code class="sig-name descname">q_salt</code><a class="headerlink" href="#saltproc.separator.Separator.q_salt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator.q_salt">
+<span class="sig-name descname"><span class="pre">q_salt</span></span><a class="headerlink" href="#saltproc.separator.Separator.q_salt" title="Permalink to this definition">¶</a></dt>
 <dd><p>volumetric salt flow rate (m^3/s)
 Default: 0.1</p>
 <dl class="field-list simple">
@@ -177,8 +87,8 @@ Default: 0.1</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.separator.Separator.q_he">
-<code class="sig-name descname">q_he</code><a class="headerlink" href="#saltproc.separator.Separator.q_he" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator.q_he">
+<span class="sig-name descname"><span class="pre">q_he</span></span><a class="headerlink" href="#saltproc.separator.Separator.q_he" title="Permalink to this definition">¶</a></dt>
 <dd><p>volumetric helium flow rate (m^3/s)
 Default: 0.005</p>
 <dl class="field-list simple">
@@ -189,8 +99,8 @@ Default: 0.005</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.separator.Separator.do">
-<code class="sig-name descname">do</code><a class="headerlink" href="#saltproc.separator.Separator.do" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator.do">
+<span class="sig-name descname"><span class="pre">do</span></span><a class="headerlink" href="#saltproc.separator.Separator.do" title="Permalink to this definition">¶</a></dt>
 <dd><p>gas outlet diameter (m)
 Ranging from 1~3cm in our simulations
 Default: 0.02</p>
@@ -202,8 +112,8 @@ Default: 0.02</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.separator.Separator.dp">
-<code class="sig-name descname">dp</code><a class="headerlink" href="#saltproc.separator.Separator.dp" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator.dp">
+<span class="sig-name descname"><span class="pre">dp</span></span><a class="headerlink" href="#saltproc.separator.Separator.dp" title="Permalink to this definition">¶</a></dt>
 <dd><p>sparger/contractor (pipe) diameter (m)
 Default: 0.1</p>
 <dl class="field-list simple">
@@ -214,8 +124,8 @@ Default: 0.1</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.separator.Separator.db">
-<code class="sig-name descname">db</code><a class="headerlink" href="#saltproc.separator.Separator.db" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator.db">
+<span class="sig-name descname"><span class="pre">db</span></span><a class="headerlink" href="#saltproc.separator.Separator.db" title="Permalink to this definition">¶</a></dt>
 <dd><p>bubble diameter (m) for bubble generator/separator
 Default: 0.001</p>
 <dl class="field-list simple">
@@ -226,8 +136,8 @@ Default: 0.001</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.separator.Separator.deltap">
-<code class="sig-name descname">deltap</code><a class="headerlink" href="#saltproc.separator.Separator.deltap" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator.deltap">
+<span class="sig-name descname"><span class="pre">deltap</span></span><a class="headerlink" href="#saltproc.separator.Separator.deltap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pressure difference between the inlet and the gas outlet (Pa)
 (from 2e5 to 5e5 Pa)
 Default: 4e5</p>
@@ -239,8 +149,8 @@ Default: 4e5</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.separator.Separator.temp_room">
-<code class="sig-name descname">temp_room</code><a class="headerlink" href="#saltproc.separator.Separator.temp_room" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator.temp_room">
+<span class="sig-name descname"><span class="pre">temp_room</span></span><a class="headerlink" href="#saltproc.separator.Separator.temp_room" title="Permalink to this definition">¶</a></dt>
 <dd><p>room temperature (Kelvin)
 Default: 900</p>
 <dl class="field-list simple">
@@ -251,8 +161,8 @@ Default: 900</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="saltproc.separator.Separator.k">
-<code class="sig-name descname">k</code><a class="headerlink" href="#saltproc.separator.Separator.k" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator.k">
+<span class="sig-name descname"><span class="pre">k</span></span><a class="headerlink" href="#saltproc.separator.Separator.k" title="Permalink to this definition">¶</a></dt>
 <dd><p>Slope of the initial swirling (use 1 for this).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -262,20 +172,20 @@ Default: 900</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="saltproc.separator.Separator.eff">
-<code class="sig-name descname">eff</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator.eff" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator.eff">
+<span class="sig-name descname"><span class="pre">eff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.eff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.separator.Separator.eff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates gas removal efficiency from Jiaqi’s correlation. [1]</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="saltproc.separator.Separator.description">
-<code class="sig-name descname">description</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator.description" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator.description">
+<span class="sig-name descname"><span class="pre">description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.separator.Separator.description" title="Permalink to this definition">¶</a></dt>
 <dd><p>Contains a dictionary of plot properties.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="saltproc.separator.Separator.calc_rem_efficiency">
-<code class="sig-name descname">calc_rem_efficiency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">el_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.calc_rem_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator.calc_rem_efficiency" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator.calc_rem_efficiency">
+<span class="sig-name descname"><span class="pre">calc_rem_efficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.calc_rem_efficiency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.separator.Separator.calc_rem_efficiency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overrides exiting method in Parent class.</p>
 </dd></dl>
 
@@ -285,8 +195,8 @@ Default: 900</p>
 Sensitivity Analysis. In preparation</p>
 </div>
 <dl class="py method">
-<dt id="saltproc.separator.Separator.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q_salt</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">q_he</span><span class="o">=</span><span class="default_value">0.005</span></em>, <em class="sig-param"><span class="n">do</span><span class="o">=</span><span class="default_value">0.02</span></em>, <em class="sig-param"><span class="n">dp</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">db</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">deltap</span><span class="o">=</span><span class="default_value">400000.0</span></em>, <em class="sig-param"><span class="n">temp_salt</span><span class="o">=</span><span class="default_value">900</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">initial_data</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#saltproc.separator.Separator.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.separator.Separator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_salt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_he</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_salt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">900</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">initial_data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.separator.Separator.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the Separator object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -320,8 +230,8 @@ Default: 900</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="id0">
-<code class="sig-name descname">calc_rem_efficiency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">el_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.calc_rem_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">calc_rem_efficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.calc_rem_efficiency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overrides the existing method in Process class to provide
 efficiency values of target isotopes calculated in eff() function.</p>
 <dl class="field-list simple">
@@ -338,8 +248,8 @@ efficiency values of target isotopes calculated in eff() function.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="id1">
-<code class="sig-name descname">description</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class attributes’ descriptions for plotting purpose in
 sensitivity analysis</p>
 <dl class="field-list simple">
@@ -353,9 +263,9 @@ sensitivity analysis</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="id2">
-<code class="sig-name descname">eff</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluates gas/bubble separation efficiency from Jiaqi’s correlation.</p>
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">eff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/separator.html#Separator.eff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates gas/bubble separation efficiency from Jiaqi’s correlation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><p><strong>rem_eff</strong> – Dictionary that contains removal efficiency of each target
@@ -375,55 +285,40 @@ element.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="id3">
-<code class="sig-name descname">k</code><em class="property"> = 1.0</em><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">k</span></span><em class="property"> <span class="pre">=</span> <span class="pre">1.0</span></em><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-
-    </p>
+    <p></p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

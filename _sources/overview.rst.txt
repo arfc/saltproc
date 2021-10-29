@@ -25,7 +25,7 @@ Molten Salt Reactors. It performs following major functions:
   - creates Serpent input file
 
 
-The code logic flow is as follows:
+The code logic flow is the following:
 
   1. Runs Serpent (`saltproc.depcode.run_depcode()`)
   2. Parses through the output `*_dep.m` file and creates PyNE Material object
@@ -48,7 +48,6 @@ The code logic flow is as follows:
     - Waste and feed streams from each `Process` (`materials/in_out_streams/`)
 
   5. Repeats 1-4.
-
 
 Updates
 -------
