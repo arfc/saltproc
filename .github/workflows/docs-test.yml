@@ -12,10 +12,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    # Standard drop-in approach that should work for most people.
-    - uses: ammaraskar/sphinx-action@master
-      with:
-        docs-folder: "doc/"
     # Example of using a custom build-command.
     - uses: ammaraskar/sphinx-action@master
       with:
