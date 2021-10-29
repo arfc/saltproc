@@ -20,7 +20,7 @@ jobs:
     - uses: ammaraskar/sphinx-action@master
       with:
         build-command: "sphinx-apidoc --separate --force --output-dir=src/ ../saltproc"
-        docs-folder: "doc"
+        docs-folder: "doc/"
     # Great extra actions to compose with:
     # Create an artifact of the html output.
     - uses: actions/upload-artifact@v1
