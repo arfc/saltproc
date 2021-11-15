@@ -158,10 +158,10 @@ class DepcodeSerpent(Depcode):
     """
 
     def __init__(self,
-                 exec_path,
-                 template_fname,
-                 input_fname,
-                 iter_matfile,
+                 exec_path="sss2",
+                 template_fname="reactor.serpent",
+                 input_fname"data/saltproc_reactor",
+                 iter_matfile"data/saltproc_mat",
                  geo_file=None,
                  npop=50,
                  active_cycles=20,
