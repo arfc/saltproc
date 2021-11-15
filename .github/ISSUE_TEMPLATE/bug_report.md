@@ -20,8 +20,8 @@ Steps to reproduce the behavior:
 3. 
 4. 
 
-## Screenshots/output
-If applicable, add screenshots or program output to help explain your problem.
+## Supporting Informatioon
+If applicable, add program output with triple backticks, a gist of your output, or a screenshot to help explain your problem.
 
 ## System Specifications:
  - Software version:
