@@ -63,7 +63,7 @@ def test_read_dot():
 
 
 def test_reprocessing():
-    mats = serpent.read_dep_comp(input_file, 1)
+    mats = serpent.read_dep_comp(input_file, True)
     waste_st, rem_mass = app.reprocessing(mats)
     assert rem_mass['fuel'] == 1401.0846504569054
     assert rem_mass['ctrlPois'] == 0.0
@@ -73,7 +73,7 @@ def test_reprocessing():
 
 
 def test_refill():
-    mats = serpent.read_dep_comp(input_file, 1)
+    mats = serpent.read_dep_comp(input_file, True)
     waste_st, rem_mass = app.reprocessing(mats)
     m_after_refill = app.refill(mats, rem_mass, waste_st)
     assert m_after_refill['fuel']['feed_leu']['U235'] == 43.573521906078334

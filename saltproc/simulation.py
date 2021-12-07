@@ -83,7 +83,7 @@ class Simulation():
                 # Parse and store data for initial state (beginning of dts)
                 mats = self.sim_depcode.read_dep_comp(
                     self.sim_depcode.input_fname,
-                    0)
+                    False)
                 self.store_mat_data(mats, dts, 'before_reproc')
             # Finish of First step
             # Main sequence
@@ -93,7 +93,7 @@ class Simulation():
                     self.node_number)
             mats = self.sim_depcode.read_dep_comp(
                 self.sim_depcode.input_fname,
-                1)
+                True)
             self.store_mat_data(mats, dts, 'before_reproc')
             self.store_run_step_info()
             self.sim_depcode.write_mat_file(

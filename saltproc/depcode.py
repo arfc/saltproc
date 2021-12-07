@@ -77,7 +77,7 @@ class Depcode(ABC):
         self.sim_info = {}
 
     @abstractmethod
-    def read_dep_comp(self, dep_file, moment):
+    def read_dep_comp(self, dep_file, read_at_end=False):
         """Reads the depleted material data from the depcode simulation
         and returns a dictionary with a `Materialflow` object for each
         burnable material.
@@ -86,10 +86,11 @@ class Depcode(ABC):
         ----------
         dep_file : str
             Path to file containing results of depletion simulation
-        moment : int
-            The moment in the depletion step to read the data. `0`
-            refers to the beginning of the depletion step, `1`
-            refers to the end of the depeltion step.
+        read_at_end : bool
+            Controls at which moment in the depletion step to read the data.
+            If `True`, the function reads data at the end of the
+            depletion step. Otherwise, the function reads data at the
+            beginning of the depletion step.
 
         Returns
         -------
@@ -360,7 +361,7 @@ class DepcodeSerpent(Depcode):
                     'include \"' + str(self.geo_file[0]) + '\"\n')
         return data
 
-    def read_dep_comp(self, input_file, moment):
+    def read_dep_comp(self, input_file, read_at_end=False):
         """Reads the Serpent `*_dep.m` file and returns dictionary with
         `Materialflow` object for each burnable material.
 
@@ -368,9 +369,11 @@ class DepcodeSerpent(Depcode):
         ----------
         input_file : str
             Path to Serpent input file.
-        moment : int
-            Indicates at which moment in the depletion step read the data. `0`
-            refers the beginning, `1` refers the end of depletion step.
+        read_at_end : bool
+            Controls at which moment in the depletion step to read the data.
+            If `True`, the function reads data at the end of the
+            depletion step. Otherwise, the function reads data at the
+            beginning of the depletion step.
 
         Returns
         -------
@@ -383,6 +386,10 @@ class DepcodeSerpent(Depcode):
                 `Materialflow` object holding composition and properties.
 
         """
+        moment = 0
+        if read_at_end:
+            moment = 1
+
         dep_file = os.path.join('%s_dep.m' % input_file)
         dep = serpent.parse_dep(dep_file, make_mats=False)
         self.days = dep['DAYS'][moment]

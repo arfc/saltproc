@@ -424,12 +424,12 @@ def run():
         if dts == 0 and restart_flag is False:  # First step
             # Read general simulation data which never changes
             simulation.store_run_init_info()
-            # Parse and store data for initial state (beginning of dts
-            mats = serpent.read_dep_comp(input_file, 0)  # 0)
+            # Parse and store data for initial state (beginning of dts)
+            mats = serpent.read_dep_comp(input_file, False)
             simulation.store_mat_data(mats, dts - 1, 'before_reproc')
         # Finish of First step
         # Main sequence
-        mats = serpent.read_dep_comp(input_file, 1)
+        mats = serpent.read_dep_comp(input_file, True)
         simulation.store_mat_data(mats, dts, 'before_reproc')
         simulation.store_run_step_info()
         # Reprocessing here

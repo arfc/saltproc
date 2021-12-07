@@ -103,7 +103,7 @@ def test_read_depcode_step_param():
 
 
 def test_read_dep_comp():
-    mats = serpent.read_dep_comp(serpent.input_fname, 1)
+    mats = serpent.read_dep_comp(serpent.input_fname, True)
     assert mats['fuel']['U235'] == 3499538.3359278883
     assert mats['fuel']['U238'] == 66580417.24509208
     assert mats['fuel']['F19'] == 37145139.35897285
@@ -115,7 +115,7 @@ def test_read_dep_comp():
 
 
 def test_write_mat_file():
-    mats = serpent.read_dep_comp(serpent.input_fname, 1)
+    mats = serpent.read_dep_comp(serpent.input_fname, True)
     mat_file = serpent.input_fname + '.mat'
     serpent.write_mat_file(mats, mat_file, 12.0)
     mat_str = serpent.read_depcode_template(mat_file)
