@@ -101,7 +101,7 @@ class Separator(Process):
         self.temp_salt = temp_salt
         self.area = np.pi * (self.dp / 2) ** 2
         self.alpha = self.q_he / (self.q_he + self.q_salt)
-        self.jl = self.q_salt/self.area
+        self.jl = self.q_salt / self.area
         self.efficiency = self.eff()
 
     def calc_rem_efficiency(self, el_name):
@@ -183,7 +183,7 @@ class Separator(Process):
         dvoid = (4.89 * self.dp * (self.dp / self.db)**1.27) /\
                 (1 + self.k**4 * number_re)
         df = self.do / (self.do + dvoid / (100 * self.alpha)**0.5)
-        sep_eff = df / (1 + 0.23 * etha) + 3.26 * etha * (1-df) * df
+        sep_eff = df / (1 + 0.23 * etha) + 3.26 * etha * (1 - df) * df
         rem_eff = {'Xe': sep_eff, 'Kr': sep_eff, 'H': sep_eff}
 
         return rem_eff

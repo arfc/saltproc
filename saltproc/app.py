@@ -90,19 +90,19 @@ def read_main_input(main_inp_file):
         global exec_path, spc_inp_file, dot_inp_file, template_file, db_file
         exec_path = j["Path to Serpent executable"]
         spc_inp_file = os.path.join(
-                        os.path.dirname(f.name),
-                        j["File containing processing system objects"])
+            os.path.dirname(f.name),
+            j["File containing processing system objects"])
         dot_inp_file = os.path.join(
-                        os.path.dirname(f.name),
-                        j["Graph file containing processing system structure"])
+            os.path.dirname(f.name),
+            j["Graph file containing processing system structure"])
         template_file = os.path.join(
-                        os.path.dirname(f.name),
-                        j["User's Serpent input file with reactor model"])
+            os.path.dirname(f.name),
+            j["User's Serpent input file with reactor model"])
         db_path = j["Path output data storing folder"]
         db_file = os.path.join(
-                        os.path.dirname(f.name),
-                        db_path,
-                        j["Output HDF5 database file name"])
+            os.path.dirname(f.name),
+            db_path,
+            j["Output HDF5 database file name"])
         # Read Monte Carlo setups
         global neutron_pop, active_cycles, inactive_cycles
         neutron_pop = j["Number of neutrons per generation"]
@@ -133,13 +133,13 @@ def read_main_input(main_inp_file):
                 raise ValueError('Depletion step interval cannot be negative')
             else:
                 step = int(depsteps)
-                deptot = float(depl_hist)*step
+                deptot = float(depl_hist) * step
                 depl_hist = np.linspace(float(depl_hist), deptot, num=step)
                 power_hist = float(power_hist) * np.ones_like(depl_hist)
         elif depsteps is None and isinstance(depl_hist, (np.ndarray, list)):
             if len(depl_hist) != len(power_hist):
                 raise ValueError(
-                  'Depletion step list and power list shape mismatch')
+                    'Depletion step list and power list shape mismatch')
 
 
 def read_processes_from_input():
@@ -296,7 +296,7 @@ def reprocessing(mat):
                     # Update materialflow byt multiplying it by flow fraction
                     forked_mat[mname][ctr] = \
                         divisor * copy.deepcopy(forked_mat[mname][ctr])
-                    waste[mname][w+p] = \
+                    waste[mname][w + p] = \
                         prcs[mname][p].rem_elements(forked_mat[mname][ctr])
                 ctr += 1
             # Sum all forked material objects together
@@ -362,9 +362,9 @@ def refill(mat, extracted_mass, waste_dict):
     for mn, v in feeds.items():  # iterate over materials
         refill_mat[mn] = {}
         for feed_n, fval in feeds[mn].items():  # works with one feed only
-            scale = extracted_mass[mn]/feeds[mn][feed_n].mass
+            scale = extracted_mass[mn] / feeds[mn][feed_n].mass
             refill_mat[mn] = scale * feeds[mn][feed_n]
-            waste_dict[mn]['feed_'+str(feed_n)] = refill_mat[mn]
+            waste_dict[mn]['feed_' + str(feed_n)] = refill_mat[mn]
         mat[mn] += refill_mat[mn]
         print('Refilled fresh material %s %f g' % (mn, refill_mat[mn].mass))
         print('Refill Material ^^^', refill_mat[mn].print_attr())
@@ -389,32 +389,32 @@ def run():
           )
     # Intializing objects
     serpent = DepcodeSerpent(
-                exec_path=exec_path,
-                template_fname=template_file,
-                input_fname=input_file,
-                iter_matfile=iter_matfile,
-                geo_file=geo_file,
-                npop=neutron_pop,
-                active_cycles=active_cycles,
-                inactive_cycles=inactive_cycles)
+        exec_path=exec_path,
+        template_fname=template_file,
+        input_fname=input_file,
+        iter_matfile=iter_matfile,
+        geo_file=geo_file,
+        npop=neutron_pop,
+        active_cycles=active_cycles,
+        inactive_cycles=inactive_cycles)
     simulation = Simulation(
-                sim_name='Super test',
-                sim_depcode=serpent,
-                core_number=cores,
-                node_number=nodes,
-                h5_file=db_file,
-                iter_matfile=iter_matfile)
+        sim_name='Super test',
+        sim_depcode=serpent,
+        core_number=cores,
+        node_number=nodes,
+        h5_file=db_file,
+        iter_matfile=iter_matfile)
     msr = Reactor(
-                volume=1.0,
-                mass_flowrate=core_massflow_rate,
-                power_levels=power_hist,
-                depl_hist=depl_hist)
+        volume=1.0,
+        mass_flowrate=core_massflow_rate,
+        power_levels=power_hist,
+        depl_hist=depl_hist)
     # Check: Restarting previous simulation or starting new?
     check_restart(restart_flag)
     # Run sequence
     # Start sequence
     for dts in range(len(depl_hist)):
-        print("\n\n\nStep #%i has been started" % (dts+1))
+        print("\n\n\nStep #%i has been started" % (dts + 1))
         serpent.write_depcode_input(template_file,
                                     input_file,
                                     msr,
@@ -426,7 +426,7 @@ def run():
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dts
             mats = serpent.read_dep_comp(input_file, 0)  # 0)
-            simulation.store_mat_data(mats, dts-1, 'before_reproc')
+            simulation.store_mat_data(mats, dts - 1, 'before_reproc')
         # Finish of First step
         # Main sequence
         mats = serpent.read_dep_comp(input_file, 1)

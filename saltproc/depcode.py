@@ -8,7 +8,8 @@ from pyne import serpent
 from abc import ABC, abstractmethod
 
 # I borrowed this handy doc function from the OpenMC folks.
-# See https://docs.openmc.org/en/stable/_modules/openmc/deplete/abc.html#Integrator
+# See 
+# https://docs.openmc.org/en/stable/_modules/openmc/deplete/abc.html#Integrator
 # yardasol -- 09.07.2022
 
 
