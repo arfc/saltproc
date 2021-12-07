@@ -109,7 +109,7 @@ class Depcode(ABC):
         cores : int
             Number of cores to use for depletion code run.
         nodes : int
-            Number of nodes to use for depletion code run. 
+            Number of nodes to use for depletion code run.
         """
 
     @abstractmethod
@@ -280,19 +280,19 @@ class DepcodeSerpent(Depcode):
             # at_mass = pydata.atomic_mass(nuc_code_id)
             if aa > 300:
                 if zz > 76:
-                    aa_str = str(aa-100)+'m1'
-                    aa = aa-100
+                    aa_str = str(aa - 100) + 'm1'
+                    aa = aa - 100
                 else:
-                    aa_str = str(aa-200)+'m1'
-                    aa = aa-200
-                nuc_zzaaam = str(zz)+str(aa)+'1'
+                    aa_str = str(aa - 200) + 'm1'
+                    aa = aa - 200
+                nuc_zzaaam = str(zz) + str(aa) + '1'
             elif aa == 0:
                 aa_str = 'nat'
             nuc_name = pyname.zz_name[zz] + aa_str
         else:
             meta_flag = pyname.snum(nuc_code)
             if meta_flag:
-                nuc_name = pyname.name(nuc_code)[:-1] + 'm'+str(meta_flag)
+                nuc_name = pyname.name(nuc_code)[:-1] + 'm' + str(meta_flag)
             else:
                 nuc_name = pyname.name(nuc_code)
         nuc_zzaaam = self.sss_meta_zzz(pyname.zzaaam(nuc_code))
@@ -395,13 +395,13 @@ class DepcodeSerpent(Depcode):
         zai = list(map(int, dep['ZAI'][:-2]))  # zzaaam codes of isotopes
 
         for m in mat_name:
-            volume = dep['MAT_'+m+'_VOLUME'][moment]
-            nucvec = dict(zip(zai, dep['MAT_'+m+'_MDENS'][:, moment]))
+            volume = dep['MAT_' + m + '_VOLUME'][moment]
+            nucvec = dict(zip(zai, dep['MAT_' + m + '_MDENS'][:, moment]))
             mats[m] = Materialflow(nucvec)
-            mats[m].density = dep['MAT_'+m+'_MDENS'][-1, moment]
-            mats[m].mass = mats[m].density*volume
+            mats[m].density = dep['MAT_' + m + '_MDENS'][-1, moment]
+            mats[m].mass = mats[m].density * volume
             mats[m].vol = volume
-            mats[m].burnup = dep['MAT_'+m+'_BURNUP'][moment]
+            mats[m].burnup = dep['MAT_' + m + '_BURNUP'][moment]
         self.get_tra_or_dec(self.input_fname)
         return mats
 
@@ -437,7 +437,7 @@ class DepcodeSerpent(Depcode):
         self.param['burn_days'] = res['BURN_DAYS'][1][0]
         self.param['power_level'] = res['TOT_POWER'][1][0]
         self.param['memory_usage'] = res['MEMSIZE'][0]
-        b_l = int(.5*len(res['FWD_ANA_BETA_ZERO'][1]))
+        b_l = int(.5 * len(res['FWD_ANA_BETA_ZERO'][1]))
         self.param['beta_eff'] = res['FWD_ANA_BETA_ZERO'][1].reshape((b_l, 2))
         self.param['delayed_neutrons_lambda'] = \
             res['FWD_ANA_LAMBDA'][1].reshape((b_l, 2))
@@ -492,7 +492,7 @@ class DepcodeSerpent(Depcode):
             current_depstep = reactor.depl_hist[0]
         else:
             current_depstep = reactor.depl_hist[current_depstep_idx] - \
-                reactor.depl_hist[current_depstep_idx-1]
+                reactor.depl_hist[current_depstep_idx - 1]
         for line in data:
             if line.startswith('set    power   '):
                 line_idx = data.index(line)
@@ -567,15 +567,21 @@ class DepcodeSerpent(Depcode):
         aa = pyname.anum(nuc_code)
         if aa > 300:
             if zz > 76:
-                aa_new = aa-100
+                aa_new = aa - 100
             else:
-                aa_new = aa-200
-            zzaaam = str(zz)+str(aa_new)+'1'
+                aa_new = aa - 200
+            zzaaam = str(zz) + str(aa_new) + '1'
         else:
             zzaaam = nuc_code
         return int(zzaaam)
 
-    def write_depcode_input(self, temp_file, inp_file, reactor, dep_step, restart):
+    def write_depcode_input(
+            self,
+            temp_file,
+            inp_file,
+            reactor,
+            dep_step,
+            restart):
         """Writes prepared data into the depletion code input file.
 
         Parameters
