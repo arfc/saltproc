@@ -8,14 +8,14 @@ path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
 # global class object
 directory = os.path.dirname(path)
-input_file = directory+'/test'
-main_input = directory+'/test.json'
-dot_input = directory+'/test.dot'
+input_file = directory + '/test'
+main_input = directory + '/test.json'
+dot_input = directory + '/test.dot'
 
 serpent = DepcodeSerpent(exec_path='sss2',
-                         template_fname=directory+'/template.inp',
+                         template_fname=directory + '/template.inp',
                          input_fname=input_file,
-                         iter_matfile=directory+'/material',
+                         iter_matfile=directory + '/material',
                          geo_file=None)
 
 

@@ -178,7 +178,6 @@ class DepcodeSerpent(Depcode):
                          active_cycles,
                          inactive_cycles)
 
-
     def change_sim_par(self, data):
         """Finds simulation parameters (neutron population, cycles) in input
         file and change those to parameters from SaltProc input.
