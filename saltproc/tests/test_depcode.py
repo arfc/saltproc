@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-from saltproc import Depcode
+from saltproc import DepcodeSerpent
 from saltproc import Reactor
 import os
 import sys
@@ -11,12 +11,11 @@ sys.path.append(os.path.dirname(os.path.dirname(path)))
 # global class object
 directory = os.path.dirname(path)
 
-serpent = Depcode(codename='SERPENT',
-                  exec_path='sss2',
-                  template_fname=directory+'/template.inp',
-                  input_fname=directory+'/test',
-                  iter_matfile=directory+'/material',
-                  geo_file=[os.path.join(directory, '../test_geo.inp')])
+serpent = DepcodeSerpent(exec_path='sss2',
+                         template_fname=directory + '/template.inp',
+                         input_fname=directory + '/test',
+                         iter_matfile=directory + '/material',
+                         geo_file=[os.path.join(directory, '../test_geo.inp')])
 
 msr = Reactor(volume=1.0,
               power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
@@ -58,12 +57,12 @@ def test_change_sim_par():
     serpent.active_cycles = 101
     serpent.inactive_cycles = 33
     out = serpent.change_sim_par(
-                    serpent.read_depcode_template(serpent.template_fname)
-                    )
+        serpent.read_depcode_template(serpent.template_fname)
+    )
     assert out[18] == 'set pop %i %i %i\n' % (
-                                              serpent.npop,
-                                              serpent.active_cycles,
-                                              serpent.inactive_cycles)
+        serpent.npop,
+        serpent.active_cycles,
+        serpent.inactive_cycles)
 
 
 def test_get_nuc_name():
@@ -104,7 +103,7 @@ def test_read_depcode_step_param():
 
 
 def test_read_dep_comp():
-    mats = serpent.read_dep_comp(serpent.input_fname, 1)
+    mats = serpent.read_dep_comp(serpent.input_fname, True)
     assert mats['fuel']['U235'] == 3499538.3359278883
     assert mats['fuel']['U238'] == 66580417.24509208
     assert mats['fuel']['F19'] == 37145139.35897285
@@ -116,7 +115,7 @@ def test_read_dep_comp():
 
 
 def test_write_mat_file():
-    mats = serpent.read_dep_comp(serpent.input_fname, 1)
+    mats = serpent.read_dep_comp(serpent.input_fname, True)
     mat_file = serpent.input_fname + '.mat'
     serpent.write_mat_file(mats, mat_file, 12.0)
     mat_str = serpent.read_depcode_template(mat_file)
@@ -147,14 +146,15 @@ def test_replace_burnup_parameters():
         d = serpent.replace_burnup_parameters(d,
                                               msr,
                                               idx)
-        out_file = open(serpent.template_fname+str(idx), 'w')
+        out_file = open(serpent.template_fname + str(idx), 'w')
         out_file.writelines(d)
         out_file.close()
-        d_new = serpent.read_depcode_template(serpent.template_fname+str(idx))
+        d_new = serpent.read_depcode_template(
+            serpent.template_fname + str(idx))
         assert d_new[8].split()[4] == 'daystep'
         assert d_new[8].split()[2] == str("%5.9E" % msr.power_levels[idx])
         assert d_new[8].split()[5] == str("%7.5E" % depsteps[idx])
-        os.remove(serpent.template_fname+str(idx))
+        os.remove(serpent.template_fname + str(idx))
 
 
 def test_create_iter_matfile():
@@ -166,11 +166,11 @@ def test_create_iter_matfile():
 
 def test_write_depcode_input():
     serpent.write_depcode_input(serpent.template_fname,
-                                serpent.input_fname+'_write_test',
+                                serpent.input_fname + '_write_test',
                                 msr,
                                 0,
                                 False)
-    d = serpent.read_depcode_template(serpent.input_fname+'_write_test')
+    d = serpent.read_depcode_template(serpent.input_fname + '_write_test')
     print(d[0])
     assert d[0].split('/')[-2] == 'tests'
     assert d[0].split('/')[-1] == 'material"\n'
@@ -178,5 +178,5 @@ def test_write_depcode_input():
     assert d[8].split()[4] == 'daystep'
     assert d[8].split()[-1] == '1.11111E+02'
     assert d[20] == 'set pop 1111 101 33\n'
-    os.remove(serpent.input_fname+'_write_test')
+    os.remove(serpent.input_fname + '_write_test')
     os.remove(serpent.iter_matfile)

@@ -184,13 +184,13 @@ class Sparger(Process):
             removal efficiency of a specific chemical element.
 
         """
-        a = (6/self.db) * (self.q_he / (self.q_he + self.q_salt))
+        a = (6 / self.db) * (self.q_he / (self.q_he + self.q_salt))
         alpha = (self.gas_const * self.temp_salt / h_const) *\
                 (self.q_salt / self.q_he)
         beta = (kl_const * a * self.area *
                 self.length * (1 + alpha)) / self.q_salt
 
-        return (1-np.exp(-beta))/(1+alpha)
+        return (1 - np.exp(-beta)) / (1 + alpha)
 
     def sherwood(self):
         """ Contains Sherwood number correlations.
@@ -225,8 +225,8 @@ class Sparger(Process):
         hh = {}
         for key in self.h_const:
             hh[key] = 1 / (self.h_const[key] *
-                           np.exp(self.exp_const[key] * (1/self.temp_salt -
-                                                         1/self.temp_room)))
+                           np.exp(self.exp_const[key] * (1 / self.temp_salt -
+                                                         1 / self.temp_room)))
 
         mu = 1.076111581e-2 * (self.temp_salt / 1000)**(-4.833549134)
         rho = (6.105 - 0.001272 * self.temp_salt) * 1000

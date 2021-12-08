@@ -67,39 +67,39 @@ class Simulation():
         ######################################################################
         # Start sequence
         for dts in range(nsteps):
-            print("\nStep #%i has been started" % (dts+1))
+            print("\nStep #%i has been started" % (dts + 1))
             if dts == 0:  # First step
                 self.sim_depcode.write_depcode_input(
-                                        self.sim_depcode.template_fname,
-                                        self.sim_depcode.input_fname,
-                                        reactor,
-                                        dts,
-                                        False)
+                    self.sim_depcode.template_fname,
+                    self.sim_depcode.input_fname,
+                    reactor,
+                    dts,
+                    False)
                 self.sim_depcode.run_depcode(
-                                        self.core_number,
-                                        self.node_number)
+                    self.core_number,
+                    self.node_number)
                 # Read general simulation data which never changes
                 self.store_run_init_info()
                 # Parse and store data for initial state (beginning of dts)
                 mats = self.sim_depcode.read_dep_comp(
-                                        self.sim_depcode.input_fname,
-                                        0)
+                    self.sim_depcode.input_fname,
+                    False)
                 self.store_mat_data(mats, dts, 'before_reproc')
             # Finish of First step
             # Main sequence
             else:
                 self.sim_depcode.run_depcode(
-                                        self.core_number,
-                                        self.node_number)
+                    self.core_number,
+                    self.node_number)
             mats = self.sim_depcode.read_dep_comp(
-                                        self.sim_depcode.input_fname,
-                                        1)
+                self.sim_depcode.input_fname,
+                True)
             self.store_mat_data(mats, dts, 'before_reproc')
             self.store_run_step_info()
             self.sim_depcode.write_mat_file(
-                                        mats,
-                                        self.iter_matfile,
-                                        self.burn_time)
+                mats,
+                self.iter_matfile,
+                self.burn_time)
 
     def store_after_repr(self, after_mats, waste_dict, step):
         """Adds to HDF5 database waste streams data for each process after
@@ -123,9 +123,9 @@ class Simulation():
             mat_node = getattr(db.root.materials, mn)
             if not hasattr(mat_node, streams_gr):
                 waste_group = db.create_group(
-                                mat_node,
-                                streams_gr,
-                                'Waste Material streams data for each process')
+                    mat_node,
+                    streams_gr,
+                    'Waste Material streams data for each process')
             else:
                 waste_group = getattr(mat_node, streams_gr)
             for proc in waste_dict[mn].keys():
@@ -139,18 +139,18 @@ class Simulation():
                     # Dictonary in format {isotope_name : index(int)}
                     iso_idx[self.sim_depcode.get_nuc_name(nuc)[0]] = coun
                     # Convert wt% to absolute [user units]
-                    iso_wt_frac.append(wt_frac*waste_dict[mn][proc].mass)
+                    iso_wt_frac.append(wt_frac * waste_dict[mn][proc].mass)
                     coun += 1
                 # Try to open EArray and table and if not exist - create
                 try:
                     earr = db.get_node(waste_group, proc)
                 except Exception:
                     earr = db.create_earray(
-                                    waste_group,
-                                    proc,
-                                    atom=tb.Float64Atom(),
-                                    shape=(0, len(iso_idx)),
-                                    title="Isotopic composition for %s" % proc)
+                        waste_group,
+                        proc,
+                        atom=tb.Float64Atom(),
+                        shape=(0, len(iso_idx)),
+                        title="Isotopic composition for %s" % proc)
                     # Save isotope indexes map and units in EArray attributes
                     earr.flavor = 'python'
                     earr.attrs.iso_map = iso_idx
@@ -186,16 +186,16 @@ class Simulation():
         iso_idx = OrderedDict()
         # numpy array row storage data for material physical properties
         mpar_dtype = np.dtype([
-                        ('mass',            float),
-                        ('density',         float),
-                        ('volume',          float),
-                        ('temperature',     float),
-                        ('mass_flowrate',   float),
-                        ('void_fraction',   float),
-                        ('burnup',          float)
-                        ])
+            ('mass', float),
+            ('density', float),
+            ('volume', float),
+            ('temperature', float),
+            ('mass_flowrate', float),
+            ('void_fraction', float),
+            ('burnup', float)
+        ])
 
-        print('\nStoring material data for depletion step #%i.' % (d_step+1))
+        print('\nStoring material data for depletion step #%i.' % (d_step + 1))
         db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
         if not hasattr(db.root, 'materials'):
             comp_group = db.create_group('/',
@@ -222,18 +222,18 @@ class Simulation():
                 # Dictonary in format {isotope_name : index(int)}
                 iso_idx[key][self.sim_depcode.get_nuc_name(nuc_code)[0]] = coun
                 # Convert wt% to absolute [user units]
-                iso_wt_frac.append(wt_frac*mats[key].mass)
+                iso_wt_frac.append(wt_frac * mats[key].mass)
                 coun += 1
             # Store information about material properties in new array row
             mpar_row = (
-                        mats[key].mass,
-                        mats[key].density,
-                        mats[key].vol,
-                        mats[key].temp,
-                        mats[key].mass_flowrate,
-                        mats[key].void_frac,
-                        mats[key].burnup
-                        )
+                mats[key].mass,
+                mats[key].density,
+                mats[key].vol,
+                mats[key].temp,
+                mats[key].mass_flowrate,
+                mats[key].void_frac,
+                mats[key].burnup
+            )
             mpar_array = np.array([mpar_row], dtype=mpar_dtype)
             # Try to open EArray and table and if not exist - create new one
             try:
@@ -241,23 +241,26 @@ class Simulation():
                 print(str(earr.title) + ' array exist, appending data.')
                 mpar_table = db.get_node(comp_pfx, 'parameters')
             except Exception:
-                print('Material '+key+' array is not exist, making new one.')
+                print(
+                    'Material ' +
+                    key +
+                    ' array is not exist, making new one.')
                 earr = db.create_earray(
-                                comp_pfx,
-                                'comp',
-                                atom=tb.Float64Atom(),
-                                shape=(0, len(iso_idx[key])),
-                                title="Isotopic composition for %s" % key)
+                    comp_pfx,
+                    'comp',
+                    atom=tb.Float64Atom(),
+                    shape=(0, len(iso_idx[key])),
+                    title="Isotopic composition for %s" % key)
                 # Save isotope indexes map and units in EArray attributes
                 earr.flavor = 'python'
                 earr.attrs.iso_map = iso_idx[key]
                 # Create table for material Parameters
-                print('Creating '+key+' parameters table.')
+                print('Creating ' + key + ' parameters table.')
                 mpar_table = db.create_table(
-                                comp_pfx,
-                                'parameters',
-                                np.empty(0, dtype=mpar_dtype),
-                                "Material parameters data")
+                    comp_pfx,
+                    'parameters',
+                    np.empty(0, dtype=mpar_dtype),
+                    "Material parameters data")
             print('Dumping Material %s data %s to %s.' %
                   (key, moment, os.path.abspath(self.h5_file)))
             # Add row for the timestep to EArray and Material Parameters table
@@ -297,16 +300,16 @@ class Simulation():
         db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
         try:
             step_info_table = db.get_node(
-                                         db.root,
-                                         'simulation_parameters')
+                db.root,
+                'simulation_parameters')
             # Read burn_time from previous step
             self.burn_time = step_info_table.col('cumulative_time_at_eds')[-1]
         except Exception:
             step_info_table = db.create_table(
-                                db.root,
-                                'simulation_parameters',
-                                Step_info,
-                                "Simulation parameters after each timestep")
+                db.root,
+                'simulation_parameters',
+                Step_info,
+                "Simulation parameters after each timestep")
             # Intializing burn_time array at the first depletion step
             self.burn_time = 0.0
         self.burn_time += self.sim_depcode.param['burn_days']
@@ -316,21 +319,21 @@ class Simulation():
         step_info['keff_bds'] = self.sim_depcode.param['keff_bds']
         step_info['keff_eds'] = self.sim_depcode.param['keff_eds']
         step_info['breeding_ratio'] = self.sim_depcode.param[
-                                        'breeding_ratio']
+            'breeding_ratio']
         step_info['step_execution_time'] = self.sim_depcode.param[
-                                        'execution_time']
+            'execution_time']
         step_info['cumulative_time_at_eds'] = self.burn_time
         step_info['power_level'] = self.sim_depcode.param['power_level']
         step_info['memory_usage'] = self.sim_depcode.param[
-                                        'memory_usage']
+            'memory_usage']
         step_info['beta_eff_eds'] = self.sim_depcode.param[
-                                        'beta_eff']
+            'beta_eff']
         step_info['delayed_neutrons_lambda_eds'] = self.sim_depcode.param[
-                                        'delayed_neutrons_lambda']
+            'delayed_neutrons_lambda']
         step_info['fission_mass_bds'] = self.sim_depcode.param[
-                                        'fission_mass_bds']
+            'fission_mass_bds']
         step_info['fission_mass_eds'] = self.sim_depcode.param[
-                                        'fission_mass_eds']
+            'fission_mass_eds']
         # Inject the Record value into the table
         step_info.append()
         step_info_table.flush()
@@ -342,36 +345,36 @@ class Simulation():
         """
         # numpy arraw row storage for run info
         sim_info_dtype = np.dtype([
-                    ('neutron_population',       int),
-                    ('active_cycles',            int),
-                    ('inactive_cycles',          int),
-                    ('serpent_version',        'S20'),
-                    ('title',                  'S90'),
-                    ('serpent_input_filename', 'S90'),
-                    ('serpent_working_dir',    'S90'),
-                    ('xs_data_path',           'S90'),
-                    ('OMP_threads',              int),
-                    ('MPI_tasks',                int),
-                    ('memory_optimization_mode', int),
-                    ('depletion_timestep',     float)
-                    ])
+            ('neutron_population', int),
+            ('active_cycles', int),
+            ('inactive_cycles', int),
+            ('serpent_version', 'S20'),
+            ('title', 'S90'),
+            ('serpent_input_filename', 'S90'),
+            ('serpent_working_dir', 'S90'),
+            ('xs_data_path', 'S90'),
+            ('OMP_threads', int),
+            ('MPI_tasks', int),
+            ('memory_optimization_mode', int),
+            ('depletion_timestep', float)
+        ])
         # Read info from depcode _res.m File
         self.sim_depcode.read_depcode_info()
         # Store information about material properties in new array row
         sim_info_row = (
-                    self.sim_depcode.npop,
-                    self.sim_depcode.active_cycles,
-                    self.sim_depcode.inactive_cycles,
-                    self.sim_depcode.sim_info['serpent_version'],
-                    self.sim_depcode.sim_info['title'],
-                    self.sim_depcode.sim_info['serpent_input_filename'],
-                    self.sim_depcode.sim_info['serpent_working_dir'],
-                    self.sim_depcode.sim_info['xs_data_path'],
-                    self.sim_depcode.sim_info['OMP_threads'],
-                    self.sim_depcode.sim_info['MPI_tasks'],
-                    self.sim_depcode.sim_info['memory_optimization_mode'],
-                    self.sim_depcode.sim_info['depletion_timestep']
-                    )
+            self.sim_depcode.npop,
+            self.sim_depcode.active_cycles,
+            self.sim_depcode.inactive_cycles,
+            self.sim_depcode.sim_info['serpent_version'],
+            self.sim_depcode.sim_info['title'],
+            self.sim_depcode.sim_info['serpent_input_filename'],
+            self.sim_depcode.sim_info['serpent_working_dir'],
+            self.sim_depcode.sim_info['xs_data_path'],
+            self.sim_depcode.sim_info['OMP_threads'],
+            self.sim_depcode.sim_info['MPI_tasks'],
+            self.sim_depcode.sim_info['memory_optimization_mode'],
+            self.sim_depcode.sim_info['depletion_timestep']
+        )
         sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype)
         # Open or restore db and append datat to it
         db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
@@ -379,10 +382,10 @@ class Simulation():
             sim_info_table = db.get_node(db.root, 'initial_depcode_siminfo')
         except Exception:
             sim_info_table = db.create_table(
-                                db.root,
-                                'initial_depcode_siminfo',
-                                sim_info_array,
-                                "Initial depletion code simulation parameters")
+                db.root,
+                'initial_depcode_siminfo',
+                sim_info_array,
+                "Initial depletion code simulation parameters")
         sim_info_table.flush()
         db.close()
 
@@ -398,7 +401,7 @@ class Simulation():
         current_geo_file = data[geo_line_n].split('\"')[1]
         current_geo_idx = self.sim_depcode.geo_file.index(current_geo_file)
         try:
-            new_geo_file = self.sim_depcode.geo_file[current_geo_idx+1]
+            new_geo_file = self.sim_depcode.geo_file[current_geo_idx + 1]
         except IndexError:
             print('No more geometry files available \
                   and the system went subcritical \n\n')
