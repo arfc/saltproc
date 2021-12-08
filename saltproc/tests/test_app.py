@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-from saltproc import Depcode
+from saltproc import DepcodeSerpent
 from saltproc import app
 import os
 import sys
@@ -8,16 +8,15 @@ path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
 # global class object
 directory = os.path.dirname(path)
-input_file = directory+'/test'
-main_input = directory+'/test.json'
-dot_input = directory+'/test.dot'
+input_file = directory + '/test'
+main_input = directory + '/test.json'
+dot_input = directory + '/test.dot'
 
-serpent = Depcode(codename='SERPENT',
-                  exec_path='sss2',
-                  template_fname=directory+'/template.inp',
-                  input_fname=input_file,
-                  iter_matfile=directory+'/material',
-                  geo_file=None)
+serpent = DepcodeSerpent(exec_path='sss2',
+                         template_fname=directory + '/template.inp',
+                         input_fname=input_file,
+                         iter_matfile=directory + '/material',
+                         geo_file=None)
 
 
 def test_read_main_input():
@@ -64,7 +63,7 @@ def test_read_dot():
 
 
 def test_reprocessing():
-    mats = serpent.read_dep_comp(input_file, 1)
+    mats = serpent.read_dep_comp(input_file, True)
     waste_st, rem_mass = app.reprocessing(mats)
     assert rem_mass['fuel'] == 1401.0846504569054
     assert rem_mass['ctrlPois'] == 0.0
@@ -74,7 +73,7 @@ def test_reprocessing():
 
 
 def test_refill():
-    mats = serpent.read_dep_comp(input_file, 1)
+    mats = serpent.read_dep_comp(input_file, True)
     waste_st, rem_mass = app.reprocessing(mats)
     m_after_refill = app.refill(mats, rem_mass, waste_st)
     assert m_after_refill['fuel']['feed_leu']['U235'] == 43.573521906078334

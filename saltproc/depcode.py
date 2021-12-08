@@ -5,50 +5,64 @@ import shutil
 import re
 from pyne import nucname as pyname
 from pyne import serpent
+from abc import ABC, abstractmethod
+
+# I borrowed this handy doc function from the OpenMC folks.
+# See
+# https://docs.openmc.org/en/stable/_modules/openmc/deplete/abc.html#Integrator
+# yardasol -- 09.07.2022
 
 
-class Depcode:
-    """Class contains information about input, output, geometry, and template
+def add_params(cls):
+    cls.__doc__ += cls._params
+    return cls
+
+
+@add_params
+class Depcode(ABC):
+    r"""Class contains information about input, output, geometry, and template
     file for running depletion simulation code. Also contains neutrons
     population, active and inactive cycle. Contains methods to read template
     and output, write new input for the depletion code.
     """
 
+    _params = r"""
+    Parameters
+    ----------
+    codename : str
+        Name of depletion code.
+    exec_path : str
+        Path to depletion code executable.
+    template_fname : str
+        Path to user input file for depletion code.
+    input_fname : str
+        Name of input file for depletion code rerunning.
+    iter_matfile : str
+        Name of iterative, rewritable material file for depletion code
+        rerunning. This file is being modified during simulation.
+    geo_file : str or list
+        Path to file that contains the reactor geometry.
+        List of `str` if reactivity control by
+        switching geometry is `On` or just `str` otherwise.
+    npop : int
+        Size of neutron population per cycle for Monte Carlo.
+    active_cycles : int
+        Number of active cycles.
+    inactive_cycles : int
+        Number of inactive cycles.
+    """
+
     def __init__(self,
-                 codename="Serpent",
-                 exec_path="sss2",
-                 template_fname="reactor.serpent",
-                 input_fname="data/saltproc_reactor",
-                 iter_matfile="data/saltproc_mat",
+                 codename,
+                 exec_path,
+                 template_fname,
+                 input_fname,
+                 iter_matfile,
                  geo_file=None,
                  npop=50,
                  active_cycles=20,
                  inactive_cycles=20):
         """Initializes the Depcode object.
-
-        Parameters
-        ----------
-        codename : str
-            Name of depletion code.
-        exec_path : str
-            Path to depletion code executable.
-        template_fname : str
-            Path to user input file for depletion code.
-        input_fname : str
-            Name of input file for depletion code rerunning.
-        iter_matfile : str
-            Name of iterative, rewritable material file for depletion code
-            rerunning. This file is being modified during simulation.
-        geo_file : str or list
-            Path to file that contains the reactor geometry.
-            List of `str` if reactivity control by
-            switching geometry is `On` or just `str` otherwise.
-        npop : int
-            Size of neutron population per cycle for Monte Carlo.
-        active_cycles : int
-            Number of active cycles.
-        inactive_cycles : int
-            Number of inactive cycles.
         """
         self.codename = codename
         self.exec_path = exec_path
@@ -61,6 +75,110 @@ class Depcode:
         self.inactive_cycles = inactive_cycles
         self.param = {}
         self.sim_info = {}
+
+    @abstractmethod
+    def read_dep_comp(self, dep_file, read_at_end=False):
+        """Reads the depleted material data from the depcode simulation
+        and returns a dictionary with a `Materialflow` object for each
+        burnable material.
+
+        Parameters
+        ----------
+        dep_file : str
+            Path to file containing results of depletion simulation
+        read_at_end : bool
+            Controls at which moment in the depletion step to read the data.
+            If `True`, the function reads data at the end of the
+            depletion step. Otherwise, the function reads data at the
+            beginning of the depletion step.
+
+        Returns
+        -------
+        mats : dict
+            Dictionary that contains `Materialflow` objects.
+            ``key``
+                Name of burnable material.
+            ``value``
+                `Materialflow` object holding composition and properties.
+        """
+
+    @abstractmethod
+    def run_depcode(self, cores, nodes):
+        """Runs depletion code as subprocess with the given parameters.
+
+        Parameters
+        ----------
+        cores : int
+            Number of cores to use for depletion code run.
+        nodes : int
+            Number of nodes to use for depletion code run.
+        """
+
+    @abstractmethod
+    def write_depcode_input(self, temp, inp, reactor, dep_step, restart):
+        """ Writes prepared data into depletion code input file(s).
+
+        Parameters
+        ----------
+        temp : str
+            Path to user template file for depletion code
+        inp : str
+            Path to input file for depletion code rerunning
+        reactor : Reactor
+            Contains information about power load curve and cumulative
+            depletion time for the integration test.
+        dep_step : int
+            Current depletion time step.
+        restart : bool
+            Is the current simulation restarted?
+        """
+
+    @abstractmethod
+    def write_mat_file(self, dep_dict, mat_file, dep_end_time):
+        """Writes the iteration input file containing burnable materials
+        composition used in depletion runs and updated after each depletion
+        step.
+        Parameters
+        ----------
+        dep_dict : dict
+            Dictionary that contains `Materialflow` objects.
+            ``key``
+                Name of burnable material.
+            ``value``
+                `Materialflow` object holding composition and properties.
+        mat_file : str
+            Path to file containing burnable materials composition.
+        dep_end_time : float
+            Current time at the end of the depletion step (d).
+        """
+
+
+@add_params
+class DepcodeSerpent(Depcode):
+    r"""Class contains information about input, output, geometry, and
+    template file for running Serpent2 depletion simulation
+    """
+
+    def __init__(self,
+                 exec_path="sss2",
+                 template_fname="reactor.serpent",
+                 input_fname="data/saltproc_reactor",
+                 iter_matfile="data/saltproc_mat",
+                 geo_file=None,
+                 npop=50,
+                 active_cycles=20,
+                 inactive_cycles=20):
+        """Initializes the DepcodeSerpent object.
+        """
+        super().__init__("serpent",
+                         exec_path,
+                         template_fname,
+                         input_fname,
+                         iter_matfile,
+                         geo_file,
+                         npop,
+                         active_cycles,
+                         inactive_cycles)
 
     def change_sim_par(self, data):
         """Finds simulation parameters (neutron population, cycles) in input
@@ -164,19 +282,19 @@ class Depcode:
             # at_mass = pydata.atomic_mass(nuc_code_id)
             if aa > 300:
                 if zz > 76:
-                    aa_str = str(aa-100)+'m1'
-                    aa = aa-100
+                    aa_str = str(aa - 100) + 'm1'
+                    aa = aa - 100
                 else:
-                    aa_str = str(aa-200)+'m1'
-                    aa = aa-200
-                nuc_zzaaam = str(zz)+str(aa)+'1'
+                    aa_str = str(aa - 200) + 'm1'
+                    aa = aa - 200
+                nuc_zzaaam = str(zz) + str(aa) + '1'
             elif aa == 0:
                 aa_str = 'nat'
             nuc_name = pyname.zz_name[zz] + aa_str
         else:
             meta_flag = pyname.snum(nuc_code)
             if meta_flag:
-                nuc_name = pyname.name(nuc_code)[:-1] + 'm'+str(meta_flag)
+                nuc_name = pyname.name(nuc_code)[:-1] + 'm' + str(meta_flag)
             else:
                 nuc_name = pyname.name(nuc_code)
         nuc_zzaaam = self.sss_meta_zzz(pyname.zzaaam(nuc_code))
@@ -243,7 +361,7 @@ class Depcode:
                     'include \"' + str(self.geo_file[0]) + '\"\n')
         return data
 
-    def read_dep_comp(self, input_file, moment):
+    def read_dep_comp(self, input_file, read_at_end=False):
         """Reads the Serpent `*_dep.m` file and returns dictionary with
         `Materialflow` object for each burnable material.
 
@@ -251,9 +369,11 @@ class Depcode:
         ----------
         input_file : str
             Path to Serpent input file.
-        moment : int
-            Indicates at which moment in the depletion step read the data. `0`
-            refers the beginning, `1` refers the end of depletion step.
+        read_at_end : bool
+            Controls at which moment in the depletion step to read the data.
+            If `True`, the function reads data at the end of the
+            depletion step. Otherwise, the function reads data at the
+            beginning of the depletion step.
 
         Returns
         -------
@@ -266,6 +386,10 @@ class Depcode:
                 `Materialflow` object holding composition and properties.
 
         """
+        moment = 0
+        if read_at_end:
+            moment = 1
+
         dep_file = os.path.join('%s_dep.m' % input_file)
         dep = serpent.parse_dep(dep_file, make_mats=False)
         self.days = dep['DAYS'][moment]
@@ -279,13 +403,13 @@ class Depcode:
         zai = list(map(int, dep['ZAI'][:-2]))  # zzaaam codes of isotopes
 
         for m in mat_name:
-            volume = dep['MAT_'+m+'_VOLUME'][moment]
-            nucvec = dict(zip(zai, dep['MAT_'+m+'_MDENS'][:, moment]))
+            volume = dep['MAT_' + m + '_VOLUME'][moment]
+            nucvec = dict(zip(zai, dep['MAT_' + m + '_MDENS'][:, moment]))
             mats[m] = Materialflow(nucvec)
-            mats[m].density = dep['MAT_'+m+'_MDENS'][-1, moment]
-            mats[m].mass = mats[m].density*volume
+            mats[m].density = dep['MAT_' + m + '_MDENS'][-1, moment]
+            mats[m].mass = mats[m].density * volume
             mats[m].vol = volume
-            mats[m].burnup = dep['MAT_'+m+'_BURNUP'][moment]
+            mats[m].burnup = dep['MAT_' + m + '_BURNUP'][moment]
         self.get_tra_or_dec(self.input_fname)
         return mats
 
@@ -321,7 +445,7 @@ class Depcode:
         self.param['burn_days'] = res['BURN_DAYS'][1][0]
         self.param['power_level'] = res['TOT_POWER'][1][0]
         self.param['memory_usage'] = res['MEMSIZE'][0]
-        b_l = int(.5*len(res['FWD_ANA_BETA_ZERO'][1]))
+        b_l = int(.5 * len(res['FWD_ANA_BETA_ZERO'][1]))
         self.param['beta_eff'] = res['FWD_ANA_BETA_ZERO'][1].reshape((b_l, 2))
         self.param['delayed_neutrons_lambda'] = \
             res['FWD_ANA_LAMBDA'][1].reshape((b_l, 2))
@@ -376,7 +500,7 @@ class Depcode:
             current_depstep = reactor.depl_hist[0]
         else:
             current_depstep = reactor.depl_hist[current_depstep_idx] - \
-                              reactor.depl_hist[current_depstep_idx-1]
+                reactor.depl_hist[current_depstep_idx - 1]
         for line in data:
             if line.startswith('set    power   '):
                 line_idx = data.index(line)
@@ -422,9 +546,9 @@ class Depcode:
         print('Running %s' % (self.codename))
         try:
             subprocess.check_output(
-                            args,
-                            cwd=os.path.split(self.template_fname)[0],
-                            stderr=subprocess.STDOUT)
+                args,
+                cwd=os.path.split(self.template_fname)[0],
+                stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
             print(error.output.decode("utf-8"))
             raise RuntimeError('\n %s RUN FAILED\n see error message above'
@@ -451,15 +575,21 @@ class Depcode:
         aa = pyname.anum(nuc_code)
         if aa > 300:
             if zz > 76:
-                aa_new = aa-100
+                aa_new = aa - 100
             else:
-                aa_new = aa-200
-            zzaaam = str(zz)+str(aa_new)+'1'
+                aa_new = aa - 200
+            zzaaam = str(zz) + str(aa_new) + '1'
         else:
             zzaaam = nuc_code
         return int(zzaaam)
 
-    def write_depcode_input(self, temp_file, inp_file, reactor, dts, restart):
+    def write_depcode_input(
+            self,
+            temp_file,
+            inp_file,
+            reactor,
+            dep_step,
+            restart):
         """Writes prepared data into the depletion code input file.
 
         Parameters
@@ -471,7 +601,7 @@ class Depcode:
         reactor : Reactor
             Contains information about power load curve and cumulative
             depletion time for the integration test.
-        dts : int
+        dep_step : int
             Current depletion time step.
         restart : bool
             Is the current simulation restarted?
@@ -483,28 +613,28 @@ class Depcode:
 
         """
 
-        if dts == 0 and not restart:
+        if dep_step == 0 and not restart:
             data = self.read_depcode_template(temp_file)
             data = self.insert_path_to_geometry(data)
             data = self.change_sim_par(data)
             data = self.create_iter_matfile(data)
         else:
             data = self.read_depcode_template(inp_file)
-        data = self.replace_burnup_parameters(data, reactor, dts)
+        data = self.replace_burnup_parameters(data, reactor, dep_step)
 
         if data:
             out_file = open(inp_file, 'w')
             out_file.writelines(data)
             out_file.close()
 
-    def write_mat_file(self, dep_dict, mat_file, cumulative_time_at_eds):
+    def write_mat_file(self, dep_dict, mat_file, dep_end_time):
         """Writes the iteration input file containing burnable materials
         composition used in depletion runs and updated after each depletion
         step.
 
         Parameters
         ----------
-        mats : dict
+        dep_dict : dict
             Dictionary that contains `Materialflow` objects.
 
             ``key``
@@ -513,14 +643,14 @@ class Depcode:
                 `Materialflow` object holding composition and properties.
         mat_file : str
             Path to file containing burnable materials composition.
-        cumulative_time_at_eds : float
+        dep_end_time : float
             Current time at the end of the depletion step (d).
 
         """
 
         matf = open(mat_file, 'w')
         matf.write('%% Material compositions (after %f days)\n\n'
-                   % cumulative_time_at_eds)
+                   % dep_end_time)
         for key, value in dep_dict.items():
             matf.write('mat  %s  %5.9E burn 1 fix %3s %4i vol %7.5E\n' %
                        (key,
