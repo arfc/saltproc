@@ -20,10 +20,11 @@ def add_params(cls):
 
 @add_params
 class Depcode(ABC):
-    r"""Class contains information about input, output, geometry, and template
-    file for running depletion simulation code. Also contains neutrons
-    population, active and inactive cycle. Contains methods to read template
-    and output, write new input for the depletion code.
+    r"""Abstract class for interfacing with monte-carlo particle transport codes.
+	Contains information about input, output, geometry, and template
+    files for running depletion simulations. Also contains neutron
+    population, active, and inactive cycles. Contains methods to read template
+    and output files, and write new input files for the depletion code.
     """
 
     _params = r"""
@@ -104,7 +105,7 @@ class Depcode(ABC):
 
     @abstractmethod
     def run_depcode(self, cores, nodes):
-        """Runs depletion code as subprocess with the given parameters.
+        """Runs depletion code as a subprocess with the given parameters.
 
         Parameters
         ----------
@@ -138,6 +139,7 @@ class Depcode(ABC):
         """Writes the iteration input file containing burnable materials
         composition used in depletion runs and updated after each depletion
         step.
+
         Parameters
         ----------
         dep_dict : dict
@@ -156,7 +158,11 @@ class Depcode(ABC):
 @add_params
 class DepcodeSerpent(Depcode):
     r"""Class contains information about input, output, geometry, and
-    template file for running Serpent2 depletion simulation
+    template files for running Serpent2 depletion simulations.
+	Also contains neutrons population, active, and inactive cycles. 
+	Contains methods to read template and output files,
+	write new input files for Serpent2.
+
     """
 
     def __init__(self,
