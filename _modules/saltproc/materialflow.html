@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>saltproc.materialflow &mdash; Saltproc  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Saltproc
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>saltproc.materialflow</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for saltproc.materialflow</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pyne.material</span> <span class="kn">import</span> <span class="n">Material</span> <span class="k">as</span> <span class="n">pymat</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+
+
+<div class="viewcode-block" id="Materialflow"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow">[docs]</a><span class="k">class</span> <span class="nc">Materialflow</span><span class="p">(</span><span class="n">pymat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Class contains information about burnable material flow. Based on PyNE</span>
+<span class="sd">        Material.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Materialflow.__init__"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">mass</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">density</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">atoms_per_molecule</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">vol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">temp</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span>
+            <span class="n">mass_flowrate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">void_frac</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">burnup</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the Materialflow object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        PyNE.Material : class</span>
+<span class="sd">            PyNE Material parent class containing nuclide vector, density,</span>
+<span class="sd">            mass, atoms_per_molecule, metadata</span>
+<span class="sd">        temp : float</span>
+<span class="sd">            temperature of the material flow (K)</span>
+<span class="sd">        mass_flowrate : float</span>
+<span class="sd">            mass flow rate of the material flow (g/s)</span>
+<span class="sd">        void_frac : float</span>
+<span class="sd">            void fraction in the material (%)</span>
+<span class="sd">        burnup : float</span>
+<span class="sd">            material burnup at the end of depletion step [MWd/kgU]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># initialize parent class attributes</span>
+        <span class="c1"># super().__init__()</span>
+        <span class="c1"># initialize all object attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="n">vol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass_flowrate</span> <span class="o">=</span> <span class="n">mass_flowrate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">void_frac</span> <span class="o">=</span> <span class="n">void_frac</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">burnup</span> <span class="o">=</span> <span class="n">burnup</span></div>
+
+<div class="viewcode-block" id="Materialflow.get_mass"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.get_mass">[docs]</a>    <span class="k">def</span> <span class="nf">get_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns total mass of the material descibed in Materialflow object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            The mass of the object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span></div>
+
+<div class="viewcode-block" id="Materialflow.print_attr"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.print_attr">[docs]</a>    <span class="k">def</span> <span class="nf">print_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prints various attributes of Materialflow object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Volume </span><span class="si">%f</span><span class="s2"> cm3&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">vol</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mass </span><span class="si">%f</span><span class="s2"> g&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Density </span><span class="si">%f</span><span class="s2"> g/cm3&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Atoms per molecule </span><span class="si">%f</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms_per_molecule</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Meta </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mass flowrate </span><span class="si">%f</span><span class="s2"> g/s&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_flowrate</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Temperature </span><span class="si">%f</span><span class="s2"> K&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Void fraction </span><span class="si">%f</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">void_frac</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Burnup </span><span class="si">%f</span><span class="s2"> MWd/kgU&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">burnup</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Materialflow.scale_matflow"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.scale_matflow">[docs]</a>    <span class="k">def</span> <span class="nf">scale_matflow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns nuclide vector dictionary, obtained from object attrs and</span>
+<span class="sd">        then scaled by factor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        f : float</span>
+<span class="sd">            Scaling factor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Materialflow nuclide component dictionary of relative mass.</span>
+<span class="sd">            The keys of `new_mat_comp` are preserved from PyNE Material</span>
+<span class="sd">            (integers representing nuclides in id-form). The values are floats</span>
+<span class="sd">            for each nuclide’s mass fraction, multiplied by factor f.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">old_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp</span><span class="p">)</span>
+        <span class="n">new_mat_comp</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">old_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">new_mat_comp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">*</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">new_mat_comp</span></div>
+
+<div class="viewcode-block" id="Materialflow.copy_pymat_attrs"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.copy_pymat_attrs">[docs]</a>    <span class="k">def</span> <span class="nf">copy_pymat_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Copies PyNE attributites from source object (`src`) to target</span>
+<span class="sd">        object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        src : obj</span>
+<span class="sd">            Materialflow object to copy attributes from.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;density&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">density</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="s1">&#39;atoms_per_molecule&#39;</span><span class="p">,</span>
+                <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">atoms_per_molecule</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">metadata</span></div>
+
+<div class="viewcode-block" id="Materialflow.__deepcopy__"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.__deepcopy__">[docs]</a>    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a deep copy of compound object `self`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        self : obj</span>
+<span class="sd">            Compound object.</span>
+<span class="sd">        memo : dict, optional</span>
+<span class="sd">            Id-to-object correspondence to control for recursion.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        obj</span>
+<span class="sd">            New compound object copied from `self`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Initiate new object my copying class from self</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="c1"># Copy nuclide vector from self</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">Materialflow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_matflow</span><span class="p">())</span>
+        <span class="c1"># Copy Materialflow density and atoms_per_molecule</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">copy_pymat_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># Copy other object attributes such as volume, burnup, etc</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;comp&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="Materialflow.__eq__"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.__eq__">[docs]</a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Overrides Python ``=`` operation to compare two Materialflow</span>
+<span class="sd">        objects. Compares objects total mass, density, atoms_per_molecule,</span>
+<span class="sd">        temperature, mass flowrate, and masses of important isotopes:</span>
+<span class="sd">        uranium-235 and uranium-238.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : obj</span>
+<span class="sd">            Materialflow object to compare with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Are the objects equal?</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Materialflow</span><span class="p">):</span>
+            <span class="c1"># don&#39;t attempt to compare against unrelated types</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">mass</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">vol</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">vol</span> \
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">density</span> \
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms_per_molecule</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">atoms_per_molecule</span> \
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">temp</span> \
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_flowrate</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">mass_flowrate</span> \
+            <span class="ow">and</span> <span class="bp">self</span><span class="p">[</span><span class="mi">922350000</span><span class="p">]</span> <span class="o">==</span> <span class="n">other</span><span class="p">[</span><span class="mi">922350000</span><span class="p">]</span> \
+            <span class="ow">and</span> <span class="bp">self</span><span class="p">[</span><span class="mi">922380000</span><span class="p">]</span> <span class="o">==</span> <span class="n">other</span><span class="p">[</span><span class="mi">922380000</span><span class="p">]</span></div>
+    <span class="c1">#</span>
+    <span class="c1"># Materialflow math operation Overloads</span>
+    <span class="c1">#</span>
+
+<div class="viewcode-block" id="Materialflow.__add__"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.__add__">[docs]</a>    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Overrides Python adding operation for Materialflow objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : obj</span>
+<span class="sd">            Materialflow object #1.</span>
+<span class="sd">        y : obj</span>
+<span class="sd">            Materialflow object #2.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        obj</span>
+<span class="sd">            Materialflow which is a sum of isotope masses from `x` and `y`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="vm">__class__</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">mass</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">mass</span>
+        <span class="n">x_comp</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">y_comp</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">x_comp</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">y_comp</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">comp</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">x_comp</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">norm_comp</span><span class="p">()</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">mass_flowrate</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">mass_flowrate</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">mass_flowrate</span>
+        <span class="c1"># result.temp = (x.temp*x.mass + y.temp*y.mass)/result.mass  # averaged</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">temp</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">temp</span>
+        <span class="c1"># Burnup is simply averaged by should be renormilized by heavy metal</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">burnup</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">burnup</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">mass</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">burnup</span> <span class="o">*</span> <span class="n">y</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span> <span class="o">/</span> <span class="n">result</span><span class="o">.</span><span class="n">mass</span>
+        <span class="c1"># result.density = result.mass/result.vol</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">density</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">mass</span> <span class="o">/</span> <span class="n">result</span><span class="o">.</span><span class="n">density</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">void_frac</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">void_frac</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">vol</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">void_frac</span> <span class="o">*</span> <span class="n">y</span><span class="o">.</span><span class="n">vol</span><span class="p">)</span> <span class="o">/</span> <span class="n">result</span><span class="o">.</span><span class="n">vol</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="Materialflow.__rmul__"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.__rmul__">[docs]</a>    <span class="k">def</span> <span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_factor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Overrides Python multiplication operation for Materialflow objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        scaling_factor : float or int</span>
+<span class="sd">            Scaling factor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        obj</span>
+<span class="sd">            Materialflow object which has mass of each isotope and</span>
+<span class="sd">            mass_flowrate scaled by `other`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scaling_factor</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">scaling_factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">norm_comp</span><span class="p">()</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="n">scaling_factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">vol</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">mass_flowrate</span> <span class="o">=</span> <span class="n">scaling_factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_flowrate</span>
+            <span class="c1"># result.temp = (x.temp*x.mass + y.temp*y.mass)/result.mass</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">NotImplemented</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
