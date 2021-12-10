@@ -1,5 +1,5 @@
 Installation
--------------
+============
 
 SaltProc has the following dependencies:
 
