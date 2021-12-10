@@ -52,7 +52,8 @@ SaltProc can use any cross section library that Serpent can. See `this page on t
 Testing
 -------
 The SaltProc test suite has two types of tests: unit tests and regression tests. The unit tests check that the individual functions and classes of the ``saltproc`` module return the correct type of variales and correct values, where applicable. The regression tests run a full saltproc simulation and check the final result with an precalculated result. 
-We recommend users and developers use the `JEFF 3.1.2 libarary`_ for running the integration tests. This libaray is available for public download but needs to be processed to be used by Serpent. Check `this discussion page`_ for a guide on how to do this.
+..
+   comment: We recommend users and developers use the `JEFF 3.1.2 libarary`_ for running the integration tests. This libaray is available for public download but needs to be processed to be used by Serpent. Check `this discussion page`_ for a guide on how to do this.
 To run the tests, execute:
 
 .. code-block:: bash
