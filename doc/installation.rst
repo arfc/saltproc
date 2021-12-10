@@ -42,3 +42,24 @@ Then run the following commands from the directory above cloned repository:
    python setup.py install --user
 
 Please let us know if you run into trouble.
+
+Cross Section Configuration
+---------------------------
+SaltProc can use any cross section library that Serpent can. See `this page on the Serpent wiki`_ for more information. For testing purposes we recommend the `JEFF 3.1.2 libary_`. The input files for the Serpent integration tests were written with this 
+
+.. _this page on the Serpent wiki: https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries
+
+Testing
+-------
+The SaltProc test suite has two types of tests: unit tests and regression tests. The unit tests check that the individual functions and classes of the ``saltproc`` module return the correct type of variales and correct values, where applicable. The regression tests run a full saltproc simulation and check the final result with an precalculated result. 
+We recommend users and developers use the `JEFF 3.1.2 libarary`_ for running the integration tests. This libaray is available for public download but needs to be processed to be used by Serpent. Check `this discussion page`_ for a guide on how to do this.
+To run the tests, execute:
+.. code-block:: bash
+
+	pytest saltproc/
+
+	
+from the base directory of SaltProc. If you just want to run the unit tests, execute
+.. code-block:: bash
+	
+	pytest --ignore saltproc/tests/integration_tests saltproc/
