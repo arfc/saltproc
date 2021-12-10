@@ -24,6 +24,7 @@ Steps to reproduce the behavior:
 If applicable, add program output with triple backticks, a gist of your output, or a screenshot to help explain your problem.
 
 ## System Specifications:
+ <!-- At a minimum, include the SaltProc version and versions of software directly related to the bug-->
  - Software version:
  - Platform/OS:
  - Subsystem:
