@@ -51,12 +51,19 @@ SaltProc can use any cross section library that Serpent can. See `this page on t
 
 Testing
 -------
-The SaltProc test suite has two types of tests: unit tests and regression tests. The unit tests check that the individual functions and classes of the ``saltproc`` module return the correct type of variables and correct values, where applicable. The regression tests run a full SaltProc simulation and check the final result with an precalculated result. 
-..
-   comment: We recommend users and developers use the `JEFF 3.1.2 libarary`_ for running the integration tests. This libaray is available for public download but needs to be processed to be used by Serpent. Check `this discussion page`_ for a guide on how to do this.
-The integration tests require the JEFF 3.1.2 cross section library. The publicly available versions of this library cannot be used with Serpent right out of the box due to `Serpent's notation for isomeric states_`. The scripts in ``scripts/xsdata`` download and perform all the necessary processing on this library for use in Serpent 2. We recommend using them for your convenience.
+The SaltProc test suite has two types of tests: unit tests and regression tests.
+The unit tests check that the individual functions and classes of the ``saltproc``
+module return the correct type of variables and correct values, where applicable. 
+The regression tests run a full SaltProc simulation and check the final result
+with a precalculated result. 
+The integration tests require the `JEFF 3.1.2 cross section library`_. 
+The publicly available versions of this library cannot be used with Serpent right
+out of the box due to `Serpent's notation for isomeric states`_. The scripts in
+``scripts/xsdata`` download and perform all the necessary processing on this
+library for use in Serpent 2. We recommend using them for your convenience.
 
 .. _Serpent's notation for isomeric states: https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries
+.. _JEFF 3.1.2 cross section library: https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/
 
 To run the tests, execute:
 
