@@ -15,4 +15,4 @@ do
 done
 
 # Get thermal XS
-wget -O ACEs_THERMK.zip -P $DATADIR $LN$SLUG1
+wget -O $DATADIR/ACEs_THERMK.zip $LN$SLUG1
