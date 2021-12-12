@@ -1,17 +1,13 @@
-# This script assumes you have downloaded the JEFF 3.1.2 cross section data
-# from https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/ACE/
-# and have extracted the contents of each archive into directories names
-# 300, 600, 900, etc
+#DATADIR is the directory where the xs library is extracted to
+DATADIR=$(pwd)
+DIRFILE=$DATADIR/sss_jeff312.xsdir
+echo "datapath=$DATADIR/jeff312/acedata" | cat - > $DIRFILE 
+echo "atomic weight ratios" | cat - >> $DIRFILE
+mkdir -p $DATADIR/acedata
 
 TEMPS=(900 "THERM")
-
 #Uncomment if you have dowloaded the entire JEFF 3.1.2 libary
 #TEMPS=(500 600 800 900 1000 1200 1500 "THERM")
-
-DIRFILE=sss_jeff312.dir
-XSDIR=$(pwd)
-echo "datapath=$XSDIR/jeff312/acedata" | cat - > $DIRFILE 
-echo "atomic weight ratios" | cat - >> $DIRFILE
 
 # Regular expressions for changing the ZAI of 
 # metastable isotopes
@@ -20,13 +16,13 @@ REGEXZAI=[0-9]{1,3}[0-9]{3}\.[0-9]{2}c
 
 # Regular expression for getting the atomic mass
 REGEXAWT=[0-9]+\.[0-9]{6}
+
 EXT="K.zip"
-mkdir -p acedata
 for T in ${TEMPS[@]}
 do
     #Create directories for each temp and extract
-    mkdir -p $T
-    unzip -j ACEs_$T$EXT -d $T
+    mkdir -p $DATADIR/$T
+    unzip -j $DATADIR/ACEs_$T$EXT -d $DATADIR/$T
     
     # Change filenames to include temperature so we can put them all in the same
     # directory
@@ -38,11 +34,13 @@ do
         ACE=".ACE"
         SUF="-$T.ACE"
     fi
-    files=$(ls $T/*.[Aa][Cc][Ee])
+    files=$(ls $DATADIR/$T/*.[Aa][Cc][Ee])
     for file in $files
     do
         IFS='.' read -ra arr <<< "$file"
         PRE=${arr[0]}
+
+        # Process isomeric states
         if [[ $PRE =~ $REGEXMETA ]]
         then
             echo ${arr[0]}
@@ -69,17 +67,16 @@ do
             ZAI="${ZAI:0:$len-4}"
             echo " $ZAI $AWT" | cat - >> $DIRFILE
         fi
+    
         mv "$file" ${arr[0]}$SUF
     done
     
-    mv $T/*.ACE acedata/.
-
-    #Create intermediate dir files
-    cat $T/*.dir > $T/$T.dir
+    mv $DATADIR/$T/*.ACE $DATADIR/acedata/.
 
     echo "directory" | cat - >> $DIRFILE
     # Add dir files to global dir file
-    cat $T/$T.dir >> $DIRFILE 
+    cat $DATADIR/$T/*.dir >> $DIRFILE 
+    
+    # Cleanup
+    rm $DATADIR/$T/*.dir
 done
-
-
