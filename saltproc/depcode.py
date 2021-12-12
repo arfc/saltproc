@@ -187,13 +187,13 @@ class DepcodeSerpent(Depcode):
                          inactive_cycles)
 
     def change_sim_par(self, data):
-        """Finds simulation parameters (neutron population, cycles) in input
-        file and change those to parameters from SaltProc input.
+        """Finds simulation parameters (neutron population, cycles) in the
+        Serpent2 input file and change those to parameters from SaltProc input.
 
         Parameters
         ----------
         data : list
-            List of strings parsed from user template file.
+            List of strings parsed from user Serpent2 template file.
 
         Returns
         -------
@@ -269,7 +269,7 @@ class DepcodeSerpent(Depcode):
         Parameters
         ----------
         nuc_code : str
-            Name of nuclide in Serpent form. For instance, `Am-242m`.
+            Name of nuclide in Serpent2 form. For instance, `Am-242m`.
 
         Returns
         -------
@@ -308,25 +308,25 @@ class DepcodeSerpent(Depcode):
 
     def get_tra_or_dec(self, input_file):
         """Returns the isotopes map to transform isotope `zzaaam` code to
-        Serpent. Uses Serpent `*.out` file with list of all isotopes in
+        Serpent2. Uses Serpent2 `*.out` file with list of all isotopes in
         simulation.
 
         Parameters
         -----------
         input_file: str
-            Serpent input file name and path.
+            Serpent2 input file name and path.
 
         Returns
         --------
         dict
-            Contains mapping for isotopes names from `zzaaam` to Serpent name
-            imported from Serpent ouput file:
+            Contains mapping for isotopes names from `zzaaam` to Serpent2 name
+            imported from Serpent2 ouput file:
 
             ``key``
                 The key is nuclide name in `zzaaam` format. For example,
                 `922350` or `982510`.
             ``value``
-                Serpent-oriented name. For instance, 92235.09c for transport
+                Serpent2-oriented name. For instance, 92235.09c for transport
                 isotope or 982510 for decay only isotope).
 
         """
@@ -350,7 +350,7 @@ class DepcodeSerpent(Depcode):
 
     def insert_path_to_geometry(self, data):
         """Inserts ``include <first_geometry_file>`` line on th 6th line of
-        Serpent input file.
+        Serpent2 input file.
 
         Parameters
         ----------
@@ -368,13 +368,13 @@ class DepcodeSerpent(Depcode):
         return data
 
     def read_dep_comp(self, input_file, read_at_end=False):
-        """Reads the Serpent `*_dep.m` file and returns dictionary with
+        """Reads the Serpent2 `*_dep.m` file and returns dictionary with
         `Materialflow` object for each burnable material.
 
         Parameters
         ----------
         input_file : str
-            Path to Serpent input file.
+            Path to Serpent2 input file.
         read_at_end : bool
             Controls at which moment in the depletion step to read the data.
             If `True`, the function reads data at the end of the
@@ -420,7 +420,7 @@ class DepcodeSerpent(Depcode):
         return mats
 
     def read_depcode_info(self):
-        """Parses initial simulation info data from Serpent output and stores
+        """Parses initial simulation info data from Serpent2 output and stores
         it in `Depcode` object ``sim_info`` attributes.
         """
         res = serpent.parse_res(self.input_fname + "_res.m")
@@ -440,7 +440,7 @@ class DepcodeSerpent(Depcode):
         self.sim_info['depletion_timestep'] = res['BURN_DAYS'][1][0]
 
     def read_depcode_step_param(self):
-        """Parses data from Serpent output for each step and stores it in
+        """Parses data from Serpent2 output for each step and stores it in
         `Depcode` object ``param`` attributes.
         """
         res = serpent.parse_res(self.input_fname + "_res.m")
@@ -478,7 +478,7 @@ class DepcodeSerpent(Depcode):
         return str_list
 
     def replace_burnup_parameters(self, data, reactor, current_depstep_idx):
-        """Adds or replaces ``set power P dep daystep DEPSTEP`` line in Serpent
+        """Adds or replaces ``set power P dep daystep DEPSTEP`` line in Serpent2
         input file. The line defines depletion history and power levels with
         depletion step in the single run and activates depletion calculation
         mode.
@@ -524,9 +524,9 @@ class DepcodeSerpent(Depcode):
         Parameters
         ----------
         cores: int
-            Number of cores to use for Serpent run (`-omp` flag in Serpent).
+            Number of cores to use for Serpent2 run (`-omp` flag in Serpent2).
         nodes: int
-            Number of nodes to use for Serpent run (`-mpi` flag in Serpent).
+            Number of nodes to use for Serpent2 run (`-mpi` flag in Serpent2).
 
         """
 
@@ -559,17 +559,17 @@ class DepcodeSerpent(Depcode):
             print(error.output.decode("utf-8"))
             raise RuntimeError('\n %s RUN FAILED\n see error message above'
                                % (self.codename))
-        print('Finished Serpent Run')
+        print('Finished Serpent2 Run')
 
     def sss_meta_zzz(self, nuc_code):
-        """Checks Serpent-specific meta stable-flag for zzaaam. For instance,
+        """Checks Serpent2-specific meta stable-flag for zzaaam. For instance,
         47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented
         with `aaa` started with ``3``.
 
         Parameters
         ----------
         nuc_code : str
-            Name of nuclide in Serpent form. For instance, `47310`.
+            Name of nuclide in Serpent2 form. For instance, `47310`.
 
         Returns
         -------
