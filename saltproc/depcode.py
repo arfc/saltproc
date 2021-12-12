@@ -20,8 +20,8 @@ def add_params(cls):
 
 @add_params
 class Depcode(ABC):
-    r"""Abstract class for interfacing with monte-carlo particle transport codes.
-	Contains information about input, output, geometry, and template
+    r"""Abstract class for interfacing with monte-carlo particle transport 
+    codes. Contains information about input, output, geometry, and template
     files for running depletion simulations. Also contains neutron
     population, active, and inactive cycles. Contains methods to read template
     and output files, and write new input files for the depletion code.
@@ -159,9 +159,9 @@ class Depcode(ABC):
 class DepcodeSerpent(Depcode):
     r"""Class contains information about input, output, geometry, and
     template files for running Serpent2 depletion simulations.
-	Also contains neutrons population, active, and inactive cycles. 
-	Contains methods to read template and output files,
-	write new input files for Serpent2.
+    Also contains neutrons population, active, and inactive cycles. 
+    Contains methods to read template and output files,
+    write new input files for Serpent2.
 
     """
 
