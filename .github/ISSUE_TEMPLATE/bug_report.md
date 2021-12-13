@@ -7,25 +7,26 @@ assignees: ''
 
 ---
 
-**Expected behavior**
+## Expected behavior
 A clear and concise description of what you expected to happen.
 
-**Describe the bug**
+## Describe the bug
 A clear and concise description of what the bug is.
 
-**To Reproduce**
+## To Reproduce
 Steps to reproduce the behavior:
 1. 
 2. 
 3. 
 4. 
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+## Supporting Informatioon
+If applicable, add program output with triple backticks, a gist of your output, or a screenshot to help explain your problem.
 
-**System Specifications:**
- - Version:
- - Platform:
+## System Specifications:
+ <!-- At a minimum, include the SaltProc version and versions of software directly related to the bug-->
+ - Software version:
+ - Platform/OS:
  - Subsystem:
 
-**How can this issue be closed?**
+## How can this issue be closed?
