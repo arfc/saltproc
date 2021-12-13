@@ -60,10 +60,12 @@ The integration tests require the `JEFF 3.1.2 cross section library`_.
 The publicly available versions of this library cannot be used with Serpent right
 out of the box due to `Serpent's notation for isomeric states`_. The scripts in
 ``scripts/xsdata`` download and perform all the necessary processing on this
-library for use in Serpent 2. We recommend using them for your convenience.
+library for use in Serpent 2. We recommend using them for your convenience. 
+See the `README`_ for more information.
 
 .. _Serpent's notation for isomeric states: https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries
 .. _JEFF 3.1.2 cross section library: https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/
+.. _README: https://github.com/arfc/saltproc/blob/master/scripts/README.md
 
 To run the tests, execute:
 
