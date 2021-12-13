@@ -188,17 +188,18 @@ class DepcodeSerpent(Depcode):
 
     def change_sim_par(self, data):
         """Finds simulation parameters (neutron population, cycles) in the
-        Serpent2 input file and change those to parameters from SaltProc input.
+        Serpent2 template file and change them to the parameters from the 
+        SaltProc input file.
 
         Parameters
         ----------
         data : list
-            List of strings parsed from user Serpent2 template file.
+            List of strings parsed from user's Serpent2 template file.
 
         Returns
         -------
         list
-            List of strings containing modified user template file with new
+            List of strings containing Serpent2 input file with new
             simulation parameters.
 
         """
