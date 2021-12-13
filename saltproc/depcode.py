@@ -226,7 +226,7 @@ class DepcodeSerpent(Depcode):
         Parameters
         ----------
         data : list
-            List of strings parsed from user template file.
+            List of strings parsed from user's template file.
 
         Returns
         -------
