@@ -7,3 +7,8 @@ The script in this directory downloads and processes the JEFF
 on a UNIX-like machine. Set the `DATADIR` variable inside 
 the script to the directory where you want to store the cross 
 section libraries.
+
+To run the script, execute
+```
+source process_j312.sh
+```
