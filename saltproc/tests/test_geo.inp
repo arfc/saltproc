@@ -101,13 +101,13 @@ cell cr66 CR6 fill 6 -122    -126
 % ordered is confusing see lattice
 % full inserted rod sits at z=0 cm
 % for a pulled rod, just move it out of the core. z=300 fully withdrawn
-trans CR0 0.0 0.0  300
-trans CR1 0.0 0.0  300
-trans CR2 0.0 0.0  300
-trans CR3 0.0 0.0  300
-trans CR4 0.0 0.0  300
-trans CR5 0.0 0.0  300
-trans CR6 0.0 0.0  300
+trans U CR0 0.0 0.0  300
+trans U CR1 0.0 0.0  300
+trans U CR2 0.0 0.0  300
+trans U CR3 0.0 0.0  300
+trans U CR4 0.0 0.0  300
+trans U CR5 0.0 0.0  300
+trans U CR6 0.0 0.0  300
 
 cell gt11 GT1 fill CR1 -122     -7 6
 cell gt12 GT1 fill 6   -121 122 -7 6
@@ -246,7 +246,7 @@ lat 10 1 75.0 75.0 10 10 15
 11   17   11   15   16   16   16   16   16   16
 16   16   16   16   16   16   16   16   16   16
 
-set usym 10 4 0 0
+set usym 10 3 2 0.0 0.0 0.0 90.0
 
 
 set bc 1 1 1
