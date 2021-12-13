@@ -1,5 +1,6 @@
 ## Scripts
-This directory contains various scripts to help you with
+This directory contains various scripts to help you set-up and analyze results
+of your SaltProc simulations.
 
 ### `xsdata`
 The script in this directory downloads and processes the JEFF 
