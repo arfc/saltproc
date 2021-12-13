@@ -74,17 +74,17 @@ set seed 7812324546562      % for 2-step test (5d)
 %set seed 2358907456230438  % for 7-step test (2d)
 
 % ---- All CR inserted by default - withdrawn
-%trans CR0 0.0 0.0 -25.0
-%trans CR1 0.0 0.0 -25.0
-%trans CR2 0.0 0.0 -25.0
-%trans CR3 0.0 0.0 -25.0
-%trans CR4 0.0 0.0 -25.0
-%trans CR5 0.0 0.0 -25.0
-%trans CR6 0.0 0.0 -25.0 320.
-trans CR0 0.0 0.0 400.0
-trans CR1 0.0 0.0 400.0
-trans CR2 0.0 0.0 400.0
-trans CR3 0.0 0.0 400.0
-trans CR4 0.0 0.0 400.0
-trans CR5 0.0 0.0 400.0
-trans CR6 0.0 0.0 400.0
+%trans U CR0 0.0 0.0 -25.0
+%trans U CR1 0.0 0.0 -25.0
+%trans U CR2 0.0 0.0 -25.0
+%trans U CR3 0.0 0.0 -25.0
+%trans U CR4 0.0 0.0 -25.0
+%trans U CR5 0.0 0.0 -25.0
+%trans U CR6 0.0 0.0 -25.0 320.
+trans U CR0 0.0 0.0 400.0
+trans U CR1 0.0 0.0 400.0
+trans U CR2 0.0 0.0 400.0
+trans U CR3 0.0 0.0 400.0
+trans U CR4 0.0 0.0 400.0
+trans U CR5 0.0 0.0 400.0
+trans U CR6 0.0 0.0 400.0
