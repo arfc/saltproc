@@ -122,7 +122,7 @@ class Depcode(ABC):
         Parameters
         ----------
         temp : str
-            Path to user template file for depletion code
+            Path to depletion code template file
         inp : str
             Path to input file for depletion code rerunning
         reactor : Reactor
@@ -602,9 +602,9 @@ class DepcodeSerpent(Depcode):
         Parameters
         ----------
         template_file : str
-            Path to user template file for depletion code..
+            Path to Serpent2 template file.
         input_file : str
-            Path to input file for depletion code rerunning.
+            Path to input file for Serpen2 rerunning.
         reactor : Reactor
             Contains information about power load curve and cumulative
             depletion time for the integration test.
