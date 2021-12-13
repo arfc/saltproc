@@ -136,7 +136,7 @@ class Depcode(ABC):
 
     @abstractmethod
     def write_mat_file(self, dep_dict, mat_file, dep_end_time):
-        """Writes the iteration input file containing burnable materials
+        """Writes the iteration input file containing the burnable materials
         composition used in depletion runs and updated after each depletion
         step.
 
@@ -635,8 +635,8 @@ class DepcodeSerpent(Depcode):
             out_file.close()
 
     def write_mat_file(self, dep_dict, mat_file, dep_end_time):
-        """Writes the iteration input file containing burnable materials
-        composition used in depletion runs and updated after each depletion
+        """Writes the iteration input file containing the burnable materials
+        composition used in Serpent2 runs and updated after each depletion
         step.
 
         Parameters
