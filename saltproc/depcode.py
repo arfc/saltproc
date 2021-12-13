@@ -35,12 +35,12 @@ class Depcode(ABC):
     exec_path : str
         Path to depletion code executable.
     template_fname : str
-        Path to user input file for depletion code.
+        Path to template input file for depletion code.
     input_fname : str
-        Name of input file for depletion code rerunning.
+        Path to input file for depletion code rerunning.
     iter_matfile : str
         Name of iterative, rewritable material file for depletion code
-        rerunning. This file is being modified during simulation.
+        rerunning. This file is modified during  the simulation.
     geo_file : str or list
         Path to file that contains the reactor geometry.
         List of `str` if reactivity control by
