@@ -55,6 +55,10 @@ do
         fi
         sed -i "s/$ACE/$SUF/" $PRE.dir
 
+        # Convert DOS to UNIX
+        awk '{sub("\r$", ""); print }' $file > temp.ACE
+        mv temp.ACE > $file
+
         # Get atomic weights
         if [[ $T == 900 ]]
         then
@@ -70,7 +74,7 @@ do
     
         mv "$file" ${arr[0]}$SUF
     done
-    
+        
     mv $DATADIR/$T/*.ACE $DATADIR/acedata/.
 
     echo "directory" | cat - >> $DIRFILE
