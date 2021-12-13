@@ -350,18 +350,19 @@ class DepcodeSerpent(Depcode):
         self.iso_map = map_dict
 
     def insert_path_to_geometry(self, data):
-        """Inserts ``include <first_geometry_file>`` line on th 6th line of
+        """Inserts ``include <first_geometry_file>`` line on the 6th line of
         Serpent2 input file.
 
         Parameters
         ----------
         data : list
-            List of strings parsed from user template file.
+            List of strings parsed from user's template file.
 
         Returns
         -------
         list
-            List of strings containing modified in this function template file.
+            List of strings containing modified path to geometry
+            in user's template file.
 
         """
         data.insert(5,  # Inserts on 6th line
@@ -369,8 +370,8 @@ class DepcodeSerpent(Depcode):
         return data
 
     def read_dep_comp(self, input_file, read_at_end=False):
-        """Reads the Serpent2 `*_dep.m` file and returns dictionary with
-        `Materialflow` object for each burnable material.
+        """Reads the Serpent2 `*_dep.m` file and returns a dictionary with
+        a `Materialflow` object for each burnable material.
 
         Parameters
         ----------
@@ -422,7 +423,7 @@ class DepcodeSerpent(Depcode):
 
     def read_depcode_info(self):
         """Parses initial simulation info data from Serpent2 output and stores
-        it in `Depcode` object ``sim_info`` attributes.
+        it in the `DepcodeSerpent` object's ``sim_info`` attributes.
         """
         res = serpent.parse_res(self.input_fname + "_res.m")
         self.sim_info['serpent_version'] = \
@@ -442,7 +443,7 @@ class DepcodeSerpent(Depcode):
 
     def read_depcode_step_param(self):
         """Parses data from Serpent2 output for each step and stores it in
-        `Depcode` object ``param`` attributes.
+        `DepcodeSerpent` object's ``param`` attributes.
         """
         res = serpent.parse_res(self.input_fname + "_res.m")
         self.param['keff_bds'] = res['IMP_KEFF'][0]
@@ -460,8 +461,8 @@ class DepcodeSerpent(Depcode):
         self.param['fission_mass_eds'] = res['TOT_FMASS'][1]
 
     def read_depcode_template(self, template_fname):
-        """Reads prepared template (input) file for depeletion code for further
-        changes in the file to prepare input file for multiple runs.
+        """Reads prepared Serpent2 template (input) file for use in
+        other class functions that prepare the input file for multiple runs.
 
         Parameters
         ----------
@@ -479,10 +480,10 @@ class DepcodeSerpent(Depcode):
         return str_list
 
     def replace_burnup_parameters(self, data, reactor, current_depstep_idx):
-        """Adds or replaces ``set power P dep daystep DEPSTEP`` line in Serpent2
-        input file. The line defines depletion history and power levels with
-        depletion step in the single run and activates depletion calculation
-        mode.
+        """Adds or replaces the ``set power P dep daystep DEPSTEP`` line in
+        the Serpent2 input file. This line defines depletion history and power
+        levels with respect to the depletion step in the single run and
+        activates depletion calculation mode.
 
         Parameters
         ----------
@@ -520,7 +521,7 @@ class DepcodeSerpent(Depcode):
         return data
 
     def run_depcode(self, cores, nodes):
-        """Runs depletion code as subprocess with the given parameters.
+        """Runs Serpent2 as a subprocess with the given parameters.
 
         Parameters
         ----------
