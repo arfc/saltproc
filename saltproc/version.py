@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 NAME = "saltproc"
-MAINTAINER = "Andrei Rykhlevskii"
+MAINTAINER = "Oleksandr Yardas"
 MAINTAINER_EMAIL = "arfc@googlegroups.com"
 DESCRIPTION = description
 LONG_DESCRIPTION = long_description
