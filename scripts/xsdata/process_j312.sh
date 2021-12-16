@@ -9,8 +9,11 @@ EXT="K.zip"
 SLUG1="STL_ACEs.zip"
 TEMPS=(900)
 
-#Uncomment if you want all temperatures (will take a long time)
+#Uncomment for a good range of temperatures (will take a long time)
 #TEMPS=(500 600 800 900 1000 1200 1500)
+
+#Uncomment if you want all temperatures (will take a VERY long time)
+#TEMPS=(300 400 500 600 700 800 900 1000 1200 1500 1800)
 
 for T in ${TEMPS[@]}
 do
@@ -20,6 +23,9 @@ done
 # Get thermal XS
 wget -O $DATADIR/ACEs_THERMK.zip $LN$SLUG1
 
+# Get neutron induces and spontaneous fission yield data from JEFF 3.3
+wget -O $DATADIR/sss_jeff33.nfy https://www.oecd-nea.org/dbdata/jeff/jeff33/downloads/JEFF33-nfy.asc
+wget -O $DATADIR/sss_jeff33.sfy https://www.oecd-nea.org/dbdata/jeff/jeff33/downloads/JEFF33-sfy.asc
 
 ###############
 ### PROCESS ###
