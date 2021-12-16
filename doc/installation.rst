@@ -56,11 +56,12 @@ The unit tests check that the individual functions and classes of the ``saltproc
 module return the correct type of variables and correct values, where applicable. 
 The regression tests run a full SaltProc simulation and check the final result
 with a precalculated result. 
-The integration tests require the `JEFF 3.1.2 cross section library`_. 
-The publicly available versions of this library cannot be used with Serpent right
+The integration tests require the `JEFF 3.1.2 cross section library`_ as well
+as neutron induces and spontaneous fission product yield data from JEFF 3.3. 
+The publicly available versions of JEFF 3.1.2  cannot be used with Serpent right
 out of the box due to `Serpent's notation for isomeric states`_. The scripts in
-``scripts/xsdata`` download and perform all the necessary processing on this
-library for use in Serpent 2. We recommend using them for your convenience. 
+``scripts/xsdata`` download all necessary libraries and perform all the necessary processing on them for use in Serpent 2.
+We recommend using them for your convenience. 
 See the `README`_ for more information.
 
 .. _Serpent's notation for isomeric states: https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries
