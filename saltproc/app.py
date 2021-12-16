@@ -390,8 +390,8 @@ def run():
     # Intializing objects
     serpent = DepcodeSerpent(
         exec_path=exec_path,
-        template_fname=template_file,
-        input_fname=input_file,
+        template_path=template_file,
+        input_path=input_file,
         iter_matfile=iter_matfile,
         geo_file=geo_file,
         npop=neutron_pop,

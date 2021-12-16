@@ -34,9 +34,9 @@ class Depcode(ABC):
         Name of depletion code.
     exec_path : str
         Path to depletion code executable.
-    template_fname : str
+    template_path : str
         Path to user input file for depletion code.
-    input_fname : str
+    input_path : str
         Name of input file for depletion code rerunning.
     iter_matfile : str
         Name of iterative, rewritable material file for depletion code
@@ -56,8 +56,8 @@ class Depcode(ABC):
     def __init__(self,
                  codename,
                  exec_path,
-                 template_fname,
-                 input_fname,
+                 template_path,
+                 input_path,
                  iter_matfile,
                  geo_file=None,
                  npop=50,
@@ -67,8 +67,8 @@ class Depcode(ABC):
         """
         self.codename = codename
         self.exec_path = exec_path
-        self.template_fname = template_fname
-        self.input_fname = input_fname
+        self.template_path = template_path
+        self.input_path = input_path
         self.iter_matfile = iter_matfile
         self.geo_file = geo_file
         self.npop = npop
@@ -167,8 +167,8 @@ class DepcodeSerpent(Depcode):
 
     def __init__(self,
                  exec_path="sss2",
-                 template_fname="reactor.serpent",
-                 input_fname="data/saltproc_reactor",
+                 template_path="reactor.serpent",
+                 input_path="data/saltproc_reactor",
                  iter_matfile="data/saltproc_mat",
                  geo_file=None,
                  npop=50,
@@ -178,8 +178,8 @@ class DepcodeSerpent(Depcode):
         """
         super().__init__("serpent",
                          exec_path,
-                         template_fname,
-                         input_fname,
+                         template_path,
+                         input_path,
                          iter_matfile,
                          geo_file,
                          npop,
@@ -207,11 +207,11 @@ class DepcodeSerpent(Depcode):
             if len(sim_param) > 1:
                 print('ERROR: Template file %s contains multiple lines with '
                       'simulation parameters:\n'
-                      % (self.template_fname), sim_param)
+                      % (self.template_path), sim_param)
                 return
             elif len(sim_param) < 1:
                 print('ERROR: Template file %s does not contain line with '
-                      'simulation parameters.' % (self.template_fname))
+                      'simulation parameters.' % (self.template_path))
                 return
             args = 'set pop %i %i %i\n' % (self.npop, self.active_cycles,
                                            self.inactive_cycles)
@@ -233,11 +233,11 @@ class DepcodeSerpent(Depcode):
             List of strings containing modified user template file.
 
         """
-        data_dir = os.path.dirname(self.template_fname)
+        data_dir = os.path.dirname(self.template_path)
         include_str = [s for s in data if s.startswith("include ")]
         if not include_str:
             print('ERROR: Template file %s has no <include "material_file">'
-                  ' statements ' % (self.template_fname))
+                  ' statements ' % (self.template_path))
             return
         src_file = include_str[0].split()[1][1:-1]
         if not os.path.isabs(src_file):
@@ -249,7 +249,7 @@ class DepcodeSerpent(Depcode):
                       ' materials description or <include "material_file">'
                       ' statement is not appears'
                       ' as first <include> statement\n'
-                      % (self.template_fname))
+                      % (self.template_path))
                 return
         # Create data directory
         try:
@@ -416,14 +416,14 @@ class DepcodeSerpent(Depcode):
             mats[m].mass = mats[m].density * volume
             mats[m].vol = volume
             mats[m].burnup = dep['MAT_' + m + '_BURNUP'][moment]
-        self.get_tra_or_dec(self.input_fname)
+        self.get_tra_or_dec(self.input_path)
         return mats
 
     def read_depcode_info(self):
         """Parses initial simulation info data from Serpent output and stores
         it in `Depcode` object ``sim_info`` attributes.
         """
-        res = serpent.parse_res(self.input_fname + "_res.m")
+        res = serpent.parse_res(self.input_path + "_res.m")
         self.sim_info['serpent_version'] = \
             res['VERSION'][0].decode('utf-8')
         self.sim_info['title'] = res['TITLE'][0].decode('utf-8')
@@ -443,7 +443,7 @@ class DepcodeSerpent(Depcode):
         """Parses data from Serpent output for each step and stores it in
         `Depcode` object ``param`` attributes.
         """
-        res = serpent.parse_res(self.input_fname + "_res.m")
+        res = serpent.parse_res(self.input_path + "_res.m")
         self.param['keff_bds'] = res['IMP_KEFF'][0]
         self.param['keff_eds'] = res['IMP_KEFF'][1]
         self.param['breeding_ratio'] = res['CONVERSION_RATIO'][1]
@@ -458,13 +458,13 @@ class DepcodeSerpent(Depcode):
         self.param['fission_mass_bds'] = res['INI_FMASS'][1]
         self.param['fission_mass_eds'] = res['TOT_FMASS'][1]
 
-    def read_depcode_template(self, template_fname):
+    def read_depcode_template(self, template_path):
         """Reads prepared template (input) file for depeletion code for further
         changes in the file to prepare input file for multiple runs.
 
         Parameters
         ----------
-        template_fname: str
+        template_path: str
             Path to user template file for depletion code.
 
         Returns
@@ -473,7 +473,7 @@ class DepcodeSerpent(Depcode):
             List of strings containing user template file.
 
          """
-        file = open(template_fname, 'r')
+        file = open(template_path, 'r')
         str_list = file.readlines()
         return str_list
 
@@ -539,21 +539,21 @@ class DepcodeSerpent(Depcode):
                 self.exec_path,
                 '-omp',
                 str(cores),
-                self.input_fname)
+                self.input_path)
         elif self.exec_path.startswith('/apps/exp_ctl/'):  # check if Falcon
             args = (
                 'mpiexec',
                 self.exec_path,
-                self.input_fname,
+                self.input_path,
                 '-omp',
                 str(18))
         else:
-            args = (self.exec_path, '-omp', str(cores), self.input_fname)
+            args = (self.exec_path, '-omp', str(cores), self.input_path)
         print('Running %s' % (self.codename))
         try:
             subprocess.check_output(
                 args,
-                cwd=os.path.split(self.template_fname)[0],
+                cwd=os.path.split(self.template_path)[0],
                 stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
             print(error.output.decode("utf-8"))
