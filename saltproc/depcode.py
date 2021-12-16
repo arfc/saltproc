@@ -605,7 +605,7 @@ class DepcodeSerpent(Depcode):
         template_file : str
             Path to Serpent2 template file.
         input_file : str
-            Path to input file for Serpen2 rerunning.
+            Path to input file for Serpent2 rerunning.
         reactor : Reactor
             Contains information about power load curve and cumulative
             depletion time for the integration test.
