@@ -15,31 +15,7 @@ class Depcode(ABC):
     population, active, and inactive cycles. Contains methods to read template
     and output files, and write new input files for the depletion code.
 
-    Parameters
-    ----------
-    codename : str
-        Name of depletion code.
-    exec_path : str
-        Path to depletion code executable.
-    template_path : str
-        Path to user input file for depletion code.
-    input_path : str
-        Name of input file for depletion code rerunning.
-    iter_matfile : str
-        Name of iterative, rewritable material file for depletion code
-        rerunning. This file is modified during  the simulation.
-    geo_file : str or list, optional
-        Path to file that contains the reactor geometry.
-        List of `str` if reactivity control by
-        switching geometry is `On` or just `str` otherwise.
-    npop : int, optional
-        Size of neutron population per cycle for Monte Carlo.
-    active_cycles : int, optional
-        Number of active cycles.
-    inactive_cycles : int, optional
-        Number of inactive cycles.
-
-    """
+   """
 
     def __init__(self,
                  codename,
@@ -52,6 +28,31 @@ class Depcode(ABC):
                  active_cycles=20,
                  inactive_cycles=20):
         """Initializes the Depcode object.
+
+           Parameters
+           ----------
+           codename : str
+               Name of depletion code.
+           exec_path : str
+               Path to depletion code executable.
+           template_path : str
+               Path to user input file for depletion code.
+           input_path : str
+               Name of input file for depletion code rerunning.
+           iter_matfile : str
+               Name of iterative, rewritable material file for depletion code
+               rerunning. This file is modified during  the simulation.
+           geo_file : str or list, optional
+               Path to file that contains the reactor geometry.
+               List of `str` if reactivity control by
+               switching geometry is `On` or just `str` otherwise.
+           npop : int, optional
+               Size of neutron population per cycle for Monte Carlo.
+           active_cycles : int, optional
+               Number of active cycles.
+           inactive_cycles : int, optional
+               Number of inactive cycles.
+
         """
         self.codename = codename
         self.exec_path = exec_path
@@ -153,29 +154,6 @@ class DepcodeSerpent(Depcode):
     Contains methods to read template and output files,
     write new input files for Serpent2.
 
-    Parameters
-    ----------
-    exec_path : str
-        Path to Serpent2 executable.
-    template_path : str
-        Path to user input file for Serpent2.
-    input_path : str
-        Name of input file for Serpent2 rerunning.
-    iter_matfile : str
-        Name of iterative, rewritable material file for Serpent2
-        rerunning. This file is modified during  the simulation.
-    geo_file : str or list, optional
-        Path to file that contains the reactor geometry.
-        List of `str` if reactivity control by
-        switching geometry is `On` or just `str` otherwise.
-    npop : int, optional
-        Size of neutron population per cycle for Monte Carlo.
-    active_cycles : int, optional
-        Number of active cycles.
-    inactive_cycles : int, optional
-        Number of inactive cycles.
-
-
     """
 
     def __init__(self,
@@ -188,6 +166,29 @@ class DepcodeSerpent(Depcode):
                  active_cycles=20,
                  inactive_cycles=20):
         """Initializes the DepcodeSerpent object.
+
+           Parameters
+           ----------
+           exec_path : str
+               Path to Serpent2 executable.
+           template_path : str
+               Path to user input file for Serpent2.
+           input_path : str
+               Name of input file for Serpent2 rerunning.
+           iter_matfile : str
+               Name of iterative, rewritable material file for Serpent2
+               rerunning. This file is modified during  the simulation.
+           geo_file : str or list, optional
+               Path to file that contains the reactor geometry.
+               List of `str` if reactivity control by
+               switching geometry is `On` or just `str` otherwise.
+           npop : int, optional
+               Size of neutron population per cycle for Monte Carlo.
+           active_cycles : int, optional
+               Number of active cycles.
+           inactive_cycles : int, optional
+               Number of inactive cycles.
+
         """
         super().__init__("serpent",
                          exec_path,
