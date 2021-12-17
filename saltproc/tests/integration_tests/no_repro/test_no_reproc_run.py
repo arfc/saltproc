@@ -21,9 +21,9 @@ db_file = directory + '/db_test.h5'
 
 depcode = DepcodeSerpent(
     exec_path='sss2',
-    template_fname=directory +
+    template_path=directory +
     '/saltproc_9d.inp',
-    input_fname=sss_file,
+    input_path=sss_file,
     iter_matfile=iter_matfile,
     geo_file=[
         os.path.join(
