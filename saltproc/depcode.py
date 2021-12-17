@@ -198,7 +198,7 @@ class DepcodeSerpent(Depcode):
                          active_cycles,
                          inactive_cycles)
 
-    def change_sim_par(self, data):
+    def change_sim_par(self, template_data):
         """Finds simulation parameters (neutron population, cycles) in the
         Serpent2 template file and change them to the parameters from the
         SaltProc input file.
@@ -216,7 +216,7 @@ class DepcodeSerpent(Depcode):
 
         """
         if self.npop and self.active_cycles and self.inactive_cycles:
-            sim_param = [s for s in data if s.startswith("set pop")]
+            sim_param = [s for s in template_data if s.startswith("set pop")]
             if len(sim_param) > 1:
                 print('ERROR: Template file %s contains multiple lines with '
                       'simulation parameters:\n'
@@ -228,9 +228,9 @@ class DepcodeSerpent(Depcode):
                 return
             args = 'set pop %i %i %i\n' % (self.npop, self.active_cycles,
                                            self.inactive_cycles)
-        return [s.replace(sim_param[0], args) for s in data]
+        return [s.replace(sim_param[0], args) for s in template_data]
 
-    def create_iter_matfile(self, data):
+    def create_iter_matfile(self, template_data):
         """Finds ``include`` line with path to material file, copies content of
         this file to iteration material file, changes path in ``include`` line
         to newly created iteration material file.
@@ -247,7 +247,7 @@ class DepcodeSerpent(Depcode):
 
         """
         data_dir = os.path.dirname(self.template_path)
-        include_str = [s for s in data if s.startswith("include ")]
+        include_str = [s for s in template_data if s.startswith("include ")]
         if not include_str:
             print('ERROR: Template file %s has no <include "material_file">'
                   ' statements ' % (self.template_path))
@@ -271,7 +271,7 @@ class DepcodeSerpent(Depcode):
             pass
         # Create file with path for SaltProc rewritable iterative material file
         shutil.copy2(abs_src_matfile, self.iter_matfile)
-        return [s.replace(src_file, self.iter_matfile) for s in data]
+        return [s.replace(src_file, self.iter_matfile) for s in template_data]
 
     def get_nuc_name(self, nuc_code):
         """Returns nuclide name in human-readable notation: chemical symbol
@@ -361,7 +361,7 @@ class DepcodeSerpent(Depcode):
                 map_dict.update({zzaaam: line[2]})
         self.iso_map = map_dict
 
-    def insert_path_to_geometry(self, data):
+    def insert_path_to_geometry(self, template_data):
         """Inserts ``include <first_geometry_file>`` line on the 6th line of
         Serpent2 input file.
 
@@ -372,14 +372,14 @@ class DepcodeSerpent(Depcode):
 
         Returns
         -------
-        input_data : list
+        template_data : list
             List of strings containing modified path to geometry
             in user's template file.
 
         """
-        data.insert(5,  # Inserts on 6th line
+        template_data.insert(5,  # Inserts on 6th line
                     'include \"' + str(self.geo_file[0]) + '\"\n')
-        return data
+        return template_data
 
     def read_dep_comp(self, input_file, read_at_end=False):
         """Reads the Serpent2 `*_dep.m` file and returns a dictionary with
@@ -488,8 +488,8 @@ class DepcodeSerpent(Depcode):
 
          """
         file = open(template_path, 'r')
-        str_list = file.readlines()
-        return str_list
+        template_data = file.readlines()
+        return template_data
 
     def replace_burnup_parameters(self, template_data, reactor, current_depstep_idx):
         """Adds or replaces the ``set power P dep daystep DEPSTEP`` line in
@@ -509,7 +509,7 @@ class DepcodeSerpent(Depcode):
 
         Returns
         -------
-        input_data : list
+        template_data : list
             List of strings containing modified in this function template file.
 
         """
@@ -521,16 +521,16 @@ class DepcodeSerpent(Depcode):
         else:
             current_depstep = reactor.depl_hist[current_depstep_idx] - \
                 reactor.depl_hist[current_depstep_idx - 1]
-        for line in data:
+        for line in template_data:
             if line.startswith('set    power   '):
-                line_idx = data.index(line)
-                del data[line_idx]
+                line_idx = template_data.index(line)
+                del template_data[line_idx]
 
-        data.insert(line_idx,  # Insert on 9th line
+        template_data.insert(line_idx,  # Insert on 9th line
                     'set    power   %5.9E   dep daystep   %7.5E\n' %
                     (current_depstep_power,
                      current_depstep))
-        return data
+        return template_data
 
     def run_depcode(self, cores, nodes):
         """Runs Serpent2 as a subprocess with the given parameters.
