@@ -462,7 +462,7 @@ class DepcodeSerpent(Depcode):
 
     def read_depcode_template(self, template_path):
         """Reads prepared Serpent2 template (input)  file for use in
-		other class functions that prepare the input file for multiple runs.
+        other class functions that prepare the input file for multiple runs.
 
         Parameters
         ----------
