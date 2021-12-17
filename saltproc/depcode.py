@@ -25,7 +25,7 @@ class Depcode(ABC):
     files for running depletion simulations. Also contains neutron
     population, active, and inactive cycles. Contains methods to read template
     and output files, and write new input files for the depletion code.
-	
+
     """
 
     _params = r"""
