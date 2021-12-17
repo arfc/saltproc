@@ -7,17 +7,6 @@ from pyne import nucname as pyname
 from pyne import serpent
 from abc import ABC, abstractmethod
 
-# I borrowed this handy doc function from the OpenMC folks.
-# See
-# https://docs.openmc.org/en/stable/_modules/openmc/deplete/abc.html#Integrator
-# yardasol -- 09.07.2022
-
-
-def add_params(cls):
-    cls.__doc__ += cls._params
-    return cls
-
-
 @add_params
 class Depcode(ABC):
     r"""Abstract class for interfacing with monte-carlo particle transport
@@ -26,9 +15,6 @@ class Depcode(ABC):
     population, active, and inactive cycles. Contains methods to read template
     and output files, and write new input files for the depletion code.
 
-    """
-
-    _params = r"""
     Parameters
     ----------
     codename : str
@@ -42,15 +28,15 @@ class Depcode(ABC):
     iter_matfile : str
         Name of iterative, rewritable material file for depletion code
         rerunning. This file is modified during  the simulation.
-    geo_file : str or list
+    geo_file : str or list, optional
         Path to file that contains the reactor geometry.
         List of `str` if reactivity control by
         switching geometry is `On` or just `str` otherwise.
-    npop : int
+    npop : int, optional
         Size of neutron population per cycle for Monte Carlo.
-    active_cycles : int
+    active_cycles : int, optional
         Number of active cycles.
-    inactive_cycles : int
+    inactive_cycles : int, optional
         Number of inactive cycles.
 
     """
@@ -89,7 +75,7 @@ class Depcode(ABC):
         ----------
         dep_file : str
             Path to file containing results of depletion simulation
-        read_at_end : bool
+        read_at_end : bool, optional
             Controls at which moment in the depletion step to read the data.
             If `True`, the function reads data at the end of the
             depletion step. Otherwise, the function reads data at the
@@ -166,6 +152,29 @@ class DepcodeSerpent(Depcode):
     Also contains neutrons population, active, and inactive cycles.
     Contains methods to read template and output files,
     write new input files for Serpent2.
+
+    Parameters
+    ----------
+    exec_path : str
+        Path to Serpent2 executable.
+    template_path : str
+        Path to user input file for Serpent2.
+    input_path : str
+        Name of input file for Serpent2 rerunning.
+    iter_matfile : str
+        Name of iterative, rewritable material file for Serpent2
+        rerunning. This file is modified during  the simulation.
+    geo_file : str or list, optional
+        Path to file that contains the reactor geometry.
+        List of `str` if reactivity control by
+        switching geometry is `On` or just `str` otherwise.
+    npop : int, optional
+        Size of neutron population per cycle for Monte Carlo.
+    active_cycles : int, optional
+        Number of active cycles.
+    inactive_cycles : int, optional
+        Number of inactive cycles.
+
 
     """
 
@@ -381,7 +390,7 @@ class DepcodeSerpent(Depcode):
         ----------
         input_file : str
             Path to Serpent2 input file.
-        read_at_end : bool
+        read_at_end : bool, optional
             Controls at which moment in the depletion step to read the data.
             If `True`, the function reads data at the end of the
             depletion step. Otherwise, the function reads data at the
