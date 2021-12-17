@@ -7,7 +7,6 @@ from pyne import nucname as pyname
 from pyne import serpent
 from abc import ABC, abstractmethod
 
-@add_params
 class Depcode(ABC):
     r"""Abstract class for interfacing with monte-carlo particle transport
     codes. Contains information about input, output, geometry, and template
@@ -146,7 +145,6 @@ class Depcode(ABC):
         """
 
 
-@add_params
 class DepcodeSerpent(Depcode):
     r"""Class contains information about input, output, geometry, and
     template files for running Serpent2 depletion simulations.
