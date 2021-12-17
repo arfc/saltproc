@@ -25,6 +25,7 @@ class Depcode(ABC):
     files for running depletion simulations. Also contains neutron
     population, active, and inactive cycles. Contains methods to read template
     and output files, and write new input files for the depletion code.
+	
     """
 
     _params = r"""
@@ -51,6 +52,7 @@ class Depcode(ABC):
         Number of active cycles.
     inactive_cycles : int
         Number of inactive cycles.
+
     """
 
     def __init__(self,
@@ -101,6 +103,7 @@ class Depcode(ABC):
                 Name of burnable material.
             ``value``
                 `Materialflow` object holding composition and properties.
+
         """
 
     @abstractmethod
@@ -152,6 +155,7 @@ class Depcode(ABC):
             Path to file containing burnable materials composition.
         dep_end_time : float
             Current time at the end of the depletion step (d).
+
         """
 
 
