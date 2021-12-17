@@ -7,6 +7,7 @@ from pyne import nucname as pyname
 from pyne import serpent
 from abc import ABC, abstractmethod
 
+
 class Depcode(ABC):
     r"""Abstract class for interfacing with monte-carlo particle transport
     codes. Contains information about input, output, geometry, and template
@@ -378,7 +379,7 @@ class DepcodeSerpent(Depcode):
 
         """
         template_data.insert(5,  # Inserts on 6th line
-                    'include \"' + str(self.geo_file[0]) + '\"\n')
+                             'include \"' + str(self.geo_file[0]) + '\"\n')
         return template_data
 
     def read_dep_comp(self, input_file, read_at_end=False):
@@ -491,7 +492,11 @@ class DepcodeSerpent(Depcode):
         template_data = file.readlines()
         return template_data
 
-    def replace_burnup_parameters(self, template_data, reactor, current_depstep_idx):
+    def replace_burnup_parameters(
+            self,
+            template_data,
+            reactor,
+            current_depstep_idx):
         """Adds or replaces the ``set power P dep daystep DEPSTEP`` line in
         the Serpent2 input file. This line defines depletion history and power
         levels with respect to the depletion step in the single run and
@@ -527,9 +532,9 @@ class DepcodeSerpent(Depcode):
                 del template_data[line_idx]
 
         template_data.insert(line_idx,  # Insert on 9th line
-                    'set    power   %5.9E   dep daystep   %7.5E\n' %
-                    (current_depstep_power,
-                     current_depstep))
+                             'set    power   %5.9E   dep daystep   %7.5E\n' %
+                             (current_depstep_power,
+                              current_depstep))
         return template_data
 
     def run_depcode(self, cores, nodes):
