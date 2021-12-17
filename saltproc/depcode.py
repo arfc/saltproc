@@ -206,12 +206,12 @@ class DepcodeSerpent(Depcode):
 
         Parameters
         ----------
-        data : list
+        template_data : list
             List of strings parsed from user's Serpent2 template file.
 
         Returns
         -------
-        list
+        input_data : list
             List of strings containing Serpent2 input file with new
             simulation parameters.
 
@@ -238,12 +238,12 @@ class DepcodeSerpent(Depcode):
 
         Parameters
         ----------
-        data : list
+        template_data : list
             List of strings parsed from user's template file.
 
         Returns
         -------
-        list
+        input_data : list
             List of strings containing modified user template file.
 
         """
@@ -327,12 +327,12 @@ class DepcodeSerpent(Depcode):
 
         Parameters
         -----------
-        input_file: str
+        input_file : str
             Serpent2 input file name and path.
 
         Returns
         --------
-        dict
+        isotope_map : dict
             Contains mapping for isotopes names from `zzaaam` to Serpent2 name
             imported from Serpent2 ouput file:
 
@@ -368,12 +368,12 @@ class DepcodeSerpent(Depcode):
 
         Parameters
         ----------
-        data : list
+        template_data : list
             List of strings parsed from user's template file.
 
         Returns
         -------
-        list
+        input_data : list
             List of strings containing modified path to geometry
             in user's template file.
 
@@ -479,12 +479,12 @@ class DepcodeSerpent(Depcode):
 
         Parameters
         ----------
-        template_path: str
+        template_path : str
             Path to user template file for depletion code.
 
         Returns
         -------
-        list
+        tempalate_data : list
             List of strings containing user template file.
 
          """
@@ -492,7 +492,7 @@ class DepcodeSerpent(Depcode):
         str_list = file.readlines()
         return str_list
 
-    def replace_burnup_parameters(self, data, reactor, current_depstep_idx):
+    def replace_burnup_parameters(self, template_data, reactor, current_depstep_idx):
         """Adds or replaces the ``set power P dep daystep DEPSTEP`` line in
         the Serpent2 input file. This line defines depletion history and power
         levels with respect to the depletion step in the single run and
@@ -500,7 +500,7 @@ class DepcodeSerpent(Depcode):
 
         Parameters
         ----------
-        data : list
+        template_data : list
             List of strings parsed from user template file.
         reactor : Reactor
             Contains information about power load curve and cumulative
@@ -510,7 +510,7 @@ class DepcodeSerpent(Depcode):
 
         Returns
         -------
-        list
+        input_data : list
             List of strings containing modified in this function template file.
 
         """
@@ -588,7 +588,7 @@ class DepcodeSerpent(Depcode):
 
         Returns
         -------
-        int
+        nuc_zzaam : int
             Name of nuclide in `zzaaam` form (`471101`).
 
         """
@@ -626,11 +626,6 @@ class DepcodeSerpent(Depcode):
             Current depletion time step.
         restart : bool
             Is the current simulation restarted?
-
-        Returns
-        -------
-        type
-            Description of returned object.
 
         """
 

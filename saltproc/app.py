@@ -348,7 +348,7 @@ def refill(mat, extracted_mass, waste_dict):
 
     Returns
     --------
-    dict
+    refilled_mats: dict
         Dictionary that contains `Materialflow` objects.
 
         ``key``
