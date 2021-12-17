@@ -38,7 +38,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cross-section-configuration">Cross Section Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
@@ -99,6 +103,33 @@ python setup.py install --user
 </pre></div>
 </div>
 <p>Please let us know if you run into trouble.</p>
+<div class="section" id="cross-section-configuration">
+<h2>Cross Section Configuration<a class="headerlink" href="#cross-section-configuration" title="Permalink to this headline">¶</a></h2>
+<p>SaltProc can use any cross section library that Serpent can. See <a class="reference external" href="https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries">this page on the Serpent wiki</a> for information on how to configure the libraries.</p>
+</div>
+<div class="section" id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<p>The SaltProc test suite has two types of tests: unit tests and regression tests.
+The unit tests check that the individual functions and classes of the <code class="docutils literal notranslate"><span class="pre">saltproc</span></code>
+module return the correct type of variables and correct values, where applicable.
+The regression tests run a full SaltProc simulation and check the final result
+with a precalculated result.
+The integration tests require the <a class="reference external" href="https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/">JEFF 3.1.2 cross section library</a> as well
+as neutron induces and spontaneous fission product yield data from JEFF 3.3.
+The publicly available versions of JEFF 3.1.2  cannot be used with Serpent right
+out of the box due to <a class="reference external" href="https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries">Serpent’s notation for isomeric states</a>. The scripts in
+<code class="docutils literal notranslate"><span class="pre">scripts/xsdata</span></code> download all necessary libraries and perform all the necessary processing on them for use in Serpent 2.
+We recommend using them for your convenience.
+See the <a class="reference external" href="https://github.com/arfc/saltproc/blob/master/scripts/README.md">README</a> for more information.</p>
+<p>To run the tests, execute:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest saltproc/
+</pre></div>
+</div>
+<p>from the root directory of SaltProc. If you just want to run the unit tests, execute</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest --ignore saltproc/tests/integration_tests saltproc/
+</pre></div>
+</div>
+</div>
 </div>
 
 

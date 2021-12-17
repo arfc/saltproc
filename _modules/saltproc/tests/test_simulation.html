@@ -82,8 +82,8 @@
 
 <span class="n">serpent</span> <span class="o">=</span> <span class="n">DepcodeSerpent</span><span class="p">(</span>
     <span class="n">exec_path</span><span class="o">=</span><span class="s1">&#39;/home/andrei2/serpent/serpent2/src_2131/sss2&#39;</span><span class="p">,</span>
-    <span class="n">template_fname</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/template.inp&#39;</span><span class="p">,</span>
-    <span class="n">input_fname</span><span class="o">=</span><span class="n">input_file</span><span class="p">,</span>
+    <span class="n">template_path</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/template.inp&#39;</span><span class="p">,</span>
+    <span class="n">input_path</span><span class="o">=</span><span class="n">input_file</span><span class="p">,</span>
     <span class="n">iter_matfile</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/material&#39;</span><span class="p">,</span>
     <span class="n">geo_file</span><span class="o">=</span><span class="p">[</span>
         <span class="s1">&#39;../../examples/406.inp&#39;</span><span class="p">,</span>
@@ -102,12 +102,12 @@
 
 
 <div class="viewcode-block" id="test_switch_to_next_geometry"><a class="viewcode-back" href="../../../src/saltproc.tests.test_simulation.html#saltproc.tests.test_simulation.test_switch_to_next_geometry">[docs]</a><span class="k">def</span> <span class="nf">test_switch_to_next_geometry</span><span class="p">():</span>
-    <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">geo_test_input</span><span class="p">,</span> <span class="n">serpent</span><span class="o">.</span><span class="n">input_fname</span> <span class="o">+</span> <span class="s1">&#39;_test&#39;</span><span class="p">)</span>
-    <span class="n">serpent</span><span class="o">.</span><span class="n">input_fname</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">input_fname</span> <span class="o">+</span> <span class="s1">&#39;_test&#39;</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">geo_test_input</span><span class="p">,</span> <span class="n">serpent</span><span class="o">.</span><span class="n">input_path</span> <span class="o">+</span> <span class="s1">&#39;_test&#39;</span><span class="p">)</span>
+    <span class="n">serpent</span><span class="o">.</span><span class="n">input_path</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">input_path</span> <span class="o">+</span> <span class="s1">&#39;_test&#39;</span>
     <span class="n">simulation</span><span class="o">.</span><span class="n">switch_to_next_geometry</span><span class="p">()</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_depcode_template</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">input_fname</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_depcode_template</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">input_path</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">d</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;988.inp&quot;</span><span class="se">\n</span><span class="s1">&#39;</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">input_fname</span><span class="p">)</span></div>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">input_path</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
