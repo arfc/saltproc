@@ -12,6 +12,7 @@ jobs:
     steps:
 # Setup python
       - uses: actions/checkout@v2
+
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
@@ -20,17 +21,16 @@ jobs:
 # Check for existing cache
       - name: Find cache location
         id: pip-cache
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
+        run: |
+          echo "::set-output name=dir ::$(pip cache dir)"
 
 # Cache packages
       - uses: actions/cache@v2
-        id: pip-cache
         env:
           CACHE_NUMBER: 0 # may not be necessary...
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-${{ env.CAHCE_NUMBER }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-${{ env.CACHE_NUMBER }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
