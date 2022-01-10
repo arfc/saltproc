@@ -1,7 +1,8 @@
 # Preamble
 name: Cache dependencies
-  on: push
-    branch: ci-testing
+
+on: push
+  branch: ci-testing
 
 jobs:
   build-penv:
