@@ -21,6 +21,7 @@ serpent = DepcodeSerpent(exec_path='sss2',
 
 def test_read_main_input():
     app.read_main_input(main_input)
+    assert app.codename == "serpent"
     assert app.neutron_pop == 50
     assert app.active_cycles == 20
     assert app.active_cycles == 20
