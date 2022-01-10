@@ -1,9 +1,9 @@
 name: Generate SaltProc environment using Conda
 
-  #on:
-  #push:
-  #  branches:
-  #    - ci-test
+on:
+  push:
+    branches:
+      - ci-test
 
 env:
   CACHE_NUMBER: 0 # change value to reset cache manually
