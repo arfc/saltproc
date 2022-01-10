@@ -326,12 +326,12 @@ class DepcodeSerpent(Depcode):
         simulation.
 
         Parameters
-        -----------
+        ----------
         input_file : str
             Serpent2 input file name and path.
 
         Returns
-        --------
+        -------
         isotope_map : dict
             Contains mapping for isotopes names from `zzaaam` to Serpent2 name
             imported from Serpent2 ouput file:
