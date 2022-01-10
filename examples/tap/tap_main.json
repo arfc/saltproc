@@ -1,15 +1,16 @@
 {
-  "Path to Serpent executable": "sss2",
+  "Name of depletion code": "serpent",
+  "Path to depletion code executable": "sss2",
   "File containing processing system objects": "tap_objects.json",
   "Graph file containing processing system structure": "tap.dot",
-  "User's Serpent input file with reactor model": "tap.serpent",
+  "User's depletion code input file with reactor model": "tap.serpent",
   "Path output data storing folder": "../../saltproc/data/",
   "Output HDF5 database file name": "db_saltproc.h5",
   "Number of neutrons per generation": 50,
   "Number of active generations": 20,
   "Number of inactive generations": 20,
   "Restart simulation from the step when it stopped?": false,
-  "Geometry file/files to use in Serpent runs": [
+  "Geometry file/files to use in depletion code runs": [
     "geometry/347_base.ini",
     "geometry/406.ini",
     "geometry/427.ini",
