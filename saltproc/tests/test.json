@@ -1,5 +1,5 @@
 {
-   "Name of depletion code" : "serpent" ,
+  "Name of depletion code": "serpent",
   "Path to depletion code executable": "/home/andrei2/serpent/serpent2/src_2131/sss2",
   "File containing processing system objects": "processes.json",
   "Graph file containing processing system structure": "test.dot",
