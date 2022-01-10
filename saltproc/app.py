@@ -400,7 +400,7 @@ def run():
             active_cycles=active_cycles,
             inactive_cycles=inactive_cycles)
     else:
-        throw ValueError(f'{codename} is not a supported depletion code')
+        raise ValueError(f'{codename} is not a supported depletion code')
 
     simulation = Simulation(
         sim_name='Super test',
