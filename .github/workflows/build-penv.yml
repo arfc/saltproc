@@ -39,5 +39,6 @@ jobs:
         if: steps.pip-cache.outputs.cache-hit != 'true'
         run: |
           pip install -r requirements.txt
+          pip install sphinx sphinx-rtd-theme
           python setup.py install --user
           pip uninstall saltproc
