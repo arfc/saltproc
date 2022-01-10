@@ -1,0 +1,10 @@
+pyne
+numpy
+scipy
+json
+pytables
+networkx
+pydotplus
+pytest
+sphinx
+sphinx_rtd_theme
