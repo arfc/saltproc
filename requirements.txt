@@ -1,6 +1,6 @@
 pyne
 numpy
 scipy
-pytables
+tables
 networkx
 pydotplus
