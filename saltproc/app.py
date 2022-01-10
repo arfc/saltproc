@@ -87,7 +87,8 @@ def read_main_input(main_inp_file):
     """
     with open(main_inp_file) as f:
         j = json.load(f)
-        global codename, exec_path, spc_inp_file, dot_inp_file, template_file, db_file
+        global codename, exec_path, spc_inp_file, dot_inp_file, template_file, \
+        db_file
         codename = j["Name of depletion code"].lower()
         exec_path = j["Path to depletion code executable"]
         spc_inp_file = os.path.join(
