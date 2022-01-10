@@ -87,8 +87,9 @@ def read_main_input(main_inp_file):
     """
     with open(main_inp_file) as f:
         j = json.load(f)
-        global exec_path, spc_inp_file, dot_inp_file, template_file, db_file
-        exec_path = j["Path to Serpent executable"]
+        global depcode_name, exec_path, spc_inp_file, dot_inp_file, template_file, db_file
+        codename = j["Depletion code name"].lower()
+        exec_path = j["Path to depletion code executable"]
         spc_inp_file = os.path.join(
             os.path.dirname(f.name),
             j["File containing processing system objects"])
@@ -97,7 +98,7 @@ def read_main_input(main_inp_file):
             j["Graph file containing processing system structure"])
         template_file = os.path.join(
             os.path.dirname(f.name),
-            j["User's Serpent input file with reactor model"])
+            j["User's depletion code input file with reactor model"])
         db_path = j["Path output data storing folder"]
         db_file = os.path.join(
             os.path.dirname(f.name),
@@ -115,10 +116,10 @@ def read_main_input(main_inp_file):
         # Read paths to geometry files
         global geo_file
         if adjust_geo:
-            geo_list = j["Geometry file/files to use in Serpent runs"]
+            geo_list = j["Geometry file/files to use in depletion code runs"]
             geo_file = [g for g in geo_list]
         elif not adjust_geo:
-            geo_file = [j["Geometry file/files to use in Serpent runs"]]
+            geo_file = [j["Geometry file/files to use in depletion code runs"]]
         core_massflow_rate = \
             j["Salt mass flow rate throughout reactor core (g/s)"]
         global depl_hist, power_hist
@@ -388,18 +389,34 @@ def run():
           '\tOutput HDF5 DB Path = ' + os.path.abspath(db_file) + '\n'
           )
     # Intializing objects
-    serpent = DepcodeSerpent(
-        exec_path=exec_path,
-        template_path=template_file,
-        input_path=input_file,
-        iter_matfile=iter_matfile,
-        geo_file=geo_file,
-        npop=neutron_pop,
-        active_cycles=active_cycles,
-        inactive_cycles=inactive_cycles)
+    if codename == 'serpent':
+        depcode = DepcodeSerpent(
+            codename=codename,
+            exec_path=exec_path,
+            template_path=template_file,
+            input_path=input_file,
+            iter_matfile=iter_matfile,
+            geo_file=geo_file,
+            npop=neutron_pop,
+            active_cycles=active_cycles,
+            inactive_cycles=inactive_cycles)
+    elif codename == 'openmc':
+        depcode = DepcodeOpenMC(
+            codename=codename,
+            exec_path=exec_path,
+            template_path=template_file,
+            input_path=input_file,
+            iter_matfile=iter_matfile,
+            geo_file=geo_file,
+            npop=neutron_pop,
+            active_cycles=active_cycles,
+            inactive_cycles=inactive_cycles)
+    else:
+        throw ValueError(f'{codename} is not a supported depletion code')
+
     simulation = Simulation(
         sim_name='Super test',
-        sim_depcode=serpent,
+        sim_depcode=depcode,
         core_number=cores,
         node_number=nodes,
         h5_file=db_file,
@@ -415,21 +432,21 @@ def run():
     # Start sequence
     for dts in range(len(depl_hist)):
         print("\n\n\nStep #%i has been started" % (dts + 1))
-        serpent.write_depcode_input(template_file,
+        depcode.write_depcode_input(template_file,
                                     input_file,
                                     msr,
                                     dts,
                                     restart_flag)
-        serpent.run_depcode(cores, nodes)
+        depcode.run_depcode(cores, nodes)
         if dts == 0 and restart_flag is False:  # First step
             # Read general simulation data which never changes
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dts)
-            mats = serpent.read_dep_comp(input_file, False)
+            mats = depcode.read_dep_comp(input_file, False)
             simulation.store_mat_data(mats, dts - 1, 'before_reproc')
         # Finish of First step
         # Main sequence
-        mats = serpent.read_dep_comp(input_file, True)
+        mats = depcode.read_dep_comp(input_file, True)
         simulation.store_mat_data(mats, dts, 'before_reproc')
         simulation.store_run_step_info()
         # Reprocessing here
