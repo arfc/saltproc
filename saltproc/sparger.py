@@ -7,7 +7,8 @@ class Sparger(Process):
 
     Attributes
     ----------
-    h_const : dict
+    h_const : dict of str to float
+
         ``key``
             Name of target isotope.
         ``value``
@@ -18,7 +19,8 @@ class Sparger(Process):
         liquid phase diffusivity (cm^2/s)
     temp_room: real
         room temperature (Kelvin)
-    exp_const: dict
+    exp_const: dict of str to float
+
         ``key``
             Name of target isotope.
         ``value``
@@ -149,7 +151,7 @@ class Sparger(Process):
         analysis
         Return
         ------
-        pltdict: dict
+        pltdict: dict of str to str
             contains instances' information
         """
         plt_dict = {'q_salt': {'xaxis': 'salt flow rate ${(m^3/s)}$',
@@ -215,8 +217,9 @@ class Sparger(Process):
 
         Returns
         -------
-        rem_eff : dict
+        rem_eff : dict of str to float
             Dictionary containing removal efficiency of each target isotope.
+
             ``key``
                 Name of target isotope.
             ``value``

@@ -80,11 +80,15 @@ class Materialflow(pymat):
 
         Returns
         -------
-        dict
+        new_mat_comp : dict of int to float
             Materialflow nuclide component dictionary of relative mass.
-            The keys of `new_mat_comp` are preserved from PyNE Material
-            (integers representing nuclides in id-form). The values are floats
-            for each nuclide’s mass fraction, multiplied by factor f.
+
+            ``key``
+                The keys are preserved from PyNE Material (integers
+                representing nuclides in id-form).
+            ``value``
+                Each nuclide's mass fraction, multiplied by
+                factor f.
 
         """
         old_dict = dict(self.comp)

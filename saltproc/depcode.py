@@ -7,51 +7,15 @@ from pyne import nucname as pyname
 from pyne import serpent
 from abc import ABC, abstractmethod
 
-# I borrowed this handy doc function from the OpenMC folks.
-# See
-# https://docs.openmc.org/en/stable/_modules/openmc/deplete/abc.html#Integrator
-# yardasol -- 09.07.2022
 
-
-def add_params(cls):
-    cls.__doc__ += cls._params
-    return cls
-
-
-@add_params
 class Depcode(ABC):
     r"""Abstract class for interfacing with monte-carlo particle transport
     codes. Contains information about input, output, geometry, and template
     files for running depletion simulations. Also contains neutron
     population, active, and inactive cycles. Contains methods to read template
     and output files, and write new input files for the depletion code.
-    """
 
-    _params = r"""
-    Parameters
-    ----------
-    codename : str
-        Name of depletion code.
-    exec_path : str
-        Path to depletion code executable.
-    template_path : str
-        Path to user input file for depletion code.
-    input_path : str
-        Name of input file for depletion code rerunning.
-    iter_matfile : str
-        Name of iterative, rewritable material file for depletion code
-        rerunning. This file is modified during  the simulation.
-    geo_file : str or list
-        Path to file that contains the reactor geometry.
-        List of `str` if reactivity control by
-        switching geometry is `On` or just `str` otherwise.
-    npop : int
-        Size of neutron population per cycle for Monte Carlo.
-    active_cycles : int
-        Number of active cycles.
-    inactive_cycles : int
-        Number of inactive cycles.
-    """
+   """
 
     def __init__(self,
                  codename,
@@ -64,6 +28,31 @@ class Depcode(ABC):
                  active_cycles=20,
                  inactive_cycles=20):
         """Initializes the Depcode object.
+
+           Parameters
+           ----------
+           codename : str
+               Name of depletion code.
+           exec_path : str
+               Path to depletion code executable.
+           template_path : str
+               Path to user input file for depletion code.
+           input_path : str
+               Name of input file for depletion code rerunning.
+           iter_matfile : str
+               Name of iterative, rewritable material file for depletion code
+               rerunning. This file is modified during  the simulation.
+           geo_file : str or list, optional
+               Path to file that contains the reactor geometry.
+               List of `str` if reactivity control by
+               switching geometry is `On` or just `str` otherwise.
+           npop : int, optional
+               Size of neutron population per cycle for Monte Carlo.
+           active_cycles : int, optional
+               Number of active cycles.
+           inactive_cycles : int, optional
+               Number of inactive cycles.
+
         """
         self.codename = codename
         self.exec_path = exec_path
@@ -87,7 +76,7 @@ class Depcode(ABC):
         ----------
         dep_file : str
             Path to file containing results of depletion simulation
-        read_at_end : bool
+        read_at_end : bool, optional
             Controls at which moment in the depletion step to read the data.
             If `True`, the function reads data at the end of the
             depletion step. Otherwise, the function reads data at the
@@ -95,12 +84,14 @@ class Depcode(ABC):
 
         Returns
         -------
-        mats : dict
+        mats : dict of str to Materialflow
             Dictionary that contains `Materialflow` objects.
+
             ``key``
                 Name of burnable material.
             ``value``
                 `Materialflow` object holding composition and properties.
+
         """
 
     @abstractmethod
@@ -142,8 +133,9 @@ class Depcode(ABC):
 
         Parameters
         ----------
-        dep_dict : dict
+        dep_dict : dict of str to Materialflow
             Dictionary that contains `Materialflow` objects.
+
             ``key``
                 Name of burnable material.
             ``value``
@@ -152,10 +144,10 @@ class Depcode(ABC):
             Path to file containing burnable materials composition.
         dep_end_time : float
             Current time at the end of the depletion step (d).
+
         """
 
 
-@add_params
 class DepcodeSerpent(Depcode):
     r"""Class contains information about input, output, geometry, and
     template files for running Serpent2 depletion simulations.
@@ -175,6 +167,29 @@ class DepcodeSerpent(Depcode):
                  active_cycles=20,
                  inactive_cycles=20):
         """Initializes the DepcodeSerpent object.
+
+           Parameters
+           ----------
+           exec_path : str
+               Path to Serpent2 executable.
+           template_path : str
+               Path to user input file for Serpent2.
+           input_path : str
+               Name of input file for Serpent2 rerunning.
+           iter_matfile : str
+               Name of iterative, rewritable material file for Serpent2
+               rerunning. This file is modified during  the simulation.
+           geo_file : str or list, optional
+               Path to file that contains the reactor geometry.
+               List of `str` if reactivity control by
+               switching geometry is `On` or just `str` otherwise.
+           npop : int, optional
+               Size of neutron population per cycle for Monte Carlo.
+           active_cycles : int, optional
+               Number of active cycles.
+           inactive_cycles : int, optional
+               Number of inactive cycles.
+
         """
         super().__init__("serpent",
                          exec_path,
@@ -186,25 +201,25 @@ class DepcodeSerpent(Depcode):
                          active_cycles,
                          inactive_cycles)
 
-    def change_sim_par(self, data):
+    def change_sim_par(self, template_data):
         """Finds simulation parameters (neutron population, cycles) in the
         Serpent2 template file and change them to the parameters from the
         SaltProc input file.
 
         Parameters
         ----------
-        data : list
+        template_data : list
             List of strings parsed from user's Serpent2 template file.
 
         Returns
         -------
-        list
+        input_data : list
             List of strings containing Serpent2 input file with new
             simulation parameters.
 
         """
         if self.npop and self.active_cycles and self.inactive_cycles:
-            sim_param = [s for s in data if s.startswith("set pop")]
+            sim_param = [s for s in template_data if s.startswith("set pop")]
             if len(sim_param) > 1:
                 print('ERROR: Template file %s contains multiple lines with '
                       'simulation parameters:\n'
@@ -216,26 +231,26 @@ class DepcodeSerpent(Depcode):
                 return
             args = 'set pop %i %i %i\n' % (self.npop, self.active_cycles,
                                            self.inactive_cycles)
-        return [s.replace(sim_param[0], args) for s in data]
+        return [s.replace(sim_param[0], args) for s in template_data]
 
-    def create_iter_matfile(self, data):
+    def create_iter_matfile(self, template_data):
         """Finds ``include`` line with path to material file, copies content of
         this file to iteration material file, changes path in ``include`` line
         to newly created iteration material file.
 
         Parameters
         ----------
-        data : list
+        template_data : list
             List of strings parsed from user's template file.
 
         Returns
         -------
-        list
+        input_data : list
             List of strings containing modified user template file.
 
         """
         data_dir = os.path.dirname(self.template_path)
-        include_str = [s for s in data if s.startswith("include ")]
+        include_str = [s for s in template_data if s.startswith("include ")]
         if not include_str:
             print('ERROR: Template file %s has no <include "material_file">'
                   ' statements ' % (self.template_path))
@@ -259,7 +274,7 @@ class DepcodeSerpent(Depcode):
             pass
         # Create file with path for SaltProc rewritable iterative material file
         shutil.copy2(abs_src_matfile, self.iter_matfile)
-        return [s.replace(src_file, self.iter_matfile) for s in data]
+        return [s.replace(src_file, self.iter_matfile) for s in template_data]
 
     def get_nuc_name(self, nuc_code):
         """Returns nuclide name in human-readable notation: chemical symbol
@@ -313,13 +328,13 @@ class DepcodeSerpent(Depcode):
         simulation.
 
         Parameters
-        -----------
-        input_file: str
+        ----------
+        input_file : str
             Serpent2 input file name and path.
 
         Returns
-        --------
-        dict
+        -------
+        isotope_map : dict of str to str
             Contains mapping for isotopes names from `zzaaam` to Serpent2 name
             imported from Serpent2 ouput file:
 
@@ -349,25 +364,25 @@ class DepcodeSerpent(Depcode):
                 map_dict.update({zzaaam: line[2]})
         self.iso_map = map_dict
 
-    def insert_path_to_geometry(self, data):
+    def insert_path_to_geometry(self, template_data):
         """Inserts ``include <first_geometry_file>`` line on the 6th line of
         Serpent2 input file.
 
         Parameters
         ----------
-        data : list
+        template_data : list
             List of strings parsed from user's template file.
 
         Returns
         -------
-        list
+        template_data : list
             List of strings containing modified path to geometry
             in user's template file.
 
         """
-        data.insert(5,  # Inserts on 6th line
-                    'include \"' + str(self.geo_file[0]) + '\"\n')
-        return data
+        template_data.insert(5,  # Inserts on 6th line
+                             'include \"' + str(self.geo_file[0]) + '\"\n')
+        return template_data
 
     def read_dep_comp(self, input_file, read_at_end=False):
         """Reads the Serpent2 `*_dep.m` file and returns a dictionary with
@@ -377,7 +392,7 @@ class DepcodeSerpent(Depcode):
         ----------
         input_file : str
             Path to Serpent2 input file.
-        read_at_end : bool
+        read_at_end : bool, optional
             Controls at which moment in the depletion step to read the data.
             If `True`, the function reads data at the end of the
             depletion step. Otherwise, the function reads data at the
@@ -385,7 +400,7 @@ class DepcodeSerpent(Depcode):
 
         Returns
         -------
-        mats : dict
+        mats : dict of str to Materialflow
             Dictionary that contains `Materialflow` objects.
 
             ``key``
@@ -462,24 +477,28 @@ class DepcodeSerpent(Depcode):
 
     def read_depcode_template(self, template_path):
         """Reads prepared Serpent2 template (input)  file for use in
-		other class functions that prepare the input file for multiple runs.
+        other class functions that prepare the input file for multiple runs.
 
         Parameters
         ----------
-        template_path: str
+        template_path : str
             Path to user template file for depletion code.
 
         Returns
         -------
-        list
+        tempalate_data : list
             List of strings containing user template file.
 
          """
         file = open(template_path, 'r')
-        str_list = file.readlines()
-        return str_list
+        template_data = file.readlines()
+        return template_data
 
-    def replace_burnup_parameters(self, data, reactor, current_depstep_idx):
+    def replace_burnup_parameters(
+            self,
+            template_data,
+            reactor,
+            current_depstep_idx):
         """Adds or replaces the ``set power P dep daystep DEPSTEP`` line in
         the Serpent2 input file. This line defines depletion history and power
         levels with respect to the depletion step in the single run and
@@ -487,7 +506,7 @@ class DepcodeSerpent(Depcode):
 
         Parameters
         ----------
-        data : list
+        template_data : list
             List of strings parsed from user template file.
         reactor : Reactor
             Contains information about power load curve and cumulative
@@ -497,7 +516,7 @@ class DepcodeSerpent(Depcode):
 
         Returns
         -------
-        list
+        template_data : list
             List of strings containing modified in this function template file.
 
         """
@@ -509,16 +528,16 @@ class DepcodeSerpent(Depcode):
         else:
             current_depstep = reactor.depl_hist[current_depstep_idx] - \
                 reactor.depl_hist[current_depstep_idx - 1]
-        for line in data:
+        for line in template_data:
             if line.startswith('set    power   '):
-                line_idx = data.index(line)
-                del data[line_idx]
+                line_idx = template_data.index(line)
+                del template_data[line_idx]
 
-        data.insert(line_idx,  # Insert on 9th line
-                    'set    power   %5.9E   dep daystep   %7.5E\n' %
-                    (current_depstep_power,
-                     current_depstep))
-        return data
+        template_data.insert(line_idx,  # Insert on 9th line
+                             'set    power   %5.9E   dep daystep   %7.5E\n' %
+                             (current_depstep_power,
+                              current_depstep))
+        return template_data
 
     def run_depcode(self, cores, nodes):
         """Runs Serpent2 as a subprocess with the given parameters.
@@ -575,7 +594,7 @@ class DepcodeSerpent(Depcode):
 
         Returns
         -------
-        int
+        nuc_zzaam : int
             Name of nuclide in `zzaaam` form (`471101`).
 
         """
@@ -614,11 +633,6 @@ class DepcodeSerpent(Depcode):
         restart : bool
             Is the current simulation restarted?
 
-        Returns
-        -------
-        type
-            Description of returned object.
-
         """
 
         if dep_step == 0 and not restart:
@@ -642,7 +656,7 @@ class DepcodeSerpent(Depcode):
 
         Parameters
         ----------
-        dep_dict : dict
+        dep_dict : dict of str to Materialflow
             Dictionary that contains `Materialflow` objects.
 
             ``key``

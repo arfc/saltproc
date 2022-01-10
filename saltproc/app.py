@@ -149,7 +149,7 @@ def read_processes_from_input():
 
     Returns
     -------
-    mats : dict
+    mats : dict of str to Process
         Dictionary that contains `Process` objects.
 
         ``key``
@@ -184,7 +184,7 @@ def read_feeds_from_input():
 
     Returns
     -------
-    mats : dict
+    mats : dict of str to Materialflow
         Dictionary that contains `Materialflow` objects with feeds.
 
         ``key``
@@ -245,7 +245,7 @@ def reprocessing(mat):
 
     Parameters
     -----------
-    mats : dict
+    mats : dict of str to Materialflow
         Dictionary that contains `Materialflow` objects with burnable material
         data right after irradiation in the core.
 
@@ -256,13 +256,13 @@ def reprocessing(mat):
 
     Returns
     --------
-    waste : dict
+    waste : dict of str to Materialflow
 
         ``key``
             Process name.
         ``value``
             `Materialflow` object containing waste streams data.
-    extracted_mass: dict
+    extracted_mass: dict of str to Materialflow
 
         ``key``
             Name of burnable material.
@@ -327,19 +327,19 @@ def refill(mat, extracted_mass, waste_dict):
 
     Parameters
     -----------
-    mat : dict
+    mat : dict of str to Materialflow
 
         ``key``
             Name of burnable material.
         ``value``
             `Materialflow` object after performing all removals.
-    extracted_mass: dict
+    extracted_mass: dict of str to float
 
         ``key``
             Name of burnable material.
         ``value``
             Mass removed as waste in reprocessing function for each material.
-    waste : dict
+    waste : dict of str to Materialflow
 
         ``key``
             Process name.
@@ -348,7 +348,7 @@ def refill(mat, extracted_mass, waste_dict):
 
     Returns
     --------
-    dict
+    refilled_mats: dict of str to Materialflow
         Dictionary that contains `Materialflow` objects.
 
         ``key``
