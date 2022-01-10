@@ -21,7 +21,7 @@ class Process():
             can handle (g/s)
         volume : float
             total volume of the current facility (:math:`cm^3`)
-        efficiency : dict
+        efficiency : dict of str to float
 
             ``key``
                 element name for removal (not isotope)

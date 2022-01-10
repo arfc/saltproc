@@ -109,10 +109,14 @@ class Simulation():
         ----------
         after_mats : `Materialflow`
             Burnable material stream object after performing reprocessing.
-        waste_dict : dict
-            Dictionary that maps `processes` to waste `Materialflow` objects.
-            The key is Processes name (`str`). The value is `Materialflow`
-            object containing waste streams data.
+        waste_dict : dict of str to Materialflow
+            Dictionary that maps `Process` objects to waste `Materialflow`
+            objects.
+
+            ``key``
+                `Process` name (`str`)
+            ``value``
+                `Materialflow` object containing waste streams data.
         step : int
             Current depletion step.
 
@@ -168,7 +172,7 @@ class Simulation():
 
         Parameters
         ----------
-        mats : dict
+        mats : dict of str to Materialflow
             Dictionary that contains `Materialflow` objects.
 
             ``key``

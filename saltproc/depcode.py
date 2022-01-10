@@ -84,8 +84,9 @@ class Depcode(ABC):
 
         Returns
         -------
-        mats : dict
+        mats : dict of str to Materialflow
             Dictionary that contains `Materialflow` objects.
+
             ``key``
                 Name of burnable material.
             ``value``
@@ -132,8 +133,9 @@ class Depcode(ABC):
 
         Parameters
         ----------
-        dep_dict : dict
+        dep_dict : dict of str to Materialflow
             Dictionary that contains `Materialflow` objects.
+
             ``key``
                 Name of burnable material.
             ``value``
@@ -332,7 +334,7 @@ class DepcodeSerpent(Depcode):
 
         Returns
         -------
-        isotope_map : dict
+        isotope_map : dict of str to str
             Contains mapping for isotopes names from `zzaaam` to Serpent2 name
             imported from Serpent2 ouput file:
 
@@ -398,7 +400,7 @@ class DepcodeSerpent(Depcode):
 
         Returns
         -------
-        mats : dict
+        mats : dict of str to Materialflow
             Dictionary that contains `Materialflow` objects.
 
             ``key``
@@ -654,7 +656,7 @@ class DepcodeSerpent(Depcode):
 
         Parameters
         ----------
-        dep_dict : dict
+        dep_dict : dict of str to Materialflow
             Dictionary that contains `Materialflow` objects.
 
             ``key``

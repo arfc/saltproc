@@ -129,7 +129,7 @@ class Separator(Process):
 
         Returns
         ------
-        pltdict: dict
+        pltdict: dict of str to str
             contains instances' information
         """
         plt_dict = {'q_salt': {'xaxis': 'salt flow rate ${(m^3/s)}$',
@@ -162,7 +162,7 @@ class Separator(Process):
 
         Returns
         -------
-        rem_eff : dict
+        rem_eff : dict of str to float
             Dictionary that contains removal efficiency of each target
             element.
 
