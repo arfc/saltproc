@@ -184,7 +184,7 @@ def read_feeds_from_input():
 
     Returns
     -------
-    mats : dict of st to Materialflow
+    mats : dict of str to Materialflow
         Dictionary that contains `Materialflow` objects with feeds.
 
         ``key``
@@ -245,7 +245,7 @@ def reprocessing(mat):
 
     Parameters
     -----------
-    mats : dict of st to Materialflow
+    mats : dict of str to Materialflow
         Dictionary that contains `Materialflow` objects with burnable material
         data right after irradiation in the core.
 
