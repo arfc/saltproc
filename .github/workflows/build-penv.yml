@@ -4,7 +4,7 @@ name: Cache dependencies
 on:
   push:
     branches:
-      ci-testing
+      - ci-testing
 
 jobs:
   build-penv:
