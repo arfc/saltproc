@@ -41,4 +41,3 @@ jobs:
           pip install -r requirements.txt
           pip install sphinx sphinx-rtd-theme
           python setup.py install --user
-          pip uninstall saltproc
