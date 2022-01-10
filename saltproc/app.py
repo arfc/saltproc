@@ -391,7 +391,6 @@ def run():
     # Intializing objects
     if codename == 'serpent':
         depcode = DepcodeSerpent(
-            codename=codename,
             exec_path=exec_path,
             template_path=template_file,
             input_path=input_file,
