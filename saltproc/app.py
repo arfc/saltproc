@@ -87,8 +87,8 @@ def read_main_input(main_inp_file):
     """
     with open(main_inp_file) as f:
         j = json.load(f)
-        global depcode_name, exec_path, spc_inp_file, dot_inp_file, template_file, db_file
-        codename = j["Depletion code name"].lower()
+        global codename, exec_path, spc_inp_file, dot_inp_file, template_file, db_file
+        codename = j["Name of depletion code"].lower()
         exec_path = j["Path to depletion code executable"]
         spc_inp_file = os.path.join(
             os.path.dirname(f.name),
@@ -391,17 +391,6 @@ def run():
     # Intializing objects
     if codename == 'serpent':
         depcode = DepcodeSerpent(
-            codename=codename,
-            exec_path=exec_path,
-            template_path=template_file,
-            input_path=input_file,
-            iter_matfile=iter_matfile,
-            geo_file=geo_file,
-            npop=neutron_pop,
-            active_cycles=active_cycles,
-            inactive_cycles=inactive_cycles)
-    elif codename == 'openmc':
-        depcode = DepcodeOpenMC(
             codename=codename,
             exec_path=exec_path,
             template_path=template_file,
