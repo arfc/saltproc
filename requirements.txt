@@ -1,7 +1,6 @@
 pyne
 numpy
 scipy
-json
 pytables
 networkx
 pydotplus
