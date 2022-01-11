@@ -54,7 +54,7 @@ jobs:
 # Install dependencies
       - name: Update environment
         run: mamba env update -n saltproc-env -f environment.yml
-        if: steps.combined-cache.outputs.cache-hit != 'true'
+          #if: steps.combined-cache.outputs.cache-hit != 'true'
 
       - name: Check packages
         run: conda list
