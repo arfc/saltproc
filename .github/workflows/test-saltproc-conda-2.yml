@@ -52,7 +52,7 @@ jobs:
           conda config --env --set pip_interop_enabled True
 # Install dependencies
       - name: Install dependencies and SaltProc
-        run: mamba install --file conda-dependencies.txt
+        run: mamba install -c conda-forge --file conda-dependencies.txt
 
       - name: Build saltproc
         run: |
