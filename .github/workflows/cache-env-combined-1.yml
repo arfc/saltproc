@@ -53,7 +53,7 @@ jobs:
           activate-environment: saltproc-env
           use-mamba: true
           use-only-tar-bz2: true
-        run: |
+      - run: |
           conda config --env --set pip_interop_enabled True
 
 
