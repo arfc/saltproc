@@ -24,7 +24,7 @@ jobs:
         id: conda-cache
         uses: actions/cache@v2
         env:
-          CACHE_NUMBER: 0
+          CACHE_NUMBER: 1
         with:
           path: |
             ~/conda_pkgs_dir
@@ -48,7 +48,8 @@ jobs:
           activate-environment: saltproc-env
           use-mamba: true
           use-only-tar-bz2: true
-
+        run: |
+          conda config --env --set pip_interop_enabled True
 # Install dependencies
       - name: Install dependencies and SaltProc
         if: steps.conda-cache.outputs.cache-hit != 'true'
@@ -57,7 +58,8 @@ jobs:
       - name: Build saltproc
         run: |
           conda activate saltproc-env
-          pip install saltproc
+          python setup.py install
+
 
       - name: Test saltproc
         run: pytest --ignore saltproc/tests/integration_tests saltproc
