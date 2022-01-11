@@ -29,7 +29,6 @@ jobs:
           path: |
             ~/conda_pkgs_dir
             conda-linux-64.lock
-          #key: ${{ runner.os }}-conda2-$${ hashFiles('conda-dependencies.yml')-${{ env.DATE }}-${{ env.CACHE_NUMBER }} }
           key: ${{ runner.os }}-conda2-$${ hashFiles('envrionment.yml')-${{ env.DATE }}-${{ env.CACHE_NUMBER }} }
           restore-keys: |
             ${{ runner.os }}-conda2-
@@ -49,7 +48,6 @@ jobs:
       - name: Create lockfile
         if: steps.conda-cache.outputs.cache-hit != 'true'
         run: |
-          #conda-lock -f conda-dependencies.yml -p linux-64
           conda-lock -f environment.yml -p linux-64
 
       - name: Set up Conda
