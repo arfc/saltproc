@@ -46,14 +46,14 @@ jobs:
           miniforge-version: latest
           activate-environment: saltproc-env
           use-mamba: true
-            #use-only-tar-bz2: true
+          #use-only-tar-bz2: true
       - run: |
           conda config --env --set pip_interop_enabled True
 
 # Install dependencies
       - name: Update environment
-        if: steps.combined-cache.outputs.cache-hit != 'true'
         run: mamba env update -n saltproc-env -f environment.yml
+        #if: steps.combined-cache.outputs.cache-hit != 'true'
 
       - name: Check packages
         run: mamba list
