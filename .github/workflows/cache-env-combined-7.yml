@@ -38,15 +38,6 @@ jobs:
       - run: |
           conda config --env --set pip_interop_enabled True
 
-# Install dependencies
-      - name: Update environment
-        run: mamba env update -n saltproc-env -f environment.yml
-        if: steps.combined-cache.outputs.cache-hit != 'true'
-
-      - name: Install SaltProc
-        run: |
-          python setup.py install
-
 # check for existing cache
       - name: Set cache date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
@@ -58,6 +49,15 @@ jobs:
             /usr/share/miniconda3/envs/saltproc-env
             ~/.cache/pip
           key: ${{ runner.os }}-combined1-$${ hashFiles('environment.yml')-${{ env.DATE }}-${{ env.CACHE_NUMBER }} }
+
+# Install dependencies
+      - name: Update environment
+        run: mamba env update -n saltproc-env -f environment.yml
+        if: steps.combined-cache.outputs.cache-hit != 'true'
+
+      - name: Install SaltProc
+        run: |
+          python setup.py install
 
       - name: Check packages
         run: conda list
