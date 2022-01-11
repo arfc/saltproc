@@ -41,5 +41,4 @@ jobs:
 # Install dependencies
       - name: Install dependencies and SaltProc
         if: steps.conda-cache.outputs.cache-hit != 'true'
-        run: |
-          mamba install --file conda-dependencies.txt
+        run: mamba install --file conda-dependencies.txt

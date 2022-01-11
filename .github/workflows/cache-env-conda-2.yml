@@ -24,7 +24,7 @@ jobs:
         id: conda-cache
         uses: actions/cache@v2
         env:
-          CACHE_NUMBER: 0
+          CACHE_NUMBER: 1
         with:
           path: |
             ~/conda_pkgs_dir
@@ -47,8 +47,7 @@ jobs:
 
       - name: Create lockfile
         if: steps.conda-cache.outputs.cache-hit != 'true'
-        run: |
-          conda-lock -f environment.yml -p linux-64
+        run: conda-lock -f environment.yml -p linux-64
 
       - name: Set up Conda
         uses: conda-incubator/setup-miniconda@v2

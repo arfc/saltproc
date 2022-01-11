@@ -15,12 +15,7 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v2
-
 # Check for existing cache
-    
-
-# Cache packages
       - name: Set cache date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
@@ -34,11 +29,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-conda1-
 
-    # set up python
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
+# Set up python
+      - uses: actions/checkout@v2
 
       - name: Set up Mambaforge
         uses: conda-incubator/setup-miniconda@v2
@@ -50,8 +42,7 @@ jobs:
 
 # Install dependencies
       - name: Install dependencies and SaltProc
-        run: |
-          mamba install --file conda-dependencies.txt
+        run: mamba install --file conda-dependencies.txt
 
       - name: Build saltproc
         run: python setup.py install
