@@ -14,6 +14,7 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
+
     steps:
 # Check for existing cache
       - name: Set cache date
@@ -46,7 +47,9 @@ jobs:
         run: mamba install --file conda-dependencies.txt
 
       - name: Build saltproc
-        run: python setup.py install
+        run: |
+          mamba activate saltproc-env
+          python setup.py install
 
       - name: Test saltproc
         run: pytest --ignore saltproc/tests/integration_tests saltproc
