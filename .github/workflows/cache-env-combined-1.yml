@@ -11,6 +11,9 @@ on:
 jobs:
   cache-dependencies-combined:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
 # Setup pip
       - uses: actions/checkout@v2
