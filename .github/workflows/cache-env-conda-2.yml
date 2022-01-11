@@ -26,7 +26,7 @@ jobs:
         env:
           CACHE_NUMBER: 0
         with:
-          path:
+          path: |
             ~/conda_pkgs_dir
             conda-linux-64.lock
           #key: ${{ runner.os }}-conda2-$${ hashFiles('conda-dependencies.yml')-${{ env.DATE }}-${{ env.CACHE_NUMBER }} }
