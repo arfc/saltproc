@@ -7,11 +7,3 @@ pydotplus
 pytest
 sphinx
 sphinx_rtd_theme
-argparse
-tomli
-py
-pluggy
-packaging
-iniconfig
-attrs
-pyparsing
