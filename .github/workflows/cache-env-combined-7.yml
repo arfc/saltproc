@@ -9,7 +9,7 @@ on:
   #    - cron: '0 9 * * 1' # run every monday @ 9AM
 
 env:
-  CACHE_NUMBER: 10
+  CACHE_NUMBER: 7 
 
 jobs:
   cache-dependencies-combined:
@@ -34,7 +34,7 @@ jobs:
           miniforge-version: latest
           activate-environment: saltproc-env
           use-mamba: true
-          use-only-tar-bz2: true
+            #use-only-tar-bz2: true
       - run: |
           conda config --env --set pip_interop_enabled True
 
