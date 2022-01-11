@@ -1,6 +1,7 @@
 pyne
 numpy
 scipy
-tables
+json
+pytables
 networkx
 pydotplus
