@@ -1,15 +1,18 @@
 # Preamble
-name: Cache dependencies
+name: Test SaltProc
 
 on:
-  schedule:
-    - cron: '0 9 * * 1' # run every monday @ 9AM
+  push:
+    branches:
+      - ci-testing
+  #  schedule:
+  #    - cron: '0 9 * * 1' # run every monday @ 9AM
 
 env:
-  CACHE_NUMBER: 0 
+  CACHE_NUMBER: 0 #change to manually reset cache
 
 jobs:
-  cache-dependencies:
+  test-saltproc:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -48,7 +51,7 @@ jobs:
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
 
       - name: Install SaltProc
-        run: python setup.py install
+        run:  python setup.py install
 
-      - name: Check packages
-        run: conda list
+      - name: Test SaltProc
+        run: pytest --ignore saltproc/tests/integration_tests saltproc
