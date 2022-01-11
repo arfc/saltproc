@@ -50,7 +50,7 @@ jobs:
       - name: Build saltproc
         run: |
           conda activate saltproc-env
-          python setup.py install
+          pip install saltproc
 
       - name: Test saltproc
         run: pytest --ignore saltproc/tests/integration_tests saltproc
