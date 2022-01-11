@@ -35,7 +35,7 @@ jobs:
           CACHE_NUMBER: 0
         with:
           path: /usr/share/miniconda3/envs/saltproc-env
-          key: ${{ runner.os }}-conda1-$${ hashFiles('conda-dependencies.yml')-${{ env.DATE }}-${{ env.CACHE_NUMBER }} }
+          key: ${{ runner.os }}-conda1-$${ hashFiles('conda-dependencies.txt')-${{ env.DATE }}-${{ env.CACHE_NUMBER }} }
           restore-keys: |
             ${{ runner.os }}-conda1-
 
@@ -43,4 +43,4 @@ jobs:
       - name: Install dependencies and SaltProc
         if: steps.conda-cache.outputs.cache-hit != 'true'
         run: |
-          mamba install --file conda-dependencies.yml
+          mamba install --file conda-dependencies.txt
