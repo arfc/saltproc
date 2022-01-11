@@ -24,11 +24,10 @@ jobs:
         id: conda-cache
         uses: actions/cache@v2
         env:
-          CACHE_NUMBER: 1
+          CACHE_NUMBER: 0
         with:
           path: |
             ~/conda_pkgs_dir
-            conda-linux-64.lock
           key: ${{ runner.os }}-conda2-$${ hashFiles('envrionment.yml')-${{ env.DATE }}-${{ env.CACHE_NUMBER }} }
           restore-keys: |
             ${{ runner.os }}-conda2-
@@ -41,18 +40,10 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: conda-lock
-        if: steps.conda-cache.outputs.cache-hit != 'true'
-        run: pip install conda-lock
-
-      - name: Create lockfile
-        if: steps.conda-cache.outputs.cache-hit != 'true'
-        run: conda-lock -f environment.yml -p linux-64
-
       - name: Set up Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
-          environment-file: conda-linux-64.lock
+          environment-file: environment.yml
           use-only-tar-bz2: true
 
       - name: Build saltproc
