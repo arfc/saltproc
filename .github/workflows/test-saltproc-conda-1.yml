@@ -9,7 +9,7 @@ on:
   #    - cron: '0 9 * * 1' # run every monday @ 9AM
 
 jobs:
-  cache-dependencies-conda:
+  test-saltproc-conda:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -18,14 +18,7 @@ jobs:
       - uses: actions/checkout@v2
 
 # Check for existing cache
-      - name: Set up Mambaforge
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          miniforge-variant: Mambaforge
-          miniforge-version: latest
-          activate-environment: saltproc-env
-          use-mamba: true
-
+    
 
 # Cache packages
       - name: Set cache date
@@ -41,8 +34,27 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-conda1-
 
+    # set up python
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Set up Mambaforge
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: saltproc-env
+          use-mamba: true
+
 # Install dependencies
       - name: Install dependencies and SaltProc
-        if: steps.conda-cache.outputs.cache-hit != 'true'
         run: |
           mamba install --file conda-dependencies.txt
+
+      - name: Build saltproc
+        run: python setup.py install
+
+      - name: Test saltproc
+        run: pytest --ignore saltproc/test/integration_tests saltproc
