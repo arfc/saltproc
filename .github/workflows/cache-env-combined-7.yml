@@ -9,7 +9,7 @@ on:
   #    - cron: '0 9 * * 1' # run every monday @ 9AM
 
 env:
-  CACHE_NUMBER: 7
+  CACHE_NUMBER: 10
 
 jobs:
   cache-dependencies-combined:
