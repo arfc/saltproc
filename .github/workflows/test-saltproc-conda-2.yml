@@ -52,14 +52,16 @@ jobs:
           conda config --env --set pip_interop_enabled True
 # Install dependencies
       - name: Install dependencies and SaltProc
-        if: steps.conda-cache.outputs.cache-hit != 'true'
         run: mamba install --file conda-dependencies.txt
 
       - name: Build saltproc
         run: |
           conda activate saltproc-env
           python setup.py install
+          
 
 
       - name: Test saltproc
-        run: pytest --ignore saltproc/tests/integration_tests saltproc
+        run: |
+          conda activate saltproc-env
+          pytest --ignore saltproc/tests/integration_tests saltproc
