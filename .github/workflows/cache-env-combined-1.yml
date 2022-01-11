@@ -45,8 +45,7 @@ jobs:
         env:
           CACHE_NUMBER: 6
         with:
-          path: |
-            /usr/share/miniconda3/envs/saltproc-env
+          path: /usr/share/miniconda3/envs/saltproc-env
             #  ~/conda_pkgs_dir
             # ~/.cache/pip
           key: ${{ runner.os }}-combined1-$${ hashFiles('environment.yml')-${{ env.DATE }}-${{ env.CACHE_NUMBER }} }
