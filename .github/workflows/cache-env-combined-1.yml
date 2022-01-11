@@ -60,7 +60,7 @@ jobs:
 
 # Install dependencies
       - name: Update environment
-        if: steps.conmbined-cache.outputs.cache-hit != 'true'
+        if: steps.combined-cache.outputs.cache-hit != 'true'
         run: mamba env update -n saltproc-env -f environment.yml
 
       - name: Install SaltProc
