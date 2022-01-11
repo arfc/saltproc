@@ -43,4 +43,4 @@ jobs:
           python setup.py install --user
 
           # Test saltproc
-          pytest --ignore saltproc/test/integration_tests saltproc
+          pytest --ignore saltproc/tests/integration_tests saltproc
