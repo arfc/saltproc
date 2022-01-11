@@ -41,11 +41,11 @@ jobs:
         with:
           python-version: 3.8
 
-     - name: Create lockfile
-       if: steps.conda-cache.outputs.cache-hit != 'true'
-       run: |
-         pip install conda-lock
-         conda-lock -f environment.yml -p linux-64
+      - name: Create lockfile
+        if: steps.conda-cache.outputs.cache-hit != 'true'
+        run: |
+          pip install conda-lock
+          conda-lock -f environment.yml -p linux-64
 
 
       - name: Set up Conda
