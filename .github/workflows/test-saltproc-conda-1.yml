@@ -48,7 +48,7 @@ jobs:
 
       - name: Build saltproc
         run: |
-          mamba activate saltproc-env
+          conda activate saltproc-env
           python setup.py install
 
       - name: Test saltproc
