@@ -59,9 +59,9 @@ jobs:
 
 
 # Install dependencies
-      - name: Install dependencies
+      - name: Update environment
         if: steps.conmbined-cache.outputs.cache-hit != 'true'
-        run: mamba install -c conda-forge --file conda-dependencies.txt
+        run: mamba env update -n saltproc-env -f environment.yml
 
       - name: Install SaltProc
         run: |
