@@ -56,7 +56,7 @@ jobs:
         run: mamba env update -n saltproc-env -f environment.yml
 
       - name: Check packages
-        run: mamba list
+        run: conda list
 
       - name: Install SaltProc
         run: |
