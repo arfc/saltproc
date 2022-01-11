@@ -14,9 +14,15 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
+
     steps:
-# Setup pip
       - uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
 
 # Check for existing cache
       - name: Set cache date
@@ -35,7 +41,7 @@ jobs:
             ${{ runner.os }}-combined1-
 
 # Setup conda 
-      - name: Set up Mambaforge
+      - name: Set up conda
         uses: conda-incubator/setup-miniconda@v2
         with:
           miniforge-variant: Mambaforge
@@ -46,17 +52,13 @@ jobs:
       - run: |
           conda config --env --set pip_interop_enabled True
 
-
 # Install dependencies
       - name: Update environment
         if: steps.combined-cache.outputs.cache-hit != 'true'
         run: mamba env update -n saltproc-env -f environment.yml
 
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-
+      - name: Check packages
+        run: mamba list
 
       - name: Install SaltProc
         run: |
