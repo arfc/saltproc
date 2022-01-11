@@ -61,4 +61,6 @@ jobs:
         run: mamba install --file conda-dependencies.txt
 
       - name: Install SaltProc
-        run: pip install saltproc
+        run: |
+          conda activate saltproc-env
+          pip install saltproc
