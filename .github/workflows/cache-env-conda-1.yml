@@ -36,6 +36,7 @@ jobs:
           miniforge-version: latest
           activate-environment: saltproc-env
           use-mamba: true
+          use-only-tar-bz2: true
 
 
 # Install dependencies
