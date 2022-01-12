@@ -6,7 +6,7 @@ on:
   pull_request:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Cache Dependencies"]
+    workflows: ["Cache dependencies"]
     types: [completed]
 
 env:
