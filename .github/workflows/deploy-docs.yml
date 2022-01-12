@@ -6,12 +6,6 @@ on:
     branches:
       - ci-testing
      # - master 
-  #workflow_run:
-  #workflows: "Test SaltProc"
-  #branches: [master]
-  #types:
-  #  - completed
-
 
 env:
   CACHE_NUMBER: 0 #change to manually reset cache
@@ -58,6 +52,9 @@ jobs:
 
       - name: Install SaltProc
         run:  python setup.py install
+
+      - name: Check packages
+        run: conda list
 
       - name: Build Sphinx Documentation
         run: |
