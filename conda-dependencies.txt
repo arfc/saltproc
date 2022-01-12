@@ -1,9 +1,0 @@
-pyne>=0.5.11
-numpy>=1.14.0
-scipy
-pytables
-networkx
-pydotplus
-pytest
-sphinx
-sphinx_rtd_theme
