@@ -14,8 +14,8 @@ env:
 
 jobs:
   call-cache-dependencies:
-    uses: yardasol/saltproc/.github/workflows/cache-dependencies.yml
-    #uses: arfc/saltproc/.github/workflows/cache-dependencies.yml
+    uses: yardasol/saltproc/.github/workflows/cache-dependencies.yml@ci-testing
+    #uses: arfc/saltproc/.github/workflows/cache-dependencies.yml@master
 
   test-saltproc:
     runs-on: ubuntu-latest
