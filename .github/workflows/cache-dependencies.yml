@@ -41,7 +41,7 @@ jobs:
           path: |
             /usr/share/miniconda3/envs/saltproc-env
             ~/.cache/pip
-          key: ${{ runner.os }}-depcache-$${ hashFiles('environment.yml')-${{ env.DATE }}-${{ env.CACHE_NUMBER }} }
+          key: depcache-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
 
 # Install dependencies
       - name: Update environment
