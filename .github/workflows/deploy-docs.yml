@@ -4,8 +4,7 @@ name: Deploy SaltProc docs
 on:
   push:
     branches:
-      - ci-testing
-     # - master 
+      - master 
 
 env:
   CACHE_NUMBER: 0 #change to manually reset cache
