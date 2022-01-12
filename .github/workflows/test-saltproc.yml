@@ -2,11 +2,10 @@
 name: Test SaltProc
 
 on:
-  push:
-    branches:
-      - ci-testing
-  #  schedule:
-  #    - cron: '0 9 * * 1' # run every monday @ 9AM
+  [push, pull_request]
+  workflow_run:
+    workflows: ["Cache Dependencies"]
+    types: [completed]
 
 env:
   CACHE_NUMBER: 0 #change to manually reset cache
