@@ -63,7 +63,7 @@ jobs:
       - name: Build Sphinx Documentation
         run: |
           cd doc
-          sphnix-apidoc --separate --force --output-dir=src/ ../saltproc
+          sphinx-apidoc --separate --force --output-dir=src/ ../saltproc
           make clean
           make html
 
