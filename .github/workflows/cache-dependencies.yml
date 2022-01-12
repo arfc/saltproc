@@ -2,7 +2,6 @@
 name: Cache dependencies
 
 on:
-  workflow_call: # make this workflow reusable
   schedule:
     - cron: '0 9 * * 1' # run every monday @ 9AM
 
