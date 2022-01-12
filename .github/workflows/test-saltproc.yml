@@ -3,9 +3,9 @@ name: Test SaltProc
 
 on:
   [push, pull_request]
-  workflow_run:
-    workflows: ["Cache Dependencies"]
-    types: [completed]
+  #workflow_run:
+  #  workflows: ["Cache Dependencies"]
+  #  types: [completed]
 
 env:
   CACHE_NUMBER: 0 #change to manually reset cache
