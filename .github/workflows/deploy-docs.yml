@@ -1,6 +1,5 @@
 # Preamble
 name: Deploy SaltProc docs
-description: This workflow build the Jekyll website and API docs.
 
 on:
   push:
