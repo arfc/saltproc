@@ -1,18 +1,26 @@
 # Preamble
 name: Deploy SaltProc docs
+description: This workflow build the Jekyll website and API docs.
 
 on:
   push:
     branches:
       - ci-testing
      # - master 
+  #workflow_run:
+  #workflows: "Test SaltProc"
+  #branches: [master]
+  #types:
+  #  - completed
+
 
 env:
   CACHE_NUMBER: 0 #change to manually reset cache
 
 jobs:
-  test-saltproc:
+  deploy-docs:
     runs-on: ubuntu-latest
+      #if: ${{ github.event.workflow_run.conclusion == 'success' }}
     defaults:
       run:
         shell: bash -l {0}
@@ -51,9 +59,6 @@ jobs:
 
       - name: Install SaltProc
         run:  python setup.py install
-
-      - name: Test SaltProc
-        run: pytest --ignore saltproc/tests/integration_tests saltproc
 
       - name: Build Sphinx Documentation
         run: |
