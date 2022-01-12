@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - master 
+    paths:
+      - 'doc/**'
+      - 'saltproc/**'
 
 env:
   CACHE_NUMBER: 0 #change to manually reset cache
