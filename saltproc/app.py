@@ -419,24 +419,24 @@ def run():
     check_restart(restart_flag)
     # Run sequence
     # Start sequence
-    for dts in range(len(depl_hist)):
-        print("\n\n\nStep #%i has been started" % (dts + 1))
+    for dep_step in range(len(depl_hist)):
+        print("\n\n\nStep #%i has been started" % (dep_step + 1))
         depcode.write_depcode_input(template_file,
                                     input_file,
                                     msr,
-                                    dts,
+                                    dep_step,
                                     restart_flag)
         depcode.run_depcode(cores, nodes)
-        if dts == 0 and restart_flag is False:  # First step
+        if dep_step == 0 and restart_flag is False:  # First step
             # Read general simulation data which never changes
             simulation.store_run_init_info()
-            # Parse and store data for initial state (beginning of dts)
+            # Parse and store data for initial state (beginning of dep_step)
             mats = depcode.read_dep_comp(input_file, False)
-            simulation.store_mat_data(mats, dts - 1, 'before_reproc')
+            simulation.store_mat_data(mats, dep_step - 1, 'before_reproc')
         # Finish of First step
         # Main sequence
         mats = depcode.read_dep_comp(input_file, True)
-        simulation.store_mat_data(mats, dts, 'before_reproc')
+        simulation.store_mat_data(mats, dep_step, 'before_reproc')
         simulation.store_run_step_info()
         # Reprocessing here
         print("\nMass and volume of fuel before reproc %f g; %f cm3" %
@@ -461,12 +461,12 @@ def run():
         #        mats['ctrlPois'].vol))
         print("Removed mass [g]:", rem_mass)
         # Store in DB after reprocessing and refill (right before next depl)
-        simulation.store_after_repr(mats, waste_feed_st, dts)
+        simulation.store_after_repr(mats, waste_feed_st, dep_step)
         serpent.write_mat_file(mats, iter_matfile, simulation.burn_time)
         del mats, waste_st, waste_feed_st, rem_mass
         gc.collect()
         # Switch to another geometry?
-        if adjust_geo and simulation.read_k_eds_delta(dts, restart_flag):
+        if adjust_geo and simulation.read_k_eds_delta(dep_step, restart_flag):
             simulation.switch_to_next_geometry()
         print("\nTime at the end of current depletion step %fd" %
               simulation.burn_time)
