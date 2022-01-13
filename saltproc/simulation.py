@@ -29,22 +29,27 @@ class Simulation():
 
         Parameters
         ----------
-        sim_name: str
-            Name of simulation may contain number of reference case, paper name
-            or other specific information to identify simulation.
-        sim_depcode: obj
-            Depcode object initiated using Depcode class.
-        cores: int
-            Number of cores to use for Serpent run (`-omp` flag in Serpent).
-        nodes: int
-            Number of nodes to use for Serpent run (`-mpi` flag in Serpent).
-        h5_file: str
-            Name of HDF5 database.
-        compression: Pytables filter object
-            HDF5 database compression parameters.
-        iter_matfile: str
-            Name of file containing burnable materials composition used in
-            Serpent runs and update after each depletion step.
+        sim_name : str
+            Name to identify the simulation. May contain information such as
+            the number of a reference case, a paper name, or some other
+            specific information identify the simulation.
+        sim_depcode : Depcode object
+            An instance of one of the `Depcode` child classes
+        cores : int
+            Number of cores to use for depletion code run (`-omp` flag in
+            Serpent).
+        nodes : int
+            Number of nodes to use for depletion code run (`-mpi` flag in
+            Serpent).
+        db_path : str
+            Path of HDF5 database that stores simulation information and
+            data.
+        compression_params : Pytables filter object
+            Compression parameters for HDF5 database.
+        iter_matfile : str
+            Name of iterative, rewritable material file for depletion code
+            rerunning. This file is modified during  the simulation.
+
         """
         # initialize all object attributes
         self.sim_name = sim_name
