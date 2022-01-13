@@ -5,8 +5,13 @@ from collections import OrderedDict
 
 
 class Simulation():
-    """Class sets up parameters for simulation, runs Serpent, parses output,
-    creates input.
+    """Class for handling simulation information. Contains information
+    for running simulation wiht parallelism. Also contains the simulation
+    name, a `Depcode` object, and the filename for the simulation database.
+    Contains methods to store simulation metadata and depletion results in
+    a database, predict reactor criticality at next depletion step, and
+    switch simulation geometry.
+
     """
 
     def __init__(
