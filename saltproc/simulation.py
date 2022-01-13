@@ -77,25 +77,25 @@ class Simulation():
 
         ######################################################################
         # Start sequence
-        for dts in range(nsteps):
-            print("\nStep #%i has been started" % (dts + 1))
-            if dts == 0:  # First step
+        for dep_step in range(nsteps):
+            print("\nStep #%i has been started" % (dep_step + 1))
+            if dep_step == 0:  # First step
                 self.sim_depcode.write_depcode_input(
                     self.sim_depcode.template_path,
                     self.sim_depcode.input_path,
                     reactor,
-                    dts,
+                    dep_step,
                     False)
                 self.sim_depcode.run_depcode(
                     self.core_number,
                     self.node_number)
                 # Read general simulation data which never changes
                 self.store_run_init_info()
-                # Parse and store data for initial state (beginning of dts)
+                # Parse and store data for initial state (beginning of dep_step)
                 mats = self.sim_depcode.read_dep_comp(
                     self.sim_depcode.input_path,
                     False)
-                self.store_mat_data(mats, dts, 'before_reproc')
+                self.store_mat_data(mats, dep_step, 'before_reproc')
             # Finish of First step
             # Main sequence
             else:
@@ -105,7 +105,7 @@ class Simulation():
             mats = self.sim_depcode.read_dep_comp(
                 self.sim_depcode.input_path,
                 True)
-            self.store_mat_data(mats, dts, 'before_reproc')
+            self.store_mat_data(mats, dep_step, 'before_reproc')
             self.store_run_step_info()
             self.sim_depcode.write_mat_file(
                 mats,
@@ -178,7 +178,7 @@ class Simulation():
         self.store_mat_data(after_mats, dep_step, 'after_reproc')
         db.close()
 
-    def store_mat_data(self, mats, d_step, moment):
+    def store_mat_data(self, mats, dep_step, moment):
         """Initialize the HDF5/Pytables database (if it doesn't exist) or
         append the following data at the current depletion step to the
         database: burnable material composition, mass, density, volume,
@@ -217,7 +217,7 @@ class Simulation():
             ('burnup', float)
         ])
 
-        print('\nStoring material data for depletion step #%i.' % (d_step + 1))
+        print('\nStoring material data for depletion step #%i.' % (dep_step + 1))
         db = tb.open_file(self.db_path, mode='a', filters=self.compression_params)
         if not hasattr(db.root, 'materials'):
             comp_group = db.create_group('/',
