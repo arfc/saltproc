@@ -175,13 +175,14 @@ class Simulation():
                 del iso_wt_frac
                 del iso_idx
         # Also save materials AFTER reprocessing and refill here
-        self.store_mat_data(after_mats, step, 'after_reproc')
+        self.store_mat_data(after_mats, dep_step, 'after_reproc')
         db.close()
 
     def store_mat_data(self, mats, d_step, moment):
-        """Initializes HDF5/Pytables database (if not exist) or append burnable
-        material composition, mass, density, volume, temperature, burnup,
-        mass_flowrate, void_fraction, at the current depletion step to it.
+        """Initialize the HDF5/Pytables database (if it doesn't exist) or
+        append the following data at the current depletion step to the
+        database: burnable material composition, mass, density, volume,
+        temperature, burnup,  mass_flowrate, void_fraction.
 
         Parameters
         ----------
@@ -192,11 +193,15 @@ class Simulation():
                 Name of burnable material.
             ``value``
                 `Materialflow` object holding composition and properties.
-        d_step : int
+        dep_step : int
             Current depletion step.
+        read_at_end : bool, optional
+            Controls at which moment in the depletion step to read the data.
+            If `True`, the function reads data at the end of the
+            depletion step. Otherwise, the function reads data at the
+            beginning of the depletion step.
+
         moment : int
-            Indicates at which moment in the depletion step store the data. `0`
-            refers the beginning, `1` refers the end of depletion step.
 
         """
         # Moment when store compositions
