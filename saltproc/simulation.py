@@ -17,7 +17,7 @@ class Simulation():
     def __init__(
             self,
             sim_name="default",
-            sim_depcode="SERPENT",
+            sim_depcode="depcode",
             core_number=1,
             node_number=1,
             db_path="db_saltproc.h5",
@@ -61,12 +61,13 @@ class Simulation():
         self.iter_matfile = iter_matfile
 
     def runsim_no_reproc(self, reactor, nsteps):
-        """Run simulation sequence for integral test. No reprocessing involved,
-        just re-running Serpent for comparision with model output.
+        """Run simulation sequence for integration test. No reprocessing
+        involved, just re-running depletion code for comparision with model
+        output.
 
         Parameters
         ----------
-        reactor : Reactor
+        reactor : Reactor object
             Contains information about power load curve and cumulative
             depletion time for the integration test.
         nsteps : int
