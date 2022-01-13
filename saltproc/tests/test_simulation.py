@@ -24,7 +24,7 @@ simulation = Simulation(sim_name='Simulation unit tests',
                         sim_depcode=serpent,
                         core_number=1,
                         node_number=1,
-                        h5_file=directory + '/test_db.h5',
+                        db_path=directory + '/test_db.h5',
                         iter_matfile=serpent.iter_matfile)
 
 

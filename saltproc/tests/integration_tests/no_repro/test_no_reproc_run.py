@@ -36,7 +36,7 @@ simulation = Simulation(sim_name='Integration test',
                         sim_depcode=depcode,
                         core_number=1,
                         node_number=1,
-                        h5_file=db_file,
+                        db_path=db_file,
                         iter_matfile=iter_matfile)
 
 tap = Reactor(volume=1.0,

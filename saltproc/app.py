@@ -408,7 +408,7 @@ def run():
         sim_depcode=depcode,
         core_number=cores,
         node_number=nodes,
-        h5_file=db_file,
+        db_path=db_file,
         iter_matfile=iter_matfile)
     msr = Reactor(
         volume=1.0,

@@ -20,7 +20,7 @@ class Simulation():
             sim_depcode="SERPENT",
             core_number=1,
             node_number=1,
-            h5_file="db_saltproc.h5",
+            db_path="db_saltproc.h5",
             compression=tb.Filters(complevel=9,
                                    complib='blosc',
                                    fletcher32=True),
@@ -56,7 +56,7 @@ class Simulation():
         self.sim_depcode = sim_depcode
         self.core_number = core_number
         self.node_number = node_number
-        self.h5_file = h5_file
+        self.db_path = db_path
         self.compression = compression
         self.iter_matfile = iter_matfile
 
@@ -132,7 +132,7 @@ class Simulation():
 
         """
         streams_gr = 'in_out_streams'
-        db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
+        db = tb.open_file(self.db_path, mode='a', filters=self.compression)
         for mn in waste_dict.keys():  # iterate over materials
             mat_node = getattr(db.root.materials, mn)
             if not hasattr(mat_node, streams_gr):
@@ -210,7 +210,7 @@ class Simulation():
         ])
 
         print('\nStoring material data for depletion step #%i.' % (d_step + 1))
-        db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
+        db = tb.open_file(self.db_path, mode='a', filters=self.compression)
         if not hasattr(db.root, 'materials'):
             comp_group = db.create_group('/',
                                          'materials',
@@ -276,7 +276,7 @@ class Simulation():
                     np.empty(0, dtype=mpar_dtype),
                     "Material parameters data")
             print('Dumping Material %s data %s to %s.' %
-                  (key, moment, os.path.abspath(self.h5_file)))
+                  (key, moment, os.path.abspath(self.db_path)))
             # Add row for the timestep to EArray and Material Parameters table
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
             mpar_table.append(mpar_array)
@@ -311,7 +311,7 @@ class Simulation():
             fission_mass_bds = tb.Float32Col()
             fission_mass_eds = tb.Float32Col()
         # Open or restore db and append data to it
-        db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
+        db = tb.open_file(self.db_path, mode='a', filters=self.compression)
         try:
             step_info_table = db.get_node(
                 db.root,
@@ -391,7 +391,7 @@ class Simulation():
         )
         sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype)
         # Open or restore db and append datat to it
-        db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
+        db = tb.open_file(self.db_path, mode='a', filters=self.compression)
         try:
             sim_info_table = db.get_node(db.root, 'initial_depcode_siminfo')
         except Exception:
@@ -449,7 +449,7 @@ class Simulation():
 
         if current_timestep > 3 or restart:
             # Open or restore db and read data
-            db = tb.open_file(self.h5_file, mode='r')
+            db = tb.open_file(self.db_path, mode='r')
             sim_param = db.root.simulation_parameters
             k_eds = np.array([x['keff_eds'][0] for x in sim_param.iterrows()])
             db.close()
