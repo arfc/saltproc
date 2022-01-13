@@ -21,7 +21,7 @@ class Simulation():
             core_number=1,
             node_number=1,
             db_path="db_saltproc.h5",
-            compression=tb.Filters(complevel=9,
+            compression_params=tb.Filters(complevel=9,
                                    complib='blosc',
                                    fletcher32=True),
             iter_matfile="./saltproc_mat"):
@@ -57,7 +57,7 @@ class Simulation():
         self.core_number = core_number
         self.node_number = node_number
         self.db_path = db_path
-        self.compression = compression
+        self.compression_params = compression_params
         self.iter_matfile = iter_matfile
 
     def runsim_no_reproc(self, reactor, nsteps):
@@ -132,7 +132,7 @@ class Simulation():
 
         """
         streams_gr = 'in_out_streams'
-        db = tb.open_file(self.db_path, mode='a', filters=self.compression)
+        db = tb.open_file(self.db_path, mode='a', filters=self.compression_params)
         for mn in waste_dict.keys():  # iterate over materials
             mat_node = getattr(db.root.materials, mn)
             if not hasattr(mat_node, streams_gr):
@@ -210,7 +210,7 @@ class Simulation():
         ])
 
         print('\nStoring material data for depletion step #%i.' % (d_step + 1))
-        db = tb.open_file(self.db_path, mode='a', filters=self.compression)
+        db = tb.open_file(self.db_path, mode='a', filters=self.compression_params)
         if not hasattr(db.root, 'materials'):
             comp_group = db.create_group('/',
                                          'materials',
@@ -311,7 +311,7 @@ class Simulation():
             fission_mass_bds = tb.Float32Col()
             fission_mass_eds = tb.Float32Col()
         # Open or restore db and append data to it
-        db = tb.open_file(self.db_path, mode='a', filters=self.compression)
+        db = tb.open_file(self.db_path, mode='a', filters=self.compression_params)
         try:
             step_info_table = db.get_node(
                 db.root,
@@ -391,7 +391,7 @@ class Simulation():
         )
         sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype)
         # Open or restore db and append datat to it
-        db = tb.open_file(self.db_path, mode='a', filters=self.compression)
+        db = tb.open_file(self.db_path, mode='a', filters=self.compression_params)
         try:
             sim_info_table = db.get_node(db.root, 'initial_depcode_siminfo')
         except Exception:
