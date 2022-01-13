@@ -33,7 +33,7 @@ class Simulation():
             Name to identify the simulation. May contain information such as
             the number of a reference case, a paper name, or some other
             specific information identify the simulation.
-        sim_depcode : Depcode object
+        sim_depcode : `Depcode` object
             An instance of one of the `Depcode` child classes
         cores : int
             Number of cores to use for depletion code run (`-omp` flag in
@@ -67,7 +67,7 @@ class Simulation():
 
         Parameters
         ----------
-        reactor : Reactor object
+        reactor : `Reactor`
             Contains information about power load curve and cumulative
             depletion time for the integration test.
         nsteps : int
@@ -113,13 +113,14 @@ class Simulation():
                 self.burn_time)
 
     def store_after_repr(self, after_mats, waste_dict, step):
-        """Adds to HDF5 database waste streams data for each process after
-        reprocessing was performed (grams per depletion step).
+        """Add data for waste streams [grams per depletion step] of each
+        process to the HDF5 database after reprocessing.
 
         Parameters
         ----------
         after_mats : `Materialflow`
-            Burnable material stream object after performing reprocessing.
+            `Materialflow` object representing a material stream after
+            performing reprocessing.
         waste_dict : dict of str to Materialflow
             Dictionary that maps `Process` objects to waste `Materialflow`
             objects.
@@ -128,8 +129,9 @@ class Simulation():
                 `Process` name (`str`)
             ``value``
                 `Materialflow` object containing waste streams data.
-        step : int
-            Current depletion step.
+        dep_step : int
+            Current depletion time step.
+
 
         """
         streams_gr = 'in_out_streams'
