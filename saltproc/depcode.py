@@ -409,9 +409,11 @@ class DepcodeSerpent(Depcode):
                 `Materialflow` object holding composition and properties.
 
         """
-        moment = 0
+        # Determine moment in depletion step to read data from
         if read_at_end:
             moment = 1
+        else:
+            moment = 0
 
         dep_file = os.path.join('%s_dep.m' % input_file)
         dep = serpent.parse_dep(dep_file, make_mats=False)

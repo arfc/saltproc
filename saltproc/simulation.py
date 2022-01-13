@@ -95,7 +95,7 @@ class Simulation():
                 mats = self.sim_depcode.read_dep_comp(
                     self.sim_depcode.input_path,
                     False)
-                self.store_mat_data(mats, dep_step, 'before_reproc')
+                self.store_mat_data(mats, dep_step, False)
             # Finish of First step
             # Main sequence
             else:
@@ -105,14 +105,14 @@ class Simulation():
             mats = self.sim_depcode.read_dep_comp(
                 self.sim_depcode.input_path,
                 True)
-            self.store_mat_data(mats, dep_step, 'before_reproc')
+            self.store_mat_data(mats, dep_step, False)
             self.store_run_step_info()
             self.sim_depcode.write_mat_file(
                 mats,
                 self.iter_matfile,
                 self.burn_time)
 
-    def store_after_repr(self, after_mats, waste_dict, step):
+    def store_after_repr(self, after_mats, waste_dict, dep_step):
         """Add data for waste streams [grams per depletion step] of each
         process to the HDF5 database after reprocessing.
 
@@ -175,10 +175,10 @@ class Simulation():
                 del iso_wt_frac
                 del iso_idx
         # Also save materials AFTER reprocessing and refill here
-        self.store_mat_data(after_mats, dep_step, 'after_reproc')
+        self.store_mat_data(after_mats, dep_step, True)
         db.close()
 
-    def store_mat_data(self, mats, dep_step, moment):
+    def store_mat_data(self, mats, dep_step, store_at_end = False):
         """Initialize the HDF5/Pytables database (if it doesn't exist) or
         append the following data at the current depletion step to the
         database: burnable material composition, mass, density, volume,
@@ -195,15 +195,19 @@ class Simulation():
                 `Materialflow` object holding composition and properties.
         dep_step : int
             Current depletion step.
-        read_at_end : bool, optional
-            Controls at which moment in the depletion step to read the data.
-            If `True`, the function reads data at the end of the
-            depletion step. Otherwise, the function reads data at the
+        store_at_end : bool, optional
+            Controls at which moment in the depletion step to store data from.
+            If `True`, the function stores data from the end of the
+            depletion step. Otherwise, the function stores data from the
             beginning of the depletion step.
 
-        moment : int
-
         """
+        # Determine moment in depletion step from which to store data
+        if store_at_end:
+            dep_step_str = "after_reproc"
+        else:
+            dep_step_str = "before_reproc"
+
         # Moment when store compositions
         iso_idx = OrderedDict()
         # numpy array row storage data for material physical properties
@@ -234,11 +238,11 @@ class Simulation():
                                 key)
             # Create group for composition and parameters before reprocessing
             mat_node = getattr(db.root.materials, key)
-            if not hasattr(mat_node, moment):
+            if not hasattr(mat_node, dep_step_str):
                 db.create_group(mat_node,
-                                moment,
+                                dep_step_str,
                                 'Material data before reprocessing')
-            comp_pfx = '/materials/' + str(key) + '/' + str(moment)
+            comp_pfx = '/materials/' + str(key) + '/' + dep_step_str
             # Read isotopes from Materialflow for material
             for nuc_code, wt_frac in mats[key].comp.items():
                 # Dictonary in format {isotope_name : index(int)}
@@ -284,7 +288,7 @@ class Simulation():
                     np.empty(0, dtype=mpar_dtype),
                     "Material parameters data")
             print('Dumping Material %s data %s to %s.' %
-                  (key, moment, os.path.abspath(self.db_path)))
+                  (key, dep_step_str, os.path.abspath(self.db_path)))
             # Add row for the timestep to EArray and Material Parameters table
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
             mpar_table.append(mpar_array)

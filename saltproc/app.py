@@ -432,11 +432,11 @@ def run():
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dep_step)
             mats = depcode.read_dep_comp(input_file, False)
-            simulation.store_mat_data(mats, dep_step - 1, 'before_reproc')
+            simulation.store_mat_data(mats, dep_step - 1, False)
         # Finish of First step
         # Main sequence
         mats = depcode.read_dep_comp(input_file, True)
-        simulation.store_mat_data(mats, dep_step, 'before_reproc')
+        simulation.store_mat_data(mats, dep_step, True)
         simulation.store_run_step_info()
         # Reprocessing here
         print("\nMass and volume of fuel before reproc %f g; %f cm3" %
