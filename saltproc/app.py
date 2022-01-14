@@ -242,7 +242,7 @@ def read_dot(dot_file):
     return mat_name, paths_list
 
 
-def reprocessing(mat):
+def reprocessing(mats):
     """Applies reprocessing scheme to burnable materials.
 
     Parameters
@@ -276,40 +276,40 @@ def reprocessing(mat):
     inmass = {}
     extracted_mass = {}
     waste = OrderedDict()
-    forked_mat = OrderedDict()
+    forked_mats = OrderedDict()
     prcs = read_processes_from_input()
-    mat_name_dot, paths = read_dot(dot_inp_file)
+    mats_name_dot, paths = read_dot(dot_inp_file)
     for mname in prcs.keys():  # iterate over materials
         waste[mname] = {}
-        forked_mat[mname] = []
-        inmass[mname] = float(mat[mname].mass)
+        forked_mats[mname] = []
+        inmass[mname] = float(mats[mname].mass)
         print("Material mass before reprocessing %f g" % inmass[mname])
-        if mname == 'fuel' and mat_name_dot == 'fuel':
+        if mname == 'fuel' and mats_name_dot == 'fuel':
             w = 'waste_'
             ctr = 0
             for path in paths:
-                forked_mat[mname].append(copy.deepcopy(mat[mname]))
-                print("Material mass %f" % mat[mname].mass)
+                forked_mats[mname].append(copy.deepcopy(mats[mname]))
+                print("Material mass %f" % mats[mname].mass)
                 for p in path:
                     # Calculate fraction of the flow going to the process p
                     divisor = float(prcs[mname][p].mass_flowrate /
                                     prcs[mname]['core_outlet'].mass_flowrate)
                     print('Process %s, divisor=%f' % (p, divisor))
                     # Update materialflow byt multiplying it by flow fraction
-                    forked_mat[mname][ctr] = \
-                        divisor * copy.deepcopy(forked_mat[mname][ctr])
+                    forked_mats[mname][ctr] = \
+                        divisor * copy.deepcopy(forked_mats[mname][ctr])
                     waste[mname][w + p] = \
-                        prcs[mname][p].rem_elements(forked_mat[mname][ctr])
+                        prcs[mname][p].rem_elements(forked_mats[mname][ctr])
                 ctr += 1
             # Sum all forked material objects together
-            mat[mname] = forked_mat[mname][0]  # initilize correct obj instance
-            for idx in range(1, len(forked_mat[mname])):
-                mat[mname] += forked_mat[mname][idx]
-            print('1 Forked material mass %f' % (forked_mat[mname][0].mass))
-            print('2 Forked material mass %f' % (forked_mat[mname][1].mass))
+            mats[mname] = forked_mats[mname][0]  # initilize correct obj instance
+            for idx in range(1, len(forked_mats[mname])):
+                mats[mname] += forked_mats[mname][idx]
+            print('1 Forked material mass %f' % (forked_mats[mname][0].mass))
+            print('2 Forked material mass %f' % (forked_mats[mname][1].mass))
             print('\nMass balance %f g = %f + %f + %f + %f + %f + %f' %
                   (inmass[mname],
-                   mat[mname].mass,
+                   mats[mname].mass,
                    waste[mname]['waste_sparger'].mass,
                    waste[mname]['waste_entrainment_separator'].mass,
                    waste[mname]['waste_nickel_filter'].mass,
@@ -318,9 +318,9 @@ def reprocessing(mat):
         # Bootstrap for many materials
         if mname == 'ctrlPois':
             waste[mname]['removal_tb_dy'] = \
-                prcs[mname]['removal_tb_dy'].rem_elements(mat[mname])
-        extracted_mass[mname] = inmass[mname] - float(mat[mname].mass)
-    del prcs, inmass, mname, forked_mat, mat_name_dot, paths, divisor
+                prcs[mname]['removal_tb_dy'].rem_elements(mats[mname])
+        extracted_mass[mname] = inmass[mname] - float(mats[mname].mass)
+    del prcs, inmass, mname, forked_mats, mats_name_dot, paths, divisor
     return waste, extracted_mass
 
 
@@ -329,7 +329,7 @@ def refill(mat, extracted_mass, waste_dict):
 
     Parameters
     -----------
-    mat : dict of str to Materialflow
+    mats : dict of str to Materialflow
 
         ``key``
             Name of burnable material.
@@ -341,7 +341,7 @@ def refill(mat, extracted_mass, waste_dict):
             Name of burnable material.
         ``value``
             Mass removed as waste in reprocessing function for each material.
-    waste : dict of str to Materialflow
+    waste_dict : dict of str to Materialflow
 
         ``key``
             Process name.
@@ -358,19 +358,19 @@ def refill(mat, extracted_mass, waste_dict):
         ``value``
             `Materialflow` object after adding fresh fuel.
     """
-    print('Fuel before refill ^^^', mat['fuel'].print_attr())
+    print('Fuel before refill ^^^', mats['fuel'].print_attr())
     feeds = read_feeds_from_input()
     refill_mat = OrderedDict()
     for mn, v in feeds.items():  # iterate over materials
-        refill_mat[mn] = {}
+        refill_mats[mn] = {}
         for feed_n, fval in feeds[mn].items():  # works with one feed only
             scale = extracted_mass[mn] / feeds[mn][feed_n].mass
-            refill_mat[mn] = scale * feeds[mn][feed_n]
-            waste_dict[mn]['feed_' + str(feed_n)] = refill_mat[mn]
-        mat[mn] += refill_mat[mn]
-        print('Refilled fresh material %s %f g' % (mn, refill_mat[mn].mass))
-        print('Refill Material ^^^', refill_mat[mn].print_attr())
-        print('Fuel after refill ^^^', mat[mn].print_attr())
+            refill_mats[mn] = scale * feeds[mn][feed_n]
+            waste_dict[mn]['feed_' + str(feed_n)] = refill_mats[mn]
+        mats[mn] += refill_mats[mn]
+        print('Refilled fresh material %s %f g' % (mn, refill_mats[mn].mass))
+        print('Refill Material ^^^', refill_mats[mn].print_attr())
+        print('Fuel after refill ^^^', mats[mn].print_attr())
     return waste_dict
 
 
