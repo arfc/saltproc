@@ -29,11 +29,30 @@ simulation = Simulation(sim_name='Simulation unit tests',
                         db_path=directory + '/test_db.h5',
                         iter_matfile=serpent.iter_matfile)
 
-#def test_check_switch_geo_trigger():
+def test_check_switch_geo_trigger():
+    """
+    This unit test checks that ``check_switch_geo_trigger`` functions
+    consistent with its docstring.
+    """
+
+   switch_times = [1.0, 3, -31, 86.23333, 1e-16, 2e-18, "two o clock"]
+   assert simulation.check_switch_geo_trigger(1.0, switch_times) is True
+   assert simulation.check_switch_geo_trigger(3, switch_times) is True
+   assert simulation.check_switch_geo_trigger(-32, switch_times) is False
+   assert simulation.check_switch_geo_trigger(86.233, switch_times) is False
+   assert simulation.check_switch_geo_trigger(1e-16, switch_times) is True
+   assert simulation.check_switch_geo_trigger(5e-18, switch_times) is False
+   assert simulation.check_switch_geo_trigger("three o clock") is False
+   assert simulation.check_switch_geo_trigger("two o clock") is True
 
 #def test_store_after_repr():
 
 def test_store_mat_data():
+    """
+    This unit test checks that select entries that ``store_mat_data_()`
+    stores in the database match the corresponding entries from the input
+    explicity in value and implicitly in type.
+    """
     # read data
     mats_before = simulation.sim_depcode.read_dep_comp(
         simulation.sim_depcode.input_path,
@@ -131,6 +150,12 @@ def test_store_mat_data():
     simulation.db_path = db_path_old
 
 def test_store_run_init_info():
+    """
+    This unit test checks that the entries ``store_run_init_info()`
+    stores in the database match the corresponding entries from the input
+    explicity in value and implicitly in type.
+    """
+
     # read data
     simulation.sim_depcode.read_depcode_info()
     init_info = simulation.sim_depcode.sim_info
@@ -173,6 +198,11 @@ def test_store_run_init_info():
     simulation.db_path = db_path_old
 
 def test_store_run_step_info():
+    """
+    This unit test checks that the entries ``store_run_step_info()`
+    stores in the database match the corresponding entries from the input
+    explicity in value and implicitly in type.
+    """
     # read data
     simulation.sim_depcode.read_depcode_step_param()
     step_info = simulation.sim_depcode.param
