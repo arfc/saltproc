@@ -70,56 +70,56 @@ def test_store_mat_data():
     tpois_after_params = tmats.ctrlPois.after_reproc.parameters[0]
 
     # Check the mass fractions
-    assert mats_before['fuel']['U235'] == tfuel_before[1566]
-    assert mats_before['fuel']['U238'] == tfuel_before[1570]
-    assert mats_before['fuel']['F19'] == tfuel_before[37]
-    assert mats_before['fuel']['Li7'] == tfuel_before[8]
-    assert mats_before['fuel']['Cm240'] == tfuel_before[1610]
-    assert mats_before['fuel']['Pu239'] == tfuel_before[1589]
-    assert mats_before['ctrlPois']['Gd155'] == tpois_before[1213]
-    assert mats_before['ctrlPois']['O16'] == tpois_before[32]
+    assert tfuel_before[1566] == mats_before['fuel']['U235']
+    assert tfuel_before[1570] == mats_before['fuel']['U238']
+    assert tfuel_before[37] == mats_before['fuel']['F19']
+    assert tfuel_before[8] == mats_before['fuel']['Li7']
+    assert tfuel_before[1610] == mats_before['fuel']['Cm240']
+    assert tfuel_before[1589] == mats_before['fuel']['Pu239']
+    assert tpois_before[1213] == mats_before['ctrlPois']['Gd155']
+    assert tpois_before[32] == mats_before['ctrlPois']['O16']
 
-    assert mats_after['fuel']['U235'] == tfuel_after[1566]
-    assert mats_after['fuel']['U238'] == tfuel_after[1570]
-    assert mats_after['fuel']['F19'] == tfuel_after[37]
-    assert mats_after['fuel']['Li7'] == tfuel_after[8]
-    assert mats_after['fuel']['Cm240'] == tfuel_after[1610]
-    assert mats_after['fuel']['Pu239'] == tfuel_after[1589]
-    assert mats_after['ctrlPois']['Gd155'] == tpois_after[1213]
-    assert mats_after['ctrlPois']['O16'] == tpois_after[32]
+    assert tfuel_after[1566] == mats_after['fuel']['U235']
+    assert tfuel_after[1570] == mats_after['fuel']['U238']
+    assert tfuel_after[37] == mats_after['fuel']['F19']
+    assert tfuel_after[8] == mats_after['fuel']['Li7']
+    assert tfuel_after[1610] == mats_after['fuel']['Cm240']
+    assert tfuel_after[1589] == mats_after['fuel']['Pu239']
+    assert tpois_after[1213] == mats_after['ctrlPois']['Gd155']
+    assert tpois_after[32] == mats_after['ctrlPois']['O16']
 
     # Check the parameters
-    assert mats_before['fuel'].mass == tfuel_before_params[0]
-    assert mats_before['fuel'].density == tfuel_before_params[1]
-    assert mats_before['fuel'].vol == tfuel_before_params[2]
-    assert mats_before['fuel'].temp == tfuel_before_params[3]
-    assert mats_before['fuel'].mass_flowrate == tfuel_before_params[4]
-    assert mats_before['fuel'].void_frac == tfuel_before_params[5]
-    assert mats_before['fuel'].burnup == tfuel_before_params[6]
+    assert tfuel_before_params[0] == mats_before['fuel'].mass
+    assert tfuel_before_params[1] == mats_before['fuel'].density
+    assert tfuel_before_params[2] == mats_before['fuel'].vol
+    assert tfuel_before_params[3] == mats_before['fuel'].temp
+    assert tfuel_before_params[4] == mats_before['fuel'].mass_flowrate
+    assert tfuel_before_params[5] == mats_before['fuel'].void_frac
+    assert tfuel_before_params[6] == mats_before['fuel'].burnup
 
-    assert mats_before['ctrlPois'].mass == tpois_before_params[0]
-    assert mats_before['ctrlPois'].density == tpois_before_params[1]
-    assert mats_before['ctrlPois'].vol == tpois_before_params[2]
-    assert mats_before['ctrlPois'].temp == tpois_before_params[3]
-    assert mats_before['ctrlPois'].mass_flowrate == tpois_before_params[4]
-    assert mats_before['ctrlPois'].void_frac == tpois_before_params[5]
-    assert mats_before['ctrlPois'].burnup == tpois_before_params[6]
+    assert tpois_before_params[0] == mats_before['ctrlPois'].mass
+    assert tpois_before_params[1] == mats_before['ctrlPois'].density
+    assert tpois_before_params[2] == mats_before['ctrlPois'].vol
+    assert tpois_before_params[3] == mats_before['ctrlPois'].temp
+    assert tpois_before_params[4] == mats_before['ctrlPois'].mass_flowrate
+    assert tpois_before_params[5] == mats_before['ctrlPois'].void_frac
+    assert tpois_before_params[6] == mats_before['ctrlPois'].burnup
 
-    assert mats_after['fuel'].mass == tfuel_after_params[0]
-    assert mats_after['fuel'].density == tfuel_after_params[1]
-    assert mats_after['fuel'].vol == tfuel_after_params[2]
-    assert mats_after['fuel'].temp == tfuel_after_params[3]
-    assert mats_after['fuel'].mass_flowrate == tfuel_after_params[4]
-    assert mats_after['fuel'].void_frac == tfuel_after_params[5]
-    assert mats_after['fuel'].burnup == tfuel_after_params[6]
+    assert tfuel_after_params[0] == mats_after['fuel'].mass
+    assert tfuel_after_params[1] == mats_after['fuel'].density
+    assert tfuel_after_params[2] == mats_after['fuel'].vol
+    assert tfuel_after_params[3] == mats_after['fuel'].temp
+    assert tfuel_after_params[4] == mats_after['fuel'].mass_flowrate
+    assert tfuel_after_params[5] == mats_after['fuel'].void_frac
+    assert tfuel_after_params[6] == mats_after['fuel'].burnup
 
-    assert mats_after['ctrlPois'].mass == tpois_after_params[0]
-    assert mats_after['ctrlPois'].density == tpois_after_params[1]
-    assert mats_after['ctrlPois'].vol == tpois_after_params[2]
-    assert mats_after['ctrlPois'].temp == tpois_after_params[3]
-    assert mats_after['ctrlPois'].mass_flowrate == tpois_after_params[4]
-    assert mats_after['ctrlPois'].void_frac == tpois_after_params[5]
-    assert mats_after['ctrlPois'].burnup == tpois_after_params[6]
+    assert tpois_after_params[0] == mats_after['ctrlPois'].mass
+    assert tpois_after_params[1] == mats_after['ctrlPois'].density
+    assert tpois_after_params[2] == mats_after['ctrlPois'].vol
+    assert tpois_after_params[3] == mats_after['ctrlPois'].temp
+    assert tpois_after_params[4] == mats_after['ctrlPois'].mass_flowrate
+    assert tpois_after_params[5] == mats_after['ctrlPois'].void_frac
+    assert tpois_after_params[6] == mats_after['ctrlPois'].burnup
 
     # close the file
     db.close()
@@ -130,7 +130,38 @@ def test_store_mat_data():
     #use original db path
     simulation.db_path = db_path_old
 
-#def test_store_run_init_info()
+def test_store_run_init_info()
+    # read data
+    init_info = simulation.sim_depcode.read_depcode_info()
+
+    # we want to keep the old path for other sims, but for this
+    # test we'll want a fresh db
+    db_path_old = simulation.db_path
+    db_file = serpent.input_path + '.h5'
+    simulation.db_path = db_file
+
+    # store data at
+    simulation.store_run_init_info()
+
+    # read stored data
+    db = tb.open_file(simulation.db_path, mode='r',
+                      filters=simulation.compression_params)
+
+    tinit_info = tb.root.initial_depcode_siminfo[0]
+
+    assert tinit_info[0] == simulation.sim_depcode.npop
+    assert tinit_info[1] == simulation.sim_depcode.active_cycles
+    assert tinit_info[2] == simulation.sim_depcode.inactive_cycles
+    assert tinit_info[3] == init_info['serpent_version']
+    assert tinit_info[4] == init_info['title']
+    assert tinit_info[5] == init_info['serpent_input_filename']
+    assert tinit_info[6] == init_info['serpent_working_dir']
+    assert tinit_info[7] == init_info['xs_data_path']
+    assert tinit_info[8] == init_info['OMP_threads']
+    assert tinit_info[9] == init_info['MPI_tasks']
+    assert tinit_info[10] == init_info['memory_optimization_mode']
+    assert tinit_info[11] == init_info['depletion_timestep']
+
 
 #def test_store_run_step_info()
 
