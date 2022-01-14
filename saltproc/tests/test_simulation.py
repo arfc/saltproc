@@ -130,9 +130,10 @@ def test_store_mat_data():
     #use original db path
     simulation.db_path = db_path_old
 
-def test_store_run_init_info()
+def test_store_run_init_info():
     # read data
-    init_info = simulation.sim_depcode.read_depcode_info()
+    simulation.sim_depcode.read_depcode_info()
+    init_info = simulation.sim_depcode.sim_info
 
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
@@ -147,21 +148,29 @@ def test_store_run_init_info()
     db = tb.open_file(simulation.db_path, mode='r',
                       filters=simulation.compression_params)
 
-    tinit_info = tb.root.initial_depcode_siminfo[0]
+    tinit_info = db.root.initial_depcode_siminfo[0]
 
     assert tinit_info[0] == simulation.sim_depcode.npop
     assert tinit_info[1] == simulation.sim_depcode.active_cycles
     assert tinit_info[2] == simulation.sim_depcode.inactive_cycles
-    assert tinit_info[3] == init_info['serpent_version']
-    assert tinit_info[4] == init_info['title']
-    assert tinit_info[5] == init_info['serpent_input_filename']
-    assert tinit_info[6] == init_info['serpent_working_dir']
-    assert tinit_info[7] == init_info['xs_data_path']
+    assert str(tinit_info[3])[2:-1] == init_info['serpent_version']
+    assert str(tinit_info[4])[2:-1] == init_info['title']
+    assert str(tinit_info[5])[2:-1] == init_info['serpent_input_filename']
+    assert str(tinit_info[6])[2:-1] == init_info['serpent_working_dir']
+    assert str(tinit_info[7])[2:-1] == init_info['xs_data_path']
     assert tinit_info[8] == init_info['OMP_threads']
     assert tinit_info[9] == init_info['MPI_tasks']
     assert tinit_info[10] == init_info['memory_optimization_mode']
     assert tinit_info[11] == init_info['depletion_timestep']
 
+    # close the file
+    db.close()
+
+    # delete test file
+    os.remove(db_file)
+
+    #use original db path
+    simulation.db_path = db_path_old
 
 #def test_store_run_step_info()
 
