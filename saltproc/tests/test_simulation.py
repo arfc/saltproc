@@ -29,9 +29,9 @@ simulation = Simulation(sim_name='Simulation unit tests',
                         db_path=directory + '/test_db.h5',
                         iter_matfile=serpent.iter_matfile)
 
-#def test_check_switch_geo_trigger()
+#def test_check_switch_geo_trigger():
 
-#def test_store_after_repr()
+#def test_store_after_repr():
 
 def test_store_mat_data():
     # read data
@@ -172,7 +172,53 @@ def test_store_run_init_info():
     #use original db path
     simulation.db_path = db_path_old
 
-#def test_store_run_step_info()
+def test_store_run_step_info():
+    # read data
+    simulation.sim_depcode.read_depcode_step_param()
+    step_info = simulation.sim_depcode.param
+
+    # we want to keep the old path for other sims, but for this
+    # test we'll want a fresh db
+    db_path_old = simulation.db_path
+    db_file = serpent.input_path + '.h5'
+    simulation.db_path = db_file
+
+    # store data at
+    simulation.store_run_step_info()
+
+    # read stored data
+    db = tb.open_file(simulation.db_path, mode='r',
+                      filters=simulation.compression_params)
+
+    tstep_info = db.root.simulation_parameters[0]
+
+    assert np.array_equal(tstep_info[0],
+                          step_info['beta_eff'].astype('float32'))
+    assert np.array_equal(tstep_info[1],
+                          step_info['breeding_ratio'].astype('float32'))
+    assert tstep_info[2] == simulation.burn_time
+    assert np.array_equal(tstep_info[3],
+                          step_info['delayed_neutrons_lambda'].\
+                          astype('float32'))
+    assert tstep_info[4] == step_info['fission_mass_bds'].astype('float32')
+    assert tstep_info[5] == step_info['fission_mass_eds'].astype('float32')
+    assert np.array_equal(tstep_info[6],
+                          step_info['keff_bds'].astype('float32'))
+    assert np.array_equal(tstep_info[7],
+                          step_info['keff_eds'].astype('float32'))
+    assert tstep_info[8] == step_info['memory_usage'].astype('float32')
+    assert tstep_info[9] == step_info['power_level'].astype('float32')
+    assert tstep_info[10] == step_info['execution_time'].astype('float32')
+
+    # close the file
+    db.close()
+
+    # delete test file
+    os.remove(db_file)
+
+    #use original db path
+    simulation.db_path = db_path_old
+
 
 
 def test_read_k_eds_delta():
