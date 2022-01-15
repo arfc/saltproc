@@ -298,10 +298,11 @@ class Simulation():
         db.close()
 
     def store_run_step_info(self):
-        """Adds to database Serpent and Saltproc simulation parameters
-        (execution time, memory usage), multiplication factor, breeding ratio,
+        """Adds the following depletion code and SaltProc simulation
+        data at the current depletion step to the database:
+        execution time, memory usage, multiplication factor, breeding ratio,
         delayed neutron precursor data, fission mass, cumulative depletion
-        time, power level for the current time step.
+        time, power level.
         """
 
         # Read info from depcode _res.m File
@@ -366,8 +367,13 @@ class Simulation():
         db.close()
 
     def store_run_init_info(self):
-        """Adds to database Serpent and Saltproc simulation parameters before
-        starting depletion sequence.
+        """Adds the following depletion code and SaltProc simulation parameters
+        to the database:
+        neutron population, active cycles, inactive cycles, depletion code version
+        simulation title, depetion code input file path, depletion code working
+        directory, cross section data path, # of OMP threads, # of MPI tasks,
+        memory optimization mode (Serpent), depletion timestep size.
+
         """
         # numpy arraw row storage for run info
         sim_info_dtype = np.dtype([
@@ -475,8 +481,9 @@ class Simulation():
                 return False
 
     def check_switch_geo_trigger(self, current_time, switch_time):
-        """Compares current timestep with user defined time to switch geometry.
-        Returns `True` if its time.
+        """Compares the current timestep with the user defined times
+        at which to switch reactor geometry, and returns `True` if there
+        is a match.
 
         Parameters
         ----------
