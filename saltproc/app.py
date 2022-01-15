@@ -324,7 +324,7 @@ def reprocessing(mats):
     return waste, extracted_mass
 
 
-def refill(mat, extracted_mass, waste_dict):
+def refill(mats, extracted_mass, waste_dict):
     """Makes up material loss in removal processes by adding fresh fuel.
 
     Parameters
@@ -360,7 +360,7 @@ def refill(mat, extracted_mass, waste_dict):
     """
     print('Fuel before refill ^^^', mats['fuel'].print_attr())
     feeds = read_feeds_from_input()
-    refill_mat = OrderedDict()
+    refill_mats = OrderedDict()
     for mn, v in feeds.items():  # iterate over materials
         refill_mats[mn] = {}
         for feed_n, fval in feeds[mn].items():  # works with one feed only
