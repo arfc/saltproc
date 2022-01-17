@@ -462,7 +462,7 @@ def run():
         print("Removed mass [g]:", rem_mass)
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_feed_st, dts)
-        serpent.write_mat_file(mats, iter_matfile, simulation.burn_time)
+        depcode.write_mat_file(mats, iter_matfile, simulation.burn_time)
         del mats, waste_st, waste_feed_st, rem_mass
         gc.collect()
         # Switch to another geometry?
