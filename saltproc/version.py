@@ -5,8 +5,8 @@ from os.path import join as pjoin
 _version_major = 0
 _version_minor = 3
 _version_micro = ''  # use '' for first of series, number for 1 and above
-_version_extra = 'dev'
-# _version_extra = ''  # Uncomment this for full releases
+# _version_extra = 'dev'
+_version_extra = '0'  # Uncomment this for full releases
 
 # Construct full version string from these.
 _ver = [_version_major, _version_minor]
@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 NAME = "saltproc"
-MAINTAINER = "Andrei Rykhlevskii"
+MAINTAINER = "Oleksandr Yardas"
 MAINTAINER_EMAIL = "arfc@googlegroups.com"
 DESCRIPTION = description
 LONG_DESCRIPTION = long_description

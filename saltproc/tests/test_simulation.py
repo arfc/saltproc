@@ -13,8 +13,8 @@ geo_test_input = directory + '/test_geometry_switch.inp'
 
 serpent = DepcodeSerpent(
     exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-    template_fname=directory + '/template.inp',
-    input_fname=input_file,
+    template_path=directory + '/template.inp',
+    input_path=input_file,
     iter_matfile=directory + '/material',
     geo_file=[
         '../../examples/406.inp',
@@ -33,9 +33,9 @@ def test_read_k_eds_delta():
 
 
 def test_switch_to_next_geometry():
-    shutil.copy2(geo_test_input, serpent.input_fname + '_test')
-    serpent.input_fname = serpent.input_fname + '_test'
+    shutil.copy2(geo_test_input, serpent.input_path + '_test')
+    serpent.input_path = serpent.input_path + '_test'
     simulation.switch_to_next_geometry()
-    d = serpent.read_depcode_template(serpent.input_fname)
+    d = serpent.read_depcode_template(serpent.input_path)
     assert d[5].split('/')[-1] == '988.inp"\n'
-    os.remove(serpent.input_fname)
+    os.remove(serpent.input_path)

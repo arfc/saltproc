@@ -70,8 +70,8 @@ class Simulation():
             print("\nStep #%i has been started" % (dts + 1))
             if dts == 0:  # First step
                 self.sim_depcode.write_depcode_input(
-                    self.sim_depcode.template_fname,
-                    self.sim_depcode.input_fname,
+                    self.sim_depcode.template_path,
+                    self.sim_depcode.input_path,
                     reactor,
                     dts,
                     False)
@@ -82,7 +82,7 @@ class Simulation():
                 self.store_run_init_info()
                 # Parse and store data for initial state (beginning of dts)
                 mats = self.sim_depcode.read_dep_comp(
-                    self.sim_depcode.input_fname,
+                    self.sim_depcode.input_path,
                     False)
                 self.store_mat_data(mats, dts, 'before_reproc')
             # Finish of First step
@@ -92,7 +92,7 @@ class Simulation():
                     self.core_number,
                     self.node_number)
             mats = self.sim_depcode.read_dep_comp(
-                self.sim_depcode.input_fname,
+                self.sim_depcode.input_path,
                 True)
             self.store_mat_data(mats, dts, 'before_reproc')
             self.store_run_step_info()
@@ -109,10 +109,14 @@ class Simulation():
         ----------
         after_mats : `Materialflow`
             Burnable material stream object after performing reprocessing.
-        waste_dict : dict
-            Dictionary that maps `processes` to waste `Materialflow` objects.
-            The key is Processes name (`str`). The value is `Materialflow`
-            object containing waste streams data.
+        waste_dict : dict of str to Materialflow
+            Dictionary that maps `Process` objects to waste `Materialflow`
+            objects.
+
+            ``key``
+                `Process` name (`str`)
+            ``value``
+                `Materialflow` object containing waste streams data.
         step : int
             Current depletion step.
 
@@ -168,7 +172,7 @@ class Simulation():
 
         Parameters
         ----------
-        mats : dict
+        mats : dict of str to Materialflow
             Dictionary that contains `Materialflow` objects.
 
             ``key``
@@ -394,7 +398,7 @@ class Simulation():
         beginning of the Serpent iteration input file.
         """
         geo_line_n = 5
-        f = open(self.sim_depcode.input_fname, 'r')
+        f = open(self.sim_depcode.input_path, 'r')
         data = f.readlines()
         f.close()
 
@@ -410,7 +414,7 @@ class Simulation():
         new_data = [d.replace(current_geo_file, new_geo_file) for d in data]
         print('Switching to next geometry file: ', new_geo_file)
 
-        f = open(self.sim_depcode.input_fname, 'w')
+        f = open(self.sim_depcode.input_path, 'w')
         f.writelines(new_data)
         f.close()
 
