@@ -2,7 +2,7 @@
 ### DOWNLOAD ###
 ################
 #DATADIR is the directory where the xs library is extracted to
-DATADIR=$(pwd)
+DATADIR=$PWD/jeff312
 LN="https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/ACE/"
 SLUG="ACEs_"
 EXT="K.zip"
