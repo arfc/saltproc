@@ -118,7 +118,12 @@ do
 
     mv $DATADIR/$T/*.ACE $DATADIR/acedata/.
 
-    echo "directory" | cat - >> $DIRFILE
+    # Add the "directory" line only once
+    if [[ $T == ${TEMPS[0]} ]]
+    then
+        echo "directory" | cat - >> $DIRFILE
+    fi
+
     # Add dir files to global dir file
     cat $DATADIR/$T/*.dir >> $DIRFILE
 
