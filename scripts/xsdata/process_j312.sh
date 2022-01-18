@@ -42,7 +42,7 @@ fi
 ### PROCESS ###
 ###############
 DIRFILE=$DATADIR/sss_jeff312.xsdir
-echo "datapath=$DATADIR/jeff312/acedata" | cat - > $DIRFILE
+echo "datapath=$DATADIR/acedata" | cat - > $DIRFILE
 echo "atomic weight ratios" | cat - >> $DIRFILE
 mkdir -p $DATADIR/acedata
 
