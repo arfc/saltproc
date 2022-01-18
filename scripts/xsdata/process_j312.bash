@@ -2,7 +2,7 @@
 ### DOWNLOAD ###
 ################
 #DATADIR is the directory where the xs library is extracted to
-DATADIR=$PWD/jeff312
+DATADIR=~/projects/cross-section-libraries/jeff312
 LN="https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/ACE/"
 SLUG="ACEs_"
 EXT="K.zip"
@@ -18,22 +18,26 @@ TEMPS=(900)
 for T in ${TEMPS[@]}
 do
     if [[ ! -f $LN$SLUG$T$EXT ]]
+    then
         wget -P $DATADIR $LN$SLUG$T$EXT
     fi
 done
 
 # Get thermal XS
 if [[ ! -f $LN$SLUG$T$EXT ]]
+then
     wget -O $DATADIR/ACEs_THERMK.zip $LN$SLUG1
 fi
 
 
 # Get neutron induces and spontaneous fission yield data from JEFF 3.3
 if [[ ! -f $LN$SLUG$T$EXT ]]
+then
     wget -O $DATADIR/sss_jeff33.nfy https://www.oecd-nea.org/dbdata/jeff/jeff33/downloads/JEFF33-nfy.asc
 fi
 
 if [[ ! -f $LN$SLUG$T$EXT ]]
+then
     wget -O $DATADIR/sss_jeff33.sfy https://www.oecd-nea.org/dbdata/jeff/jeff33/downloads/JEFF33-sfy.asc
 fi
 
