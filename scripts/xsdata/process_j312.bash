@@ -17,26 +17,26 @@ TEMPS=(900)
 
 for T in ${TEMPS[@]}
 do
-    if [[ ! -f $LN$SLUG$T$EXT ]]
+    if [[ ! -f $SLUG$T$EXT ]]
     then
         wget -P $DATADIR $LN$SLUG$T$EXT
     fi
 done
 
 # Get thermal XS
-if [[ ! -f $LN$SLUG$T$EXT ]]
+if [[ ! -f ACEs_THERMK.zip ]]
 then
     wget -O $DATADIR/ACEs_THERMK.zip $LN$SLUG1
 fi
 
 
 # Get neutron induces and spontaneous fission yield data from JEFF 3.3
-if [[ ! -f $LN$SLUG$T$EXT ]]
+if [[ ! -f sss_jeff33.nfy ]]
 then
     wget -O $DATADIR/sss_jeff33.nfy https://www.oecd-nea.org/dbdata/jeff/jeff33/downloads/JEFF33-nfy.asc
 fi
 
-if [[ ! -f $LN$SLUG$T$EXT ]]
+if [[ ! -f sss_jeff33.sfy ]]
 then
     wget -O $DATADIR/sss_jeff33.sfy https://www.oecd-nea.org/dbdata/jeff/jeff33/downloads/JEFF33-sfy.asc
 fi
