@@ -32,7 +32,7 @@ then
 fi
 
 
-# Get neutron induces and spontaneous fission yield data from JEFF 3.3
+# Get neutron induced and spontaneous fission yield data from JEFF 3.3
 if [[ ! -f $DATADIR/sss_jeff33.nfy ]]
 then
     wget -O $DATADIR/sss_jeff33.nfy https://www.oecd-nea.org/dbdata/jeff/jeff33/downloads/JEFF33-nfy.asc
@@ -43,6 +43,11 @@ then
     wget -O $DATADIR/sss_jeff33.sfy https://www.oecd-nea.org/dbdata/jeff/jeff33/downloads/JEFF33-sfy.asc
 fi
 
+# Also get decay chains
+if [[ ! -f $DATADIR/sss_jeff33.dec ]]
+then
+    wget -O $DATADIR/sss_jeff33.dec https://www.oecd-nea.org/dbdata/jeff/jeff33/downloads/JEFF33-rdd_all.asc
+fi
 
 ###############
 ### PROCESS ###
