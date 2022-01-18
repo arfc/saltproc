@@ -101,7 +101,7 @@ do
         mv temp.ACE $file
 
         # Get atomic weights
-        if [[ $T == 900 ]]
+        if [[ $T == ${TEMPS[0]} ]]
         then
             LN="$(head -n 1 $PRE.dir)"
             [[ $LN =~ $REGEXZAI ]]
