@@ -31,7 +31,7 @@ wget -O $DATADIR/sss_jeff33.sfy https://www.oecd-nea.org/dbdata/jeff/jeff33/down
 ### PROCESS ###
 ###############
 DIRFILE=$DATADIR/sss_jeff312.xsdir
-echo "datapath=$DATADIR/jeff312/acedata" | cat - > $DIRFILE 
+echo "datapath=$DATADIR/jeff312/acedata" | cat - > $DIRFILE
 echo "atomic weight ratios" | cat - >> $DIRFILE
 mkdir -p $DATADIR/acedata
 
@@ -39,7 +39,7 @@ TEMPS=(900 "THERM")
 #Uncomment if you have dowloaded the entire JEFF 3.1.2 libary
 #TEMPS=(500 600 800 900 1000 1200 1500 "THERM")
 
-# Regular expressions for changing the ZAI of 
+# Regular expressions for changing the ZAI of
 # metastable isotopes
 REGEXMETA=[A-Z][a-z]{0,1}[0-9]{1,3}M
 REGEXZAI=[0-9]{1,3}[0-9]{3}\.[0-9]{2}c
@@ -53,7 +53,7 @@ do
     #Create directories for each temp and extract
     mkdir -p $DATADIR/$T
     unzip -j $DATADIR/ACEs_$T$EXT -d $DATADIR/$T
-    
+
     # Change filenames to include temperature so we can put them all in the same
     # directory
     if [[ $T == "THERM" ]]
@@ -87,7 +87,7 @@ do
 
         # Convert DOS to UNIX
         awk '{sub("\r$", ""); print }' $file > temp.ACE
-        mv temp.ACE > $file
+        mv temp.ACE $file
 
         # Get atomic weights
         if [[ $T == 900 ]]
@@ -101,16 +101,16 @@ do
             ZAI="${ZAI:0:$len-4}"
             echo " $ZAI $AWT" | cat - >> $DIRFILE
         fi
-    
+
         mv "$file" ${arr[0]}$SUF
     done
-        
+
     mv $DATADIR/$T/*.ACE $DATADIR/acedata/.
 
     echo "directory" | cat - >> $DIRFILE
     # Add dir files to global dir file
-    cat $DATADIR/$T/*.dir >> $DIRFILE 
-    
+    cat $DATADIR/$T/*.dir >> $DIRFILE
+
     # Cleanup
     rm $DATADIR/$T/*.dir
 done
