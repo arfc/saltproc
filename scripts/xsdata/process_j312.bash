@@ -1,8 +1,10 @@
 ################
 ### DOWNLOAD ###
 ################
-#DATADIR is the directory where the xs library is extracted to
-DATADIR=~/projects/cross-section-libraries/jeff312
+# DATADIR is the directory where the xs library is extracted to
+# @yardasol reccomends naming the parent directory where the files
+# will be extractd to as "jeff312"
+DATADIR=$PWD/jeff312
 LN="https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/ACE/"
 SLUG="ACEs_"
 EXT="K.zip"
