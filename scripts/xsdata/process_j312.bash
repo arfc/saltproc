@@ -129,4 +129,6 @@ do
 
     # Cleanup
     rm $DATADIR/$T/*.dir
+    rm -r $DATADIR/$T
+
 done
