@@ -25,9 +25,9 @@ copyright = u'2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff'
 author = u'Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff'
 
 # The short X.Y version
-version = ''
+version = '0.3'
 # The full version, including alpha/beta/rc tags
-release = ''
+release = '0.3.0-dev'
 
 
 # -- General configuration ---------------------------------------------------
