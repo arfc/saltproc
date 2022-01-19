@@ -1,0 +1,11 @@
+version: 2
+
+conda:
+  environment: environment.yml
+
+build:
+  os: "ubuntu-20.04"
+  tool:
+    python: "3.8"
+
+
