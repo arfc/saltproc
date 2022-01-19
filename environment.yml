@@ -1,5 +1,7 @@
+name: saltproc-env
 channels:
   - conda-forge
+  - defaults
 dependencies:
   - pyne>=0.5.11
   - numpy>=1.14.0
@@ -7,3 +9,5 @@ dependencies:
   - networkx
   - pydotplus
   - pytest
+  - sphinx
+  - sphinx_rtd_theme
