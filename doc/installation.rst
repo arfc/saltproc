@@ -18,13 +18,17 @@ SaltProc has the following dependencies:
 .. _PyTables: http://pytables.org
 .. _NetworkX: http://networkx.github.io
 .. _PyDotPlus: https://pydotplus.readthedocs.io/
+.. _pytest: https://docs.pytest.org
+.. _sphinx: https://www.sphinx-doc.org
+.. _sphinx-rtd-theme: https://sphinx-rtd-theme.readthedocs.io
 .. _matplotlib: http://matplotlib.org
 .. _ViTables: http://vitables.org
 .. _GitHub: http://github.com/arfc/saltproc
 
 
 Optional Depenendencies:
-
+  #. `pytest`_ (for testing)
+  #. `sphinx`_ and `sphinx-rtd-theme`_ (for building documentation)
   #. `matplotlib`_
   #. `ViTables`_
 
