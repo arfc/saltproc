@@ -8,3 +8,5 @@ build:
 conda:
   environment: environment.yml
 
+sphinx:
+  fail_on_warning: true
