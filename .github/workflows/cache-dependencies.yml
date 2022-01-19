@@ -48,7 +48,7 @@ jobs:
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
 
       - name: Install SaltProc
-        run: python setup.py install
+        run: pip install .
 
       - name: Check packages
         run: conda list
