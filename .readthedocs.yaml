@@ -1,11 +1,10 @@
 version: 2
 
-conda:
-  environment: environment.yml
-
 build:
   os: "ubuntu-20.04"
   tool:
-    python: "3.8"
+    python: "mambaforge-4.10"
 
+conda:
+  environment: environment.yml
 
