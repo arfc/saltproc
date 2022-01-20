@@ -27,7 +27,7 @@ jobs:
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v2
         with:
-          miniforge-variant: Mambaforge
+          miniforge-variant: Mambaforge # mamba is faster than base conda
           miniforge-version: latest
           activate-environment: saltproc-env
           use-mamba: true
