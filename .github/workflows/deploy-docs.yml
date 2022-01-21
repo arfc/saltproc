@@ -7,9 +7,9 @@ on:
   push:
     #branches:
     #  - master 
-    paths:
-      - 'doc/**'
-      - 'saltproc/**'
+    #paths:
+    #  - 'doc/**'
+    #  - 'saltproc/**'
   # enable worflow to be run manually
   workflow_dispatch:
 
