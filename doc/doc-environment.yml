@@ -1,0 +1,14 @@
+name: saltrpoc-doc-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pyne>=0.5.11
+  - numpy>=1.14.0
+  - pytables
+  - networkx
+  - pydotplus
+  - pytest
+  - sphinx
+  - sphinx_rtd_theme
+  - gitpython
