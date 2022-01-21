@@ -10,5 +10,10 @@ dependencies:
   - pydotplus
   - pytest
   - sphinx
+  - sphinx-intl
   - sphinx_rtd_theme
   - gitpython
+  - rsync
+  - pip:
+      - pystemmer
+      - rinohtype
