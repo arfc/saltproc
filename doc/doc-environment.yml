@@ -1,4 +1,4 @@
-name: saltrpoc-doc-env
+name: saltproc-doc-env
 channels:
   - conda-forge
   - defaults
