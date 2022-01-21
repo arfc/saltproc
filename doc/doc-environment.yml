@@ -12,4 +12,4 @@ dependencies:
   - sphinx
   - sphinx_rtd_theme
   - pip:
-      - sphinx-multiversion
+      - sphinx-multiversion-pre-post-build
