@@ -2,12 +2,16 @@
 name: Deploy SaltProc docs
 
 on:
+  release:
+      type: [published]
   push:
-    branches:
-      - master 
+    #branches:
+    #  - master 
     paths:
       - 'doc/**'
       - 'saltproc/**'
+  # enable worflow to be run manually
+  workflow_dispatch:
 
 env:
   CACHE_NUMBER: 0 #change to manually reset cache
@@ -29,7 +33,7 @@ jobs:
         with:
           miniforge-variant: Mambaforge # mamba is faster than base conda
           miniforge-version: latest
-          activate-environment: saltproc-env
+          activate-environment: saltproc-doc-env
           use-mamba: true
           use-only-tar-bz2: true
       - run: |
@@ -43,27 +47,24 @@ jobs:
         id: dependencies-cache
         with:
           path: |
-            /usr/share/miniconda3/envs/saltproc-env
+            /usr/share/miniconda3/envs/doc-saltproc-env
             ~/.cache/pip
-          key: depcache-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+          key: depcache-${{ hashFiles(''doc-environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
 
 # Install dependencies
       - name: Update environment
-        run: mamba env update -n saltproc-env -f environment.yml
+        run: mamba env update -n saltproc-doc-env -f doc-environment.yml
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
 
       - name: Check packages
         run: conda list
 
       - name: Build Sphinx Documentation
-        run: |
-          cd doc
-          sphinx-apidoc --separate --force --output-dir=src/ ../saltproc
-          make clean
-          make html
+        run: sphinx-multiversion doc doc/_build/html
 
       - name: Deploy documentation to gh-pages branch
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./doc/_build/html
+          commmit_message: update docs: ${{ github.event.head_commit.message }}
