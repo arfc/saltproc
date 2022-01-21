@@ -12,4 +12,5 @@ dependencies:
   - sphinx
   - sphinx_rtd_theme
   - pip:
-      - sphinx-multiversion-pre-post-build
+      - sphinx-multiversion
+      - sphinxcontrib-apidoc
