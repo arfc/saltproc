@@ -52,9 +52,6 @@ jobs:
         run: mamba env update -n saltproc-env -f environment.yml
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
 
-      - name: Install SaltProc
-        run:  pip install .
-
       - name: Check packages
         run: conda list
 
