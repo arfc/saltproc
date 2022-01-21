@@ -4,6 +4,8 @@ name: Cache dependencies
 on:
   schedule:
     - cron: '0 9 * * 1' # run every monday @ 9AM
+  # enable worflow to be run manually
+  workflow_dispatch:
 
 env:
   CACHE_NUMBER: 0 
@@ -51,6 +53,8 @@ jobs:
       - name: Install SaltProc
         run: pip install .
 
+      - name: Check packages
+        run: conda list
   cache-doc-dependencies:
     runs-on: ubuntu-latest
     defaults:
