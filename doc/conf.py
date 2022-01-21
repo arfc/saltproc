@@ -34,7 +34,7 @@ release = '0.3.1-dev'
 smv_tag_whitelist = r'^v\d[.][^12][.]\d.*$'
 
 # Whitelist pattern for branches (set to None to ignore all branches)
-smv_branch_whitelist = r'^(master)*$'
+smv_branch_whitelist = r'^(master|generalize-simulation)*$'
 
 # Whitelist pattern for remotes (set to None to use local branches only)
 smv_remote_whitelist = r'^(origin|upstream)$'
