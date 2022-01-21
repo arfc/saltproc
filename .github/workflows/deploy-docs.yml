@@ -5,11 +5,11 @@ on:
   release:
     type: [published]
   push:
-    branches:
-      - master 
-    paths:
-      - 'doc/**'
-      - 'saltproc/**'
+    #branches:
+    #  - master 
+    #paths:
+    #  - 'doc/**'
+    #  - 'saltproc/**'
   # enable worflow to be run manually
   workflow_dispatch:
 
@@ -71,4 +71,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./doc/_build/html
-          commit_message: update docs at commit ${{ github.event.head_commit.message }}
+          commit_message: update docs at commit: ${{ github.event.head_commit.message }}
