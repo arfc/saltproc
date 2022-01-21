@@ -47,13 +47,13 @@ jobs:
         id: dependencies-cache
         with:
           path: |
-            /usr/share/miniconda3/envs/doc-saltproc-env
+            /usr/share/miniconda3/envs/saltproc-doc-env
             ~/.cache/pip
-          key: depcache-${{ hashFiles(''doc-environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+          key: depcache-${{ hashFiles('doc/doc-environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
 
 # Install dependencies
       - name: Update environment
-        run: mamba env update -n saltproc-doc-env -f doc-environment.yml
+        run: mamba env update -n saltproc-doc-env -f doc/doc-environment.yml
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
 
       - name: Check packages
