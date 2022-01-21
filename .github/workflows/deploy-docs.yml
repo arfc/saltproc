@@ -5,11 +5,11 @@ on:
   release:
     type: [published]
   push:
-    #branches:
-    #  - master 
-    #paths:
-    #  - 'doc/**'
-    #  - 'saltproc/**'
+    branches:
+      - master 
+    paths:
+      - 'doc/**'
+      - 'saltproc/**'
   # enable worflow to be run manually
   workflow_dispatch:
 
