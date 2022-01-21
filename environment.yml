@@ -9,7 +9,5 @@ dependencies:
   - networkx
   - pydotplus
   - pytest
-  - sphinx
-  - sphinx_rtd_theme
   - pip:
     - argparse==1.4.0
