@@ -24,15 +24,14 @@ Detailed installation instructions can be found in the
 
 The documentation for SaltProc can be found at
 [arfc.github.io/saltproc/](http://arfc.github.io/saltproc/).
-Additionally, the entire contents of that
-website can be built from the doc directory in the source code using the
-following steps
+The entire contents of that
+website can be built from the `doc` directory in the repositiory using
+the following steps
 
-1. `pip install sphinx`
-2. `pip install sphinx_rtd_theme`.
-3. `cd doc/`
-4. `make clean`
-5. `make html`
+1. `pip install sphinx sphinx_rtd_theme`
+2. `cd doc/`
+3. `make clean`
+4. `make html`
 
 After these steps, the website will be found in `saltproc/doc/_build/html`.
 
