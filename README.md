@@ -31,9 +31,8 @@ following steps
 1. `pip install sphinx`
 2. `pip install sphinx_rtd_theme`.
 3. `cd doc/`
-4. `sphinx-apidoc --separate --force --output-dir=src/ ../saltproc`
-5. `make clean`
-6. `make html`
+4. `make clean`
+5. `make html`
 
 After these steps, the website will be found in `saltproc/doc/_build/html`.
 
