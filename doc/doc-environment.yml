@@ -6,6 +6,8 @@ dependencies:
   - pyne>=0.5.11
   - numpy>=1.14.0
   - pytables
+  - networkx
+  - pydotplus
   - sphinx
   - sphinx_rtd_theme
   - pip:
