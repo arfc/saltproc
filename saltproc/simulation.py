@@ -93,57 +93,6 @@ class Simulation():
                 pass
 
 
-    def runsim_no_reproc(self, reactor, nsteps):
-        """Run simulation sequence for integration test. No reprocessing
-        involved, just re-running depletion code for comparision with model
-        output.
-
-        Parameters
-        ----------
-        reactor : `Reactor`
-            Contains information about power load curve and cumulative
-            depletion time for the integration test.
-        nsteps : int
-            Number of depletion time steps in integration test run.
-
-        """
-
-        ######################################################################
-        # Start sequence
-        for dep_step in range(nsteps):
-            print("\nStep #%i has been started" % (dep_step + 1))
-            if dep_step == 0:  # First step
-                self.sim_depcode.write_depcode_input(
-                    self.sim_depcode.template_path,
-                    self.sim_depcode.input_path,
-                    reactor,
-                    dep_step,
-                    False)
-                self.sim_depcode.run_depcode(
-                    self.core_number,
-                    self.node_number)
-                # Read general simulation data which never changes
-                self.store_run_init_info()
-                # Parse and store data for initial state (beginning of dep_step)
-                mats = self.sim_depcode.read_dep_comp(
-                    self.sim_depcode.input_path,
-                    False)
-                self.store_mat_data(mats, dep_step, False)
-            # Finish of First step
-            # Main sequence
-            else:
-                self.sim_depcode.run_depcode(
-                    self.core_number,
-                    self.node_number)
-            mats = self.sim_depcode.read_dep_comp(
-                self.sim_depcode.input_path,
-                True)
-            self.store_mat_data(mats, dep_step, False)
-            self.store_run_step_info()
-            self.sim_depcode.write_mat_file(
-                mats,
-                self.iter_matfile,
-                self.burn_time)
 
     def store_after_repr(self, after_mats, waste_dict, dep_step):
         """Add data for waste streams [grams per depletion step] of each
