@@ -7,3 +7,4 @@ dependencies:
   - networkx
   - pydotplus
   - pytest
+  - jsonschema
