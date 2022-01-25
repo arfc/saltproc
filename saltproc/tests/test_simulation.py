@@ -11,7 +11,7 @@ path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
 # global class object
 directory = os.path.dirname(path)
-input_file = directory + '/test'
+iter_input_file = directory + '/test'
 main_input = directory + '/test.json'
 dot_input = directory + '/test.dot'
 
@@ -20,9 +20,9 @@ geo_test_input = directory + '/test_geometry_switch.inp'
 serpent = DepcodeSerpent(
     exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
     template_path=directory + '/template.inp',
-    input_path=input_file,
+    iter_input_file=iter_input_file,
     iter_matfile=directory + '/material',
-    geo_file=[
+    geo_files=[
         '../../examples/406.inp',
         '../../examples/988.inp'])
 
@@ -30,8 +30,7 @@ simulation = Simulation(sim_name='Simulation unit tests',
                         sim_depcode=serpent,
                         core_number=1,
                         node_number=1,
-                        db_path=directory + '/test_db.h5',
-                        iter_matfile=serpent.iter_matfile)
+                        db_path=directory + '/test_db.h5')
 
 def test_check_switch_geo_trigger():
     """
@@ -69,7 +68,7 @@ def test_store_after_repr():
 
     # read data
     mats = simulation.sim_depcode.read_dep_comp(
-        simulation.sim_depcode.input_path,
+        simulation.sim_depcode.iter_input_file,
         True)
     waste_st, rem_mass = saltproc.app.reprocessing(mats)
     m_after_refill = saltproc.app.refill(mats, rem_mass, waste_st)
@@ -85,7 +84,7 @@ def test_store_after_repr():
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
     db_path_old = simulation.db_path
-    db_file = serpent.input_path + '.h5'
+    db_file = serpent.iter_input_file + '.h5'
     simulation.db_path = db_file
 
     # store data
@@ -162,10 +161,10 @@ def test_store_mat_data():
     """
     # read data
     mats_before = simulation.sim_depcode.read_dep_comp(
-        simulation.sim_depcode.input_path,
+        simulation.sim_depcode.iter_input_file,
         False)
     mats_after = simulation.sim_depcode.read_dep_comp(
-        simulation.sim_depcode.input_path,
+        simulation.sim_depcode.iter_input_file,
         True)
 
     fuel_before = mats_before['fuel']
@@ -177,7 +176,7 @@ def test_store_mat_data():
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
     db_path_old = simulation.db_path
-    db_file = serpent.input_path + '.h5'
+    db_file = serpent.iter_input_file + '.h5'
     simulation.db_path = db_file
 
     # store data at end
@@ -286,7 +285,7 @@ def test_store_run_init_info():
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
     db_path_old = simulation.db_path
-    db_file = serpent.input_path + '.h5'
+    db_file = serpent.iter_input_file + '.h5'
     simulation.db_path = db_file
 
     # store data at
@@ -343,7 +342,7 @@ def test_store_run_step_info():
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
     db_path_old = simulation.db_path
-    db_file = serpent.input_path + '.h5'
+    db_file = serpent.iter_input_file + '.h5'
     simulation.db_path = db_file
 
     # store data at
@@ -397,9 +396,9 @@ def test_read_k_eds_delta():
 
 
 def test_switch_to_next_geometry():
-    shutil.copy2(geo_test_input, serpent.input_path + '_test')
-    serpent.input_path = serpent.input_path + '_test'
+    shutil.copy2(geo_test_input, serpent.iter_input_file + '_test')
+    serpent.iter_input_file = serpent.iter_input_file + '_test'
     simulation.switch_to_next_geometry()
-    d = serpent.read_depcode_template(serpent.input_path)
+    d = serpent.read_depcode_template(serpent.iter_input_file)
     assert d[5].split('/')[-1] == '988.inp"\n'
-    os.remove(serpent.input_path)
+    os.remove(serpent.iter_input_file)

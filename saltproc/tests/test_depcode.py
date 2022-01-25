@@ -13,9 +13,9 @@ directory = os.path.dirname(path)
 
 serpent = DepcodeSerpent(exec_path='sss2',
                          template_path=directory + '/template.inp',
-                         input_path=directory + '/test',
+                         iter_input_file=directory + '/test',
                          iter_matfile=directory + '/material',
-                         geo_file=[os.path.join(directory, '../test_geo.inp')])
+                         geo_files=[os.path.join(directory, '../test_geo.inp')])
 
 msr = Reactor(volume=1.0,
               power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
