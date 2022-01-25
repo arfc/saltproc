@@ -1,31 +1,31 @@
 {
+   "$comment": "File containing processing system objects",
+   "proc_input_file": "processes.json",
+   "$comment": "Graph file containing processing system structure",
+   "dot_input_file": "test.dot",
+   "$comment": "Path output data storing folder",
+   "output_path": "./",
+   "$comment": "Number of steps for constant power and depletion interval case",,
+   "depsteps": 2,
    "depcode": {
        "codename": "serpent",
        "exec_path": "sss2",
        "template_path": "tap_test1.serpent",
-       "npop": "50",
-       "active_cycles": "20",
-       "inactive_cycles": "20",
-       "geo_file": ["347_base.ini"],
-
-       "": "",
-       "": "",
-       "": "",
-       "": "",
-       "": "",
-       "": "",
-       "": "",
-       "": "",
-   } 
-  "File containing processing system objects": "processes.json",
-  "Graph file containing processing system structure": "test.dot",
-  "Path output data storing folder": "./",
-  "Output HDF5 database file name": "db_saltproc.h5",
-  "Restart simulation from the step when it stopped?": false,
-  "Geometry file/files to use in depletion code runs": "347_base.ini",
-  "Switch to another geometry when keff drops below 1?": false,
-  "Salt mass flow rate throughout reactor core (g/s)": 9.92E+6,
-  "Number of steps for constant power and depletion interval case": 2,
-  "Depletion step interval or Cumulative time (end of step) (d)": 5,
-  "Reactor power or power step list during depletion step (W)": 1.250E+9
+       "npop": 50,
+       "active_cycles": 20,
+       "inactive_cycles": 20,
+       "geo_file": ["347_base.ini"]
+   },
+   "simulation": {
+       "sim_name": "test_simulation",
+       "db_path": "db_saltproc.h5",
+       "restart_flag": false,
+       ""
+   },
+   "reactor": {
+       "volume": 1.0,
+       "mass_flowrate": 9.92E+6,
+       "power_levels": [ 1.250E+9 ],
+       "depl_hist": [ 5 ]
+   }
 }
