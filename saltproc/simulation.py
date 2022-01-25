@@ -21,6 +21,8 @@ class Simulation():
             core_number=1,
             node_number=1,
             db_path="db_saltproc.h5",
+            restart_flag=True,
+            adjust_geo=False,
             compression_params=tb.Filters(complevel=9,
                                    complib='blosc',
                                    fletcher32=True),
@@ -44,6 +46,16 @@ class Simulation():
         db_path : str
             Path of HDF5 database that stores simulation information and
             data.
+        restart_flag : bool
+            This value determines our initial condition. If `True`, then
+            then we run the simulation starting from the inital material
+            composition in the material input file inside our `depcode`
+            object. If `False`, then we runthe simulation starting from
+            the final material composition resulting within the `.h5`
+            database.
+        adjust_geo : bool
+            This value determines if we switch reactor geometry when keff
+            drops below 1.0
         compression_params : Pytables filter object
             Compression parameters for HDF5 database.
         iter_matfile : str
@@ -57,8 +69,29 @@ class Simulation():
         self.core_number = core_number
         self.node_number = node_number
         self.db_path = db_path
+        self.restart_flag = restart_flag
+        self.adjust_geo = adjust_geo
         self.compression_params = compression_params
         self.iter_matfile = iter_matfile
+
+    def check_restart(self):
+        """If the user set `restart_flag`
+        for `False` clean out iteration files and database from previous run.
+
+        Parameters
+        ----------
+        restart_flag : bool
+            Is the current simulation restarted?
+        """
+        if not self.restart_flag:
+            try:
+                os.remove(self.db_path)
+                os.remove(self.sim_depcode.iter_matfile)
+                os.remove(self.sim_depcode.rerun_path)
+                print("Previous run output files were deleted.")
+            except OSError as e:
+                pass
+
 
     def runsim_no_reproc(self, reactor, nsteps):
         """Run simulation sequence for integration test. No reprocessing
@@ -446,7 +479,7 @@ class Simulation():
         f.writelines(new_data)
         f.close()
 
-    def read_k_eds_delta(self, current_timestep, restart):
+    def read_k_eds_delta(self, current_timestep):
         """Reads from database delta between previous and current `keff` at the
         end of depletion step and returns `True` if predicted `keff` at the
         next depletion step drops below 1.
@@ -455,8 +488,6 @@ class Simulation():
         ----------
         current_timestep : int
             Number of current depletion time step.
-        restart : bool
-            Was this simulation restarted?
 
         Returns
         -------
@@ -465,7 +496,7 @@ class Simulation():
 
         """
 
-        if current_timestep > 3 or restart:
+        if current_timestep > 3 or self.restart_flag:
             # Open or restore db and read data
             db = tb.open_file(self.db_path, mode='r')
             sim_param = db.root.simulation_parameters
