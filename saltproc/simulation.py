@@ -26,7 +26,7 @@ class Simulation():
             compression_params=tb.Filters(complevel=9,
                                    complib='blosc',
                                    fletcher32=True),
-            iter_matfile="./saltproc_mat"):
+            ):
         """Initializes the Simulation object.
 
         Parameters
@@ -58,9 +58,6 @@ class Simulation():
             drops below 1.0
         compression_params : Pytables filter object
             Compression parameters for HDF5 database.
-        iter_matfile : str
-            Name of iterative, rewritable material file for depletion code
-            rerunning. This file is modified during  the simulation.
 
         """
         # initialize all object attributes
@@ -72,7 +69,6 @@ class Simulation():
         self.restart_flag = restart_flag
         self.adjust_geo = adjust_geo
         self.compression_params = compression_params
-        self.iter_matfile = iter_matfile
 
     def check_restart(self):
         """If the user set `restart_flag`
