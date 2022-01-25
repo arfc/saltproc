@@ -10,7 +10,7 @@ from saltproc import Separator
 # from materialflow import Materialflow
 import os
 import copy
-import json
+import json, jsonschema
 from collections import OrderedDict
 import gc
 import networkx as nx
@@ -24,6 +24,7 @@ input_path = os.getcwd()
 input_file = os.path.join(input_path, 'data/saltproc_serpent')
 iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
 
+input_schema = os.path.join(input_path, 'saltproc/input_schema.json')
 
 def check_restart(restart_flag):
     """If the user set `Restart simulation from the step when it stopped?`
@@ -36,7 +37,7 @@ def check_restart(restart_flag):
     """
     if not restart_flag:
         try:
-            os.remove(db_file)
+            os.remove(simulation_inp['db_path'])
             os.remove(iter_matfile)
             os.remove(input_file)
             print("Previous run output files were deleted.")
@@ -87,49 +88,44 @@ def read_main_input(main_inp_file):
     """
     with open(main_inp_file) as f:
         j = json.load(f)
-        global codename, exec_path, spc_inp_file, dot_inp_file, \
-            template_file, db_file
-        codename = j["Name of depletion code"].lower()
-        exec_path = j["Path to depletion code executable"]
+        with open(input_schema) as v:
+            s = json.load(v)
+            jsonschema.validate(instance=j,schema=s)
+
+        global depcode_inp, simulation_inp, reactor_inp
+        depcode_inp = j['depcode']
+        simulation_inp = j['simulationt']
+        reactor_inp = j['reactor']
+
+        depcode_inp['template_path'] = os.path.join(
+            os.path.dirname(f.name), depcode_inp['template_path'])
+        geo_list = depcode_inp['geo_files']
+        geo_files = [g for g in geo_list]
+        depcode_inp['geo_files'] = geo_list
+
+
+        db_path = os.path.join(
+            os.path.dirname(f.name),
+            output_path, simulation_inp['db_path'])
+        simulation_inp['db_path'] = db_path
+
+        global spc_inp_file, dot_inp_file, output_path, depsteps
         spc_inp_file = os.path.join(
             os.path.dirname(f.name),
-            j["File containing processing system objects"])
+            j['proc_input_file'])
         dot_inp_file = os.path.join(
             os.path.dirname(f.name),
-            j["Graph file containing processing system structure"])
-        template_file = os.path.join(
-            os.path.dirname(f.name),
-            j["User's depletion code input file with reactor model"])
-        db_path = j["Path output data storing folder"]
-        db_file = os.path.join(
-            os.path.dirname(f.name),
-            db_path,
-            j["Output HDF5 database file name"])
-        # Read Monte Carlo setups
-        global neutron_pop, active_cycles, inactive_cycles
-        neutron_pop = j["Number of neutrons per generation"]
-        active_cycles = j["Number of active generations"]
-        inactive_cycles = j["Number of inactive generations"]
-        # Read advanced simulatiion parameters
-        global adjust_geo, restart_flag, core_massflow_rate
-        adjust_geo = j["Switch to another geometry when keff drops below 1?"]
-        restart_flag = j["Restart simulation from the step when it stopped?"]
-        # Read paths to geometry files
-        global geo_file
-        if adjust_geo:
-            geo_list = j["Geometry file/files to use in depletion code runs"]
-            geo_file = [g for g in geo_list]
-        elif not adjust_geo:
-            geo_file = [j["Geometry file/files to use in depletion code runs"]]
-        core_massflow_rate = \
-            j["Salt mass flow rate throughout reactor core (g/s)"]
-        global depl_hist, power_hist
-        depl_hist = \
-            j["Depletion step interval or Cumulative time (end of step) (d)"]
-        power_hist = \
-            j["Reactor power or power step list during depletion step (W)"]
-        depsteps = \
-            j["Number of steps for constant power and depletion interval case"]
+            j['dot_input_file'])
+        output_path = j['output_path']
+        depsteps = reactor_inp['depsteps']
+
+        # Read advanced simulation parameters
+        global restart_flag, adjust_geo
+        adjust_geo = simulation_inp['adjust_geo']
+        restart_flag = simulation_inp['restart_flag']
+
+        depl_hist = reactor_inp['depl_hist']
+        power_hist = reactor_inp['power_hist ']
         if depsteps is not None and isinstance(depl_hist, (float, int)):
             if depsteps < 0.0 or not int:
                 raise ValueError('Depletion step interval cannot be negative')
@@ -138,6 +134,8 @@ def read_main_input(main_inp_file):
                 deptot = float(depl_hist) * step
                 depl_hist = np.linspace(float(depl_hist), deptot, num=step)
                 power_hist = float(power_hist) * np.ones_like(depl_hist)
+                reactor_inp['depl_hist'] = depl_hist
+                reactor_inp['power_hist'] = power_hist
         elif depsteps is None and isinstance(depl_hist, (np.ndarray, list)):
             if len(depl_hist) != len(power_hist):
                 raise ValueError(
@@ -383,45 +381,45 @@ def run():
     read_main_input(sp_input)
     # Print out input information
     print('Initiating Saltproc:\n'
-          '\tRestart = ' + str(restart_flag) + '\n'
-          '\tTemplate File Path  = ' + os.path.abspath(template_file) + '\n'
+          '\tRestart = ' + str(simulation_inp['restart_flag']) + '\n'
+          '\tTemplate File Path  = ' + os.path.abspath(depcode_inp['template_path']) + '\n'
           '\tInput File Path     = ' + os.path.abspath(input_file) + '\n'
           '\tMaterial File Path  = ' + os.path.abspath(iter_matfile) + '\n'
-          '\tOutput HDF5 DB Path = ' + os.path.abspath(db_file) + '\n'
+          '\tOutput HDF5 DB Path = ' + os.path.abspath(simulation_inp['db_path']) + '\n'
           )
     # Intializing objects
-    if codename == 'serpent':
+    if depcode_inp['codename'] == 'serpent':
         depcode = DepcodeSerpent(
-            exec_path=exec_path,
-            template_path=template_file,
+            exec_path=depcode_inp['exec_path'],
+            template_path=depcode_inp['template_path'],
             input_path=input_file,
             iter_matfile=iter_matfile,
-            geo_file=geo_file,
-            npop=neutron_pop,
-            active_cycles=active_cycles,
-            inactive_cycles=inactive_cycles)
+            geo_files=depcode_inp['geo_files'],
+            npop=depcode_inp['npop'],
+            active_cycles=depcode_inp['active_cycles'],
+            inactive_cycles=depcode_inp['inactive_cycles'])
     else:
-        raise ValueError(f'{codename} is not a supported depletion code')
+        raise ValueError(f'{depcode_inp['codename']} is not a supported depletion code')
 
     simulation = Simulation(
         sim_name='Super test',
         sim_depcode=depcode,
         core_number=cores,
         node_number=nodes,
-        db_path=db_file,
+        db_path=simulation_inp['db_path'],
         iter_matfile=iter_matfile)
     msr = Reactor(
-        volume=1.0,
-        mass_flowrate=core_massflow_rate,
-        power_levels=power_hist,
-        depl_hist=depl_hist)
+        volume=reactor_inp['volume'],
+        mass_flowrate=reactor_inp['mass_flowrate'],
+        power_levels=reactor_inp['power_levels'],
+        depl_hist=reactor_inp['depl_hist'])
     # Check: Restarting previous simulation or starting new?
     check_restart(restart_flag)
     # Run sequence
     # Start sequence
-    for dep_step in range(len(depl_hist)):
+    for dep_step in range(len(reactor.depl_hist)):
         print("\n\n\nStep #%i has been started" % (dep_step + 1))
-        depcode.write_depcode_input(template_file,
+        depcode.write_depcode_input(depcode.template_path,
                                     input_file,
                                     msr,
                                     dep_step,
@@ -466,7 +464,7 @@ def run():
         del mats, waste_st, waste_feed_st, rem_mass
         gc.collect()
         # Switch to another geometry?
-        if adjust_geo and simulation.read_k_eds_delta(dep_step, restart_flag):
+        if adjust_geo and simulation.read_k_eds_delta(dep_step):
             simulation.switch_to_next_geometry()
         print("\nTime at the end of current depletion step %fd" %
               simulation.burn_time)
