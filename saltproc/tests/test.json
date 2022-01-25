@@ -7,15 +7,18 @@
        "codename": "serpent",
        "exec_path": "sss2",
        "template_path": "tap_test1.serpent",
+       "iter_input_file": "data/saltproc_serpetn",
+       "iter_material_file": "data/saltproc_mat",
        "npop": 50,
        "active_cycles": 20,
        "inactive_cycles": 20,
-       "geo_file": ["347_base.ini"]
+       "geo_files": ["347_base.ini"]
    },
    "simulation": {
        "sim_name": "test_simulation",
        "db_path": "db_saltproc.h5",
-       "restart_flag": false
+       "restart_flag": false,
+       "adjust_geo": false
    },
    "reactor": {
        "volume": 1.0,

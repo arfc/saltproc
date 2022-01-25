@@ -1,23 +1,32 @@
 {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/arfc/saltproc",
+    "title": "SaltProc input file schema",
     "type": "object",
     "properties": {
-        "$comment": "File containing processing system objects",
-        "proc_input_file": { "type": "string" },
-        "$comment": "Graph file containing processing system structure",
-        "dot_input_file": { "type": "string" },
-        "$comment": "Path output data storing folder",
-        "output_path": { "type": "string" },
-        "$comment": "Number of steps for constant power and depletion interval case",
-        "depsteps": { "type": "number" },
+        "proc_input_file": { "type": "string",
+            "$comment": "File containing processing system objects"
+        },
+        "dot_input_file": { "type": "string",
+        "$comment": "Graph file containing processing system structure"
+        },
+        "output_path": { "type": "string",
+            "$comment": "Path output data storing folder"
+        },
+        "depsteps": { "type": "number",
+            "$comment": "Number of steps for constant power and depletion interval case"
+        },
         "depcode": { "type": "object",
             "properties": {
                 "codename": { "type": "string" },
-                "exec_path": { "type": "string" },"sss2",
-                "template_path": { "type": "string" },"tap_test1.serpent",
-                "npop": 50,
-                "active_cycles": 20,
-                "inactive_cycles": 20,
-                "geo_file": { "type": "array",
+                "exec_path": { "type": "string" },
+                "template_path": { "type": "string" },
+                "iter_input_file": { "type": "string" },
+                "iter_matfile": { "type": "string" },
+                "npop": { "type": "number"},
+                "active_cycles": { "type": "number"},
+                "inactive_cycles": { "type": "number"},
+                "geo_files": { "type": "array",
                     "items": { "type": "string"}
                 }
             }
@@ -26,14 +35,15 @@
            "properties": {
                "sim_name": { "type": "string"},
                "db_path": { "type": "string"},
-               "restart_flag": { "type": "boolean"}
+               "restart_flag": { "type": "boolean"},
+               "adjust_geo": { "type": "boolean"}
            }
        },
        "reactor": { "type": "object",
            "properties": {
                "volume": { "type": "number" },
                "mass_flowrate": { "type": "number" },
-               "power_levels":  { "type": "array",
+               "power_levels": { "type": "array",
                    "items": { "type": "number"}
                 },
                "depl_hist": { "type": "array",

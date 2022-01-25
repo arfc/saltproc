@@ -21,29 +21,7 @@ import numpy as np
 
 input_path = os.getcwd()
 
-input_file = os.path.join(input_path, 'data/saltproc_serpent')
-iter_matfile = os.path.join(input_path, 'data/saltproc_mat')
-
 input_schema = os.path.join(input_path, 'saltproc/input_schema.json')
-
-def check_restart(restart_flag):
-    """If the user set `Restart simulation from the step when it stopped?`
-    for `False` clean out iteration files and database from previous run.
-
-    Parameters
-    ----------
-    restart_flag : bool
-        Is the current simulation restarted?
-    """
-    if not restart_flag:
-        try:
-            os.remove(simulation_inp['db_path'])
-            os.remove(iter_matfile)
-            os.remove(input_file)
-            print("Previous run output files were deleted.")
-        except OSError as e:
-            pass
-
 
 def parse_arguments():
     """Parses arguments from command line.
@@ -92,23 +70,7 @@ def read_main_input(main_inp_file):
             s = json.load(v)
             jsonschema.validate(instance=j,schema=s)
 
-        global depcode_inp, simulation_inp, reactor_inp
-        depcode_inp = j['depcode']
-        simulation_inp = j['simulationt']
-        reactor_inp = j['reactor']
-
-        depcode_inp['template_path'] = os.path.join(
-            os.path.dirname(f.name), depcode_inp['template_path'])
-        geo_list = depcode_inp['geo_files']
-        geo_files = [g for g in geo_list]
-        depcode_inp['geo_files'] = geo_list
-
-
-        db_path = os.path.join(
-            os.path.dirname(f.name),
-            output_path, simulation_inp['db_path'])
-        simulation_inp['db_path'] = db_path
-
+        # Saltproc settings
         global spc_inp_file, dot_inp_file, output_path, depsteps
         spc_inp_file = os.path.join(
             os.path.dirname(f.name),
@@ -119,10 +81,24 @@ def read_main_input(main_inp_file):
         output_path = j['output_path']
         depsteps = reactor_inp['depsteps']
 
-        # Read advanced simulation parameters
-        global restart_flag, adjust_geo
-        adjust_geo = simulation_inp['adjust_geo']
-        restart_flag = simulation_inp['restart_flag']
+        # Class settings
+        global depcode_inp, simulation_inp, reactor_inp
+        depcode_inp = j['depcode']
+        simulation_inp = j['simulationt']
+        reactor_inp = j['reactor']
+
+        depcode_inp['template_path'] = os.path.join(
+            os.path.dirname(f.name), depcode_inp['template_path'])
+        geo_list = depcode_inp['geo_files']
+        geo_files = [g for g in geo_list]
+        depcode_inp['geo_files'] = geo_list
+        depcode_inp['iter_input_file'] = os.path.join(input_path, depcode_inp['iter_input_file'])
+        depcode_inp['iter_matfile'] = os.path.join(input_path, depcode_inp['iter_matfile'])
+
+        db_path = os.path.join(
+            os.path.dirname(f.name),
+            output_path, simulation_inp['db_path'])
+        simulation_inp['db_path'] = db_path
 
         depl_hist = reactor_inp['depl_hist']
         power_hist = reactor_inp['power_hist ']
@@ -383,8 +359,9 @@ def run():
     print('Initiating Saltproc:\n'
           '\tRestart = ' + str(simulation_inp['restart_flag']) + '\n'
           '\tTemplate File Path  = ' + os.path.abspath(depcode_inp['template_path']) + '\n'
-          '\tInput File Path     = ' + os.path.abspath(input_file) + '\n'
-          '\tMaterial File Path  = ' + os.path.abspath(iter_matfile) + '\n'
+          '\tInput File Path     = ' + os.path.abspath(depcode_inp['iter_input_file'] + '\n'
+          '\tMaterial File Path  = ' + os.path.abspath(depcode_inp['iter_matfile']
+          ]) + '\n'
           '\tOutput HDF5 DB Path = ' + os.path.abspath(simulation_inp['db_path']) + '\n'
           )
     # Intializing objects
@@ -392,8 +369,8 @@ def run():
         depcode = DepcodeSerpent(
             exec_path=depcode_inp['exec_path'],
             template_path=depcode_inp['template_path'],
-            input_path=input_file,
-            iter_matfile=iter_matfile,
+            iter_input_file=depecode_inp['iter_input_file'],
+            iter_matfile=depcode_inp['iter_matfile'],
             geo_files=depcode_inp['geo_files'],
             npop=depcode_inp['npop'],
             active_cycles=depcode_inp['active_cycles'],
@@ -406,34 +383,32 @@ def run():
         sim_depcode=depcode,
         core_number=cores,
         node_number=nodes,
-        db_path=simulation_inp['db_path'],
-        iter_matfile=iter_matfile)
+        db_path=simulation_inp['db_path'])
+
     msr = Reactor(
         volume=reactor_inp['volume'],
         mass_flowrate=reactor_inp['mass_flowrate'],
         power_levels=reactor_inp['power_levels'],
         depl_hist=reactor_inp['depl_hist'])
     # Check: Restarting previous simulation or starting new?
-    check_restart(restart_flag)
+    simulation.check_restart()
     # Run sequence
     # Start sequence
     for dep_step in range(len(reactor.depl_hist)):
         print("\n\n\nStep #%i has been started" % (dep_step + 1))
-        depcode.write_depcode_input(depcode.template_path,
-                                    input_file,
-                                    msr,
+        simulation.depcode.write_depcode_input(msr,
                                     dep_step,
-                                    restart_flag)
+                                    simulation.restart_flag)
         depcode.run_depcode(cores, nodes)
-        if dep_step == 0 and restart_flag is False:  # First step
+        if dep_step == 0 and simulation.restart_flag is False:  # First step
             # Read general simulation data which never changes
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dep_step)
-            mats = depcode.read_dep_comp(input_file, False)
+            mats = depcode.read_dep_comp(False)
             simulation.store_mat_data(mats, dep_step - 1, False)
         # Finish of First step
         # Main sequence
-        mats = depcode.read_dep_comp(input_file, True)
+        mats = depcode.read_dep_comp(True)
         simulation.store_mat_data(mats, dep_step, True)
         simulation.store_run_step_info()
         # Reprocessing here
@@ -460,11 +435,11 @@ def run():
         print("Removed mass [g]:", rem_mass)
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_feed_st, dep_step)
-        serpent.write_mat_file(mats, iter_matfile, simulation.burn_time)
+        depcode.write_mat_file(mats, simulation.burn_time)
         del mats, waste_st, waste_feed_st, rem_mass
         gc.collect()
         # Switch to another geometry?
-        if adjust_geo and simulation.read_k_eds_delta(dep_step):
+        if simulation.adjust_geo and simulation.read_k_eds_delta(dep_step):
             simulation.switch_to_next_geometry()
         print("\nTime at the end of current depletion step %fd" %
               simulation.burn_time)

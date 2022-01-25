@@ -21,7 +21,7 @@ class Depcode(ABC):
                  codename,
                  exec_path,
                  template_path,
-                 rerun_path,
+                 iter_input_file,
                  iter_matfile,
                  geo_files=None,
                  npop=50,
@@ -37,7 +37,7 @@ class Depcode(ABC):
                Path to depletion code executable.
            template_path : str
                Path to depletion code input file template.
-           rerun_path : str
+           iter_input_file : str
                Name of depletion code input file for depletion code rerunning.
            iter_matfile : str
                Name of iterative, rewritable material file for depletion code
@@ -57,7 +57,7 @@ class Depcode(ABC):
         self.codename = codename
         self.exec_path = exec_path
         self.template_path = template_path
-        self.rerun_path = rerun_path
+        self.iter_input_file = iter_input_file
         self.iter_matfile = iter_matfile
         self.geo_files = geo_files
         self.npop = npop
@@ -67,15 +67,13 @@ class Depcode(ABC):
         self.sim_info = {}
 
     @abstractmethod
-    def read_dep_comp(self, dep_file, read_at_end=False):
+    def read_dep_comp(self, read_at_end=False):
         """Reads the depleted material data from the depcode simulation
         and returns a dictionary with a `Materialflow` object for each
         burnable material.
 
         Parameters
         ----------
-        dep_file : str
-            Path to file containing results of depletion simulation
         read_at_end : bool, optional
             Controls at which moment in the depletion step to read the data.
             If `True`, the function reads data at the end of the
@@ -122,7 +120,7 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def write_mat_file(self, dep_dict, mat_file, dep_end_time):
+    def write_mat_file(self, dep_dict, dep_end_time):
         """Writes the iteration input file containing the burnable materials
         composition used in depletion runs and updated after each depletion
         step.
@@ -136,8 +134,6 @@ class Depcode(ABC):
                 Name of burnable material.
             ``value``
                 `Materialflow` object holding composition and properties.
-        mat_file : str
-            Path to file containing burnable materials composition.
         dep_end_time : float
             Current time at the end of the depletion step (d).
 
@@ -156,7 +152,7 @@ class DepcodeSerpent(Depcode):
     def __init__(self,
                  exec_path="sss2",
                  template_path="reactor.serpent",
-                 rerun_path="data/saltproc_reactor",
+                 iter_input_file="data/saltproc_reactor",
                  iter_matfile="data/saltproc_mat",
                  geo_files=None,
                  npop=50,
@@ -170,7 +166,7 @@ class DepcodeSerpent(Depcode):
                Path to Serpent2 executable.
            template_path : str
                Path to user input file for Serpent2.
-           rerun_path : str
+           iter_input_file : str
                 Name of Serpent2 input file for Serpent2 rerunning.
            iter_matfile : str
                Name of iterative, rewritable material file for Serpent2
@@ -190,7 +186,7 @@ class DepcodeSerpent(Depcode):
         super().__init__("serpent",
                          exec_path,
                          template_path,
-                         rerun_path,
+                         iter_input_file,
                          iter_matfile,
                          geo_files,
                          npop,
@@ -380,14 +376,12 @@ class DepcodeSerpent(Depcode):
                              'include \"' + str(self.geo_files[0]) + '\"\n')
         return template_data
 
-    def read_dep_comp(self, input_file, read_at_end=False):
+    def read_dep_comp(self, read_at_end=False):
         """Reads the Serpent2 `*_dep.m` file and returns a dictionary with
         a `Materialflow` object for each burnable material.
 
         Parameters
         ----------
-        input_file : str
-            Path to Serpent2 input file.
         read_at_end : bool, optional
             Controls at which moment in the depletion step to read the data.
             If `True`, the function reads data at the end of the
@@ -411,7 +405,7 @@ class DepcodeSerpent(Depcode):
         else:
             moment = 0
 
-        dep_file = os.path.join('%s_dep.m' % input_file)
+        dep_file = os.path.join('%s_dep.m' % self.iter_input_file)
         dep = serpent.parse_dep(dep_file, make_mats=False)
         self.days = dep['DAYS'][moment]
         # Read materials names from the file
@@ -431,14 +425,14 @@ class DepcodeSerpent(Depcode):
             mats[m].mass = mats[m].density * volume
             mats[m].vol = volume
             mats[m].burnup = dep['MAT_' + m + '_BURNUP'][moment]
-        self.get_tra_or_dec(self.rerun_path)
+        self.get_tra_or_dec(self.iter_input_file)
         return mats
 
     def read_depcode_info(self):
         """Parses initial simulation info data from Serpent2 output and stores
         it in the `DepcodeSerpent` object's ``sim_info`` attributes.
         """
-        res = serpent.parse_res(self.rerun_path + "_res.m")
+        res = serpent.parse_res(self.iter_input_file + "_res.m")
         self.sim_info['serpent_version'] = \
             res['VERSION'][0].decode('utf-8')
         self.sim_info['title'] = res['TITLE'][0].decode('utf-8')
@@ -458,7 +452,7 @@ class DepcodeSerpent(Depcode):
         """Parses data from Serpent2 output for each step and stores it in
         `DepcodeSerpent` object's ``param`` attributes.
         """
-        res = serpent.parse_res(self.rerun_path + "_res.m")
+        res = serpent.parse_res(self.iter_input_file + "_res.m")
         self.param['keff_bds'] = res['IMP_KEFF'][0]
         self.param['keff_eds'] = res['IMP_KEFF'][1]
         self.param['breeding_ratio'] = res['CONVERSION_RATIO'][1]
@@ -558,16 +552,16 @@ class DepcodeSerpent(Depcode):
                 self.exec_path,
                 '-omp',
                 str(cores),
-                self.rerun_path)
+                self.iter_input_file)
         elif self.exec_path.startswith('/apps/exp_ctl/'):  # check if Falcon
             args = (
                 'mpiexec',
                 self.exec_path,
-                self.rerun_path,
+                self.iter_input_file,
                 '-omp',
                 str(18))
         else:
-            args = (self.exec_path, '-omp', str(cores), self.rerun_path)
+            args = (self.exec_path, '-omp', str(cores), self.iter_input_file)
         print('Running %s' % (self.codename))
         try:
             subprocess.check_output(
@@ -633,7 +627,7 @@ class DepcodeSerpent(Depcode):
             data = self.change_sim_par(data)
             data = self.create_iter_matfile(data)
         else:
-            data = self.read_depcode_template(self.rerun_path)
+            data = self.read_depcode_template(self.iter_input_file)
         data = self.replace_burnup_parameters(data, reactor, dep_step)
 
         if data:
@@ -641,7 +635,7 @@ class DepcodeSerpent(Depcode):
             out_file.writelines(data)
             out_file.close()
 
-    def write_mat_file(self, dep_dict, mat_file, dep_end_time):
+    def write_mat_file(self, dep_dict, dep_end_time):
         """Writes the iteration input file containing the burnable materials
         composition used in Serpent2 runs and updated after each depletion
         step.
@@ -662,7 +656,7 @@ class DepcodeSerpent(Depcode):
 
         """
 
-        matf = open(mat_file, 'w')
+        matf = open(self.iter_matfile, 'w')
         matf.write('%% Material compositions (after %f days)\n\n'
                    % dep_end_time)
         for key, value in dep_dict.items():
