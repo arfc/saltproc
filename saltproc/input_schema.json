@@ -1,0 +1,45 @@
+{
+    "type": "object",
+    "properties": {
+        "$comment": "File containing processing system objects",
+        "proc_input_file": { "type": "string" },
+        "$comment": "Graph file containing processing system structure",
+        "dot_input_file": { "type": "string" },
+        "$comment": "Path output data storing folder",
+        "output_path": { "type": "string" },
+        "$comment": "Number of steps for constant power and depletion interval case",
+        "depsteps": { "type": "number" },
+        "depcode": { "type": "object",
+            "properties": {
+                "codename": { "type": "string" },
+                "exec_path": { "type": "string" },"sss2",
+                "template_path": { "type": "string" },"tap_test1.serpent",
+                "npop": 50,
+                "active_cycles": 20,
+                "inactive_cycles": 20,
+                "geo_file": { "type": "array",
+                    "items": { "type": "string"}
+                }
+            }
+        },
+       "simulation": { "type": "object",
+           "properties": {
+               "sim_name": { "type": "string"},
+               "db_path": { "type": "string"},
+               "restart_flag": { "type": "boolean"}
+           }
+       },
+       "reactor": { "type": "object",
+           "properties": {
+               "volume": { "type": "number" },
+               "mass_flowrate": { "type": "number" },
+               "power_levels":  { "type": "array",
+                   "items": { "type": "number"}
+                },
+               "depl_hist": { "type": "array",
+                   "items": { "type": "number"}
+                }
+           }  
+       }
+    }
+}
