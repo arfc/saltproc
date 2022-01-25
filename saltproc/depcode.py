@@ -21,9 +21,9 @@ class Depcode(ABC):
                  codename,
                  exec_path,
                  template_path,
-                 input_path,
+                 rerun_path,
                  iter_matfile,
-                 geo_file=None,
+                 geo_files=None,
                  npop=50,
                  active_cycles=20,
                  inactive_cycles=20):
@@ -36,13 +36,13 @@ class Depcode(ABC):
            exec_path : str
                Path to depletion code executable.
            template_path : str
-               Path to user input file for depletion code.
-           input_path : str
-               Name of input file for depletion code rerunning.
+               Path to depletion code input file template.
+           rerun_path : str
+               Name of depletion code input file for depletion code rerunning.
            iter_matfile : str
                Name of iterative, rewritable material file for depletion code
                rerunning. This file is modified during  the simulation.
-           geo_file : str or list, optional
+           geo_files : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
@@ -57,9 +57,9 @@ class Depcode(ABC):
         self.codename = codename
         self.exec_path = exec_path
         self.template_path = template_path
-        self.input_path = input_path
+        self.rerun_path = rerun_path
         self.iter_matfile = iter_matfile
-        self.geo_file = geo_file
+        self.geo_files = geo_files
         self.npop = npop
         self.active_cycles = active_cycles
         self.inactive_cycles = inactive_cycles
@@ -107,15 +107,11 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def write_depcode_input(self, temp, inp, reactor, dep_step, restart):
+    def write_depcode_input(self, reactor, dep_step, restart):
         """ Writes prepared data into depletion code input file(s).
 
         Parameters
         ----------
-        temp : str
-            Path to depletion code template file
-        inp : str
-            Path to input file for depletion code rerunning
         reactor : Reactor
             Contains information about power load curve and cumulative
             depletion time for the integration test.
@@ -160,9 +156,9 @@ class DepcodeSerpent(Depcode):
     def __init__(self,
                  exec_path="sss2",
                  template_path="reactor.serpent",
-                 input_path="data/saltproc_reactor",
+                 rerun_path="data/saltproc_reactor",
                  iter_matfile="data/saltproc_mat",
-                 geo_file=None,
+                 geo_files=None,
                  npop=50,
                  active_cycles=20,
                  inactive_cycles=20):
@@ -174,12 +170,12 @@ class DepcodeSerpent(Depcode):
                Path to Serpent2 executable.
            template_path : str
                Path to user input file for Serpent2.
-           input_path : str
-               Name of input file for Serpent2 rerunning.
+           rerun_path : str
+                Name of Serpent2 input file for Serpent2 rerunning.
            iter_matfile : str
                Name of iterative, rewritable material file for Serpent2
                rerunning. This file is modified during  the simulation.
-           geo_file : str or list, optional
+           geo_files : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
@@ -194,9 +190,9 @@ class DepcodeSerpent(Depcode):
         super().__init__("serpent",
                          exec_path,
                          template_path,
-                         input_path,
+                         rerun_path,
                          iter_matfile,
-                         geo_file,
+                         geo_files,
                          npop,
                          active_cycles,
                          inactive_cycles)
@@ -381,7 +377,7 @@ class DepcodeSerpent(Depcode):
 
         """
         template_data.insert(5,  # Inserts on 6th line
-                             'include \"' + str(self.geo_file[0]) + '\"\n')
+                             'include \"' + str(self.geo_files[0]) + '\"\n')
         return template_data
 
     def read_dep_comp(self, input_file, read_at_end=False):
@@ -435,14 +431,14 @@ class DepcodeSerpent(Depcode):
             mats[m].mass = mats[m].density * volume
             mats[m].vol = volume
             mats[m].burnup = dep['MAT_' + m + '_BURNUP'][moment]
-        self.get_tra_or_dec(self.input_path)
+        self.get_tra_or_dec(self.rerun_path)
         return mats
 
     def read_depcode_info(self):
         """Parses initial simulation info data from Serpent2 output and stores
         it in the `DepcodeSerpent` object's ``sim_info`` attributes.
         """
-        res = serpent.parse_res(self.input_path + "_res.m")
+        res = serpent.parse_res(self.rerun_path + "_res.m")
         self.sim_info['serpent_version'] = \
             res['VERSION'][0].decode('utf-8')
         self.sim_info['title'] = res['TITLE'][0].decode('utf-8')
@@ -462,7 +458,7 @@ class DepcodeSerpent(Depcode):
         """Parses data from Serpent2 output for each step and stores it in
         `DepcodeSerpent` object's ``param`` attributes.
         """
-        res = serpent.parse_res(self.input_path + "_res.m")
+        res = serpent.parse_res(self.rerun_path + "_res.m")
         self.param['keff_bds'] = res['IMP_KEFF'][0]
         self.param['keff_eds'] = res['IMP_KEFF'][1]
         self.param['breeding_ratio'] = res['CONVERSION_RATIO'][1]
@@ -562,16 +558,16 @@ class DepcodeSerpent(Depcode):
                 self.exec_path,
                 '-omp',
                 str(cores),
-                self.input_path)
+                self.rerun_path)
         elif self.exec_path.startswith('/apps/exp_ctl/'):  # check if Falcon
             args = (
                 'mpiexec',
                 self.exec_path,
-                self.input_path,
+                self.rerun_path,
                 '-omp',
                 str(18))
         else:
-            args = (self.exec_path, '-omp', str(cores), self.input_path)
+            args = (self.exec_path, '-omp', str(cores), self.rerun_path)
         print('Running %s' % (self.codename))
         try:
             subprocess.check_output(
@@ -614,8 +610,6 @@ class DepcodeSerpent(Depcode):
 
     def write_depcode_input(
             self,
-            temp_file,
-            inp_file,
             reactor,
             dep_step,
             restart):
@@ -623,10 +617,6 @@ class DepcodeSerpent(Depcode):
 
         Parameters
         ----------
-        template_file : str
-            Path to Serpent2 template file.
-        input_file : str
-            Path to input file for Serpent2 rerunning.
         reactor : Reactor
             Contains information about power load curve and cumulative
             depletion time for the integration test.
@@ -638,12 +628,12 @@ class DepcodeSerpent(Depcode):
         """
 
         if dep_step == 0 and not restart:
-            data = self.read_depcode_template(temp_file)
+            data = self.read_depcode_template(self.template_path)
             data = self.insert_path_to_geometry(data)
             data = self.change_sim_par(data)
             data = self.create_iter_matfile(data)
         else:
-            data = self.read_depcode_template(inp_file)
+            data = self.read_depcode_template(self.rerun_path)
         data = self.replace_burnup_parameters(data, reactor, dep_step)
 
         if data:
