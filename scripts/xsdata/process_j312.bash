@@ -57,9 +57,7 @@ echo "datapath=$DATADIR/acedata" | cat - > $DIRFILE
 echo "atomic weight ratios" | cat - >> $DIRFILE
 mkdir -p $DATADIR/acedata
 
-TEMPS=(900 "THERM")
-#Uncomment if you have dowloaded the entire JEFF 3.1.2 libary
-#TEMPS=(500 600 800 900 1000 1200 1500 "THERM")
+TEMPS+=("THERM")
 
 # Regular expressions for changing the ZAI of
 # metastable isotopes
