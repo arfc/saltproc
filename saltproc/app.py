@@ -79,7 +79,7 @@ def read_main_input(main_inp_file):
             os.path.dirname(f.name),
             j['dot_input_file'])
         output_path = j['output_path']
-        depsteps = reactor_inp['depsteps']
+        depsteps = j['depsteps']
 
         # Class settings
         global depcode_inp, simulation_inp, reactor_inp
@@ -359,9 +359,8 @@ def run():
     print('Initiating Saltproc:\n'
           '\tRestart = ' + str(simulation_inp['restart_flag']) + '\n'
           '\tTemplate File Path  = ' + os.path.abspath(depcode_inp['template_path']) + '\n'
-          '\tInput File Path     = ' + os.path.abspath(depcode_inp['iter_input_file'] + '\n'
-          '\tMaterial File Path  = ' + os.path.abspath(depcode_inp['iter_matfile']
-          ]) + '\n'
+          '\tInput File Path     = ' + os.path.abspath(depcode_inp['iter_input_file']) + '\n'
+          '\tMaterial File Path  = ' + os.path.abspath(depcode_inp['iter_matfile']) + '\n'
           '\tOutput HDF5 DB Path = ' + os.path.abspath(simulation_inp['db_path']) + '\n'
           )
     # Intializing objects
@@ -376,7 +375,7 @@ def run():
             active_cycles=depcode_inp['active_cycles'],
             inactive_cycles=depcode_inp['inactive_cycles'])
     else:
-        raise ValueError(f'{depcode_inp['codename']} is not a supported depletion code')
+        raise ValueError(f'{depcode_inp["codename"]} is not a supported depletion code')
 
     simulation = Simulation(
         sim_name='Super test',
