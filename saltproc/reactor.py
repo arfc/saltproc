@@ -15,7 +15,7 @@ class Reactor ():
         volume : float
             Total volume of the reactor core (:math:`cm^3`).
         mass_flowrate : float
-            Total mass flowrate through reactor (g/s).
+            Total mass flowrate through reactor core (g/s).
         power_levels : array [:math:`N_{steps}` x1]
             Normalized power level for each depletion step (W).
         depl_hist : array [:math:`N_{steps}` x1]
