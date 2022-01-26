@@ -383,9 +383,9 @@ def run():
         depcode = DepcodeSerpent(
             exec_path=depcode_inp['exec_path'],
             template_inputfile_path=depcode_inp['template_inputfile_path'],
-            iter_inputfile=depecode_inp['iter_inputfile'],
+            iter_inputfile=depcode_inp['iter_inputfile'],
             iter_matfile=depcode_inp['iter_matfile'],
-            geo_files=depcode_inp['geo_files'],
+            geo_files=depcode_inp['geo_file_paths'],
             npop=depcode_inp['npop'],
             active_cycles=depcode_inp['active_cycles'],
             inactive_cycles=depcode_inp['inactive_cycles'])
@@ -408,9 +408,9 @@ def run():
     simulation.check_restart()
     # Run sequence
     # Start sequence
-    for dep_step in range(len(reactor.depl_hist)):
+    for dep_step in range(len(msr.depl_hist)):
         print("\n\n\nStep #%i has been started" % (dep_step + 1))
-        simulation.depcode.write_depcode_input(msr,
+        simulation.sim_depcode.write_depcode_input(msr,
                                     dep_step,
                                     simulation.restart_flag)
         depcode.run_depcode(cores, nodes)
