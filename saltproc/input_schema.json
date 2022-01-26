@@ -14,7 +14,8 @@
         },
         "output_path": {
             "description": "Path output data storing folder",
-            "type": "string"
+            "type": "string",
+                    "pattern": "^\./([.]*)$"
         },
         "depsteps": {
             "description": "Number of steps for constant power and depletion interval case",
@@ -32,28 +33,35 @@
                     "type": "string" },
                 "input_template_path": {
                     "description": "Path to user's template depletion code input file with reactor model",
-                    "type": "string" },
+                    "type": "string",
+                    "pattern": "^\./([.]*)$"},
                 "iter_input_file": {
-                    "description": "",
+                    "description": "Name of ",
                     "type": "string" },
                 "iter_matfile": {
                     "description": "",
                     "type": "string" },
                 "npop": {
                     "description": "Number of neutrons per generation",
-                    "type": "number"},
+                    "type": "number",
+                    "minimum": 0},
                 "active_cycles": {
                     "description": "number of active generations",
-                    "type": "number"},
+                    "type": "number",
+                    "minimum": 0},
                 "inactive_cycles": {
                     "description": "Number of inactive generations",
-                    "type": "number"},
+                    "type": "number",
+                    "minimum": 0},
                 "geo_file_paths": {
                     "description": "Path(s) to geometry file(s) to swtich to in depletion code runs",
                     "type": "array",
-                    "items": { "type": "string"}
+                    "items": { "type": "string"},
+                    "minItems": 1,
+                    "uniqueItems": false
                 }
-            }
+            },
+            "required": ["codename", "exec_path", "input_template_path", "inter_input_file", "iter_matfile", "npop", "active_cycles","inactive_cycles", "geo_file_paths"]
         },
        "simulation": {
            "description": "Simulation class input parameters",
@@ -64,14 +72,16 @@
                    "type": "string"},
                "db_name": {
                    "description": "Output HDF5 database file name",
-                   "type": "string"},
+                   "type": "string",
+                    "pattern": "^([.]*)\.h5$"},
                "restart_flag": {
                    "description": "Restart simulation from the step when it stopped?",
                    "type": "boolean"},
                "adjust_geo": {
                    "description": "switch to another geometry when keff drops below 1?",
                    "type": "boolean"}
-           }
+           },
+           "requires": ["sim_name", "db_name", "restart_flag", "adjust_geo"]
        },
        "reactor": {
            "description": "Reactor class input parameters",
@@ -79,21 +89,31 @@
            "properties": {
                "volume": {
                    "description": "reactor core volume [cm^3]",
-                   "type": "number" },
+                   "type": "number",
+                    "minimum": 0},
                "mass_flowrate": {
                    "description": "Salt mass flowrate through reactor core [g/s]",
-                   "type": "number" },
+                   "type": "number",
+                    "minimum": 0 },
                "power_levels": {
                    "description": "Reactor power or power step list durng depletion step [W]",
                    "type": "array",
-                   "items": { "type": "number"}
+                   "items": { "type": "number",
+                    "minimum": 0},
+                   "minItems": 1,
+                   "uniqueItems": false
                 },
                "depl_hist": {
                    "description": "Depletion step interval or cumulative time (end of step) [d]",
                    "type": "array",
-                   "items": { "type": "number"}
+                   "items": { "type": "number",
+                    "minimum": 0},
+                   "minItems": 1,
+                   "uniqueItems": false
                 }
-           }  
+           },
+           "required": ["volume", "mass_flowrate", "power_levels", "depl_hist"]
        }
-    }
+    },
+    "required": ["proc_input_file", "dot_input_file", "output_path", "depsteps", "depcode", "simulation", "reactor"]
 }
