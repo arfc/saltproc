@@ -631,7 +631,7 @@ class DepcodeSerpent(Depcode):
         data = self.replace_burnup_parameters(data, reactor, dep_step)
 
         if data:
-            out_file = open(inp_file, 'w')
+            out_file = open(self.iter_input_file, 'w')
             out_file.writelines(data)
             out_file.close()
 
@@ -649,8 +649,6 @@ class DepcodeSerpent(Depcode):
                 Name of burnable material.
             ``value``
                 `Materialflow` object holding composition and properties.
-        mat_file : str
-            Path to file containing burnable materials composition.
         dep_end_time : float
             Current time at the end of the depletion step (d).
 

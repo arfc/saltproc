@@ -4,49 +4,93 @@
     "title": "SaltProc input file schema",
     "type": "object",
     "properties": {
-        "proc_input_file": { "type": "string",
-            "$comment": "File containing processing system objects"
+        "proc_input_file": {
+            "description": "File containing processing system objects",
+            "type": "string"
         },
-        "dot_input_file": { "type": "string",
-        "$comment": "Graph file containing processing system structure"
+        "dot_input_file": {
+            "description": "Graph file containing processing system structure",
+            "type": "string"
         },
-        "output_path": { "type": "string",
-            "$comment": "Path output data storing folder"
+        "output_path": {
+            "description": "Path output data storing folder",
+            "type": "string"
         },
-        "depsteps": { "type": "number",
-            "$comment": "Number of steps for constant power and depletion interval case"
+        "depsteps": {
+            "description": "Number of steps for constant power and depletion interval case",
+            "type": "number"
         },
-        "depcode": { "type": "object",
+        "depcode": {
+            "description": "Depcode class input parameters",
+            "type": "object",
             "properties": {
-                "codename": { "type": "string" },
-                "exec_path": { "type": "string" },
-                "template_path": { "type": "string" },
-                "iter_input_file": { "type": "string" },
-                "iter_matfile": { "type": "string" },
-                "npop": { "type": "number"},
-                "active_cycles": { "type": "number"},
-                "inactive_cycles": { "type": "number"},
-                "geo_files": { "type": "array",
+                "codename": {
+                    "description": "Name of depletion code",
+                    "type": "string" },
+                "exec_path": {
+                    "description": "Path to depletion code executable",
+                    "type": "string" },
+                "template_path": {
+                    "description": "User's depletion code input file with reactor model",
+                    "type": "string" },
+                "iter_input_file": {
+                    "description": "",
+                    "type": "string" },
+                "iter_matfile": {
+                    "description": "",
+                    "type": "string" },
+                "npop": {
+                    "description": "Number of neutrons per generation",
+                    "type": "number"},
+                "active_cycles": {
+                    "description": "number of active generations",
+                    "type": "number"},
+                "inactive_cycles": {
+                    "description": "Number of inactive generations",
+                    "type": "number"},
+                "geo_files": {
+                    "description": "Geometry file/files to swtich ust in depletion code runs",
+                    "type": "array",
                     "items": { "type": "string"}
                 }
             }
         },
-       "simulation": { "type": "object",
+       "simulation": {
+           "description": "Simulation class input parameters",
+           "type": "object",
            "properties": {
-               "sim_name": { "type": "string"},
-               "db_path": { "type": "string"},
-               "restart_flag": { "type": "boolean"},
-               "adjust_geo": { "type": "boolean"}
+               "sim_name": {
+                   "description": "Name of simulation",
+                   "type": "string"},
+               "db_name": {
+                   "description": "Output HDF5 database file name",
+                   "type": "string"},
+               "restart_flag": {
+                   "description": "Restart simulation from the step when it stopped?",
+                   "type": "boolean"},
+               "adjust_geo": {
+                   "description": "switch to another geometry when keff drops below 1?",
+                   "type": "boolean"}
            }
        },
-       "reactor": { "type": "object",
+       "reactor": {
+           "description": "Reactor class input parameters",
+           "type": "object",
            "properties": {
-               "volume": { "type": "number" },
-               "mass_flowrate": { "type": "number" },
-               "power_levels": { "type": "array",
+               "volume": {
+                   "description": "reactor core volume [cm^3]",
+                   "type": "number" },
+               "mass_flowrate": {
+                   "description": "Salt mass flowrate through reactor core [g/s]",
+                   "type": "number" },
+               "power_levels": {
+                   "description": "Reactor power or power step list durng depletion step [W]",
+                   "type": "array",
                    "items": { "type": "number"}
                 },
-               "depl_hist": { "type": "array",
+               "depl_hist": {
+                   "description": "Depletion step interval or cumulative time (end of step) [d]",
+                   "type": "array",
                    "items": { "type": "number"}
                 }
            }  

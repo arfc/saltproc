@@ -68,7 +68,6 @@ def test_store_after_repr():
 
     # read data
     mats = simulation.sim_depcode.read_dep_comp(
-        simulation.sim_depcode.iter_input_file,
         True)
     waste_st, rem_mass = saltproc.app.reprocessing(mats)
     m_after_refill = saltproc.app.refill(mats, rem_mass, waste_st)
@@ -161,10 +160,8 @@ def test_store_mat_data():
     """
     # read data
     mats_before = simulation.sim_depcode.read_dep_comp(
-        simulation.sim_depcode.iter_input_file,
         False)
     mats_after = simulation.sim_depcode.read_dep_comp(
-        simulation.sim_depcode.iter_input_file,
         True)
 
     fuel_before = mats_before['fuel']
@@ -392,7 +389,7 @@ def test_store_run_step_info():
 
 
 def test_read_k_eds_delta():
-    assert simulation.read_k_eds_delta(7, False) is False
+    assert simulation.read_k_eds_delta(7) is False
 
 
 def test_switch_to_next_geometry():

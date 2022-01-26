@@ -23,7 +23,7 @@ msr = Reactor(volume=1.0,
 
 
 def test_get_tra_or_dec():
-    serpent.get_tra_or_dec(serpent.input_path)
+    serpent.get_tra_or_dec(serpent.iter_input_file)
     assert serpent.iso_map[380880] == '38088.09c'
     assert serpent.iso_map[962400] == '96240.09c'
     assert serpent.iso_map[952421] == '95342.09c'
@@ -103,7 +103,7 @@ def test_read_depcode_step_param():
 
 
 def test_read_dep_comp():
-    mats = serpent.read_dep_comp(serpent.input_path, True)
+    mats = serpent.read_dep_comp(True)
     assert mats['fuel']['U235'] == 3499538.3359278883
     assert mats['fuel']['U238'] == 66580417.24509208
     assert mats['fuel']['F19'] == 37145139.35897285
@@ -115,10 +115,11 @@ def test_read_dep_comp():
 
 
 def test_write_mat_file():
-    mats = serpent.read_dep_comp(serpent.input_path, True)
-    mat_file = serpent.input_path + '.mat'
-    serpent.write_mat_file(mats, mat_file, 12.0)
-    mat_str = serpent.read_depcode_template(mat_file)
+    mats = serpent.read_dep_comp(True)
+    iter_matfile_old = serpent.iter_matfile
+    serpent.iter_input_file = serpent.iter_input_file + '.mat'
+    serpent.write_mat_file(mats, 12.0)
+    mat_str = serpent.read_depcode_template(serpent.iter_matfile)
     assert mat_str[0] == '% Material compositions (after 12.000000 days)\n'
     if 'fuel' in mat_str[3]:
         assert mat_str[3].split()[-1] == '2.27175E+07'
@@ -128,7 +129,8 @@ def test_write_mat_file():
     elif 'ctrlPois' in mat_str[3]:
         assert mat_str[3].split()[-1] == '1.11635E+04'
         assert mat_str[4] == '            1001.09c  -1.21000137902945E-35\n'
-    os.remove(mat_file)
+    os.remove(serpent.iter_matfile)
+    serpent.iter_matfile = iter_matfile_old
 
 
 def test_insert_path_to_geometry():
@@ -165,12 +167,12 @@ def test_create_iter_matfile():
 
 
 def test_write_depcode_input():
-    serpent.write_depcode_input(serpent.template_path,
-                                serpent.input_path + '_write_test',
-                                msr,
+    iter_input_file_old = serpent.iter_input_file
+    serpent.iter_input_file = serpent.iter_input_file + '_write_test'
+    serpent.write_depcode_input(msr,
                                 0,
                                 False)
-    d = serpent.read_depcode_template(serpent.input_path + '_write_test')
+    d = serpent.read_depcode_template(serpent.iter_input_file)
     print(d[0])
     assert d[0].split('/')[-2] == 'tests'
     assert d[0].split('/')[-1] == 'material"\n'
@@ -178,5 +180,7 @@ def test_write_depcode_input():
     assert d[8].split()[4] == 'daystep'
     assert d[8].split()[-1] == '1.11111E+02'
     assert d[20] == 'set pop 1111 101 33\n'
-    os.remove(serpent.input_path + '_write_test')
+    os.remove(serpent.iter_input_file)
     os.remove(serpent.iter_matfile)
+
+    serpent.iter_input_file = iter_input_file_old

@@ -26,7 +26,7 @@ process = Process(mass_flowrate=10,
 
 
 def test_rem_elements():
-    mats = serpent.read_dep_comp(iter_inpit_file, True)
+    mats = serpent.read_dep_comp(True)
     waste = process.rem_elements(mats['fuel'])
     np.testing.assert_almost_equal(waste[541350000], 19.79776930513891)
     np.testing.assert_almost_equal(waste[541360000], 176.44741987005173)

@@ -26,7 +26,7 @@ process = Sparger(mass_flowrate=10,
 
 
 def test_rem_elements():
-    mats = serpent.read_dep_comp(iter_input_file, True)
+    mats = serpent.read_dep_comp(True)
     waste = process.rem_elements(mats['fuel'])
     np.testing.assert_almost_equal(waste[541350000], 8.061014535231715)
     np.testing.assert_almost_equal(waste[541360000], 71.8437109936129)

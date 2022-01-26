@@ -23,9 +23,9 @@ depcode = DepcodeSerpent(
     exec_path='sss2',
     template_path=directory +
     '/saltproc_9d.inp',
-    input_path=sss_file,
+    iter_input_file=sss_file,
     iter_matfile=iter_matfile,
-    geo_file=[
+    geo_files=[
         os.path.join(
             directory,
             '../../test_geo.inp')],
@@ -36,8 +36,7 @@ simulation = Simulation(sim_name='Integration test',
                         sim_depcode=depcode,
                         core_number=1,
                         node_number=1,
-                        db_path=db_file,
-                        iter_matfile=iter_matfile)
+                        db_path=db_file)
 
 tap = Reactor(volume=1.0,
               power_levels=[1.250E+09],
@@ -64,8 +63,6 @@ def runsim_no_reproc(simulation, reactor, nsteps):
             print("\nStep #%i has been started" % (dep_step + 1))
             if dep_step == 0:  # First step
                 simulation.sim_depcode.write_depcode_input(
-                    simulation.sim_depcode.template_path,
-                    siumulation.sim_depcode.input_path,
                     reactor,
                     dep_step,
                     False)
@@ -76,7 +73,6 @@ def runsim_no_reproc(simulation, reactor, nsteps):
                 simulation.store_run_init_info()
                 # Parse and store data for initial state (beginning of dep_step)
                 mats = simulation.sim_depcode.read_dep_comp(
-                    simulation.sim_depcode.input_path,
                     False)
                 simulation.store_mat_data(mats, dep_step, False)
             # Finish of First step
@@ -86,13 +82,11 @@ def runsim_no_reproc(simulation, reactor, nsteps):
                     simulation.core_number,
                     simulation.node_number)
             mats = simulation.sim_depcode.read_dep_comp(
-                simulation.sim_depcode.input_path,
                 True)
             simulation.store_mat_data(mats, dep_step, False)
             simulation.store_run_step_info()
             simulation.sim_depcode.write_mat_file(
                 mats,
-                simulation.sim_depcode.iter_matfile,
                 simulation.burn_time)
 
 

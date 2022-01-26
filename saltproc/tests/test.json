@@ -1,14 +1,14 @@
 {
    "proc_input_file": "processes.json",
    "dot_input_file": "test.dot",
-   "output_path": "./",
+   "output_path": "./data",
    "depsteps": 2,
    "depcode": {
        "codename": "serpent",
        "exec_path": "sss2",
        "template_path": "tap_test1.serpent",
-       "iter_input_file": "data/saltproc_serpetn",
-       "iter_material_file": "data/saltproc_mat",
+       "iter_input_file": "saltproc_serpent",
+       "iter_matfile": "saltproc_mat",
        "npop": 50,
        "active_cycles": 20,
        "inactive_cycles": 20,

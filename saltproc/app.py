@@ -68,7 +68,11 @@ def read_main_input(main_inp_file):
         j = json.load(f)
         with open(input_schema) as v:
             s = json.load(v)
-            jsonschema.validate(instance=j,schema=s)
+            try:
+                jsonschema.validate(instance=j,schema=s)
+            except jsonschema.exceptions.ValidationError:
+                print("Your input file improperly structured. \
+                      Please see saltproc/tests/test.json for an example.")
 
         # Saltproc settings
         global spc_inp_file, dot_inp_file, output_path, depsteps
@@ -84,7 +88,7 @@ def read_main_input(main_inp_file):
         # Class settings
         global depcode_inp, simulation_inp, reactor_inp
         depcode_inp = j['depcode']
-        simulation_inp = j['simulationt']
+        simulation_inp = j['simulation']
         reactor_inp = j['reactor']
 
         depcode_inp['template_path'] = os.path.join(
@@ -95,13 +99,13 @@ def read_main_input(main_inp_file):
         depcode_inp['iter_input_file'] = os.path.join(input_path, depcode_inp['iter_input_file'])
         depcode_inp['iter_matfile'] = os.path.join(input_path, depcode_inp['iter_matfile'])
 
-        db_path = os.path.join(
+        db_name = os.path.join(
             os.path.dirname(f.name),
-            output_path, simulation_inp['db_path'])
-        simulation_inp['db_path'] = db_path
+            output_path, simulation_inp['db_name'])
+        simulation_inp['db_name'] = db_name
 
         depl_hist = reactor_inp['depl_hist']
-        power_hist = reactor_inp['power_hist ']
+        power_levels = reactor_inp['power_levels']
         if depsteps is not None and isinstance(depl_hist, (float, int)):
             if depsteps < 0.0 or not int:
                 raise ValueError('Depletion step interval cannot be negative')
@@ -109,11 +113,11 @@ def read_main_input(main_inp_file):
                 step = int(depsteps)
                 deptot = float(depl_hist) * step
                 depl_hist = np.linspace(float(depl_hist), deptot, num=step)
-                power_hist = float(power_hist) * np.ones_like(depl_hist)
+                power_levels = float(power_levels) * np.ones_like(depl_hist)
                 reactor_inp['depl_hist'] = depl_hist
-                reactor_inp['power_hist'] = power_hist
+                reactor_inp['power_levels'] = power_levels
         elif depsteps is None and isinstance(depl_hist, (np.ndarray, list)):
-            if len(depl_hist) != len(power_hist):
+            if len(depl_hist) != len(power_levels):
                 raise ValueError(
                     'Depletion step list and power list shape mismatch')
 
@@ -361,7 +365,7 @@ def run():
           '\tTemplate File Path  = ' + os.path.abspath(depcode_inp['template_path']) + '\n'
           '\tInput File Path     = ' + os.path.abspath(depcode_inp['iter_input_file']) + '\n'
           '\tMaterial File Path  = ' + os.path.abspath(depcode_inp['iter_matfile']) + '\n'
-          '\tOutput HDF5 DB Path = ' + os.path.abspath(simulation_inp['db_path']) + '\n'
+          '\tOutput HDF5 DB Path = ' + os.path.abspath(simulation_inp['db_name']) + '\n'
           )
     # Intializing objects
     if depcode_inp['codename'] == 'serpent':
@@ -382,7 +386,7 @@ def run():
         sim_depcode=depcode,
         core_number=cores,
         node_number=nodes,
-        db_path=simulation_inp['db_path'])
+        db_path=simulation_inp['db_name'])
 
     msr = Reactor(
         volume=reactor_inp['volume'],

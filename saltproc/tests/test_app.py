@@ -21,15 +21,15 @@ serpent = DepcodeSerpent(exec_path='sss2',
 
 def test_read_main_input():
     app.read_main_input(main_input)
-    assert app.codename == "serpent"
-    assert app.neutron_pop == 50
-    assert app.active_cycles == 20
-    assert app.active_cycles == 20
-    assert app.db_file == directory + '/./db_saltproc.h5'
-    assert app.geo_file == ['347_base.ini']
-    assert app.restart_flag is False
-    np.testing.assert_equal(app.power_hist, [1.250E+9, 1.250E+9])
-    np.testing.assert_equal(app.depl_hist, [5, 10])
+    assert app.depcode_inp['codename'] == "serpent"
+    assert app.depcode_inp['npop'] == 50
+    assert app.depcode_inp['active_cycles'] == 20
+    assert app.depcode_inp['active_cycles'] == 20
+    assert app.simulation_inp['db_path'] == directory + '/./db_saltproc.h5'
+    assert app.depcode_inp['geo_files'] == ['347_base.ini']
+    assert app.simulation_inp['restart_flag'] is False
+    np.testing.assert_equal(app.reactor_inp['power_levels'], [1.250E+9, 1.250E+9])
+    np.testing.assert_equal(app.reactor_inp['depl_hist'], [5, 10])
 
 
 def test_read_processes_from_input():
@@ -64,7 +64,7 @@ def test_read_dot():
 
 
 def test_reprocessing():
-    mats = serpent.read_dep_comp(input_file, True)
+    mats = serpent.read_dep_comp(True)
     waste_st, rem_mass = app.reprocessing(mats)
     assert rem_mass['fuel'] == 1401.0846504569054
     assert rem_mass['ctrlPois'] == 0.0
@@ -74,7 +74,7 @@ def test_reprocessing():
 
 
 def test_refill():
-    mats = serpent.read_dep_comp(input_file, True)
+    mats = serpent.read_dep_comp(True)
     waste_st, rem_mass = app.reprocessing(mats)
     m_after_refill = app.refill(mats, rem_mass, waste_st)
     assert m_after_refill['fuel']['feed_leu']['U235'] == 43.573521906078334
