@@ -1,4 +1,4 @@
-{
+input_schema = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://github.com/arfc/saltproc",
     "title": "SaltProc input file schema",
@@ -58,7 +58,7 @@
                     "type": "array",
                     "items": { "type": "string"},
                     "minItems": 1,
-                    "uniqueItems": false
+                    "uniqueItems": False
                 }
             },
             "required": ["codename", "exec_path", "input_template_path", "iter_input_file", "iter_matfile", "npop", "active_cycles","inactive_cycles", "geo_file_paths"]
@@ -101,7 +101,7 @@
                    "items": { "type": "number",
                     "minimum": 0},
                    "minItems": 1,
-                   "uniqueItems": false
+                   "uniqueItems": False
                 },
                "depl_hist": {
                    "description": "Depletion step interval or cumulative time (end of step) [d]",
@@ -109,7 +109,7 @@
                    "items": { "type": "number",
                     "minimum": 0},
                    "minItems": 1,
-                   "uniqueItems": false
+                   "uniqueItems": False
                 }
            },
            "required": ["volume", "mass_flowrate", "power_levels", "depl_hist"]

@@ -11,6 +11,7 @@ from saltproc import Separator
 import os
 import copy
 import json, jsonschema
+from saltproc.saltprocinputschema import input_schema
 from collections import OrderedDict
 import gc
 import networkx as nx
@@ -61,17 +62,15 @@ def read_main_input(main_inp_file):
         Path to SaltProc main input file and name of this file.
     """
 
-    input_schema = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                './input_schema.json')
+    #input_schema = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+    #                            './input_schema.json')
     with open(main_inp_file) as f:
         j = json.load(f)
-        with open(input_schema) as v:
-            s = json.load(v)
-            try:
-                jsonschema.validate(instance=j,schema=s)
-            except jsonschema.exceptions.ValidationError:
-                print("Your input file improperly structured. \
-                      Please see saltproc/tests/test.json for an example.")
+        try:
+            jsonschema.validate(instance=j,schema=input_schema)
+        except jsonschema.exceptions.ValidationError:
+            print("Your input file improperly structured.
+                  Please see saltproc/tests/test.json for an example.")
 
         # Global input path
         input_path = os.path.dirname(f.name)
@@ -97,8 +96,8 @@ def read_main_input(main_inp_file):
         simulation_inp = j['simulation']
         reactor_inp = j['reactor']
 
-        depcode_inp['template_input_path'] = os.path.join(
-            input_path, depcode_inp['template_input_path'])
+        depcode_inp['input_template_path'] = os.path.join(
+            input_path, depcode_inp['input_template_path'])
         geo_list = depcode_inp['geo_file_paths']
 
         # Global geometry file paths
@@ -372,7 +371,7 @@ def run():
     # Print out input information
     print('Initiating Saltproc:\n'
           '\tRestart = ' + str(simulation_inp['restart_flag']) + '\n'
-          '\tTemplate File Path  = ' + os.path.abspath(depcode_inp['input_tempate_path']) + '\n'
+          '\tTemplate File Path  = ' + os.path.abspath(depcode_inp['input_template_path']) + '\n'
           '\tInput File Path     = ' + os.path.abspath(depcode_inp['iter_input_file']) + '\n'
           '\tMaterial File Path  = ' + os.path.abspath(depcode_inp['iter_matfile']) + '\n'
           '\tOutput HDF5 DB Path = ' + os.path.abspath(simulation_inp['db_name']) + '\n'
@@ -381,7 +380,7 @@ def run():
     if depcode_inp['codename'] == 'serpent':
         depcode = DepcodeSerpent(
             exec_path=depcode_inp['exec_path'],
-            input_tempate_path=depcode_inp['input_tempate_path'],
+            input_template_path=depcode_inp['input_template_path'],
             iter_input_file=depecode_inp['iter_input_file'],
             iter_matfile=depcode_inp['iter_matfile'],
             geo_files=depcode_inp['geo_files'],
