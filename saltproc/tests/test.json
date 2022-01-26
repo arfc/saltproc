@@ -6,17 +6,17 @@
    "depcode": {
        "codename": "serpent",
        "exec_path": "sss2",
-       "template_path": "tap_test1.serpent",
+       "template_input_path": "./tap_test1.serpent",
        "iter_input_file": "saltproc_serpent",
        "iter_matfile": "saltproc_mat",
        "npop": 50,
        "active_cycles": 20,
        "inactive_cycles": 20,
-       "geo_files": ["347_base.ini"]
+       "geo_file_paths": ["./347_base.ini"]
    },
    "simulation": {
        "sim_name": "test_simulation",
-       "db_path": "db_saltproc.h5",
+       "db_name": "db_saltproc.h5",
        "restart_flag": false,
        "adjust_geo": false
    },
