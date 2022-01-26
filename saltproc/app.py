@@ -19,10 +19,6 @@ import argparse
 import numpy as np
 
 
-input_path = os.getcwd()
-
-input_schema = os.path.join(input_path, 'saltproc/input_schema.json')
-
 def parse_arguments():
     """Parses arguments from command line.
 
@@ -64,6 +60,9 @@ def read_main_input(main_inp_file):
     main_inp_file : str
         Path to SaltProc main input file and name of this file.
     """
+
+    input_schema = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                './input_schema.json')
     with open(main_inp_file) as f:
         j = json.load(f)
         with open(input_schema) as v:
@@ -73,6 +72,9 @@ def read_main_input(main_inp_file):
             except jsonschema.exceptions.ValidationError:
                 print("Your input file improperly structured. \
                       Please see saltproc/tests/test.json for an example.")
+
+        # Global input path
+        input_path = os.path.dirname(f.name)
 
         # Saltproc settings
         global spc_inp_file, dot_inp_file, output_path, depsteps
@@ -85,35 +87,43 @@ def read_main_input(main_inp_file):
         output_path = j['output_path']
         depsteps = j['depsteps']
 
+        # Global output path
+        output_path = os.path.join(input_path, output_path)
+        j['output_path'] = output_path
+
         # Class settings
         global depcode_inp, simulation_inp, reactor_inp
         depcode_inp = j['depcode']
         simulation_inp = j['simulation']
         reactor_inp = j['reactor']
 
-        depcode_inp['template_path'] = os.path.join(
-            os.path.dirname(f.name), depcode_inp['template_path'])
-        geo_list = depcode_inp['geo_files']
-        geo_files = [g for g in geo_list]
-        depcode_inp['geo_files'] = geo_list
-        depcode_inp['iter_input_file'] = os.path.join(input_path, depcode_inp['iter_input_file'])
-        depcode_inp['iter_matfile'] = os.path.join(input_path, depcode_inp['iter_matfile'])
+        depcode_inp['template_input_path'] = os.path.join(
+            input_path, depcode_inp['template_input_path'])
+        geo_list = depcode_inp['geo_file_paths']
 
+        # Global geometry file paths
+        geo_file_paths = []
+        for g in geo_list:
+            geo_file_paths += [os.path.join(input_path, g)]
+        depcode_inp['geo_file_paths'] = geo_file_paths
+
+        # Global output file paths
+        depcode_inp['iter_input_file'] = os.path.join(output_path, depcode_inp['iter_input_file'])
+        depcode_inp['iter_matfile'] = os.path.join(output_path, depcode_inp['iter_matfile'])
         db_name = os.path.join(
-            os.path.dirname(f.name),
             output_path, simulation_inp['db_name'])
         simulation_inp['db_name'] = db_name
 
         depl_hist = reactor_inp['depl_hist']
         power_levels = reactor_inp['power_levels']
-        if depsteps is not None and isinstance(depl_hist, (float, int)):
+        if depsteps is not None and len(depl_hist) == 1:
             if depsteps < 0.0 or not int:
                 raise ValueError('Depletion step interval cannot be negative')
             else:
                 step = int(depsteps)
-                deptot = float(depl_hist) * step
-                depl_hist = np.linspace(float(depl_hist), deptot, num=step)
-                power_levels = float(power_levels) * np.ones_like(depl_hist)
+                deptot = float(depl_hist[0]) * step
+                depl_hist = np.linspace(float(depl_hist[0]), deptot, num=step)
+                power_levels = float(power_levels[0]) * np.ones_like(depl_hist)
                 reactor_inp['depl_hist'] = depl_hist
                 reactor_inp['power_levels'] = power_levels
         elif depsteps is None and isinstance(depl_hist, (np.ndarray, list)):
