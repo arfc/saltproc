@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(path)))
 directory = os.path.dirname(path)
 
 serpent = DepcodeSerpent(exec_path='sss2',
-                         template_path=directory + '/template.inp',
+                         input_template_path=directory + '/template.inp',
                          iter_input_file=directory + '/test',
                          iter_matfile=directory + '/material',
                          geo_files=[os.path.join(directory, '../test_geo.inp')])
@@ -45,7 +45,7 @@ def test_sss_meta_zzz():
 
 
 def test_read_depcode_template():
-    template_str = serpent.read_depcode_template(serpent.template_path)
+    template_str = serpent.read_depcode_template(serpent.input_template_path)
     assert template_str[6] == '%therm zrh_h 900 hzr05.32t hzr06.32t\n'
     assert template_str[18] == 'set pop 30 20 10\n'
     assert template_str[22] == 'set bumode  2\n'
@@ -57,7 +57,7 @@ def test_change_sim_par():
     serpent.active_cycles = 101
     serpent.inactive_cycles = 33
     out = serpent.change_sim_par(
-        serpent.read_depcode_template(serpent.template_path)
+        serpent.read_depcode_template(serpent.input_template_path)
     )
     assert out[18] == 'set pop %i %i %i\n' % (
         serpent.npop,
@@ -134,7 +134,7 @@ def test_write_mat_file():
 
 
 def test_insert_path_to_geometry():
-    d = serpent.read_depcode_template(serpent.template_path)
+    d = serpent.read_depcode_template(serpent.input_template_path)
     d_new = serpent.insert_path_to_geometry(d)
     assert d_new[5].split('/')[-1] == 'test_geo.inp"\n'
 
@@ -143,24 +143,24 @@ def test_replace_burnup_parameters():
     time = msr.depl_hist.copy()
     time.insert(0, 0.0)
     depsteps = np.diff(time)
-    d = serpent.read_depcode_template(serpent.template_path)
+    d = serpent.read_depcode_template(serpent.input_template_path)
     for idx in range(len(msr.power_levels)):
         d = serpent.replace_burnup_parameters(d,
                                               msr,
                                               idx)
-        out_file = open(serpent.template_path + str(idx), 'w')
+        out_file = open(serpent.input_template_path + str(idx), 'w')
         out_file.writelines(d)
         out_file.close()
         d_new = serpent.read_depcode_template(
-            serpent.template_path + str(idx))
+            serpent.input_template_path + str(idx))
         assert d_new[8].split()[4] == 'daystep'
         assert d_new[8].split()[2] == str("%5.9E" % msr.power_levels[idx])
         assert d_new[8].split()[5] == str("%7.5E" % depsteps[idx])
-        os.remove(serpent.template_path + str(idx))
+        os.remove(serpent.input_template_path + str(idx))
 
 
 def test_create_iter_matfile():
-    d = serpent.read_depcode_template(serpent.template_path)
+    d = serpent.read_depcode_template(serpent.input_template_path)
     out = serpent.create_iter_matfile(d)
     assert out[0].split()[-1] == '\"' + serpent.iter_matfile + '\"'
     os.remove(serpent.iter_matfile)

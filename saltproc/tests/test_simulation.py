@@ -19,7 +19,7 @@ geo_test_input = directory + '/test_geometry_switch.inp'
 
 serpent = DepcodeSerpent(
     exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-    template_path=directory + '/template.inp',
+    input_template_path=directory + '/template.inp',
     iter_input_file=iter_input_file,
     iter_matfile=directory + '/material',
     geo_files=[
