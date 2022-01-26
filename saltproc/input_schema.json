@@ -15,7 +15,7 @@
         "output_path": {
             "description": "Path output data storing folder",
             "type": "string",
-                    "pattern": "^\./([.]*)$"
+            "pattern": "^\\./([.]*)$"
         },
         "depsteps": {
             "description": "Number of steps for constant power and depletion interval case",
@@ -34,12 +34,12 @@
                 "input_template_path": {
                     "description": "Path to user's template depletion code input file with reactor model",
                     "type": "string",
-                    "pattern": "^\./([.]*)$"},
+                    "pattern": "^\\./([.]*)$"},
                 "iter_input_file": {
-                    "description": "Name of ",
+                    "description": "Name of depletion code input file for depletion code rerunning",
                     "type": "string" },
                 "iter_matfile": {
-                    "description": "",
+                    "description": "Name of iteratvie, rewritable material file for depletion code rerunning",
                     "type": "string" },
                 "npop": {
                     "description": "Number of neutrons per generation",
@@ -73,7 +73,7 @@
                "db_name": {
                    "description": "Output HDF5 database file name",
                    "type": "string",
-                    "pattern": "^([.]*)\.h5$"},
+                    "pattern": "^([.]*)\\.h5$"},
                "restart_flag": {
                    "description": "Restart simulation from the step when it stopped?",
                    "type": "boolean"},
