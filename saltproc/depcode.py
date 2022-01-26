@@ -20,7 +20,7 @@ class Depcode(ABC):
     def __init__(self,
                  codename,
                  exec_path,
-                 template_path,
+                 input_tempate_path,
                  iter_input_file,
                  iter_matfile,
                  geo_files=None,
@@ -35,7 +35,7 @@ class Depcode(ABC):
                Name of depletion code.
            exec_path : str
                Path to depletion code executable.
-           template_path : str
+           input_tempate_path : str
                Path to depletion code input file template.
            iter_input_file : str
                Name of depletion code input file for depletion code rerunning.
@@ -56,7 +56,7 @@ class Depcode(ABC):
         """
         self.codename = codename
         self.exec_path = exec_path
-        self.template_path = template_path
+        self.input_tempate_path = input_tempate_path
         self.iter_input_file = iter_input_file
         self.iter_matfile = iter_matfile
         self.geo_files = geo_files
@@ -151,7 +151,7 @@ class DepcodeSerpent(Depcode):
 
     def __init__(self,
                  exec_path="sss2",
-                 template_path="reactor.serpent",
+                 input_tempate_path="reactor.serpent",
                  iter_input_file="data/saltproc_reactor",
                  iter_matfile="data/saltproc_mat",
                  geo_files=None,
@@ -164,7 +164,7 @@ class DepcodeSerpent(Depcode):
            ----------
            exec_path : str
                Path to Serpent2 executable.
-           template_path : str
+           input_tempate_path : str
                Path to user input file for Serpent2.
            iter_input_file : str
                 Name of Serpent2 input file for Serpent2 rerunning.
@@ -185,7 +185,7 @@ class DepcodeSerpent(Depcode):
         """
         super().__init__("serpent",
                          exec_path,
-                         template_path,
+                         input_tempate_path,
                          iter_input_file,
                          iter_matfile,
                          geo_files,
@@ -215,11 +215,11 @@ class DepcodeSerpent(Depcode):
             if len(sim_param) > 1:
                 print('ERROR: Template file %s contains multiple lines with '
                       'simulation parameters:\n'
-                      % (self.template_path), sim_param)
+                      % (self.input_tempate_path), sim_param)
                 return
             elif len(sim_param) < 1:
                 print('ERROR: Template file %s does not contain line with '
-                      'simulation parameters.' % (self.template_path))
+                      'simulation parameters.' % (self.input_tempate_path))
                 return
             args = 'set pop %i %i %i\n' % (self.npop, self.active_cycles,
                                            self.inactive_cycles)
@@ -241,11 +241,11 @@ class DepcodeSerpent(Depcode):
             List of strings containing modified user template file.
 
         """
-        data_dir = os.path.dirname(self.template_path)
+        data_dir = os.path.dirname(self.input_tempate_path)
         include_str = [s for s in template_data if s.startswith("include ")]
         if not include_str:
             print('ERROR: Template file %s has no <include "material_file">'
-                  ' statements ' % (self.template_path))
+                  ' statements ' % (self.input_tempate_path))
             return
         src_file = include_str[0].split()[1][1:-1]
         if not os.path.isabs(src_file):
@@ -257,7 +257,7 @@ class DepcodeSerpent(Depcode):
                       ' materials description or <include "material_file">'
                       ' statement is not appears'
                       ' as first <include> statement\n'
-                      % (self.template_path))
+                      % (self.input_tempate_path))
                 return
         # Create data directory
         try:
@@ -467,13 +467,13 @@ class DepcodeSerpent(Depcode):
         self.param['fission_mass_bds'] = res['INI_FMASS'][1]
         self.param['fission_mass_eds'] = res['TOT_FMASS'][1]
 
-    def read_depcode_template(self, template_path):
+    def read_depcode_template(self, input_tempate_path):
         """Reads prepared Serpent2 template (input)  file for use in
         other class functions that prepare the input file for multiple runs.
 
         Parameters
         ----------
-        template_path : str
+        input_tempate_path : str
             Path to user template file for depletion code.
 
         Returns
@@ -482,7 +482,7 @@ class DepcodeSerpent(Depcode):
             List of strings containing user template file.
 
          """
-        file = open(template_path, 'r')
+        file = open(input_tempate_path, 'r')
         template_data = file.readlines()
         return template_data
 
@@ -566,7 +566,7 @@ class DepcodeSerpent(Depcode):
         try:
             subprocess.check_output(
                 args,
-                cwd=os.path.split(self.template_path)[0],
+                cwd=os.path.split(self.input_tempate_path)[0],
                 stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
             print(error.output.decode("utf-8"))
@@ -622,7 +622,7 @@ class DepcodeSerpent(Depcode):
         """
 
         if dep_step == 0 and not restart:
-            data = self.read_depcode_template(self.template_path)
+            data = self.read_depcode_template(self.input_tempate_path)
             data = self.insert_path_to_geometry(data)
             data = self.change_sim_par(data)
             data = self.create_iter_matfile(data)

@@ -372,7 +372,7 @@ def run():
     # Print out input information
     print('Initiating Saltproc:\n'
           '\tRestart = ' + str(simulation_inp['restart_flag']) + '\n'
-          '\tTemplate File Path  = ' + os.path.abspath(depcode_inp['template_path']) + '\n'
+          '\tTemplate File Path  = ' + os.path.abspath(depcode_inp['input_tempate_path']) + '\n'
           '\tInput File Path     = ' + os.path.abspath(depcode_inp['iter_input_file']) + '\n'
           '\tMaterial File Path  = ' + os.path.abspath(depcode_inp['iter_matfile']) + '\n'
           '\tOutput HDF5 DB Path = ' + os.path.abspath(simulation_inp['db_name']) + '\n'
@@ -381,7 +381,7 @@ def run():
     if depcode_inp['codename'] == 'serpent':
         depcode = DepcodeSerpent(
             exec_path=depcode_inp['exec_path'],
-            template_path=depcode_inp['template_path'],
+            input_tempate_path=depcode_inp['input_tempate_path'],
             iter_input_file=depecode_inp['iter_input_file'],
             iter_matfile=depcode_inp['iter_matfile'],
             geo_files=depcode_inp['geo_files'],
