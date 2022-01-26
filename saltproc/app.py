@@ -397,6 +397,8 @@ def run():
         sim_depcode=depcode,
         core_number=cores,
         node_number=nodes,
+        restart_flag=simulation_inp['restart_flag'],
+        adjust_geo=simulation_inp['adjust_geo'],
         db_path=simulation_inp['db_name'])
 
     msr = Reactor(
