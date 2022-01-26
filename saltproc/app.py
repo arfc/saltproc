@@ -11,7 +11,7 @@ from saltproc import Separator
 import os
 import copy
 import json, jsonschema
-from saltproc.saltprocinputschema import input_schema
+#from saltproc.saltprocinputschema import input_schema
 from collections import OrderedDict
 import gc
 import networkx as nx
@@ -62,15 +62,17 @@ def read_main_input(main_inp_file):
         Path to SaltProc main input file and name of this file.
     """
 
-    #input_schema = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-    #                            './input_schema.json')
+    input_schema = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                './input_schema.json')
     with open(main_inp_file) as f:
         j = json.load(f)
-        try:
-            jsonschema.validate(instance=j,schema=input_schema)
-        except jsonschema.exceptions.ValidationError:
-            print("Your input file improperly structured.
-                  Please see saltproc/tests/test.json for an example.")
+        with open(input_schema) as s:
+            v = json.load(s)
+            try:
+                jsonschema.validate(instance=j,schema=v)
+            except jsonschema.exceptions.ValidationError:
+                print("Your input file improperly structured.\
+                      Please see saltproc/tests/test.json for an example.")
 
         # Global input path
         input_path = os.path.dirname(f.name)

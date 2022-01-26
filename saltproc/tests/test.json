@@ -6,8 +6,8 @@
    "depcode": {
        "codename": "serpent",
        "exec_path": "sss2",
-       "input_template_path": "./tap_test1.serpent",
-       "iter_input_file": "saltproc_serpent",
+       "template_inputfile_path": "./tap_test1.serpent",
+       "iter_inputfile": "saltproc_serpent",
        "iter_matfile": "saltproc_mat",
        "npop": 50,
        "active_cycles": 20,
