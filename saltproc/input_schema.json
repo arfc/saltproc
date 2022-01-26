@@ -31,11 +31,11 @@
                 "exec_path": {
                     "description": "Path to depletion code executable",
                     "type": "string" },
-                "input_template_path": {
+                "template_inputfile_path": {
                     "description": "Path to user's template depletion code input file with reactor model",
                     "type": "string",
                     "pattern": "^\\.\\/(.*)$"},
-                "iter_input_file": {
+                "iter_inputfile": {
                     "description": "Name of depletion code input file for depletion code rerunning",
                     "type": "string" },
                 "iter_matfile": {

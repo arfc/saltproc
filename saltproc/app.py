@@ -96,8 +96,8 @@ def read_main_input(main_inp_file):
         simulation_inp = j['simulation']
         reactor_inp = j['reactor']
 
-        depcode_inp['input_template_path'] = os.path.join(
-            input_path, depcode_inp['input_template_path'])
+        depcode_inp['template_inputfile_path'] = os.path.join(
+            input_path, depcode_inp['template_inputfile_path'])
         geo_list = depcode_inp['geo_file_paths']
 
         # Global geometry file paths
@@ -107,7 +107,7 @@ def read_main_input(main_inp_file):
         depcode_inp['geo_file_paths'] = geo_file_paths
 
         # Global output file paths
-        depcode_inp['iter_input_file'] = os.path.join(output_path, depcode_inp['iter_input_file'])
+        depcode_inp['iter_inputfile'] = os.path.join(output_path, depcode_inp['iter_inputfile'])
         depcode_inp['iter_matfile'] = os.path.join(output_path, depcode_inp['iter_matfile'])
         db_name = os.path.join(
             output_path, simulation_inp['db_name'])
@@ -371,8 +371,8 @@ def run():
     # Print out input information
     print('Initiating Saltproc:\n'
           '\tRestart = ' + str(simulation_inp['restart_flag']) + '\n'
-          '\tTemplate File Path  = ' + os.path.abspath(depcode_inp['input_template_path']) + '\n'
-          '\tInput File Path     = ' + os.path.abspath(depcode_inp['iter_input_file']) + '\n'
+          '\tTemplate File Path  = ' + os.path.abspath(depcode_inp['template_inputfile_path']) + '\n'
+          '\tInput File Path     = ' + os.path.abspath(depcode_inp['iter_inputfile']) + '\n'
           '\tMaterial File Path  = ' + os.path.abspath(depcode_inp['iter_matfile']) + '\n'
           '\tOutput HDF5 DB Path = ' + os.path.abspath(simulation_inp['db_name']) + '\n'
           )
@@ -380,8 +380,8 @@ def run():
     if depcode_inp['codename'] == 'serpent':
         depcode = DepcodeSerpent(
             exec_path=depcode_inp['exec_path'],
-            input_template_path=depcode_inp['input_template_path'],
-            iter_input_file=depecode_inp['iter_input_file'],
+            template_inputfile_path=depcode_inp['template_inputfile_path'],
+            iter_inputfile=depecode_inp['iter_inputfile'],
             iter_matfile=depcode_inp['iter_matfile'],
             geo_files=depcode_inp['geo_files'],
             npop=depcode_inp['npop'],

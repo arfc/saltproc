@@ -11,7 +11,7 @@ path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
 # global class object
 directory = os.path.dirname(path)
-iter_input_file = directory + '/test'
+iter_inputfile = directory + '/test'
 main_input = directory + '/test.json'
 dot_input = directory + '/test.dot'
 
@@ -19,8 +19,8 @@ geo_test_input = directory + '/test_geometry_switch.inp'
 
 serpent = DepcodeSerpent(
     exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-    input_template_path=directory + '/template.inp',
-    iter_input_file=iter_input_file,
+    template_inputfile_path=directory + '/template.inp',
+    iter_inputfile=iter_inputfile,
     iter_matfile=directory + '/material',
     geo_files=[
         '../../examples/406.inp',
@@ -83,7 +83,7 @@ def test_store_after_repr():
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
     db_path_old = simulation.db_path
-    db_file = serpent.iter_input_file + '.h5'
+    db_file = serpent.iter_inputfile + '.h5'
     simulation.db_path = db_file
 
     # store data
@@ -173,7 +173,7 @@ def test_store_mat_data():
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
     db_path_old = simulation.db_path
-    db_file = serpent.iter_input_file + '.h5'
+    db_file = serpent.iter_inputfile + '.h5'
     simulation.db_path = db_file
 
     # store data at end
@@ -282,7 +282,7 @@ def test_store_run_init_info():
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
     db_path_old = simulation.db_path
-    db_file = serpent.iter_input_file + '.h5'
+    db_file = serpent.iter_inputfile + '.h5'
     simulation.db_path = db_file
 
     # store data at
@@ -339,7 +339,7 @@ def test_store_run_step_info():
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
     db_path_old = simulation.db_path
-    db_file = serpent.iter_input_file + '.h5'
+    db_file = serpent.iter_inputfile + '.h5'
     simulation.db_path = db_file
 
     # store data at
@@ -393,9 +393,9 @@ def test_read_k_eds_delta():
 
 
 def test_switch_to_next_geometry():
-    shutil.copy2(geo_test_input, serpent.iter_input_file + '_test')
-    serpent.iter_input_file = serpent.iter_input_file + '_test'
+    shutil.copy2(geo_test_input, serpent.iter_inputfile + '_test')
+    serpent.iter_inputfile = serpent.iter_inputfile + '_test'
     simulation.switch_to_next_geometry()
-    d = serpent.read_depcode_template(serpent.iter_input_file)
+    d = serpent.read_depcode_template(serpent.iter_inputfile)
     assert d[5].split('/')[-1] == '988.inp"\n'
-    os.remove(serpent.iter_input_file)
+    os.remove(serpent.iter_inputfile)

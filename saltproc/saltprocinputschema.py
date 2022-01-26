@@ -31,11 +31,11 @@ input_schema = {
                 "exec_path": {
                     "description": "Path to depletion code executable",
                     "type": "string" },
-                "input_template_path": {
+                "template_inputfile_path": {
                     "description": "Path to user's template depletion code input file with reactor model",
                     "type": "string",
                     "pattern": "^\\.\\/(.*)$"},
-                "iter_input_file": {
+                "iter_inputfile": {
                     "description": "Name of depletion code input file for depletion code rerunning",
                     "type": "string" },
                 "iter_matfile": {
@@ -61,7 +61,7 @@ input_schema = {
                     "uniqueItems": False
                 }
             },
-            "required": ["codename", "exec_path", "input_template_path", "iter_input_file", "iter_matfile", "npop", "active_cycles","inactive_cycles", "geo_file_paths"]
+            "required": ["codename", "exec_path", "template_inputfile_path", "iter_inputfile", "iter_matfile", "npop", "active_cycles","inactive_cycles", "geo_file_paths"]
         },
        "simulation": {
            "description": "Simulation class input parameters",

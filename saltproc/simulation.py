@@ -404,7 +404,7 @@ class Simulation():
         beginning of the Serpent iteration input file.
         """
         geo_line_n = 5
-        f = open(self.sim_depcode.iter_input_file, 'r')
+        f = open(self.sim_depcode.iter_inputfile, 'r')
         data = f.readlines()
         f.close()
 
@@ -420,7 +420,7 @@ class Simulation():
         new_data = [d.replace(current_geo_file, new_geo_file) for d in data]
         print('Switching to next geometry file: ', new_geo_file)
 
-        f = open(self.sim_depcode.iter_input_file, 'w')
+        f = open(self.sim_depcode.iter_inputfile, 'w')
         f.writelines(new_data)
         f.close()
 
