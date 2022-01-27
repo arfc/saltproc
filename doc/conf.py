@@ -17,6 +17,9 @@ import sys
 import sphinx_rtd_theme
 sys.path.append(os.path.abspath('../'))
 sys.path.append(os.path.abspath('../saltproc'))
+# autopep8 will make a stink about this but
+# we need to have saltproc on ouy syspath
+# before we can import it
 from saltproc.version import __version__
 
 
