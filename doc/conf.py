@@ -17,7 +17,6 @@ import sys
 import sphinx_rtd_theme
 sys.path.append(os.path.abspath('../'))
 sys.path.append(os.path.abspath('../saltproc'))
-
 from saltproc.version import __version__
 
 
