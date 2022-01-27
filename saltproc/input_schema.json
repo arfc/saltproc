@@ -6,11 +6,13 @@
     "properties": {
         "proc_input_file": {
             "description": "File containing processing system objects",
-            "type": "string"
+            "type": "string",
+            "pattern": "^(.*)\\.json$"
         },
         "dot_input_file": {
             "description": "Graph file containing processing system structure",
-            "type": "string"
+            "type": "string",
+            "pattern": "^(.*)\\.dot$"
         },
         "output_path": {
             "description": "Path output data storing folder",
