@@ -51,7 +51,7 @@ smv_outputdir_format = '{ref.name}'
 
 # Determines whether remote or local git branches/tags are preferred
 # if their output dirs conflict
-smv_prefer_remote_refs = False
+smv_prefer_remote_refs = True
 
 
 # -- General configuration ---------------------------------------------------
