@@ -10,7 +10,7 @@ path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
 directory = os.path.dirname(path)
 db_exp_file = directory+'/2step_non_ideal_2.h5'
-db_file = directory+'/db_saltproc.h5'
+db_file = directory+'/data/db_saltproc.h5'
 tol = 1e-9
 
 
