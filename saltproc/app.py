@@ -426,7 +426,7 @@ def run():
         # Finish of First step
         # Main sequence
         mats = depcode.read_dep_comp(True)
-        simulation.store_mat_data(mats, dep_step, True)
+        simulation.store_mat_data(mats, dep_step, False)
         simulation.store_run_step_info()
         # Reprocessing here
         print("\nMass and volume of fuel before reproc %f g; %f cm3" %
