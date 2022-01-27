@@ -1,7 +1,4 @@
 {
-  "Output HDF5 database file name": "msbr_kl_100_saltproc.h5",
-}
-{
    "proc_input_file": "msbr_objects.json",
    "dot_input_file": "msbr.dot",
    "output_path": "./data",
