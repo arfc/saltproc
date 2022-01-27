@@ -21,8 +21,9 @@ sys.path.append(os.path.abspath('../saltproc'))
 # -- Project information -----------------------------------------------------
 
 project = u'Saltproc'
-copyright = u'2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff'
-author = u'Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff'
+author = u'Oleksandr Yardas, Andrei Rykhlevskii,\
+    Jin Whan Bae, Kathryn D. Huff'
+copyright = u'2021, ' + author
 
 # The short X.Y version
 version = '0.3'
