@@ -83,7 +83,7 @@ class Simulation():
             try:
                 os.remove(self.db_path)
                 os.remove(self.sim_depcode.iter_matfile)
-                os.remove(self.sim_depcode.rerun_path)
+                os.remove(self.sim_depcode.iter_inputfile)
                 print("Previous run output files were deleted.")
             except OSError as e:
                 pass
