@@ -18,6 +18,9 @@ import sphinx_rtd_theme
 sys.path.append(os.path.abspath('../'))
 sys.path.append(os.path.abspath('../saltproc'))
 
+from saltproc.version import __version__
+
+
 # -- Project information -----------------------------------------------------
 
 project = u'Saltproc'
@@ -26,19 +29,19 @@ author = u'Oleksandr Yardas, Andrei Rykhlevskii,\
 copyright = u'2021, ' + author
 
 # The short X.Y version
-version = '0.3'
+version = '0.4.0-dev'
 # The full version, including alpha/beta/rc tags
-release = '0.3.1-dev'
+release = __version__
 
 # -- sphinx-multiversion configuration ---------------------------------------
 # Whitelist pattern for tags (set to None to ignore all tags)
 smv_tag_whitelist = r'^v\d[.][^12][.]\d.*$'
 
 # Whitelist pattern for branches (set to None to ignore all branches)
-smv_branch_whitelist = r'^(master)*$'
+smv_branch_whitelist = r'^(master|vc-docs)*$'
 
 # Whitelist pattern for remotes (set to None to use local branches only)
-smv_remote_whitelist = r'^(origin|upstream)$'
+smv_remote_whitelist = None#r'^(origin|upstream)$'
 
 # Pattern for released versions
 smv_released_pattern = r'^tags/.*$'
@@ -48,7 +51,7 @@ smv_outputdir_format = '{ref.name}'
 
 # Determines whether remote or local git branches/tags are preferred
 # if their output dirs conflict
-smv_prefer_remote_refs = True
+smv_prefer_remote_refs = False#True
 
 
 # -- General configuration ---------------------------------------------------
