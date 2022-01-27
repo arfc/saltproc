@@ -75,7 +75,8 @@ def read_main_input(main_inp_file):
                       Please see saltproc/tests/test.json for an example.")
 
         # Global input path
-        input_path = os.path.dirname(f.name)
+        path_prefix = os.getcwd()
+        input_path = os.path.join(path_prefix, os.path.dirname(f.name))
 
         # Saltproc settings
         global spc_inp_file, dot_inp_file, output_path, depsteps
