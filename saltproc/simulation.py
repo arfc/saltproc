@@ -294,9 +294,6 @@ class Simulation():
         # Initialize beta groups number
         b_g = len(self.sim_depcode.param['beta_eff'])
         # numpy array row storage for run info
-
-        # delete this and define class in
-        # Depcode subclasses
         class Step_info(tb.IsDescription):
             keff_bds = tb.Float32Col((2,))
             keff_eds = tb.Float32Col((2,))
@@ -333,10 +330,6 @@ class Simulation():
         step_info = step_info_table.row
         # Define all values in the row
 
-        # in depcode.py:
-        # def store_step_info(step_info):
-        #### """ do the below """
-        # ...
         step_info['keff_bds'] = self.sim_depcode.param['keff_bds']
         step_info['keff_eds'] = self.sim_depcode.param['keff_eds']
         step_info['breeding_ratio'] = self.sim_depcode.param[
@@ -355,7 +348,6 @@ class Simulation():
             'fission_mass_bds']
         step_info['fission_mass_eds'] = self.sim_depcode.param[
             'fission_mass_eds']
-        # return step_info
 
         # Inject the Record value into the table
         step_info.append()
@@ -407,12 +399,8 @@ class Simulation():
             self.sim_depcode.sim_info['memory_optimization_mode'],
             self.sim_depcode.sim_info['depletion_timestep']
         )
-        # replace with this
-        # for i in sim_depcode.sim_info:
-        ####     sim_info_row += (i,)
-
-        # dtype=sim_depcode.sim_info_dtype
         sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype)
+
         # Open or restore db and append datat to it
         db = tb.open_file(
             self.db_path,

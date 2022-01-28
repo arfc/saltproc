@@ -94,7 +94,8 @@ def test_store_after_repr():
         db = tb.open_file(simulation.db_path, mode='r',
                           filters=simulation.compression_params)
     except Exception:
-        print('Unable to assign correct value to db. See error stack for more info.')
+        print('Unable to assign correct value to db.\
+              See error stack for more info.')
 
     tmats = db.root.materials
     tfuel_st = tmats.fuel.in_out_streams
@@ -195,7 +196,8 @@ def test_store_mat_data():
         db = tb.open_file(simulation.db_path, mode='r',
                           filters=simulation.compression_params)
     except Exception:
-        print('Unable to assign correct value to db. See error stack for more info.')
+        print('Unable to assign correct value to db.\
+              See error stack for more info.')
 
     tmats = db.root.materials
 
@@ -315,7 +317,8 @@ def test_store_run_init_info():
                           filters=simulation.compression_params)
     except Exception:
         db.close()
-        print('Unable to assign correct value to db. See error stack for more info.')
+        print('Unable to assign correct value to db.\
+              See error stack for more info.')
 
     tinit_info = db.root.initial_depcode_siminfo[0]
 
@@ -385,7 +388,8 @@ def test_store_run_step_info():
         db = tb.open_file(simulation.db_path, mode='r',
                           filters=simulation.compression_params)
     except Exception:
-        print('Unable to assign correct value to db. See error stack for more info.')
+        print('Unable to assign correct value to db.\
+              See error stack for more info.')
 
     tstep_info = db.root.simulation_parameters[0]
     try:

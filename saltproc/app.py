@@ -12,7 +12,6 @@ import os
 import copy
 import json
 import jsonschema
-#from saltproc.saltprocinputschema import input_schema
 from collections import OrderedDict
 import gc
 import networkx as nx
