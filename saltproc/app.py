@@ -457,7 +457,7 @@ def run():
         gc.collect()
         # Switch to another geometry?
         if simulation.adjust_geo and simulation.read_k_eds_delta(dep_step):
-            simulation.switch_to_next_geometry()
+            depcode.switch_to_next_geometry()
         print("\nTime at the end of current depletion step %fd" %
               simulation.burn_time)
         print("Simulation succeeded.\n")
