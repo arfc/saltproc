@@ -67,6 +67,12 @@ class Depcode(ABC):
         self.sim_info = {}
 
     @abstractmethod
+    def read_depcode_info(self):
+        """Parses initial depletion code info data from depletion code
+        output and stores it in the `Depcode` object's ``sim_info`` attribute.
+        """
+
+    @abstractmethod
     def read_dep_comp(self, read_at_end=False):
         """Reads the depleted material data from the depcode simulation
         and returns a dictionary with a `Materialflow` object for each
