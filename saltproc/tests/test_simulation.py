@@ -92,7 +92,6 @@ def test_store_after_repr():
         db = tb.open_file(simulation.db_path, mode='r',
                       filters=simulation.compression_params)
     except Exception:
-        db.close()
         print('Unable to assign correct value to db. See error stack for more info.')
 
     tmats = db.root.materials
@@ -140,6 +139,16 @@ def test_store_after_repr():
         os.remove(db_file)
         simulation.db_path = db_path_old
         raise AssertionError("incorrect Value")
+    except KeyError:
+        db.close()
+        os.remove(db_file)
+        simulation.db_path = db_path_old
+        raise KeyError("incorrect key")
+    except:
+        db.close()
+        os.remove(db_file)
+        simulation.db_path = db_path_old
+        print("something went wrong. See error stack for details")
 
     # close the file
     db.close()
@@ -183,7 +192,6 @@ def test_store_mat_data():
         db = tb.open_file(simulation.db_path, mode='r',
                       filters=simulation.compression_params)
     except Exception:
-        db.close()
         print('Unable to assign correct value to db. See error stack for more info.')
 
     tmats = db.root.materials
@@ -257,6 +265,16 @@ def test_store_mat_data():
         os.remove(db_file)
         simulation.db_path = db_path_old
         raise AssertionError("incorrect Value")
+    except KeyError:
+        db.close()
+        os.remove(db_file)
+        simulation.db_path = db_path_old
+        raise KeyError("incorrect key")
+    except:
+        db.close()
+        os.remove(db_file)
+        simulation.db_path = db_path_old
+        print("something went wrong. See error stack for details")
 
     # close the file
     db.close()
@@ -317,6 +335,18 @@ def test_store_run_init_info():
         os.remove(db_file)
         simulation.db_path = db_path_old
         raise AssertionError("incorrect Value")
+    except KeyError:
+        db.close()
+        os.remove(db_file)
+        simulation.db_path = db_path_old
+        raise KeyError("incorrect key")
+    except:
+        db.close()
+        os.remove(db_file)
+        simulation.db_path = db_path_old
+        print("something went wrong. See error stack for details")
+
+        print("")
 
     # close the file
     db.close()
@@ -351,7 +381,6 @@ def test_store_run_step_info():
         db = tb.open_file(simulation.db_path, mode='r',
                       filters=simulation.compression_params)
     except Exception:
-        db.close()
         print('Unable to assign correct value to db. See error stack for more info.')
 
     tstep_info = db.root.simulation_parameters[0]
@@ -378,6 +407,16 @@ def test_store_run_step_info():
         os.remove(db_file)
         simulation.db_path = db_path_old
         raise AssertionError("incorrect Value")
+    except KeyError:
+        db.close()
+        os.remove(db_file)
+        simulation.db_path = db_path_old
+        raise KeyError("incorrect key")
+    except:
+        db.close()
+        os.remove(db_file)
+        simulation.db_path = db_path_old
+        print("something went wrong. See error stack for details")
 
     # close the file
     db.close()
