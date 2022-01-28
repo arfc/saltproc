@@ -24,18 +24,18 @@ Detailed installation instructions can be found in the
 
 The documentation for SaltProc can be found at
 [arfc.github.io/saltproc/](http://arfc.github.io/saltproc/).
-Additionally, the entire contents of that
-website can be built from the doc directory in the source code using the
-following steps
+The entire contents of that
+website can be built from the `doc` directory in the repositiory using the following steps with the [`conda`](https://docs.conda.io/en/latest/) tool:
 
-1. `pip install sphinx`
-2. `pip install sphinx_rtd_theme`.
-3. `cd doc/`
-4. `sphinx-apidoc --separate --force --output-dir=src/ ../saltproc`
-5. `make clean`
-6. `make html`
+1. `conda env create -f doc/doc-environment.yml`
+2. `cd doc/`
+3. `make clean`
+4. `make html`
 
 After these steps, the website will be found in `saltproc/doc/_build/html`.
+
+_Note_: We recommend using [`mamba`](https://github.com/mamba-org/mamba) CLI tool to install packages quickly. SaltProc has a compltex package dependency structure which can result is long environment solve times in the default ``conda`` solver. ``mamba`` is a reimplementation of ``conda`` in ``C++`` and we have found it is significantly faster.
+
 
 ## License
 

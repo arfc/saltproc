@@ -1,4 +1,4 @@
-name: saltproc-env
+name: saltproc-doc-env
 channels:
   - conda-forge
   - defaults
@@ -8,6 +8,8 @@ dependencies:
   - pytables
   - networkx
   - pydotplus
-  - pytest
+  - sphinx
+  - sphinx_rtd_theme
   - pip:
-    - argparse==1.4.0
+      - sphinx-multiversion
+      - sphinxcontrib-apidoc
