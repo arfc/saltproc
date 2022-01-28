@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>saltproc.simulation &mdash; Saltproc 0.3.1.dev documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.3.1.dev
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>saltproc.simulation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for saltproc.simulation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tables</span> <span class="k">as</span> <span class="nn">tb</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+
+<div class="viewcode-block" id="Simulation"><a class="viewcode-back" href="../../src/saltproc.simulation.html#saltproc.simulation.Simulation">[docs]</a><span class="k">class</span> <span class="nc">Simulation</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Class sets up parameters for simulation, runs Serpent, parses output,</span>
+<span class="sd">    creates input.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Simulation.__init__"><a class="viewcode-back" href="../../src/saltproc.simulation.html#saltproc.simulation.Simulation.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">sim_name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+            <span class="n">sim_depcode</span><span class="o">=</span><span class="s2">&quot;SERPENT&quot;</span><span class="p">,</span>
+            <span class="n">core_number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">node_number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">h5_file</span><span class="o">=</span><span class="s2">&quot;db_saltproc.h5&quot;</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="n">tb</span><span class="o">.</span><span class="n">Filters</span><span class="p">(</span><span class="n">complevel</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+                                   <span class="n">complib</span><span class="o">=</span><span class="s1">&#39;blosc&#39;</span><span class="p">,</span>
+                                   <span class="n">fletcher32</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">iter_matfile</span><span class="o">=</span><span class="s2">&quot;./saltproc_mat&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the Simulation object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sim_name: str</span>
+<span class="sd">            Name of simulation may contain number of reference case, paper name</span>
+<span class="sd">            or other specific information to identify simulation.</span>
+<span class="sd">        sim_depcode: obj</span>
+<span class="sd">            Depcode object initiated using Depcode class.</span>
+<span class="sd">        cores: int</span>
+<span class="sd">            Number of cores to use for Serpent run (`-omp` flag in Serpent).</span>
+<span class="sd">        nodes: int</span>
+<span class="sd">            Number of nodes to use for Serpent run (`-mpi` flag in Serpent).</span>
+<span class="sd">        h5_file: str</span>
+<span class="sd">            Name of HDF5 database.</span>
+<span class="sd">        compression: Pytables filter object</span>
+<span class="sd">            HDF5 database compression parameters.</span>
+<span class="sd">        iter_matfile: str</span>
+<span class="sd">            Name of file containing burnable materials composition used in</span>
+<span class="sd">            Serpent runs and update after each depletion step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># initialize all object attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_name</span> <span class="o">=</span> <span class="n">sim_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span> <span class="o">=</span> <span class="n">sim_depcode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">core_number</span> <span class="o">=</span> <span class="n">core_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_number</span> <span class="o">=</span> <span class="n">node_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h5_file</span> <span class="o">=</span> <span class="n">h5_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">=</span> <span class="n">compression</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">=</span> <span class="n">iter_matfile</span></div>
+
+<div class="viewcode-block" id="Simulation.runsim_no_reproc"><a class="viewcode-back" href="../../src/saltproc.simulation.html#saltproc.simulation.Simulation.runsim_no_reproc">[docs]</a>    <span class="k">def</span> <span class="nf">runsim_no_reproc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">nsteps</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run simulation sequence for integral test. No reprocessing involved,</span>
+<span class="sd">        just re-running Serpent for comparision with model output.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        reactor : Reactor</span>
+<span class="sd">            Contains information about power load curve and cumulative</span>
+<span class="sd">            depletion time for the integration test.</span>
+<span class="sd">        nsteps : int</span>
+<span class="sd">            Number of depletion time steps in integration test run.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">######################################################################</span>
+        <span class="c1"># Start sequence</span>
+        <span class="k">for</span> <span class="n">dts</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsteps</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Step #</span><span class="si">%i</span><span class="s2"> has been started&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dts</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">dts</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># First step</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">write_depcode_input</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">template_path</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">input_path</span><span class="p">,</span>
+                    <span class="n">reactor</span><span class="p">,</span>
+                    <span class="n">dts</span><span class="p">,</span>
+                    <span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">run_depcode</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">core_number</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">node_number</span><span class="p">)</span>
+                <span class="c1"># Read general simulation data which never changes</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">store_run_init_info</span><span class="p">()</span>
+                <span class="c1"># Parse and store data for initial state (beginning of dts)</span>
+                <span class="n">mats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">input_path</span><span class="p">,</span>
+                    <span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">store_mat_data</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">dts</span><span class="p">,</span> <span class="s1">&#39;before_reproc&#39;</span><span class="p">)</span>
+            <span class="c1"># Finish of First step</span>
+            <span class="c1"># Main sequence</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">run_depcode</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">core_number</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">node_number</span><span class="p">)</span>
+            <span class="n">mats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">input_path</span><span class="p">,</span>
+                <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store_mat_data</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">dts</span><span class="p">,</span> <span class="s1">&#39;before_reproc&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store_run_step_info</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">write_mat_file</span><span class="p">(</span>
+                <span class="n">mats</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">burn_time</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Simulation.store_after_repr"><a class="viewcode-back" href="../../src/saltproc.simulation.html#saltproc.simulation.Simulation.store_after_repr">[docs]</a>    <span class="k">def</span> <span class="nf">store_after_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">after_mats</span><span class="p">,</span> <span class="n">waste_dict</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds to HDF5 database waste streams data for each process after</span>
+<span class="sd">        reprocessing was performed (grams per depletion step).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        after_mats : `Materialflow`</span>
+<span class="sd">            Burnable material stream object after performing reprocessing.</span>
+<span class="sd">        waste_dict : dict of str to Materialflow</span>
+<span class="sd">            Dictionary that maps `Process` objects to waste `Materialflow`</span>
+<span class="sd">            objects.</span>
+
+<span class="sd">            ``key``</span>
+<span class="sd">                `Process` name (`str`)</span>
+<span class="sd">            ``value``</span>
+<span class="sd">                `Materialflow` object containing waste streams data.</span>
+<span class="sd">        step : int</span>
+<span class="sd">            Current depletion step.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">streams_gr</span> <span class="o">=</span> <span class="s1">&#39;in_out_streams&#39;</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">mn</span> <span class="ow">in</span> <span class="n">waste_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>  <span class="c1"># iterate over materials</span>
+            <span class="n">mat_node</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">materials</span><span class="p">,</span> <span class="n">mn</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mat_node</span><span class="p">,</span> <span class="n">streams_gr</span><span class="p">):</span>
+                <span class="n">waste_group</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span>
+                    <span class="n">mat_node</span><span class="p">,</span>
+                    <span class="n">streams_gr</span><span class="p">,</span>
+                    <span class="s1">&#39;Waste Material streams data for each process&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">waste_group</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mat_node</span><span class="p">,</span> <span class="n">streams_gr</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">waste_dict</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="c1"># proc_node = db.create_group(waste_group, proc)</span>
+                <span class="c1"># iso_idx[proc] = OrderedDict()</span>
+                <span class="n">iso_idx</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+                <span class="n">iso_wt_frac</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">coun</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="c1"># Read isotopes from Materialflow</span>
+                <span class="k">for</span> <span class="n">nuc</span><span class="p">,</span> <span class="n">wt_frac</span> <span class="ow">in</span> <span class="n">waste_dict</span><span class="p">[</span><span class="n">mn</span><span class="p">][</span><span class="n">proc</span><span class="p">]</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="c1"># Dictonary in format {isotope_name : index(int)}</span>
+                    <span class="n">iso_idx</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">get_nuc_name</span><span class="p">(</span><span class="n">nuc</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">coun</span>
+                    <span class="c1"># Convert wt% to absolute [user units]</span>
+                    <span class="n">iso_wt_frac</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wt_frac</span> <span class="o">*</span> <span class="n">waste_dict</span><span class="p">[</span><span class="n">mn</span><span class="p">][</span><span class="n">proc</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+                    <span class="n">coun</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># Try to open EArray and table and if not exist - create</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">earr</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="n">waste_group</span><span class="p">,</span> <span class="n">proc</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">earr</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_earray</span><span class="p">(</span>
+                        <span class="n">waste_group</span><span class="p">,</span>
+                        <span class="n">proc</span><span class="p">,</span>
+                        <span class="n">atom</span><span class="o">=</span><span class="n">tb</span><span class="o">.</span><span class="n">Float64Atom</span><span class="p">(),</span>
+                        <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">iso_idx</span><span class="p">)),</span>
+                        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Isotopic composition for </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">proc</span><span class="p">)</span>
+                    <span class="c1"># Save isotope indexes map and units in EArray attributes</span>
+                    <span class="n">earr</span><span class="o">.</span><span class="n">flavor</span> <span class="o">=</span> <span class="s1">&#39;python&#39;</span>
+                    <span class="n">earr</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">iso_map</span> <span class="o">=</span> <span class="n">iso_idx</span>
+                <span class="n">earr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">iso_wt_frac</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+                <span class="k">del</span> <span class="n">iso_wt_frac</span>
+                <span class="k">del</span> <span class="n">iso_idx</span>
+        <span class="c1"># Also save materials AFTER reprocessing and refill here</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_mat_data</span><span class="p">(</span><span class="n">after_mats</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="s1">&#39;after_reproc&#39;</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Simulation.store_mat_data"><a class="viewcode-back" href="../../src/saltproc.simulation.html#saltproc.simulation.Simulation.store_mat_data">[docs]</a>    <span class="k">def</span> <span class="nf">store_mat_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mats</span><span class="p">,</span> <span class="n">d_step</span><span class="p">,</span> <span class="n">moment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes HDF5/Pytables database (if not exist) or append burnable</span>
+<span class="sd">        material composition, mass, density, volume, temperature, burnup,</span>
+<span class="sd">        mass_flowrate, void_fraction, at the current depletion step to it.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mats : dict of str to Materialflow</span>
+<span class="sd">            Dictionary that contains `Materialflow` objects.</span>
+
+<span class="sd">            ``key``</span>
+<span class="sd">                Name of burnable material.</span>
+<span class="sd">            ``value``</span>
+<span class="sd">                `Materialflow` object holding composition and properties.</span>
+<span class="sd">        d_step : int</span>
+<span class="sd">            Current depletion step.</span>
+<span class="sd">        moment : int</span>
+<span class="sd">            Indicates at which moment in the depletion step store the data. `0`</span>
+<span class="sd">            refers the beginning, `1` refers the end of depletion step.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Moment when store compositions</span>
+        <span class="n">iso_idx</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="c1"># numpy array row storage data for material physical properties</span>
+        <span class="n">mpar_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([</span>
+            <span class="p">(</span><span class="s1">&#39;mass&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;density&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;volume&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;mass_flowrate&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;void_fraction&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;burnup&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="p">])</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Storing material data for depletion step #</span><span class="si">%i</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;materials&#39;</span><span class="p">):</span>
+            <span class="n">comp_group</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;materials&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;Material data&#39;</span><span class="p">)</span>
+        <span class="c1"># Iterate over all materials</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mats</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">iso_idx</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+            <span class="n">iso_wt_frac</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">coun</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># Create group for each material</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">materials</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+                <span class="n">db</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">comp_group</span><span class="p">,</span>
+                                <span class="n">key</span><span class="p">)</span>
+            <span class="c1"># Create group for composition and parameters before reprocessing</span>
+            <span class="n">mat_node</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">materials</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mat_node</span><span class="p">,</span> <span class="n">moment</span><span class="p">):</span>
+                <span class="n">db</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">mat_node</span><span class="p">,</span>
+                                <span class="n">moment</span><span class="p">,</span>
+                                <span class="s1">&#39;Material data before reprocessing&#39;</span><span class="p">)</span>
+            <span class="n">comp_pfx</span> <span class="o">=</span> <span class="s1">&#39;/materials/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">moment</span><span class="p">)</span>
+            <span class="c1"># Read isotopes from Materialflow for material</span>
+            <span class="k">for</span> <span class="n">nuc_code</span><span class="p">,</span> <span class="n">wt_frac</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># Dictonary in format {isotope_name : index(int)}</span>
+                <span class="n">iso_idx</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">get_nuc_name</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">coun</span>
+                <span class="c1"># Convert wt% to absolute [user units]</span>
+                <span class="n">iso_wt_frac</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wt_frac</span> <span class="o">*</span> <span class="n">mats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+                <span class="n">coun</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># Store information about material properties in new array row</span>
+            <span class="n">mpar_row</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">mats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
+                <span class="n">mats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
+                <span class="n">mats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span><span class="p">,</span>
+                <span class="n">mats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span>
+                <span class="n">mats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">mass_flowrate</span><span class="p">,</span>
+                <span class="n">mats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">void_frac</span><span class="p">,</span>
+                <span class="n">mats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">burnup</span>
+            <span class="p">)</span>
+            <span class="n">mpar_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">mpar_row</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">mpar_dtype</span><span class="p">)</span>
+            <span class="c1"># Try to open EArray and table and if not exist - create new one</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">earr</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="n">comp_pfx</span><span class="p">,</span> <span class="s1">&#39;comp&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">earr</span><span class="o">.</span><span class="n">title</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; array exist, appending data.&#39;</span><span class="p">)</span>
+                <span class="n">mpar_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="n">comp_pfx</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s1">&#39;Material &#39;</span> <span class="o">+</span>
+                    <span class="n">key</span> <span class="o">+</span>
+                    <span class="s1">&#39; array is not exist, making new one.&#39;</span><span class="p">)</span>
+                <span class="n">earr</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_earray</span><span class="p">(</span>
+                    <span class="n">comp_pfx</span><span class="p">,</span>
+                    <span class="s1">&#39;comp&#39;</span><span class="p">,</span>
+                    <span class="n">atom</span><span class="o">=</span><span class="n">tb</span><span class="o">.</span><span class="n">Float64Atom</span><span class="p">(),</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">iso_idx</span><span class="p">[</span><span class="n">key</span><span class="p">])),</span>
+                    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Isotopic composition for </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
+                <span class="c1"># Save isotope indexes map and units in EArray attributes</span>
+                <span class="n">earr</span><span class="o">.</span><span class="n">flavor</span> <span class="o">=</span> <span class="s1">&#39;python&#39;</span>
+                <span class="n">earr</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">iso_map</span> <span class="o">=</span> <span class="n">iso_idx</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="c1"># Create table for material Parameters</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Creating &#39;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; parameters table.&#39;</span><span class="p">)</span>
+                <span class="n">mpar_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
+                    <span class="n">comp_pfx</span><span class="p">,</span>
+                    <span class="s1">&#39;parameters&#39;</span><span class="p">,</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">mpar_dtype</span><span class="p">),</span>
+                    <span class="s2">&quot;Material parameters data&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dumping Material </span><span class="si">%s</span><span class="s1"> data </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span>
+                  <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">moment</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5_file</span><span class="p">)))</span>
+            <span class="c1"># Add row for the timestep to EArray and Material Parameters table</span>
+            <span class="n">earr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">iso_wt_frac</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+            <span class="n">mpar_table</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mpar_array</span><span class="p">)</span>
+            <span class="k">del</span> <span class="p">(</span><span class="n">iso_wt_frac</span><span class="p">)</span>
+            <span class="k">del</span> <span class="p">(</span><span class="n">mpar_array</span><span class="p">)</span>
+            <span class="n">mpar_table</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Simulation.store_run_step_info"><a class="viewcode-back" href="../../src/saltproc.simulation.html#saltproc.simulation.Simulation.store_run_step_info">[docs]</a>    <span class="k">def</span> <span class="nf">store_run_step_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds to database Serpent and Saltproc simulation parameters</span>
+<span class="sd">        (execution time, memory usage), multiplication factor, breeding ratio,</span>
+<span class="sd">        delayed neutron precursor data, fission mass, cumulative depletion</span>
+<span class="sd">        time, power level for the current time step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Read info from depcode _res.m File</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_depcode_step_param</span><span class="p">()</span>
+        <span class="c1"># Initialize beta groups number</span>
+        <span class="n">b_g</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;beta_eff&#39;</span><span class="p">])</span>
+        <span class="c1"># numpy array row storage for run info</span>
+
+        <span class="k">class</span> <span class="nc">Step_info</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">IsDescription</span><span class="p">):</span>
+            <span class="n">keff_bds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">((</span><span class="mi">2</span><span class="p">,))</span>
+            <span class="n">keff_eds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">((</span><span class="mi">2</span><span class="p">,))</span>
+            <span class="n">breeding_ratio</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">((</span><span class="mi">2</span><span class="p">,))</span>
+            <span class="n">step_execution_time</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">()</span>
+            <span class="n">cumulative_time_at_eds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">()</span>
+            <span class="n">power_level</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">()</span>
+            <span class="n">memory_usage</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">()</span>
+            <span class="n">beta_eff_eds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">((</span><span class="n">b_g</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">delayed_neutrons_lambda_eds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">((</span><span class="n">b_g</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">fission_mass_bds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">()</span>
+            <span class="n">fission_mass_eds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">()</span>
+        <span class="c1"># Open or restore db and append data to it</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">step_info_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span>
+                <span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="p">,</span>
+                <span class="s1">&#39;simulation_parameters&#39;</span><span class="p">)</span>
+            <span class="c1"># Read burn_time from previous step</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">burn_time</span> <span class="o">=</span> <span class="n">step_info_table</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s1">&#39;cumulative_time_at_eds&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">step_info_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
+                <span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="p">,</span>
+                <span class="s1">&#39;simulation_parameters&#39;</span><span class="p">,</span>
+                <span class="n">Step_info</span><span class="p">,</span>
+                <span class="s2">&quot;Simulation parameters after each timestep&quot;</span><span class="p">)</span>
+            <span class="c1"># Intializing burn_time array at the first depletion step</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">burn_time</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">burn_time</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;burn_days&#39;</span><span class="p">]</span>
+        <span class="c1"># Define row of table as step_info</span>
+        <span class="n">step_info</span> <span class="o">=</span> <span class="n">step_info_table</span><span class="o">.</span><span class="n">row</span>
+        <span class="c1"># Define all values in the row</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">]</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;breeding_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
+            <span class="s1">&#39;breeding_ratio&#39;</span><span class="p">]</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;step_execution_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
+            <span class="s1">&#39;execution_time&#39;</span><span class="p">]</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;cumulative_time_at_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">burn_time</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;power_level&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;power_level&#39;</span><span class="p">]</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;memory_usage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
+            <span class="s1">&#39;memory_usage&#39;</span><span class="p">]</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;beta_eff_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
+            <span class="s1">&#39;beta_eff&#39;</span><span class="p">]</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;delayed_neutrons_lambda_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
+            <span class="s1">&#39;delayed_neutrons_lambda&#39;</span><span class="p">]</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;fission_mass_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
+            <span class="s1">&#39;fission_mass_bds&#39;</span><span class="p">]</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;fission_mass_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
+            <span class="s1">&#39;fission_mass_eds&#39;</span><span class="p">]</span>
+        <span class="c1"># Inject the Record value into the table</span>
+        <span class="n">step_info</span><span class="o">.</span><span class="n">append</span><span class="p">()</span>
+        <span class="n">step_info_table</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Simulation.store_run_init_info"><a class="viewcode-back" href="../../src/saltproc.simulation.html#saltproc.simulation.Simulation.store_run_init_info">[docs]</a>    <span class="k">def</span> <span class="nf">store_run_init_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds to database Serpent and Saltproc simulation parameters before</span>
+<span class="sd">        starting depletion sequence.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># numpy arraw row storage for run info</span>
+        <span class="n">sim_info_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([</span>
+            <span class="p">(</span><span class="s1">&#39;neutron_population&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;active_cycles&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;inactive_cycles&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;serpent_version&#39;</span><span class="p">,</span> <span class="s1">&#39;S20&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;S90&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;serpent_input_filename&#39;</span><span class="p">,</span> <span class="s1">&#39;S90&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;serpent_working_dir&#39;</span><span class="p">,</span> <span class="s1">&#39;S90&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;xs_data_path&#39;</span><span class="p">,</span> <span class="s1">&#39;S90&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;OMP_threads&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;MPI_tasks&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;memory_optimization_mode&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="p">])</span>
+        <span class="c1"># Read info from depcode _res.m File</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_depcode_info</span><span class="p">()</span>
+        <span class="c1"># Store information about material properties in new array row</span>
+        <span class="n">sim_info_row</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">npop</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">active_cycles</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">inactive_cycles</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;serpent_version&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;serpent_input_filename&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;serpent_working_dir&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;xs_data_path&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;OMP_threads&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;MPI_tasks&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;memory_optimization_mode&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">sim_info_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sim_info_row</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">sim_info_dtype</span><span class="p">)</span>
+        <span class="c1"># Open or restore db and append datat to it</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sim_info_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;initial_depcode_siminfo&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">sim_info_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
+                <span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="p">,</span>
+                <span class="s1">&#39;initial_depcode_siminfo&#39;</span><span class="p">,</span>
+                <span class="n">sim_info_array</span><span class="p">,</span>
+                <span class="s2">&quot;Initial depletion code simulation parameters&quot;</span><span class="p">)</span>
+        <span class="n">sim_info_table</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Simulation.switch_to_next_geometry"><a class="viewcode-back" href="../../src/saltproc.simulation.html#saltproc.simulation.Simulation.switch_to_next_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">switch_to_next_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inserts line with path to next Serpent geometry file at the</span>
+<span class="sd">        beginning of the Serpent iteration input file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">geo_line_n</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">input_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">current_geo_file</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">geo_line_n</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">current_geo_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">geo_file</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">current_geo_file</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">new_geo_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">geo_file</span><span class="p">[</span><span class="n">current_geo_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No more geometry files available </span><span class="se">\</span>
+<span class="s1">                  and the system went subcritical </span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Simulation ended&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">new_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">current_geo_file</span><span class="p">,</span> <span class="n">new_geo_file</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Switching to next geometry file: &#39;</span><span class="p">,</span> <span class="n">new_geo_file</span><span class="p">)</span>
+
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">input_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Simulation.read_k_eds_delta"><a class="viewcode-back" href="../../src/saltproc.simulation.html#saltproc.simulation.Simulation.read_k_eds_delta">[docs]</a>    <span class="k">def</span> <span class="nf">read_k_eds_delta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_timestep</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads from database delta between previous and current `keff` at the</span>
+<span class="sd">        end of depletion step and returns `True` if predicted `keff` at the</span>
+<span class="sd">        next depletion step drops below 1.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        current_timestep : int</span>
+<span class="sd">            Number of current depletion time step.</span>
+<span class="sd">        restart : bool</span>
+<span class="sd">            Was this simulation restarted?</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Is the reactor will become subcritical at the next step?</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">current_timestep</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">restart</span><span class="p">:</span>
+            <span class="c1"># Open or restore db and read data</span>
+            <span class="n">db</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">sim_param</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">simulation_parameters</span>
+            <span class="n">k_eds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sim_param</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()])</span>
+            <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">delta_keff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">k_eds</span><span class="p">)</span>
+            <span class="n">avrg_keff_drop</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">delta_keff</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average keff drop per step &quot;</span><span class="p">,</span> <span class="n">avrg_keff_drop</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;keff at the end of last step &quot;</span><span class="p">,</span> <span class="n">k_eds</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">k_eds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">avrg_keff_drop</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Simulation.check_switch_geo_trigger"><a class="viewcode-back" href="../../src/saltproc.simulation.html#saltproc.simulation.Simulation.check_switch_geo_trigger">[docs]</a>    <span class="k">def</span> <span class="nf">check_switch_geo_trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_time</span><span class="p">,</span> <span class="n">switch_time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compares current timestep with user defined time to switch geometry.</span>
+<span class="sd">        Returns `True` if its time.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        current_timestep : int</span>
+<span class="sd">            Current time after depletion started.</span>
+<span class="sd">        switch_time : list</span>
+<span class="sd">            List containing moments in time when geometry have to be switched.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            is the next geometry must be used at the next step?</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">current_time</span> <span class="ow">in</span> <span class="n">switch_time</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: master
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="../../../v0.3.0/index.html">v0.3.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="simulation.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; Saltproc  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Overview" href="overview.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Saltproc
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cross-section-configuration">Cross Section Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Installation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>SaltProc has the following dependencies:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><a class="reference external" href="http://python.org">Python</a> (&gt;=3.5)</p></li>
+<li><p><a class="reference external" href="http://montecarlo.vtt.fi">Serpent</a> (&gt;=2.1.31)</p></li>
+<li><p><a class="reference external" href="http://pyne.io">PyNE</a> (&gt;=0.5.11)</p></li>
+<li><p><a class="reference external" href="http://numpy.org">NumPy</a> (&gt;=1.14.0)</p></li>
+<li><p><a class="reference external" href="http://pytables.org">PyTables</a></p></li>
+<li><p><a class="reference external" href="http://networkx.github.io">NetworkX</a></p></li>
+<li><p><a class="reference external" href="https://pydotplus.readthedocs.io/">PyDotPlus</a></p></li>
+</ol>
+</div></blockquote>
+<p>Optional Depenendencies:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><a class="reference external" href="http://matplotlib.org">matplotlib</a></p></li>
+<li><p><a class="reference external" href="http://vitables.org">ViTables</a></p></li>
+</ol>
+</div></blockquote>
+<p>Most of the dependencies are readily available through package managers.
+Once all the dependencies are installed, SaltProc can be installed.
+Clone the source from the SaltProc repository from <a class="reference external" href="http://github.com/arfc/saltproc">GitHub</a>.
+Then run the following commands from the directory above cloned repository:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/arfc/saltproc.git
+<span class="nb">cd</span> saltproc/
+python setup.py install --user
+</pre></div>
+</div>
+<p>Please let us know if you run into trouble.</p>
+<section id="cross-section-configuration">
+<h2>Cross Section Configuration<a class="headerlink" href="#cross-section-configuration" title="Permalink to this headline">¶</a></h2>
+<p>SaltProc can use any cross section library that Serpent can. See <a class="reference external" href="https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries">this page on the Serpent wiki</a> for information on how to configure the libraries.</p>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<p>The SaltProc test suite has two types of tests: unit tests and regression tests.
+The unit tests check that the individual functions and classes of the <code class="docutils literal notranslate"><span class="pre">saltproc</span></code>
+module return the correct type of variables and correct values, where applicable.
+The regression tests run a full SaltProc simulation and check the final result
+with a precalculated result.
+The integration tests require the <a class="reference external" href="https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/">JEFF 3.1.2 cross section library</a> as well
+as neutron induces and spontaneous fission product yield data from JEFF 3.3.
+The publicly available versions of JEFF 3.1.2  cannot be used with Serpent right
+out of the box due to <a class="reference external" href="https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries">Serpent’s notation for isomeric states</a>. The scripts in
+<code class="docutils literal notranslate"><span class="pre">scripts/xsdata</span></code> download all necessary libraries and perform all the necessary processing on them for use in Serpent 2.
+We recommend using them for your convenience.
+See the <a class="reference external" href="https://github.com/arfc/saltproc/blob/master/scripts/README.md">README</a> for more information.</p>
+<p>To run the tests, execute:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest saltproc/
+</pre></div>
+</div>
+<p>from the root directory of SaltProc. If you just want to run the unit tests, execute</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest --ignore saltproc/tests/integration_tests saltproc/
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="overview.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: v0.3.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="installation.html">v0.3.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../master/installation.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
