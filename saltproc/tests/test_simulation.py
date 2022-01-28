@@ -4,7 +4,6 @@ from saltproc import Simulation
 import saltproc.app
 import os
 import sys
-import shutil
 import numpy as np
 import tables as tb
 path = os.path.realpath(__file__)
@@ -14,8 +13,6 @@ directory = os.path.dirname(path)
 iter_inputfile = directory + '/test'
 main_input = directory + '/test.json'
 dot_input = directory + '/test.dot'
-
-geo_test_input = directory + '/test_geometry_switch.inp'
 
 serpent = DepcodeSerpent(
     exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
@@ -390,12 +387,3 @@ def test_store_run_step_info():
 
 def test_read_k_eds_delta():
     assert simulation.read_k_eds_delta(7) is False
-
-
-def test_switch_to_next_geometry():
-    shutil.copy2(geo_test_input, serpent.iter_inputfile + '_test')
-    serpent.iter_inputfile = serpent.iter_inputfile + '_test'
-    simulation.switch_to_next_geometry()
-    d = serpent.read_depcode_template(serpent.iter_inputfile)
-    assert d[5].split('/')[-1] == '988.inp"\n'
-    os.remove(serpent.iter_inputfile)
