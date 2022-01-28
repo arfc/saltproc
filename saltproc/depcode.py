@@ -105,6 +105,12 @@ class Depcode(ABC):
         """
 
     @abstractmethod
+    def switch_to_next_geometry(self):
+        """Inserts line with path to next depletion code geometry file at the
+        beginning of the depletion code iteration input file.
+        """
+
+    @abstractmethod
     def write_depcode_input(self, reactor, dep_step, restart):
         """ Writes prepared data into depletion code input file(s).
 
