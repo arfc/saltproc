@@ -86,11 +86,20 @@ def test_get_nuc_name():
 
 def test_read_depcode_info():
     serpent.read_depcode_info()
-    assert serpent.sim_info['serpent_version'] == 'Serpent 2.1.31'
+    assert serpent.sim_info['depcode_name'] == 'Serpent'
+    assert serpent.sim_info['depcode_version'] == '2.1.31'
     assert serpent.sim_info['title'] == 'Untitled'
+    assert serpent.sim_info['depcode_input_filename'] == \
+        '/home/andrei2/Desktop/git/saltproc/develop/saltproc/data/saltproc_tap'
+    assert serpent.sim_info['depcode_working_dir'] == \
+        '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
+    assert serpent.sim_info['xs_data_path'] == \
+        '/home/andrei2/serpent/xsdata/jeff312/sss_jeff312.xsdata'
+
     assert serpent.sim_info['MPI_tasks'] == 1
     assert serpent.sim_info['OMP_threads'] == 4
     assert serpent.sim_info['memory_optimization_mode'] == 4
+    assert serpent.sim_info['depletion_timestep'] == 3.0
 
 
 def test_read_depcode_step_param():
