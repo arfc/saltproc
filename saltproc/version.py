@@ -72,7 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 NAME = "saltproc"
 MAINTAINER = "Oleksandr Yardas"
-MAINTAINER_EMAIL = "oyardas2@illinois.edu"
+MAINTAINER_EMAIL = "arfc@googlegroups.com"
 DESCRIPTION = description
 LONG_DESCRIPTION = long_description
 URL = "http://github.com/arfc/saltproc"
