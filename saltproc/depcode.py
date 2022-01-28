@@ -73,6 +73,13 @@ class Depcode(ABC):
         """
 
     @abstractmethod
+    def read_depcode_step_param(self):
+        """Parses data from depletion code output for each step and stores
+        it in `Depcode` object's ``param`` attributes.
+        """
+
+
+    @abstractmethod
     def read_dep_comp(self, read_at_end=False):
         """Reads the depleted material data from the depcode simulation
         and returns a dictionary with a `Materialflow` object for each
