@@ -189,8 +189,11 @@ def test_write_depcode_input():
 
 def test_switch_to_next_geometry():
     shutil.copy2(geo_test_input, serpent.iter_inputfile + '_test')
+    iter_inputfile_old = serpent.iter_inputfile
     serpent.iter_inputfile = serpent.iter_inputfile + '_test'
+    serpent.geo_files += ['../../examples/406.inp', '../../examples/988.inp']
     serpent.switch_to_next_geometry()
     d = serpent.read_depcode_template(serpent.iter_inputfile)
     assert d[5].split('/')[-1] == '988.inp"\n'
     os.remove(serpent.iter_inputfile)
+    serpent.iter_inputfile = iter_inputfile_old
