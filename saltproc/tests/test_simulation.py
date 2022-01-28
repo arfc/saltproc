@@ -299,15 +299,16 @@ def test_store_run_init_info():
         assert tinit_info[0] == simulation.sim_depcode.npop
         assert tinit_info[1] == simulation.sim_depcode.active_cycles
         assert tinit_info[2] == simulation.sim_depcode.inactive_cycles
-        assert str(tinit_info[3])[2:-1] == init_info['serpent_version']
-        assert str(tinit_info[4])[2:-1] == init_info['title']
-        assert str(tinit_info[5])[2:-1] == init_info['serpent_input_filename']
-        assert str(tinit_info[6])[2:-1] == init_info['serpent_working_dir']
-        assert str(tinit_info[7])[2:-1] == init_info['xs_data_path']
-        assert tinit_info[8] == init_info['OMP_threads']
-        assert tinit_info[9] == init_info['MPI_tasks']
-        assert tinit_info[10] == init_info['memory_optimization_mode']
-        assert tinit_info[11] == init_info['depletion_timestep']
+        assert str(tinit_info[3])[2:-1] == init_info['depcode_name']
+        assert str(tinit_info[4])[2:-1] == init_info['depcode_version']
+        assert str(tinit_info[5])[2:-1] == init_info['title']
+        assert str(tinit_info[6])[2:-1] == init_info['depcode_input_filename']
+        assert str(tinit_info[7])[2:-1] == init_info['depcode_working_dir']
+        assert str(tinit_info[8])[2:-1] == init_info['xs_data_path']
+        assert tinit_info[9] == init_info['OMP_threads']
+        assert tinit_info[10] == init_info['MPI_tasks']
+        assert tinit_info[11] == init_info['memory_optimization_mode']
+        assert tinit_info[12] == init_info['depletion_timestep']
     except AssertionError:
         db.close()
         os.remove(db_file)
