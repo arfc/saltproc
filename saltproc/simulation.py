@@ -357,10 +357,10 @@ class Simulation():
     def store_run_init_info(self):
         """Adds the following depletion code and SaltProc simulation parameters
         to the database:
-        neutron population, active cycles, inactive cycles, depletion code version
-        simulation title, depetion code input file path, depletion code working
-        directory, cross section data path, # of OMP threads, # of MPI tasks,
-        memory optimization mode (Serpent), depletion timestep size.
+        neutron population, active cycles, inactive cycles, depletion code
+        version simulation title, depetion code input file path, depletion code
+        working directory, cross section data path, # of OMP threads, # of MPI
+        tasks, memory optimization mode (Serpent), depletion timestep size.
 
         """
         # numpy arraw row storage for run info
