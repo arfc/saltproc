@@ -3,6 +3,7 @@ from saltproc import DepcodeSerpent
 from saltproc import Reactor
 import os
 import sys
+import shutil
 import numpy as np
 
 path = os.path.realpath(__file__)
