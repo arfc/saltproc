@@ -28,7 +28,7 @@ The entire contents of that
 website can be built from the `doc` directory in the repositiory using
 the following steps
 
-1. `pip install sphinx sphinx_rtd_theme`
+1. `conda env create -f doc/doc-environment.yml`
 2. `cd doc/`
 3. `make clean`
 4. `make html`
