@@ -467,7 +467,7 @@ class DepcodeSerpent(Depcode):
         res = serpent.parse_res(self.iter_inputfile + "_res.m")
         depcode_name, depcode_ver = res['VERSION'][0].decode('utf-8').split()
         self.sim_info['depcode_name'] = depcode_name
-        self.sim_info['depcode_version'] = depcode_version
+        self.sim_info['depcode_version'] = depcode_ver
         self.sim_info['title'] = res['TITLE'][0].decode('utf-8')
         self.sim_info['depcode_input_filename'] = \
             res['INPUT_FILE_NAME'][0].decode('utf-8')
