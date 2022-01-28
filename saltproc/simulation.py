@@ -315,7 +315,7 @@ class Simulation():
             step_info_table = db.create_table(
                 db.root,
                 'simulation_parameters',
-                Step_info, #### self.sim_depcode.Step_info
+                self.sim_depcode.Step_info, ### Step_info,
                 "Simulation parameters after each timestep")
             # Intializing burn_time array at the first depletion step
             self.burn_time = 0.0
