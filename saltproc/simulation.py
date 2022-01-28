@@ -289,6 +289,8 @@ class Simulation():
         b_g = len(self.sim_depcode.param['beta_eff'])
         # numpy array row storage for run info
 
+        # delete this and define class in
+        # Depcode subclasses
         class Step_info(tb.IsDescription):
             keff_bds = tb.Float32Col((2,))
             keff_eds = tb.Float32Col((2,))
@@ -301,7 +303,7 @@ class Simulation():
             delayed_neutrons_lambda_eds = tb.Float32Col((b_g, 2))
             fission_mass_bds = tb.Float32Col()
             fission_mass_eds = tb.Float32Col()
-        # Open or restore db and append data to it
+        #### Open or restore db and append data to it
         db = tb.open_file(self.db_path, mode='a', filters=self.compression_params)
         try:
             step_info_table = db.get_node(
@@ -313,7 +315,7 @@ class Simulation():
             step_info_table = db.create_table(
                 db.root,
                 'simulation_parameters',
-                Step_info,
+                Step_info, #### self.sim_depcode.Step_info
                 "Simulation parameters after each timestep")
             # Intializing burn_time array at the first depletion step
             self.burn_time = 0.0
@@ -321,6 +323,11 @@ class Simulation():
         # Define row of table as step_info
         step_info = step_info_table.row
         # Define all values in the row
+
+        #### in depcode.py:
+        #### def store_step_info(step_info):
+        #### """ do the below """
+        ####        ...
         step_info['keff_bds'] = self.sim_depcode.param['keff_bds']
         step_info['keff_eds'] = self.sim_depcode.param['keff_eds']
         step_info['breeding_ratio'] = self.sim_depcode.param[
@@ -339,6 +346,8 @@ class Simulation():
             'fission_mass_bds']
         step_info['fission_mass_eds'] = self.sim_depcode.param[
             'fission_mass_eds']
+        #### return step_info
+
         # Inject the Record value into the table
         step_info.append()
         step_info_table.flush()
@@ -353,7 +362,9 @@ class Simulation():
         memory optimization mode (Serpent), depletion timestep size.
 
         """
-        # numpy arraw row storage for run info
+        #### numpy arraw row storage for run info
+        #### delete and make this datatype specific
+        #### to Depcode subclasses
         sim_info_dtype = np.dtype([
             ('neutron_population', int),
             ('active_cycles', int),
@@ -374,7 +385,7 @@ class Simulation():
         sim_info_row = (
             self.sim_depcode.npop,
             self.sim_depcode.active_cycles,
-            self.sim_depcode.inactive_cycles,
+            self.sim_depcode.inactive_cycles, #### delete the below
             self.sim_depcode.sim_info['serpent_version'],
             self.sim_depcode.sim_info['title'],
             self.sim_depcode.sim_info['serpent_input_filename'],
@@ -385,7 +396,11 @@ class Simulation():
             self.sim_depcode.sim_info['memory_optimization_mode'],
             self.sim_depcode.sim_info['depletion_timestep']
         )
-        sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype)
+        #### replace with this
+        #### for i in sim_depcode.sim_info:
+        ####     sim_info_row += (i,)
+
+        sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype) #### dtype=sim_depcode.sim_info_dtype
         # Open or restore db and append datat to it
         db = tb.open_file(self.db_path, mode='a', filters=self.compression_params)
         try:
