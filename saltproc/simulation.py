@@ -78,6 +78,7 @@ class Simulation():
         ----------
         restart_flag : bool
             Is the current simulation restarted?
+
         """
         if not self.restart_flag:
             try:
@@ -107,7 +108,6 @@ class Simulation():
                 `Materialflow` object containing waste streams data.
         dep_step : int
             Current depletion time step.
-
 
         """
         streams_gr = 'in_out_streams'
