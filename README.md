@@ -35,6 +35,9 @@ the following steps
 
 After these steps, the website will be found in `saltproc/doc/_build/html`.
 
+_Note_: We recommend using [`mamba`](https://github.com/mamba-org/mamba) CLI tool to install packages quickly. SaltProc has a compltex package dependency structure which can result is long environment solve times in the default ``conda`` solver. ``mamba`` is a reimplementation of ``conda`` in ``C++`` and we have found it is significantly faster.
+
+
 ## License
 
 The license for this work can be found
