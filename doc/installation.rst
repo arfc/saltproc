@@ -19,29 +19,49 @@ SaltProc has the following dependencies:
 .. _PyTables: http://pytables.org
 .. _NetworkX: http://networkx.github.io
 .. _PyDotPlus: https://pydotplus.readthedocs.io/
+.. _pytest: https://docs.pytest.org
+.. _sphinx: https://www.sphinx-doc.org
+.. _sphinx-rtd-theme: https://sphinx-rtd-theme.readthedocs.io
 .. _matplotlib: http://matplotlib.org
 .. _ViTables: http://vitables.org
 .. _GitHub: http://github.com/arfc/saltproc
 .. _jsonschema: https://github.com/Julian/jsonschema
-
+.. _conda package manager: https://docs.conda.io/en/latest/
+.. _mamba: https://github.com/mamba-org/mamba
 
 Optional Depenendencies:
-
+  #. `pytest`_ (for testing)
+  #. `sphinx`_ and `sphinx-rtd-theme`_ (for building documentation)
   #. `matplotlib`_
   #. `ViTables`_
 
 
 
-Most of the dependencies are readily available through package managers.
-Once all the dependencies are installed, SaltProc can be installed.
 Clone the source from the SaltProc repository from `GitHub`_.
-Then run the following commands from the directory above cloned repository:
 
 .. code-block:: bash
 
-   git clone https://github.com/arfc/saltproc.git
+   git clone git@github.com:arfc/saltproc.git
+
+All of the dependencies are readily available through the `conda package manager`_.
+
+.. note:: We recommend using the `mamba`_ CLI tool to install packages quickly. SaltProc has a compltex package dependency structure which can result is long environment solve times in the default ``conda`` solver. ``mamba`` is a reimplementation of ``conda`` in ``C++`` and we have found it is significantly faster.
+
+You can download the required ones using ``conda`` on the provided ``environment.yml``
+file in the repository:
+
+.. code-block:: bash
+    
    cd saltproc/
-   python setup.py install --user
+   conda env create -f environment.yml
+
+Once all the dependencies are installed, SaltProc can be installed by
+running the following commands from within the cloned directory
+repository (assuming the `saltproc-env` environment is active):
+
+.. code-block:: bash
+
+   pip install .
 
 Please let us know if you run into trouble.
 

@@ -1,0 +1,74 @@
+# Preamble
+name: Deploy SaltProc docs
+
+on:
+  release:
+    type: [published]
+  push:
+    branches:
+      - master 
+    paths:
+      - 'doc/**'
+      - 'saltproc/**'
+  # enable worflow to be run manually
+  workflow_dispatch:
+
+env:
+  CACHE_NUMBER: 0 #change to manually reset cache
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+      #if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+            fetch-depth: 0
+
+# Setup conda 
+      - name: Set up conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge # mamba is faster than base conda
+          miniforge-version: latest
+          activate-environment: saltproc-doc-env
+          use-mamba: true
+          use-only-tar-bz2: true
+      - run: |
+          conda config --env --set pip_interop_enabled True
+
+# check for existing cache
+      - name: Set cache date
+        run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
+      - uses: actions/cache@v2
+        id: dependencies-cache
+        with:
+          path: |
+            /usr/share/miniconda3/envs/saltproc-doc-env
+            ~/.cache/pip
+          key: depcache-${{ hashFiles('doc/doc-environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+
+# Install dependencies
+      - name: Update environment
+        run: mamba env update -n saltproc-doc-env -f doc/doc-environment.yml
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+
+      - name: Check packages
+        run: conda list
+
+      - name: Build Sphinx Documentation
+        run: |
+            sphinx-multiversion doc doc/_build/html
+            cp doc/redirect.html doc/_build/html/index.html
+
+      - name: Deploy documentation to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./doc/_build/html
+          commit_message: "update docs at commit: ${{ github.event.head_commit.message }}"

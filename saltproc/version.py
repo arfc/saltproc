@@ -4,9 +4,9 @@ from os.path import join as pjoin
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
 _version_major = 0
 _version_minor = 3
-_version_micro = ''  # use '' for first of series, number for 1 and above
-# _version_extra = 'dev'
-_version_extra = '0'  # Uncomment this for full releases
+_version_micro = '1'  # use '' for first of series, number for 1 and above
+_version_extra = 'dev'
+# _version_extra = '0'  # Uncomment this for full releases
 
 # Construct full version string from these.
 _ver = [_version_major, _version_minor]
@@ -26,15 +26,16 @@ CLASSIFIERS = ["Development Status :: beta",
                "Topic :: Scientific/Engineering"]
 
 # Description should be a one-liner:
-description = "saltproc: the on-line reprocessing driver for SERPENT"
+description = "saltproc: the on-line reprocessing driver for monte-carlo codes"
 # Long description will go up on the pypi page
 long_description = """
 SaltProc
 ========
-Saltproc is a on-line reprocessing driver for SERPENT, which
-runs SEPRENT from a given input file and parameters and performs
-user-defined processing of the fuel salt by adding or removing
-waste, fissile, and fertile streams.
+SaltProc is an on-line reprocessing driver for monte-carlo
+particle transport codes with depletion capabilites. SaltProc
+runs the monte-carlo simulation from a given input file and
+parameters, then performs user-defined processing of the fuel
+salt by adding or removing waste, fissile, and fertile streams.
 
 License
 =======
