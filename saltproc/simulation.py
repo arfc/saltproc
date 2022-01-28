@@ -387,7 +387,7 @@ class Simulation():
             self.sim_depcode.npop,
             self.sim_depcode.active_cycles,
             self.sim_depcode.inactive_cycles, #### delete the below
-            self.sim_depcode.sim_info['depcode_name']
+            self.sim_depcode.sim_info['depcode_name'],
             self.sim_depcode.sim_info['depcode_version'],
             self.sim_depcode.sim_info['title'],
             self.sim_depcode.sim_info['depcode_input_filename'],
