@@ -602,6 +602,32 @@ class DepcodeSerpent(Depcode):
             zzaaam = nuc_code
         return int(zzaaam)
 
+    def switch_to_next_geometry(self):
+        """Inserts line with path to next Serpent geometry file at the
+        beginning of the Serpent iteration input file.
+        """
+        geo_line_n = 5
+        f = open(self.iter_inputfile, 'r')
+        data = f.readlines()
+        f.close()
+
+        current_geo_file = data[geo_line_n].split('\"')[1]
+        current_geo_idx = self.geo_files.index(current_geo_file)
+        try:
+            new_geo_file = self.geo_files[current_geo_idx + 1]
+        except IndexError:
+            print('No more geometry files available \
+                  and the system went subcritical \n\n')
+            print('Aborting simulation')
+            return
+        new_data = [d.replace(current_geo_file, new_geo_file) for d in data]
+        print('Switching to next geometry file: ', new_geo_file)
+
+        f = open(self.iter_inputfile, 'w')
+        f.writelines(new_data)
+        f.close()
+
+
     def write_depcode_input(
             self,
             reactor,
