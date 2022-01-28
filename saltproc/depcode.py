@@ -17,7 +17,7 @@ class Depcode(ABC):
     and output files, and write new input files for the depletion code.
 
     """
-    #class Step_info(tb.IsDescription):
+    # class Step_info(tb.IsDescription):
     #    keff_bds = tb.Float32Col((2,))
     #    keff_eds = tb.Float32Col((2,))
     #    breeding_ratio = tb.Float32Col((2,))
@@ -90,7 +90,6 @@ class Depcode(ABC):
         """Parses data from depletion code output for each step and stores
         it in `Depcode` object's ``param`` attributes.
         """
-
 
     @abstractmethod
     def read_dep_comp(self, read_at_end=False):
@@ -250,8 +249,10 @@ class DepcodeSerpent(Depcode):
                       % (self.template_inputfile_path), sim_param)
                 return
             elif len(sim_param) < 1:
-                print('ERROR: Template file %s does not contain line with '
-                      'simulation parameters.' % (self.template_inputfile_path))
+                print(
+                    'ERROR: Template file %s does not contain line with '
+                    'simulation parameters.' %
+                    (self.template_inputfile_path))
                 return
             args = 'set pop %i %i %i\n' % (self.npop, self.active_cycles,
                                            self.inactive_cycles)
@@ -659,7 +660,6 @@ class DepcodeSerpent(Depcode):
         f = open(self.iter_inputfile, 'w')
         f.writelines(new_data)
         f.close()
-
 
     def write_depcode_input(
             self,

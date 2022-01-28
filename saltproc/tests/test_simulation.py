@@ -29,6 +29,7 @@ simulation = Simulation(sim_name='Simulation unit tests',
                         node_number=1,
                         db_path=directory + '/test_db.h5')
 
+
 def test_check_switch_geo_trigger():
     """
     This unit test checks that ``check_switch_geo_trigger`` functions
@@ -46,6 +47,7 @@ def test_check_switch_geo_trigger():
                                                switch_times) is False
     assert simulation.check_switch_geo_trigger("two o clock",
                                                switch_times) is True
+
 
 def test_store_after_repr():
     """
@@ -84,13 +86,13 @@ def test_store_after_repr():
     simulation.db_path = db_file
 
     # store data
-    simulation.store_mat_data(mats,0,False)
+    simulation.store_mat_data(mats, 0, False)
     simulation.store_after_repr(mats, m_after_refill, 0)
 
     # read stored data
     try:
         db = tb.open_file(simulation.db_path, mode='r',
-                      filters=simulation.compression_params)
+                          filters=simulation.compression_params)
     except Exception:
         print('Unable to assign correct value to db. See error stack for more info.')
 
@@ -144,7 +146,7 @@ def test_store_after_repr():
         os.remove(db_file)
         simulation.db_path = db_path_old
         raise KeyError("incorrect key")
-    except:
+    except BaseException:
         db.close()
         os.remove(db_file)
         simulation.db_path = db_path_old
@@ -156,8 +158,9 @@ def test_store_after_repr():
     # delete test file
     os.remove(db_file)
 
-    #use original db path
+    # use original db path
     simulation.db_path = db_path_old
+
 
 def test_store_mat_data():
     """
@@ -190,7 +193,7 @@ def test_store_mat_data():
     # read stored data
     try:
         db = tb.open_file(simulation.db_path, mode='r',
-                      filters=simulation.compression_params)
+                          filters=simulation.compression_params)
     except Exception:
         print('Unable to assign correct value to db. See error stack for more info.')
 
@@ -270,7 +273,7 @@ def test_store_mat_data():
         os.remove(db_file)
         simulation.db_path = db_path_old
         raise KeyError("incorrect key")
-    except:
+    except BaseException:
         db.close()
         os.remove(db_file)
         simulation.db_path = db_path_old
@@ -282,8 +285,9 @@ def test_store_mat_data():
     # delete test file
     os.remove(db_file)
 
-    #use original db path
+    # use original db path
     simulation.db_path = db_path_old
+
 
 def test_store_run_init_info():
     """
@@ -308,11 +312,10 @@ def test_store_run_init_info():
     # read stored data
     try:
         db = tb.open_file(simulation.db_path, mode='r',
-                      filters=simulation.compression_params)
+                          filters=simulation.compression_params)
     except Exception:
         db.close()
         print('Unable to assign correct value to db. See error stack for more info.')
-
 
     tinit_info = db.root.initial_depcode_siminfo[0]
 
@@ -340,7 +343,7 @@ def test_store_run_init_info():
         os.remove(db_file)
         simulation.db_path = db_path_old
         raise KeyError("incorrect key")
-    except:
+    except BaseException:
         db.close()
         os.remove(db_file)
         simulation.db_path = db_path_old
@@ -354,8 +357,9 @@ def test_store_run_init_info():
     # delete test file
     os.remove(db_file)
 
-    #use original db path
+    # use original db path
     simulation.db_path = db_path_old
+
 
 def test_store_run_step_info():
     """
@@ -379,7 +383,7 @@ def test_store_run_step_info():
     # read stored data
     try:
         db = tb.open_file(simulation.db_path, mode='r',
-                      filters=simulation.compression_params)
+                          filters=simulation.compression_params)
     except Exception:
         print('Unable to assign correct value to db. See error stack for more info.')
 
@@ -391,7 +395,7 @@ def test_store_run_step_info():
                               step_info['breeding_ratio'].astype('float32'))
         assert tstep_info[2] == simulation.burn_time
         assert np.array_equal(tstep_info[3],
-                              step_info['delayed_neutrons_lambda'].\
+                              step_info['delayed_neutrons_lambda'].
                               astype('float32'))
         assert tstep_info[4] == step_info['fission_mass_bds'].astype('float32')
         assert tstep_info[5] == step_info['fission_mass_eds'].astype('float32')
@@ -412,7 +416,7 @@ def test_store_run_step_info():
         os.remove(db_file)
         simulation.db_path = db_path_old
         raise KeyError("incorrect key")
-    except:
+    except BaseException:
         db.close()
         os.remove(db_file)
         simulation.db_path = db_path_old
@@ -424,9 +428,8 @@ def test_store_run_step_info():
     # delete test file
     os.remove(db_file)
 
-    #use original db path
+    # use original db path
     simulation.db_path = db_path_old
-
 
 
 def test_read_k_eds_delta():

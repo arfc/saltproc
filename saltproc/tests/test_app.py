@@ -25,10 +25,13 @@ def test_read_main_input():
     assert app.depcode_inp['npop'] == 50
     assert app.depcode_inp['active_cycles'] == 20
     assert app.depcode_inp['active_cycles'] == 20
-    assert app.simulation_inp['db_name'] == directory + '/./data/db_saltproc.h5'
-    assert app.depcode_inp['geo_file_paths'] == [ directory + '/./347_base.ini']
+    assert app.simulation_inp['db_name'] == directory + \
+        '/./data/db_saltproc.h5'
+    assert app.depcode_inp['geo_file_paths'] == [directory + '/./347_base.ini']
     assert app.simulation_inp['restart_flag'] is False
-    np.testing.assert_equal(app.reactor_inp['power_levels'], [1.250E+9, 1.250E+9])
+    np.testing.assert_equal(
+        app.reactor_inp['power_levels'], [
+            1.250E+9, 1.250E+9])
     np.testing.assert_equal(app.reactor_inp['depl_hist'], [5, 10])
 
 

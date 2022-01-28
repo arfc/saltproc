@@ -12,17 +12,25 @@ sys.path.append(os.path.dirname(os.path.dirname(path)))
 # global class object
 directory = os.path.dirname(path)
 
-serpent = DepcodeSerpent(exec_path='sss2',
-                         template_inputfile_path=directory + '/template.inp',
-                         iter_inputfile=directory + '/test',
-                         iter_matfile=directory + '/material',
-                         geo_files=[os.path.join(directory, '../test_geo.inp')])
+serpent = DepcodeSerpent(
+    exec_path='sss2',
+    template_inputfile_path=directory +
+    '/template.inp',
+    iter_inputfile=directory +
+    '/test',
+    iter_matfile=directory +
+    '/material',
+    geo_files=[
+        os.path.join(
+            directory,
+            '../test_geo.inp')])
 
 msr = Reactor(volume=1.0,
               power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
               depl_hist=[111.111, 2101.9, 3987.5])
 
 geo_test_input = directory + '/test_geometry_switch.inp'
+
 
 def test_get_tra_or_dec():
     serpent.get_tra_or_dec(serpent.iter_inputfile)
@@ -47,7 +55,8 @@ def test_sss_meta_zzz():
 
 
 def test_read_depcode_template():
-    template_str = serpent.read_depcode_template(serpent.template_inputfile_path)
+    template_str = serpent.read_depcode_template(
+        serpent.template_inputfile_path)
     assert template_str[6] == '%therm zrh_h 900 hzr05.32t hzr06.32t\n'
     assert template_str[18] == 'set pop 30 20 10\n'
     assert template_str[22] == 'set bumode  2\n'
@@ -195,6 +204,7 @@ def test_write_depcode_input():
     os.remove(serpent.iter_matfile)
 
     serpent.iter_inputfile = iter_inputfile_old
+
 
 def test_switch_to_next_geometry():
     shutil.copy2(geo_test_input, serpent.iter_inputfile + '_test')

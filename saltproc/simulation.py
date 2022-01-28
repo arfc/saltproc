@@ -24,9 +24,9 @@ class Simulation():
             restart_flag=True,
             adjust_geo=False,
             compression_params=tb.Filters(complevel=9,
-                                   complib='blosc',
-                                   fletcher32=True),
-            ):
+                                          complib='blosc',
+                                          fletcher32=True),
+    ):
         """Initializes the Simulation object.
 
         Parameters
@@ -88,8 +88,6 @@ class Simulation():
             except OSError as e:
                 pass
 
-
-
     def store_after_repr(self, after_mats, waste_dict, dep_step):
         """Add data for waste streams [grams per depletion step] of each
         process to the HDF5 database after reprocessing.
@@ -113,7 +111,10 @@ class Simulation():
 
         """
         streams_gr = 'in_out_streams'
-        db = tb.open_file(self.db_path, mode='a', filters=self.compression_params)
+        db = tb.open_file(
+            self.db_path,
+            mode='a',
+            filters=self.compression_params)
         for mn in waste_dict.keys():  # iterate over materials
             mat_node = getattr(db.root.materials, mn)
             if not hasattr(mat_node, streams_gr):
@@ -156,7 +157,7 @@ class Simulation():
         self.store_mat_data(after_mats, dep_step, True)
         db.close()
 
-    def store_mat_data(self, mats, dep_step, store_at_end = False):
+    def store_mat_data(self, mats, dep_step, store_at_end=False):
         """Initialize the HDF5/Pytables database (if it doesn't exist) or
         append the following data at the current depletion step to the
         database: burnable material composition, mass, density, volume,
@@ -199,8 +200,13 @@ class Simulation():
             ('burnup', float)
         ])
 
-        print('\nStoring material data for depletion step #%i.' % (dep_step + 1))
-        db = tb.open_file(self.db_path, mode='a', filters=self.compression_params)
+        print(
+            '\nStoring material data for depletion step #%i.' %
+            (dep_step + 1))
+        db = tb.open_file(
+            self.db_path,
+            mode='a',
+            filters=self.compression_params)
         if not hasattr(db.root, 'materials'):
             comp_group = db.create_group('/',
                                          'materials',
@@ -303,8 +309,11 @@ class Simulation():
             delayed_neutrons_lambda_eds = tb.Float32Col((b_g, 2))
             fission_mass_bds = tb.Float32Col()
             fission_mass_eds = tb.Float32Col()
-        #### Open or restore db and append data to it
-        db = tb.open_file(self.db_path, mode='a', filters=self.compression_params)
+        # Open or restore db and append data to it
+        db = tb.open_file(
+            self.db_path,
+            mode='a',
+            filters=self.compression_params)
         try:
             step_info_table = db.get_node(
                 db.root,
@@ -315,7 +324,7 @@ class Simulation():
             step_info_table = db.create_table(
                 db.root,
                 'simulation_parameters',
-                Step_info, #### self.sim_depcode.Step_info,
+                Step_info,  # self.sim_depcode.Step_info,
                 "Simulation parameters after each timestep")
             # Intializing burn_time array at the first depletion step
             self.burn_time = 0.0
@@ -324,10 +333,10 @@ class Simulation():
         step_info = step_info_table.row
         # Define all values in the row
 
-        #### in depcode.py:
-        #### def store_step_info(step_info):
+        # in depcode.py:
+        # def store_step_info(step_info):
         #### """ do the below """
-        ####        ...
+        # ...
         step_info['keff_bds'] = self.sim_depcode.param['keff_bds']
         step_info['keff_eds'] = self.sim_depcode.param['keff_eds']
         step_info['breeding_ratio'] = self.sim_depcode.param[
@@ -346,7 +355,7 @@ class Simulation():
             'fission_mass_bds']
         step_info['fission_mass_eds'] = self.sim_depcode.param[
             'fission_mass_eds']
-        #### return step_info
+        # return step_info
 
         # Inject the Record value into the table
         step_info.append()
@@ -362,9 +371,9 @@ class Simulation():
         memory optimization mode (Serpent), depletion timestep size.
 
         """
-        #### numpy arraw row storage for run info
-        #### delete and make this datatype specific
-        #### to Depcode subclasses
+        # numpy arraw row storage for run info
+        # delete and make this datatype specific
+        # to Depcode subclasses
         sim_info_dtype = np.dtype([
             ('neutron_population', int),
             ('active_cycles', int),
@@ -386,7 +395,7 @@ class Simulation():
         sim_info_row = (
             self.sim_depcode.npop,
             self.sim_depcode.active_cycles,
-            self.sim_depcode.inactive_cycles, #### delete the below
+            self.sim_depcode.inactive_cycles,  # delete the below
             self.sim_depcode.sim_info['depcode_name'],
             self.sim_depcode.sim_info['depcode_version'],
             self.sim_depcode.sim_info['title'],
@@ -398,13 +407,17 @@ class Simulation():
             self.sim_depcode.sim_info['memory_optimization_mode'],
             self.sim_depcode.sim_info['depletion_timestep']
         )
-        #### replace with this
-        #### for i in sim_depcode.sim_info:
+        # replace with this
+        # for i in sim_depcode.sim_info:
         ####     sim_info_row += (i,)
 
-        sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype) #### dtype=sim_depcode.sim_info_dtype
+        # dtype=sim_depcode.sim_info_dtype
+        sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype)
         # Open or restore db and append datat to it
-        db = tb.open_file(self.db_path, mode='a', filters=self.compression_params)
+        db = tb.open_file(
+            self.db_path,
+            mode='a',
+            filters=self.compression_params)
         try:
             sim_info_table = db.get_node(db.root, 'initial_depcode_siminfo')
         except Exception:

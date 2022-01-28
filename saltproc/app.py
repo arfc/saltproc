@@ -10,7 +10,8 @@ from saltproc import Separator
 # from materialflow import Materialflow
 import os
 import copy
-import json, jsonschema
+import json
+import jsonschema
 #from saltproc.saltprocinputschema import input_schema
 from collections import OrderedDict
 import gc
@@ -69,7 +70,7 @@ def read_main_input(main_inp_file):
         with open(input_schema) as s:
             v = json.load(s)
             try:
-                jsonschema.validate(instance=j,schema=v)
+                jsonschema.validate(instance=j, schema=v)
             except jsonschema.exceptions.ValidationError:
                 print("Your input file improperly structured.\
                       Please see saltproc/tests/test.json for an example.")
@@ -110,8 +111,10 @@ def read_main_input(main_inp_file):
         depcode_inp['geo_file_paths'] = geo_file_paths
 
         # Global output file paths
-        depcode_inp['iter_inputfile'] = os.path.join(output_path, depcode_inp['iter_inputfile'])
-        depcode_inp['iter_matfile'] = os.path.join(output_path, depcode_inp['iter_matfile'])
+        depcode_inp['iter_inputfile'] = os.path.join(
+            output_path, depcode_inp['iter_inputfile'])
+        depcode_inp['iter_matfile'] = os.path.join(
+            output_path, depcode_inp['iter_matfile'])
         db_name = os.path.join(
             output_path, simulation_inp['db_name'])
         simulation_inp['db_name'] = db_name
@@ -292,7 +295,8 @@ def reprocessing(mats):
                         prcs[mname][p].rem_elements(forked_mats[mname][ctr])
                 ctr += 1
             # Sum all forked material objects together
-            mats[mname] = forked_mats[mname][0]  # initilize correct obj instance
+            # initilize correct obj instance
+            mats[mname] = forked_mats[mname][0]
             for idx in range(1, len(forked_mats[mname])):
                 mats[mname] += forked_mats[mname][idx]
             print('1 Forked material mass %f' % (forked_mats[mname][0].mass))
@@ -373,12 +377,21 @@ def run():
     read_main_input(sp_input)
     # Print out input information
     print('Initiating Saltproc:\n'
-          '\tRestart = ' + str(simulation_inp['restart_flag']) + '\n'
-          '\tTemplate File Path  = ' + os.path.abspath(depcode_inp['template_inputfile_path']) + '\n'
-          '\tInput File Path     = ' + os.path.abspath(depcode_inp['iter_inputfile']) + '\n'
-          '\tMaterial File Path  = ' + os.path.abspath(depcode_inp['iter_matfile']) + '\n'
-          '\tOutput HDF5 DB Path = ' + os.path.abspath(simulation_inp['db_name']) + '\n'
-          )
+          '\tRestart = ' +
+          str(simulation_inp['restart_flag']) +
+          '\n'
+          '\tTemplate File Path  = ' +
+          os.path.abspath(depcode_inp['template_inputfile_path']) +
+          '\n'
+          '\tInput File Path     = ' +
+          os.path.abspath(depcode_inp['iter_inputfile']) +
+          '\n'
+          '\tMaterial File Path  = ' +
+          os.path.abspath(depcode_inp['iter_matfile']) +
+          '\n'
+          '\tOutput HDF5 DB Path = ' +
+          os.path.abspath(simulation_inp['db_name']) +
+          '\n')
     # Intializing objects
     if depcode_inp['codename'] == 'serpent':
         depcode = DepcodeSerpent(
@@ -391,7 +404,8 @@ def run():
             active_cycles=depcode_inp['active_cycles'],
             inactive_cycles=depcode_inp['inactive_cycles'])
     else:
-        raise ValueError(f'{depcode_inp["codename"]} is not a supported depletion code')
+        raise ValueError(
+            f'{depcode_inp["codename"]} is not a supported depletion code')
 
     simulation = Simulation(
         sim_name='Super test',
@@ -414,8 +428,8 @@ def run():
     for dep_step in range(len(msr.depl_hist)):
         print("\n\n\nStep #%i has been started" % (dep_step + 1))
         simulation.sim_depcode.write_depcode_input(msr,
-                                    dep_step,
-                                    simulation.restart_flag)
+                                                   dep_step,
+                                                   simulation.restart_flag)
         depcode.run_depcode(cores, nodes)
         if dep_step == 0 and simulation.restart_flag is False:  # First step
             # Read general simulation data which never changes
