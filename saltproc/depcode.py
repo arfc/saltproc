@@ -465,12 +465,13 @@ class DepcodeSerpent(Depcode):
         it in the `DepcodeSerpent` object's ``sim_info`` attributes.
         """
         res = serpent.parse_res(self.iter_inputfile + "_res.m")
-        self.sim_info['serpent_version'] = \
-            res['VERSION'][0].decode('utf-8')
+        depcode_name, depcode_ver = res['VERSION'][0].decode('utf-8').split()
+        self.sim_info['depcode_name'] = depcode_name
+        self.sim_info['depcode_version'] = depcode_version
         self.sim_info['title'] = res['TITLE'][0].decode('utf-8')
-        self.sim_info['serpent_input_filename'] = \
+        self.sim_info['depcode_input_filename'] = \
             res['INPUT_FILE_NAME'][0].decode('utf-8')
-        self.sim_info['serpent_working_dir'] = \
+        self.sim_info['depcode_working_dir'] = \
             res['WORKING_DIRECTORY'][0].decode('utf-8')
         self.sim_info['xs_data_path'] = \
             res['XS_DATA_FILE_PATH'][0].decode('utf-8')
