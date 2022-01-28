@@ -45,7 +45,7 @@ All of the dependencies are readily available through the `conda package manager
 
 .. note:: We recommend using the `mamba`_ CLI tool to install packages quickly. SaltProc has a compltex package dependency structure which can result is long environment solve times in the default ``conda`` solver. ``mamba`` is a reimplementation of ``conda`` in ``C++`` and we have found it is significantly faster.
 
-You can download the required ones using the provided ``environment.yml``
+You can download the required ones using ``conda`` on the provided ``environment.yml``
 file in the repository:
 
 .. code-block:: bash
@@ -55,7 +55,7 @@ file in the repository:
 
 Once all the dependencies are installed, SaltProc can be installed by
 running the following commands from within the cloned directory
-repository:
+repository (assuming the `saltproc-env` environment is active):
 
 .. code-block:: bash
 
