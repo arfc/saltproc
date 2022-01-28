@@ -34,15 +34,27 @@ Optional Depenendencies:
 
 
 
-Most of the dependencies are readily available through package managers.
-Once all the dependencies are installed, SaltProc can be installed.
 Clone the source from the SaltProc repository from `GitHub`_.
-Then run the following commands from the directory above cloned repository:
 
 .. code-block:: bash
 
    git clone git@github.com:arfc/saltproc.git
+
+All of the dependencies are readily available through package managers.
+You can download the required ones using the provided `environment.yml`
+file in the repository:
+
+.. code-block:: bash
+    
    cd saltproc/
+   conda env create -f environment.yml
+
+Once all the dependencies are installed, SaltProc can be installed by
+running the following commands from within the cloned directory
+repository:
+
+.. code-block:: bash
+
    pip install .
 
 Please let us know if you run into trouble.
