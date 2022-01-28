@@ -25,8 +25,7 @@ Detailed installation instructions can be found in the
 The documentation for SaltProc can be found at
 [arfc.github.io/saltproc/](http://arfc.github.io/saltproc/).
 The entire contents of that
-website can be built from the `doc` directory in the repositiory using
-the following steps
+website can be built from the `doc` directory in the repositiory using the following steps with the [`conda`](https://docs.conda.io/en/latest/) tool:
 
 1. `conda env create -f doc/doc-environment.yml`
 2. `cd doc/`
