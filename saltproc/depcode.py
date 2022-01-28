@@ -3,6 +3,7 @@ import subprocess
 import os
 import shutil
 import re
+import tables as tb
 from pyne import nucname as pyname
 from pyne import serpent
 from abc import ABC, abstractmethod
@@ -16,6 +17,18 @@ class Depcode(ABC):
     and output files, and write new input files for the depletion code.
 
    """
+   class Step_info(tb.IsDescription):
+       keff_bds = tb.Float32Col((2,))
+       keff_eds = tb.Float32Col((2,))
+       breeding_ratio = tb.Float32Col((2,))
+       step_execution_time = tb.Float32Col()
+       cumulative_time_at_eds = tb.Float32Col()
+       power_level = tb.Float32Col()
+       memory_usage = tb.Float32Col()
+       beta_eff_eds = tb.Float32Col((b_g, 2))
+       delayed_neutrons_lambda_eds = tb.Float32Col((b_g, 2))
+       fission_mass_bds = tb.Float32Col()
+       fission_mass_eds = tb.Float32Col()
 
     def __init__(self,
                  codename,
