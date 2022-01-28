@@ -369,7 +369,7 @@ class Simulation():
             ('neutron_population', int),
             ('active_cycles', int),
             ('inactive_cycles', int),
-            ('depcode_name', 'S20')
+            ('depcode_name', 'S20'),
             ('depcode_version', 'S20'),
             ('title', 'S90'),
             ('depcode_input_filename', 'S90'),
