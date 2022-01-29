@@ -32,6 +32,7 @@ Documentation
    installation
    examples
    src/index
+   releasenotes
    How to cite <https://github.com/arfc/saltproc/blob/master/CITATION.md>
 
 Indices and tables
