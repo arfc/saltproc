@@ -21,6 +21,7 @@
 - [ ] All new and existing tests passed.
   - [ ] CI tests pass
   - [ ] Local tests pass (including Serpent2 integration tests)
+- [ ] I have recorded my changes in the changelog for the upcoming release
 
 ## Associated Issues and PRs
 <!--- Please note any issues or pull requests associated with this pull request -->
