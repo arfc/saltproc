@@ -1,40 +1,77 @@
-====================
+========================
 Release notes for vx.x.x
-====================
+========================
+
 ..
   When documenting a bug fix or feature, please do so in the following format
 
 ..
-  - `Fixed typo in depcode.py <https://github.com/arfc/saltproc/pull/xx`_ by @pr_author_username
+  - `Fixed typo in depcode.py <https://github.com/arfc/saltproc/pull/xx>`_ by @pr_author_username
+
+..
+  Links to packages/issues/bug fixes/contributors/reviewers
+
+
 
 
 -------
 Summary
 -------
+
 .. 
   Describe generally the features of this release
+
+
+
+
+------------------
+Dependency Changes
+------------------
+
+..
+  Describe any new/removed/modified package dependencies
+
 
 
 
 ------------
 New Features
 ------------
+
 ..
   Describe any new features to the code.
 
 
-------------------
-Python API Changes
-------------------
-..
-  Describe any changes to the API
 
 
 ---------
 Bug Fixes
 ---------
+
 ..
   Describe any bug fixes.
+
+
+
+
+--------------
+Script Changes
+--------------
+
+..
+  Describe any script additions/modifications/removals
+
+
+
+
+------------------
+Python API Changes
+------------------
+
+..
+  Describe any changes to the API
+
+
 
 
 ------------
@@ -48,6 +85,9 @@ The following people contributed code to this release of SaltProc:
 ..
   `@gh_username <https://github.com/gh_uname>`_
 
+
+
+
 ---------
 Reviewers
 ---------
@@ -58,4 +98,5 @@ The following people reviewed code for this release of SaltProc:
 
 ..
   `@gh_username <https://github.com/gh_uname>`_
+
 
