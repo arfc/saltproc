@@ -28,7 +28,7 @@ jobs:
       - name: install pandoc and jq 
         run: |
           pip install pandoc
-          apt install jq
+          sudo apt install jq
 
 
           # NEED TO FIND A WAY TO ACCESS THE FIRST JSON OBJECT IN THE OUTPUT
