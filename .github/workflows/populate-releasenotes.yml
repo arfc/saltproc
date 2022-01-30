@@ -56,7 +56,7 @@ jobs:
         run: pandoc -s -o RELEASENOTES.md doc/releasenotes/${{ env.RELEASE_VERSION }}.rst
 
       - name: Get release data in an environment variable
-        run: echo "DESCRIPTION='$(cat RELEASENOTES.md)'"  >> $GITHUB_ENV
+        run: echo 'DESCRIPTION="$(cat RELEASENOTES.md)"'  >> $GITHUB_ENV
 
       - name: Populate the release description with RELEASENOTES.md
         run: |
