@@ -1,0 +1,34 @@
+# Preamble
+name: Populate SaltProc release notes
+
+on:
+  release:
+    type: [created, edited, published]
+  push:
+    branches:
+      - master 
+    paths:
+      - 'doc/releasenotes/**'
+  # enable worflow to be run manually
+  workflow_dispatch:
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: install pandoc 
+        run: pip install pandoc
+
+      - name: Convert .rst to .md 
+        run: pandoc -s -o RELEASENOTES.md doc/releasenodes/{$RELEASE_VERISON}.rst
+
+      - name: Populate the release description with RELEASENOTES.md
