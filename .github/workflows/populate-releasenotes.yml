@@ -25,15 +25,11 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: install pandoc and jq 
-        run: |
-          pip install pandoc
-          sudo apt install jq
+      - name: install pandoc 
+        run: pip install pandoc
 
-
-          # NEED TO FIND A WAY TO ACCESS THE FIRST JSON OBJECT IN THE OUTPUT
       - name: Get most recent release version
-        run: RELEASE_VERSION="$(gh api repos/${{ github.repository }}/releases/ | jq '[.0] | .tag_name')""
+        run: RELEASE_VERSION="$(gh api repos/${{ github.repository }}/releases/ | jq '[.0] | .tag_name')"
 
       - name: Convert .rst to .md 
         run: pandoc -s -o RELEASENOTES.md doc/releasenotes/$RELEASE_VERISON.rst
