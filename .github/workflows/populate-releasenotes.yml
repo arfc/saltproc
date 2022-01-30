@@ -59,15 +59,18 @@ jobs:
           # run: echo "DESCRIPTION=$(cat RELEASENOTES.md)" >> $GITHUB_ENV
 
       - name: Populate the release description with RELEASENOTES.md
+    #    run: |
+    #      curl -X PATCH \
+    #      -H 'Accept: application/vnd.github.v3+json' \
+    #      https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.RELEASE_VERSION }} \
+    #      -d '{"body":"$(cat RELEASENOTES.md)"}'
         run: |
-          curl -X PATCH \
-          -H 'Accept: application/vnd.github.v3+json' \
-          https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.RELEASE_VERSION }} \
-          -d '{"body":"$(cat RELEASENOTES.md)"}'
-      # run: |
-      #    gh api repos/${{ github.repository }}/releases/tags/${{ env.RELEASE_VERSION }} \
-      #    -X PATCH -H 'Accept: application/vnd.github.v3+json' \
-      #    -F body="$(cat RELEASENOTES.md)"
+          gh release create ${{ env.RELEASE_VERSION }} -t ${{ env.RELEASE_VERSION }} -dp -F RELEASENOTES.md
+
+       # run: |
+       #   gh api repos/${{ github.repository }}/releases/tags/${{ env.RELEASE_VERSION }} \
+       #   -X PATCH -H 'Accept: application/vnd.github.v3+json' \
+       #   -F body="$(cat RELEASENOTES.md)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
