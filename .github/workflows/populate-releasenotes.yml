@@ -24,22 +24,30 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
         with:
-          miniforge-variant: Mambaforge # mamba is faster than base conda
-          miniforge-version: latest
-          activate-environment: saltproc-doc-env
-          use-mamba: true
-          use-only-tar-bz2: true
-      - run: |
-          conda config --env --set pip_interop_enabled True
+          python-version: 3.8
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+
+   # - name: Set up conda
+   #     uses: conda-incubator/setup-miniconda@v2
+   #     with:
+   #       miniforge-variant: Mambaforge # mamba is faster than base conda
+   #       miniforge-version: latest
+   #       activate-environment: saltproc-doc-env
+   #       use-mamba: true
+   #       use-only-tar-bz2: true
+   #   - run: |
+   #       conda config --env --set pip_interop_enabled True
 
 
       - name: install pandoc 
         run: |
-          mamba install -c conda-forge pandoc
+          conda install -c conda-forge pandoc
           pip install --upgrade pandoc
 
       - name: Get most recent release version
