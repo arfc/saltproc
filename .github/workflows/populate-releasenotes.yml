@@ -62,7 +62,7 @@ jobs:
         run: |
           gh api repos/${{ github.repository }}/releases/tags/${{ env.RELEASE_VERSION }} \
           -X PATCH -H 'Accept: application/vnd.github.v3+json' \
-          -F body="$(cat DESCRITPION.md)"
+          -F body="$(cat RELEASENOTES.md)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
