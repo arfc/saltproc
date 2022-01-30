@@ -36,7 +36,7 @@ jobs:
         run: RELEASE_VERSION="$(gh api repos/${{ github.repository }}/releases/ | jq '[.0] | .tag_name')""
 
       - name: Convert .rst to .md 
-        run: pandoc -s -o RELEASENOTES.md doc/releasenotes/${{ RELEASE_VERISON }}.rst
+        run: pandoc -s -o RELEASENOTES.md doc/releasenotes/$RELEASE_VERISON.rst
 
       - name: Get release data in an environment variable
         run: DESCRIPTION="$(cat RELEASENOTES.md)" 
