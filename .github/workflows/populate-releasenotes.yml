@@ -52,6 +52,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+       ## will need a way to clear the current release
+       # - name: Clear current release
+        #   run: gh release
+        
       - name: Convert .rst to .md 
         run: pandoc -s -o RELEASENOTES.md doc/releasenotes/${{ env.RELEASE_VERSION }}.rst
 
