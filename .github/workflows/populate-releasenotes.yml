@@ -28,11 +28,10 @@ jobs:
       - name: install pandoc 
         run: pip install pandoc
 
-      - name: auth gh
-        run: gh auth login --with-token process.env.GITHUB_TOKEN
-
       - name: Get most recent release version
         run: RELEASE_VERSION="$(gh api repos/${{ github.repository }}/releases/ | jq '[.0] | .tag_name')"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Convert .rst to .md 
         run: pandoc -s -o RELEASENOTES.md doc/releasenotes/${RELEASE_VERISON}.rst
