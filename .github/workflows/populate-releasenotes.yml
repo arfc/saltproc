@@ -25,11 +25,18 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: install pandoc 
-        run: pip install pandoc
+      - name: install pandoc and jq 
+        run: |
+          pip install pandoc
+          apt install jq
+
+
+          # NEED TO FIND A WAY TO ACCESS THE FIRST JSON OBJECT IN THE OUTPUT
+      - name: Get most recent release version
+        run: RELEASE_VERSION="$(gh api repos/${{ github.repository }}/releases/ | jq '[.0] | .tag_name')""
 
       - name: Convert .rst to .md 
-        run: pandoc -s -o RELEASENOTES.md doc/releasenodes/{$RELEASE_VERISON}.rst
+        run: pandoc -s -o RELEASENOTES.md doc/releasenotes/${{ RELEASE_VERISON }}.rst
 
       - name: Get release data in an environment variable
         run: DESCRIPTION="$(cat RELEASENOTES.md)" 
@@ -37,9 +44,9 @@ jobs:
       - name: Populate the release description with RELEASENOTES.md
         run:
           curl --request PATCH \
-          --url https://api.github.com/repos/${{ github.repository }}/releases/tags/v0.4.0 \
+          --url https://api.github.com/repos/${{ github.repository }}/releases/tags/$RELEASE_VERSION \
         --header 'Accept: application/vnd.github.v3+json' \
         --header 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
         --header 'content-type: application/json' \
-        --data '{body:${{ DESCRIPTION }}}'
+        --data '{body:$DESCRIPTION}'
 
