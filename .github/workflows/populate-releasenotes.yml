@@ -12,9 +12,6 @@ on:
   # enable worflow to be run manually
   workflow_dispatch:
 
-env:
-  RELEASE_VERSION: ''
-
 jobs:
   deploy-docs:
     runs-on: ubuntu-latest
