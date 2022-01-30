@@ -53,6 +53,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
        ## will need a way to clear the current release
+       ## or we just run this on publish ...
        # - name: Clear current release
         #   run: gh release
         
