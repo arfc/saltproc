@@ -43,9 +43,8 @@ jobs:
 
       - name: Populate the release description with RELEASENOTES.md
         run:
-          curl --request PATCH \
-          --url https://api.github.com/repos/${{ github.repository }}/releases/tags/$RELEASE_VERSION \
-        --header 'Accept: application/vnd.github.v3+json' \
-        --header 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
-        --data '{body:$DESCRIPTION}'
+          gh api repos/${{ github.repository }}/releases/tags/$RELEASE_VERSION \
+        -X PATCH -H 'Accept: application/vnd.github.v3+json' \
+        -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
+        --data '{"body":"$DESCRIPTION"}'
 
