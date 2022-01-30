@@ -56,13 +56,12 @@ jobs:
         run: pandoc -s -o RELEASENOTES.md doc/releasenotes/${{ env.RELEASE_VERSION }}.rst
 
       - name: Get release data in an environment variable
-        run: echo 'DESCRIPTION="$(cat RELEASENOTES.md)"'  >> $GITHUB_ENV
+        run: echo "DESCRIPTION=$(cat RELEASENOTES.md)" >> $GITHUB_ENV
 
       - name: Populate the release description with RELEASENOTES.md
         run: |
-          gh api repos/${{ github.repository }}/releases/tags/$RELEASE_VERSION \
+          gh api repos/${{ github.repository }}/releases/tags/${{ env.RELEASE_VERSION }} \
           -X PATCH -H 'Accept: application/vnd.github.v3+json' \
-          -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
           -F body=${{ env.DESCRIPTION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
