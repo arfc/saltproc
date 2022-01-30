@@ -53,7 +53,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Convert .rst to .md 
-        run: pandoc -s -o RELEASENOTES.md doc/releasenotes/${{ env.RELEASE_VERISON }}.rst
+        run: pandoc -s -o RELEASENOTES.md doc/releasenotes/${{ env.RELEASE_VERSION }}.rst
 
       - name: Get release data in an environment variable
         run: echo "DESCRIPTION=$(cat RELEASENOTES.md)"  >> $GITHUB_ENV
