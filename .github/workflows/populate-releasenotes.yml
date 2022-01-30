@@ -21,6 +21,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
@@ -64,7 +65,7 @@ jobs:
           # run: echo "DESCRIPTION=$(cat RELEASENOTES.md)" >> $GITHUB_ENV
 
       - name: Populate the release description with RELEASENOTES.md
-      - uses: octokit/request-action@v2.x
+        uses: octokit/request-action@v2.x
         id: populate_release_description
         with:
           route: PATCH /repos/{owner}/{repo}/releases/{tag}
