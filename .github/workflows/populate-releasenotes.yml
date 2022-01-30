@@ -42,9 +42,10 @@ jobs:
         run: DESCRIPTION="$(cat RELEASENOTES.md)" 
 
       - name: Populate the release description with RELEASENOTES.md
-        run:
+        run: |
           gh api repos/${{ github.repository }}/releases/tags/$RELEASE_VERSION \
-        -X PATCH -H 'Accept: application/vnd.github.v3+json' \
-        -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
-        -F body="${DESCRIPTION}"
+          -X PATCH -H 'Accept: application/vnd.github.v3+json' \
+          -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
+          -F body="${DESCRIPTION}"
+
 
