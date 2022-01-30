@@ -24,10 +24,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.8
+      - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
       - name: Add conda to system path
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
@@ -51,7 +51,7 @@ jobs:
           pip install --upgrade pandoc
 
       - name: Get most recent release version
-        run: ${{ env.RELEASE_VERSION }}="$(gh api repos/${{ github.repository }}/releases --jq '.[0] | .tag_name')"
+        run: echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/releases --jq '.[0] | .tag_name')" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -59,13 +59,15 @@ jobs:
         run: pandoc -s -o RELEASENOTES.md doc/releasenotes/${{ env.RELEASE_VERISON }}.rst
 
       - name: Get release data in an environment variable
-        run: DESCRIPTION="$(cat RELEASENOTES.md)" 
+        run: echo "DESCRIPTION=$(cat RELEASENOTES.md)"  >> $GITHUB_ENV
 
       - name: Populate the release description with RELEASENOTES.md
         run: |
           gh api repos/${{ github.repository }}/releases/tags/$RELEASE_VERSION \
           -X PATCH -H 'Accept: application/vnd.github.v3+json' \
           -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
-          -F body="${DESCRIPTION}"
+          -F body=${{ env.DESCRIPTION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
