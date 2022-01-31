@@ -2,6 +2,9 @@
 name: Create next minor release 
 
 on:
+  push:
+    paths:
+      - '**.yml'
   release:
     type: [published]
   # enable worflow to be run manually
