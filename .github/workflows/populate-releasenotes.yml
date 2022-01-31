@@ -10,9 +10,6 @@ on:
   # enable worflow to be run manually
   workflow_dispatch:
 
-permissions:
-  metadata: write
-
 jobs:
   populate-releasenotes:
     runs-on: ubuntu-latest
@@ -65,7 +62,7 @@ jobs:
         #if: contains($(ls), 'RELEASENOTES.md')
         run: |
           gh api repos/${{ github.repository }}/releases/${{ env.RELEASE_ID }} \
-          -H "Authorize: token ${{ secrets.ACCESS_TOKEN }}" \
+          -H "authorization: BEARER ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
           -X PATCH \
           -F body="$(cat RELEASENOTES.md)"
