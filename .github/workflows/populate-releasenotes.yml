@@ -70,6 +70,10 @@ jobs:
           # run: echo "DESCRIPTION=$(cat RELEASENOTES.md)" >> $GITHUB_ENV
 
       - name: Populate the release description with RELEASENOTES.md
+        # this finally worked after running:
+        # curl -i -X PATCH -H "Authorization: token {token goes here}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/yardasol/saltproc/releases/58264343 -d '{"name":"test"}'
+        # I could porbably make this work with eitehr the octockit actions, just raw curl,
+        # or potnatially cleaner would be gh api
         uses: octokit/request-action@v2.x
         id: populate_release_description
         with:
