@@ -22,7 +22,7 @@ jobs:
 
       - name: Get most recent release version
         run: |
-          echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/releases/tags --jq '.[0] | .name')" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/tags --jq '.[0] | .name')" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
