@@ -62,11 +62,11 @@ jobs:
         #if: contains($(ls), 'RELEASENOTES.md')
         run: |
           gh api repos/${{ github.repository }}/releases/${{ env.RELEASE_ID }} \
-          -H "Authroize: token {GITHUB_TOKEN}"
-          -H 'Accept: application/vnd.github.v3+json' \
+          -H "Authorize: token ${{ GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
           -X PATCH \
           -F body="$(cat RELEASENOTES.md)"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #env:
+        #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
