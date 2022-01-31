@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  next-relese-minor:
+  next-release-minor:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -34,14 +34,13 @@ jobs:
           NEW_RELEASE_VERSION="${arr[0]}.${arr[1]}.${arr[2]}"
           echo "NEW_RELEASE_VERSION="$NEW_RELEASE_VERSION >> $GITHUB_ENV
 
-      - name: Create a new release and milestone.
+      - name: Create a new release
         run: |
           gh api repos/${{ github.repository }}/releases \
           -H "Authorize: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
           -X POST \
-          -F name=${{ env.NEW_RELEASE_VERSION }} \
-          -F draft=true \ 
+          -F name=${{ env.NEW_RELEASE_VERSION }} -F draft=true \ 
           -F tag_name=${{ env.NEW_RELEASE_VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
