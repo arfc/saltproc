@@ -54,12 +54,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Convert .rst to .md 
-        if: contains("$(ls doc/releasenotes/v*.rst)", env.RELEASE_VERSION)
+        #if: contains("$(ls doc/releasenotes/v*.rst)", env.RELEASE_VERSION)
         run: pandoc -s -o RELEASENOTES.md -f rst -t gfm doc/releasenotes/${{ env.RELEASE_VERSION }}.rst
 
 
       - name: Populate the release description with RELEASENOTES.md
-        if: contains($(ls), 'RELEASENOTES.md')
+        #if: contains($(ls), 'RELEASENOTES.md')
         run: |
           gh api repos/${{ github.repository }}/releases/${{ env.RELEASE_ID }} \
           -H 'Accept: application/vnd.github.v3+json' \
