@@ -2,8 +2,6 @@
 name: Populate SaltProc release notes
 
 on:
-  release:
-    type: [created, edited, published]
   push:
   #  branches:
   #    - master 
@@ -53,8 +51,10 @@ jobs:
 
           ###### use the release id to do POST and PATCH requests
 
-      - name: Get most recent release version
-        run: echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/releases/latest --jq '.[0] | .tag_name')" >> $GITHUB_ENV
+      - name: Get most recent draft release version
+        run: |
+          echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/releases --jq '.[0] | .name')" >> $GITHUB_ENV
+          echo "RELEASE_ID=$(gh api repos/${{ github.repository }}/releases --jq '.[0] | .id')"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
