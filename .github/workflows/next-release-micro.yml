@@ -68,7 +68,8 @@ jobs:
 
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git checkout master
+          git checkout test
           git commit -m "created ${{ env.NEW_RELEASE_VERSION }} release notes"
+          git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
