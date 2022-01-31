@@ -40,7 +40,7 @@ jobs:
           -H "Authorize: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
           -X POST \
-          -F name=${{ env.NEW_RELEASE_VERSION }} -F draft=true \ 
+          -f name=${{ env.NEW_RELEASE_VERSION }} --field draft=true \ 
           -F tag_name=${{ env.NEW_RELEASE_VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
