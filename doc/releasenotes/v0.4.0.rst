@@ -12,7 +12,6 @@ Release notes for v0.4.0
   Links to packages/issues/bug fixes/contributors/reviewers
 
 .. _jsonschema: https://github.com/Julian/jsonschema
-
 .. _@yardasol: https://github.com/yardasol
 .. _@abachma2: https://github.com/abachma2
 .. _@LukeSeifert: https://github.com/LukeSeifert

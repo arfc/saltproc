@@ -3,10 +3,10 @@ name: Populate SaltProc release notes
 
 on:
   push:
-    branches:
-      - master 
+    # branches:
+    #   - master 
     paths:
-      - 'doc/releasenotes/v**.rst'
+      - 'doc/releasenotes/v0.4.0.rst'
   # enable worflow to be run manually
   workflow_dispatch:
 
