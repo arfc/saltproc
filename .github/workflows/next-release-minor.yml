@@ -2,9 +2,6 @@
 name: Create next minor release 
 
 on:
-  push:
-    paths:
-      - '**.yml'
   release:
     type: [published]
   # enable worflow to be run manually
@@ -66,10 +63,9 @@ jobs:
           sed -i "s/vx.x.x/${{ env.NEW_RELEASE_VERSION }}/g" doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           git add doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
 
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git checkout test
+          git checkout master
           git commit -m "created ${{ env.NEW_RELEASE_VERSION }} release notes"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

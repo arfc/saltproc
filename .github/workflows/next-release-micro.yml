@@ -1,12 +1,17 @@
 # Preamble
-name: Create next micro release 
+name: Create next minor release 
 
 on:
+  push:
+    paths:
+      - '**.yml'
+  release:
+    type: [published]
   # enable worflow to be run manually
   workflow_dispatch:
 
 jobs:
-  next-relese-micro:
+  next-release-micro:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -14,10 +19,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
+          fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
 
       - name: Get most recent release version
         run: |
-          echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/releases/tags --jq '.[0] | .name')" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/tags --jq '.[0] | .name')" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -29,15 +37,21 @@ jobs:
           NEW_RELEASE_VERSION="${arr[0]}.${arr[1]}.${arr[2]}"
           echo "NEW_RELEASE_VERSION="$NEW_RELEASE_VERSION >> $GITHUB_ENV
 
-      - name: Create a new release and milestone.
+      - name: Create a new release
         run: |
           gh api repos/${{ github.repository }}/releases \
           -H "Authorize: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
           -X POST \
           -F name=${{ env.NEW_RELEASE_VERSION }} \
-          -F draft=true \ 
-          -F tag_name=${{ env.NEW_RELEASE_VERSION }}
+          -F tag_name=${{ env.NEW_RELEASE_VERSION }} \
+          -F draft=true 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Create a new milestone.
+        run: |
           gh api repos/${{ github.repository }}/milestones \
           -H "Authorize: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
@@ -51,6 +65,10 @@ jobs:
           cp doc/releasenotes/template.rst doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           sed -i "s/vx.x.x/${{ env.NEW_RELEASE_VERSION }}/g" doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           git add doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
+
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git checkout master
           git commit -m "created ${{ env.NEW_RELEASE_VERSION }} release notes"
-          git fetch origin
-          git push origin master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
