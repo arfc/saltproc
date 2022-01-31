@@ -61,11 +61,12 @@ jobs:
       - name: Populate the release description with RELEASENOTES.md
         #if: contains($(ls), 'RELEASENOTES.md')
         run: |
-          gh api repos/${{ github.repository }}/releases/${{ env.RELEASE_ID }} \
-          -H "authorization: BEARER ${{ secrets.GITHUB_TOKEN }}" \
+          curl --url https://api.github.com/repos/${{ github.repository }}/releases/${{ env.RELEASE_ID }} \
+          -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
           -X PATCH \
-          -F body="$(cat RELEASENOTES.md)"
+          -d '{"body":"curl test"}'
+          #-F body="$(cat RELEASENOTES.md)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
