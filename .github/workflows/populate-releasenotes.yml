@@ -68,7 +68,7 @@ jobs:
         uses: octokit/request-action@v2.x
         id: populate_release_description
         with:
-          route: PATCH /repos/${{ github.repository }}/releases/${{ env.RELEASE_VERSION }}
+          route: PATCH /repos/${{ github.repository }}/releases/tags/${{ env.RELEASE_VERSION }}
           body: "test"
     #    run: |
     #      curl -X PATCH \
