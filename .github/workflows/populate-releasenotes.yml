@@ -58,19 +58,12 @@ jobs:
 
 
       - name: Populate the release description with RELEASENOTES.md
-        uses: octokit/request-action@v2.x
-        with:
-          route: PATCH /repos/{owner}/{repo}/releases/{release_id}
-          owner: yardasol
-          repo: saltproc
-          release_id: ${{ env.RELEASE_ID }}
-          body: "$(cat RELEASENOTES.md)"
-       #run: |
-       #   gh api repos/${{ github.repository }}/releases/${{ env.RELEASE_ID }} \
-       #   -H "Authorize: ${{ secrets.GITHUB_TOKEN }}" \
-       #   -H "Accept: application/vnd.github.v3+json" \
-       #   -X PATCH \
-       #   -F body="$(cat RELEASENOTES.md)"
+       run: |
+          gh api repos/${{ github.repository }}/releases/${{ env.RELEASE_ID }} \
+          -H "Authorize: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -X PATCH \
+          -F body="$(cat RELEASENOTES.md)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
