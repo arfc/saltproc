@@ -18,6 +18,7 @@ Release notes for v0.4.0
 .. _@LukeSeifert: https://github.com/LukeSeifert
 .. _@munkm: https://github.com/munkm
 
+
 -------
 Summary
 -------
@@ -37,7 +38,7 @@ Dependency Changes
 
 - Saltproc now requires the following packages
 
-  - (new) -> `jsonschema`_
+  - (new) → `jsonschema`_
 
 
 ------------
@@ -71,7 +72,7 @@ Script Changes
 
 - The following scripts hav been renamed:
 
-  - ``process_j312.sh`` -> ``process_j312.bash``
+  - ``process_j312.sh`` → ``process_j312.bash``
 
 
 ------------------
@@ -88,38 +89,38 @@ Python API Changes
  
 - The following class methods have been added/(re)moved:
 
-  - ``App.check_restart()`` -> ``Simulation.check_restart()``
-  - ``Simulation.switch_to_next_geometry`` -> ``DepcodeSerpent.switch_to_next_geometry``
-  - ``Simulation.runsim_no_reproc`` -> ``test/integration_tests/test_no_reproc_run.py::runsim_no_reproc``
+  - ``App.check_restart()`` → ``Simulation.check_restart()``
+  - ``Simulation.switch_to_next_geometry`` → ``DepcodeSerpent.switch_to_next_geometry``
+  - ``Simulation.runsim_no_reproc`` → ``test/integration_tests/test_no_reproc_run.py::runsim_no_reproc``
   - ``Simulation.store_run_step_info``
   - ``Simulation.store_run_init_info``
-  - (new) -> ``Depcode.switch_to_next_geometry``
-  - (new) -> ``Depcode.read_depcode_info``
-  - (new) -> ``Depcode.read_repcode_step_param``
+  - (new) → ``Depcode.switch_to_next_geometry``
+  - (new) → ``Depcode.read_depcode_info``
+  - (new) → ``Depcode.read_repcode_step_param``
 
 - Updated input file structure:
 
   - ``App.depcode_inp`` dictionary
 
-    - (new) -> ``App.depcode_inp['codename']``
+    - (new) → ``App.depcode_inp['codename']``
     - ``App.exec_path``
     - ``App.template_file``
-    - ``App.neutron_pop`` -> ``App.depcode_inp['npop']``
+    - ``App.neutron_pop`` → ``App.depcode_inp['npop']``
     - ``App.active_cycles``
     - ``App.inactive_cycles``
-    - ``App.geo_file`` -> ``App.depcode_inp['geo_file_paths']``
+    - ``App.geo_file`` → ``App.depcode_inp['geo_file_paths']``
 
   - ``App.simulation_inp`` dictionary:
 
-    - (new) -> ``App.simulation['sim_name']``
-    - ``App.db_file`` -> ``App.simulation['db_name']``
+    - (new) → ``App.simulation['sim_name']``
+    - ``App.db_file`` → ``App.simulation['db_name']``
     - ``App.restart_flag``
     - ``App.adjust_geo``
 
   - ``App.reactor_inp`` dictionary
 
-    - (new) -> ``App.reactor_inp['volume']``
-    - (new) -> ``App.reactor_inp['mass_flowrate']``
+    - (new) → ``App.reactor_inp['volume']``
+    - (new) → ``App.reactor_inp['mass_flowrate']``
     - ``App.power_levels``
     - ``App.depl_hist``
 
@@ -127,16 +128,16 @@ Python API Changes
 
   - ``Depcode`` class:
 
-    - ``template_path`` -> ``template_inputfile_path``
-    - ``input_path`` -> ``iter_inputfile``
-    - ``geo_file`` -> ``geo_files``
+    - ``template_path`` → ``template_inputfile_path``
+    - ``input_path`` → ``iter_inputfile``
+    - ``geo_file`` → ``geo_files``
 
   - ``Simulation`` class:
 
-    - ``h5_file`` -> ``db_path``
-    - (new) -> ``restart_flag``
-    - (new) -> ``adjust_geo``
-    - ``iter_matfile`` -> (removed)
+    - ``h5_file`` → ``db_path``
+    - (new) → ``restart_flag``
+    - (new) → ``adjust_geo``
+    - ``iter_matfile`` → (removed)
 
 - The signatures for the following class methods have changed to better make use of object data encapsulation:
 
