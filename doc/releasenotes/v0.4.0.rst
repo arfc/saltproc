@@ -25,7 +25,7 @@ Summary
 ..
   Describe generally the features of this release
 
-This version of SaltProc is a compatibility-breaking code refactor in preparation for supporting OpenMC.
+This version of SaltProc refactors the code in preparation for supporting OpenMC.
 
 
 ------------------
