@@ -60,11 +60,11 @@ jobs:
       - name: Populate the release description with RELEASENOTES.md
         uses: octokit/request-action@v2.x
         with:
-          route: PATCH /repos/{owner}/{repo}/releases/{id}
+          route: PATCH /repos/{owner}/{repo}/releases/{release_id}
           owner: yardasol
           repo: saltproc
-          id: ${{ env.RELEASE_ID }}
-          body: "ocotkit aciton test"
+          release_id: ${{ env.RELEASE_ID }}
+          body: "$(cat RELEASENOTES.md)"
        #run: |
        #   gh api repos/${{ github.repository }}/releases/${{ env.RELEASE_ID }} \
        #   -H "Authorize: ${{ secrets.GITHUB_TOKEN }}" \
