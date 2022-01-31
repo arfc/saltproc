@@ -2,7 +2,8 @@
 name: Create next minor release 
 
 on:
-  release: [publish]
+  release:
+    type: [published]
   # enable worflow to be run manually
   workflow_dispatch:
 
