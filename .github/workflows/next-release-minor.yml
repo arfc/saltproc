@@ -55,4 +55,4 @@ jobs:
           git add doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           git commit -m "created ${{ env.NEW_RELEASE_VERSION }} release notes"
           git fetch origin
-          git push origin master
+          git push origin test 
