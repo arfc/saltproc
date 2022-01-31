@@ -58,7 +58,7 @@ jobs:
 
 
       - name: Populate the release description with RELEASENOTES.md
-       run: |
+        run: |
           gh api repos/${{ github.repository }}/releases/${{ env.RELEASE_ID }} \
           -H "Authorize: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
