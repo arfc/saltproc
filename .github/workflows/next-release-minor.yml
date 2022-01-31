@@ -47,8 +47,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
-       - name: Create a new milestone.
-         run: |
+      - name: Create a new milestone.
+        run: |
           gh api repos/${{ github.repository }}/milestones \
           -H "Authorize: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
