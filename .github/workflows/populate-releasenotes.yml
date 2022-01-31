@@ -10,6 +10,9 @@ on:
   # enable worflow to be run manually
   workflow_dispatch:
 
+permissions:
+  metadata: write
+
 jobs:
   populate-releasenotes:
     runs-on: ubuntu-latest
