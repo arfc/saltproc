@@ -3,10 +3,10 @@ name: Populate SaltProc release notes
 
 on:
   push:
-  #  branches:
-  #    - master 
-  #  paths:
-  #    - 'doc/releasenotes/**'
+    branches:
+      - master 
+    paths:
+      - 'doc/releasenotes/v**.rst'
   # enable worflow to be run manually
   workflow_dispatch:
 
@@ -54,7 +54,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Convert .rst to .md 
-        run: pandoc -s -o RELEASENOTES.md -f rst -t gfm doc/releasenotes/${{ env.RELEASE_VERSION }}.rst
+        run: pandoc -s -o RELEASENOTES.md -f rst -t gfm doc/releasenotes/${{ env.RELEASE_VERSION }}.rst --columns 1000
 
 
       - name: Populate the release description with RELEASENOTES.md
