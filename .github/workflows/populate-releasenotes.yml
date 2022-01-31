@@ -48,8 +48,13 @@ jobs:
           conda install -c conda-forge pandoc
           pip install --upgrade pandoc
 
+      - name: Determine which release note has been updated
+        run: git      
+
+          ###### use the release id to do POST and PATCH requests
+
       - name: Get most recent release version
-        run: echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/releases --jq '.[0] | .tag_name')" >> $GITHUB_ENV
+        run: echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/releases/latest --jq '.[0] | .tag_name')" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
