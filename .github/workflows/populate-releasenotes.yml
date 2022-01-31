@@ -3,10 +3,8 @@ name: Populate SaltProc release notes
 
 on:
   push:
-    # branches:
-    #   - master 
     paths:
-      - 'doc/releasenotes/v0.4.0.rst'
+      - 'doc/releasenotes/v**.rst'
   # enable worflow to be run manually
   workflow_dispatch:
 
@@ -28,18 +26,6 @@ jobs:
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
           echo $CONDA/bin >> $GITHUB_PATH
-
-   # - name: Set up conda
-   #     uses: conda-incubator/setup-miniconda@v2
-   #     with:
-   #       miniforge-variant: Mambaforge # mamba is faster than base conda
-   #       miniforge-version: latest
-   #       activate-environment: saltproc-doc-env
-   #       use-mamba: true
-   #       use-only-tar-bz2: true
-   #   - run: |
-   #       conda config --env --set pip_interop_enabled True
-
 
       - name: install pandoc 
         run: |
