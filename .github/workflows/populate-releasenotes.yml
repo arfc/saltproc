@@ -68,11 +68,7 @@ jobs:
         uses: octokit/request-action@v2.x
         id: populate_release_description
         with:
-          route: PATCH /repos/{owner}/{repo}/releases/{tag}
-          owner: yardasol
-          repo: saltproc
-          head_sha: ${{ github.sha }}
-          tag: ${{ env.RELEASE_VERSION }}
+          route: PATCH /repos/${{ github.repository }}/releases/${{ env.RELEASE_VERSION }}
           output: |
             body: test
     #    run: |
