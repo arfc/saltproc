@@ -69,8 +69,7 @@ jobs:
         id: populate_release_description
         with:
           route: PATCH /repos/${{ github.repository }}/releases/${{ env.RELEASE_VERSION }}
-          output: |
-            body: test
+          body: "test"
     #    run: |
     #      curl -X PATCH \
     #      -H 'Accept: application/vnd.github.v3+json' \
