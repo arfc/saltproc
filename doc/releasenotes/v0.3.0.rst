@@ -1,3 +1,7 @@
+========================
+Release notes for v0.3.0
+========================
+
 This release of SaltProc adds several new features, including a refactor of ``depcode``, updated documentation, and installation guides. Make sure you apply `this bug fix <https://ttuki.vtt.fi/serpent/viewtopic.php?f=25&t=3682&start=20#p12675>`__ in your Serpent2 code if you haven't already.
 
 New Features
