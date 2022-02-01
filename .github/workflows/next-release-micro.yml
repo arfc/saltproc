@@ -1,5 +1,5 @@
 # Preamble
-name: Create next minor release 
+name: Create next micro release 
 
 on:
   # enable worflow to be run manually
