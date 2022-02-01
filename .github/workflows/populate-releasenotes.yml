@@ -52,5 +52,3 @@ jobs:
           -F body="$(cat RELEASENOTES.md)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
