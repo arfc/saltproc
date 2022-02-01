@@ -18,6 +18,6 @@ If you're new to software development, please familiarize yourself with the
 in this developer's guide that relies on understanding it.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    contributing
