@@ -33,7 +33,7 @@ Documentation
    examples
    src/index
    releasenotes/index
-   devguive/index
+   devguide/index
    How to cite <https://github.com/arfc/saltproc/blob/master/CITATION.md>
 
 Indices and tables
