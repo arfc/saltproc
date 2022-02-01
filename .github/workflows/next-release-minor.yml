@@ -17,8 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
-          fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get most recent release version
         run: |
@@ -62,11 +61,7 @@ jobs:
           cp doc/releasenotes/template.rst doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           sed -i "s/vx.x.x/${{ env.NEW_RELEASE_VERSION }}/g" doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           git add doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
-
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git checkout master
-          git commit -m "created ${{ env.NEW_RELEASE_VERSION }} release notes"
+          git commit -am "created ${{ env.NEW_RELEASE_VERSION }} release notes"
           git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

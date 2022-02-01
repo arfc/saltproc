@@ -2,11 +2,6 @@
 name: Create next minor release 
 
 on:
-  push:
-    paths:
-      - '**.yml'
-  release:
-    type: [published]
   # enable worflow to be run manually
   workflow_dispatch:
 
@@ -20,7 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get most recent release version
