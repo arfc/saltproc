@@ -1,3 +1,5 @@
+# Contributing
+
 ### Thanks for Your Help!
 
 Contributing is so kind of you. In SaltProc, all contributions, bug reports,
