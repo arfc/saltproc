@@ -73,6 +73,9 @@ scientific python projects developed at University of Washington `eScience Insit
 
 `OpenMC's docpages`_ heavily inspired the strucutre and format for SaltProc's docpages.
 
+We make our versioned documentation using `sphinx-multiversion`_.
+
+.. _sphinx-multiversion: https://github.com/Holzhaus/sphinx-multiversion
 .. _OpenMC's docpages: https://docs.openmc.org/en/stable/index.html
 .. _Shablona: https://github.com/uwescience/shablona
 .. _eScience Insititute: https://escience.washington.edu
