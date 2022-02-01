@@ -20,4 +20,4 @@ in this developer's guide that relies on understanding it.
 .. toctree::
    :maxdepth: 2
 
-    contributing
+   contributing
