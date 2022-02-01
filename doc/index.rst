@@ -71,6 +71,9 @@ Acknowledgment
 SaltProc uses `Shablona`_ template which is universal solution for small
 scientific python projects developed at University of Washington `eScience Insititute`_.
 
+`OpenMC's docpages`_ heavily inspired the strucutre and format for SaltProc's docpages.
+
+.. _OpenMC's docpages: https://docs.openmc.org/en/stable/index.html
 .. _Shablona: https://github.com/uwescience/shablona
 .. _eScience Insititute: https://escience.washington.edu
 
