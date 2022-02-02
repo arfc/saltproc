@@ -1,7 +1,7 @@
 name: Auto add and remove labels
 
 on:
-  issue:
+  issues:
     types: [closed, labeled]
   pull_request:
     types: [closed, labeled, review_requested]
