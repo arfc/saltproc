@@ -29,9 +29,9 @@ def parse_arguments():
     Returns
     --------
     n: int
-        Number of nodes for use in Serpent simulation.
+        Number of nodes for use in depletion code simulation.
     d: int
-        Number of cores for use in Serpent simulation.
+        Number of cores for use in depletion code simulation.
     i: str
         Path and name of main SaltProc input file (json format).
 
@@ -40,11 +40,13 @@ def parse_arguments():
     parser.add_argument('-n',      # Number of nodes to use
                         type=int,
                         default=1,
-                        help='number of cluster nodes to use in Serpent')
+                        help='number of cluster nodes to use in \
+                        depletion code simulation')
     parser.add_argument('-d',      # Number of nodes to use
                         type=int,
                         default=1,
-                        help='number of threads to use in Serpent')
+                        help='number of threads to use in \
+                        depletion code simulation')
     parser.add_argument('-i',      # main input file
                         type=str,
                         default=None,
