@@ -1,0 +1,48 @@
+name: Auto add and remove labels
+
+on:
+  issue:
+    types: [closed, labeled]
+  pull_request:
+    types: [closed, labeled, review_requested]
+
+jobs:
+  # job for issue events
+  auto-labels-issues:
+    if: ${{ !github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Remove Priority and Status labels
+        if: github.event.issue.action == "closed"
+        run: |
+          id=${{ github.event.issue.number }}
+          gh issue edit $id --remove-label "Priority:*"
+          gh issue edit $id --remove-label "Status:*"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+
+  # job for pr events
+  auto-labels-pr:
+    if: ${{ github.event.issue.pull_reqeust }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Remove Priority and Status labels
+        if: github.event.pull_request.action == "closed"
+        run: |
+          id=${{ github.event.pull_reqeust.number }}
+          gh pr edit $id --remove-label "Priority:*"
+          gh pr edit $id --remove-label "Status:*"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
