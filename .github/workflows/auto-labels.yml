@@ -4,7 +4,7 @@ on:
   issues:
     types: [closed]
   pull_request:
-    types: [closed, review_requested]
+    types: [closed]
 
 jobs:
   # job for issue events
@@ -18,16 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Remove Priority and Status labels
-        if: github.event.issue.action == "closed"
         run: |
           id=${{ github.event.issue.number }}
           gh issue edit $id --remove-label "Priority:*"
           gh issue edit $id --remove-label "Status:*"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update Priority/Status labels on linked PRs
-
 
 
   # job for pr events
@@ -41,19 +37,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Remove Priority and Status labels
-        if: github.event.pull_request.action == "closed"
         run: |
           id=${{ github.event.pull_reqeust.number }}
           gh pr edit $id --remove-label "Priority:*"
           gh pr edit $id --remove-label "Status:*"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-     - name: Update linked issues 
-       if: github.event.pull_request.action == "review_requested"
-       run: |
-         id=${{ github.event.pull_request.number }}
-         gh pr edit $id --remove-label "Status:*"
-         gh pr edit $id --add-label "Status:In Review"
-
-
