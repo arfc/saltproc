@@ -2,9 +2,9 @@ name: Auto add and remove labels
 
 on:
   issues:
-    types: [closed, labeled]
+    types: [closed]
   pull_request:
-    types: [closed, labeled, review_requested]
+    types: [closed, review_requested]
 
 jobs:
   # job for issue events
@@ -26,6 +26,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Update Priority/Status labels on linked PRs
+
 
 
   # job for pr events
@@ -46,3 +48,12 @@ jobs:
           gh pr edit $id --remove-label "Status:*"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+     - name: Update linked issues 
+       if: github.event.pull_request.action == "review_requested"
+       run: |
+         id=${{ github.event.pull_request.number }}
+         gh pr edit $id --remove-label "Status:*"
+         gh pr edit $id --add-label "Status:In Review"
+
+
