@@ -2,7 +2,7 @@
    "proc_input_file": "processes.json",
    "dot_input_file": "test.dot",
    "output_path": "./data",
-   "depsteps": 2,
+   "num_depsteps": 2,
    "depcode": {
        "codename": "serpent",
        "exec_path": "sss2",
@@ -24,6 +24,6 @@
        "volume": 1.0,
        "mass_flowrate": 9.92E+6,
        "power_levels": [ 1.250E+9 ],
-       "depl_hist": [ 5 ]
+       "dep_step_length_cumulative": [ 5 ]
    }
 }
