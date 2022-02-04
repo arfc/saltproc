@@ -32,8 +32,8 @@ msr = Reactor(volume=1.0,
 geo_test_input = directory + '/test_geometry_switch.inp'
 
 
-def test_get_tra_or_dec():
-    serpent.get_tra_or_dec(serpent.iter_inputfile)
+def test_create_nuclide_name_map_zam_to_serpent():
+    serpent.create_nuclide_name_map_zam_to_serpent(serpent.iter_inputfile)
     assert serpent.iso_map[380880] == '38088.09c'
     assert serpent.iso_map[962400] == '96240.09c'
     assert serpent.iso_map[952421] == '95342.09c'

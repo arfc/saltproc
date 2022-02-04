@@ -335,7 +335,7 @@ class DepcodeSerpent(Depcode):
         nuc_zzaaam = self.convert_nuclide_name_serpent_to_zam(pyname.zzaaam(nuc_code))
         return nuc_name, nuc_zzaaam
 
-    def get_tra_or_dec(self, input_file):
+    def create_nuclide_name_map_zam_to_serpent(self, input_file):
         """Returns the isotopes map to transform isotope `zzaaam` code to
         Serpent2. Uses Serpent2 `*.out` file with list of all isotopes in
         simulation.
@@ -446,7 +446,7 @@ class DepcodeSerpent(Depcode):
             mats[m].mass = mats[m].density * volume
             mats[m].vol = volume
             mats[m].burnup = dep['MAT_' + m + '_BURNUP'][moment]
-        self.get_tra_or_dec(self.iter_inputfile)
+        self.create_nuclide_name_map_zam_to_serpent(self.iter_inputfile)
         return mats
 
     def read_depcode_info(self):
