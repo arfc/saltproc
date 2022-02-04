@@ -128,11 +128,17 @@ def read_main_input(main_inp_file):
             else:
                 step = int(num_depsteps)
                 deptot = float(dep_step_length_cumulative[0]) * step
-                dep_step_length_cumulative = np.linspace(float(dep_step_length_cumulative[0]), deptot, num=step)
-                power_levels = float(power_levels[0]) * np.ones_like(dep_step_length_cumulative)
-                reactor_inp['dep_step_length_cumulative'] = dep_step_length_cumulative
+                dep_step_length_cumulative = \
+                    np.linspace(float(dep_step_length_cumulative[0]), \
+                                deptot, \
+                                num=step)
+                power_levels = float(power_levels[0]) * \
+                    np.ones_like(dep_step_length_cumulative)
+                reactor_inp['dep_step_length_cumulative'] = \
+                    dep_step_length_cumulative
                 reactor_inp['power_levels'] = power_levels
-        elif num_depsteps is None and isinstance(dep_step_length_cumulative, (np.ndarray, list)):
+        elif num_depsteps is None and isinstance(dep_step_length_cumulative, \
+                                                 (np.ndarray, list)):
             if len(dep_step_length_cumulative) != len(power_levels):
                 raise ValueError(
                     'Depletion step list and power list shape mismatch')

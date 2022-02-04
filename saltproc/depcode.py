@@ -332,7 +332,8 @@ class DepcodeSerpent(Depcode):
                 nuc_name = pyname.name(nuc_code)[:-1] + 'm' + str(meta_flag)
             else:
                 nuc_name = pyname.name(nuc_code)
-        nuc_zzaaam = self.convert_nuclide_name_serpent_to_zam(pyname.zzaaam(nuc_code))
+        nuc_zzaaam = \
+            self.convert_nuclide_name_serpent_to_zam(pyname.zzaaam(nuc_code))
         return nuc_name, nuc_zzaaam
 
     def create_nuclide_name_map_zam_to_serpent(self):
@@ -535,7 +536,8 @@ class DepcodeSerpent(Depcode):
         if current_depstep_idx == 0:
             current_depstep = reactor.dep_step_length_cumulative[0]
         else:
-            current_depstep = reactor.dep_step_length_cumulative[current_depstep_idx] - \
+            current_depstep = \
+                reactor.dep_step_length_cumulative[current_depstep_idx] - \
                 reactor.dep_step_length_cumulative[current_depstep_idx - 1]
         for line in template_data:
             if line.startswith('set    power   '):

@@ -32,7 +32,8 @@ def test_read_main_input():
     np.testing.assert_equal(
         app.reactor_inp['power_levels'], [
             1.250E+9, 1.250E+9])
-    np.testing.assert_equal(app.reactor_inp['dep_step_length_cumulative'], [5, 10])
+    np.testing.assert_equal(app.reactor_inp['dep_step_length_cumulative'], \
+                            [5, 10])
 
 
 def test_read_processes_from_input():
