@@ -42,7 +42,7 @@ def parse_arguments():
                         default=1,
                         help='number of cluster nodes to use in \
                         depletion code simulation')
-    parser.add_argument('-d',      # Number of nodes to use
+    parser.add_argument('-d',      # Number of cores to use
                         type=int,
                         default=1,
                         help='number of threads to use in \
