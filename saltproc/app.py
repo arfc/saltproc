@@ -388,7 +388,7 @@ def run():
           '\tMaterial File Path  = ' +
           os.path.abspath(depcode_inp['iter_matfile']) +
           '\n'
-          '\tOutput HDF5 DB Path = ' +
+          '\tOutput HDF5 database Path = ' +
           os.path.abspath(simulation_inp['db_name']) +
           '\n')
     # Intializing objects
