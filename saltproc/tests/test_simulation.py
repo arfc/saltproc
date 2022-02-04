@@ -33,7 +33,7 @@ simulation = Simulation(sim_name='Simulation unit tests',
 def test_check_switch_geo_trigger():
     """
     This unit test checks that ``check_switch_geo_trigger`` functions
-    consistent with its docstring.
+    consistently with its docstring.
     """
 
     switch_times = [1.0, 3, -31, 86.23333, 1e-16, 2e-18, "two o clock"]
