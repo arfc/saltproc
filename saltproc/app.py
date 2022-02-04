@@ -24,10 +24,10 @@ def parse_arguments():
     """Parses arguments from command line.
 
     Parameters
-    -----------
+    ----------
 
     Returns
-    --------
+    -------
     n: int
         Number of nodes for use in depletion code simulation.
     d: int
@@ -59,7 +59,7 @@ def read_main_input(main_inp_file):
     """Reads main SaltProc input file (json format).
 
     Parameters
-    -----------
+    ----------
     main_inp_file : str
         Path to SaltProc main input file and name of this file.
     """
@@ -214,7 +214,7 @@ def read_dot(dot_file):
         Path to `.dot` file with reprocessing system structure.
 
     Returns
-    --------
+    -------
     mat_name : str
         Name of burnable material which reprocessing scheme described in `.dot`
         file.
@@ -240,7 +240,7 @@ def reprocessing(mats):
     """Applies reprocessing scheme to burnable materials.
 
     Parameters
-    -----------
+    ----------
     mats : dict of str to Materialflow
         Dictionary that contains `Materialflow` objects with burnable material
         data right after irradiation in the core.
@@ -251,7 +251,7 @@ def reprocessing(mats):
             `Materialflow` object holding composition and properties.
 
     Returns
-    --------
+    -------
     waste : dict of str to Materialflow
 
         ``key``
@@ -323,16 +323,14 @@ def refill(mats, extracted_mass, waste_dict):
     """Makes up material loss in removal processes by adding fresh fuel.
 
     Parameters
-    -----------
+    ----------
     mats : dict of str to Materialflow
 
         ``key``
             Name of burnable material.
         ``value``
             `Materialflow` object after performing all removals.
-    extracted_mass: dict of str to float
-
-        ``key``
+    extracted_mass : dict of str to float
             Name of burnable material.
         ``value``
             Mass removed as waste in reprocessing function for each material.
@@ -344,7 +342,7 @@ def refill(mats, extracted_mass, waste_dict):
             `Materialflow` object containing waste streams data.
 
     Returns
-    --------
+    -------
     refilled_mats: dict of str to Materialflow
         Dictionary that contains `Materialflow` objects.
 
