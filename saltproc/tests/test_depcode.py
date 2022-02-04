@@ -44,14 +44,14 @@ def test_get_tra_or_dec():
     assert serpent.iso_map[410911] == '410911'
 
 
-def test_sss_meta_zzz():
-    assert serpent.sss_meta_zzz(47310) == 471101
-    assert serpent.sss_meta_zzz(95342) == 952421
-    assert serpent.sss_meta_zzz(61348) == 611481
-    assert serpent.sss_meta_zzz(52327) == 521271
-    assert serpent.sss_meta_zzz(1001) == 1001
-    assert serpent.sss_meta_zzz(1002) == 1002
-    assert serpent.sss_meta_zzz(48315) == 481151
+def test_convert_nuclide_name_serpent_to_zam():
+    assert serpent.convert_nuclide_name_serpent_to_zam(47310) == 471101
+    assert serpent.convert_nuclide_name_serpent_to_zam(95342) == 952421
+    assert serpent.convert_nuclide_name_serpent_to_zam(61348) == 611481
+    assert serpent.convert_nuclide_name_serpent_to_zam(52327) == 521271
+    assert serpent.convert_nuclide_name_serpent_to_zam(1001) == 1001
+    assert serpent.convert_nuclide_name_serpent_to_zam(1002) == 1002
+    assert serpent.convert_nuclide_name_serpent_to_zam(48315) == 481151
 
 
 def test_read_depcode_template():

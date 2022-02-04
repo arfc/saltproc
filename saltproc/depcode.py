@@ -332,7 +332,7 @@ class DepcodeSerpent(Depcode):
                 nuc_name = pyname.name(nuc_code)[:-1] + 'm' + str(meta_flag)
             else:
                 nuc_name = pyname.name(nuc_code)
-        nuc_zzaaam = self.sss_meta_zzz(pyname.zzaaam(nuc_code))
+        nuc_zzaaam = self.convert_nuclide_name_serpent_to_zam(pyname.zzaaam(nuc_code))
         return nuc_name, nuc_zzaaam
 
     def get_tra_or_dec(self, input_file):
@@ -596,7 +596,7 @@ class DepcodeSerpent(Depcode):
                                % (self.codename))
         print('Finished Serpent2 Run')
 
-    def sss_meta_zzz(self, nuc_code):
+    def convert_nuclide_name_serpent_to_zam(self, nuc_code):
         """Checks Serpent2-specific meta stable-flag for zzaaam. For instance,
         47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented
         with `aaa` started with ``3``.
