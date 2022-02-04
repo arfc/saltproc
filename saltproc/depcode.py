@@ -335,15 +335,10 @@ class DepcodeSerpent(Depcode):
         nuc_zzaaam = self.convert_nuclide_name_serpent_to_zam(pyname.zzaaam(nuc_code))
         return nuc_name, nuc_zzaaam
 
-    def create_nuclide_name_map_zam_to_serpent(self, input_file):
+    def create_nuclide_name_map_zam_to_serpent(self):
         """Returns the isotopes map to transform isotope `zzaaam` code to
         Serpent2. Uses Serpent2 `*.out` file with list of all isotopes in
         simulation.
-
-        Parameters
-        ----------
-        input_file : str
-            Serpent2 input file name and path.
 
         Returns
         -------
@@ -361,7 +356,7 @@ class DepcodeSerpent(Depcode):
         """
         map_dict = {}
         # Construct path to the *.out File
-        out_file = os.path.join('%s.out' % input_file)
+        out_file = os.path.join('%s.out' % self.iter_inputfile)
         file = open(out_file, 'r')
         str_list = file.read().split('\n')
         # Stop-line
@@ -446,7 +441,7 @@ class DepcodeSerpent(Depcode):
             mats[m].mass = mats[m].density * volume
             mats[m].vol = volume
             mats[m].burnup = dep['MAT_' + m + '_BURNUP'][moment]
-        self.create_nuclide_name_map_zam_to_serpent(self.iter_inputfile)
+        self.create_nuclide_name_map_zam_to_serpent()
         return mats
 
     def read_depcode_info(self):
@@ -489,23 +484,23 @@ class DepcodeSerpent(Depcode):
         self.param['fission_mass_bds'] = res['INI_FMASS'][1]
         self.param['fission_mass_eds'] = res['TOT_FMASS'][1]
 
-    def read_depcode_template(self, template_inputfile_path):
-        """Reads prepared Serpent2 template (input)  file for use in
-        other class functions that prepare the input file for multiple runs.
+    def read_plaintext_file(self, file_path):
+        """Reads the content of a plaintext file for use by other methods.
 
         Parameters
         ----------
-        template_inputfile_path : str
-            Path to user template file for depletion code.
+        file_path : str
+            Path to file.
 
         Returns
         -------
-        tempalate_data : list
-            List of strings containing user template file.
+        file_data : list
+            List of strings containing file lines.
 
          """
-        file = open(template_inputfile_path, 'r')
-        template_data = file.readlines()
+        template_data = []
+        with open(file_path, 'r') as file:
+            template_data = file.readlines()
         return template_data
 
     def replace_burnup_parameters(
@@ -669,12 +664,12 @@ class DepcodeSerpent(Depcode):
         """
 
         if dep_step == 0 and not restart:
-            data = self.read_depcode_template(self.template_inputfile_path)
+            data = self.read_plaintext_file(self.template_inputfile_path)
             data = self.insert_path_to_geometry(data)
             data = self.change_sim_par(data)
             data = self.create_iter_matfile(data)
         else:
-            data = self.read_depcode_template(self.iter_inputfile)
+            data = self.read_plaintext_file(self.iter_inputfile)
         data = self.replace_burnup_parameters(data, reactor, dep_step)
 
         if data:

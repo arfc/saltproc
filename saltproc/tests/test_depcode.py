@@ -33,7 +33,7 @@ geo_test_input = directory + '/test_geometry_switch.inp'
 
 
 def test_create_nuclide_name_map_zam_to_serpent():
-    serpent.create_nuclide_name_map_zam_to_serpent(serpent.iter_inputfile)
+    serpent.create_nuclide_name_map_zam_to_serpent()
     assert serpent.iso_map[380880] == '38088.09c'
     assert serpent.iso_map[962400] == '96240.09c'
     assert serpent.iso_map[952421] == '95342.09c'
@@ -54,8 +54,8 @@ def test_convert_nuclide_name_serpent_to_zam():
     assert serpent.convert_nuclide_name_serpent_to_zam(48315) == 481151
 
 
-def test_read_depcode_template():
-    template_str = serpent.read_depcode_template(
+def test_read_plaintext_file():
+    template_str = serpent.read_plaintext_file(
         serpent.template_inputfile_path)
     assert template_str[6] == '%therm zrh_h 900 hzr05.32t hzr06.32t\n'
     assert template_str[18] == 'set pop 30 20 10\n'
@@ -68,7 +68,7 @@ def test_change_sim_par():
     serpent.active_cycles = 101
     serpent.inactive_cycles = 33
     out = serpent.change_sim_par(
-        serpent.read_depcode_template(serpent.template_inputfile_path)
+        serpent.read_plaintext_file(serpent.template_inputfile_path)
     )
     assert out[18] == 'set pop %i %i %i\n' % (
         serpent.npop,
@@ -139,7 +139,7 @@ def test_write_mat_file():
     iter_matfile_old = serpent.iter_matfile
     serpent.iter_inputfile = serpent.iter_inputfile + '.mat'
     serpent.write_mat_file(mats, 12.0)
-    mat_str = serpent.read_depcode_template(serpent.iter_matfile)
+    mat_str = serpent.read_plaintext_file(serpent.iter_matfile)
     assert mat_str[0] == '% Material compositions (after 12.000000 days)\n'
     if 'fuel' in mat_str[3]:
         assert mat_str[3].split()[-1] == '2.27175E+07'
@@ -154,7 +154,7 @@ def test_write_mat_file():
 
 
 def test_insert_path_to_geometry():
-    d = serpent.read_depcode_template(serpent.template_inputfile_path)
+    d = serpent.read_plaintext_file(serpent.template_inputfile_path)
     d_new = serpent.insert_path_to_geometry(d)
     assert d_new[5].split('/')[-1] == 'test_geo.inp"\n'
 
@@ -163,7 +163,7 @@ def test_replace_burnup_parameters():
     time = msr.dep_step_length_cumulative.copy()
     time.insert(0, 0.0)
     depsteps = np.diff(time)
-    d = serpent.read_depcode_template(serpent.template_inputfile_path)
+    d = serpent.read_plaintext_file(serpent.template_inputfile_path)
     for idx in range(len(msr.power_levels)):
         d = serpent.replace_burnup_parameters(d,
                                               msr,
@@ -171,7 +171,7 @@ def test_replace_burnup_parameters():
         out_file = open(serpent.template_inputfile_path + str(idx), 'w')
         out_file.writelines(d)
         out_file.close()
-        d_new = serpent.read_depcode_template(
+        d_new = serpent.read_plaintext_file(
             serpent.template_inputfile_path + str(idx))
         assert d_new[8].split()[4] == 'daystep'
         assert d_new[8].split()[2] == str("%5.9E" % msr.power_levels[idx])
@@ -180,7 +180,7 @@ def test_replace_burnup_parameters():
 
 
 def test_create_iter_matfile():
-    d = serpent.read_depcode_template(serpent.template_inputfile_path)
+    d = serpent.read_plaintext_file(serpent.template_inputfile_path)
     out = serpent.create_iter_matfile(d)
     assert out[0].split()[-1] == '\"' + serpent.iter_matfile + '\"'
     os.remove(serpent.iter_matfile)
@@ -192,7 +192,7 @@ def test_write_depcode_input():
     serpent.write_depcode_input(msr,
                                 0,
                                 False)
-    d = serpent.read_depcode_template(serpent.iter_inputfile)
+    d = serpent.read_plaintext_file(serpent.iter_inputfile)
     print(d[0])
     assert d[0].split('/')[-2] == 'tests'
     assert d[0].split('/')[-1] == 'material"\n'
@@ -212,7 +212,7 @@ def test_switch_to_next_geometry():
     serpent.iter_inputfile = serpent.iter_inputfile + '_test'
     serpent.geo_files += ['../../examples/406.inp', '../../examples/988.inp']
     serpent.switch_to_next_geometry()
-    d = serpent.read_depcode_template(serpent.iter_inputfile)
+    d = serpent.read_plaintext_file(serpent.iter_inputfile)
     assert d[5].split('/')[-1] == '988.inp"\n'
     os.remove(serpent.iter_inputfile)
     serpent.iter_inputfile = iter_inputfile_old
