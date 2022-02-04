@@ -538,10 +538,10 @@ class DepcodeSerpent(Depcode):
         line_idx = 8  # burnup setting line index by default
         current_depstep_power = reactor.power_levels[current_depstep_idx]
         if current_depstep_idx == 0:
-            current_depstep = reactor.depl_hist[0]
+            current_depstep = reactor.dep_step_length_cumulative[0]
         else:
-            current_depstep = reactor.depl_hist[current_depstep_idx] - \
-                reactor.depl_hist[current_depstep_idx - 1]
+            current_depstep = reactor.dep_step_length_cumulative[current_depstep_idx] - \
+                reactor.dep_step_length_cumulative[current_depstep_idx - 1]
         for line in template_data:
             if line.startswith('set    power   '):
                 line_idx = template_data.index(line)

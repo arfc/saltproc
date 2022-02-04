@@ -27,7 +27,7 @@ serpent = DepcodeSerpent(
 
 msr = Reactor(volume=1.0,
               power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
-              depl_hist=[111.111, 2101.9, 3987.5])
+              dep_step_length_cumulative=[111.111, 2101.9, 3987.5])
 
 geo_test_input = directory + '/test_geometry_switch.inp'
 
@@ -160,7 +160,7 @@ def test_insert_path_to_geometry():
 
 
 def test_replace_burnup_parameters():
-    time = msr.depl_hist.copy()
+    time = msr.dep_step_length_cumulative.copy()
     time.insert(0, 0.0)
     depsteps = np.diff(time)
     d = serpent.read_depcode_template(serpent.template_inputfile_path)

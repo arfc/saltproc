@@ -81,7 +81,7 @@ def read_main_input(main_inp_file):
         input_path = os.path.join(path_prefix, os.path.dirname(f.name))
 
         # Saltproc settings
-        global spc_inp_file, dot_inp_file, output_path, depsteps
+        global spc_inp_file, dot_inp_file, output_path, num_depsteps
         spc_inp_file = os.path.join(
             os.path.dirname(f.name),
             j['proc_input_file'])
@@ -89,7 +89,7 @@ def read_main_input(main_inp_file):
             os.path.dirname(f.name),
             j['dot_input_file'])
         output_path = j['output_path']
-        depsteps = j['depsteps']
+        num_depsteps = j['num_depsteps']
 
         # Global output path
         output_path = os.path.join(input_path, output_path)
@@ -120,20 +120,20 @@ def read_main_input(main_inp_file):
             output_path, simulation_inp['db_name'])
         simulation_inp['db_name'] = db_name
 
-        depl_hist = reactor_inp['depl_hist']
+        dep_step_length_cumulative = reactor_inp['dep_step_length_cumulative']
         power_levels = reactor_inp['power_levels']
-        if depsteps is not None and len(depl_hist) == 1:
-            if depsteps < 0.0 or not int:
+        if num_depsteps is not None and len(dep_step_length_cumulative) == 1:
+            if num_depsteps < 0.0 or not int:
                 raise ValueError('Depletion step interval cannot be negative')
             else:
-                step = int(depsteps)
-                deptot = float(depl_hist[0]) * step
-                depl_hist = np.linspace(float(depl_hist[0]), deptot, num=step)
-                power_levels = float(power_levels[0]) * np.ones_like(depl_hist)
-                reactor_inp['depl_hist'] = depl_hist
+                step = int(num_depsteps)
+                deptot = float(dep_step_length_cumulative[0]) * step
+                dep_step_length_cumulative = np.linspace(float(dep_step_length_cumulative[0]), deptot, num=step)
+                power_levels = float(power_levels[0]) * np.ones_like(dep_step_length_cumulative)
+                reactor_inp['dep_step_length_cumulative'] = dep_step_length_cumulative
                 reactor_inp['power_levels'] = power_levels
-        elif depsteps is None and isinstance(depl_hist, (np.ndarray, list)):
-            if len(depl_hist) != len(power_levels):
+        elif num_depsteps is None and isinstance(dep_step_length_cumulative, (np.ndarray, list)):
+            if len(dep_step_length_cumulative) != len(power_levels):
                 raise ValueError(
                     'Depletion step list and power list shape mismatch')
 
@@ -419,12 +419,12 @@ def run():
         volume=reactor_inp['volume'],
         mass_flowrate=reactor_inp['mass_flowrate'],
         power_levels=reactor_inp['power_levels'],
-        depl_hist=reactor_inp['depl_hist'])
+        dep_step_length_cumulative=reactor_inp['dep_step_length_cumulative'])
     # Check: Restarting previous simulation or starting new?
     simulation.check_restart()
     # Run sequence
     # Start sequence
-    for dep_step in range(len(msr.depl_hist)):
+    for dep_step in range(len(msr.dep_step_length_cumulative)):
         print("\n\n\nStep #%i has been started" % (dep_step + 1))
         simulation.sim_depcode.write_depcode_input(msr,
                                                    dep_step,
@@ -477,4 +477,4 @@ def run():
         '''print("Reactor object data.\n",
               msr.mass_flowrate,
               msr.power_levels,
-              msr.depl_hist)'''
+              msr.dep_step_length_cumulative)'''

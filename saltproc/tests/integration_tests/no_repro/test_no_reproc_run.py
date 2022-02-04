@@ -40,7 +40,7 @@ simulation = Simulation(sim_name='Integration test',
 
 tap = Reactor(volume=1.0,
               power_levels=[1.250E+09],
-              depl_hist=[3])
+              dep_step_length_cumulative=[3])
 
 
 def runsim_no_reproc(simulation, reactor, nsteps):

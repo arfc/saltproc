@@ -2,7 +2,7 @@
    "proc_input_file": "tap_objects.json",
    "dot_input_file": "tap.dot",
    "output_path": "./data",
-   "depsteps": 3,
+   "num_depsteps": 3,
    "depcode": {
        "codename": "serpent",
        "exec_path": "sss2",
@@ -40,6 +40,6 @@
        "volume": 1.0,
        "mass_flowrate": 9920000,
        "power_levels": [ 1250000000 ],
-       "depl_hist": [ 2 ]
+       "dep_step_length_cumulative": [ 2 ]
    }
 }

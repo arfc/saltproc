@@ -1,4 +1,4 @@
-{
+
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://github.com/arfc/saltproc",
     "title": "SaltProc input file schema",
@@ -19,7 +19,7 @@
             "type": "string",
             "pattern": "^\\.\\/(.*)$"
         },
-        "depsteps": {
+        "num_depsteps": {
             "description": "Number of steps for constant power and depletion interval case",
             "type": "number"
         },
@@ -105,8 +105,8 @@
                    "minItems": 1,
                    "uniqueItems": false
                 },
-               "depl_hist": {
-                   "description": "Depletion step interval or cumulative time (end of step) [d]",
+               "dep_step_length_cumulative": {
+                   "description": "Depletion step length(s) (cumulative) [d]",
                    "type": "array",
                    "items": { "type": "number",
                     "minimum": 0},
@@ -114,7 +114,7 @@
                    "uniqueItems": false
                 }
            },
-           "required": ["volume", "mass_flowrate", "power_levels", "depl_hist"]
+           "required": ["volume", "mass_flowrate", "power_levels", "dep_step_length_cumulative"]
        }
     },
     "required": ["proc_input_file", "dot_input_file", "output_path", "depcode", "simulation", "reactor"]
