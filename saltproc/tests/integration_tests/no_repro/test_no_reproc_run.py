@@ -60,7 +60,7 @@ def runsim_no_reproc(simulation, reactor, nsteps):
 
     ######################################################################
     # Start sequence
-    for dep_step in range(nsteps):
+    for dep_step in range(nsteps-1):
         print("\nStep #%i has been started" % (dep_step + 1))
         if dep_step == 0:  # First step
             simulation.sim_depcode.write_depcode_input(
@@ -94,7 +94,7 @@ def runsim_no_reproc(simulation, reactor, nsteps):
 @pytest.mark.slow
 # @pytest.mark.skip
 def test_integration_3step_saltproc_no_reproc_heavy():
-    runsim_no_reproc(simulation, tap, 2)
+    runsim_no_reproc(simulation, tap, 3)
     saltproc_out = sss_file + '_dep.m'
     dep_ser = serpent.parse_dep(
         directory + '/serpent_9d_dep.m',
