@@ -117,5 +117,5 @@
            "required": ["volume", "mass_flowrate", "power_levels", "depl_hist"]
        }
     },
-    "required": ["proc_input_file", "dot_input_file", "output_path", "depsteps", "depcode", "simulation", "reactor"]
+    "required": ["proc_input_file", "dot_input_file", "output_path", "depcode", "simulation", "reactor"]
 }
