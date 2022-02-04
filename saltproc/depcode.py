@@ -337,15 +337,15 @@ class DepcodeSerpent(Depcode):
         return nuc_name, nuc_zzaaam
 
     def create_nuclide_name_map_zam_to_serpent(self):
-        """Returns the isotopes map to transform isotope `zzaaam` code to
-        Serpent2. Uses Serpent2 `*.out` file with list of all isotopes in
-        simulation.
+        """ Create a map that accepts nuclide names in `zzaaam` format and
+        returns the Serpent2 nuclide code format. Uses Serpent2 `*.out` file
+        with list of all nuclides in simulation.
 
         Returns
         -------
-        isotope_map : dict of str to str
-            Contains mapping for isotopes names from `zzaaam` to Serpent2 name
-            imported from Serpent2 ouput file:
+        nuclide_map : dict of str to str
+            Contains mapping for nuclide names from `zzaaam` to Serpent2
+            format imported from Serpent2 ouput file:
 
             ``key``
                 The key is nuclide name in `zzaaam` format. For example,
