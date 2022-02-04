@@ -24,7 +24,7 @@ def test_read_main_input():
     assert app.depcode_inp['codename'] == "serpent"
     assert app.depcode_inp['npop'] == 50
     assert app.depcode_inp['active_cycles'] == 20
-    assert app.depcode_inp['active_cycles'] == 20
+    assert app.depcode_inp['inactive_cycles'] == 20
     assert app.simulation_inp['db_name'] == directory + \
         '/./data/db_saltproc.h5'
     assert app.depcode_inp['geo_file_paths'] == [directory + '/./347_base.ini']
