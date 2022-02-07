@@ -20,9 +20,8 @@ Release notes for v0.4.0
 .. _@munkm: https://github.com/munkm
 
 
--------
 Summary
--------
+=======
 
 ..
   Describe generally the features of this release
@@ -30,9 +29,8 @@ Summary
 This version of SaltProc refactors the code in preparation for supporting OpenMC.
 
 
-------------------
 Dependency Changes
-------------------
+==================
 
 ..
   Describe any new/removed/modified package dependencies
@@ -42,9 +40,8 @@ Dependency Changes
   - (new) → `jsonschema`_
 
 
-------------
 New Features
-------------
+============
 
 ..
   Describe any new features to the code.
@@ -54,9 +51,8 @@ New Features
 - `Release notes in the online docs <https://github.com/arfc/saltproc/pull/115>`_ by `@yardasol`_
 
 
----------
 Bug Fixes
----------
+=========
 
 ..
   Describe any bug fixes.
@@ -64,9 +60,8 @@ Bug Fixes
 - `Fix typos in process_j312.bash <https://github.com/arfc/saltproc/pull/100>`_
 
 
---------------
 Script Changes
---------------
+==============
 
 ..
   Describe any script additions/modifications/removals
@@ -76,9 +71,8 @@ Script Changes
   - ``process_j312.sh`` → ``process_j312.bash``
 
 
-------------------
 Python API Changes
-------------------
+==================
 
 - New tests for previously untested functions in ``simulation.py``:
 
@@ -151,9 +145,8 @@ Python API Changes
   - ``DepcodeSerpent.read_depcode_template``
   - ``DepcodeSerpent.create_nuclide_map_serpent_to_zam``
 
-------------
 Contributors
-------------
+============
 
 ..
   List of people who contributed features and fixes to this release
@@ -166,9 +159,8 @@ The following people contributed code to this release of SaltProc:
 - `@yardasol`_
 
 
----------
 Reviewers
----------
+=========
 
 ..
   List of people who reviewed PRs for this release

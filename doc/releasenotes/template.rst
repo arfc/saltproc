@@ -14,9 +14,8 @@ Release notes for vx.x.x
 
 
 
--------
 Summary
--------
+=======
 
 .. 
   Describe generally the features of this release
@@ -24,9 +23,8 @@ Summary
 
 
 
-------------------
 Dependency Changes
-------------------
+==================
 
 ..
   Describe any new/removed/modified package dependencies
@@ -34,9 +32,8 @@ Dependency Changes
 
 
 
-------------
 New Features
-------------
+============
 
 ..
   Describe any new features to the code.
@@ -44,9 +41,8 @@ New Features
 
 
 
----------
 Bug Fixes
----------
+=========
 
 ..
   Describe any bug fixes.
@@ -54,9 +50,8 @@ Bug Fixes
 
 
 
---------------
 Script Changes
---------------
+==============
 
 ..
   Describe any script additions/modifications/removals
@@ -64,9 +59,8 @@ Script Changes
 
 
 
-------------------
 Python API Changes
-------------------
+==================
 
 ..
   Describe any changes to the API
@@ -74,9 +68,8 @@ Python API Changes
 
 
 
-------------
 Contributors
-------------
+============
 ..
   List of people who contributed features and fixes to this release
 
@@ -88,9 +81,8 @@ The following people contributed code to this release of SaltProc:
 
 
 
----------
 Reviewers
----------
+=========
 ..
   List of people who reviewed PRs for this release
 
