@@ -93,7 +93,7 @@ def runsim_no_reproc(simulation, reactor, nsteps):
 
 @pytest.mark.slow
 # @pytest.mark.skip
-def test_integration_3step_saltproc_no_reproc_heavy():
+def test_integration_2step_saltproc_no_reproc_heavy():
     runsim_no_reproc(simulation, tap, 2)
     saltproc_out = sss_file + '_dep.m'
     dep_ser = serpent.parse_dep(
