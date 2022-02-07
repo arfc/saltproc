@@ -51,9 +51,9 @@ therm gr 900 gre7.18t gre7.20t  % 900K C-nat
 set title "MSBR Saltproc long-term, 91% removal, BOL, fresh fuel, ENDF"
 
 
-set acelib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.xsdata"
-set declib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.dec"
-set nfylib "/home/andrei2/serpent/xsdata/endfb7/sss_endfb7.nfy"
+set acelib "sss_endfb7.xsdata"
+set declib "sss_endfb7.dec"
+set nfylib "sss_endfb7.nfy"
 
 %set acelib "sss_jeff312.xsdata"
 %set declib "sss_jeff33.dec"

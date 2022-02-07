@@ -7,7 +7,7 @@ class Reactor ():
                  volume=1.0,
                  mass_flowrate=0.0,
                  power_levels=[0.0],
-                 depl_hist=[1]):
+                 dep_step_length_cumulative=[1]):
         """Initializes the class.
 
         Parameters
@@ -15,10 +15,10 @@ class Reactor ():
         volume : float
             Total volume of the reactor core (:math:`cm^3`).
         mass_flowrate : float
-            Total mass flowrate through reactor (g/s).
+            Total mass flowrate through reactor core (g/s).
         power_levels : array [:math:`N_{steps}` x1]
             Normalized power level for each depletion step (W).
-        depl_hist : array [:math:`N_{steps}` x1]
+        dep_step_length_cumulative : array [:math:`N_{steps}` x1]
             Cumulative depletion time (d).
 
         """
@@ -26,4 +26,4 @@ class Reactor ():
         self.volume = volume
         self.mass_flowrate = mass_flowrate
         self.power_levels = power_levels
-        self.depl_hist = depl_hist
+        self.dep_step_length_cumulative = dep_step_length_cumulative

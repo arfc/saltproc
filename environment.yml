@@ -9,5 +9,6 @@ dependencies:
   - networkx
   - pydotplus
   - pytest
+  - jsonschema
   - pip:
     - argparse==1.4.0
