@@ -6,20 +6,20 @@ path = os.path.realpath(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(path)))
 # global class object
 directory = os.path.dirname(path)
-input_file = directory + '/test'
+iter_inputfile = directory + '/test'
 
 serpent = DepcodeSerpent(
     exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-    template_path=directory +
+    template_inputfile_path=directory +
     '/template.inp',
-    input_path=input_file,
+    iter_inputfile=iter_inputfile,
     iter_matfile=directory +
     '/material',
-    geo_file=None)
+    geo_files=None)
 
 
 def test_get_mass():
-    mats = serpent.read_dep_comp(input_file, True)
+    mats = serpent.read_dep_comp(True)
     assert mats['fuel'].get_mass() == 112683343.50000001
     assert mats['fuel']['U235'] == 3499538.3359278883
     assert mats['fuel']['U238'] == 66580417.24509208
@@ -33,7 +33,7 @@ def test_get_mass():
 
 
 def test_scale_matflow():
-    mats = serpent.read_dep_comp(input_file, True)
+    mats = serpent.read_dep_comp(True)
     scale_factor = 0.7
     scaled_matflow = mats['fuel'].scale_matflow(scale_factor)
     assert scaled_matflow[922350000] == scale_factor * 3499538.3359278883
@@ -43,7 +43,7 @@ def test_scale_matflow():
 
 
 def test_copy_pymat_attrs():
-    mats = serpent.read_dep_comp(input_file, True)
+    mats = serpent.read_dep_comp(True)
     target_mat = mats['fuel']
     target_mat.copy_pymat_attrs(mats['ctrlPois'])
     assert target_mat.density == 5.873
