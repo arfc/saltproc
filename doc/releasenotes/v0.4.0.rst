@@ -51,7 +51,7 @@ New Features
 
 - `Refactor app.py and simulation.py to prepare for OpenMC support <https://github.com/arfc/saltproc/pull/98>`_ by `@yardasol`_
 - `New input file format that is checked against a verifiable JSON Schema <https://github.com/arfc/saltproc/pull/98>`_ by `@yardasol`_
-- `Release notes in the online docs <https://github.com/arfc/saltproc/pull/105>`_ by `@yardasol`_
+- `Release notes in the online docs <https://github.com/arfc/saltproc/pull/115>`_ by `@yardasol`_
 
 
 ---------
@@ -98,6 +98,9 @@ Python API Changes
   - (new) → ``Depcode.switch_to_next_geometry``
   - (new) → ``Depcode.read_depcode_info``
   - (new) → ``Depcode.read_repcode_step_param``
+  - ``DepcodeSerpent.sss_meta_zzz`` → ``DepcodeSerpent.convert_nuclide_name_serpent_to_zam``
+  - ``DepcodeSerpent.get_tra_or_dec`` → ``DepcodeSerpent.create_nuclide_name_map_zam_to_serpent`` 
+  - ``DepcodeSerpent.read_depcode_template`` → ``DepcodeSerpent.read_plaintext_file``
 
 - Updated input file structure:
 
@@ -123,7 +126,7 @@ Python API Changes
     - (new) → ``App.reactor_inp['volume']``
     - (new) → ``App.reactor_inp['mass_flowrate']``
     - ``App.power_levels``
-    - ``App.depl_hist``
+    - ``App.depl_hist`` → ``App.reactor_inp['dep_step_length_cumulative']``
 
 - The following class attributes have been added/(re)moved:
 
@@ -146,7 +149,7 @@ Python API Changes
   - ``Depcode.write_depcode_input``
   - ``Depcode.write_mat_file``
   - ``DepcodeSerpent.read_depcode_template``
-
+  - ``DepcodeSerpent.create_nuclide_map_serpent_to_zam``
 
 ------------
 Contributors
