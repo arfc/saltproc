@@ -10,6 +10,7 @@ SaltProc has the following dependencies:
   #. `PyTables`_
   #. `NetworkX`_
   #. `PyDotPlus`_
+  #. `jsonschema`_
 
 .. _Serpent: http://montecarlo.vtt.fi
 .. _PyNE: http://pyne.io
@@ -24,6 +25,7 @@ SaltProc has the following dependencies:
 .. _matplotlib: http://matplotlib.org
 .. _ViTables: http://vitables.org
 .. _GitHub: http://github.com/arfc/saltproc
+.. _jsonschema: https://github.com/Julian/jsonschema
 .. _conda package manager: https://docs.conda.io/en/latest/
 .. _mamba: https://github.com/mamba-org/mamba
 

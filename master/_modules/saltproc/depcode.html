@@ -75,6 +75,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">tables</span> <span class="k">as</span> <span class="nn">tb</span>
 <span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">nucname</span> <span class="k">as</span> <span class="n">pyname</span>
 <span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">serpent</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
@@ -87,15 +88,15 @@
 <span class="sd">    population, active, and inactive cycles. Contains methods to read template</span>
 <span class="sd">    and output files, and write new input files for the depletion code.</span>
 
-<span class="sd">   &quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Depcode.__init__"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">codename</span><span class="p">,</span>
                  <span class="n">exec_path</span><span class="p">,</span>
-                 <span class="n">template_path</span><span class="p">,</span>
-                 <span class="n">input_path</span><span class="p">,</span>
+                 <span class="n">template_inputfile_path</span><span class="p">,</span>
+                 <span class="n">iter_inputfile</span><span class="p">,</span>
                  <span class="n">iter_matfile</span><span class="p">,</span>
-                 <span class="n">geo_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">geo_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">npop</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
                  <span class="n">active_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                  <span class="n">inactive_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
@@ -107,14 +108,14 @@
 <span class="sd">               Name of depletion code.</span>
 <span class="sd">           exec_path : str</span>
 <span class="sd">               Path to depletion code executable.</span>
-<span class="sd">           template_path : str</span>
-<span class="sd">               Path to user input file for depletion code.</span>
-<span class="sd">           input_path : str</span>
-<span class="sd">               Name of input file for depletion code rerunning.</span>
+<span class="sd">           template_inputfile_path : str</span>
+<span class="sd">               Path to depletion code input file template.</span>
+<span class="sd">           iter_inputfile : str</span>
+<span class="sd">               Name of depletion code input file for depletion code rerunning.</span>
 <span class="sd">           iter_matfile : str</span>
 <span class="sd">               Name of iterative, rewritable material file for depletion code</span>
 <span class="sd">               rerunning. This file is modified during  the simulation.</span>
-<span class="sd">           geo_file : str or list, optional</span>
+<span class="sd">           geo_files : str or list, optional</span>
 <span class="sd">               Path to file that contains the reactor geometry.</span>
 <span class="sd">               List of `str` if reactivity control by</span>
 <span class="sd">               switching geometry is `On` or just `str` otherwise.</span>
@@ -128,26 +129,36 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">codename</span> <span class="o">=</span> <span class="n">codename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span> <span class="o">=</span> <span class="n">exec_path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">template_path</span> <span class="o">=</span> <span class="n">template_path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_path</span> <span class="o">=</span> <span class="n">input_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template_inputfile_path</span> <span class="o">=</span> <span class="n">template_inputfile_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">iter_inputfile</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">=</span> <span class="n">iter_matfile</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">geo_file</span> <span class="o">=</span> <span class="n">geo_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span> <span class="o">=</span> <span class="n">geo_files</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">npop</span> <span class="o">=</span> <span class="n">npop</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span> <span class="o">=</span> <span class="n">active_cycles</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span> <span class="o">=</span> <span class="n">inactive_cycles</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span> <span class="o">=</span> <span class="p">{}</span></div>
 
+<div class="viewcode-block" id="Depcode.read_depcode_info"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.read_depcode_info">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">read_depcode_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parses initial depletion code info data from depletion code</span>
+<span class="sd">        output and stores it in the `Depcode` object&#39;s ``sim_info`` attribute.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Depcode.read_depcode_step_param"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.read_depcode_step_param">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">read_depcode_step_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parses data from depletion code output for each step and stores</span>
+<span class="sd">        it in `Depcode` object&#39;s ``param`` attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
 <div class="viewcode-block" id="Depcode.read_dep_comp"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.read_dep_comp">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">read_dep_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_file</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">read_dep_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reads the depleted material data from the depcode simulation</span>
 <span class="sd">        and returns a dictionary with a `Materialflow` object for each</span>
 <span class="sd">        burnable material.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dep_file : str</span>
-<span class="sd">            Path to file containing results of depletion simulation</span>
 <span class="sd">        read_at_end : bool, optional</span>
 <span class="sd">            Controls at which moment in the depletion step to read the data.</span>
 <span class="sd">            If `True`, the function reads data at the end of the</span>
@@ -178,16 +189,18 @@
 <span class="sd">            Number of nodes to use for depletion code run.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
+<div class="viewcode-block" id="Depcode.switch_to_next_geometry"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.switch_to_next_geometry">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">switch_to_next_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inserts line with path to next depletion code geometry file at the</span>
+<span class="sd">        beginning of the depletion code iteration input file.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
 <div class="viewcode-block" id="Depcode.write_depcode_input"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.write_depcode_input">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">write_depcode_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">write_depcode_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Writes prepared data into depletion code input file(s).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        temp : str</span>
-<span class="sd">            Path to depletion code template file</span>
-<span class="sd">        inp : str</span>
-<span class="sd">            Path to input file for depletion code rerunning</span>
 <span class="sd">        reactor : Reactor</span>
 <span class="sd">            Contains information about power load curve and cumulative</span>
 <span class="sd">            depletion time for the integration test.</span>
@@ -198,7 +211,7 @@
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="Depcode.write_mat_file"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.write_mat_file">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">write_mat_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_dict</span><span class="p">,</span> <span class="n">mat_file</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">write_mat_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_dict</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Writes the iteration input file containing the burnable materials</span>
 <span class="sd">        composition used in depletion runs and updated after each depletion</span>
 <span class="sd">        step.</span>
@@ -212,8 +225,6 @@
 <span class="sd">                Name of burnable material.</span>
 <span class="sd">            ``value``</span>
 <span class="sd">                `Materialflow` object holding composition and properties.</span>
-<span class="sd">        mat_file : str</span>
-<span class="sd">            Path to file containing burnable materials composition.</span>
 <span class="sd">        dep_end_time : float</span>
 <span class="sd">            Current time at the end of the depletion step (d).</span>
 
@@ -231,10 +242,10 @@
 
 <div class="viewcode-block" id="DepcodeSerpent.__init__"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">exec_path</span><span class="o">=</span><span class="s2">&quot;sss2&quot;</span><span class="p">,</span>
-                 <span class="n">template_path</span><span class="o">=</span><span class="s2">&quot;reactor.serpent&quot;</span><span class="p">,</span>
-                 <span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;data/saltproc_reactor&quot;</span><span class="p">,</span>
+                 <span class="n">template_inputfile_path</span><span class="o">=</span><span class="s2">&quot;reactor.serpent&quot;</span><span class="p">,</span>
+                 <span class="n">iter_inputfile</span><span class="o">=</span><span class="s2">&quot;data/saltproc_reactor&quot;</span><span class="p">,</span>
                  <span class="n">iter_matfile</span><span class="o">=</span><span class="s2">&quot;data/saltproc_mat&quot;</span><span class="p">,</span>
-                 <span class="n">geo_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">geo_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">npop</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
                  <span class="n">active_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                  <span class="n">inactive_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
@@ -244,14 +255,14 @@
 <span class="sd">           ----------</span>
 <span class="sd">           exec_path : str</span>
 <span class="sd">               Path to Serpent2 executable.</span>
-<span class="sd">           template_path : str</span>
+<span class="sd">           template_inputfile_path : str</span>
 <span class="sd">               Path to user input file for Serpent2.</span>
-<span class="sd">           input_path : str</span>
-<span class="sd">               Name of input file for Serpent2 rerunning.</span>
+<span class="sd">           iter_inputfile : str</span>
+<span class="sd">                Name of Serpent2 input file for Serpent2 rerunning.</span>
 <span class="sd">           iter_matfile : str</span>
 <span class="sd">               Name of iterative, rewritable material file for Serpent2</span>
 <span class="sd">               rerunning. This file is modified during  the simulation.</span>
-<span class="sd">           geo_file : str or list, optional</span>
+<span class="sd">           geo_files : str or list, optional</span>
 <span class="sd">               Path to file that contains the reactor geometry.</span>
 <span class="sd">               List of `str` if reactivity control by</span>
 <span class="sd">               switching geometry is `On` or just `str` otherwise.</span>
@@ -265,10 +276,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;serpent&quot;</span><span class="p">,</span>
                          <span class="n">exec_path</span><span class="p">,</span>
-                         <span class="n">template_path</span><span class="p">,</span>
-                         <span class="n">input_path</span><span class="p">,</span>
+                         <span class="n">template_inputfile_path</span><span class="p">,</span>
+                         <span class="n">iter_inputfile</span><span class="p">,</span>
                          <span class="n">iter_matfile</span><span class="p">,</span>
-                         <span class="n">geo_file</span><span class="p">,</span>
+                         <span class="n">geo_files</span><span class="p">,</span>
                          <span class="n">npop</span><span class="p">,</span>
                          <span class="n">active_cycles</span><span class="p">,</span>
                          <span class="n">inactive_cycles</span><span class="p">)</span></div>
@@ -295,11 +306,13 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sim_param</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Template file </span><span class="si">%s</span><span class="s1"> contains multiple lines with &#39;</span>
                       <span class="s1">&#39;simulation parameters:</span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_path</span><span class="p">),</span> <span class="n">sim_param</span><span class="p">)</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">),</span> <span class="n">sim_param</span><span class="p">)</span>
                 <span class="k">return</span>
             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sim_param</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Template file </span><span class="si">%s</span><span class="s1"> does not contain line with &#39;</span>
-                      <span class="s1">&#39;simulation parameters.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_path</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s1">&#39;ERROR: Template file </span><span class="si">%s</span><span class="s1"> does not contain line with &#39;</span>
+                    <span class="s1">&#39;simulation parameters.&#39;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">))</span>
                 <span class="k">return</span>
             <span class="n">args</span> <span class="o">=</span> <span class="s1">&#39;set pop </span><span class="si">%i</span><span class="s1"> </span><span class="si">%i</span><span class="s1"> </span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">npop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span><span class="p">,</span>
                                            <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span><span class="p">)</span>
@@ -321,11 +334,11 @@
 <span class="sd">            List of strings containing modified user template file.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_path</span><span class="p">)</span>
+        <span class="n">data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">)</span>
         <span class="n">include_str</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">template_data</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;include &quot;</span><span class="p">)]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">include_str</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Template file </span><span class="si">%s</span><span class="s1"> has no &lt;include &quot;material_file&quot;&gt;&#39;</span>
-                  <span class="s1">&#39; statements &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_path</span><span class="p">))</span>
+                  <span class="s1">&#39; statements &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">))</span>
             <span class="k">return</span>
         <span class="n">src_file</span> <span class="o">=</span> <span class="n">include_str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">src_file</span><span class="p">):</span>
@@ -337,7 +350,7 @@
                       <span class="s1">&#39; materials description or &lt;include &quot;material_file&quot;&gt;&#39;</span>
                       <span class="s1">&#39; statement is not appears&#39;</span>
                       <span class="s1">&#39; as first &lt;include&gt; statement</span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_path</span><span class="p">))</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">))</span>
                 <span class="k">return</span>
         <span class="c1"># Create data directory</span>
         <span class="k">try</span><span class="p">:</span>
@@ -391,24 +404,20 @@
                 <span class="n">nuc_name</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">name</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;m&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta_flag</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">nuc_name</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">name</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
-        <span class="n">nuc_zzaaam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sss_meta_zzz</span><span class="p">(</span><span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">))</span>
+        <span class="n">nuc_zzaaam</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">convert_nuclide_name_serpent_to_zam</span><span class="p">(</span><span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">nuc_name</span><span class="p">,</span> <span class="n">nuc_zzaaam</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.get_tra_or_dec"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.get_tra_or_dec">[docs]</a>    <span class="k">def</span> <span class="nf">get_tra_or_dec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the isotopes map to transform isotope `zzaaam` code to</span>
-<span class="sd">        Serpent2. Uses Serpent2 `*.out` file with list of all isotopes in</span>
-<span class="sd">        simulation.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        input_file : str</span>
-<span class="sd">            Serpent2 input file name and path.</span>
+<div class="viewcode-block" id="DepcodeSerpent.create_nuclide_name_map_zam_to_serpent"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.create_nuclide_name_map_zam_to_serpent">[docs]</a>    <span class="k">def</span> <span class="nf">create_nuclide_name_map_zam_to_serpent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a map that accepts nuclide names in `zzaaam` format and</span>
+<span class="sd">        returns the Serpent2 nuclide code format. Uses Serpent2 `*.out` file</span>
+<span class="sd">        with list of all nuclides in simulation.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        isotope_map : dict of str to str</span>
-<span class="sd">            Contains mapping for isotopes names from `zzaaam` to Serpent2 name</span>
-<span class="sd">            imported from Serpent2 ouput file:</span>
+<span class="sd">        nuclide_map : dict of str to str</span>
+<span class="sd">            Contains mapping for nuclide names from `zzaaam` to Serpent2</span>
+<span class="sd">            format imported from Serpent2 ouput file:</span>
 
 <span class="sd">            ``key``</span>
 <span class="sd">                The key is nuclide name in `zzaaam` format. For example,</span>
@@ -420,7 +429,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">map_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c1"># Construct path to the *.out File</span>
-        <span class="n">out_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.out&#39;</span> <span class="o">%</span> <span class="n">input_file</span><span class="p">)</span>
+        <span class="n">out_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.out&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
         <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
         <span class="n">str_list</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="c1"># Stop-line</span>
@@ -453,17 +462,15 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">template_data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span>  <span class="c1"># Inserts on 6th line</span>
-                             <span class="s1">&#39;include </span><span class="se">\&quot;</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geo_file</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\&quot;\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                             <span class="s1">&#39;include </span><span class="se">\&quot;</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\&quot;\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">template_data</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.read_dep_comp"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_dep_comp">[docs]</a>    <span class="k">def</span> <span class="nf">read_dep_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="DepcodeSerpent.read_dep_comp"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_dep_comp">[docs]</a>    <span class="k">def</span> <span class="nf">read_dep_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reads the Serpent2 `*_dep.m` file and returns a dictionary with</span>
 <span class="sd">        a `Materialflow` object for each burnable material.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        input_file : str</span>
-<span class="sd">            Path to Serpent2 input file.</span>
 <span class="sd">        read_at_end : bool, optional</span>
 <span class="sd">            Controls at which moment in the depletion step to read the data.</span>
 <span class="sd">            If `True`, the function reads data at the end of the</span>
@@ -481,11 +488,13 @@
 <span class="sd">                `Materialflow` object holding composition and properties.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">moment</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Determine moment in depletion step to read data from</span>
         <span class="k">if</span> <span class="n">read_at_end</span><span class="p">:</span>
             <span class="n">moment</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">moment</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="n">dep_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_dep.m&#39;</span> <span class="o">%</span> <span class="n">input_file</span><span class="p">)</span>
+        <span class="n">dep_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_dep.m&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
         <span class="n">dep</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_dep</span><span class="p">(</span><span class="n">dep_file</span><span class="p">,</span> <span class="n">make_mats</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">days</span> <span class="o">=</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;DAYS&#39;</span><span class="p">][</span><span class="n">moment</span><span class="p">]</span>
         <span class="c1"># Read materials names from the file</span>
@@ -505,20 +514,21 @@
             <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">density</span> <span class="o">*</span> <span class="n">volume</span>
             <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="n">volume</span>
             <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">burnup</span> <span class="o">=</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;MAT_&#39;</span> <span class="o">+</span> <span class="n">m</span> <span class="o">+</span> <span class="s1">&#39;_BURNUP&#39;</span><span class="p">][</span><span class="n">moment</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">get_tra_or_dec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_nuclide_name_map_zam_to_serpent</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">mats</span></div>
 
 <div class="viewcode-block" id="DepcodeSerpent.read_depcode_info"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_depcode_info">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Parses initial simulation info data from Serpent2 output and stores</span>
 <span class="sd">        it in the `DepcodeSerpent` object&#39;s ``sim_info`` attributes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_path</span> <span class="o">+</span> <span class="s2">&quot;_res.m&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;serpent_version&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="n">res</span><span class="p">[</span><span class="s1">&#39;VERSION&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s2">&quot;_res.m&quot;</span><span class="p">)</span>
+        <span class="n">depcode_name</span><span class="p">,</span> <span class="n">depcode_ver</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;VERSION&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depcode_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depcode_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depcode_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depcode_ver</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TITLE&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;serpent_input_filename&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depcode_input_filename&#39;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="n">res</span><span class="p">[</span><span class="s1">&#39;INPUT_FILE_NAME&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;serpent_working_dir&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depcode_working_dir&#39;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="n">res</span><span class="p">[</span><span class="s1">&#39;WORKING_DIRECTORY&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;xs_data_path&#39;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="n">res</span><span class="p">[</span><span class="s1">&#39;XS_DATA_FILE_PATH&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
@@ -532,7 +542,7 @@
         <span class="sd">&quot;&quot;&quot;Parses data from Serpent2 output for each step and stores it in</span>
 <span class="sd">        `DepcodeSerpent` object&#39;s ``param`` attributes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_path</span> <span class="o">+</span> <span class="s2">&quot;_res.m&quot;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s2">&quot;_res.m&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IMP_KEFF&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IMP_KEFF&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;breeding_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;CONVERSION_RATIO&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
@@ -547,23 +557,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;fission_mass_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;INI_FMASS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;fission_mass_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TOT_FMASS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.read_depcode_template"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_depcode_template">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Reads prepared Serpent2 template (input)  file for use in</span>
-<span class="sd">        other class functions that prepare the input file for multiple runs.</span>
+<div class="viewcode-block" id="DepcodeSerpent.read_plaintext_file"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_plaintext_file">[docs]</a>    <span class="k">def</span> <span class="nf">read_plaintext_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads the content of a plaintext file for use by other methods.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        template_path : str</span>
-<span class="sd">            Path to user template file for depletion code.</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            Path to file.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        tempalate_data : list</span>
-<span class="sd">            List of strings containing user template file.</span>
+<span class="sd">        file_data : list</span>
+<span class="sd">            List of strings containing file lines.</span>
 
 <span class="sd">         &quot;&quot;&quot;</span>
-        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
-        <span class="n">template_data</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">template_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">template_data</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">template_data</span></div>
 
 <div class="viewcode-block" id="DepcodeSerpent.replace_burnup_parameters"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.replace_burnup_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">replace_burnup_parameters</span><span class="p">(</span>
@@ -596,10 +606,11 @@
         <span class="n">line_idx</span> <span class="o">=</span> <span class="mi">8</span>  <span class="c1"># burnup setting line index by default</span>
         <span class="n">current_depstep_power</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">power_levels</span><span class="p">[</span><span class="n">current_depstep_idx</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">current_depstep_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">current_depstep</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">depl_hist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">current_depstep</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">current_depstep</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">depl_hist</span><span class="p">[</span><span class="n">current_depstep_idx</span><span class="p">]</span> <span class="o">-</span> \
-                <span class="n">reactor</span><span class="o">.</span><span class="n">depl_hist</span><span class="p">[</span><span class="n">current_depstep_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">current_depstep</span> <span class="o">=</span> \
+                <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="n">current_depstep_idx</span><span class="p">]</span> <span class="o">-</span> \
+                <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="n">current_depstep_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">template_data</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;set    power   &#39;</span><span class="p">):</span>
                 <span class="n">line_idx</span> <span class="o">=</span> <span class="n">template_data</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
@@ -632,21 +643,21 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span>
                 <span class="s1">&#39;-omp&#39;</span><span class="p">,</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">input_path</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/apps/exp_ctl/&#39;</span><span class="p">):</span>  <span class="c1"># check if Falcon</span>
             <span class="n">args</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="s1">&#39;mpiexec&#39;</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">input_path</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">,</span>
                 <span class="s1">&#39;-omp&#39;</span><span class="p">,</span>
                 <span class="nb">str</span><span class="p">(</span><span class="mi">18</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span> <span class="s1">&#39;-omp&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_path</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span> <span class="s1">&#39;-omp&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
                 <span class="n">args</span><span class="p">,</span>
-                <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_path</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
@@ -654,7 +665,7 @@
                                <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished Serpent2 Run&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.sss_meta_zzz"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.sss_meta_zzz">[docs]</a>    <span class="k">def</span> <span class="nf">sss_meta_zzz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
+<div class="viewcode-block" id="DepcodeSerpent.convert_nuclide_name_serpent_to_zam"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.convert_nuclide_name_serpent_to_zam">[docs]</a>    <span class="k">def</span> <span class="nf">convert_nuclide_name_serpent_to_zam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks Serpent2-specific meta stable-flag for zzaaam. For instance,</span>
 <span class="sd">        47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented</span>
 <span class="sd">        with `aaa` started with ``3``.</span>
@@ -682,10 +693,33 @@
             <span class="n">zzaaam</span> <span class="o">=</span> <span class="n">nuc_code</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">zzaaam</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="DepcodeSerpent.switch_to_next_geometry"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.switch_to_next_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">switch_to_next_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inserts line with path to next Serpent geometry file at the</span>
+<span class="sd">        beginning of the Serpent iteration input file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">geo_line_n</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">current_geo_file</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">geo_line_n</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">current_geo_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">current_geo_file</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">new_geo_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="p">[</span><span class="n">current_geo_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No more geometry files available </span><span class="se">\</span>
+<span class="s1">                  and the system went subcritical </span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Aborting simulation&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">new_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">current_geo_file</span><span class="p">,</span> <span class="n">new_geo_file</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Switching to next geometry file: &#39;</span><span class="p">,</span> <span class="n">new_geo_file</span><span class="p">)</span>
+
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
 <div class="viewcode-block" id="DepcodeSerpent.write_depcode_input"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.write_depcode_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_depcode_input</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">temp_file</span><span class="p">,</span>
-            <span class="n">inp_file</span><span class="p">,</span>
             <span class="n">reactor</span><span class="p">,</span>
             <span class="n">dep_step</span><span class="p">,</span>
             <span class="n">restart</span><span class="p">):</span>
@@ -693,10 +727,6 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        template_file : str</span>
-<span class="sd">            Path to Serpent2 template file.</span>
-<span class="sd">        input_file : str</span>
-<span class="sd">            Path to input file for Serpent2 rerunning.</span>
 <span class="sd">        reactor : Reactor</span>
 <span class="sd">            Contains information about power load curve and cumulative</span>
 <span class="sd">            depletion time for the integration test.</span>
@@ -708,20 +738,20 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">dep_step</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">restart</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_depcode_template</span><span class="p">(</span><span class="n">temp_file</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insert_path_to_geometry</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_sim_par</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_iter_matfile</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_depcode_template</span><span class="p">(</span><span class="n">inp_file</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace_burnup_parameters</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">out_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">inp_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+            <span class="n">out_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
             <span class="n">out_file</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">out_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.write_mat_file"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.write_mat_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_mat_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_dict</span><span class="p">,</span> <span class="n">mat_file</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
+<div class="viewcode-block" id="DepcodeSerpent.write_mat_file"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.write_mat_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_mat_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_dict</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Writes the iteration input file containing the burnable materials</span>
 <span class="sd">        composition used in Serpent2 runs and updated after each depletion</span>
 <span class="sd">        step.</span>
@@ -735,14 +765,12 @@
 <span class="sd">                Name of burnable material.</span>
 <span class="sd">            ``value``</span>
 <span class="sd">                `Materialflow` object holding composition and properties.</span>
-<span class="sd">        mat_file : str</span>
-<span class="sd">            Path to file containing burnable materials composition.</span>
 <span class="sd">        dep_end_time : float</span>
 <span class="sd">            Current time at the end of the depletion step (d).</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">matf</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">mat_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">matf</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
         <span class="n">matf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%%</span><span class="s1"> Material compositions (after </span><span class="si">%f</span><span class="s1"> days)</span><span class="se">\n\n</span><span class="s1">&#39;</span>
                    <span class="o">%</span> <span class="n">dep_end_time</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dep_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>

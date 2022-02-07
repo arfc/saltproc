@@ -79,7 +79,7 @@
                  <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
                  <span class="n">mass_flowrate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
                  <span class="n">power_levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
-                 <span class="n">depl_hist</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                 <span class="n">dep_step_length_cumulative</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the class.</span>
 
 <span class="sd">        Parameters</span>
@@ -87,10 +87,10 @@
 <span class="sd">        volume : float</span>
 <span class="sd">            Total volume of the reactor core (:math:`cm^3`).</span>
 <span class="sd">        mass_flowrate : float</span>
-<span class="sd">            Total mass flowrate through reactor (g/s).</span>
+<span class="sd">            Total mass flowrate through reactor core (g/s).</span>
 <span class="sd">        power_levels : array [:math:`N_{steps}` x1]</span>
 <span class="sd">            Normalized power level for each depletion step (W).</span>
-<span class="sd">        depl_hist : array [:math:`N_{steps}` x1]</span>
+<span class="sd">        dep_step_length_cumulative : array [:math:`N_{steps}` x1]</span>
 <span class="sd">            Cumulative depletion time (d).</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -98,7 +98,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">volume</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mass_flowrate</span> <span class="o">=</span> <span class="n">mass_flowrate</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">power_levels</span> <span class="o">=</span> <span class="n">power_levels</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">depl_hist</span> <span class="o">=</span> <span class="n">depl_hist</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span> <span class="o">=</span> <span class="n">dep_step_length_cumulative</span></div></div>
 </pre></div>
 
            </div>

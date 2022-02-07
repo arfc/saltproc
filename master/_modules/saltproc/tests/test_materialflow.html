@@ -78,20 +78,20 @@
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
 <span class="c1"># global class object</span>
 <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-<span class="n">input_file</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/test&#39;</span>
+<span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/test&#39;</span>
 
 <span class="n">serpent</span> <span class="o">=</span> <span class="n">DepcodeSerpent</span><span class="p">(</span>
     <span class="n">exec_path</span><span class="o">=</span><span class="s1">&#39;/home/andrei2/serpent/serpent2/src_2131/sss2&#39;</span><span class="p">,</span>
-    <span class="n">template_path</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span>
+    <span class="n">template_inputfile_path</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span>
     <span class="s1">&#39;/template.inp&#39;</span><span class="p">,</span>
-    <span class="n">input_path</span><span class="o">=</span><span class="n">input_file</span><span class="p">,</span>
+    <span class="n">iter_inputfile</span><span class="o">=</span><span class="n">iter_inputfile</span><span class="p">,</span>
     <span class="n">iter_matfile</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span>
     <span class="s1">&#39;/material&#39;</span><span class="p">,</span>
-    <span class="n">geo_file</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">geo_files</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="test_get_mass"><a class="viewcode-back" href="../../../src/saltproc.tests.test_materialflow.html#saltproc.tests.test_materialflow.test_get_mass">[docs]</a><span class="k">def</span> <span class="nf">test_get_mass</span><span class="p">():</span>
-    <span class="n">mats</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">mats</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_mass</span><span class="p">()</span> <span class="o">==</span> <span class="mf">112683343.50000001</span>
     <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;U235&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">3499538.3359278883</span>
     <span class="k">assert</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">][</span><span class="s1">&#39;U238&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">66580417.24509208</span>
@@ -105,7 +105,7 @@
 
 
 <div class="viewcode-block" id="test_scale_matflow"><a class="viewcode-back" href="../../../src/saltproc.tests.test_materialflow.html#saltproc.tests.test_materialflow.test_scale_matflow">[docs]</a><span class="k">def</span> <span class="nf">test_scale_matflow</span><span class="p">():</span>
-    <span class="n">mats</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">mats</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">scale_factor</span> <span class="o">=</span> <span class="mf">0.7</span>
     <span class="n">scaled_matflow</span> <span class="o">=</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">scale_matflow</span><span class="p">(</span><span class="n">scale_factor</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">scaled_matflow</span><span class="p">[</span><span class="mi">922350000</span><span class="p">]</span> <span class="o">==</span> <span class="n">scale_factor</span> <span class="o">*</span> <span class="mf">3499538.3359278883</span>
@@ -115,7 +115,7 @@
 
 
 <div class="viewcode-block" id="test_copy_pymat_attrs"><a class="viewcode-back" href="../../../src/saltproc.tests.test_materialflow.html#saltproc.tests.test_materialflow.test_copy_pymat_attrs">[docs]</a><span class="k">def</span> <span class="nf">test_copy_pymat_attrs</span><span class="p">():</span>
-    <span class="n">mats</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">mats</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">target_mat</span> <span class="o">=</span> <span class="n">mats</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span>
     <span class="n">target_mat</span><span class="o">.</span><span class="n">copy_pymat_attrs</span><span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">])</span>
     <span class="k">assert</span> <span class="n">target_mat</span><span class="o">.</span><span class="n">density</span> <span class="o">==</span> <span class="mf">5.873</span>

@@ -74,27 +74,53 @@
 <span id="saltproc-simulation-module"></span><h1>saltproc.simulation module<a class="headerlink" href="#module-saltproc.simulation" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="saltproc.simulation.Simulation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">saltproc.simulation.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_depcode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SERPENT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'db_saltproc.h5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Filters(complevel=9,</span> <span class="pre">complib='blosc',</span> <span class="pre">shuffle=True,</span> <span class="pre">bitshuffle=False,</span> <span class="pre">fletcher32=True,</span> <span class="pre">least_significant_digit=None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iter_matfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./saltproc_mat'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">saltproc.simulation.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_depcode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'depcode'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'db_saltproc.h5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjust_geo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Filters(complevel=9,</span> <span class="pre">complib='blosc',</span> <span class="pre">shuffle=True,</span> <span class="pre">bitshuffle=False,</span> <span class="pre">fletcher32=True,</span> <span class="pre">least_significant_digit=None)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class sets up parameters for simulation, runs Serpent, parses output,
-creates input.</p>
+<p>Class for handling simulation information. Contains information
+for running simulation wiht parallelism. Also contains the simulation
+name, a <cite>Depcode</cite> object, and the filename for the simulation database.
+Contains methods to store simulation metadata and depletion results in
+a database, predict reactor criticality at next depletion step, and
+switch simulation geometry.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="saltproc.simulation.Simulation.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_depcode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SERPENT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'db_saltproc.h5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Filters(complevel=9,</span> <span class="pre">complib='blosc',</span> <span class="pre">shuffle=True,</span> <span class="pre">bitshuffle=False,</span> <span class="pre">fletcher32=True,</span> <span class="pre">least_significant_digit=None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iter_matfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./saltproc_mat'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_depcode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'depcode'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'db_saltproc.h5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjust_geo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Filters(complevel=9,</span> <span class="pre">complib='blosc',</span> <span class="pre">shuffle=True,</span> <span class="pre">bitshuffle=False,</span> <span class="pre">fletcher32=True,</span> <span class="pre">least_significant_digit=None)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the Simulation object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>sim_name</strong> (<em>str</em>) – Name of simulation may contain number of reference case, paper name
-or other specific information to identify simulation.</p></li>
-<li><p><strong>sim_depcode</strong> (<em>obj</em>) – Depcode object initiated using Depcode class.</p></li>
-<li><p><strong>cores</strong> (<em>int</em>) – Number of cores to use for Serpent run (<cite>-omp</cite> flag in Serpent).</p></li>
-<li><p><strong>nodes</strong> (<em>int</em>) – Number of nodes to use for Serpent run (<cite>-mpi</cite> flag in Serpent).</p></li>
-<li><p><strong>h5_file</strong> (<em>str</em>) – Name of HDF5 database.</p></li>
-<li><p><strong>compression</strong> (<em>Pytables filter object</em>) – HDF5 database compression parameters.</p></li>
-<li><p><strong>iter_matfile</strong> (<em>str</em>) – Name of file containing burnable materials composition used in
-Serpent runs and update after each depletion step.</p></li>
+<li><p><strong>sim_name</strong> (<em>str</em>) – Name to identify the simulation. May contain information such as
+the number of a reference case, a paper name, or some other
+specific information identify the simulation.</p></li>
+<li><p><strong>sim_depcode</strong> (<cite>Depcode</cite> object) – An instance of one of the <cite>Depcode</cite> child classes</p></li>
+<li><p><strong>cores</strong> (<em>int</em>) – Number of cores to use for depletion code run (<cite>-omp</cite> flag in
+Serpent).</p></li>
+<li><p><strong>nodes</strong> (<em>int</em>) – Number of nodes to use for depletion code run (<cite>-mpi</cite> flag in
+Serpent).</p></li>
+<li><p><strong>db_path</strong> (<em>str</em>) – Path of HDF5 database that stores simulation information and
+data.</p></li>
+<li><p><strong>restart_flag</strong> (<em>bool</em>) – This value determines our initial condition. If <cite>True</cite>, then
+then we run the simulation starting from the inital material
+composition in the material input file inside our <cite>depcode</cite>
+object. If <cite>False</cite>, then we runthe simulation starting from
+the final material composition resulting within the <cite>.h5</cite>
+database.</p></li>
+<li><p><strong>adjust_geo</strong> (<em>bool</em>) – This value determines if we switch reactor geometry when keff
+drops below 1.0</p></li>
+<li><p><strong>compression_params</strong> (<em>Pytables filter object</em>) – Compression parameters for HDF5 database.</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.simulation.Simulation.check_restart">
+<span class="sig-name descname"><span class="pre">check_restart</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.check_restart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.check_restart" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the user set <cite>restart_flag</cite>
+for <cite>False</cite> clean out iteration files and database from previous run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>restart_flag</strong> (<em>bool</em>) – Is the current simulation restarted?</p>
 </dd>
 </dl>
 </dd></dl>
@@ -102,8 +128,9 @@ Serpent runs and update after each depletion step.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="saltproc.simulation.Simulation.check_switch_geo_trigger">
 <span class="sig-name descname"><span class="pre">check_switch_geo_trigger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">switch_time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.check_switch_geo_trigger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.check_switch_geo_trigger" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compares current timestep with user defined time to switch geometry.
-Returns <cite>True</cite> if its time.</p>
+<dd><p>Compares the current timestep with the user defined times
+at which to switch reactor geometry, and returns <cite>True</cite> if there
+is a match.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -122,16 +149,13 @@ Returns <cite>True</cite> if its time.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="saltproc.simulation.Simulation.read_k_eds_delta">
-<span class="sig-name descname"><span class="pre">read_k_eds_delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.read_k_eds_delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.read_k_eds_delta" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">read_k_eds_delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_timestep</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.read_k_eds_delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.read_k_eds_delta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads from database delta between previous and current <cite>keff</cite> at the
 end of depletion step and returns <cite>True</cite> if predicted <cite>keff</cite> at the
 next depletion step drops below 1.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>current_timestep</strong> (<em>int</em>) – Number of current depletion time step.</p></li>
-<li><p><strong>restart</strong> (<em>bool</em>) – Was this simulation restarted?</p></li>
-</ul>
+<dd class="field-odd"><p><strong>current_timestep</strong> (<em>int</em>) – Number of current depletion time step.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Is the reactor will become subcritical at the next step?</p>
@@ -143,30 +167,15 @@ next depletion step drops below 1.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="saltproc.simulation.Simulation.runsim_no_reproc">
-<span class="sig-name descname"><span class="pre">runsim_no_reproc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsteps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.runsim_no_reproc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.runsim_no_reproc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run simulation sequence for integral test. No reprocessing involved,
-just re-running Serpent for comparision with model output.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>reactor</strong> (<a class="reference internal" href="saltproc.reactor.html#saltproc.reactor.Reactor" title="saltproc.reactor.Reactor"><em>Reactor</em></a>) – Contains information about power load curve and cumulative
-depletion time for the integration test.</p></li>
-<li><p><strong>nsteps</strong> (<em>int</em>) – Number of depletion time steps in integration test run.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="saltproc.simulation.Simulation.store_after_repr">
-<span class="sig-name descname"><span class="pre">store_after_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">after_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.store_after_repr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.store_after_repr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds to HDF5 database waste streams data for each process after
-reprocessing was performed (grams per depletion step).</p>
+<span class="sig-name descname"><span class="pre">store_after_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">after_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dep_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.store_after_repr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.store_after_repr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add data for waste streams [grams per depletion step] of each
+process to the HDF5 database after reprocessing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>after_mats</strong> (<cite>Materialflow</cite>) – Burnable material stream object after performing reprocessing.</p></li>
+<li><p><strong>after_mats</strong> (<cite>Materialflow</cite>) – <cite>Materialflow</cite> object representing a material stream after
+performing reprocessing.</p></li>
 <li><p><strong>waste_dict</strong> (<em>dict of str to Materialflow</em>) – <p>Dictionary that maps <cite>Process</cite> objects to waste <cite>Materialflow</cite>
 objects.</p>
 <dl class="simple">
@@ -176,7 +185,7 @@ objects.</p>
 </dd>
 </dl>
 </p></li>
-<li><p><strong>step</strong> (<em>int</em>) – Current depletion step.</p></li>
+<li><p><strong>dep_step</strong> (<em>int</em>) – Current depletion time step.</p></li>
 </ul>
 </dd>
 </dl>
@@ -184,10 +193,11 @@ objects.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="saltproc.simulation.Simulation.store_mat_data">
-<span class="sig-name descname"><span class="pre">store_mat_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moment</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.store_mat_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.store_mat_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes HDF5/Pytables database (if not exist) or append burnable
-material composition, mass, density, volume, temperature, burnup,
-mass_flowrate, void_fraction, at the current depletion step to it.</p>
+<span class="sig-name descname"><span class="pre">store_mat_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dep_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_at_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.store_mat_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.store_mat_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the HDF5/Pytables database (if it doesn’t exist) or
+append the following data at the current depletion step to the
+database: burnable material composition, mass, density, volume,
+temperature, burnup,  mass_flowrate, void_fraction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -199,9 +209,11 @@ mass_flowrate, void_fraction, at the current depletion step to it.</p>
 </dd>
 </dl>
 </p></li>
-<li><p><strong>d_step</strong> (<em>int</em>) – Current depletion step.</p></li>
-<li><p><strong>moment</strong> (<em>int</em>) – Indicates at which moment in the depletion step store the data. <cite>0</cite>
-refers the beginning, <cite>1</cite> refers the end of depletion step.</p></li>
+<li><p><strong>dep_step</strong> (<em>int</em>) – Current depletion step.</p></li>
+<li><p><strong>store_at_end</strong> (<em>bool</em><em>, </em><em>optional</em>) – Controls at which moment in the depletion step to store data from.
+If <cite>True</cite>, the function stores data from the end of the
+depletion step. Otherwise, the function stores data from the
+beginning of the depletion step.</p></li>
 </ul>
 </dd>
 </dl>
@@ -210,24 +222,22 @@ refers the beginning, <cite>1</cite> refers the end of depletion step.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="saltproc.simulation.Simulation.store_run_init_info">
 <span class="sig-name descname"><span class="pre">store_run_init_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.store_run_init_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.store_run_init_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds to database Serpent and Saltproc simulation parameters before
-starting depletion sequence.</p>
+<dd><p>Adds the following depletion code and SaltProc simulation parameters
+to the database:
+neutron population, active cycles, inactive cycles, depletion code
+version simulation title, depetion code input file path, depletion code
+working directory, cross section data path, # of OMP threads, # of MPI
+tasks, memory optimization mode (Serpent), depletion timestep size.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="saltproc.simulation.Simulation.store_run_step_info">
 <span class="sig-name descname"><span class="pre">store_run_step_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.store_run_step_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.store_run_step_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds to database Serpent and Saltproc simulation parameters
-(execution time, memory usage), multiplication factor, breeding ratio,
+<dd><p>Adds the following depletion code and SaltProc simulation
+data at the current depletion step to the database:
+execution time, memory usage, multiplication factor, breeding ratio,
 delayed neutron precursor data, fission mass, cumulative depletion
-time, power level for the current time step.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="saltproc.simulation.Simulation.switch_to_next_geometry">
-<span class="sig-name descname"><span class="pre">switch_to_next_geometry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.switch_to_next_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.switch_to_next_geometry" title="Permalink to this definition">¶</a></dt>
-<dd><p>Inserts line with path to next Serpent geometry file at the
-beginning of the Serpent iteration input file.</p>
+time, power level.</p>
 </dd></dl>
 
 </dd></dl>
