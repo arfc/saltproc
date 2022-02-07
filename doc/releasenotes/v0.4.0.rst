@@ -14,6 +14,8 @@ Release notes for v0.4.0
 .. _jsonschema: https://github.com/Julian/jsonschema
 .. _@yardasol: https://github.com/yardasol
 .. _@abachma2: https://github.com/abachma2
+.. _@ZoeRichter: https://github.com/ZoeRichter
+.. _@gwenchee: https://github.com/gwenchee
 .. _@LukeSeifert: https://github.com/LukeSeifert
 .. _@munkm: https://github.com/munkm
 
@@ -174,5 +176,7 @@ The following people reviewed code for this release of SaltProc:
   `@gh_username <https://github.com/gh_uname>`_
 
 - `@abachma2`_
+- `@ZoeRichter`_
+- `@gwenchee`_
 - `@LukeSeifert`_
 - `@munkm`_
