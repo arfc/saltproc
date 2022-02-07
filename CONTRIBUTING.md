@@ -1,3 +1,5 @@
+# Contributing
+
 ### Thanks for Your Help!
 
 Contributing is so kind of you. In SaltProc, all contributions, bug reports,
@@ -87,6 +89,9 @@ Please use the provided pull request template. In particular:
   - **Make sure the test suite passes** on your computer. To do so, run
     `py.test saltproc` in the repository directory. At a minumum, you must 
     run the tests requring serpent locally as they are not tested by our CI
+  - Describe your feature/change/fix in the release notes (located in `doc/releasenotes`)
+    for the currently in-development release version. Use the descriptive comments and
+    examples as reference.
   - Please reference relevant Github issues in your commit message using
     `GH1234` or `#1234`.
   - Changes should be PEP8 compatible [PEP8](http://www.python.org/dev/peps/pep-0008/).
