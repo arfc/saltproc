@@ -4,12 +4,14 @@ name: Cache dependencies
 on:
   schedule:
     - cron: '0 9 * * 1' # run every monday @ 9AM
+  # enable worflow to be run manually
+  workflow_dispatch:
 
 env:
   CACHE_NUMBER: 0 
 
 jobs:
-  cache-dependencies:
+  cache-build-dependencies:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -18,6 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+## TESTING CACHE ##
 # Setup conda 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v2
@@ -49,6 +52,46 @@ jobs:
 
       - name: Install SaltProc
         run: pip install .
+
+      - name: Check packages
+        run: conda list
+  cache-doc-dependencies:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v2
+
+## DOCUMENTATION CACHE ##
+      - name: Set up conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge # mamba is faster than base conda
+          miniforge-version: latest
+          activate-environment: saltproc-doc-env
+          use-mamba: true
+          use-only-tar-bz2: true
+      - run: |
+          conda config --env --set pip_interop_enabled True
+
+# check for existing cache
+      - name: Set cache date
+        run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
+      - uses: actions/cache@v2
+        id: dependencies-cache
+        with:
+          path: |
+            /usr/share/miniconda3/envs/saltproc-doc-env
+            ~/.cache/pip
+          key: depcache-${{ hashFiles('doc/doc-environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+
+# Install dependencies
+      - name: Update environment
+        run: mamba env update -n saltproc-doc-env -f doc/doc-environment.yml
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
 
       - name: Check packages
         run: conda list

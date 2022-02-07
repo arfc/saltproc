@@ -14,8 +14,10 @@
 - [ ] I have read the **CONTRIBUTING** document.
 - [ ] My code follows the code style of this project.
 - [ ] My change requires a change to the documentation.
-- [ ] I have updated the documentation accordingly.
-- [ ] I have added tests to cover my changes.
+  - [ ] I have updated the documentation accordingly.
+- [ ] My change is a source code change
+  - [ ] I have added/modified tests to cover my changes
+  - [ ] I have explained why my change does not require new/modified tests 
 - [ ] All new and existing tests passed.
   - [ ] CI tests pass
   - [ ] Local tests pass (including Serpent2 integration tests)

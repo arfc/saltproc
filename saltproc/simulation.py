@@ -5,110 +5,99 @@ from collections import OrderedDict
 
 
 class Simulation():
-    """Class sets up parameters for simulation, runs Serpent, parses output,
-    creates input.
+    """Class for handling simulation information. Contains information
+    for running simulation wiht parallelism. Also contains the simulation
+    name, a `Depcode` object, and the filename for the simulation database.
+    Contains methods to store simulation metadata and depletion results in
+    a database, predict reactor criticality at next depletion step, and
+    switch simulation geometry.
+
     """
 
     def __init__(
             self,
             sim_name="default",
-            sim_depcode="SERPENT",
+            sim_depcode="depcode",
             core_number=1,
             node_number=1,
-            h5_file="db_saltproc.h5",
-            compression=tb.Filters(complevel=9,
-                                   complib='blosc',
-                                   fletcher32=True),
-            iter_matfile="./saltproc_mat"):
+            db_path="db_saltproc.h5",
+            restart_flag=True,
+            adjust_geo=False,
+            compression_params=tb.Filters(complevel=9,
+                                          complib='blosc',
+                                          fletcher32=True),
+    ):
         """Initializes the Simulation object.
 
         Parameters
         ----------
-        sim_name: str
-            Name of simulation may contain number of reference case, paper name
-            or other specific information to identify simulation.
-        sim_depcode: obj
-            Depcode object initiated using Depcode class.
-        cores: int
-            Number of cores to use for Serpent run (`-omp` flag in Serpent).
-        nodes: int
-            Number of nodes to use for Serpent run (`-mpi` flag in Serpent).
-        h5_file: str
-            Name of HDF5 database.
-        compression: Pytables filter object
-            HDF5 database compression parameters.
-        iter_matfile: str
-            Name of file containing burnable materials composition used in
-            Serpent runs and update after each depletion step.
+        sim_name : str
+            Name to identify the simulation. May contain information such as
+            the number of a reference case, a paper name, or some other
+            specific information identify the simulation.
+        sim_depcode : `Depcode` object
+            An instance of one of the `Depcode` child classes
+        cores : int
+            Number of cores to use for depletion code run (`-omp` flag in
+            Serpent).
+        nodes : int
+            Number of nodes to use for depletion code run (`-mpi` flag in
+            Serpent).
+        db_path : str
+            Path of HDF5 database that stores simulation information and
+            data.
+        restart_flag : bool
+            This value determines our initial condition. If `True`, then
+            then we run the simulation starting from the inital material
+            composition in the material input file inside our `depcode`
+            object. If `False`, then we runthe simulation starting from
+            the final material composition resulting within the `.h5`
+            database.
+        adjust_geo : bool
+            This value determines if we switch reactor geometry when keff
+            drops below 1.0
+        compression_params : Pytables filter object
+            Compression parameters for HDF5 database.
+
         """
         # initialize all object attributes
         self.sim_name = sim_name
         self.sim_depcode = sim_depcode
         self.core_number = core_number
         self.node_number = node_number
-        self.h5_file = h5_file
-        self.compression = compression
-        self.iter_matfile = iter_matfile
+        self.db_path = db_path
+        self.restart_flag = restart_flag
+        self.adjust_geo = adjust_geo
+        self.compression_params = compression_params
 
-    def runsim_no_reproc(self, reactor, nsteps):
-        """Run simulation sequence for integral test. No reprocessing involved,
-        just re-running Serpent for comparision with model output.
+    def check_restart(self):
+        """If the user set `restart_flag`
+        for `False` clean out iteration files and database from previous run.
 
         Parameters
         ----------
-        reactor : Reactor
-            Contains information about power load curve and cumulative
-            depletion time for the integration test.
-        nsteps : int
-            Number of depletion time steps in integration test run.
+        restart_flag : bool
+            Is the current simulation restarted?
 
         """
+        if not self.restart_flag:
+            try:
+                os.remove(self.db_path)
+                os.remove(self.sim_depcode.iter_matfile)
+                os.remove(self.sim_depcode.iter_inputfile)
+                print("Previous run output files were deleted.")
+            except OSError as e:
+                pass
 
-        ######################################################################
-        # Start sequence
-        for dts in range(nsteps):
-            print("\nStep #%i has been started" % (dts + 1))
-            if dts == 0:  # First step
-                self.sim_depcode.write_depcode_input(
-                    self.sim_depcode.template_path,
-                    self.sim_depcode.input_path,
-                    reactor,
-                    dts,
-                    False)
-                self.sim_depcode.run_depcode(
-                    self.core_number,
-                    self.node_number)
-                # Read general simulation data which never changes
-                self.store_run_init_info()
-                # Parse and store data for initial state (beginning of dts)
-                mats = self.sim_depcode.read_dep_comp(
-                    self.sim_depcode.input_path,
-                    False)
-                self.store_mat_data(mats, dts, 'before_reproc')
-            # Finish of First step
-            # Main sequence
-            else:
-                self.sim_depcode.run_depcode(
-                    self.core_number,
-                    self.node_number)
-            mats = self.sim_depcode.read_dep_comp(
-                self.sim_depcode.input_path,
-                True)
-            self.store_mat_data(mats, dts, 'before_reproc')
-            self.store_run_step_info()
-            self.sim_depcode.write_mat_file(
-                mats,
-                self.iter_matfile,
-                self.burn_time)
-
-    def store_after_repr(self, after_mats, waste_dict, step):
-        """Adds to HDF5 database waste streams data for each process after
-        reprocessing was performed (grams per depletion step).
+    def store_after_repr(self, after_mats, waste_dict, dep_step):
+        """Add data for waste streams [grams per depletion step] of each
+        process to the HDF5 database after reprocessing.
 
         Parameters
         ----------
         after_mats : `Materialflow`
-            Burnable material stream object after performing reprocessing.
+            `Materialflow` object representing a material stream after
+            performing reprocessing.
         waste_dict : dict of str to Materialflow
             Dictionary that maps `Process` objects to waste `Materialflow`
             objects.
@@ -117,12 +106,15 @@ class Simulation():
                 `Process` name (`str`)
             ``value``
                 `Materialflow` object containing waste streams data.
-        step : int
-            Current depletion step.
+        dep_step : int
+            Current depletion time step.
 
         """
         streams_gr = 'in_out_streams'
-        db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
+        db = tb.open_file(
+            self.db_path,
+            mode='a',
+            filters=self.compression_params)
         for mn in waste_dict.keys():  # iterate over materials
             mat_node = getattr(db.root.materials, mn)
             if not hasattr(mat_node, streams_gr):
@@ -162,13 +154,14 @@ class Simulation():
                 del iso_wt_frac
                 del iso_idx
         # Also save materials AFTER reprocessing and refill here
-        self.store_mat_data(after_mats, step, 'after_reproc')
+        self.store_mat_data(after_mats, dep_step, True)
         db.close()
 
-    def store_mat_data(self, mats, d_step, moment):
-        """Initializes HDF5/Pytables database (if not exist) or append burnable
-        material composition, mass, density, volume, temperature, burnup,
-        mass_flowrate, void_fraction, at the current depletion step to it.
+    def store_mat_data(self, mats, dep_step, store_at_end=False):
+        """Initialize the HDF5/Pytables database (if it doesn't exist) or
+        append the following data at the current depletion step to the
+        database: burnable material composition, mass, density, volume,
+        temperature, burnup,  mass_flowrate, void_fraction.
 
         Parameters
         ----------
@@ -179,13 +172,21 @@ class Simulation():
                 Name of burnable material.
             ``value``
                 `Materialflow` object holding composition and properties.
-        d_step : int
+        dep_step : int
             Current depletion step.
-        moment : int
-            Indicates at which moment in the depletion step store the data. `0`
-            refers the beginning, `1` refers the end of depletion step.
+        store_at_end : bool, optional
+            Controls at which moment in the depletion step to store data from.
+            If `True`, the function stores data from the end of the
+            depletion step. Otherwise, the function stores data from the
+            beginning of the depletion step.
 
         """
+        # Determine moment in depletion step from which to store data
+        if store_at_end:
+            dep_step_str = "after_reproc"
+        else:
+            dep_step_str = "before_reproc"
+
         # Moment when store compositions
         iso_idx = OrderedDict()
         # numpy array row storage data for material physical properties
@@ -199,8 +200,13 @@ class Simulation():
             ('burnup', float)
         ])
 
-        print('\nStoring material data for depletion step #%i.' % (d_step + 1))
-        db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
+        print(
+            '\nStoring material data for depletion step #%i.' %
+            (dep_step + 1))
+        db = tb.open_file(
+            self.db_path,
+            mode='a',
+            filters=self.compression_params)
         if not hasattr(db.root, 'materials'):
             comp_group = db.create_group('/',
                                          'materials',
@@ -216,11 +222,11 @@ class Simulation():
                                 key)
             # Create group for composition and parameters before reprocessing
             mat_node = getattr(db.root.materials, key)
-            if not hasattr(mat_node, moment):
+            if not hasattr(mat_node, dep_step_str):
                 db.create_group(mat_node,
-                                moment,
+                                dep_step_str,
                                 'Material data before reprocessing')
-            comp_pfx = '/materials/' + str(key) + '/' + str(moment)
+            comp_pfx = '/materials/' + str(key) + '/' + dep_step_str
             # Read isotopes from Materialflow for material
             for nuc_code, wt_frac in mats[key].comp.items():
                 # Dictonary in format {isotope_name : index(int)}
@@ -266,7 +272,7 @@ class Simulation():
                     np.empty(0, dtype=mpar_dtype),
                     "Material parameters data")
             print('Dumping Material %s data %s to %s.' %
-                  (key, moment, os.path.abspath(self.h5_file)))
+                  (key, dep_step_str, os.path.abspath(self.db_path)))
             # Add row for the timestep to EArray and Material Parameters table
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
             mpar_table.append(mpar_array)
@@ -276,10 +282,11 @@ class Simulation():
         db.close()
 
     def store_run_step_info(self):
-        """Adds to database Serpent and Saltproc simulation parameters
-        (execution time, memory usage), multiplication factor, breeding ratio,
+        """Adds the following depletion code and SaltProc simulation
+        data at the current depletion step to the database:
+        execution time, memory usage, multiplication factor, breeding ratio,
         delayed neutron precursor data, fission mass, cumulative depletion
-        time, power level for the current time step.
+        time, power level.
         """
 
         # Read info from depcode _res.m File
@@ -287,7 +294,6 @@ class Simulation():
         # Initialize beta groups number
         b_g = len(self.sim_depcode.param['beta_eff'])
         # numpy array row storage for run info
-
         class Step_info(tb.IsDescription):
             keff_bds = tb.Float32Col((2,))
             keff_eds = tb.Float32Col((2,))
@@ -301,7 +307,10 @@ class Simulation():
             fission_mass_bds = tb.Float32Col()
             fission_mass_eds = tb.Float32Col()
         # Open or restore db and append data to it
-        db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
+        db = tb.open_file(
+            self.db_path,
+            mode='a',
+            filters=self.compression_params)
         try:
             step_info_table = db.get_node(
                 db.root,
@@ -312,7 +321,7 @@ class Simulation():
             step_info_table = db.create_table(
                 db.root,
                 'simulation_parameters',
-                Step_info,
+                Step_info,  # self.sim_depcode.Step_info,
                 "Simulation parameters after each timestep")
             # Intializing burn_time array at the first depletion step
             self.burn_time = 0.0
@@ -320,6 +329,7 @@ class Simulation():
         # Define row of table as step_info
         step_info = step_info_table.row
         # Define all values in the row
+
         step_info['keff_bds'] = self.sim_depcode.param['keff_bds']
         step_info['keff_eds'] = self.sim_depcode.param['keff_eds']
         step_info['breeding_ratio'] = self.sim_depcode.param[
@@ -338,24 +348,33 @@ class Simulation():
             'fission_mass_bds']
         step_info['fission_mass_eds'] = self.sim_depcode.param[
             'fission_mass_eds']
+
         # Inject the Record value into the table
         step_info.append()
         step_info_table.flush()
         db.close()
 
     def store_run_init_info(self):
-        """Adds to database Serpent and Saltproc simulation parameters before
-        starting depletion sequence.
+        """Adds the following depletion code and SaltProc simulation parameters
+        to the database:
+        neutron population, active cycles, inactive cycles, depletion code
+        version simulation title, depetion code input file path, depletion code
+        working directory, cross section data path, # of OMP threads, # of MPI
+        tasks, memory optimization mode (Serpent), depletion timestep size.
+
         """
         # numpy arraw row storage for run info
+        # delete and make this datatype specific
+        # to Depcode subclasses
         sim_info_dtype = np.dtype([
             ('neutron_population', int),
             ('active_cycles', int),
             ('inactive_cycles', int),
-            ('serpent_version', 'S20'),
+            ('depcode_name', 'S20'),
+            ('depcode_version', 'S20'),
             ('title', 'S90'),
-            ('serpent_input_filename', 'S90'),
-            ('serpent_working_dir', 'S90'),
+            ('depcode_input_filename', 'S90'),
+            ('depcode_working_dir', 'S90'),
             ('xs_data_path', 'S90'),
             ('OMP_threads', int),
             ('MPI_tasks', int),
@@ -368,11 +387,12 @@ class Simulation():
         sim_info_row = (
             self.sim_depcode.npop,
             self.sim_depcode.active_cycles,
-            self.sim_depcode.inactive_cycles,
-            self.sim_depcode.sim_info['serpent_version'],
+            self.sim_depcode.inactive_cycles,  # delete the below
+            self.sim_depcode.sim_info['depcode_name'],
+            self.sim_depcode.sim_info['depcode_version'],
             self.sim_depcode.sim_info['title'],
-            self.sim_depcode.sim_info['serpent_input_filename'],
-            self.sim_depcode.sim_info['serpent_working_dir'],
+            self.sim_depcode.sim_info['depcode_input_filename'],
+            self.sim_depcode.sim_info['depcode_working_dir'],
             self.sim_depcode.sim_info['xs_data_path'],
             self.sim_depcode.sim_info['OMP_threads'],
             self.sim_depcode.sim_info['MPI_tasks'],
@@ -380,8 +400,12 @@ class Simulation():
             self.sim_depcode.sim_info['depletion_timestep']
         )
         sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype)
+
         # Open or restore db and append datat to it
-        db = tb.open_file(self.h5_file, mode='a', filters=self.compression)
+        db = tb.open_file(
+            self.db_path,
+            mode='a',
+            filters=self.compression_params)
         try:
             sim_info_table = db.get_node(db.root, 'initial_depcode_siminfo')
         except Exception:
@@ -393,32 +417,7 @@ class Simulation():
         sim_info_table.flush()
         db.close()
 
-    def switch_to_next_geometry(self):
-        """Inserts line with path to next Serpent geometry file at the
-        beginning of the Serpent iteration input file.
-        """
-        geo_line_n = 5
-        f = open(self.sim_depcode.input_path, 'r')
-        data = f.readlines()
-        f.close()
-
-        current_geo_file = data[geo_line_n].split('\"')[1]
-        current_geo_idx = self.sim_depcode.geo_file.index(current_geo_file)
-        try:
-            new_geo_file = self.sim_depcode.geo_file[current_geo_idx + 1]
-        except IndexError:
-            print('No more geometry files available \
-                  and the system went subcritical \n\n')
-            print('Simulation ended')
-            return
-        new_data = [d.replace(current_geo_file, new_geo_file) for d in data]
-        print('Switching to next geometry file: ', new_geo_file)
-
-        f = open(self.sim_depcode.input_path, 'w')
-        f.writelines(new_data)
-        f.close()
-
-    def read_k_eds_delta(self, current_timestep, restart):
+    def read_k_eds_delta(self, current_timestep):
         """Reads from database delta between previous and current `keff` at the
         end of depletion step and returns `True` if predicted `keff` at the
         next depletion step drops below 1.
@@ -427,8 +426,6 @@ class Simulation():
         ----------
         current_timestep : int
             Number of current depletion time step.
-        restart : bool
-            Was this simulation restarted?
 
         Returns
         -------
@@ -437,9 +434,9 @@ class Simulation():
 
         """
 
-        if current_timestep > 3 or restart:
+        if current_timestep > 3 or self.restart_flag:
             # Open or restore db and read data
-            db = tb.open_file(self.h5_file, mode='r')
+            db = tb.open_file(self.db_path, mode='r')
             sim_param = db.root.simulation_parameters
             k_eds = np.array([x['keff_eds'][0] for x in sim_param.iterrows()])
             db.close()
@@ -453,8 +450,9 @@ class Simulation():
                 return False
 
     def check_switch_geo_trigger(self, current_time, switch_time):
-        """Compares current timestep with user defined time to switch geometry.
-        Returns `True` if its time.
+        """Compares the current timestep with the user defined times
+        at which to switch reactor geometry, and returns `True` if there
+        is a match.
 
         Parameters
         ----------

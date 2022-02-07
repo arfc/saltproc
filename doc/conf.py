@@ -17,17 +17,43 @@ import sys
 import sphinx_rtd_theme
 sys.path.append(os.path.abspath('../'))
 sys.path.append(os.path.abspath('../saltproc'))
+# autopep8 will make a stink about this but
+# we need to have saltproc on ouy syspath
+# before we can import it
+from saltproc.version import __version__
+
 
 # -- Project information -----------------------------------------------------
 
 project = u'Saltproc'
-copyright = u'2018, Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff'
-author = u'Andrei Rykhlevskii, Jin Whan Bae, Kathryn D. Huff'
+author = u'Oleksandr Yardas, Andrei Rykhlevskii,\
+    Jin Whan Bae, Kathryn D. Huff'
+copyright = u'2021, ' + author
 
 # The short X.Y version
-version = ''
+version = __version__
 # The full version, including alpha/beta/rc tags
-release = ''
+release = __version__
+
+# -- sphinx-multiversion configuration ---------------------------------------
+# Whitelist pattern for tags (set to None to ignore all tags)
+smv_tag_whitelist = r'^v\d[.][^12][.]\d.*$'
+
+# Whitelist pattern for branches (set to None to ignore all branches)
+smv_branch_whitelist = r'^(master)*$'
+
+# Whitelist pattern for remotes (set to None to use local branches only)
+smv_remote_whitelist = r'^(origin|upstream)$'
+
+# Pattern for released versions
+smv_released_pattern = r'^tags/.*$'
+
+# Format for versioned output directories inside the build directory
+smv_outputdir_format = '{ref.name}'
+
+# Determines whether remote or local git branches/tags are preferred
+# if their output dirs conflict
+smv_prefer_remote_refs = True
 
 
 # -- General configuration ---------------------------------------------------
@@ -40,6 +66,7 @@ release = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinxcontrib.apidoc',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
@@ -49,7 +76,13 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-]
+    'sphinx_multiversion']
+
+# apidoc settings
+apidoc_module_dir = '../saltproc/'
+apidoc_output_dir = 'src/'
+apidoc_excluded_paths = []
+apidoc_separate_modules = True
 
 # Napoleon settings
 napoleon_google_docstring = False

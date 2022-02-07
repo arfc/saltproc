@@ -3,11 +3,15 @@ name: Test SaltProc
 
 on:
   push:
+    paths:
+      - 'saltproc/**'
+      - 'saltproc/tests/**'
   pull_request:
-  workflow_dispatch:
   workflow_run:
     workflows: ["Cache dependencies"]
     types: [completed]
+  # enable worflow to be run manually
+  workflow_dispatch:
 
 env:
   CACHE_NUMBER: 0 #change to manually reset cache
