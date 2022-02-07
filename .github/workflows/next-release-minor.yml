@@ -69,7 +69,7 @@ jobs:
           sed -i "s/_version_micro = *'*[0-9]*'/_version_micro = ''/g" saltproc/version.py
           sed -i "s/_version_minor = *'*[0-9]*'/_version_minor = ${{ env.MINOR_VERSION }}/g" saltproc/version.py
           sed -i "s/^# _version_extra = 'dev'/_version_extra = 'dev'/g" saltproc/version.py
-          sed -i "s/^_version_extra = '0'/# _version_extra = '0'/g" saltproc/version.py
+          sed -i "s/^_version_extra = ''# _version_extra = ''/g" saltproc/version.py
           echo "Add, commit, and push changes"
           git add doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           git add doc/releasenotes/index.rst
