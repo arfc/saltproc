@@ -12,6 +12,7 @@ Release notes for vx.x.x
   Links to packages/issues/bug fixes/contributors/reviewers
 
 
+.. note:: These release notes are currently in production.
 
 
 Summary
