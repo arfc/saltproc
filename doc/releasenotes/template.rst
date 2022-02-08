@@ -2,6 +2,8 @@
 Release notes for vx.x.x
 ========================
 
+.. note:: These release notes are currently in production.
+
 ..
   When documenting a bug fix or feature, please do so in the following format
 
@@ -12,7 +14,6 @@ Release notes for vx.x.x
   Links to packages/issues/bug fixes/contributors/reviewers
 
 
-.. note:: These release notes are currently in production.
 
 
 Summary
