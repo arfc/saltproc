@@ -68,7 +68,7 @@ Script Changes
 ..
   Describe any script additions/modifications/removals
 
-- The following scripts hav been renamed:
+- The following scripts have been renamed:
 
   - ``process_j312.sh`` → ``process_j312.bash``
 
