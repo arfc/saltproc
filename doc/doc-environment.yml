@@ -10,6 +10,7 @@ dependencies:
   - pydotplus
   - sphinx
   - sphinx_rtd_theme
+  - jsonschema
   - pip:
       - sphinx-multiversion
       - sphinxcontrib-apidoc
