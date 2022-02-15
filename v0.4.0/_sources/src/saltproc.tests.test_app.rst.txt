@@ -1,0 +1,7 @@
+saltproc.tests.test\_app module
+===============================
+
+.. automodule:: saltproc.tests.test_app
+   :members:
+   :undoc-members:
+   :show-inheritance:

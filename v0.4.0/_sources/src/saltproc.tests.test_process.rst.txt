@@ -1,0 +1,7 @@
+saltproc.tests.test\_process module
+===================================
+
+.. automodule:: saltproc.tests.test_process
+   :members:
+   :undoc-members:
+   :show-inheritance:
