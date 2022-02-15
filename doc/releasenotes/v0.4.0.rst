@@ -2,6 +2,8 @@
 Release notes for v0.4.0
 ========================
 
+.. note:: These release notes are currently in production.
+
 ..
   When documenting a bug fix or feature, please do so in the following format
 
@@ -14,13 +16,14 @@ Release notes for v0.4.0
 .. _jsonschema: https://github.com/Julian/jsonschema
 .. _@yardasol: https://github.com/yardasol
 .. _@abachma2: https://github.com/abachma2
+.. _@ZoeRichter: https://github.com/ZoeRichter
+.. _@gwenchee: https://github.com/gwenchee
 .. _@LukeSeifert: https://github.com/LukeSeifert
 .. _@munkm: https://github.com/munkm
 
 
--------
 Summary
--------
+=======
 
 ..
   Describe generally the features of this release
@@ -28,9 +31,8 @@ Summary
 This version of SaltProc refactors the code in preparation for supporting OpenMC.
 
 
-------------------
 Dependency Changes
-------------------
+==================
 
 ..
   Describe any new/removed/modified package dependencies
@@ -40,21 +42,19 @@ Dependency Changes
   - (new) → `jsonschema`_
 
 
-------------
 New Features
-------------
+============
 
 ..
   Describe any new features to the code.
 
 - `Refactor app.py and simulation.py to prepare for OpenMC support <https://github.com/arfc/saltproc/pull/98>`_ by `@yardasol`_
 - `New input file format that is checked against a verifiable JSON Schema <https://github.com/arfc/saltproc/pull/98>`_ by `@yardasol`_
-- `Release notes in the online docs <https://github.com/arfc/saltproc/pull/105>`_ by `@yardasol`_
+- `Release notes in the online docs <https://github.com/arfc/saltproc/pull/115>`_ by `@yardasol`_
 
 
----------
 Bug Fixes
----------
+=========
 
 ..
   Describe any bug fixes.
@@ -62,21 +62,19 @@ Bug Fixes
 - `Fix typos in process_j312.bash <https://github.com/arfc/saltproc/pull/100>`_
 
 
---------------
 Script Changes
---------------
+==============
 
 ..
   Describe any script additions/modifications/removals
 
-- The following scripts hav been renamed:
+- The following scripts have been renamed:
 
   - ``process_j312.sh`` → ``process_j312.bash``
 
 
-------------------
 Python API Changes
-------------------
+==================
 
 - New tests for previously untested functions in ``simulation.py``:
 
@@ -96,6 +94,9 @@ Python API Changes
   - (new) → ``Depcode.switch_to_next_geometry``
   - (new) → ``Depcode.read_depcode_info``
   - (new) → ``Depcode.read_repcode_step_param``
+  - ``DepcodeSerpent.sss_meta_zzz`` → ``DepcodeSerpent.convert_nuclide_name_serpent_to_zam``
+  - ``DepcodeSerpent.get_tra_or_dec`` → ``DepcodeSerpent.create_nuclide_name_map_zam_to_serpent`` 
+  - ``DepcodeSerpent.read_depcode_template`` → ``DepcodeSerpent.read_plaintext_file``
 
 - Updated input file structure:
 
@@ -121,7 +122,7 @@ Python API Changes
     - (new) → ``App.reactor_inp['volume']``
     - (new) → ``App.reactor_inp['mass_flowrate']``
     - ``App.power_levels``
-    - ``App.depl_hist``
+    - ``App.depl_hist`` → ``App.reactor_inp['dep_step_length_cumulative']``
 
 - The following class attributes have been added/(re)moved:
 
@@ -144,11 +145,10 @@ Python API Changes
   - ``Depcode.write_depcode_input``
   - ``Depcode.write_mat_file``
   - ``DepcodeSerpent.read_depcode_template``
+  - ``DepcodeSerpent.create_nuclide_map_serpent_to_zam``
 
-
-------------
 Contributors
-------------
+============
 
 ..
   List of people who contributed features and fixes to this release
@@ -161,9 +161,8 @@ The following people contributed code to this release of SaltProc:
 - `@yardasol`_
 
 
----------
 Reviewers
----------
+=========
 
 ..
   List of people who reviewed PRs for this release
@@ -174,5 +173,7 @@ The following people reviewed code for this release of SaltProc:
   `@gh_username <https://github.com/gh_uname>`_
 
 - `@abachma2`_
+- `@ZoeRichter`_
+- `@gwenchee`_
 - `@LukeSeifert`_
 - `@munkm`_
