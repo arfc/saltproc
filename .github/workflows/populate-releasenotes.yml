@@ -42,7 +42,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Convert .rst to .md 
-        run: pandoc -s -o RELEASENOTES.md -f rst -t gfm doc/releasenotes/${{ env.RELEASE_VERSION }}.rst --columns 1000
+        run: pandoc -o RELEASENOTES.md -f rst -t gfm doc/releasenotes/${{ env.RELEASE_VERSION }}.rst --columns 1000
 
 
       - name: Populate the release description with RELEASENOTES.md
