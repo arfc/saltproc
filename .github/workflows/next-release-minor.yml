@@ -68,15 +68,15 @@ jobs:
           sed -i "s/vx.x.x/${{ env.NEW_RELEASE_VERSION }}/g" doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           sed -i "s/${{ env.RELEASE_VERSION }}/${{ env.NEW_RELEASE_VERSION }}\n  ${{ env.RELEASE_VERSION }}/g" doc/releasenotes/index.rst
           echo "Make edits to version.py"
-          sed -i "s/_version_micro = '*\d*'*/_version_micro = ''/g" saltproc/version.py
-          sed -i "s/_version_minor = \d*/_version_minor = ${{ env.MINOR_VERSION }}/g" saltproc/version.py
+          sed -i "s/_version_micro = '*[0-9]*'*/_version_micro = ''/g" saltproc/version.py
+          sed -i "s/_version_minor = [0-9]*/_version_minor = ${{ env.MINOR_VERSION }}/g" saltproc/version.py
           sed -i "s/^# _version_extra = 'dev'/_version_extra = 'dev'/g" saltproc/version.py
           sed -i "s/^_version_extra = ''/# _version_extra = ''/g" saltproc/version.py
           echo "Add, commit, and push changes"
           git add doc/releasenotes/${{ env.RELEASE_VERSION }}.rst
           git add doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           git add doc/releasenotes/index.rst
-          git commit -am "created ${{ env.NEW_RELEASE_VERSION }} release notes"
+          git commit -m "created ${{ env.NEW_RELEASE_VERSION }} release notes"
           git add saltproc/version.py 
-          git commit -am "updated version to ${{ env.NEW_RELEASE_VERSION }}-dev"
+          git commit -m "updated version to ${{ env.NEW_RELEASE_VERSION }}-dev"
           git push origin HEAD:master
