@@ -78,4 +78,4 @@ jobs:
           git commit -am "created ${{ env.NEW_RELEASE_VERSION }} release notes"
           git add saltproc/version.py 
           git commit -am "updated version to ${{ env.NEW_RELEASE_VERSION }}-dev"
-          git push
+          git push origin HEAD:master
