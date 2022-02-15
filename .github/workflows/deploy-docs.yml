@@ -3,6 +3,8 @@ name: Deploy SaltProc docs
 
 on:
   push:
+    branches:
+      - 'master'
     paths:
       - 'doc/**'
       - 'saltproc/**'
