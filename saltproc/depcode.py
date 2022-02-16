@@ -157,6 +157,59 @@ class Depcode(ABC):
             Current time at the end of the depletion step (d).
 
         """
+class DepcodeOpenMC(Depcode):
+    r"""Class contains information about input, output, geometry, and
+    template files for running OpenMC depletion simulations.
+    Also contains neutrons population, active, and inactive cycles.
+    Contains methods to read template and output files,
+    write new input files for .
+
+    """
+
+    def __init__(self,
+                 exec_path="sss2",
+                 template_inputfile_path="reactor.serpent",
+                 iter_inputfile="data/saltproc_reactor",
+                 iter_matfile="data/saltproc_mat",
+                 geo_files=None,
+                 npop=50,
+                 active_cycles=20,
+                 inactive_cycles=20):
+        """Initializes the DepcodeSerpent object.
+
+           Parameters
+           ----------
+           exec_path : str
+               Path to Serpent2 executable.
+           template_inputfile_path : str
+               Path to user input file for Serpent2.
+           iter_inputfile : str
+                Name of Serpent2 input file for Serpent2 rerunning.
+           iter_matfile : str
+               Name of iterative, rewritable material file for Serpent2
+               rerunning. This file is modified during  the simulation.
+           geo_files : str or list, optional
+               Path to file that contains the reactor geometry.
+               List of `str` if reactivity control by
+               switching geometry is `On` or just `str` otherwise.
+           npop : int, optional
+               Size of neutron population per cycle for Monte Carlo.
+           active_cycles : int, optional
+               Number of active cycles.
+           inactive_cycles : int, optional
+               Number of inactive cycles.
+
+        """
+        super().__init__("openmc",
+                         exec_path,
+                         template_inputfile_path,
+                         iter_inputfile,
+                         iter_matfile,
+                         geo_files,
+                         npop,
+                         active_cycles,
+                         inactive_cycles)
+
 
 
 class DepcodeSerpent(Depcode):
