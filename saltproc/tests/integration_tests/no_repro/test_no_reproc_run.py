@@ -21,7 +21,7 @@ db_file = directory + '/db_test.h5'
 
 depcode = DepcodeSerpent(
     exec_path='sss2',
-    template_inputfile_path=directory +
+    template_inputfile_paths=directory +
     '/saltproc_9d.inp',
     iter_inputfile=sss_file,
     iter_matfile=iter_matfile,
