@@ -214,19 +214,19 @@ class DepcodeOpenMC(Depcode):
 
 
     def read_depcode_info(self):
-        """Parses initial depletion code info data from depletion code
-        output and stores it in the `Depcode` object's ``sim_info`` attribute.
+        """Parses initial OpenMC simulation info from the OpenMC output files
+        and stores it in the `Depcode` object's ``sim_info`` attribute.
         """
 
     def read_depcode_step_param(self):
-        """Parses data from depletion code output for each step and stores
+        """Parses data from OpenMC depletion output for each step and stores
         it in `Depcode` object's ``param`` attributes.
         """
 
     def read_dep_comp(self, read_at_end=False):
-        """Reads the depleted material data from the depcode simulation
-        and returns a dictionary with a `Materialflow` object for each
-        burnable material.
+        """Reads the depleted material data from the OpenMC depletion
+        simulation and returns a dictionary with a `Materialflow` object for
+        each burnable material.
 
         Parameters
         ----------
