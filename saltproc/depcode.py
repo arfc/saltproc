@@ -109,6 +109,7 @@ class Depcode(ABC):
             Number of nodes to use for depletion code run.
         """
 
+
     @abstractmethod
     def switch_to_next_geometry(self):
         """Changes the geometry used in the depletion code simulation to the
@@ -248,6 +249,28 @@ class DepcodeOpenMC(Depcode):
         nodes : int
             Number of nodes to use for depletion code run.
         """
+        args = (
+            'mpiexec',
+            '-n',
+            str(nodes),
+            'python',
+            self.exec_path,
+            ,
+            )
+
+        print('Running %s' % (self.codename))
+        # Need to figure out how to adapt this to openmc
+        try:
+            subprocess.check_output(
+                args,
+                cwd=os.path.split(self.template_inputfile_path)[0],
+                stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as error:
+            print(error.output.decode("utf-8"))
+            raise RuntimeError('\n %s RUN FAILED\n see error message above'
+                               % (self.codename))
+        print('Finished OpenMC Run')
+
 
     def switch_to_next_geometry(self):
         """Switches the geometry file for the OpenMC depletion simulation to
