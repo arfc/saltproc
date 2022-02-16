@@ -256,9 +256,6 @@ class DepcodeOpenMC(Depcode):
         nodes : int
             Number of nodes to use for depletion code run.
         """
-        mats = self.template_inputfile_paths['materials']
-        geos = self.template_inputfile_paths['geometry']
-        sets = self.template_inputfile_paths['settings']
         # need to add flow control for plots option
         args = (
             'mpiexec',
@@ -267,11 +264,11 @@ class DepcodeOpenMC(Depcode):
             'python',
             './deplete_openmc.py'
             '-mat',
-            mats,
+            self.iter_inputfiles['materials'],
             '-geo',
-            geos,
+            self.iter_inputfiles['geometry'],
             '-set',
-            sets)
+            self.iter_inputfiles['settings'])
 
         print('Running %s' % (self.codename))
         # Need to figure out how to adapt this to openmc
@@ -291,7 +288,11 @@ class DepcodeOpenMC(Depcode):
         """Switches the geometry file for the OpenMC depletion simulation to
         the next geometry file in `geo_files`.
         """
-        self.iter_inputfiles['geometry'] = self.geo_files.pop(0)
+        mats = openmc.Geometry.from_xml(self.iter_inputfiles['materials'])
+        next_geometry = openmc.Geometry.from_xml(
+            path=self.geo_files.pop(0),
+            materials=mats)
+        next_geometry.export_to_xml(path=self.iter_inputfiles['materials'])
 
 
     def write_depcode_input(self, reactor, dep_step, restart):
@@ -309,6 +310,11 @@ class DepcodeOpenMC(Depcode):
         """
 
         if dep_step == 0 and not restart:
+            materials = openmc.Materials.from_xml(self.template_inputfile_paths['materials'])
+            geometry = openmc.Geometry.from_xml(self.template_inputfile_paths['geometry'],
+                                                materials=materials)
+            materials.export_to_xml(self.iter_inputfiles['materials'])
+            geometry.export_to_xml(self.iter_inputfiles['geometry'])
             settings = openmc.Settings.from_xml(self.template_inputfile_paths['settings'])
             settings.particles = self.npop
             settings.generations_per_batch = ??
@@ -317,15 +323,14 @@ class DepcodeOpenMC(Depcode):
         else:
             settings = openmc.Settings.from_xml(self.iter_inputfiles['settings'])
 
-        settings.export_to_xml()
+
+        settings.export_to_xml(self.iter_inputfiles['settngs'])
         self.write_depletion_settings(reactor, dep_step)
         self.write_saltproc_tallies()
 
     def write_depletion_settings(reactor, current_depstep_idx):
-        """Write the depeletion settings for ``openmc.depelete``
-        the Serpent2 input file. This line defines depletion history and power
-        levels with respect to the depletion step in the single run and
-        activates depletion calculation mode.
+        """Write the depeletion settings for the ``openmc.depelete``
+        module.
 
         Parameters
         ----------
@@ -334,11 +339,6 @@ class DepcodeOpenMC(Depcode):
             depletion time for the integration test.
         current_depstep_idx : int
             Current depletion step.
-
-        Returns
-        -------
-        template_data : list
-            List of strings containing modified in this function template file.
 
         """
         depletion_settings = {}
@@ -364,7 +364,7 @@ class DepcodeOpenMC(Depcode):
        depletion_settings['inegrator_kwargs'] = integrator_kwargs
 
        # now write depeltion_settings to an xml or json file
-
+       path = self.iter_inputfiles['depletion']
 
 
     def write_mat_file(self, dep_dict, dep_end_time):
