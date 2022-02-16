@@ -29,14 +29,13 @@
             "properties": {
                 "codename": {
                     "description": "Name of depletion code",
-                    "type": "string" },
+                    "type": "string",
+                    "enum": ["serpent", "openmc"]},
                 "exec_path": {
                     "description": "Path to depletion code executable",
                     "type": "string" },
-                "template_inputfile_path": {
-                    "description": "Path to user's template depletion code input file with reactor model",
-                    "type": "string",
-                    "pattern": "^\\.\\/(.*)$"},
+                "template_inputfile_paths": {
+                    "description": "Path(s) to user's template depletion code input file(s) with reactor model"},
                 "iter_inputfile": {
                     "description": "Name of depletion code input file for depletion code rerunning",
                     "type": "string" },
@@ -63,7 +62,49 @@
                     "uniqueItems": false
                 }
             },
-            "required": ["codename", "exec_path", "template_inputfile_path", "iter_inputfile", "iter_matfile", "npop", "active_cycles","inactive_cycles", "geo_file_paths"]
+            "allOf": [
+                {
+                    "if": {
+                        "properties": { "codename": { "const": "serpent" } }
+                    },
+                    "then": {
+                        "properties": {
+                            "template_inputfile_paths": {
+                                "type": "string",
+                                "pattern": "^\\.\\/(.*)$"}
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": { "codename": { "const": "openmc" } }
+                    },
+                    "then": {
+                        "properties": {
+                            "template_inputfile_paths": {
+                                "type": "object",
+                                "propterties": {
+                                    "settings": {
+                                        "type": "string",
+                                        "pattern": "^\\.\\/(.*)\\.xml$"},
+                                    "geometry": {
+                                        "type": "string",
+                                        "pattern": "^\\.\\/(.*)\\.xml$"},
+                                    "materials": {
+                                        "type": "string",
+                                        "pattern": "^\\.\\/(.*)\\.xml$"},
+                                    "plots": {
+                                        "type": "string",
+                                        "pattern": "^\\.\\/(.*)\\.xml$"}
+                                },
+                                "required": ["settings", "geometry", "materials"]
+                            }
+                        }
+                    }
+                }
+
+            ],
+            "required": ["codename", "exec_path", "template_inputfile_paths", "iter_inputfile", "iter_matfile", "npop", "active_cycles","inactive_cycles", "geo_file_paths"]
         },
        "simulation": {
            "description": "Simulation class input parameters",
