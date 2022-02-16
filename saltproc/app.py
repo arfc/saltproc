@@ -403,14 +403,21 @@ def run():
             exec_path=depcode_inp['exec_path'],
             template_inputfile_path=depcode_inp['template_inputfile_path'],
             iter_inputfile=depcode_inp['iter_inputfile'],
-            iter_matfile=depcode_inp['iter_matfile'],
-            geo_files=depcode_inp['geo_file_paths'],
-            npop=depcode_inp['npop'],
-            active_cycles=depcode_inp['active_cycles'],
-            inactive_cycles=depcode_inp['inactive_cycles'])
+            iter_matfile=depcode_inp['iter_matfile'])
+    elif depcode_inp['codename'] == 'openmc':
+        depcode = DepcodeOpenMC(
+            exec_path=depcode_inp['exec_path'],
+            template_inputfile_path=depcode_inp['template_inputfile_path'],
+            iter_inputfile=depcode_inp['iter_inputfile'],
+            iter_matfile=depcode_inp['iter_matfile'])
     else:
         raise ValueError(
             f'{depcode_inp["codename"]} is not a supported depletion code')
+
+    decode.geo_files=depcode_inp['geo_file_paths']
+    depcode.npop=depcode_inp['npop']
+    depcode.active_cycles=depcode_inp['active_cycles']
+    depcode.inactive_cycles=depcode_inp['inactive_cycles']
 
     simulation = Simulation(
         sim_name='Super test',
