@@ -1,0 +1,97 @@
+========================
+Release notes for v0.5.0
+========================
+
+.. note:: These release notes are currently in production.
+
+..
+  When documenting a bug fix or feature, please do so in the following format
+
+..
+  - `Fixed typo in depcode.py <https://github.com/arfc/saltproc/pull/xx>`_ by @pr_author_username
+
+..
+  Links to packages/issues/bug fixes/contributors/reviewers
+
+
+
+
+Summary
+=======
+
+.. 
+  Describe generally the features of this release
+
+This release adds support for ``OpenMC`` in ``SaltProc`` via the addition of
+the ``DepcodeOpenMC`` class
+
+
+Dependency Changes
+==================
+
+..
+  Describe any new/removed/modified package dependencies
+
+
+
+
+New Features
+============
+
+..
+  Describe any new features to the code.
+
+
+
+
+Bug Fixes
+=========
+
+..
+  Describe any bug fixes.
+
+
+
+
+Script Changes
+==============
+
+..
+  Describe any script additions/modifications/removals
+
+
+
+
+Python API Changes
+==================
+
+..
+  Describe any changes to the API
+
+
+
+
+Contributors
+============
+..
+  List of people who contributed features and fixes to this release
+
+The following people contributed code to this release of SaltProc:
+
+..
+  `@gh_username <https://github.com/gh_uname>`_
+
+
+
+
+Reviewers
+=========
+..
+  List of people who reviewed PRs for this release
+
+The following people reviewed code for this release of SaltProc:
+
+..
+  `@gh_username <https://github.com/gh_uname>`_
+
+
