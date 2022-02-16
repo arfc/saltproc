@@ -167,8 +167,10 @@ class DepcodeOpenMC(Depcode):
     """
 
     def __init__(self,
-                 exec_path="sss2",
-                 template_inputfiles_path="./",
+                 exec_path="openmc-deplete.py",
+                 template_inputfiles_path={"geometry": "./geometry.xml",
+                                           "materials": "./materials.xml",
+                                           "settings": "./settings.xml"},
                  iter_matfile="materials.xml",
                  geo_files=None,
                  npop=50,
