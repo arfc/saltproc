@@ -7,8 +7,7 @@ import tables as tb
 from pyne import nucname as pyname
 from pyne import serpent
 from abc import ABC, abstractmethod
-import openmc
-import openmc.deplete as od
+
 
 class Depcode(ABC):
     r"""Abstract class for interfacing with monte-carlo particle transport
@@ -158,36 +157,38 @@ class Depcode(ABC):
             Current time at the end of the depletion step (d).
 
         """
+
+
 class DepcodeOpenMC(Depcode):
     r"""Class contains information about input, output, geometry, and
     template files for running OpenMC depletion simulations.
     Also contains neutrons population, active, and inactive cycles.
     Contains methods to read template and output files,
-    write new input files for OpenMC.
+    write new input files for .
 
     """
 
     def __init__(self,
                  exec_path="sss2",
                  template_inputfile_path="reactor.serpent",
-                 iter_inputmodel=,
-                 iter_matfile="data/materials.xml",
+                 iter_inputfile="data/saltproc_reactor",
+                 iter_matfile="data/saltproc_mat",
                  geo_files=None,
                  npop=50,
                  active_cycles=20,
                  inactive_cycles=20):
-        """Initializes the DepcodeSerpent object.
+        """Initializes the DepcodeOpenMC object.
 
            Parameters
            ----------
            exec_path : str
-               Path to Serpent2 executable.
+               Path to OpenMC executable.
            template_inputfile_path : str
-               Path to user input file for Serpent2.
+               Path to user input file for OpenMC.
            iter_inputfile : str
-                Name of Serpent2 input file for Serpent2 rerunning.
+                Name of OpenMC input file for OpenMC rerunning.
            iter_matfile : str
-               Name of iterative, rewritable material file for Serpent2
+               Name of iterative, rewritable material file for OpenMC
                rerunning. This file is modified during  the simulation.
            geo_files : str or list, optional
                Path to file that contains the reactor geometry.
@@ -211,6 +212,92 @@ class DepcodeOpenMC(Depcode):
                          active_cycles,
                          inactive_cycles)
 
+
+    def read_depcode_info(self):
+        """Parses initial depletion code info data from depletion code
+        output and stores it in the `Depcode` object's ``sim_info`` attribute.
+        """
+
+    def read_depcode_step_param(self):
+        """Parses data from depletion code output for each step and stores
+        it in `Depcode` object's ``param`` attributes.
+        """
+
+    def read_dep_comp(self, read_at_end=False):
+        """Reads the depleted material data from the depcode simulation
+        and returns a dictionary with a `Materialflow` object for each
+        burnable material.
+
+        Parameters
+        ----------
+        read_at_end : bool, optional
+            Controls at which moment in the depletion step to read the data.
+            If `True`, the function reads data at the end of the
+            depletion step. Otherwise, the function reads data at the
+            beginning of the depletion step.
+
+        Returns
+        -------
+        mats : dict of str to Materialflow
+            Dictionary that contains `Materialflow` objects.
+
+            ``key``
+                Name of burnable material.
+            ``value``
+                `Materialflow` object holding composition and properties.
+
+        """
+
+    def run_depcode(self, cores, nodes):
+        """Runs OpenMC depletion simulation as a subprocess with the given
+        parameters.
+
+        Parameters
+        ----------
+        cores : int
+            Number of cores to use for depletion code run.
+        nodes : int
+            Number of nodes to use for depletion code run.
+        """
+
+    def switch_to_next_geometry(self):
+        """Switches the geometry file for the OpenMC depletion simulation to
+        the next geometry file in `geo_files`.
+        """
+
+
+    def write_depcode_input(self, reactor, dep_step, restart):
+        """ Writes prepared data into OpenMC input file(s).
+
+        Parameters
+        ----------
+        reactor : Reactor
+            Contains information about power load curve and cumulative
+            depletion time for the integration test.
+        dep_step : int
+            Current depletion time step.
+        restart : bool
+            Is the current simulation restarted?
+        """
+
+    def write_mat_file(self, dep_dict, dep_end_time):
+        """Writes the iteration input file containing the burnable materials
+        composition used in OpenMC depletion runs and updated after each
+        depletion step.
+
+        Parameters
+        ----------
+        dep_dict : dict of str to Materialflow
+            Dictionary that contains `Materialflow` objects.
+
+            ``key``
+                Name of burnable material.
+            ``value``
+                `Materialflow` object holding composition and properties.
+        dep_end_time : float
+            Current time at the end of the depletion step (d).
+
+        """
 
 
 class DepcodeSerpent(Depcode):
