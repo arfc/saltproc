@@ -21,8 +21,6 @@ class Depcode(ABC):
     def __init__(self,
                  codename,
                  exec_path,
-                 template_inputfile_path,
-                 iter_inputfile,
                  iter_matfile,
                  geo_files=None,
                  npop=50,
@@ -36,10 +34,6 @@ class Depcode(ABC):
                Name of depletion code.
            exec_path : str
                Path to depletion code executable.
-           template_inputfile_path : str
-               Path to depletion code input file template.
-           iter_inputfile : str
-               Name of depletion code input file for depletion code rerunning.
            iter_matfile : str
                Name of iterative, rewritable material file for depletion code
                rerunning. This file is modified during  the simulation.
@@ -57,8 +51,6 @@ class Depcode(ABC):
         """
         self.codename = codename
         self.exec_path = exec_path
-        self.template_inputfile_path = template_inputfile_path
-        self.iter_inputfile = iter_inputfile
         self.iter_matfile = iter_matfile
         self.geo_files = geo_files
         self.npop = npop
@@ -170,8 +162,7 @@ class DepcodeOpenMC(Depcode):
 
     def __init__(self,
                  exec_path="sss2",
-                 template_inputfile_path="reactor.serpent",
-                 iter_inputfile="data/saltproc_reactor",
+                 template_inputfiles_path="./",
                  iter_matfile="data/saltproc_mat",
                  geo_files=None,
                  npop=50,
@@ -182,11 +173,10 @@ class DepcodeOpenMC(Depcode):
            Parameters
            ----------
            exec_path : str
-               Path to OpenMC executable.
-           template_inputfile_path : str
-               Path to user input file for OpenMC.
-           iter_inputfile : str
-                Name of OpenMC input file for OpenMC rerunning.
+               Path to OpenMC depletion script.
+           template_inputfiles_path : str
+               Path to user input files (``.xml`` file for geometry,
+               material, and settings) for OpenMC.
            iter_matfile : str
                Name of iterative, rewritable material file for OpenMC
                rerunning. This file is modified during  the simulation.
@@ -202,10 +192,9 @@ class DepcodeOpenMC(Depcode):
                Number of inactive cycles.
 
         """
+        self.template_inputfiles_path = template_inputfiles_path
         super().__init__("openmc",
                          exec_path,
-                         template_inputfile_path,
-                         iter_inputfile,
                          iter_matfile,
                          geo_files,
                          npop,
@@ -343,10 +332,10 @@ class DepcodeSerpent(Depcode):
                Number of inactive cycles.
 
         """
+        self.template_inputfile_path = template_inputfile_path
+        self.iter_inputfile = iter_inputfile
         super().__init__("serpent",
                          exec_path,
-                         template_inputfile_path,
-                         iter_inputfile,
                          iter_matfile,
                          geo_files,
                          npop,
