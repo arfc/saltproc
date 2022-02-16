@@ -1,4 +1,5 @@
 from saltproc import DepcodeSerpent
+from saltproc import DepcodeOpenMC
 from saltproc import Simulation
 from saltproc import Materialflow
 from saltproc import Process

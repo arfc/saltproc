@@ -7,7 +7,8 @@ import tables as tb
 from pyne import nucname as pyname
 from pyne import serpent
 from abc import ABC, abstractmethod
-
+import openmc
+import openmc.deplete as od
 
 class Depcode(ABC):
     r"""Abstract class for interfacing with monte-carlo particle transport
@@ -162,15 +163,15 @@ class DepcodeOpenMC(Depcode):
     template files for running OpenMC depletion simulations.
     Also contains neutrons population, active, and inactive cycles.
     Contains methods to read template and output files,
-    write new input files for .
+    write new input files for OpenMC.
 
     """
 
     def __init__(self,
                  exec_path="sss2",
                  template_inputfile_path="reactor.serpent",
-                 iter_inputfile="data/saltproc_reactor",
-                 iter_matfile="data/saltproc_mat",
+                 iter_inputmodel=,
+                 iter_matfile="data/materials.xml",
                  geo_files=None,
                  npop=50,
                  active_cycles=20,
