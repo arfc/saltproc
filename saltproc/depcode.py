@@ -265,8 +265,12 @@ class DepcodeOpenMC(Depcode):
             '-n',
             str(nodes),
             'python',
+            './deplete_openmc.py'
+            '-mat',
             mats,
+            '-geo',
             geos,
+            '-set',
             sets)
 
         print('Running %s' % (self.codename))
@@ -302,6 +306,18 @@ class DepcodeOpenMC(Depcode):
         restart : bool
             Is the current simulation restarted?
         """
+
+        if dep_step == 0 and not restart:
+            settings = openmc.Settings.from_xml(self.template_inputfile_paths['settings'])
+            settings.particles = self.npop
+            settings.generations_per_batch = ??
+            settings.inactive = self.inactive_cycles
+            settings.batches = self.active_cycles + self.inactive_cycles
+        else:
+            settings = openmc.Settings.from_xml(self.iter_inputfiles['settings'])
+
+        settings.export_to_xml()
+        self.write_depletion_settings(reactor, dep_step)
 
     def write_mat_file(self, dep_dict, dep_end_time):
         """Writes the iteration input file containing the burnable materials
@@ -810,12 +826,8 @@ class DepcodeSerpent(Depcode):
         f.writelines(new_data)
         f.close()
 
-    def write_depcode_input(
-            self,
-            reactor,
-            dep_step,
-            restart):
-        """Writes prepared data into the depletion code input file.
+    def write_depcode_input(self, reactor, dep_step, restart):
+        """Writes prepared data into the Serpent2 input file.
 
         Parameters
         ----------
