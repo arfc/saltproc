@@ -119,8 +119,8 @@ class Depcode(ABC):
 
     @abstractmethod
     def switch_to_next_geometry(self):
-        """Inserts line with path to next depletion code geometry file at the
-        beginning of the depletion code iteration input file.
+        """Changes the geometry used in the depletion code simulation to the
+        next geometry file in ``geo_files``
         """
 
     @abstractmethod
