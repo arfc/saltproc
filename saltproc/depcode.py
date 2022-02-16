@@ -291,6 +291,7 @@ class DepcodeOpenMC(Depcode):
         """Switches the geometry file for the OpenMC depletion simulation to
         the next geometry file in `geo_files`.
         """
+        self.iter_inputfiles['geometry'] = self.geo_files.pop(0)
 
 
     def write_depcode_input(self, reactor, dep_step, restart):
@@ -318,6 +319,53 @@ class DepcodeOpenMC(Depcode):
 
         settings.export_to_xml()
         self.write_depletion_settings(reactor, dep_step)
+        self.write_saltproc_tallies()
+
+    def write_depletion_settings(reactor, current_depstep_idx):
+        """Write the depeletion settings for ``openmc.depelete``
+        the Serpent2 input file. This line defines depletion history and power
+        levels with respect to the depletion step in the single run and
+        activates depletion calculation mode.
+
+        Parameters
+        ----------
+        reactor : Reactor
+            Contains information about power load curve and cumulative
+            depletion time for the integration test.
+        current_depstep_idx : int
+            Current depletion step.
+
+        Returns
+        -------
+        template_data : list
+            List of strings containing modified in this function template file.
+
+        """
+        depletion_settings = {}
+        current_depstep_power = reactor.power_levels[current_depstep_idx]
+        if current_depstep_idx == 0:
+            current_depstep = reactor.dep_step_length_cumulative[0]
+        else:
+            current_depstep = \
+                reactor.dep_step_length_cumulative[current_depstep_idx] - \
+                reactor.dep_step_length_cumulative[current_depstep_idx - 1]
+
+       depletion_settings['timesteps'] = [current_depstep]
+       depletion_settings['directory'] = ???
+
+       operator_kwargs = {}
+       # operator_kwargs['chain_file'] = ??
+
+       integrator_kwargs = {}
+       integrator_kwargs['power'] = current_depstep_power
+       integrator_kwargs['timestep_units'] = 'd' # days
+
+       depletion_settings['operatore_kwargs'] = operator_kwargs
+       depletion_settings['inegrator_kwargs'] = integrator_kwargs
+
+       # now write depeltion_settings to an xml or json file
+
+
 
     def write_mat_file(self, dep_dict, dep_end_time):
         """Writes the iteration input file containing the burnable materials
