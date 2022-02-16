@@ -36,12 +36,6 @@
                     "type": "string" },
                 "template_inputfile_paths": {
                     "description": "Path(s) to user's template depletion code input file(s) with reactor model"},
-                "iter_inputfile": {
-                    "description": "Name of depletion code input file for depletion code rerunning",
-                    "type": "string" },
-                "iter_matfile": {
-                    "description": "Name of iterable, rewritable material file for depletion code rerunning",
-                    "type": "string" },
                 "npop": {
                     "description": "Number of neutrons per generation",
                     "type": "number",
@@ -104,7 +98,7 @@
                 }
 
             ],
-            "required": ["codename", "exec_path", "template_inputfile_paths", "iter_inputfile", "iter_matfile", "npop", "active_cycles","inactive_cycles", "geo_file_paths"]
+            "required": ["codename", "exec_path", "template_inputfile_paths", "npop", "active_cycles","inactive_cycles", "geo_file_paths"]
         },
        "simulation": {
            "description": "Simulation class input parameters",

@@ -102,8 +102,17 @@ def read_main_input(main_inp_file):
         simulation_inp = j['simulation']
         reactor_inp = j['reactor']
 
-        depcode_inp['template_inputfile_path'] = os.path.join(
-            input_path, depcode_inp['template_inputfile_path'])
+        if depcode_inp['codename'] == 'serpent':
+            depcode_inp['template_inputfile_paths'] = os.path.join(
+                input_path, depcode_inp['template_inputfile_paths'])
+        elif depcode_inp['codename'] == 'openmc':
+            for key,value in depcode_inp['template_inputfile_paths']:
+                depcode_inp['template_inputfile_paths'][key] = \
+                    os.path.join(input_path, value)
+        else:
+            raise ValueError(
+                f'{depcode_inp["codename"]} is not a supported depletion code')
+
         geo_list = depcode_inp['geo_file_paths']
 
         # Global geometry file paths
@@ -113,11 +122,7 @@ def read_main_input(main_inp_file):
         depcode_inp['geo_file_paths'] = geo_file_paths
 
         # Global output file paths
-        depcode_inp['iter_inputfile'] = os.path.join(
-            output_path, depcode_inp['iter_inputfile'])
-        depcode_inp['iter_matfile'] = os.path.join(
-            output_path, depcode_inp['iter_matfile'])
-        db_name = os.path.join(
+                db_name = os.path.join(
             output_path, simulation_inp['db_name'])
         simulation_inp['db_name'] = db_name
 
@@ -386,8 +391,8 @@ def run():
           '\tRestart = ' +
           str(simulation_inp['restart_flag']) +
           '\n'
-          '\tTemplate File Path  = ' +
-          os.path.abspath(depcode_inp['template_inputfile_path']) +
+          '\tTemplate File Path(s)  = ' +
+          os.path.abspath(depcode_inp['template_inputfile_paths']) +
           '\n'
           '\tInput File Path     = ' +
           os.path.abspath(depcode_inp['iter_inputfile']) +
@@ -400,21 +405,26 @@ def run():
           '\n')
     # Intializing objects
     if depcode_inp['codename'] == 'serpent':
+        iter_inputfile = os.path.join(
+            output_path, 'serpent_iter_input.serpent')
+        iter_matfile = os.path.join(
+            output_path, 'serpent_iter_matfile.ini')
+
         depcode = DepcodeSerpent(
             exec_path=depcode_inp['exec_path'],
-            template_inputfile_path=depcode_inp['template_inputfile_path'],
-            iter_inputfile=depcode_inp['iter_inputfile'],
-            iter_matfile=depcode_inp['iter_matfile'])
+            template_inputfile_paths=depcode_inp['template_inputfile_paths'],
+            iter_inputfile=iter_inputfile,
+            iter_matfile=iter_matfile)
     elif depcode_inp['codename'] == 'openmc':
         depcode = DepcodeOpenMC(
             exec_path=depcode_inp['exec_path'],
-            template_inputfile_path=depcode_inp['template_inputfile_path'],
-            iter_inputfile=depcode_inp['iter_inputfile'],
-            iter_matfile=depcode_inp['iter_matfile'])
+            template_inputfile_paths=depcode_inp['template_inputfile_paths'],
+            iter_matfile = os.path.join(output_path, 'openmc_iter_matfile.xml')
     else:
         raise ValueError(
             f'{depcode_inp["codename"]} is not a supported depletion code')
 
+    depcode.template_inputfile_paths=depcode_inp['template_inputfile_paths']
     decode.geo_files=depcode_inp['geo_file_paths']
     depcode.npop=depcode_inp['npop']
     depcode.active_cycles=depcode_inp['active_cycles']
