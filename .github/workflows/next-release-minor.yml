@@ -62,7 +62,7 @@ jobs:
           -F tag_name=${{ env.NEW_RELEASE_VERSION }} \
           -F draft=true 
 
-        if: !${{ env.RELEASE_EXISTS }}
+        if: !(${{ env.RELEASE_EXISTS }})
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -91,7 +91,7 @@ jobs:
           -H "Accept: application/vnd.github.v3+json" \
           -X POST \
           -F title=${{ env.NEW_RELEASE_VERSION }} 
-        if: !${{ env.MILESTONE_EXISTS }}
+        if: !(${{ env.MILESTONE_EXISTS }})
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
