@@ -34,7 +34,26 @@ jobs:
           echo "MINOR_VERSION="$MINOR_VERSION >> $GITHUB_ENV
           echo "NEW_RELEASE_VERSION="$NEW_RELEASE_VERSION >> $GITHUB_ENV
 
+      - name: Check for existing release
+        run: |
+          RELEASES=$(gh api repos/${{ github.repository }}/releases \
+          -H "Authorize: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -X GET \
+          --jq ''.[] | .name')
+          if [[ $RELEASES =~ ${{ env.NEW_RELEASE_VERSION }} ]]
+          then
+            EXISTS='true'
+          else
+            EXISTS='false'
+          fi
+          echo "RELEASE_EXISTS="$EXISTS >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            
+
       - name: Create a new release
+        if: !${{ env.RELEASE_EXISTS }}
         run: |
           gh api repos/${{ github.repository }}/releases \
           -H "Authorize: token ${{ secrets.GITHUB_TOKEN }}" \
@@ -46,8 +65,26 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check for existing milestone
+        run: |
+          MILESTONES=$(gh api repos/${{ github.repository }}/milestones \
+          -H "Authorize: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -X GET \
+          --jq ''.[] | .title')
+          if [[ $MILESTONES =~ ${{ env.NEW_RELEASE_VERSION }} ]]
+          then
+            EXISTS='true'
+          else
+            EXISTS='false'
+          fi
+          echo "MILESTONE_EXISTS="$EXISTS >> $GITHUB_ENV
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Create a new milestone.
+        if: !${{ env.MILESTONE_EXISTS }}
         run: |
           gh api repos/${{ github.repository }}/milestones \
           -H "Authorize: token ${{ secrets.GITHUB_TOKEN }}" \
@@ -56,6 +93,22 @@ jobs:
           -F title=${{ env.NEW_RELEASE_VERSION }} 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update version.py
+        run: |
+          echo "Configure git"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          echo "Make edits to version.py"
+          sed -i "s/_version_micro = '*[0-9]*'*/_version_micro = ''/g" saltproc/version.py
+          sed -i "s/_version_minor = [0-9]*/_version_minor = ${{ env.MINOR_VERSION }}/g" saltproc/version.py
+          sed -i "s/^# _version_extra = 'dev'/_version_extra = 'dev'/g" saltproc/version.py
+          sed -i "s/^_version_extra = '0'/# _version_extra = '0'/g" saltproc/version.py
+          echo "Add, commit, and push changes"
+          git add saltproc/version.py 
+          git commit -m "updated version to ${{ env.NEW_RELEASE_VERSION }}-dev"
+          git push origin HEAD:master
+
 
       - name: Create new release notes
         run: |
@@ -67,16 +120,9 @@ jobs:
           cp doc/releasenotes/template.rst doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           sed -i "s/vx.x.x/${{ env.NEW_RELEASE_VERSION }}/g" doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           sed -i "s/${{ env.RELEASE_VERSION }}/${{ env.NEW_RELEASE_VERSION }}\n  ${{ env.RELEASE_VERSION }}/g" doc/releasenotes/index.rst
-          echo "Make edits to version.py"
-          sed -i "s/_version_micro = '*[0-9]*'*/_version_micro = ''/g" saltproc/version.py
-          sed -i "s/_version_minor = [0-9]*/_version_minor = ${{ env.MINOR_VERSION }}/g" saltproc/version.py
-          sed -i "s/^# _version_extra = 'dev'/_version_extra = 'dev'/g" saltproc/version.py
-          sed -i "s/^_version_extra = '0'/# _version_extra = '0'/g" saltproc/version.py
           echo "Add, commit, and push changes"
           git add doc/releasenotes/${{ env.RELEASE_VERSION }}.rst
           git add doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           git add doc/releasenotes/index.rst
           git commit -m "created ${{ env.NEW_RELEASE_VERSION }} release notes"
-          git add saltproc/version.py 
-          git commit -m "updated version to ${{ env.NEW_RELEASE_VERSION }}-dev"
           git push origin HEAD:master
