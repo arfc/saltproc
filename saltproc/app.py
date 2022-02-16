@@ -122,7 +122,7 @@ def read_main_input(main_inp_file):
         depcode_inp['geo_file_paths'] = geo_file_paths
 
         # Global output file paths
-                db_name = os.path.join(
+        db_name = os.path.join(
             output_path, simulation_inp['db_name'])
         simulation_inp['db_name'] = db_name
 
@@ -416,10 +416,9 @@ def run():
             iter_inputfile=iter_inputfile,
             iter_matfile=iter_matfile)
     elif depcode_inp['codename'] == 'openmc':
-        depcode = DepcodeOpenMC(
-            exec_path=depcode_inp['exec_path'],
+        depcode = DepcodeOpenMC(exec_path=depcode_inp['exec_path'],
             template_inputfile_paths=depcode_inp['template_inputfile_paths'],
-            iter_matfile = os.path.join(output_path, 'openmc_iter_matfile.xml')
+            iter_matfile = os.path.join(output_path, 'openmc_iter_matfile.xml'))
     else:
         raise ValueError(
             f'{depcode_inp["codename"]} is not a supported depletion code')

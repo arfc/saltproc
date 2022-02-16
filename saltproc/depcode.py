@@ -200,7 +200,7 @@ class DepcodeOpenMC(Depcode):
         """
         super().__init__("openmc",
                          exec_path,
-                         template_inputfile_paths
+                         template_inputfile_paths,
                          iter_matfile,
                          geo_files,
                          npop,
@@ -264,7 +264,7 @@ class DepcodeOpenMC(Depcode):
             str(nodes),
             'python',
             mats,
-            geos
+            geos,
             sets)
 
         print('Running %s' % (self.codename))
@@ -366,8 +366,8 @@ class DepcodeSerpent(Depcode):
         """
         self.iter_inputfile = iter_inputfile
         super().__init__("serpent",
-                         template_inputfile_paths
                          exec_path,
+                         template_inputfile_paths,
                          iter_matfile,
                          geo_files,
                          npop,
@@ -396,13 +396,13 @@ class DepcodeSerpent(Depcode):
             if len(sim_param) > 1:
                 print('ERROR: Template file %s contains multiple lines with '
                       'simulation parameters:\n'
-                      % (self.template_inputfile_path), sim_param)
+                      % (self.template_inputfile_paths), sim_param)
                 return
             elif len(sim_param) < 1:
                 print(
                     'ERROR: Template file %s does not contain line with '
                     'simulation parameters.' %
-                    (self.template_inputfile_path))
+                    (self.template_inputfile_paths))
                 return
             args = 'set pop %i %i %i\n' % (self.npop, self.active_cycles,
                                            self.inactive_cycles)
@@ -424,11 +424,11 @@ class DepcodeSerpent(Depcode):
             List of strings containing modified user template file.
 
         """
-        data_dir = os.path.dirname(self.template_inputfile_path)
+        data_dir = os.path.dirname(self.template_inputfile_paths)
         include_str = [s for s in template_data if s.startswith("include ")]
         if not include_str:
             print('ERROR: Template file %s has no <include "material_file">'
-                  ' statements ' % (self.template_inputfile_path))
+                  ' statements ' % (self.template_inputfile_paths))
             return
         src_file = include_str[0].split()[1][1:-1]
         if not os.path.isabs(src_file):
@@ -440,7 +440,7 @@ class DepcodeSerpent(Depcode):
                       ' materials description or <include "material_file">'
                       ' statement is not appears'
                       ' as first <include> statement\n'
-                      % (self.template_inputfile_path))
+                      % (self.template_inputfile_paths))
                 return
         # Create data directory
         try:
@@ -747,7 +747,7 @@ class DepcodeSerpent(Depcode):
         try:
             subprocess.check_output(
                 args,
-                cwd=os.path.split(self.template_inputfile_path)[0],
+                cwd=os.path.split(self.template_inputfile_paths)[0],
                 stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
             print(error.output.decode("utf-8"))
@@ -828,7 +828,7 @@ class DepcodeSerpent(Depcode):
         """
 
         if dep_step == 0 and not restart:
-            data = self.read_plaintext_file(self.template_inputfile_path)
+            data = self.read_plaintext_file(self.template_inputfile_paths)
             data = self.insert_path_to_geometry(data)
             data = self.change_sim_par(data)
             data = self.create_iter_matfile(data)
