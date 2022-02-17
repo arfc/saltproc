@@ -103,13 +103,13 @@ def read_main_input(main_inp_file):
         reactor_inp = j['reactor']
 
         if depcode_inp['codename'] == 'serpent':
-            depcode_inp['template_inputfile_paths'] = os.path.join(
-                input_path, depcode_inp['template_inputfile_paths'])
+            depcode_inp['template_inputfiles_path'] = os.path.join(
+                input_path, depcode_inp['template_inputfiles_path'])
         elif depcode_inp['codename'] == 'openmc':
             depcode_inp['iter_inputfiles'] = {}
-            for key in depcode_inp['template_inputfile_paths']:
-                value = depcode_inp['template_inputfile_paths'][key]
-                depcode_inp['template_inputfile_paths'][key] = \
+            for key in depcode_inp['template_inputfiles_path']:
+                value = depcode_inp['template_inputfiles_path'][key]
+                depcode_inp['template_inputfiles_path'][key] = \
                     os.path.join(input_path, value)
                 depcode_inp['iter_inputfiles'][key] = \
                     os.path.join(output_path, 'iter_'+ key)
@@ -392,14 +392,14 @@ def run():
     read_main_input(sp_input)
     if depcode_inp['codename'] == 'serpent':
         template_file_path = \
-          os.path.abspath(depcode_inp['template_inputfile_paths'])
+          os.path.abspath(depcode_inp['template_inputfiles_path'])
         iter_file_path = \
           os.path.abspath(depcode_inp['iter_inputfile'])
     elif depcode_inp['codename'] == 'openmc':
         template_file_path = \
             os.path.dirname(
                 os.path.abspath(
-                    depcode_inp['template_inputfile_paths']['materials']))
+                    depcode_inp['template_inputfiles_path']['materials']))
         iter_file_path = os.path.abspath(output_path)
     # Print out input information
     print('Initiating Saltproc:\n'
@@ -436,7 +436,7 @@ def run():
         raise ValueError(
             f'{depcode_inp["codename"]} is not a supported depletion code')
 
-    depcode.template_inputfile_paths=depcode_inp['template_inputfile_paths']
+    depcode.template_inputfiles_path=depcode_inp['template_inputfiles_path']
     depcode.iter_matfile = depcode_inp[iter_matfile]
     depcode.geo_files=depcode_inp['geo_file_paths']
     depcode.npop=depcode_inp['npop']

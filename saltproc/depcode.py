@@ -21,7 +21,7 @@ class Depcode(ABC):
     def __init__(self,
                  codename,
                  exec_path,
-                 template_inputfile_paths,
+                 template_inputfiles_path,
                  iter_matfile,
                  geo_files=None,
                  npop=50,
@@ -35,7 +35,7 @@ class Depcode(ABC):
                Name of depletion code.
            exec_path : str
                Path to depletion code executable.
-           template_inputfile_paths: str or dict of str to str
+           template_inputfiles_path: str or dict of str to str
                Path(s) to depletion code input file(s). Type depends
                on depletion code in use.
            iter_matfile : str
@@ -55,7 +55,7 @@ class Depcode(ABC):
         """
         self.codename = codename
         self.exec_path = exec_path
-        self.template_inputfile_paths = template_inputfile_paths
+        self.template_inputfiles_path = template_inputfiles_path
         self.iter_matfile = iter_matfile
         self.geo_files = geo_files
         self.npop = npop
@@ -168,11 +168,11 @@ class DepcodeOpenMC(Depcode):
 
     def __init__(self,
                  exec_path="openmc-deplete.py",
-                 template_inputfile_paths={"geometry": "./geometry.xml",
+                 template_inputfiles_path={"geometry": "./geometry.xml",
                                            "materials": "./materials.xml",
                                            "settings": "./settings.xml"},
                  iter_inputfiles={'geometry': './geometry.xml',
-                                  'settings': './settings.xml'}
+                                  'settings': './settings.xml'},
                  iter_matfile="materials.xml",
                  geo_files=None,
                  npop=50,
@@ -184,7 +184,7 @@ class DepcodeOpenMC(Depcode):
            ----------
            exec_path : str
                Path to OpenMC depletion script.
-           template_inputfile_paths : dict of str to str
+           template_inputfiles_path : dict of str to str
                Path to user input files (``.xml`` file for geometry,
                material, and settings) for OpenMC.
            iter_matfile : str
@@ -204,7 +204,7 @@ class DepcodeOpenMC(Depcode):
         """
         super().__init__("openmc",
                          exec_path,
-                         template_inputfile_paths,
+                         template_inputfiles_path,
                          iter_matfile,
                          geo_files,
                          npop,
@@ -314,12 +314,12 @@ class DepcodeOpenMC(Depcode):
         """
 
         if dep_step == 0 and not restart:
-            materials = openmc.Materials.from_xml(self.template_inputfile_paths['materials'])
-            geometry = openmc.Geometry.from_xml(self.template_inputfile_paths['geometry'],
+            materials = openmc.Materials.from_xml(self.template_inputfiles_path['materials'])
+            geometry = openmc.Geometry.from_xml(self.template_inputfiles_path['geometry'],
                                                 materials=materials)
             materials.export_to_xml(self.iter_inputfiles['materials'])
             geometry.export_to_xml(self.iter_inputfiles['geometry'])
-            settings = openmc.Settings.from_xml(self.template_inputfile_paths['settings'])
+            settings = openmc.Settings.from_xml(self.template_inputfiles_path['settings'])
             settings.particles = self.npop
             #settings.generations_per_batch = ??
             settings.inactive = self.inactive_cycles
@@ -402,7 +402,7 @@ class DepcodeSerpent(Depcode):
 
     def __init__(self,
                  exec_path="sss2",
-                 template_inputfile_paths="reactor.serpent",
+                 template_inputfiles_path="reactor.serpent",
                  iter_inputfile="data/saltproc_reactor",
                  iter_matfile="data/saltproc_mat",
                  geo_files=None,
@@ -415,7 +415,7 @@ class DepcodeSerpent(Depcode):
            ----------
            exec_path : str
                Path to Serpent2 executable.
-           template_inputfile_paths : str
+           template_inputfiles_path : str
                Path to user input file for Serpent2.
            iter_inputfile : str
                 Name of Serpent2 input file for Serpent2 rerunning.
@@ -437,7 +437,7 @@ class DepcodeSerpent(Depcode):
         self.iter_inputfile = iter_inputfile
         super().__init__("serpent",
                          exec_path,
-                         template_inputfile_paths,
+                         template_inputfiles_path,
                          iter_matfile,
                          geo_files,
                          npop,
@@ -466,13 +466,13 @@ class DepcodeSerpent(Depcode):
             if len(sim_param) > 1:
                 print('ERROR: Template file %s contains multiple lines with '
                       'simulation parameters:\n'
-                      % (self.template_inputfile_paths), sim_param)
+                      % (self.template_inputfiles_path), sim_param)
                 return
             elif len(sim_param) < 1:
                 print(
                     'ERROR: Template file %s does not contain line with '
                     'simulation parameters.' %
-                    (self.template_inputfile_paths))
+                    (self.template_inputfiles_path))
                 return
             args = 'set pop %i %i %i\n' % (self.npop, self.active_cycles,
                                            self.inactive_cycles)
@@ -494,11 +494,11 @@ class DepcodeSerpent(Depcode):
             List of strings containing modified user template file.
 
         """
-        data_dir = os.path.dirname(self.template_inputfile_paths)
+        data_dir = os.path.dirname(self.template_inputfiles_path)
         include_str = [s for s in template_data if s.startswith("include ")]
         if not include_str:
             print('ERROR: Template file %s has no <include "material_file">'
-                  ' statements ' % (self.template_inputfile_paths))
+                  ' statements ' % (self.template_inputfiles_path))
             return
         src_file = include_str[0].split()[1][1:-1]
         if not os.path.isabs(src_file):
@@ -510,7 +510,7 @@ class DepcodeSerpent(Depcode):
                       ' materials description or <include "material_file">'
                       ' statement is not appears'
                       ' as first <include> statement\n'
-                      % (self.template_inputfile_paths))
+                      % (self.template_inputfiles_path))
                 return
         # Create data directory
         try:
@@ -817,7 +817,7 @@ class DepcodeSerpent(Depcode):
         try:
             subprocess.check_output(
                 args,
-                cwd=os.path.split(self.template_inputfile_paths)[0],
+                cwd=os.path.split(self.template_inputfiles_path)[0],
                 stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
             print(error.output.decode("utf-8"))
@@ -894,7 +894,7 @@ class DepcodeSerpent(Depcode):
         """
 
         if dep_step == 0 and not restart:
-            data = self.read_plaintext_file(self.template_inputfile_paths)
+            data = self.read_plaintext_file(self.template_inputfiles_path)
             data = self.insert_path_to_geometry(data)
             data = self.change_sim_par(data)
             data = self.create_iter_matfile(data)

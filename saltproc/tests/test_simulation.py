@@ -16,7 +16,7 @@ dot_input = directory + '/test.dot'
 
 serpent = DepcodeSerpent(
     exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-    template_inputfile_paths=directory + '/template.inp',
+    template_inputfiles_path=directory + '/template.inp',
     iter_inputfile=iter_inputfile,
     iter_matfile=directory + '/material',
     geo_files=[

@@ -34,7 +34,7 @@
                 "exec_path": {
                     "description": "Path to depletion code executable",
                     "type": "string" },
-                "template_inputfile_paths": {
+                "template_inputfiles_path": {
                     "description": "Path(s) to user's template depletion code input file(s) with reactor model"},
                 "npop": {
                     "description": "Number of neutrons per generation",
@@ -63,7 +63,7 @@
                     },
                     "then": {
                         "properties": {
-                            "template_inputfile_paths": {
+                            "template_inputfiles_path": {
                                 "type": "string",
                                 "pattern": "^\\.\\/(.*)$"}
                         }
@@ -75,7 +75,7 @@
                     },
                     "then": {
                         "properties": {
-                            "template_inputfile_paths": {
+                            "template_inputfiles_path": {
                                 "type": "object",
                                 "propterties": {
                                     "settings": {
@@ -98,7 +98,7 @@
                 }
 
             ],
-            "required": ["codename", "exec_path", "template_inputfile_paths", "npop", "active_cycles","inactive_cycles", "geo_file_paths"]
+            "required": ["codename", "exec_path", "template_inputfiles_path", "npop", "active_cycles","inactive_cycles", "geo_file_paths"]
         },
        "simulation": {
            "description": "Simulation class input parameters",
