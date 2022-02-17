@@ -1,7 +1,0 @@
-saltproc.tests.test\_depcode module
-===================================
-
-.. automodule:: saltproc.tests.test_depcode
-   :members:
-   :undoc-members:
-   :show-inheritance:
