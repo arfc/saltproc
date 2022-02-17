@@ -230,7 +230,7 @@ class DepcodeOpenMC(Depcode):
                          active_cycles,
                          inactive_cycles)
         self.iter_inputfile = {'geometry': './geometry.xml',
-                                 'settings': './settings.xml'},
+                               'settings': './settings.xml'},
         self.iter_matfile = './materials.xml'
 
 
@@ -462,15 +462,15 @@ class DepcodeSerpent(Depcode):
                Number of inactive cycles.
 
         """
-                super().__init__("serpent",
+        super().__init__("serpent",
                          exec_path,
                          template_inputfiles_path,
                          geo_files,
                          npop,
                          active_cycles,
                          inactive_cycles)
-                self.iter_inputfile = './serpent_iter_input.serpent'
-                self.iter_matfile = './serpent_iter_mat.ini'
+        self.iter_inputfile = './serpent_iter_input.serpent'
+        self.iter_matfile = './serpent_iter_mat.ini'
 
 
     def change_sim_par(self, template_data):
@@ -759,16 +759,16 @@ class DepcodeSerpent(Depcode):
         file_data : list
             List of strings containing file lines.
 
-         """
+        """
         template_data = []
         with open(file_path, 'r') as file:
             template_data = file.readlines()
         return template_data
 
     def replace_burnup_parameters(
-            self,
-            template_data,
-            reactor,
+        self,
+        template_data,
+        reactor,
             current_depstep_idx):
         """Adds or replaces the ``set power P dep daystep DEPSTEP`` line in
         the Serpent2 input file. This line defines depletion history and power

@@ -389,7 +389,7 @@ def run():
     read_main_input(sp_input)
     if depcode_inp['codename'] == 'serpent':
         template_file_path = \
-          os.path.abspath(depcode_inp['template_inputfiles_path'])
+            os.path.abspath(depcode_inp['template_inputfiles_path'])
     elif depcode_inp['codename'] == 'openmc':
         template_file_path = \
             os.path.dirname(
@@ -421,7 +421,7 @@ def run():
         iter_inputfile = {}
         for key in depcode_inp['template_inputfiles_path']:
             value = depcode_inp['template_inputfiles_path'][key]
-            iter_inputfile][key] = \
+            iter_inputfile[key] = \
                 os.path.join(output_path, key+'.xml')
 
         iter_matfile = os.path.join(output_path, 'materals.xml')
@@ -508,6 +508,6 @@ def run():
               simulation.burn_time)
         print("Simulation succeeded.\n")
         '''print("Reactor object data.\n",
-              msr.mass_flowrate,
+        msr.mass_flowrate,
               msr.power_levels,
               msr.dep_step_length_cumulative)'''
