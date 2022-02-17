@@ -23,8 +23,6 @@ depcode = DepcodeSerpent(
     exec_path='sss2',
     template_inputfiles_path=directory +
     '/saltproc_9d.inp',
-    iter_inputfile=sss_file,
-    iter_matfile=iter_matfile,
     geo_files=[
         os.path.join(
             directory,
@@ -32,6 +30,9 @@ depcode = DepcodeSerpent(
     npop=100,
     active_cycles=20,
     inactive_cycles=5)
+depcode.iter_inputfile=sss_file,
+depcode.iter_matfile=iter_matfile,
+
 simulation = Simulation(sim_name='Integration test',
                         sim_depcode=depcode,
                         core_number=1,

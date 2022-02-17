@@ -16,14 +16,13 @@ serpent = DepcodeSerpent(
     exec_path='sss2',
     template_inputfiles_path=directory +
     '/template.inp',
-    iter_inputfile=directory +
-    '/test',
-    iter_matfile=directory +
-    '/material',
     geo_files=[
         os.path.join(
             directory,
             '../test_geo.inp')])
+serpent.iter_inputfile=directory + '/test'
+serpent.iter_matfile=directory + '/material'
+
 
 msr = Reactor(volume=1.0,
               power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
