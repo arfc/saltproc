@@ -11,7 +11,6 @@
            "materials": "./materials.xml",
            "settings": "./settings.xml"
        },
-       "iter_matfile": "./materials.xml",
        "npop": 50,
        "active_cycles": 20,
        "inactive_cycles": 20,

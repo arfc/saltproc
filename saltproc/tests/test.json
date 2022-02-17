@@ -7,8 +7,6 @@
        "codename": "serpent",
        "exec_path": "sss2",
        "template_inputfiles_path": "./tap_test1.serpent",
-       "iter_inputfile": "saltproc_serpent",
-       "iter_matfile": "saltproc_mat",
        "npop": 50,
        "active_cycles": 20,
        "inactive_cycles": 20,
