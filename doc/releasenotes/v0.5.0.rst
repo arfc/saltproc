@@ -75,8 +75,8 @@ Python API Changes
 
 - Input file format changes:
 
-  - ``depcode['template_inputfile_path']`` → ``depcode['template_inputfile_paths']``
-  - The ``depcode['template_inputfile_paths']`` input variable now has depletion-code-depentent type:
+  - ``depcode['template_inputfile_path']`` → ``depcode['template_inputfiles_path']``
+  - The ``depcode['template_inputfiles_path']`` input variable now has depletion-code-depentent type:
     
     - ``str`` for ``Serpent2``
     - ``dict`` of ``str`` to ``str`` for ``openmc``
@@ -85,17 +85,19 @@ Python API Changes
   - ``depcode['iter_matfile']`` → (removed)
 
 .. note:: While the ``iter_inputfile`` and ``iter_matfile`` variables have been removed from the saltproc input file,
-   their presence and usage in ``DepcodeSerpent`` class is unchanged, save for the fact that users can no longer specify
-   the names of these files without modifying the source code. The new default name for ``iter_inputfile`` is ``serpent_iter_inputfile.serpent``, and for ``iter_matfile`` is ``serpent_iter_matfile.ini`` , 
+   their presence and usage in ``DepcodeSerpent`` class is unchanged, save for the fact they can no longe be initialized during object creation.
+
 
 - New/changed classes and methods:
 
   - ``Depcode``
 
+    - ``template_inputfile_path`` → ``template_inputfiles_path``
     - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
 
   - ``DepcodeSerpent``
 
+    - ``template_inputfile_path`` → ``template_inputfiles_path``
     - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
 
 
