@@ -62,6 +62,9 @@ Script Changes
   Describe any script additions/modifications/removals
 
 
+- One new script
+
+  - ``scripts/preprocessors/generate_mat_composition/convert_material_serpent_to_openmc.py``. Converts a Serpent2 material file to an OpenMC material file
 
 
 Python API Changes
@@ -89,13 +92,20 @@ Python API Changes
 
   - ``Depcode``
 
-    - Removed...
+    - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
 
   - ``DepcodeSerpent``
 
-    - Removed
+    - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
 
-  - ``DepcodeOpenmc`` is a ``Depcode`` subclass that interfaces with ``openmc``. There 
+
+  - ``DepcodeOpenmc`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
+
+    - ``run_depcode()``
+    - ``switch_to_next_geometry()``
+    - ``write_depcode_input()``
+    - ``write_depletion_settings()``
+
 
 Contributors
 ============
