@@ -78,33 +78,23 @@ jobs:
 
       - name: Update version.py
         run: |
-          echo "Configure git"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          echo "Make edits to version.py"
           sed -i "s/_version_micro = '*[0-9]*'*/_version_micro = ''/g" saltproc/version.py
           sed -i "s/_version_minor = [0-9]*/_version_minor = ${{ env.MINOR_VERSION }}/g" saltproc/version.py
           sed -i "s/^# _version_extra = 'dev'/_version_extra = 'dev'/g" saltproc/version.py
           sed -i "s/^_version_extra = '0'/# _version_extra = '0'/g" saltproc/version.py
-          echo "Add, commit, and push changes"
-          git add saltproc/version.py 
-          git commit -m "updated version to ${{ env.NEW_RELEASE_VERSION }}-dev"
-          git push origin HEAD:master
-
 
       - name: Create new release notes
         run: |
-          echo "Configure git"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          echo "Make edits to docfiles"
           sed -i "s/\.\. note:: These release notes are currently in production\.//g" doc/releasenotes/${{ env.RELEASE_VERSION }}.rst
           cp doc/releasenotes/template.rst doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           sed -i "s/vx.x.x/${{ env.NEW_RELEASE_VERSION }}/g" doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           sed -i "s/${{ env.RELEASE_VERSION }}/${{ env.NEW_RELEASE_VERSION }}\n  ${{ env.RELEASE_VERSION }}/g" doc/releasenotes/index.rst
-          echo "Add, commit, and push changes"
-          git add doc/releasenotes/${{ env.RELEASE_VERSION }}.rst
-          git add doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
-          git add doc/releasenotes/index.rst
-          git commit -m "created ${{ env.NEW_RELEASE_VERSION }} release notes"
-          git push origin HEAD:master
+
+      - name: Create PR for changes
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: "${{ env.NEW_RELEASE_VERSION }}-init"
+          commit-message: "update files for ${{ env.NEW_RELEASE_VERSION }}"
+          title: "Initialize ${{ env.NEW_RELEAES_VERISION }}"
+          body: "This is an automated PR that updates the version and add release note for the new in-develpoment version of the software."
+          reviewers: ["yardasol"]
