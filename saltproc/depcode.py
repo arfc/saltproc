@@ -168,9 +168,11 @@ class DepcodeOpenMC(Depcode):
 
     def __init__(self,
                  exec_path="openmc-deplete.py",
-                 template_inputfiles_path={"geometry": "./geometry.xml",
+                 template_inputfile_paths={"geometry": "./geometry.xml",
                                            "materials": "./materials.xml",
                                            "settings": "./settings.xml"},
+                 iter_inputfiles={'geometry': './geometry.xml',
+                                  'settings': './settings.xml'}
                  iter_matfile="materials.xml",
                  geo_files=None,
                  npop=50,
@@ -256,7 +258,7 @@ class DepcodeOpenMC(Depcode):
         nodes : int
             Number of nodes to use for depletion code run.
         """
-        # need to add flow control for plots option
+        ## need to add flow control for plots option ##
         args = (
             'mpiexec',
             '-n',
@@ -268,7 +270,9 @@ class DepcodeOpenMC(Depcode):
             '-geo',
             self.iter_inputfiles['geometry'],
             '-set',
-            self.iter_inputfiles['settings'])
+            self.iter_inputfiles['settings'],
+            '-dep',
+            self.iter_inputfiles['depletion_settings'])
 
         print('Running %s' % (self.codename))
         # Need to figure out how to adapt this to openmc
@@ -317,7 +321,7 @@ class DepcodeOpenMC(Depcode):
             geometry.export_to_xml(self.iter_inputfiles['geometry'])
             settings = openmc.Settings.from_xml(self.template_inputfile_paths['settings'])
             settings.particles = self.npop
-            settings.generations_per_batch = ??
+            #settings.generations_per_batch = ??
             settings.inactive = self.inactive_cycles
             settings.batches = self.active_cycles + self.inactive_cycles
         else:
@@ -350,21 +354,21 @@ class DepcodeOpenMC(Depcode):
                 reactor.dep_step_length_cumulative[current_depstep_idx] - \
                 reactor.dep_step_length_cumulative[current_depstep_idx - 1]
 
-       depletion_settings['timesteps'] = [current_depstep]
-       depletion_settings['directory'] = ???
+        depletion_settings['timesteps'] = [current_depstep]
+        #depletion_settings['directory'] = ???
 
-       operator_kwargs = {}
-       # operator_kwargs['chain_file'] = ??
+        operator_kwargs = {}
+        # operator_kwargs['chain_file'] = ??
 
-       integrator_kwargs = {}
-       integrator_kwargs['power'] = current_depstep_power
-       integrator_kwargs['timestep_units'] = 'd' # days
+        integrator_kwargs = {}
+        integrator_kwargs['power'] = current_depstep_power
+        integrator_kwargs['timestep_units'] = 'd' # days
 
-       depletion_settings['operatore_kwargs'] = operator_kwargs
-       depletion_settings['inegrator_kwargs'] = integrator_kwargs
+        depletion_settings['operatore_kwargs'] = operator_kwargs
+        depletion_settings['inegrator_kwargs'] = integrator_kwargs
 
-       # now write depeltion_settings to an xml or json file
-       path = self.iter_inputfiles['depletion']
+        # now write depeltion_settings to an xml or json file
+        path = self.iter_inputfiles['depletion']
 
 
     def write_mat_file(self, dep_dict, dep_end_time):

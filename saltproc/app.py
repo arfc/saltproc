@@ -106,9 +106,13 @@ def read_main_input(main_inp_file):
             depcode_inp['template_inputfile_paths'] = os.path.join(
                 input_path, depcode_inp['template_inputfile_paths'])
         elif depcode_inp['codename'] == 'openmc':
-            for key,value in depcode_inp['template_inputfile_paths']:
+            depcode_inp['iter_inputfiles'] = {}
+            for key in depcode_inp['template_inputfile_paths']:
+                value = depcode_inp['template_inputfile_paths'][key]
                 depcode_inp['template_inputfile_paths'][key] = \
                     os.path.join(input_path, value)
+                depcode_inp['iter_inputfiles'][key] = \
+                    os.path.join(output_path, 'iter_'+ key)
         else:
             raise ValueError(
                 f'{depcode_inp["codename"]} is not a supported depletion code')
@@ -386,16 +390,27 @@ def run():
     nodes, cores, sp_input = parse_arguments()
     # Read main input file
     read_main_input(sp_input)
+    if depcode_inp['codename'] == 'serpent':
+        template_file_path = \
+          os.path.abspath(depcode_inp['template_inputfile_paths'])
+        iter_file_path = \
+          os.path.abspath(depcode_inp['iter_inputfile'])
+    elif depcode_inp['codename'] == 'openmc':
+        template_file_path = \
+            os.path.dirname(
+                os.path.abspath(
+                    depcode_inp['template_inputfile_paths']['materials']))
+        iter_file_path = os.path.abspath(output_path)
     # Print out input information
     print('Initiating Saltproc:\n'
           '\tRestart = ' +
           str(simulation_inp['restart_flag']) +
           '\n'
           '\tTemplate File Path(s)  = ' +
-          os.path.abspath(depcode_inp['template_inputfile_paths']) +
+          template_file_path +
           '\n'
           '\tInput File Path     = ' +
-          os.path.abspath(depcode_inp['iter_inputfile']) +
+          iter_file_path +
           '\n'
           '\tMaterial File Path  = ' +
           os.path.abspath(depcode_inp['iter_matfile']) +
