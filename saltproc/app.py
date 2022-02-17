@@ -106,13 +106,10 @@ def read_main_input(main_inp_file):
             depcode_inp['template_inputfiles_path'] = os.path.join(
                 input_path, depcode_inp['template_inputfiles_path'])
         elif depcode_inp['codename'] == 'openmc':
-            depcode_inp['iter_inputfiles'] = {}
             for key in depcode_inp['template_inputfiles_path']:
                 value = depcode_inp['template_inputfiles_path'][key]
                 depcode_inp['template_inputfiles_path'][key] = \
                     os.path.join(input_path, value)
-                depcode_inp['iter_inputfiles'][key] = \
-                    os.path.join(output_path, 'iter_'+ key)
         else:
             raise ValueError(
                 f'{depcode_inp["codename"]} is not a supported depletion code')
@@ -393,14 +390,12 @@ def run():
     if depcode_inp['codename'] == 'serpent':
         template_file_path = \
           os.path.abspath(depcode_inp['template_inputfiles_path'])
-        iter_file_path = \
-          os.path.abspath(depcode_inp['iter_inputfile'])
     elif depcode_inp['codename'] == 'openmc':
         template_file_path = \
             os.path.dirname(
                 os.path.abspath(
                     depcode_inp['template_inputfiles_path']['materials']))
-        iter_file_path = os.path.abspath(output_path)
+    iter_file_path = os.path.abspath(output_path)
     # Print out input information
     print('Initiating Saltproc:\n'
           '\tRestart = ' +
@@ -409,11 +404,8 @@ def run():
           '\tTemplate File Path(s)  = ' +
           template_file_path +
           '\n'
-          '\tInput File Path     = ' +
+          '\tDepletion Step File Path     = ' +
           iter_file_path +
-          '\n'
-          '\tMaterial File Path  = ' +
-          os.path.abspath(depcode_inp['iter_matfile']) +
           '\n'
           '\tOutput HDF5 database Path = ' +
           os.path.abspath(simulation_inp['db_name']) +
@@ -424,24 +416,28 @@ def run():
             output_path, 'serpent_iter_input.serpent')
         iter_matfile = os.path.join(
             output_path, 'serpent_iter_matfile.ini')
-
-        depcode = DepcodeSerpent(
-            exec_path=depcode_inp['exec_path'],
-            iter_inputfile=iter_inputfile,
-            iter_matfile=iter_matfile)
+        depcode = DepcodeSerpent()
     elif depcode_inp['codename'] == 'openmc':
-        depcode = DepcodeOpenMC(exec_path=depcode_inp['exec_path'],
-            iter_inputfiles = os.path.join(output_path, 'openmc_iter_matfile.xml'))
+        iter_inputfile = {}
+        for key in depcode_inp['template_inputfiles_path']:
+            value = depcode_inp['template_inputfiles_path'][key]
+            iter_inputfile][key] = \
+                os.path.join(output_path, key+'.xml')
+
+        iter_matfile = os.path.join(output_path, 'materals.xml')
+        depcode = DepcodeOpenMC()
     else:
         raise ValueError(
             f'{depcode_inp["codename"]} is not a supported depletion code')
 
     depcode.template_inputfiles_path=depcode_inp['template_inputfiles_path']
-    depcode.iter_matfile = depcode_inp[iter_matfile]
     depcode.geo_files=depcode_inp['geo_file_paths']
     depcode.npop=depcode_inp['npop']
     depcode.active_cycles=depcode_inp['active_cycles']
     depcode.inactive_cycles=depcode_inp['inactive_cycles']
+
+    depcode.iter_inputfile = iter_inputfile
+    depcode.iter_matfile = iter_matfile
 
     simulation = Simulation(
         sim_name='Super test',

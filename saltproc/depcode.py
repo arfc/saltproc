@@ -16,13 +16,24 @@ class Depcode(ABC):
     population, active, and inactive cycles. Contains methods to read template
     and output files, and write new input files for the depletion code.
 
+    Attributes
+    -----------
+    param : dict of str to type
+        Holds depletion steo parameter information
+    sim_info : dict of str to type
+        Holds simulation settings information
+    iter_inputfile : str
+        Path to depletion code input file for depletion code rerunning.
+    iter_matfile : str
+        Path to iterative, rewritable material file for depletion code
+        rerunning. This file is modified during  the simulation.
+
     """
 
     def __init__(self,
                  codename,
                  exec_path,
                  template_inputfiles_path,
-                 iter_matfile,
                  geo_files=None,
                  npop=50,
                  active_cycles=20,
@@ -38,9 +49,6 @@ class Depcode(ABC):
            template_inputfiles_path: str or dict of str to str
                Path(s) to depletion code input file(s). Type depends
                on depletion code in use.
-           iter_matfile : str
-               Name of iterative, rewritable material file for depletion code
-               rerunning. This file is modified during  the simulation.
            geo_files : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
@@ -56,13 +64,14 @@ class Depcode(ABC):
         self.codename = codename
         self.exec_path = exec_path
         self.template_inputfiles_path = template_inputfiles_path
-        self.iter_matfile = iter_matfile
         self.geo_files = geo_files
         self.npop = npop
         self.active_cycles = active_cycles
         self.inactive_cycles = inactive_cycles
         self.param = {}
         self.sim_info = {}
+        self.iter_inputfile = './iter_input'
+        self.iter_matfile = './iter_mat'
 
     @abstractmethod
     def read_depcode_info(self):
@@ -162,7 +171,21 @@ class DepcodeOpenMC(Depcode):
     template files for running OpenMC depletion simulations.
     Also contains neutrons population, active, and inactive cycles.
     Contains methods to read template and output files,
-    write new input files for .
+    write new input files for OpenMC.
+
+    Attributes:
+    -----------
+    param : dict of str to type
+        Holds depletion steo parameter information
+    sim_info : dict of str to type
+        Holds simulation settings information
+    iter_inputfile : dict of str to str
+        Paths to OpenMC input files for OpenMC rerunning.
+    iter_matfile : str
+        Path to iterative, rewritable material file for OpenMC
+        rerunning. This file is modified during the simulation.
+
+
 
     """
 
@@ -171,9 +194,6 @@ class DepcodeOpenMC(Depcode):
                  template_inputfiles_path={"geometry": "./geometry.xml",
                                            "materials": "./materials.xml",
                                            "settings": "./settings.xml"},
-                 iter_inputfiles={'geometry': './geometry.xml',
-                                  'settings': './settings.xml'},
-                 iter_matfile="materials.xml",
                  geo_files=None,
                  npop=50,
                  active_cycles=20,
@@ -205,11 +225,14 @@ class DepcodeOpenMC(Depcode):
         super().__init__("openmc",
                          exec_path,
                          template_inputfiles_path,
-                         iter_matfile,
                          geo_files,
                          npop,
                          active_cycles,
                          inactive_cycles)
+        self.iter_inputfile = {'geometry': './geometry.xml',
+                                 'settings': './settings.xml'},
+        self.iter_matfile = './materials.xml'
+
 
 
     def read_depcode_info(self):
@@ -398,13 +421,23 @@ class DepcodeSerpent(Depcode):
     Contains methods to read template and output files,
     write new input files for Serpent2.
 
+    Attributes
+    -----------
+    param : dict of str to type
+        Holds Serpent depletion step parameter information
+    sim_info : dict of str to type
+        Holds Serpent simulation settings information
+    iter_inputfile : str
+        Path to Serpent2 input file for Serpent2 rerunning.
+    iter_matfile : str
+        Path to iterative, rewritable material file for Serpent2
+        rerunning. This file is modified during the simulation.
+
     """
 
     def __init__(self,
                  exec_path="sss2",
                  template_inputfiles_path="reactor.serpent",
-                 iter_inputfile="data/saltproc_reactor",
-                 iter_matfile="data/saltproc_mat",
                  geo_files=None,
                  npop=50,
                  active_cycles=20,
@@ -416,12 +449,7 @@ class DepcodeSerpent(Depcode):
            exec_path : str
                Path to Serpent2 executable.
            template_inputfiles_path : str
-               Path to user input file for Serpent2.
-           iter_inputfile : str
-                Name of Serpent2 input file for Serpent2 rerunning.
-           iter_matfile : str
-               Name of iterative, rewritable material file for Serpent2
-               rerunning. This file is modified during  the simulation.
+               Path to user input file for Serpent2
            geo_files : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
@@ -434,15 +462,16 @@ class DepcodeSerpent(Depcode):
                Number of inactive cycles.
 
         """
-        self.iter_inputfile = iter_inputfile
-        super().__init__("serpent",
+                super().__init__("serpent",
                          exec_path,
                          template_inputfiles_path,
-                         iter_matfile,
                          geo_files,
                          npop,
                          active_cycles,
                          inactive_cycles)
+                self.iter_inputfile = './serpent_iter_input.serpent'
+                self.iter_matfile = './serpent_iter_mat.ini'
+
 
     def change_sim_par(self, template_data):
         """Finds simulation parameters (neutron population, cycles) in the
