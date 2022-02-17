@@ -94,6 +94,7 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           branch: "${{ env.NEW_RELEASE_VERSION }}-init"
+          delete-branch: true
           commit-message: "update files for ${{ env.NEW_RELEASE_VERSION }}"
           title: "Initialize ${{ env.NEW_RELEASE_VERISION }}"
           body: "This is an automated PR that updates the version and add release note for the new in-develpoment version of the software."
