@@ -97,4 +97,4 @@ jobs:
           commit-message: "update files for ${{ env.NEW_RELEASE_VERSION }}"
           title: "Initialize ${{ env.NEW_RELEAES_VERISION }}"
           body: "This is an automated PR that updates the version and add release note for the new in-develpoment version of the software."
-          reviewers: ["yardasol"]
+          reviewers: yardasol
