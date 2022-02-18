@@ -94,7 +94,7 @@ jobs:
           branch: "${{ env.NEW_RELEASE_VERSION }}-init"
           delete-branch: true
           commit-message: "initialize files for ${{ env.NEW_RELEASE_VERSION }}"
-          title: "Initialize ${{ env.NEW_RELEASE_VERISION }}"
+          title: "Initialize ${{ env.NEW_RELEASE_VERSION }}"
           body: "This is an automated PR that updates the version and add release note for the new in-develpoment version of the software."
           reviewers: yardasol
 
@@ -110,6 +110,6 @@ jobs:
           branch: "${{ env.NEW_RELEASE_VERSION }}-final"
           delete-branch: true
           commit-message: "update version.py and the release notes before publishing ${{ env.NEW_RELEASE_VERSION }}"
-          title: "Finalize ${{ env.NEW_RELEASE_VERISION }}"
+          title: "Finalize ${{ env.NEW_RELEASE_VERSION }}"
           body: "MERGE BEFORE PUBLISHING ${{ env.NEW_RELEASE_VERSION }}.\n This is an automated PR that updates version for the full release of the in-develpoment version of the software."
           reviewers: yardasol
