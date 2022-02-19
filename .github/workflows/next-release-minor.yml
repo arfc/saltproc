@@ -88,7 +88,7 @@ jobs:
           -H "Accept: application/vnd.github.v3+json" \
           -X GET \
           --jq '.[] | .number')
-          for i in ${MILESTONE_NAMES[@]}
+          for i in ${!MILESTONE_NAMES[@]}
           do
             if [[ ${MILESTONE_NAMES[$i]} == ${{ env.NEW_RELEASE_VERSION }} ]]
             then
@@ -120,7 +120,7 @@ jobs:
           title: "[INIT] Update `version.py` and create release notes for version ${{ env.NEW_RELEASE_VERSION }}"
           body: "This is an automated PR that updates the version number and creates the release notes file for version ${{ env.NEW_RELEASE_VERSION }}. This should be the first PR merged during development of version ${{ env.NEW_RELEASE_VERSION }}"
           reviewers: yardasol
-          milestone: env.MILESTONE_NUMBER
+          milestone: ${{ env.MILESTONE_NUMBER }}
           labels: |
             Priority:1-Critical
             Status:5-In Review
@@ -145,7 +145,7 @@ jobs:
           title: "[REQUIRED FOR PUBLISHING] Finishing touches for version ${{ env.NEW_RELEASE_VERSION }}"
           body: "This is an automated PR that updates the version number and release notes in preparation for the full release of version ${{ env.NEW_RELEASE_VERSION }}. This should be last PR merged before publishing version ${{ env.NEW_RELEASE_VERSION }}. Merging this PR is a prequisite of publishing version ${{ env.NEW_RELEASE_VERSION }}"
           reviewers: yardasol
-          milestone: env.MILESTONE_NUMBER
+          milestone: ${{ env.MILESTONE_NUMBER }}
           labels: |
             Priority:2-Normal
             Status:1-New
