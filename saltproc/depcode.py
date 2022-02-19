@@ -289,13 +289,13 @@ class DepcodeOpenMC(Depcode):
             'python',
             './deplete_openmc.py'
             '-mat',
-            self.iter_inputfiles['materials'],
+            self.iter_inputfile['materials'],
             '-geo',
-            self.iter_inputfiles['geometry'],
+            self.iter_inputfile['geometry'],
             '-set',
-            self.iter_inputfiles['settings'],
+            self.iter_inputfile['settings'],
             '-dep',
-            self.iter_inputfiles['depletion_settings'])
+            self.iter_inputfile['depletion_settings'])
 
         print('Running %s' % (self.codename))
         # Need to figure out how to adapt this to openmc
