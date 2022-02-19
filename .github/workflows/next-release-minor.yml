@@ -95,7 +95,7 @@ jobs:
           branch: "${{ env.NEW_RELEASE_VERSION }}-init"
           delete-branch: true
           commit-message: "inital changes for ${{ env.NEW_RELEASE_VERSION }}"
-          title: "[INIT] Update `version.py` and create release notes for version {{ env.NEW_RELEASE_VERSION }}"
+          title: "[INIT] Update `version.py` and create release notes for version ${{ env.NEW_RELEASE_VERSION }}"
           body: "This is an automated PR that updates the version number and creates the release notes file for version ${{ env.NEW_RELEASE_VERSION }}. This should be the first PR merged during development of version ${{ env.NEW_RELEASE_VERSION }}"
           reviewers: yardasol
 
@@ -105,7 +105,7 @@ jobs:
           sed -i "s/^_version_extra = 'dev'/# _version_extra = 'dev'/g" saltproc/version.py
           sed -i "s/# _version_extra = '0'/_version_extra = '0'/g" saltproc/version.py
 
-      - name: Create PR containing changes necessary for publishing env.NEW_RELEASE_VERSION
+      - name: "Create PR containing changes necessary for publishing ${{ env.NEW_RELEASE_VERSION }}"
         uses: peter-evans/create-pull-request@v3
         with:
           branch: "${{ env.NEW_RELEASE_VERSION }}-final"
