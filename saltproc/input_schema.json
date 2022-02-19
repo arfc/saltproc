@@ -89,9 +89,13 @@
                                         "pattern": "^\\.\\/(.*)\\.xml$"},
                                     "plots": {
                                         "type": "string",
+                                        "pattern": "^\\.\\/(.*)\\.xml$"},
+                                    "chain_file": {
+                                        "type": "string",
                                         "pattern": "^\\.\\/(.*)\\.xml$"}
                                 },
-                                "required": ["settings", "geometry", "materials"]
+
+                                "required": ["settings", "geometry", "materials", "chain_file"]
                             }
                         }
                     }

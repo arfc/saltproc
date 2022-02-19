@@ -193,7 +193,8 @@ class DepcodeOpenMC(Depcode):
                  exec_path="openmc-deplete.py",
                  template_inputfiles_path={"geometry": "./geometry.xml",
                                            "materials": "./materials.xml",
-                                           "settings": "./settings.xml"},
+                                           "settings": "./settings.xml",
+                                           "chain_file": "./chain_simple.xml"},
                  geo_files=None,
                  npop=50,
                  active_cycles=20,
@@ -384,7 +385,17 @@ class DepcodeOpenMC(Depcode):
         depletion_settings['timesteps'] = [current_depstep]
 
         operator_kwargs = {}
-        # operator_kwargs['chain_file'] = ??
+
+        # Right now we'll require a path to the chain file.
+        # In the future we can make this fanciet
+        try:
+            template_inputfiles_path['chain_file']:
+            operator_kwargs['chain_file'] = \
+                template_inputfile_path['chain_file']
+        except KeyError:
+            raise SyntaxError("No chain file defined. Please provide \
+            a chain file in your saltproc input file")
+
 
         integrator_kwargs = {}
         integrator_kwargs['power'] = current_depstep_power
