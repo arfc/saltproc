@@ -1,23 +1,57 @@
 import re
 import os
 import sys
-from pyne import serpent
+from pyne import nucname as pyname
 import openmc
 import neutronics_material_maker as nmm #you'll need to install this manually
-from nmm import zaid_to_isotope
+from neutronics_material_maker import zaid_to_isotope
+
+S_a_b_dict = {
+    'be': ['c_Be'],
+    'hw': ['c_D_in_D2O'],
+    'gr': ['c_Graphite'],
+    'lw': ['c_H_in_H2O'],
+    'hzr': ['c_H_in_ZrH', 'c_Zr_in_ZrH'],
+    'poly': ['c_H_in_CH2']
+}
+
+def convert_nuclide_name_serpent_to_zam(nuc_code):
+        """Checks Serpent2-specific meta stable-flag for zzaaam. For instance,
+        47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented
+        with `aaa` started with ``3``.
+
+        Parameters
+        ----------
+        nuc_code : str
+            Name of nuclide in Serpent2 form. For instance, `47310`.
+
+        Returns
+        -------
+        nuc_zzaam : int
+            Name of nuclide in `zzaaam` form (`471101`).
+
+        """
+        zz = pyname.znum(nuc_code)
+        aa = pyname.anum(nuc_code)
+        if aa > 300:
+            if zz > 76:
+                aa_new = aa - 100
+            else:
+                aa_new = aa - 200
+            zzaaam = str(zz) + str(aa_new) + '1'
+        else:
+            zzaaam = nuc_code
+        return int(zzaaam)
 
 # read command line input
 
 try:
-    serpent_mat_path = sys.argv[1]
+    serpent_mat_path = str(sys.argv[1])
 except IndexError:
     raise SyntaxError("No file specified")
 
-fname = serpent_mat_path.split('/').pop(-1)
-fname = fname.split('.')[0]
-path = ''
-for p in serpent_mat_path:
-    path = os.path.join(path, p)
+fname = serpent_mat_path.split('/').pop(-1).split('.')[0]
+path = os.path.dirname(serpent_mat_path)
 
 mat_data = []
 with open(serpent_mat_path, 'r') as file:
@@ -25,55 +59,63 @@ with open(serpent_mat_path, 'r') as file:
 
 # read serpent materials
 WO_REGEX = "\-[0-9]+\."
-MATERIAL_REGEX = "mat [a-zA-Z]+ [0-9]+\.*[0-9]*" # need to add machinery for more cards
-COMP_REGEX = "\-*[0-9]+\.[0-9]+E\+*\-*[0-9]{2}"
-NUCLIDE_REGEX1 = "[0-9]{4,}\.[0-9]{2}c\s+" + COMP_REGEX
-NUCLIDE_REGEX2 = "[0-9]{5,}\s+" + COMP_REGEX
-ELEMENT_REGEX = "[0-9]+0{3}\.[0-9]{2}c\s+" + COMP_REGEX
+COMP_REGEX = "\-?[0-9]+\.[0-9]+E*(\+|\-)?[0-9]{0,2}"
+MATERIAL_REGEX = "^\s*[^%]*\s*mat\s+[a-zA-Z0-9]+\s+" + COMP_REGEX
+NUCLIDE_REGEX_1 = "^\s*[^%]*\s*[0-9]{4,}\.[0-9]{2}c\s+" + COMP_REGEX
+NUCLIDE_REGEX_2 = "^\s*[^%]*\s*[0-9]{5,}\s+" + COMP_REGEX # decay only nuclides
+ELEMENT_REGEX = "^\s*[^%]*\s*[0-9]+0{3}\.[0-9]{2}c\s+" + COMP_REGEX
+THERM_REGEX = "^\s*[^%]*\s*(therm|thermstoch)\s+[a-z]+"
 
 
-new_material=True
+current_material=True
 openmc_mats = openmc.Materials([])
 
 for line in mat_data:
-    if re.match(MATERIAL_REGEX, line):
+    if re.search(MATERIAL_REGEX, line):
         # Check if we've hit a new material
-        if current_material
+        if current_material:
             current_material = False
         else:
             current_material = True
-            if my_mat['isotopes'] is empty:
+            if not bool(my_mat['isotopes']):
                 my_mat.pop('isotopes')
-            if my_mat['elements'] is empty:
+            if not bool(my_mat['elements']):
                 my_mat.pop('elements')
 
+            S_a_b = my_mat.pop('S_a_b')
+            S_a_b_tables = False
+            if bool(S_a_b):
+                S_a_b_tables = True
+
             depletable = my_mat.pop('depletable')
-            my_mat = nmm.Material(my_mat)
+            my_mat = nmm.Material(**my_mat)
             openmc_mats.append(my_mat.openmc_material)
             openmc_mats[-1].depletable = depletable
-            if my_mat.get('volume_in_cm3'):
-                openmc_mats[-1].volimet = my_mat['volume_in_cm3']
+            if bool(my_mat.volume_in_cm3):
+                openmc_mats[-1].volume = my_mat.volume_in_cm3
+            if S_a_b_tables:
+                for t in S_a_b:
+                    openmc_mats[-1].add_s_alpha_beta(t)
 
         my_mat = {}
         my_mat['isotopes']={}
         my_mat['elements']={}
+        my_mat['S_a_b'] = []
 
         #get info about material
         my_mat_data = line.split()
         my_mat_map = {}
-        mat_cards = ['vol','burn', 'tmp','tft']
+        mat_cards = ['vol','burn','tmp','tms']
         for card in mat_cards:
+            data = []
             if card in my_mat_data:
-                i = my_mat_data.index(card)+1
-                if card in ['tft', 'fix', 'moder']:
-                    vals = 2
-                elif card in ['rgb']:
-                    vals = 3
-                else:
-                    vals = 1
-                my_mat_map[card] = my_mat_data[i:i+vals]
-
-        my_mat['name'] = my_mat_data[1]
+                i = my_mat_data.index(card)
+                if card in ['vol', 'tmp', 'tms']:
+                    data = float(my_mat_data[i+1])
+                if card in ['burn']:
+                    data = int(my_mat_data[i+1])
+                my_mat_map[card] = data
+        my_mat['name'] = str(my_mat_data[1])
         my_mat['density'] = abs(float(my_mat_data[2]))
 
         ## Doesn't support sum option
@@ -95,10 +137,36 @@ for line in mat_data:
             if card == 'burn':
                 if my_mat_map[card] == 1:
                     my_mat['depletable'] = True
+    elif re.search(ELEMENT_REGEX,line):
+        # get info about element
+        elem_info = line.split()
+        elem_code = elem_info[0].split('.')[0]
+        comp = elem_info[1]
 
-    elif (re.match(NUCLIDE_REGEX_1, line) or
-          re.match(NUCLIDE_REGEX_2, line)):
-        nuc_code, comp = line.split()
+        #get info about nuclide
+        if re.search(WO_REGEX, comp):
+            percent_type='wo'
+        else:
+            percent_type='ao'
+
+        elem_name = nmm.zaid_to_isotope(elem_code)
+        elem_name = elem_name[:-1]
+        my_mat['elements'][elem_name] = abs(float(comp))
+        my_mat['percent_type'] = percent_type
+
+
+    elif (re.search(NUCLIDE_REGEX_1, line) or
+          re.search(NUCLIDE_REGEX_2, line)):
+        nuclide_info = line.split()
+        nuc_code = nuclide_info[0].split('.')[0]
+        if re.search(NUCLIDE_REGEX_2, line):
+            nuc_code = nuc_code[:-1]
+        metastable = False
+        if nuc_code[-3] == '3':
+            metastable = True
+            nuc_code = str(convert_nuclide_name_serpent_to_zam(nuc_code))
+            nuc_code = nuc_code[:-1]
+        comp = nuclide_info[1]
         #get info about nuclide
         if re.search(WO_REGEX, comp):
             percent_type='wo'
@@ -106,16 +174,19 @@ for line in mat_data:
             percent_type='ao'
 
         nuc_name = nmm.zaid_to_isotope(nuc_code) #use openmc or nmm libraries to convert code toanme
+        if metastable:
+            nuc_name += 'm'
 
         my_mat['isotopes'][nuc_name] = abs(float(comp))
         my_mat['percent_type'] = percent_type
 
-    elif re.match(ELEMENT_REGEX,line):
-        # get info about element
-        elem_code,comp = line.split()
+    elif re.search(THERM_REGEX,line):
+        data = line.split()[2:]
+        for item in data:
+            key = item.split('.')[0]
+            key = key[:-2]
+            if bool(S_a_b_dict.get(key)):
+                if S_a_b_dict[key][0] not in my_mat['S_a_b']:
+                    my_mat['S_a_b'] += S_a_b_dict[key]
 
-        elem_name = nmm.zaid_to_isotope(elem_code)
-        my_mat['elements'][elem_name] = abs(float(comp))
-
-
-openmc_mats.to_xml(os.path.join(path, fname+'.xml'))
+openmc_mats.export_to_xml(os.path.join(path, fname+'.xml'))
