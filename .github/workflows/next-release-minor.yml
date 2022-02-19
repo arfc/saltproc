@@ -94,7 +94,7 @@ jobs:
         with:
           branch: "${{ env.NEW_RELEASE_VERSION }}-init"
           delete-branch: true
-          commit-message: "initialize files for ${{ env.NEW_RELEASE_VERSION }}"
+          commit-message: "initialize files for release ${{ env.NEW_RELEASE_VERSION }}"
           title: "Initialize ${{ env.NEW_RELEASE_VERSION }}"
           body: "This is an automated PR that updates the version and add release note for the new in-develpoment version of the software."
           reviewers: yardasol
