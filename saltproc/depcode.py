@@ -315,11 +315,11 @@ class DepcodeOpenMC(Depcode):
         """Switches the geometry file for the OpenMC depletion simulation to
         the next geometry file in `geo_files`.
         """
-        mats = openmc.Geometry.from_xml(self.iter_inputfiles['materials'])
+        mats = openmc.Geometry.from_xml(self.iter_inputfile['materials'])
         next_geometry = openmc.Geometry.from_xml(
             path=self.geo_files.pop(0),
             materials=mats)
-        next_geometry.export_to_xml(path=self.iter_inputfiles['materials'])
+        next_geometry.export_to_xml(path=self.iter_inputfile['materials'])
 
 
     def write_depcode_input(self, reactor, dep_step, restart):
@@ -340,18 +340,18 @@ class DepcodeOpenMC(Depcode):
             materials = openmc.Materials.from_xml(self.template_inputfiles_path['materials'])
             geometry = openmc.Geometry.from_xml(self.template_inputfiles_path['geometry'],
                                                 materials=materials)
-            materials.export_to_xml(self.iter_inputfiles['materials'])
-            geometry.export_to_xml(self.iter_inputfiles['geometry'])
+            materials.export_to_xml(self.iter_inputfile['materials'])
+            geometry.export_to_xml(self.iter_inputfile['geometry'])
             settings = openmc.Settings.from_xml(self.template_inputfiles_path['settings'])
             settings.particles = self.npop
             #settings.generations_per_batch = ??
             settings.inactive = self.inactive_cycles
             settings.batches = self.active_cycles + self.inactive_cycles
         else:
-            settings = openmc.Settings.from_xml(self.iter_inputfiles['settings'])
+            settings = openmc.Settings.from_xml(self.iter_inputfile['settings'])
 
 
-        settings.export_to_xml(self.iter_inputfiles['settngs'])
+        settings.export_to_xml(self.iter_inputfile['settings'])
         self.write_depletion_settings(reactor, dep_step)
         self.write_saltproc_tallies()
 
@@ -387,11 +387,11 @@ class DepcodeOpenMC(Depcode):
         integrator_kwargs['power'] = current_depstep_power
         integrator_kwargs['timestep_units'] = 'd' # days
 
-        depletion_settings['operatore_kwargs'] = operator_kwargs
-        depletion_settings['inegrator_kwargs'] = integrator_kwargs
+        depletion_settings['operator_kwargs'] = operator_kwargs
+        depletion_settings['integrator_kwargs'] = integrator_kwargs
 
         # now write depeltion_settings to an xml or json file
-        path = self.iter_inputfiles['depletion']
+        path = self.iter_inputfile['depletion']
 
 
     def write_mat_file(self, dep_dict, dep_end_time):
