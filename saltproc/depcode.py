@@ -235,7 +235,6 @@ class DepcodeOpenMC(Depcode):
         self.iter_matfile = './materials.xml'
 
 
-
     def read_depcode_info(self):
         """Parses initial OpenMC simulation info from the OpenMC output files
         and stores it in the `Depcode` object's ``sim_info`` attribute.
@@ -341,20 +340,23 @@ class DepcodeOpenMC(Depcode):
             materials = openmc.Materials.from_xml(self.template_inputfiles_path['materials'])
             geometry = openmc.Geometry.from_xml(self.template_inputfiles_path['geometry'],
                                                 materials=materials)
-            materials.export_to_xml(self.iter_inputfile['materials'])
-            geometry.export_to_xml(self.iter_inputfile['geometry'])
             settings = openmc.Settings.from_xml(self.template_inputfiles_path['settings'])
             settings.particles = self.npop
             #settings.generations_per_batch = ??
             settings.inactive = self.inactive_cycles
             settings.batches = self.active_cycles + self.inactive_cycles
         else:
+             materials = openmc.Materials.from_xml(self.iter_inputfile['materials'])
+            geometry = openmc.Geometry.from_xml(self.iter_inputfile['geometry'],
+                                                materials=materials)
             settings = openmc.Settings.from_xml(self.iter_inputfile['settings'])
 
 
+        materials.export_to_xml(self.iter_inputfile['materials'])
+        geometry.export_to_xml(self.iter_inputfile['geometry'])
         settings.export_to_xml(self.iter_inputfile['settings'])
         self.write_depletion_settings(reactor, dep_step)
-        self.write_saltproc_tallies()
+        self.write_saltproc_openmc_tallies(materials, geometry)
 
     def write_depletion_settings(reactor, current_depstep_idx):
         """Write the depeletion settings for the ``openmc.depelete``
@@ -430,6 +432,48 @@ class DepcodeOpenMC(Depcode):
 
         """
 
+    def write_saltproc_openmc_tallies(materials, geometry):
+        """
+        Write tallies for calculating burnup and delayed neutron
+        parameters.
+
+        Parameters
+        ----------
+        materials : `openmc.Materials` object
+            The materials for the depletion simulation
+        geometry : `openmc.Geometry` object
+            The geometry for the depletion simulation
+
+        """
+        tallies = openmc.Tallies()
+
+        tally = openmc.Tally(name='delayed-fission-neutrons')
+        tally.filters = [openmc.DelayedGroupFilter([1,2,3,4,5,6])]
+        tally.scores = ['delayed-nu-fission']
+        tallies.append(tally)
+
+        tally = openmc.Tally(name='total-fission-neutrons')
+        tally.filters = [openmc.UniverseFilter(geometry.root_universe)]
+        tally.scores = ['nu-fission']
+        tallies.append(tally)
+
+        tally = openmc.Tally(name='precursor-decay-constants')
+        tally.filters = [openmc.DelayedGroupFilter([1,2,3,4,5,6])]
+        tally.scores = ['decay-rate']
+        tallies.append(tally)
+
+        tally = openmc.Tally(name='fission-energy')
+        tally.filters = [openmc.UniverseFilter(geometry.root_universe)]
+        tally.scores = ['fission-q-recoverable', 'fission-q-prompt', 'kappa-fission']
+        tallies.append(tally)
+
+        tally = openmc.Tally(name='normalization-factor')
+        tally.filters = [openmc.UniverseFilter(geometry.root_universe)]
+        tally.scores = ['heating']
+        tallies.append(tally)
+
+        out_path = os.path.dirname(self.iter_inputfile['settings'])
+        tallies.export_to_xml(os.path.join(out_path, 'tallies.xml'))
 
 class DepcodeSerpent(Depcode):
     r"""Class contains information about input, output, geometry, and
