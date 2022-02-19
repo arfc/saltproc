@@ -77,7 +77,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Initial changes for the new version
+      - name: Make initial changes for version env.NEW_RELEASE_VERISON 
         run: |
           echo "Update version.py"
           sed -i "s/_version_micro = '*[0-9]*'*/_version_micro = ''/g" saltproc/version.py
@@ -89,29 +89,29 @@ jobs:
           sed -i "s/vx.x.x/${{ env.NEW_RELEASE_VERSION }}/g" doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           sed -i "s/${{ env.RELEASE_VERSION }}/${{ env.NEW_RELEASE_VERSION }}\n  ${{ env.RELEASE_VERSION }}/g" doc/releasenotes/index.rst
 
-      - name: Create PR for inital new version changes
+      - name: Create PR containing inital changes for version env.NEW_RELEASE_VERSION 
         uses: peter-evans/create-pull-request@v3
         with:
           branch: "${{ env.NEW_RELEASE_VERSION }}-init"
           delete-branch: true
-          commit-message: "initialize files for ${{ env.NEW_RELEASE_VERSION }}"
-          title: "Initialize ${{ env.NEW_RELEASE_VERSION }}"
-          body: "This is an automated PR that updates the version and add release note for the new in-develpoment version of the software."
+          commit-message: "inital changes for ${{ env.NEW_RELEASE_VERSION }}"
+          title: "[INIT] Update `version.py` and create release notes for version {{ env.NEW_RELEASE_VERSION }}"
+          body: "This is an automated PR that updates the version number and creates the release notes file for version ${{ env.NEW_RELEASE_VERSION }}. This should be the first PR merged during development of version ${{ env.NEW_RELEASE_VERSION }}"
           reviewers: yardasol
 
-      - name: Advance changes for publishing the new release
+      - name: Make changes necessary for publishing version env.NEW_RELEASE_VERSION in advance
         run: |
           sed -i "s/\.\. note:: These release notes are currently in production\.//g" doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           sed -i "s/^_version_extra = 'dev'/# _version_extra = 'dev'/g" saltproc/version.py
           sed -i "s/# _version_extra = '0'/_version_extra = '0'/g" saltproc/version.py
 
-      - name: Create advance PR final new version changes
+      - name: Create PR containing changes necessary for publishing env.NEW_RELEASE_VERSION
         uses: peter-evans/create-pull-request@v3
         with:
           branch: "${{ env.NEW_RELEASE_VERSION }}-final"
           base: master
           delete-branch: true
-          commit-message: "update version.py and the release notes before publishing ${{ env.NEW_RELEASE_VERSION }}"
-          title: "Finalize ${{ env.NEW_RELEASE_VERSION }}"
-          body: "MERGE BEFORE PUBLISHING ${{ env.NEW_RELEASE_VERSION }}.\n This is an automated PR that updates version for the full release of the in-develpoment version of the software."
+          commit-message: "final changes before publishing ${{ env.NEW_RELEASE_VERSION }}"
+          title: "[REQUIRED FOR PUBLISHING] Finishing touches for version ${{ env.NEW_RELEASE_VERSION }}"
+          body: "This is an automated PR that updates the version number and release notes in preparation for the full release of version ${{ env.NEW_RELEASE_VERSION }}. This should be last PR merged before publishing version ${{ env.NEW_RELEASE_VERSION }}. Merging this PR is a prequisite of publishing version ${{ env.NEW_RELEASE_VERSION }}"
           reviewers: yardasol
