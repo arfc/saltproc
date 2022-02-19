@@ -47,8 +47,12 @@ for line in mat_data:
             if my_mat['elements'] is empty:
                 my_mat.pop('elements')
 
+            depletable = my_mat.pop('depletable')
             my_mat = nmm.Material(my_mat)
             openmc_mats.append(my_mat.openmc_material)
+            openmc_mats[-1].depletable = depletable
+            if my_mat.get('volume_in_cm3'):
+                openmc_mats[-1].volimet = my_mat['volume_in_cm3']
 
         my_mat = {}
         my_mat['isotopes']={}
@@ -57,14 +61,21 @@ for line in mat_data:
         #get info about material
         my_mat_data = line.split()
         my_mat_map = {}
-        mat_cards = ['vol'] # add support for more cards later
-        for item in mat_cards:
-            if item in my_mat_data:
-                i = my_mat_data.index(item)
-                my_mat_map[item] = my_mat_data[i+1]
+        mat_cards = ['vol','burn', 'tmp','tft']
+        for card in mat_cards:
+            if card in my_mat_data:
+                i = my_mat_data.index(card)+1
+                if card in ['tft', 'fix', 'moder']:
+                    vals = 2
+                elif card in ['rgb']:
+                    vals = 3
+                else:
+                    vals = 1
+                my_mat_map[card] = my_mat_data[i:i+vals]
 
         my_mat['name'] = my_mat_data[1]
         my_mat['density'] = abs(float(my_mat_data[2]))
+
         ## Doesn't support sum option
         if re.search(WO_REGEX, my_mat_data[2]):
             density_unit='g/cm3'
@@ -72,6 +83,18 @@ for line in mat_data:
             density_unit='atom/cm3'
 
         my_mat['density_unit'] = density_unit
+
+        # set optional cards
+        my_mat['depletable'] = False
+        for card in my_mat_map:
+            if card == 'vol':
+                my_mat['volume_in_cm3'] = my_mat_map[card]
+            if card == 'tms' or card == 'tmp':
+                my_mat['temperature'] = my_mat_map[card]
+                my_mat['temperature_to_neutronics_code'] = True
+            if card == 'burn':
+                if my_mat_map[card] == 1:
+                    my_mat['depletable'] = True
 
     elif (re.match(NUCLIDE_REGEX_1, line) or
           re.match(NUCLIDE_REGEX_2, line)):
