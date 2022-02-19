@@ -370,6 +370,8 @@ class DepcodeOpenMC(Depcode):
         """
         depletion_settings = {}
         current_depstep_power = reactor.power_levels[current_depstep_idx]
+
+        # Get current depletion step length
         if current_depstep_idx == 0:
             current_depstep = reactor.dep_step_length_cumulative[0]
         else:
@@ -377,8 +379,9 @@ class DepcodeOpenMC(Depcode):
                 reactor.dep_step_length_cumulative[current_depstep_idx] - \
                 reactor.dep_step_length_cumulative[current_depstep_idx - 1]
 
+        out_path = os.path.dirname(self.iter_inputfile['settings'])
+        depletion_settings['directory'] = outpath
         depletion_settings['timesteps'] = [current_depstep]
-        #depletion_settings['directory'] = ???
 
         operator_kwargs = {}
         # operator_kwargs['chain_file'] = ??
@@ -390,8 +393,11 @@ class DepcodeOpenMC(Depcode):
         depletion_settings['operator_kwargs'] = operator_kwargs
         depletion_settings['integrator_kwargs'] = integrator_kwargs
 
-        # now write depeltion_settings to an xml or json file
-        path = self.iter_inputfile['depletion']
+        self.iter_inputfile['depletion_settings'] = \
+            os.path.join(path, 'depletion_settings.json')
+        json_dep_settings = json.JSONEncoder().encode(depletion_settings)
+        with open(self.iter_inputfile['depletion_settings'], 'w') as f:
+            f.writelines(json_dep_settings)
 
 
     def write_mat_file(self, dep_dict, dep_end_time):
