@@ -3,7 +3,7 @@ import os
 import sys
 from pyne import serpent
 import openmc
-import neutronics_material_mater as nmm #you'll need to install this manually
+import neutronics_material_maker as nmm #you'll need to install this manually
 from nmm import zaid_to_isotope
 
 # read command line input
