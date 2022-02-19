@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 from pyne import serpent
 import openmc
 import neutronics_material_mater as nmm #you'll need to install this manually
@@ -7,12 +8,17 @@ from nmm import zaid_to_isotope
 
 # read command line input
 
-serpent_mat_path = ...
+try:
+    serpent_mat_path = sys.argv[1]
+except IndexError:
+    raise SyntaxError("No file specified")
+
 fname = serpent_mat_path.split('/').pop(-1)
 fname = fname.split('.')[0]
 path = ''
 for p in serpent_mat_path:
     path = os.path.join(path, p)
+
 mat_data = []
 with open(serpent_mat_path, 'r') as file:
     mat_data = file.readlines()
