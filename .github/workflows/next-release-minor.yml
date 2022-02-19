@@ -73,7 +73,6 @@ jobs:
             -X POST \
             -F title=${{ env.NEW_RELEASE_VERSION }} 
           fi
-          
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -96,9 +95,9 @@ jobs:
               INDEX=$i
             fi
           done
+          echo "MILESTONE_NUMBER="${MILESTONE_NUMBERS[$INDEX]} >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
- echo "MILESTONE_NUMBER="${MILESTONE_NUMBERS[$INDEX]} >> $GITHUB_ENV
 
       - name: "Make initial changes for ${{ env.NEW_RELEASE_VERISON }}"
         run: |
