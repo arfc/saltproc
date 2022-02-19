@@ -98,6 +98,13 @@ jobs:
           title: "[INIT] Update `version.py` and create release notes for version ${{ env.NEW_RELEASE_VERSION }}"
           body: "This is an automated PR that updates the version number and creates the release notes file for version ${{ env.NEW_RELEASE_VERSION }}. This should be the first PR merged during development of version ${{ env.NEW_RELEASE_VERSION }}"
           reviewers: yardasol
+          labels: |
+            "Priority:1-Critical"
+            "Status:5-In Review"
+            "Type:Style"
+            "Type:Docs"
+            "Difficulty:1-Beginner"
+            "Comp:Build"
 
       - name: "Make changes necessary for publishing ${{ env.NEW_RELEASE_VERSION }} in advance"
         run: |
@@ -115,3 +122,11 @@ jobs:
           title: "[REQUIRED FOR PUBLISHING] Finishing touches for version ${{ env.NEW_RELEASE_VERSION }}"
           body: "This is an automated PR that updates the version number and release notes in preparation for the full release of version ${{ env.NEW_RELEASE_VERSION }}. This should be last PR merged before publishing version ${{ env.NEW_RELEASE_VERSION }}. Merging this PR is a prequisite of publishing version ${{ env.NEW_RELEASE_VERSION }}"
           reviewers: yardasol
+          labels: |
+            "Priority:2-Normal"
+            "Status:1-New"
+            "Type:Style"
+            "Type:Docs"
+            "Difficulty:1-Beginner"
+            "Comp:Build"
+
