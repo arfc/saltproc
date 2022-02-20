@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<materials>
+  <material id="2" name="zrh" temperature="900.0">
+    <density units="g/cm3" value="5.66" />
+    <nuclide name="Zr90" wo="0.49793" />
+    <nuclide name="Zr91" wo="0.1098" />
+    <nuclide name="Zr92" wo="0.16967" />
+    <nuclide name="Zr94" wo="0.17569" />
+    <nuclide name="Zr96" wo="0.028908" />
+    <nuclide name="H1" wo="0.018007" />
+    <nuclide name="H2" wo="4.1389e-06" />
+    <sab name="c_H_in_ZrH" />
+    <sab name="c_Zr_in_ZrH" />
+  </material>
+  <material id="4" name="hast" temperature="900.0">
+    <density units="g/cm3" value="10.0" />
+    <nuclide name="Ni58" wo="4.28245176" />
+    <nuclide name="Ni60" wo="1.649584" />
+    <nuclide name="Ni61" wo="0.22866331" />
+    <nuclide name="Ni64" wo="0.058251" />
+    <nuclide name="Cr50" wo="0.0269477" />
+    <nuclide name="Cr52" wo="0.51965938" />
+    <nuclide name="Cr53" wo="0.0589252" />
+    <nuclide name="Cr54" wo="0.01466773" />
+    <nuclide name="Mo92" wo="0.2076784" />
+    <nuclide name="Mo94" wo="0.13027744" />
+    <nuclide name="Mo95" wo="0.22497312" />
+    <nuclide name="Mo96" wo="0.23631392" />
+    <nuclide name="Mo97" wo="0.13580608" />
+    <nuclide name="Mo98" wo="0.34433504" />
+    <nuclide name="Mo100" wo="0.13807424" />
+    <nuclide name="Fe54" wo="0.016637985" />
+    <nuclide name="Fe56" wo="0.260946175" />
+    <nuclide name="Fe57" wo="0.006029492" />
+    <nuclide name="Fe58" wo="0.000796348" />
+    <nuclide name="Si28" wo="0.07434086" />
+    <nuclide name="Si29" wo="0.00378961" />
+    <nuclide name="Si30" wo="0.002249953" />
+    <nuclide name="Mn55" wo="0.05316" />
+    <nuclide name="V51" wo="0.04419141169134901" />
+    <nuclide name="V50" wo="0.00010858830865098677" />
+  </material>
+</materials>
