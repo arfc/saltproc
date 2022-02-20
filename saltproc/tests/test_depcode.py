@@ -1,6 +1,8 @@
 from __future__ import absolute_import, division, print_function
 from saltproc import DepcodeSerpent
 from saltproc import Reactor
+import json
+import openmc as om
 import os
 import sys
 import shutil
@@ -236,12 +238,49 @@ def test_write_depcode_input():
     serpent.iter_inputfile = iter_inputfile_old
 
     # OpenMC
+    input_materials = ...
+    input_geometry = ...
+    openmc.write_depcode_input(msr,
+                               0,
+                               False)
+    # Load in the iter_ objects
+    iter_materials = ...
+    iter_geometry = ...
+    iter_settings = ...
+
+    # check that the two match
+    assert input_materials == iter_materials
+    assert input_geometry == iter_geometry
+    assert iter_settings.inactive == openmc.inactive_cycles
+    assert iter_settings.batches == openmc.active_cycles + \
+        openmc.inactive_cycles
+    assert iter_settings.particles == openmc.npop
 
 def test_write_depletion_settings():
     """
     Unit test for `DepcodeOpenMC.write_depletion_settings`
     """
+    openmc.write_depletion_settings(msr, 0)
+    with open(openmc.iter_inputfile['depletion_settings']) as f:
+        j = json.load(f)
+        assert j['directory'] == directory
+        assert j['timesteps'] == msr.dep_step_length_cumulative[0]
+        assert j['operator_kwargs']['chain_file'] == \
+            openmc.template_inputfiles_path['chain_file']
+        assert j['integrator_kwargs']['power'] == msr.power_levels[0]
+        assert j['integrator_kwargs']['timestep_units'] == 'd'
 
+
+
+def test_write_saltproc_openmc_tallies():
+    """
+    Unit test for `DepcodeOpenMC.write_saltproc_openmc_tallies`
+    """
+    openmc.write_saltproc_openmc_tallies()
+    tallies = om.Tallies.from_xml(openmc.iter_inputfile['tallies'])
+
+    # now write asserts statements based on the openmc.Tallies API and
+    # what we expect our tallies to be
 
 def test_switch_to_next_geometry():
     # Serpent
@@ -256,3 +295,8 @@ def test_switch_to_next_geometry():
     serpent.iter_inputfile = iter_inputfile_old
 
     # OpenMC
+    geometry_expected = om.Geometry.from_xml(openmc.geo_files[0])
+    openmc.switch_to_next_geometry()
+    # fill in the rest based on the python API for openmc.Geometry
+    geometry_switched = ...
+
