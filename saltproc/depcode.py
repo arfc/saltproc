@@ -294,6 +294,8 @@ class DepcodeOpenMC(Depcode):
             self.iter_inputfile['geometry'],
             '-set',
             self.iter_inputfile['settings'],
+            '-tal',
+            self.iter_inputfile['tallies'],
             '-dep',
             self.iter_inputfile['depletion_settings'])
 
@@ -473,7 +475,9 @@ class DepcodeOpenMC(Depcode):
         tallies.append(tally)
 
         out_path = os.path.dirname(self.iter_inputfile['settings'])
-        tallies.export_to_xml(os.path.join(out_path, 'tallies.xml'))
+        self.iter_inputfile['tallies'] = \
+            os.path.join(out_path, 'tallies.xml')
+        tallies.export_to_xml(self.iter_inputfile['tallies'])
 
 class DepcodeSerpent(Depcode):
     r"""Class contains information about input, output, geometry, and
