@@ -23,6 +23,36 @@ serpent = DepcodeSerpent(
 serpent.iter_inputfile=directory + '/test'
 serpent.iter_matfile=directory + '/material'
 
+openmc_input_path = os.path.join(directory, 'test_data/openmc/')
+openmc_test_inputfiles = {
+    "materials": "test_materials.xml",
+    "geometry": "test_geometry.xml",
+    "settings": "test_settings.xml",
+    "chain_file": "test_chain.xml"
+}
+
+openmc_iter_inputfiles = {
+    "geometry": "geometry.xml",
+    "settings": "settings.xml",
+}
+
+for key in openmc_test_inputfiles:
+    openmc_test_inputfiles[key] = os.path.join(
+        openmc_input_path, openmc_test_inputfiles[key])
+for key in openmc_iter_inputfiles:
+    openmc_iter_inputfiles[key] = os.path.join(
+        directory, openmc_iter_inputfiles[key])
+
+openmc = DepcodeOpenMC(
+    exec_path='../openmc_deplete.py',
+    template_inputfiles_path=openmc_test_inputfiles,
+    geo_files=[
+        os.path.join(
+            openmc_input_path,
+            'test_geometry_switch.xml')])
+openmc.iter_inputfile = openmc_iter_inputfiles
+openmc.iter_matfile=directory + '/materials.xml'
+
 
 msr = Reactor(volume=1.0,
               power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
@@ -186,6 +216,7 @@ def test_create_iter_matfile():
 
 
 def test_write_depcode_input():
+    # Serpent
     iter_inputfile_old = serpent.iter_inputfile
     serpent.iter_inputfile = serpent.iter_inputfile + '_write_test'
     serpent.write_depcode_input(msr,
@@ -204,8 +235,16 @@ def test_write_depcode_input():
 
     serpent.iter_inputfile = iter_inputfile_old
 
+    # OpenMC
+
+def test_write_depletion_settings():
+    """
+    Unit test for `DepcodeOpenMC.write_depletion_settings`
+    """
+
 
 def test_switch_to_next_geometry():
+    # Serpent
     shutil.copy2(geo_test_input, serpent.iter_inputfile + '_test')
     iter_inputfile_old = serpent.iter_inputfile
     serpent.iter_inputfile = serpent.iter_inputfile + '_test'
@@ -215,3 +254,5 @@ def test_switch_to_next_geometry():
     assert d[5].split('/')[-1] == '988.inp"\n'
     os.remove(serpent.iter_inputfile)
     serpent.iter_inputfile = iter_inputfile_old
+
+    # OpenMC
