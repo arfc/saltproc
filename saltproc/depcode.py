@@ -289,7 +289,7 @@ class DepcodeOpenMC(Depcode):
             'python',
             './deplete_openmc.py'
             '-mat',
-            self.iter_inputfile['materials'],
+            self.iter_matfile,
             '-geo',
             self.iter_inputfile['geometry'],
             '-set',
@@ -317,11 +317,11 @@ class DepcodeOpenMC(Depcode):
         """Switches the geometry file for the OpenMC depletion simulation to
         the next geometry file in `geo_files`.
         """
-        mats = openmc.Geometry.from_xml(self.iter_inputfile['materials'])
+        mats = openmc.Materials.from_xml(self.iter_matfile)
         next_geometry = openmc.Geometry.from_xml(
             path=self.geo_files.pop(0),
             materials=mats)
-        next_geometry.export_to_xml(path=self.iter_inputfile['materials'])
+        next_geometry.export_to_xml(path=self.iter_inputfile['geometry'])
 
 
     def write_depcode_input(self, reactor, dep_step, restart):
@@ -348,13 +348,13 @@ class DepcodeOpenMC(Depcode):
             settings.inactive = self.inactive_cycles
             settings.batches = self.active_cycles + self.inactive_cycles
         else:
-             materials = openmc.Materials.from_xml(self.iter_inputfile['materials'])
+             materials = openmc.Materials.from_xml(self.iter_matfile)
             geometry = openmc.Geometry.from_xml(self.iter_inputfile['geometry'],
                                                 materials=materials)
             settings = openmc.Settings.from_xml(self.iter_inputfile['settings'])
 
 
-        materials.export_to_xml(self.iter_inputfile['materials'])
+        materials.export_to_xml(self.iter_matfile)
         geometry.export_to_xml(self.iter_inputfile['geometry'])
         settings.export_to_xml(self.iter_inputfile['settings'])
         self.write_depletion_settings(reactor, dep_step)
