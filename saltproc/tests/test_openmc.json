@@ -9,7 +9,8 @@
        "template_inputfiles_path": {
            "geometry": "./geometry.xml",
            "materials": "./materials.xml",
-           "settings": "./settings.xml"
+           "settings": "./settings.xml",
+           "chain_file": "./test_chain.xml"
        },
        "npop": 50,
        "active_cycles": 20,
