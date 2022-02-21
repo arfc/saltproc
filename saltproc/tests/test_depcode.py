@@ -238,15 +238,15 @@ def test_write_depcode_input():
     serpent.iter_inputfile = iter_inputfile_old
 
     # OpenMC
-    input_materials = ...
-    input_geometry = ...
+    input_materials = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
+    input_geometry = om.Geometry.from_xml(openmc.template_inputfiles['geometry'], materials=input_materials)
     openmc.write_depcode_input(msr,
                                0,
                                False)
     # Load in the iter_ objects
-    iter_materials = ...
-    iter_geometry = ...
-    iter_settings = ...
+    iter_materials = om.Materials.from_xml(openmc.iter_matfile)
+    iter_geometry = om.Geometry.from_xml(openmc.iter_inputfile['geometry'])
+    iter_settings = om.Settings.from_xml(openmc.iter_inputfile['settings'])
 
     # check that the two match
     assert input_materials == iter_materials
@@ -281,6 +281,33 @@ def test_write_saltproc_openmc_tallies():
 
     # now write asserts statements based on the openmc.Tallies API and
     # what we expect our tallies to be
+    assert len(tallies) == 5
+    tal0 = tallies[0]
+    tal1 = tallies[1]
+    tal2 = tallies[2]
+    tal3 = tallies[3]
+    tal4 = tallies[4]
+
+    assert tal0.name == 'delayed-fission-neutrons'
+    assert type(tal0.filters[0]) == om.DelayedGroupFilter
+    assert tal0.scores[0] == 'delayed-nu-fission'
+    assert tal1.name == 'total-fission-neutrons'
+    assert type(tal1.filters[0]) == om.UniverseFilter
+    assert tal1.scores[0] == 'nu-fission'
+    assert tal2.name == 'precursor-decay-constants'
+    assert type(tal2.filters[0]) == om.DelayedGroupFilter
+    assert tal2.scores[0] == 'decay-rate'
+    assert tal3.name == 'fission-energy'
+    assert type(tal3.filters[0]) == om.UniverseFilter
+    assert tal3.scores[0] == 'fission-q-reocverable'
+    assert tal3.scores[1] == 'fission-q-prompt'
+    assert tal3.scores[2] == 'kappa-fission'
+    assert tal4.name == 'normalization-factor'
+    assert type(tal4.filters[0]) == om.UniverseFilter
+    assert tal4.scores[0] == 'heating'
+
+
+
 
 def test_switch_to_next_geometry():
     # Serpent
@@ -298,5 +325,6 @@ def test_switch_to_next_geometry():
     geometry_expected = om.Geometry.from_xml(openmc.geo_files[0])
     openmc.switch_to_next_geometry()
     # fill in the rest based on the python API for openmc.Geometry
-    geometry_switched = ...
+    geometry_switched = om.Geometry.from_xml(openmc.iter_inputfile['geometry'])
+    assert geometry_expected == geometry_switched
 
