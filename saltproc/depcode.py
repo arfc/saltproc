@@ -348,7 +348,7 @@ class DepcodeOpenMC(Depcode):
             settings.inactive = self.inactive_cycles
             settings.batches = self.active_cycles + self.inactive_cycles
         else:
-             materials = openmc.Materials.from_xml(self.iter_matfile)
+            materials = openmc.Materials.from_xml(self.iter_matfile)
             geometry = openmc.Geometry.from_xml(self.iter_inputfile['geometry'],
                                                 materials=materials)
             settings = openmc.Settings.from_xml(self.iter_inputfile['settings'])
@@ -393,9 +393,8 @@ class DepcodeOpenMC(Depcode):
         # Right now we'll require a path to the chain file.
         # In the future we can make this fanciet
         try:
-            template_inputfiles_path['chain_file']:
             operator_kwargs['chain_file'] = \
-                template_inputfile_path['chain_file']
+                template_inputfiles_path['chain_file']
         except KeyError:
             raise SyntaxError("No chain file defined. Please provide \
             a chain file in your saltproc input file")
