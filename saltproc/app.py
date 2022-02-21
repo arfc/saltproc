@@ -54,7 +54,7 @@ def parse_arguments():
     args = parser.parse_args()
     return int(args.n), int(args.d), str(args.i)
 
-def process_main_input_reactor_params():
+def _process_main_input_reactor_params():
     """
     Process SaltProc reactor class input parameters based on the value and
     data type of the `num_depsteps` parameter, and throw errors if the input
@@ -152,7 +152,7 @@ def read_main_input(main_inp_file):
             output_path, simulation_inp['db_name'])
         simulation_inp['db_name'] = db_name
 
-        process_main_input_reactor_params()
+        _process_main_input_reactor_params()
 
 
 def read_processes_from_input():
@@ -383,6 +383,46 @@ def refill(mats, extracted_mass, waste_dict):
         print('Fuel after refill ^^^', mats[mn].print_attr())
     return waste_dict
 
+def _create_depcode_object():
+    """Helper function for `run()` """
+    if depcode_inp['codename'] == 'serpent':
+        depcode = DepcodeSerpent(
+            exec_path=depcode_inp['exec_path'],
+            template_inputfile_path=depcode_inp['template_inputfile_path'],
+            iter_inputfile=depcode_inp['iter_inputfile'],
+            iter_matfile=depcode_inp['iter_matfile'],
+            geo_files=depcode_inp['geo_file_paths'],
+            npop=depcode_inp['npop'],
+            active_cycles=depcode_inp['active_cycles'],
+            inactive_cycles=depcode_inp['inactive_cycles'])
+    else:
+        raise ValueError(
+            f'{depcode_inp["codename"]} is not a supported depletion code')
+
+    return depcode
+
+def _create_simulation_object():
+    """Helper function for `run()` """
+    simulation = Simulation(
+        sim_name='Super test',
+        sim_depcode=depcode,
+        core_number=cores,
+        node_number=nodes,
+        restart_flag=simulation_inp['restart_flag'],
+        adjust_geo=simulation_inp['adjust_geo'],
+        db_path=simulation_inp['db_name'])
+    return simulation
+
+
+def _create_reactor_object():
+    """Helper function for `run()` """
+    msr = Reactor(
+        volume=reactor_inp['volume'],
+        mass_flowrate=reactor_inp['mass_flowrate'],
+        power_levels=reactor_inp['power_levels'],
+        dep_step_length_cumulative=reactor_inp['dep_step_length_cumulative'])
+    return msr
+
 
 def run():
     """ Inititializes main run.
@@ -409,34 +449,10 @@ def run():
           os.path.abspath(simulation_inp['db_name']) +
           '\n')
     # Intializing objects
-    if depcode_inp['codename'] == 'serpent':
-        depcode = DepcodeSerpent(
-            exec_path=depcode_inp['exec_path'],
-            template_inputfile_path=depcode_inp['template_inputfile_path'],
-            iter_inputfile=depcode_inp['iter_inputfile'],
-            iter_matfile=depcode_inp['iter_matfile'],
-            geo_files=depcode_inp['geo_file_paths'],
-            npop=depcode_inp['npop'],
-            active_cycles=depcode_inp['active_cycles'],
-            inactive_cycles=depcode_inp['inactive_cycles'])
-    else:
-        raise ValueError(
-            f'{depcode_inp["codename"]} is not a supported depletion code')
+    depcode = _create_depcode_object()
+    simulation = _create_simulation_object()
+    msr = _create_reactor_object()
 
-    simulation = Simulation(
-        sim_name='Super test',
-        sim_depcode=depcode,
-        core_number=cores,
-        node_number=nodes,
-        restart_flag=simulation_inp['restart_flag'],
-        adjust_geo=simulation_inp['adjust_geo'],
-        db_path=simulation_inp['db_name'])
-
-    msr = Reactor(
-        volume=reactor_inp['volume'],
-        mass_flowrate=reactor_inp['mass_flowrate'],
-        power_levels=reactor_inp['power_levels'],
-        dep_step_length_cumulative=reactor_inp['dep_step_length_cumulative'])
     # Check: Restarting previous simulation or starting new?
     simulation.check_restart()
     # Run sequence
