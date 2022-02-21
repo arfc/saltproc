@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-from saltproc import DepcodeSerpent
+from saltproc import DepcodeSerpent, DepcodeOpenMC
 from saltproc import Reactor
 import json
 import openmc as om
@@ -239,7 +239,7 @@ def test_write_depcode_input():
 
     # OpenMC
     input_materials = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
-    input_geometry = om.Geometry.from_xml(openmc.template_inputfiles['geometry'], materials=input_materials)
+    input_geometry = om.Geometry.from_xml(openmc.template_inputfiles_path['geometry'], materials=input_materials)
     openmc.write_depcode_input(msr,
                                0,
                                False)
@@ -276,7 +276,10 @@ def test_write_saltproc_openmc_tallies():
     """
     Unit test for `DepcodeOpenMC.write_saltproc_openmc_tallies`
     """
-    openmc.write_saltproc_openmc_tallies()
+
+    mat = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
+    geo = om.Geometry.from_xml(openmc.template_inputfiles_path['geometry'])
+    openmc.write_saltproc_openmc_tallies(mat, geo)
     tallies = om.Tallies.from_xml(openmc.iter_inputfile['tallies'])
 
     # now write asserts statements based on the openmc.Tallies API and
