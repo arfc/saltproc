@@ -54,7 +54,7 @@ def parse_arguments():
     args = parser.parse_args()
     return int(args.n), int(args.d), str(args.i)
 
-def process_reactor_params():
+def process_main_input_reactor_params():
     """
     Process SaltProc reactor class input parameters based on the value and
     data type of the `num_depsteps` parameter, and throw errors if the input
@@ -152,7 +152,7 @@ def read_main_input(main_inp_file):
             output_path, simulation_inp['db_name'])
         simulation_inp['db_name'] = db_name
 
-        process_reactor_params()
+        process_main_input_reactor_params()
 
 
 def read_processes_from_input():
