@@ -424,14 +424,8 @@ def _create_reactor_object():
     return msr
 
 
-def run():
-    """ Inititializes main run.
-    """
-    # Parse arguments from command-lines
-    nodes, cores, sp_input = parse_arguments()
-    # Read main input file
-    read_main_input(sp_input)
-    # Print out input information
+def _print_simulation_input_info():
+    """Helper function for `run()` """
     print('Initiating Saltproc:\n'
           '\tRestart = ' +
           str(simulation_inp['restart_flag']) +
@@ -448,6 +442,14 @@ def run():
           '\tOutput HDF5 database Path = ' +
           os.path.abspath(simulation_inp['db_name']) +
           '\n')
+
+
+def run():
+    """ Inititializes main run.
+    """
+    nodes, cores, sp_input = parse_arguments()
+    read_main_input(sp_input)
+    _print_simulation_input_info()
     # Intializing objects
     depcode = _create_depcode_object()
     simulation = _create_simulation_object()
