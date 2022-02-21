@@ -54,6 +54,38 @@ def parse_arguments():
     args = parser.parse_args()
     return int(args.n), int(args.d), str(args.i)
 
+def process_reactor_params():
+    """
+    Process SaltProc reactor class input parameters based on the value and
+    data type of the `num_depsteps` parameter, and throw errors if the input
+    parameters are incorrect.
+    """
+    dep_step_length_cumulative = reactor_inp['dep_step_length_cumulative']
+    power_levels = reactor_inp['power_levels']
+    if num_depsteps is not None and len(dep_step_length_cumulative) == 1:
+        if num_depsteps < 0.0 or not int:
+            raise ValueError('Depletion step interval cannot be negative')
+        # Make `power_levels` and `dep_step_length_cumulative`
+        # lists of length `num_depsteps`
+        else:
+            step = int(num_depsteps)
+            deptot = float(dep_step_length_cumulative[0]) * step
+            dep_step_length_cumulative = \
+                np.linspace(float(dep_step_length_cumulative[0]),
+                            deptot,
+                            num=step)
+            power_levels = float(power_levels[0]) * \
+                np.ones_like(dep_step_length_cumulative)
+            reactor_inp['dep_step_length_cumulative'] = \
+                dep_step_length_cumulative
+            reactor_inp['power_levels'] = power_levels
+    elif num_depsteps is None and isinstance(dep_step_length_cumulative,
+                                             (np.ndarray, list)):
+        if len(dep_step_length_cumulative) != len(power_levels):
+            raise ValueError(
+                'Depletion step list and power list shape mismatch')
+
+
 
 def read_main_input(main_inp_file):
     """Reads main SaltProc input file (json format).
@@ -120,28 +152,7 @@ def read_main_input(main_inp_file):
             output_path, simulation_inp['db_name'])
         simulation_inp['db_name'] = db_name
 
-        dep_step_length_cumulative = reactor_inp['dep_step_length_cumulative']
-        power_levels = reactor_inp['power_levels']
-        if num_depsteps is not None and len(dep_step_length_cumulative) == 1:
-            if num_depsteps < 0.0 or not int:
-                raise ValueError('Depletion step interval cannot be negative')
-            else:
-                step = int(num_depsteps)
-                deptot = float(dep_step_length_cumulative[0]) * step
-                dep_step_length_cumulative = \
-                    np.linspace(float(dep_step_length_cumulative[0]),
-                                deptot,
-                                num=step)
-                power_levels = float(power_levels[0]) * \
-                    np.ones_like(dep_step_length_cumulative)
-                reactor_inp['dep_step_length_cumulative'] = \
-                    dep_step_length_cumulative
-                reactor_inp['power_levels'] = power_levels
-        elif num_depsteps is None and isinstance(dep_step_length_cumulative,
-                                                 (np.ndarray, list)):
-            if len(dep_step_length_cumulative) != len(power_levels):
-                raise ValueError(
-                    'Depletion step list and power list shape mismatch')
+        process_reactor_params()
 
 
 def read_processes_from_input():
