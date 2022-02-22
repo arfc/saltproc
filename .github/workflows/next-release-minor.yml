@@ -143,7 +143,7 @@ jobs:
           delete-branch: true
           commit-message: "final changes before publishing ${{ env.NEW_RELEASE_VERSION }}"
           title: "[REQUIRED FOR PUBLISHING] Finishing touches for version ${{ env.NEW_RELEASE_VERSION }}"
-          body: "This is an automated PR that updates the version number and release notes in preparation for the full release of version ${{ env.NEW_RELEASE_VERSION }}. This should be last PR merged before publishing version ${{ env.NEW_RELEASE_VERSION }}. Merging this PR is a prequisite of publishing version ${{ env.NEW_RELEASE_VERSION }}"
+          body: "This is an automated PR that updates the version number and release notes in preparation for the full release of version ${{ env.NEW_RELEASE_VERSION }}. This should be last PR merged before publishing version ${{ env.NEW_RELEASE_VERSION }}. Rebasing this PR on top of the most recent commit in `master` is a prequisite of publishing version ${{ env.NEW_RELEASE_VERSION }}. We rebase becasue the commits in this PR were created around the same time development on ${{ env.NEW_RELEASE_VERSION }} began."
           reviewers: yardasol
           milestone: ${{ env.MILESTONE_NUMBER }}
           labels: |
