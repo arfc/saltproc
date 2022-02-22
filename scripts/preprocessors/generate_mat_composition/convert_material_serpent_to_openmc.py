@@ -67,16 +67,15 @@ ELEMENT_REGEX = "^\s*[^%]*\s*[0-9]+0{3}\.[0-9]{2}c\s+" + COMP_REGEX
 THERM_REGEX = "^\s*[^%]*\s*(therm|thermstoch)\s+[a-z]+"
 
 
-current_material=True
+first_material=True
 openmc_mats = openmc.Materials([])
 
 for line in mat_data:
     if re.search(MATERIAL_REGEX, line):
         # Check if we've hit a new material
-        if current_material:
-            current_material = False
+        if first_material:
+            first_material = False
         else:
-            current_material = True
             if not bool(my_mat['isotopes']):
                 my_mat.pop('isotopes')
             if not bool(my_mat['elements']):
