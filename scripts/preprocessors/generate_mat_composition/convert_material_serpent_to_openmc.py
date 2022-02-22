@@ -144,6 +144,9 @@ for line in mat_data:
         comp = elem_info[1]
 
         #get info about nuclide
+        # need to switch reading into OpenMC directly
+        # to handle the case where nuclides in one
+        # Material have a difference percent type
         if re.search(WO_REGEX, comp):
             percent_type='wo'
         else:
@@ -159,12 +162,18 @@ for line in mat_data:
           re.search(NUCLIDE_REGEX_2, line)):
         nuclide_info = line.split()
         nuc_code = nuclide_info[0].split('.')[0]
+        # for decay only nuclides there's a zero
+        # on the end of the nuclide code
+        # indcated the ground state
         if re.search(NUCLIDE_REGEX_2, line):
             nuc_code = nuc_code[:-1]
         metastable = False
         if nuc_code[-3] == '3':
             metastable = True
             nuc_code = str(convert_nuclide_name_serpent_to_zam(nuc_code))
+            # remove the 0 at the end of the
+            # nuclide code that our helper function
+            # adds to it.
             nuc_code = nuc_code[:-1]
         comp = nuclide_info[1]
         #get info about nuclide
@@ -183,10 +192,10 @@ for line in mat_data:
     elif re.search(THERM_REGEX,line):
         data = line.split()[2:]
         for item in data:
-            key = item.split('.')[0]
-            key = key[:-2]
-            if bool(S_a_b_dict.get(key)):
-                if S_a_b_dict[key][0] not in my_mat['S_a_b']:
-                    my_mat['S_a_b'] += S_a_b_dict[key]
+            table_name = item.split('.')[0]
+            table_name = table_name[:-2]
+            if bool(S_a_b_dict.get(table_name)):
+                if S_a_b_dict[table_name][0] not in my_mat['S_a_b']:
+                    my_mat['S_a_b'] += S_a_b_dict[table_name]
 
 openmc_mats.export_to_xml(os.path.join(path, fname+'.xml'))
