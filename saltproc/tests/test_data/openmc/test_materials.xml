@@ -12,7 +12,15 @@
     <sab name="c_H_in_ZrH" />
     <sab name="c_Zr_in_ZrH" />
   </material>
-  <material id="4" name="hast" temperature="900.0">
+  <material id="4" name="sic" temperature="900.0">
+    <density units="g/cm3" value="3.21" />
+    <nuclide name="Si28" wo="0.64365" />
+    <nuclide name="Si29" wo="0.033866" />
+    <nuclide name="Si30" wo="0.02312" />
+    <nuclide name="C13" wo="0.003590270855113418" />
+    <nuclide name="C12" wo="0.2957697291448866" />
+  </material>
+  <material id="6" name="hast" temperature="900.0">
     <density units="g/cm3" value="10.0" />
     <nuclide name="Ni58" wo="4.28245176" />
     <nuclide name="Ni60" wo="1.649584" />
@@ -48,7 +56,12 @@
     <nuclide name="C13" wo="6.380358414351745e-05" />
     <nuclide name="C12" wo="0.005256196415856482" />
   </material>
-  <material depletable="true" id="6" name="fuel" volume="44353050.0">
+  <material id="8" name="air" temperature="900.0">
+    <density units="g/cm3" value="0.001225" />
+    <nuclide ao="0.21" name="O16" />
+    <nuclide ao="0.79" name="N14" />
+  </material>
+  <material depletable="true" id="10" name="fuel" volume="44353050.0">
     <density units="g/cm3" value="4.9602" />
     <nuclide name="H1" wo="0.0" />
     <nuclide name="H2" wo="0.0" />
