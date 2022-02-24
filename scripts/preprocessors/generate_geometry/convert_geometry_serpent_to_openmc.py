@@ -107,7 +107,7 @@ def _construct_surface_helper(surf_card):
         surfce_params[i] = p
 
     # generic case
-    skip_attributes = True
+    set_attributes = True
     if bool(geo_dict['surf'][surface_type]):
         surface_object = geo_dict['surf'][surface_type]
         if surface_type == "plane":
