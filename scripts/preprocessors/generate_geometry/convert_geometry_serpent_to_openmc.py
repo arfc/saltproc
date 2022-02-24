@@ -14,10 +14,12 @@ CELL_REGEX1_CORE = "cell(\s+[a-zA-Z0-9]+){3}"
 CELL_REGEX2_CORE = "cell(\s+[a-zA-Z0-9]+){2}\s+fill\s+[a-zA-Z0-9]+"
 CELL_REGEX3_CORE = "cell(\s+[a-zA-Z0-9]+){2}\s+outside\s+[a-zA-Z0-9]+"
 CELL_SURFACE_REGEX = "(\s+\-?\:?\#?[a-zA-Z0-9]+)+"
-ROOT_REGEX_CORE = ...
-USYM_REGEX_CORE = ...
+ROOT_REGEX_CORE = "set\s+root\s+[a-zA-Z0-9]+"
+USYM_REGEX_CORE = "set\s+usym\s+[a-zA-Z0-9]+\s+(1|2|3)\s+(\s+-?[0-9]+(\.[0-9]+)?)"
 TRANS_REGEX_CORE = "trans\s+[A-Z]{1}\s+[a-zA-Z0-9]+(\s+-?[0-9]+(\.[0-9]+)?)+"
+CARD_IGNORE_REGEX = "^\s*(?!.*%)(?!.*lat)(?!.*cell)(?!.*set)(?!.*surf)(?!.*dtrans)(?!.*ftrans)(?!.*ltrans)(?!.*pin)(?!.*solid)(?!.*strans)(?!.*trans)"
 LAT_REGEX_CORE = "lat\s+[a-zA-Z0-9]+\s+[0-9]{1,2}(\s+-?[0-9]+(\.[0-9]+)?){2,4}(\s+[0-9]+){0,3}((\s+-?[0-9]+(\.[0-9]+)?){0,2}\s+[a-zA-Z0-9]+)+"
+LAT_MULTILINE_REGEX_CORE = "(\s+[a-zA-Z0-9]{1,3})+" # right now this is limiting universe names to 3 chars until I can come up witha more robust regex
 BC_REGEX=COMMENT_IGNORE_BEG_REGEX + \
     BC_REGEX_CORE + \
     COMMENT_IGNORE_END_REGEX
@@ -51,7 +53,10 @@ TRANS_REGEX = COMMENT_IGNORE_BEG_REGEX + \
     TRANS_REGEX_CORE + \
     COMMENT_IGNORE_END_REGEX
 LAT_REGEX = COMMENT_IGNORE_BEG_REGEX + \
-    TRANS_REGEX_CORE + \
+    LAT_REGEX_CORE + \
+    COMMENT_IGNORE_END_REGEX
+LAT_MULTILINE_REGEX = CARD_IGNORE_REGEX + \
+    LAT_MULTILINIE_REGEX_CORE + \
     COMMENT_IGNORE_END_REGEX
 
 
@@ -82,17 +87,17 @@ geo_dict = {
         "1": openmc.RectLattice,    # Square lattice
         "2": openmc.HexLattice,     # X-type hexagonal lattice (y type in openmc)
         "3": openmc.HexLattice,     # Y-type hexagonal lattice (x type in openmc)
-     #   "4": None,                  # Circular cluster array
+     #   "4": None,                  # Circular cluster array (address as special case)
      #   "5": None,                  # Does not exist
         "6": openmc.RectLattice,    # Same as 1 but infinite
         "7": openmc.HexLattice,     # Same as 3 but infinite
         "8": openmc.HexLattice,     # Same as 2 but infinite
-     #   "9": None,                  # Vertical stack
+     #   "9": None,                  # Vertical stack (address as special case)
      #   "10": None,                 # Does not exist
         "11": openmc.RectLattice,   # Cuboidal lattice
         "12": openmc.HexLattice,    # X-type hexagonal prism lattice
         "13": openmc.HexLattice     #  Y-type hexagonal prism lattice
-     #   "14": None                  # X-type triangular lattice
+     #   "14": None                  # X-type triangular lattice (address as special case)
     }
 }
 
@@ -356,7 +361,7 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
         cell_region = openmc.Region.from_expression(csg_expression, cell_surf_dict)
     return cell_object, cell_name, cell_fill_object, cell_region
 
-def _check_for_multiline_lattice_univ(current_line_idx):
+def _check_for_multiline_lattice_univ(current_line_idx, lat_args, lat_univ_index):
     """
     Helper function that looks for multi-line lattice arguments
 
@@ -364,6 +369,12 @@ def _check_for_multiline_lattice_univ(current_line_idx):
     ----------
     current_line_idx : int
         Index of the current line in the geometry file
+    lat_args : list of str
+        arguments for the lat card. May or may not contain
+        the universe names
+    lat_univ_index : int
+        Index of the location of the first universe in the lattice.
+        Dependent on the lattice type.
 
     Returns
     -------
@@ -373,7 +384,21 @@ def _check_for_multiline_lattice_univ(current_line_idx):
     lat_lines : `numpy.ndarray`
         numpy array containing the lattice universe names
     """
-    ...
+    next_line = geo_data[current_line_idx + 1]
+    lat_multiline_match = re.search(LAT_MULTILINE_REGEX, next_line)
+    if bool(lat_multiline_match):
+        multiline_lattice_univ_exst = True
+        lat_lines = []
+        i = current_line_idx + 1
+        while (bool(lat_multiline_match):
+               line_data = lat_multiline_match.group(0).split()
+               lat_lines.append(line_data)
+               next_line = geo_data[i]
+               lat_multiline_match = re.search(LAT_MULTILINE_REGEX, next_line)
+    else:
+        multiline_lattice_univ_exist = False
+        lat_lines = lat_args[lat_univ_index:]
+        lat_lines = np.array(lat_args)
 
     return multiline_lattice_univ_exist, lat_lines
 
@@ -407,6 +432,7 @@ def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
             Nx = lat_args[5]
             Ny = lat_args[6]
             pitch = lat_args[7]
+            lat_univ_index = 8
 
             lat_origin = (x0, y0)
             lattice_elements = (Nx, Ny)
@@ -431,17 +457,15 @@ def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
     else:
         raise ValueError(f"Type {lat_type} lattices are currently unsupported")
 
-    lattice_univ_name_array = np.empty(lattice_elements, dtype=str)
-    lattice_univ_array = np.empty(lattice_elements, dtype=openmc.Universe)
     multiline_lattice_univ_exist, lattice_lines = \
-        _check_for_multiline_lattice_univ(current_line_idx)
+        _check_for_multiline_lattice_univ(current_line_idx, lat_args, lat_univ_index)
     if not multiline_lattice_univ_exist: # to implement
         # universe names are already in a lattice structure
         lattice_univ_name_array = np.reshape(lattice_lines,lattice_elements)
 
     # flip the array because serpent and openmc have opposing conventions
     # for the universe order
-    lattice_univ_name_array = np.flip(lattice_univ_name_array,axis=0)
+    lattice_univ_name_array = np.flip(lattice_lines, axis=0)
 
     # need to calculate the new origin
     # the procedure is different for square/rect and hex lattices
@@ -458,6 +482,7 @@ def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
         raise ValueError(f"Unsupported lattice type: {lattice_type}")
 
     lattice_origin = tuple(lattice_origin)
+    lattice_univ_array = np.empty(lattice_elements, dtype=openmc.Universe)
     for n in np.unique(lattice_univ_name_array):
         lattice_univ_array[lattice_univ_array.index(n)] = \
             universe_dict[n]
@@ -492,6 +517,7 @@ surf_dict = {} # surf name to surface object
 cell_dict = {} # cell name to cell object
 universe_to_cell_names_dict = {}
 universe_dict = {}
+root_name = 'root'
 
 for line in geo_data:
     # Create openmc Surface objects
@@ -591,6 +617,7 @@ for line in geo_data:
         for obj_name in transformed_objects:
             trans_objects_dict[obj_name] = transformed_objects[obj_name]
 
+    # lattices
     elif re.search(LATTICE_REGEX, line):
         lat_data = line.split()
         lat_universe_name = lat_data[1]
@@ -610,23 +637,45 @@ for line in geo_data:
 
         lattice_object = geo_dict["lat"][lat_type](name=lattice_universe_name)
         if re.search("(1|6|11)", lattice_type):
-            lattice_object.lower_left = loc
+            lattice_object.lower_left = lattice_origin
         elif re.search("(2|3|7|8|12|13)", lattice_type):
-            lattice_object.center = loc
+            lattice_object.center = lattice_origin
         else:
             raise ValueError("Unsupported lattice type")
 
-        lattice_object.pitch = pitch
+        lattice_object.pitch = lattice_pitch
         lattice_object.universes = lattice_univ_array
         lattice_cell = openmc.Cell(fill=lattice_object, region=universe_dict[lat_universe_name])
         lattice_cell.name = lat_universe_name
         cell_dict[lat_universe_name] = lattice_cell
 
+    ## root universe
+    elif re.search(ROOT_REGEX, line):
+        root_universe_name = line.split()[2]
+
+    ## universe symmetry
+    elif re.search(USYM_REGEX, line):
+        usym_data = line.split()
+        usym_universe_name = usym_data[2]
+        usym_axis = usym_data[3]
+        usym_bc = usym_data[4]
+        usym_xcoord = usym_data[5]
+        usym_ycoord = usym_data[6]
+        usym_azimuth_pos = usym_data[7]
+        usym_width_ang = usym_data[8]
+        usym_args = usym_data[9:]
+
+        ... # look into symmetries in openmc
+            # otherwise we have a lot of processing to do
+            # alternativley we can just use hte same BC on a plane object.
+
+
+
 all_cells = []
 for cell_name in cell_dict:
     all_cells += [cell_dict[cell_name]]
 all_cells = tuple(all_cells)
-root_univ = openmc.Universe(name='root', cells=all_cells)
+root_univ = openmc.Universe(name=root_name, cells=all_cells)
 openmc_geometry = openmc.Geometry()
 openmc_geometry.root_universe = root_univ
 openmc_geometry.export_to_xml(os.path.join(path, fname+'.xml'))
