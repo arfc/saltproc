@@ -6,6 +6,14 @@ import openmc
 import neutronics_material_maker as nmm #you'll need to install this manually
 from neutronics_material_maker import zaid_to_isotope
 
+WO_REGEX = "\-[0-9]+\."
+COMP_REGEX = "\-?[0-9]+\.[0-9]+E?(\+|\-)?[0-9]{0,2}"
+MATERIAL_REGEX = "^\s*[^%]*\s*mat\s+[a-zA-Z0-9]+\s+" + COMP_REGEX
+NUCLIDE_REGEX_1 = "^\s*[^%]*\s*[0-9]{4,}\.[0-9]{2}c\s+" + COMP_REGEX
+NUCLIDE_REGEX_2 = "^\s*[^%]*\s*[0-9]{5,}\s+" + COMP_REGEX # decay only nuclides
+ELEMENT_REGEX = "^\s*[^%]*\s*[0-9]+0{3}\.[0-9]{2}c\s+" + COMP_REGEX
+THERM_REGEX = "^\s*[^%]*\s*(therm|thermstoch)\s+[a-z]+"
+
 S_a_b_dict = {
     'be': ['c_Be'],
     'hw': ['c_D_in_D2O'],
@@ -44,7 +52,6 @@ def convert_nuclide_name_serpent_to_zam(nuc_code):
         return int(zzaaam)
 
 # read command line input
-
 try:
     serpent_mat_path = str(sys.argv[1])
 except IndexError:
@@ -57,19 +64,9 @@ mat_data = []
 with open(serpent_mat_path, 'r') as file:
     mat_data = file.readlines()
 
-# read serpent materials
-WO_REGEX = "\-[0-9]+\."
-COMP_REGEX = "\-?[0-9]+\.[0-9]+E*(\+|\-)?[0-9]{0,2}"
-MATERIAL_REGEX = "^\s*[^%]*\s*mat\s+[a-zA-Z0-9]+\s+" + COMP_REGEX
-NUCLIDE_REGEX_1 = "^\s*[^%]*\s*[0-9]{4,}\.[0-9]{2}c\s+" + COMP_REGEX
-NUCLIDE_REGEX_2 = "^\s*[^%]*\s*[0-9]{5,}\s+" + COMP_REGEX # decay only nuclides
-ELEMENT_REGEX = "^\s*[^%]*\s*[0-9]+0{3}\.[0-9]{2}c\s+" + COMP_REGEX
-THERM_REGEX = "^\s*[^%]*\s*(therm|thermstoch)\s+[a-z]+"
-
-
 first_material=True
 openmc_mats = openmc.Materials([])
-
+# read serpent materials
 for line in mat_data:
     if re.search(MATERIAL_REGEX, line):
         # Check if we've hit a new material
