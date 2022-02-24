@@ -86,6 +86,20 @@ geo_dict = {
 
 special_case_surfaces = tuple(['inf'])
 
+def _get_boundary_conditions():
+    """
+    Helper function that gets the serpent boundary conditions
+
+    Returns
+    -------
+    surface_bc : str
+        String that specified the Serpent boundary condtion
+        in openmc format.
+    """
+
+    return surface_bc
+
+
 def _construct_surface_helper(surf_card):
     """
     Helper function for creating `openmc.Surface` objects
@@ -286,19 +300,6 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
         cell_region = openmc.Region.from_expression(csg_expression, cell_surf_dict)
     return cell_object, cell_name, cell_fill_object, cell_region
 
-def _get_boundary_conditions():
-    """
-    Helper function that gets the serpent boundary conditions
-
-    Returns
-    -------
-    surface_bc : str
-        String that specified the Serpent boundary condtion
-        in openmc format.
-    """
-
-    return surface_bc
-
 def _check_for_multiline_lattice_univ(current_line_idx):
     """
     Helper function that looks for multi-line lattice arguments
@@ -370,7 +371,7 @@ def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
    #     ...
     else:
         raise ValueError(f"Type {lat_type} lattices are currently unsupported")
-
+    lattice_univ_name_array = [[]]
     if _check_for_multiline_lattice_univ(current_line_idx): # to implement
         # universe names are already in a lattice structure
         ...
@@ -378,10 +379,16 @@ def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
     else: # we need to put universe names in a lattice structure
         ...
 
+    # consider using numpy to do this matrix processing
     lattice_origin = ...
     lattice_pitch = ...
 
-    return lattice_origin, lattice_pitch, lattice_univ_array
+
+    lattice_univ_array = lattice_univ_array.copy()
+    for n in lattice_univ_arrray:
+        lattice_univ_array[lattice_univ_array.index(n)] = \
+            universe_dict[n]
+   return lattice_origin, lattice_pitch, lattice_univ_array
 
 # Read command line input
 try:
