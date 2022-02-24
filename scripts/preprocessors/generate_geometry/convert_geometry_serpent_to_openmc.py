@@ -1,7 +1,6 @@
 import re
 import os
 import sys
-from pyne import nucname as pyname
 import numpy as np
 import openmc
 import openmc.model
@@ -56,7 +55,7 @@ LAT_REGEX = COMMENT_IGNORE_BEG_REGEX + \
     LAT_REGEX_CORE + \
     COMMENT_IGNORE_END_REGEX
 LAT_MULTILINE_REGEX = CARD_IGNORE_REGEX + \
-    LAT_MULTILINIE_REGEX_CORE + \
+    LAT_MULTILINE_REGEX_CORE + \
     COMMENT_IGNORE_END_REGEX
 
 
@@ -67,7 +66,7 @@ geo_dict = {
         "pz": openmc.ZPlane,
         "plane": openmc.Plane,
         "cylx": openmc.XCylinder,
-        "cyly":, openmc.YCylinder,
+        "cyly": openmc.YCylinder,
         "cylz": openmc.ZCylinder,
         "cyl": openmc.ZCylinder,
         "cylv": openmc.model.cylinder_from_points,
@@ -390,7 +389,7 @@ def _check_for_multiline_lattice_univ(current_line_idx, lat_args, lat_univ_index
         multiline_lattice_univ_exst = True
         lat_lines = []
         i = current_line_idx + 1
-        while (bool(lat_multiline_match):
+        while (bool(lat_multiline_match)):
                line_data = lat_multiline_match.group(0).split()
                lat_lines.append(line_data)
                next_line = geo_data[i]
@@ -486,7 +485,8 @@ def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
     for n in np.unique(lattice_univ_name_array):
         lattice_univ_array[lattice_univ_array.index(n)] = \
             universe_dict[n]
-   return lattice_origin, lattice_pitch, lattice_univ_array
+
+    return lattice_origin, lattice_pitch, lattice_univ_array
 
 # Read command line input
 try:
@@ -495,14 +495,14 @@ except IndexError:
     raise SyntaxError("No geo file specified")
 
 try:
-    serpent_geo_path = str(sys.argv[2])
+    openmc_mat_path = str(sys.argv[2])
 except IndexError:
     raise SyntaxError("No material file specified")
 
 # get filenames
 fname = serpent_geo_path.split('/').pop(-1).split('.')[0]
 path = os.path.dirname(serpent_geo_path)
-openmc_mats = openmc.Materials.from_xml(sys.argv[2])
+openmc_mats = openmc.Materials.from_xml(openmc_mat_path)
 mat_dict = {}
 for mat in openmc_mats:
     mat_dict[mat.name] = mat
@@ -511,7 +511,7 @@ geo_data = []
 with open(serpent_geo_path, 'r') as file:
     geo_data = file.readlines()
 
-surface_bc = _get_boundary_conditions() ### TO IMPLEMENT ###
+surface_bc = _get_boundary_conditions(geo_data) ### TO IMPLEMENT ###
 n_bcs = len(set(surface_bc))
 surf_dict = {} # surf name to surface object
 cell_dict = {} # cell name to cell object
@@ -562,7 +562,7 @@ for line in geo_data:
             trans_objects_dict = surf_dict
             trans_objects_names = [surf_dict[trans_object_name]]
         else:
-            raise ValueError(f"Transforming objects of type
+            raise ValueError(f"Transforming objects of type \
                              {trans_type} is currently unsupported")
 
         trans_objects = []
@@ -594,7 +594,7 @@ for line in geo_data:
                              [a7, a8, a9]]
             translation_args = [x, y, z]
         else:
-            raise SyntaxError("Incorrect number of arguments or unsupported
+            raise SyntaxError("Incorrect number of arguments or unsupported \
                               transformation type")
         if bool(ORD):
             if int(ORD) == 1:
@@ -618,7 +618,7 @@ for line in geo_data:
             trans_objects_dict[obj_name] = transformed_objects[obj_name]
 
     # lattices
-    elif re.search(LATTICE_REGEX, line):
+    elif re.search(LAT_REGEX, line):
         lat_data = line.split()
         lat_universe_name = lat_data[1]
         lat_type = lat_data[2]
@@ -633,7 +633,7 @@ for line in geo_data:
             lattice_pitch, \
             lattice_univ_array = _get_lattice_univ_array(lat_type,
                                                          lat_args,
-                                                         current_line_idx):
+                                                         current_line_idx)
 
         lattice_object = geo_dict["lat"][lat_type](name=lattice_universe_name)
         if re.search("(1|6|11)", lattice_type):
@@ -678,4 +678,5 @@ all_cells = tuple(all_cells)
 root_univ = openmc.Universe(name=root_name, cells=all_cells)
 openmc_geometry = openmc.Geometry()
 openmc_geometry.root_universe = root_univ
+print(path)
 openmc_geometry.export_to_xml(os.path.join(path, fname+'.xml'))
