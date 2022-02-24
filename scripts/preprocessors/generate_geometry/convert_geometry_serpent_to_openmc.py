@@ -70,17 +70,17 @@ geo_dict = {
         "1": openmc.RectLattice,    # Square lattice
         "2": openmc.HexLattice,     # X-type hexagonal lattice (y type in openmc)
         "3": openmc.HexLattice,     # Y-type hexagonal lattice (x type in openmc)
-        "4": None,                  # Circular cluster array
-        "5": None,                  # Does not exist
+     #   "4": None,                  # Circular cluster array
+     #   "5": None,                  # Does not exist
         "6": openmc.RectLattice,    # Same as 1 but infinite
         "7": openmc.HexLattice,     # Same as 3 but infinite
         "8": openmc.HexLattice,     # Same as 2 but infinite
-        "9": None,                  # Vertical stack
-        "10": None,                 # Does not exist
-        "11": None,                 # Cuboidal lattice
-        "12": None,                 # X-type hexagonal prism lattice
-        "13": None,                 # Y-type hexagonal prism lattice
-        "14": None                  # X-type triangular lattice
+     #   "9": None,                  # Vertical stack
+     #   "10": None,                 # Does not exist
+        "11": openmc.RectLattice,   # Cuboidal lattice
+        "12": openmc.HexLattice,    # X-type hexagonal prism lattice
+        "13": openmc.HexLattice     #  Y-type hexagonal prism lattice
+     #   "14": None                  # X-type triangular lattice
     }
 }
 
@@ -299,7 +299,7 @@ def _get_boundary_conditions():
 
     return surface_bc
 
-def _check_for_offline_lattice_args(current_line_idx):
+def _check_for_multiline_lattice_univ(current_line_idx):
     """
     Helper function that looks for multi-line lattice arguments
 
@@ -310,14 +310,78 @@ def _check_for_offline_lattice_args(current_line_idx):
 
     Returns
     -------
-    offlind_lattice_args_exist : bool
+    multiline_lattice_univ_exist : bool
         True if multi-line lattice arguments exist.
         Otherwise False
-    offline_lattice_args_list : list of str
-        List containing all multi-line lattice arguments
     """
+    ...
 
-    return offline_lattice_args_exist, offline_lattice_args_list
+    return multiline_lattice_univ_exist
+
+def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
+    """
+    Helper function that creates an array
+    of universes for lattice creation
+
+    Parameters
+    ----------
+    lattice_type : str
+        String corresponding to the serpent lattice type
+    lattice_args : list of str
+        String containing the lattice parameters
+    current_line_idx : int
+        Index of the current line in the geometry file
+
+    Returns
+    -------
+    lattice_origin : tuple of float
+        The lattice origin coordinate
+    lattice_pitch : tuple of float
+        The lattice pitch in each dimension
+    lattice_univ_array : list of list of openmc.Universe
+         Array containing the lattice universes
+    """
+    lattice_univ_array = [[]]
+
+    if lat_type == 1:
+            Nx = lat_args[5]
+            Ny = lat_args[6]
+            pitch = lat_args[7]
+            x0 =
+            y0 =
+            lower_left = (x0, y0)
+            lat_elements = (Nx, Ny)
+            pitch = (pitch, pitch)
+   # elif lat_type == 2:
+   #     ...
+   # elif lat_type == 3:
+   #     ...
+   # elif lat_type == 6:
+   #     ...
+   # elif lat_type == 7:
+   #     ...
+   # elif lat_type == 8:
+   #     ...
+   # elif lat_type == 11:
+   #     ...
+   # elif lat_type == 12:
+   #     ...
+   # elif lat_type == 13:
+   #     ...
+    else:
+        raise ValueError(f"Type {lat_type} lattices are currently unsupported")
+
+    if _check_for_multiline_lattice_univ(current_line_idx): # to implement
+        # universe names are already in a lattice structure
+        ...
+
+    else: # we need to put universe names in a lattice structure
+        ...
+
+    lattice_origin = ...
+    lattice_pitch = ...
+
+    return lattice_origin, lattice_pitch, lattice_univ_array
 
 # Read command line input
 try:
@@ -348,7 +412,6 @@ cell_dict = {} # cell name to cell object
 universe_to_cell_names_dict = {}
 universe_dict = {}
 
-openmc_geometry = openmc.Geometry([])
 
 
 for line in geo_data:
@@ -381,7 +444,7 @@ for line in geo_data:
 
 
     # transformations
-    elif re.search(TRANSFORMATION_REGEX, line):
+    elif re.search(TRANS_REGEX, line):
         trans_data = line.split()
         trans_object_type = trans_data[1]
         trans_object_name = trans_data[2]
@@ -405,9 +468,10 @@ for line in geo_data:
         ### lattice transformations not currently supported ###
         trans_args = trans_data[3:]
         n_args = len(trans_args)
-        trans_type = []
+        trans_types = []
         translation_args = []
         rotation_args = []
+        ORD = None
         # LVL, and 'rot' transformations currently unsupported
         if n_args == 3: # transformation
             x, y, z = tuple(trans_args)
@@ -417,13 +481,6 @@ for line in geo_data:
             x, y, z, tx, ty, tz, ORD = tuple(trans_args)
             rotation_args = [tx, ty, tz]
             translation_args = [x, y, z]
-            if int(ORD) == 1:
-                trans_types = ['rotation', 'translation']
-            elif int(ORD) == 2:
-                trans_types = ['translation', 'rotation']
-            else:
-                raise ValueError(f"{ORD} is an invalid value for ORD")
-
         elif n_args == 13: # transformation + rotation using rotation matrix
             x, y, z, a1, a2, a3, a4, \
                 a5, a6, a7, a8, a9, ORD = tuple(trans_args)
@@ -431,15 +488,17 @@ for line in geo_data:
                              [a4, a5, a6],
                              [a7, a8, a9]]
             translation_args = [x, y, z]
+        else:
+            raise SyntaxError("Incorrect number of arguments or unsupported
+                              transformation type")
+        if bool(ORD):
             if int(ORD) == 1:
                 trans_types = ['rotation', 'translation']
             elif int(ORD) == 2:
                 trans_types = ['translation', 'rotation']
             else:
                 raise ValueError(f"{ORD} is an invalid value for ORD")
-        else:
-            raise SyntaxError("Incorrect number of arguments or unsupported
-                              transformation type")
+
 
         transformed_objects = {}
         for trans_type in trans_types:
@@ -455,18 +514,40 @@ for line in geo_data:
 
     elif re.search(LATTICE_REGEX, line):
         lat_data = line.split()
-        lat_universe = lat_data[1]
+        lat_universe_name = lat_data[1]
         lat_type = lat_data[2]
         lat_args = lat_data[3:]
 
-        # chech if all args are on one line
+        if not bool(universe_dict.get(lat_universe_name)):
+           universe_dict[lat_universe_name] += openmc.Universe(name=lat_universe_name)
+
+        # get lattice universe array
         current_line_idx = geo_data.index(line)
-        offline_lattice_args_exist, offline_lattice_args_list = _check_for_offline_lattice_args(current_line_idx):
-        if offline_lattice_args_exist: # to implement
-            lat_args += office_lattice_args_list
+        lattice_origin, \
+            lattice_pitch, \
+            lattice_univ_array = _get_lattice_univ_array(lat_type,
+                                                         lat_args,
+                                                         current_line_idx):
 
-        # flow control for different lattice types
-        if lat_type == 1:
-
+        lattice_object = geo_dict["lat"][lat_type](name=lattice_universe_name)
+        if re.search("(1|6|11)", lattice_type):
+            lattice_object.lower_left = loc
+        elif re.search("(2|3|7|8|12|13)", lattice_type):
+            lattice_object.center = loc
         else:
-            raise ValueError(f"Type {lat_type} lattices are currently unsupported")
+            raise ValueError("Unsupported lattice type")
+
+        lattice_object.pitch = pitch
+        lattice_object.universes = lattice_univ_array
+        lattice_cell = openmc.Cell(fill=lattice_object, region=universe_dict[lat_universe_name])
+        lattice_cell.name = lat_universe_name
+        cell_dict[lat_universe_name] = lattice_cell
+
+all_cells = []
+for cell_name in cell_dict:
+    all_cells += [cell_dict[cell_name]]
+all_cells = tuple(all_cells)
+root_univ = openmc.Universe(name='root', cells=all_cells)
+openmc_geometry = openmc.Geometry()
+openmc_geometry.root_universe = root_univ
+openmc_geometry.export_to_xml(os.path.join(path, fname+'.xml'))
