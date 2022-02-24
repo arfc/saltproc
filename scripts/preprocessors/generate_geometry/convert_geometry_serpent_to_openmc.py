@@ -8,14 +8,19 @@ import openmc.model
 
 COMMENT_IGNORE_BEG_REGEX="^\s*[^%]*\s*"
 COMMENT_IGNORE_END_REGEX="\s*[^%]*"
+BC_REGEX_CORE = "set\s+bc(\s+([1-3]|black|reflective|periodic)){1,3}"
 SURF_REGEX_CORE = "surf\s+[a-zA-Z0-9]+\s+[a-z]{2,}(\s+[0-9]+(\.[0-9]+)?\s*)*"
 CELL_REGEX1_CORE = "cell(\s+[a-zA-Z0-9]+){3}"
 CELL_REGEX2_CORE = "cell(\s+[a-zA-Z0-9]+){2}\s+fill\s+[a-zA-Z0-9]+"
 CELL_REGEX3_CORE = "cell(\s+[a-zA-Z0-9]+){2}\s+outside\s+[a-zA-Z0-9]+"
 CELL_SURFACE_REGEX = "(\s+\-?\:?\#?[a-zA-Z0-9]+)+"
+ROOT_REGEX_CORE = ...
+USYM_REGEX_CORE = ...
 TRANS_REGEX_CORE = "trans\s+[A-Z]{1}\s+[a-zA-Z0-9]+(\s+-?[0-9]+(\.[0-9]+)?)+"
 LAT_REGEX_CORE = "lat\s+[a-zA-Z0-9]+\s+[0-9]{1,2}(\s+-?[0-9]+(\.[0-9]+)?){2,4}(\s+[0-9]+){0,3}((\s+-?[0-9]+(\.[0-9]+)?){0,2}\s+[a-zA-Z0-9]+)+"
-
+BC_REGEX=COMMENT_IGNORE_BEG_REGEX + \
+    BC_REGEX_CORE + \
+    COMMENT_IGNORE_END_REGEX
 SURF_REGEX=COMMENT_IGNORE_BEG_REGEX + \
     SURF_REGEX_CORE + \
     COMMENT_IGNORE_END_REGEX
@@ -35,6 +40,13 @@ CELL_REGEX_ALL = COMMENT_IGNORE_BEG_REGEX + \
     f"({CELL_REGEX2_CORE}|{CELL_REGEX3_CORE}|{CELL_REGEX1_CORE})" + \
     CELL_SURFACE_REGEX + \
     COMMENT_IGNORE_END_REGEX
+ROOT_REGEX=COMMENT_IGNORE_BEG_REGEX + \
+    ROOT_REGEX_CORE + \
+    COMMENT_IGNORE_END_REGEX
+USYM_REGEX=COMMENT_IGNORE_BEG_REGEX + \
+    USYM_REGEX_CORE + \
+    COMMENT_IGNORE_END_REGEX
+
 TRANS_REGEX = COMMENT_IGNORE_BEG_REGEX + \
     TRANS_REGEX_CORE + \
     COMMENT_IGNORE_END_REGEX
@@ -86,9 +98,14 @@ geo_dict = {
 
 special_case_surfaces = tuple(['inf'])
 
-def _get_boundary_conditions():
+def _get_boundary_conditions(geo_data):
     """
     Helper function that gets the serpent boundary conditions
+
+    Parameters
+    ----------
+    geo_data : list of str
+        Lines of the geometry file
 
     Returns
     -------
@@ -96,6 +113,35 @@ def _get_boundary_conditions():
         String that specified the Serpent boundary condtion
         in openmc format.
     """
+    for line in geo_data:
+        bc_card = ''
+        if re.search(BC_REGEX, line):
+            bc_card = re.search(BC_REGEX, line).group(0)
+
+
+    surface_bc = []
+    if bc_card == '':
+        surface_bc += ['vacuum']
+    else:
+        bc_data = bc_card.split()
+        bc_data = bc_data[1:]
+        for bc in bc_data:
+            if bc == '1' or bc == 'black':
+                surface_bc += ['vacuum']
+            elif bc == '2' or bc == 'reflective':
+                surface_bc += ['reflective']
+            elif bc == '3' or bc == 'periodic':
+                surface_bc += ['periodic']
+            #elif bool(float(bc)):
+            #    surface_bc += ['white'] #I'm not sure this is correct
+                                        # The albedo bc in serpent
+                                        # allows user to specify an
+                                        # albedo, wheras the white
+                                        # bc in OpenMC doesn't...
+            else:
+                raise ValueError(f"Boundary type {bc} is invalid")
+
+    surface_bc = tuple(surface_bc)
 
     return surface_bc
 
@@ -418,8 +464,6 @@ surf_dict = {} # surf name to surface object
 cell_dict = {} # cell name to cell object
 universe_to_cell_names_dict = {}
 universe_dict = {}
-
-
 
 for line in geo_data:
     # Create openmc Surface objects
