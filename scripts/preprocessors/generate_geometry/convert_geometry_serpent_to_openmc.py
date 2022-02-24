@@ -73,7 +73,7 @@ geo_dict = {
         "tory": openmc.YTorus,
         "torz": openmc.ZTorus,
         "sqc": openmc.model.rectangular_prism,
-        "rect": openmc.model.rectangualr_prism,
+        "rect": openmc.model.rectangular_prism,
         "hexxc": openmc.model.hexagonal_prism, #to implement
         "hexyc": openmc.model.hexagonal_prism  #to implement
     },
@@ -118,7 +118,6 @@ def _get_boundary_conditions(geo_data):
         if re.search(BC_REGEX, line):
             bc_card = re.search(BC_REGEX, line).group(0)
 
-
     surface_bc = []
     if bc_card == '':
         surface_bc += ['vacuum']
@@ -140,8 +139,6 @@ def _get_boundary_conditions(geo_data):
                                         # bc in OpenMC doesn't...
             else:
                 raise ValueError(f"Boundary type {bc} is invalid")
-
-    surface_bc = tuple(surface_bc)
 
     return surface_bc
 
@@ -330,7 +327,20 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
             surf_name = re.split("(-|#|:|\s*)", surf_name)[-1]
             surface_object = surf_dict[surf_name]
             if cell_type == 'outside':
-                surface_object.boundary_type = surface_bc
+                if n_bcs == 1:
+                    surface_object.boundary_type = surface_bc[0]
+                elif n_bcs <= 3:
+                    if type(surface_object) == openmc.XPlane:
+                        surface_object.boundary_type = surface_bc[0]
+                    elif type(surface_object) == openmc.YPlane:
+                        surface_object.boundary_type = surface_bc[1]
+                    elif type(surface_object) == openmc.ZPlane:
+                        surface_object.boundary_type = surface_bc[2]
+                    else:
+                        pass # for now, need to confurm if x,y,z
+                             # bcs are applied to cylinders and
+                             # tori in serpent
+
                 surf_dict[surf_name] = surface_object
             surf_id = surface_object.id
             cell_surf_dict[surf_id] = surface_object
@@ -360,10 +370,12 @@ def _check_for_multiline_lattice_univ(current_line_idx):
     multiline_lattice_univ_exist : bool
         True if multi-line lattice arguments exist.
         Otherwise False
+    lat_lines : `numpy.ndarray`
+        numpy array containing the lattice universe names
     """
     ...
 
-    return multiline_lattice_univ_exist
+    return multiline_lattice_univ_exist, lat_lines
 
 def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
     """
@@ -388,17 +400,18 @@ def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
     lattice_univ_array : list of list of openmc.Universe
          Array containing the lattice universes
     """
-    lattice_univ_array = [[]]
 
     if lat_type == 1:
+            x0 = lat_args[3]
+            y0 = lat_args[4]
             Nx = lat_args[5]
             Ny = lat_args[6]
             pitch = lat_args[7]
-            x0 =
-            y0 =
-            lower_left = (x0, y0)
-            lat_elements = (Nx, Ny)
-            pitch = (pitch, pitch)
+
+            lat_origin = (x0, y0)
+            lattice_elements = (Nx, Ny)
+            lattice_pitch = (pitch, pitch)
+   ## TO IMPLEMENT ##
    # elif lat_type == 2:
    #     ...
    # elif lat_type == 3:
@@ -417,21 +430,35 @@ def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
    #     ...
     else:
         raise ValueError(f"Type {lat_type} lattices are currently unsupported")
-    lattice_univ_name_array = [[]]
-    if _check_for_multiline_lattice_univ(current_line_idx): # to implement
+
+    lattice_univ_name_array = np.empty(lattice_elements, dtype=str)
+    lattice_univ_array = np.empty(lattice_elements, dtype=openmc.Universe)
+    multiline_lattice_univ_exist, lattice_lines = \
+        _check_for_multiline_lattice_univ(current_line_idx)
+    if not multiline_lattice_univ_exist: # to implement
         # universe names are already in a lattice structure
-        ...
+        lattice_univ_name_array = np.reshape(lattice_lines,lattice_elements)
 
-    else: # we need to put universe names in a lattice structure
-        ...
+    # flip the array because serpent and openmc have opposing conventions
+    # for the universe order
+    lattice_univ_name_array = np.flip(lattice_univ_name_array,axis=0)
 
-    # consider using numpy to do this matrix processing
-    lattice_origin = ...
-    lattice_pitch = ...
+    # need to calculate the new origin
+    # the procedure is different for square/rect and hex lattices
+    if re.match("(1|6|11)", lattice_type): # square/rect lattice
+        lattice_origin = np.empty(len(lattice_elements),dtype=float)
+        for Ncoord in lattice_elements:
+            index = lattice_elements.index(Ncoord)
+            lattice_origin[index] = Ncoord * 0.5 * lattice_pitch[index]
 
+   ## TO IMPLEMENT ##
+   # elif re.match("(2|3|7|8|12|13)"): # hex lattice
+   #     lattice_origin = ...
+    else:
+        raise ValueError(f"Unsupported lattice type: {lattice_type}")
 
-    lattice_univ_array = lattice_univ_array.copy()
-    for n in lattice_univ_arrray:
+    lattice_origin = tuple(lattice_origin)
+    for n in np.unique(lattice_univ_name_array):
         lattice_univ_array[lattice_univ_array.index(n)] = \
             universe_dict[n]
    return lattice_origin, lattice_pitch, lattice_univ_array
@@ -460,6 +487,7 @@ with open(serpent_geo_path, 'r') as file:
     geo_data = file.readlines()
 
 surface_bc = _get_boundary_conditions() ### TO IMPLEMENT ###
+n_bcs = len(set(surface_bc))
 surf_dict = {} # surf name to surface object
 cell_dict = {} # cell name to cell object
 universe_to_cell_names_dict = {}
