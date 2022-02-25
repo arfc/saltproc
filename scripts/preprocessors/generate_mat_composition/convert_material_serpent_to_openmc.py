@@ -194,4 +194,23 @@ for line in mat_data:
                 if S_a_b_dict[table_name][0] not in my_mat['S_a_b']:
                     my_mat['S_a_b'] += S_a_b_dict[table_name]
 
+if not bool(my_mat['isotopes']):
+    my_mat.pop('isotopes')
+if not bool(my_mat['elements']):
+    my_mat.pop('elements')
+
+S_a_b = my_mat.pop('S_a_b')
+S_a_b_tables = False
+if bool(S_a_b):
+    S_a_b_tables = True
+
+depletable = my_mat.pop('depletable')
+my_mat = nmm.Material(**my_mat)
+openmc_mats.append(my_mat.openmc_material)
+openmc_mats[-1].depletable = depletable
+if bool(my_mat.volume_in_cm3):
+    openmc_mats[-1].volume = my_mat.volume_in_cm3
+if S_a_b_tables:
+    for t in S_a_b:
+        openmc_mats[-1].add_s_alpha_beta(t)
 openmc_mats.export_to_xml(os.path.join(path, fname+'.xml'))
