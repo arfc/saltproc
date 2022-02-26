@@ -81,7 +81,10 @@ geo_dict = {
         "sqc": openmc.model.rectangular_prism,
         "rect": openmc.model.rectangular_prism,
         "hexxc": openmc.model.hexagonal_prism, #to implement
-        "hexyc": openmc.model.hexagonal_prism  #to implement
+        "hexyc": openmc.model.hexagonal_prism,  #to implement
+        "cube": openmc.model.RectangularParallelpiped,
+        "cuboid": openmc.model.RectangularParallelpiped,
+        "ppd": openmc.model.RectangularParallelpiped
     },
     "cell": openmc.Cell,
     "lat": {
@@ -246,8 +249,12 @@ def _construct_surface_helper(surf_card):
        # elif surface_type == "hexyc":
        #     ...
        #     surface_params = []
-
-
+        elif surface_type == "cuboid":
+            ...
+        elif surface_type == "cube":
+            ...
+        elif surface_type == "ppd":
+            ...
     else:
         raise ValueError(f"Surfaces of type {surface_type} are currently unsupported")
 
