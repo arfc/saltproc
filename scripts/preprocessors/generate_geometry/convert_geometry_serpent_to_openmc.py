@@ -174,37 +174,37 @@ def _construct_surface_helper(surf_card):
 
     """
     surf_data = surf_card.split()
-    surface_name = surf_data[1]
-    surface_type = surf_data[2]
-    surface_args = surf_data[3:]
-    surface_params = surface_args.copy()
-    for i in range(0,len(surface_params)):
-        p = float(surface_params[i])
-        surface_params[i] = p
+    surf_name = surf_data[1]
+    surf_type = surf_data[2]
+    surf_args = surf_data[3:]
+    surf_params = surf_args.copy()
+    for i in range(0,len(surf_params)):
+        p = float(surf_params[i])
+        surf_params[i] = p
 
     # generic case
     set_attributes = True
     has_subsurfaces = False
     # handle special cases
-    if bool(special_case_surfaces.count(surface_type)):
+    if bool(special_case_surfaces.count(surf_type)):
         set_attributes = False
-        if surface_type == "inf":
+        if surf_type == "inf":
             surface_object = "inf" # We'll replace this later
-    elif bool(geo_dict['surf'].get(surface_type)):
-        surface_object = geo_dict['surf'][surface_type]
-        if surface_type == "plane":
+    elif bool(geo_dict['surf'].get(surf_type)):
+        surface_object = geo_dict['surf'][surf_type]
+        if surf_type == "plane":
             # convert 3-point form to ABCD form for
             # equation of a plane
-            if len(surface_params) == 9:
-                p1 = np.array([surface_params[0],
-                               surface_params[3],
-                               surface_params[6]])
-                p2 = np.array([surface_params[1],
-                               surface_params[4],
-                               surface_params[7]])
-                p3 = np.array([surface_params[2],
-                               surface_params[5],
-                               surface_params[8]])
+            if len(surf_params) == 9:
+                p1 = np.array([surf_params[0],
+                               surf_params[3],
+                               surf_params[6]])
+                p2 = np.array([surf_params[1],
+                               surf_params[4],
+                               surf_params[7]])
+                p3 = np.array([surf_params[2],
+                               surf_params[5],
+                               surf_params[8]])
                 n = np.cross(p2 - p1, p3 - p1)
                 n0 = -p1
                 A = n[0]
@@ -214,59 +214,73 @@ def _construct_surface_helper(surf_card):
 
                 surface_params = [A, B, C, D]
 
-        elif surface_type == "cylv":
-           p1 = tuple(surface_params[:3])
-           p2 = tuple(surface_params[3:6])
-           r = surface_params[-1]
+        elif surf_type == "cylv":
+           p1 = tuple(surf_params[:3])
+           p2 = tuple(surf_params[3:6])
+           r = surf_params[-1]
            surface_params = [p1, p2, r]
 
-       # elif surface_type == "cone":
+       # elif surf_type == "cone":
        #      ...
        #     surface_params = []
 
-        elif surface_type == "sqc":
-           width = surface_params[2] * 2
-           height = surface_params[2] * 2
+        elif surf_type == "sqc":
+           width = surf_params[2] * 2
+           height = surf_params[2] * 2
            axis = 'z'
-           origin = surface_params[:2]
+           origin = surf_params[:2]
            surface_params = [width, height, axis, origin]
            has_subsurfaces = True
 
-        elif surface_type == "rect":
-           width = surface_params[3] - surface_params[2]
-           height = surface_params[1] - surface_params[0]
+        elif surf_type == "rect":
+           width = surf_params[3] - surf_params[2]
+           height = surf_params[1] - surf_params[0]
            axis = 'z'
-           xc = surface_params[3] - (width/2)
-           yc = surface_params[1] - (height/2)
+           xc = surf_params[3] - (width/2)
+           yc = surf_params[1] - (height/2)
            origin = [xc, yc]
            surface_params = [width, height, axis, origin]
            has_subsurfaces = True
 
-       # elif surface_type == "hexxc":
+       # elif surf_type == "hexxc":
        #      ...
        #     surface_params = []
 
-       # elif surface_type == "hexyc":
+       # elif surf_type == "hexyc":
        #     ...
        #     surface_params = []
-        elif surface_type == "cuboid":
-            ...
-        elif surface_type == "cube":
-            ...
-        elif surface_type == "ppd":
-            ...
+        elif surf_type == "cuboid":
+            surface_params = surf_params
+        elif surf_type == "cube":
+            x0 = surf_params[0]
+            y0 = surf_params[1]
+            z0 = surf_params[2]
+            d = surf_params[3]
+            org_coord = [x0,y0,z0]
+            surface_params = []
+            for q0 in org_coord:
+                surface_params += [q0 - d]
+                surface_params += [q0 + d]
     else:
-        raise ValueError(f"Surfaces of type {surface_type} are currently unsupported")
+        raise ValueError(f"Surfaces of type {surf_type} are currently unsupported")
 
     if set_attributes:
         surface_params = tuple(surface_params)
         surface_object = surface_object(*surface_params)
-        surface_object.name = surface_name
+        surface_object.name = surf_name
+        # add the id parameter to CompositeSurface properties
+        if not has_attr(surface_object, 'id'):
+            try:
+                surface_id = int(surface_name)
+            except:
+                surface_id = int.from_bytes(surface_name.encode(), 'litle')
+            surface_object.id = surface_id
+
     if has_subsurfaces:
         surface_object = surface_object.get_surfaces()
         for subsurf in surface_object:
-            surface_object[subsurf].name += f"_{surface_name}_sub"
-    surf_dict[surface_name] = surface_object
+            surface_object[subsurf].name += f"_{surf_name}_sub"
+    surf_dict[surf_name] = surface_object
 
 def _strip_csg_operators(csg_expression):
     """
@@ -359,7 +373,7 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
     cell_fill_object_name = cell_data[fill_object_name_index]
     cell_fill_object = cell_fill_obj_dict[cell_fill_object_name]
     csg_expression = re.split(cell_card_splitter, cell_card)[-1]
-    surf_names = _strip_csg_operators(csg_expression)
+    surface_names = _strip_csg_operators(csg_expression)
     subsurface_regions = {}
 
     # Handle special cases #
@@ -372,22 +386,24 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
         cell_object = mat_null_cell
     # generic case
     else:
-        cell_surf_dict = {}
-        surf_name_to_surf_id = {}
-        for surf_name in surf_names:
-            surface_object = surf_dict[surf_name]
+        cell_surface_dict = {}
+        surface_name_to_surface_id = {}
+        for surface_name in surface_names:
+            surface_object = surf_dict[surface_name]
             has_subsurfaces = False
             if type(surface_object) == collections.OrderedDict:
                 has_subsurfaces = True
-                subsurface_regions[surf_name] = surface_object
+                subsurface_regions[surface_name] = surface_object
             else:
-                surface_object = {surface_object.name: surface_object}
+                surface_object = {surface_name: surface_object}
             if cell_type == 'outside':
                 # hack to apply bcs to both region surfaces and regular surfaces
                 # without repeating code
                 for s_name in surface_object:
                     if n_bcs == 1:
-                            surface_object[s_name].boundary_type = surface_bc[0]
+                        surface_object[s_name].boundary_type = surface_bc[0]
+                    # we may run into trobule here when
+                    # trying to apply bcs to CompositeSurfaces
                     elif n_bcs <= 3:
                         if type(surface_object) == openmc.XPlane:
                             surface_object[s_name].boundary_type = surface_bc[0]
@@ -420,21 +436,21 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
                 #    ...
                 else:
                     raise ValueError("There were too many subsurfaces in the region")
-                surf_name_to_surf_id[surf_name] = region_expr
+                surface_name_to_surf_id[surface_name] = region_expr
             else:
-                surface_object = surface_object[surf_name]
-                surf_name_to_surf_id[surface_object.name] = str(surface_object.id)
+                surface_object = surface_object[surface_name]
+                surface_name_to_surf_id[surface_name] = str(surface_object.id)
 
         # replace operators
         csg_expression = csg_expression.replace("\s[a-zA-Z0-9]", "\s\+[a-zA-Z0-9]")
         csg_expression = csg_expression.replace(":", "|")
         csg_expression = csg_expression.replace("#", "~")
-        for surf_name in surf_names:
-            if bool(subsurface_regions.get(surf_name)):
-                csg_expression = csg_expression.replace(f'-{surf_name}', f'{surf_name}')
-                csg_expression = csg_expression.replace(f'+{surf_name}', f'~{surf_name}')
-            surf_id = surf_name_to_surf_id[surf_name]
-            csg_expression = csg_expression.replace(surf_name, surf_id)
+        for surface_name in surface_names:
+            if bool(subsurface_regions.get(surface_name)):
+                csg_expression = csg_expression.replace(f'-{surface_name}', f'{surface_name}')
+                csg_expression = csg_expression.replace(f'+{surface_name}', f'~{surface_name}')
+            surf_id = surface_name_to_surf_id[surface_name]
+            csg_expression = csg_expression.replace(surface_name, surf_id)
         cell_region = openmc.Region.from_expression(csg_expression, cell_surf_dict)
 
     return cell_object, cell_name, cell_fill_object, cell_region
