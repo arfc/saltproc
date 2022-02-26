@@ -2,8 +2,10 @@ import re
 import os
 import sys
 import numpy as np
+from scipy.spatial.transform import Rotation as sprot
 import openmc
 import openmc.model
+import collections
 
 COMMENT_IGNORE_BEG_REGEX="^\s*[^%]*\s*"
 COMMENT_IGNORE_END_REGEX="\s*[^%]*"
@@ -11,14 +13,14 @@ BC_REGEX_CORE = "set\s+bc(\s+([1-3]|black|reflective|periodic)){1,3}"
 SURF_REGEX_CORE = "surf\s+[a-zA-Z0-9]+\s+[a-z]{2,}(\s+[0-9]+(\.[0-9]+)?\s*)*"
 CELL_REGEX1_CORE = "cell(\s+[a-zA-Z0-9]+){3}"
 CELL_REGEX2_CORE = "cell(\s+[a-zA-Z0-9]+){2}\s+fill\s+[a-zA-Z0-9]+"
-CELL_REGEX3_CORE = "cell(\s+[a-zA-Z0-9]+){2}\s+outside\s+[a-zA-Z0-9]+"
+CELL_REGEX3_CORE = "cell(\s+[a-zA-Z0-9]+){2}\s+outside"
 CELL_SURFACE_REGEX = "(\s+\-?\:?\#?[a-zA-Z0-9]+)+"
 ROOT_REGEX_CORE = "set\s+root\s+[a-zA-Z0-9]+"
 USYM_REGEX_CORE = "set\s+usym\s+[a-zA-Z0-9]+\s+(1|2|3)\s+(\s+-?[0-9]+(\.[0-9]+)?)"
 TRANS_REGEX_CORE = "trans\s+[A-Z]{1}\s+[a-zA-Z0-9]+(\s+-?[0-9]+(\.[0-9]+)?)+"
 CARD_IGNORE_REGEX = "^\s*(?!.*%)(?!.*lat)(?!.*cell)(?!.*set)(?!.*surf)(?!.*dtrans)(?!.*ftrans)(?!.*ltrans)(?!.*pin)(?!.*solid)(?!.*strans)(?!.*trans)"
 LAT_REGEX_CORE = "lat\s+[a-zA-Z0-9]+\s+[0-9]{1,2}(\s+-?[0-9]+(\.[0-9]+)?){2,4}(\s+[0-9]+){0,3}((\s+-?[0-9]+(\.[0-9]+)?){0,2}\s+[a-zA-Z0-9]+)+"
-LAT_MULTILINE_REGEX_CORE = "(\s+[a-zA-Z0-9]{1,3})+" # right now this is limiting universe names to 3 chars until I can come up witha more robust regex
+LAT_MULTILINE_REGEX_CORE = "([a-zA-Z0-9]{1,3}\s+)+" # right now this is limiting universe names to 3 chars until I can come up witha more robust regex
 BC_REGEX=COMMENT_IGNORE_BEG_REGEX + \
     BC_REGEX_CORE + \
     COMMENT_IGNORE_END_REGEX
@@ -102,9 +104,10 @@ geo_dict = {
 
 special_case_surfaces = tuple(['inf'])
 
-def _get_boundary_conditions(geo_data):
+def _get_boundary_conditions_and_root(geo_data):
     """
     Helper function that gets the serpent boundary conditions
+    and root universe name
 
     Parameters
     ----------
@@ -116,11 +119,16 @@ def _get_boundary_conditions(geo_data):
     surface_bc : str
         String that specified the Serpent boundary condtion
         in openmc format.
+    root_name : str
+        String that specified the root universe name
     """
     for line in geo_data:
         bc_card = ''
+        root_card = ''
         if re.search(BC_REGEX, line):
             bc_card = re.search(BC_REGEX, line).group(0)
+        elif re.search(ROOT_REGEX, line):
+            root_card = re.search(ROOT_REGEX, line).group(0)
 
     surface_bc = []
     if bc_card == '':
@@ -144,7 +152,11 @@ def _get_boundary_conditions(geo_data):
             else:
                 raise ValueError(f"Boundary type {bc} is invalid")
 
-    return surface_bc
+    if root_card == '':
+        root_name = '0'
+    else:
+        root_name = root_card.split()[2]
+    return surface_bc, root_name
 
 
 def _construct_surface_helper(surf_card):
@@ -162,14 +174,20 @@ def _construct_surface_helper(surf_card):
     surface_name = surf_data[1]
     surface_type = surf_data[2]
     surface_args = surf_data[3:]
-    surface_params = []
-    for i in range(0,len(surface_args)):
+    surface_params = surface_args.copy()
+    for i in range(0,len(surface_params)):
         p = float(surface_params[i])
-        surfce_params[i] = p
+        surface_params[i] = p
 
     # generic case
     set_attributes = True
-    if bool(geo_dict['surf'][surface_type]):
+    has_subsurfaces = False
+    # handle special cases
+    if bool(special_case_surfaces.count(surface_type)):
+        set_attributes = False
+        if surface_type == "inf":
+            surface_object = "inf" # We'll replace this later
+    elif bool(geo_dict['surf'].get(surface_type)):
         surface_object = geo_dict['surf'][surface_type]
         if surface_type == "plane":
             # convert 3-point form to ABCD form for
@@ -206,18 +224,20 @@ def _construct_surface_helper(surf_card):
         elif surface_type == "sqc":
            width = surface_params[2] * 2
            height = surface_params[2] * 2
-           axis = 'z',
+           axis = 'z'
            origin = surface_params[:2]
            surface_params = [width, height, axis, origin]
+           has_subsurfaces = True
 
         elif surface_type == "rect":
            width = surface_params[3] - surface_params[2]
            height = surface_params[1] - surface_params[0]
-           axis = 'z',
+           axis = 'z'
            xc = surface_params[3] - (width/2)
            yc = surface_params[1] - (height/2)
            origin = [xc, yc]
            surface_params = [width, height, axis, origin]
+           has_subsurfaces = True
 
        # elif surface_type == "hexxc":
        #      ...
@@ -228,11 +248,6 @@ def _construct_surface_helper(surf_card):
        #     surface_params = []
 
 
-    # handle special cases
-    elif bool(special_case_surfaces.count(surface_type)):
-        set_attributes = False
-        if surface_type == "inf":
-            surface_object = "inf" # We'll replace this later
     else:
         raise ValueError(f"Surfaces of type {surface_type} are currently unsupported")
 
@@ -240,7 +255,35 @@ def _construct_surface_helper(surf_card):
         surface_params = tuple(surface_params)
         surface_object = surface_object(*surface_params)
         surface_object.name = surface_name
+    if has_subsurfaces:
+        surface_object = surface_object.get_surfaces()
+        for subsurf in surface_object:
+            surface_object[subsurf].name += f"_{surface_name}_sub"
     surf_dict[surface_name] = surface_object
+
+def _strip_csg_operators(csg_expression):
+    """
+    Helper function for `_construct_cell_helper`
+
+    Parameters
+    ----------
+    csg_expression : str
+        Serpent CSG expression for cell cards
+
+    Returns
+    -------
+    surf_names : list of str
+        List of surface names
+    """
+    csg_expression = csg_expression.replace('-',' ')
+    csg_expression = csg_expression.replace(':',' ')
+    csg_expression = csg_expression.replace('#',' ')
+    csg_expression = csg_expression.replace('(',' ')
+    csg_expression = csg_expression.replace(')',' ')
+    surf_names = csg_expression.split()
+
+    return surf_names
+
 
 def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
     """Helper function for creating cells
@@ -277,10 +320,9 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
     cell_name = cell_data[1]
     cell_universe_name = cell_data[2]
     cell_fill_object_name = ''
-    cell_args = []
 
     # store universe-cell mapping for later
-    if bool(universe_to_cells_dict.get(cell_universe_name)):
+    if bool(universe_to_cell_names_dict.get(cell_universe_name)):
         universe_to_cell_names_dict[cell_universe_name] += [cell_name]
     else:
         universe_to_cell_names_dict[cell_universe_name] = [cell_name]
@@ -297,68 +339,131 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
     else:
         if cell_type == 'fill':
             fill_object_name_index = 4
-            arg_index = 5
         elif cell_type == 'outside':
             fill_object_name_index = 2 # This might give us an error later when we try to run
-            arg_index = 4
         else:
             raise ValueError(f"cell_type: {cell_type} is erroneous")
 
         cell_fill_obj_dict = universe_dict
         filling_universe_name = cell_data[fill_object_name_index]
-        if not bool(universe_dict.get(filling_universe_name)):
+        if not bool(universe_dict.get(filling_universe_name)) and filling_universe_name != root_name:
             universe_dict[filling_universe_name] = openmc.Universe(name=filling_universe_name)
 
     cell_fill_object_name = cell_data[fill_object_name_index]
-    cell_args = cell_data[arg_index:]
-    cell_fill_object = cell_fill_object_dict[cell_fill_object_name]
-
+    cell_fill_object = cell_fill_obj_dict[cell_fill_object_name]
+    csg_expression = re.split(cell_card_splitter, cell_card)[-1]
+    surf_names = _strip_csg_operators(csg_expression)
+    subsurface_regions = {}
 
     # Handle special cases #
     ########################
     # material cells in a null region
     if cell_type == 'material' and \
-            surface_object == "inf" and \
-            len(cell_args) == 1:
+            len(surf_names) == 1 and \
+            surf_dict[surf_names[0]] == 'inf':
         mat_null_cell = openmc.Cell()
         cell_object = mat_null_cell
     # generic case
     else:
         cell_surf_dict = {}
         surf_name_to_surf_id = {}
-        csg_expression = ""
-        for surf_name in cell_args:
-            surf_name = re.split("(-|#|:|\s*)", surf_name)[-1]
+        for surf_name in surf_names:
             surface_object = surf_dict[surf_name]
+            has_subsurfaces = False
+            if type(surface_object) == collections.OrderedDict:
+                has_subsurfaces = True
+                subsurface_regions[surf_name] = surface_object
+            else:
+                surface_object = {surface_object.name: surface_object}
             if cell_type == 'outside':
-                if n_bcs == 1:
-                    surface_object.boundary_type = surface_bc[0]
-                elif n_bcs <= 3:
-                    if type(surface_object) == openmc.XPlane:
-                        surface_object.boundary_type = surface_bc[0]
-                    elif type(surface_object) == openmc.YPlane:
-                        surface_object.boundary_type = surface_bc[1]
-                    elif type(surface_object) == openmc.ZPlane:
-                        surface_object.boundary_type = surface_bc[2]
-                    else:
-                        pass # for now, need to confurm if x,y,z
-                             # bcs are applied to cylinders and
-                             # tori in serpent
+                # hack to apply bcs to both region surfaces and regular surfaces
+                # without repeating code
+                for s_name in surface_object:
+                    if n_bcs == 1:
+                            surface_object[s_name].boundary_type = surface_bc[0]
+                    elif n_bcs <= 3:
+                        if type(surface_object) == openmc.XPlane:
+                            surface_object[s_name].boundary_type = surface_bc[0]
+                        elif type(surface_object) == openmc.YPlane:
+                            surface_object[s_name].boundary_type = surface_bc[1]
+                        elif type(surface_object) == openmc.ZPlane:
+                            surface_object[s_name].boundary_type = surface_bc[2]
+                        else:
+                            pass # for now, need to confurm if x,y,z
+                                 # bcs are applied to cylinders and
+                                 # tori in serpenton
+            # store surface in the the id_to_object dict
+            for s_name in surface_object:
+                cell_surf_dict[surface_object[s_name].id] = surface_object[s_name]
 
-                surf_dict[surf_name] = surface_object
-            surf_id = surface_object.id
-            cell_surf_dict[surf_id] = surface_object
-            surf_name_to_surf_id[surface_object.name] = str(surf_id)
+            if has_subsurfaces:
+                # write subsurfaces snippet for the csg expression
+                region_expr = ''
+                i = 0
+                if len(surface_object) == 4:
+                    for subsurf in surface_object:
+                        if i == 0 or i == 2:
+                            region_expr += f"+{surface_object[subsurf].id} "
+                        elif i == 1 or i == 3:
+                            region_expr += f"-{surface_object[subsurf].id} "
+                        i += 1
+                    region_expr = '(' + region_expr[:-1] + ')'
 
-        csg_expression = re.split(cell_card_splitter, cell_card)[-1]
+                #elif len(surface_object) == 6:
+                #    ...
+                else:
+                    raise ValueError("There were too many subsurfaces in the region")
+                surf_name_to_surf_id[surf_name] = region_expr
+            else:
+                surface_object = surface_object[surf_name]
+                surf_name_to_surf_id[surface_object.name] = str(surface_object.id)
+
         # replace operators
+        csg_expression = csg_expression.replace("\s[a-zA-Z0-9]", "\s\+[a-zA-Z0-9]")
         csg_expression = csg_expression.replace(":", "|")
         csg_expression = csg_expression.replace("#", "~")
-        for surf_name in surf_name_to_surf_id:
-            csg_expression = csg_expression.replace(surf_name,
-                                                  surf_name_to_surf_id[surf_name])
+        for surf_name in surf_names:
+            if bool(subsurface_regions.get(surf_name)):
+                csg_expression = csg_expression.replace(f'-{surf_name}', f'{surf_name}')
+                csg_expression = csg_expression.replace(f'+{surf_name}', f'~{surf_name}')
+            surf_id = surf_name_to_surf_id[surf_name]
+            csg_expression = csg_expression.replace(surf_name, surf_id)
         cell_region = openmc.Region.from_expression(csg_expression, cell_surf_dict)
+
     return cell_object, cell_name, cell_fill_object, cell_region
+
+def _translate_obj(obj, translation_args):
+    if type(obj) == openmc.Surface:
+        obj = obj.translate(translation_args)
+    elif type(obj) == openmc.Cell:
+        if type(obj.fill) == openmc.Universe:
+            obj.translation = translation_args
+        elif issubclass(type(obj.region), openmc.Region):
+            obj.region = obj.region.translate(translation_args)
+        else:
+            raise SyntaxError('Nothing to translate.')
+    else:
+        raise ValueError('Translations for object of type {type(obj)} \
+        are currently unsupported')
+
+    return obj
+
+def _rotate_obj(obj, rotation_args):
+    if type(obj) == openmc.Surface:
+        obj = obj.rotate(rotation_args)
+    elif type(obj) == openmc.Cell:
+        if type(obj.fill) == openmc.Universe:
+            obj.rotation = rotation_args
+        elif issubclass(type(obj.region), openmc.Region):
+            obj.region = obj.region.rotate(rotation_args)
+        else:
+            raise SyntaxError('Nothing to rotate.')
+    else:
+        raise ValueError('Rotations for object of type {type(obj)} \
+        are currently unsupported')
+    return obj
+
+
 
 def _check_for_multiline_lattice_univ(current_line_idx, lat_args, lat_univ_index):
     """
@@ -386,12 +491,13 @@ def _check_for_multiline_lattice_univ(current_line_idx, lat_args, lat_univ_index
     next_line = geo_data[current_line_idx + 1]
     lat_multiline_match = re.search(LAT_MULTILINE_REGEX, next_line)
     if bool(lat_multiline_match):
-        multiline_lattice_univ_exst = True
+        multiline_lattice_univ_exist = True
         lat_lines = []
         i = current_line_idx + 1
         while (bool(lat_multiline_match)):
                line_data = lat_multiline_match.group(0).split()
                lat_lines.append(line_data)
+               i += 1
                next_line = geo_data[i]
                lat_multiline_match = re.search(LAT_MULTILINE_REGEX, next_line)
     else:
@@ -425,12 +531,12 @@ def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
          Array containing the lattice universes
     """
 
-    if lat_type == 1:
-            x0 = lat_args[3]
-            y0 = lat_args[4]
-            Nx = lat_args[5]
-            Ny = lat_args[6]
-            pitch = lat_args[7]
+    if lat_type == '1':
+            x0 = float(lat_args[0])
+            y0 = float(lat_args[1])
+            Nx = int(lat_args[2])
+            Ny = int(lat_args[3])
+            pitch = float(lat_args[4])
             lat_univ_index = 8
 
             lat_origin = (x0, y0)
@@ -483,7 +589,7 @@ def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
     lattice_origin = tuple(lattice_origin)
     lattice_univ_array = np.empty(lattice_elements, dtype=openmc.Universe)
     for n in np.unique(lattice_univ_name_array):
-        lattice_univ_array[lattice_univ_array.index(n)] = \
+        lattice_univ_array[np.where(lattice_univ_name_array == n)] = \
             universe_dict[n]
 
     return lattice_origin, lattice_pitch, lattice_univ_array
@@ -511,13 +617,14 @@ geo_data = []
 with open(serpent_geo_path, 'r') as file:
     geo_data = file.readlines()
 
-surface_bc = _get_boundary_conditions(geo_data) ### TO IMPLEMENT ###
+surface_bc, root_name= _get_boundary_conditions_and_root(geo_data) ### TO IMPLEMENT ###
 n_bcs = len(set(surface_bc))
 surf_dict = {} # surf name to surface object
 cell_dict = {} # cell name to cell object
 universe_to_cell_names_dict = {}
 universe_dict = {}
-root_name = 'root'
+root_univ = openmc.Universe(name=root_name)
+universe_dict[root_name] = root_univ
 
 for line in geo_data:
     # Create openmc Surface objects
@@ -541,7 +648,7 @@ for line in geo_data:
             cell_type = "material"
         else:
             raise ValueError("Erroneous cell card type")
-        my_cell, cell_name, fill_obj, cell_region = _construct_region_helper(cell_card, split_regex, cell_type)
+        my_cell, cell_name, fill_obj, cell_region = _construct_cell_helper(cell_card, split_regex, cell_type)
         my_cell.name = cell_name
         my_cell.fill = fill_obj
         my_cell.region = cell_region
@@ -550,7 +657,8 @@ for line in geo_data:
 
     # transformations
     elif re.search(TRANS_REGEX, line):
-        trans_data = line.split()
+        trans_card = re.search(TRANS_REGEX,line).group(0)
+        trans_data = trans_card.split()
         trans_object_type = trans_data[1]
         trans_object_name = trans_data[2]
 
@@ -573,6 +681,10 @@ for line in geo_data:
         ### lattice transformations not currently supported ###
         trans_args = trans_data[3:]
         n_args = len(trans_args)
+        for i in range(0,n_args):
+            a = trans_args[i]
+            a = float(a)
+            trans_args[i] = a
         trans_types = []
         translation_args = []
         rotation_args = []
@@ -584,7 +696,7 @@ for line in geo_data:
             trans_types = ['translation']
         elif n_args == 7: # transformation + rotation using angles wrt axis
             x, y, z, tx, ty, tz, ORD = tuple(trans_args)
-            rotation_args = [tx, ty, tz]
+            rotation_args = sprot.from_euler('xyz', [tx, ty, tz]).as_matrix()
             translation_args = [x, y, z]
         elif n_args == 13: # transformation + rotation using rotation matrix
             x, y, z, a1, a2, a3, a4, \
@@ -609,23 +721,24 @@ for line in geo_data:
         for trans_type in trans_types:
             if trans_type == 'translation':
                 for obj in trans_objects:
-                    transformed_objects[obj.name] = obj.translate(translation_args)
+                    transformed_objects[obj.name] = _translate_obj(obj,translation_args)
             elif trans_type == 'rotation':
                 for obj in trans_objects:
-                    transformed_objects[obj.name] = obj.rotate(rotation_args)
+                    transformed_objects[obj.name] = _rotate_obj(obj,rotation_args)
 
         for obj_name in transformed_objects:
             trans_objects_dict[obj_name] = transformed_objects[obj_name]
 
     # lattices
     elif re.search(LAT_REGEX, line):
-        lat_data = line.split()
+        lat_card = re.search(LAT_REGEX, line).group(0)
+        lat_data = lat_card.split()
         lat_universe_name = lat_data[1]
         lat_type = lat_data[2]
         lat_args = lat_data[3:]
 
-        if not bool(universe_dict.get(lat_universe_name)):
-           universe_dict[lat_universe_name] += openmc.Universe(name=lat_universe_name)
+        if not bool(universe_dict.get(lat_universe_name)) and lat_universe_name != root_name:
+           universe_dict[lat_universe_name] = openmc.Universe(name=lat_universe_name)
 
         # get lattice universe array
         current_line_idx = geo_data.index(line)
@@ -635,27 +748,29 @@ for line in geo_data:
                                                          lat_args,
                                                          current_line_idx)
 
-        lattice_object = geo_dict["lat"][lat_type](name=lattice_universe_name)
-        if re.search("(1|6|11)", lattice_type):
+        lattice_object = geo_dict["lat"][lat_type](name=lat_universe_name)
+        if re.search("(1|6|11)", lat_type):
             lattice_object.lower_left = lattice_origin
-        elif re.search("(2|3|7|8|12|13)", lattice_type):
+        elif re.search("(2|3|7|8|12|13)", lat_type):
             lattice_object.center = lattice_origin
         else:
             raise ValueError("Unsupported lattice type")
 
         lattice_object.pitch = lattice_pitch
         lattice_object.universes = lattice_univ_array
-        lattice_cell = openmc.Cell(fill=lattice_object, region=universe_dict[lat_universe_name])
+        lattice_cell = openmc.Cell(fill=lattice_object)#, region=universe_dict[lat_universe_name])
         lattice_cell.name = lat_universe_name
         cell_dict[lat_universe_name] = lattice_cell
 
     ## root universe
     elif re.search(ROOT_REGEX, line):
-        root_universe_name = line.split()[2]
+        root_name = line.split()[2]
+        root_univ.name = root_name
 
     ## universe symmetry
     elif re.search(USYM_REGEX, line):
-        usym_data = line.split()
+        usym_card = re.search(USYM_REGEX, line)
+        usym_data = usym_card.split()
         usym_universe_name = usym_data[2]
         usym_axis = usym_data[3]
         usym_bc = usym_data[4]
@@ -671,11 +786,22 @@ for line in geo_data:
 
 
 
+for universe_name in universe_to_cell_names_dict:
+    universe = universe_dict[universe_name]
+    cells = universe_to_cell_names_dict[universe_name]
+    uni_cells = []
+    for cell in cells:
+        uni_cells += [cell_dict[cell]]
+    universe.add_cells(uni_cells)
+    universe_dict[universe_name] = universe
+
+root_univ = universe_dict[root_name]
+# make dict of cell ids to cell obj
 all_cells = []
 for cell_name in cell_dict:
-    all_cells += [cell_dict[cell_name]]
-all_cells = tuple(all_cells)
-root_univ = openmc.Universe(name=root_name, cells=all_cells)
+    cell = cell_dict[cell_name]
+    all_cells += [cell]
+root_univ.add_cells(all_cells)
 openmc_geometry = openmc.Geometry()
 openmc_geometry.root_universe = root_univ
 print(path)
