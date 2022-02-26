@@ -82,9 +82,8 @@ geo_dict = {
         "rect": openmc.model.rectangular_prism,
         "hexxc": openmc.model.hexagonal_prism, #to implement
         "hexyc": openmc.model.hexagonal_prism,  #to implement
-        "cube": openmc.model.RectangularParallelpiped,
-        "cuboid": openmc.model.RectangularParallelpiped,
-        "ppd": openmc.model.RectangularParallelpiped
+        "cube": openmc.model.RectangularParallelepiped,
+        "cuboid": openmc.model.RectangularParallelepiped
     },
     "cell": openmc.Cell,
     "lat": {
@@ -125,20 +124,22 @@ def _get_boundary_conditions_and_root(geo_data):
     root_name : str
         String that specified the root universe name
     """
+    bc_card = ''
+    root_card = ''
     for line in geo_data:
-        bc_card = ''
-        root_card = ''
         if re.search(BC_REGEX, line):
             bc_card = re.search(BC_REGEX, line).group(0)
         elif re.search(ROOT_REGEX, line):
             root_card = re.search(ROOT_REGEX, line).group(0)
+        if root_card != '' and bc_card != '':
+            break
 
     surface_bc = []
     if bc_card == '':
         surface_bc += ['vacuum']
     else:
         bc_data = bc_card.split()
-        bc_data = bc_data[1:]
+        bc_data = bc_data[2:]
         for bc in bc_data:
             if bc == '1' or bc == 'black':
                 surface_bc += ['vacuum']
@@ -153,7 +154,7 @@ def _get_boundary_conditions_and_root(geo_data):
                                         # albedo, wheras the white
                                         # bc in OpenMC doesn't...
             else:
-                raise ValueError(f"Boundary type {bc} is invalid")
+                raise ValueError(f'Boundary type {bc} is invalid')
 
     if root_card == '':
         root_name = '0'
@@ -249,8 +250,6 @@ def _construct_surface_helper(surf_card):
        # elif surf_type == "hexyc":
        #     ...
        #     surface_params = []
-        elif surf_type == "cuboid":
-            surface_params = surf_params
         elif surf_type == "cube":
             x0 = surf_params[0]
             y0 = surf_params[1]
@@ -261,6 +260,9 @@ def _construct_surface_helper(surf_card):
             for q0 in org_coord:
                 surface_params += [q0 - d]
                 surface_params += [q0 + d]
+        else:
+            surface_params = surf_params # every other surf card type already has
+                                         # the necessary parameters
     else:
         raise ValueError(f"Surfaces of type {surf_type} are currently unsupported")
 
@@ -269,11 +271,11 @@ def _construct_surface_helper(surf_card):
         surface_object = surface_object(*surface_params)
         surface_object.name = surf_name
         # add the id parameter to CompositeSurface properties
-        if not has_attr(surface_object, 'id'):
+        if not hasattr(surface_object, 'id'):
             try:
-                surface_id = int(surface_name)
+                surface_id = int(surf_name)
             except:
-                surface_id = int.from_bytes(surface_name.encode(), 'litle')
+                surface_id = int.from_bytes(surf_name.encode(), 'litle')
             surface_object.id = surface_id
 
     if has_subsurfaces:
@@ -380,8 +382,8 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
     ########################
     # material cells in a null region
     if cell_type == 'material' and \
-            len(surf_names) == 1 and \
-            surf_dict[surf_names[0]] == 'inf':
+            len(surface_names) == 1 and \
+            surf_dict[surface_names[0]] == 'inf':
         mat_null_cell = openmc.Cell()
         cell_object = mat_null_cell
     # generic case
@@ -417,7 +419,7 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
                                  # tori in serpenton
             # store surface in the the id_to_object dict
             for s_name in surface_object:
-                cell_surf_dict[surface_object[s_name].id] = surface_object[s_name]
+                cell_surface_dict[surface_object[s_name].id] = surface_object[s_name]
 
             if has_subsurfaces:
                 # write subsurfaces snippet for the csg expression
@@ -436,10 +438,10 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
                 #    ...
                 else:
                     raise ValueError("There were too many subsurfaces in the region")
-                surface_name_to_surf_id[surface_name] = region_expr
+                surface_name_to_surface_id[surface_name] = region_expr
             else:
                 surface_object = surface_object[surface_name]
-                surface_name_to_surf_id[surface_name] = str(surface_object.id)
+                surface_name_to_surface_id[surface_name] = str(surface_object.id)
 
         # replace operators
         csg_expression = csg_expression.replace("\s[a-zA-Z0-9]", "\s\+[a-zA-Z0-9]")
@@ -449,9 +451,9 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
             if bool(subsurface_regions.get(surface_name)):
                 csg_expression = csg_expression.replace(f'-{surface_name}', f'{surface_name}')
                 csg_expression = csg_expression.replace(f'+{surface_name}', f'~{surface_name}')
-            surf_id = surface_name_to_surf_id[surface_name]
+            surf_id = surface_name_to_surface_id[surface_name]
             csg_expression = csg_expression.replace(surface_name, surf_id)
-        cell_region = openmc.Region.from_expression(csg_expression, cell_surf_dict)
+        cell_region = openmc.Region.from_expression(csg_expression, cell_surface_dict)
 
     return cell_object, cell_name, cell_fill_object, cell_region
 
@@ -635,6 +637,8 @@ openmc_mats = openmc.Materials.from_xml(openmc_mat_path)
 mat_dict = {}
 for mat in openmc_mats:
     mat_dict[mat.name] = mat
+# add void material
+mat_dict['void'] = None
 
 geo_data = []
 with open(serpent_geo_path, 'r') as file:
