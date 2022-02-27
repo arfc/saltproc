@@ -5,6 +5,18 @@ import openmc
 import openmc.model
 import collections
 
+global surf_dict, cell_dict, mat_dict, universe_dict
+global universe_to_cell_names_dict
+global geo_data, n_bcs
+global surface_bc, root_name
+
+surf_dict = {}
+cell_dict = {}
+mat_dict = {}
+universe_dict = {}
+universe_to_cell_names_dict = {}
+geo_data = []
+
 COMMENT_IGNORE_BEG_REGEX="^\s*[^%]*\s*"
 COMMENT_IGNORE_END_REGEX="\s*[^%]*"
 BC_REGEX_CORE = "set\s+bc(\s+([1-3]|black|reflective|periodic)){1,3}"
@@ -104,7 +116,22 @@ geo_dict = {
 
 special_case_surfaces = tuple(['inf'])
 
-def _get_boundary_conditions_and_root(geo_data):
+def add_cell_name_to_universe(univ_name, cell_name):
+    """
+    univ_name : str
+        Name of the universe
+    cell_name : str
+        Cell name to add to the universe
+    """
+    if bool(universe_to_cell_names_dict.get(univ_name)):
+        universe_to_cell_names_dict[univ_name] += [cell_name]
+    else:
+        universe_to_cell_names_dict[univ_name] = [cell_name]
+        universe_dict[univ_name] = openmc.Universe(name=univ_name)
+
+
+
+def get_boundary_conditions_and_root(geo_data):
     """
     Helper function that gets the serpent boundary conditions
     and root universe name
@@ -161,7 +188,7 @@ def _get_boundary_conditions_and_root(geo_data):
     return surface_bc, root_name
 
 
-def _construct_surface_helper(surf_card):
+def construct_surface_helper(surf_card):
     """
     Helper function for creating `openmc.Surface` objects
     corresponding to Serpent `surf` cards
@@ -282,7 +309,7 @@ def _construct_surface_helper(surf_card):
             surface_object[subsurf].name += f"_{surf_name}_sub"
     surf_dict[surf_name] = surface_object
 
-def _strip_csg_operators(csg_expression):
+def strip_csg_operators(csg_expression):
     """
     Helper function for `_construct_cell_helper`
 
@@ -306,7 +333,7 @@ def _strip_csg_operators(csg_expression):
     return surf_names
 
 
-def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
+def construct_cell_helper(cell_card, cell_card_splitter, cell_type):
     """Helper function for creating cells
 
     Parameters
@@ -343,37 +370,32 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
     cell_fill_object_name = ''
 
     # store universe-cell mapping for later
-    if bool(universe_to_cell_names_dict.get(cell_universe_name)):
-        universe_to_cell_names_dict[cell_universe_name] += [cell_name]
-    else:
-        universe_to_cell_names_dict[cell_universe_name] = [cell_name]
-        universe_dict[cell_universe_name] = openmc.Universe(name=cell_universe_name)
+    add_cell_name_to_universe(cell_universe_name, cell_name)
 
     cell_object = openmc.Cell()
     cell_fill_object = None
     cell_region = None
 
-    if cell_type == 'material':
-        fill_object_name_index = 3
-        arg_index = 4
-        cell_fill_obj_dict = mat_dict
+    if cell_type == 'outside':
+        pass
     else:
-        if cell_type == 'fill':
+        if cell_type == 'material':
+            fill_object_name_index = 3
+            arg_index = 4
+            cell_fill_obj_dict = mat_dict
+        elif cell_type == 'fill':
             fill_object_name_index = 4
-        elif cell_type == 'outside':
-            fill_object_name_index = 2 # This might give us an error later when we try to run
+            cell_fill_obj_dict = universe_dict
+            filling_universe_name = cell_data[fill_object_name_index]
+            if not bool(universe_dict.get(filling_universe_name)) and filling_universe_name != root_name:
+                universe_dict[filling_universe_name] = openmc.Universe(name=filling_universe_name)
         else:
             raise ValueError(f"cell_type: {cell_type} is erroneous")
 
-        cell_fill_obj_dict = universe_dict
-        filling_universe_name = cell_data[fill_object_name_index]
-        if not bool(universe_dict.get(filling_universe_name)) and filling_universe_name != root_name:
-            universe_dict[filling_universe_name] = openmc.Universe(name=filling_universe_name)
-
-    cell_fill_object_name = cell_data[fill_object_name_index]
-    cell_fill_object = cell_fill_obj_dict[cell_fill_object_name]
+        cell_fill_object_name = cell_data[fill_object_name_index]
+        cell_fill_object = cell_fill_obj_dict[cell_fill_object_name]
     csg_expression = re.split(cell_card_splitter, cell_card)[-1]
-    surface_names = _strip_csg_operators(csg_expression)
+    surface_names = strip_csg_operators(csg_expression)
     subsurface_regions = {}
 
     # Handle special cases #
@@ -455,7 +477,7 @@ def _construct_cell_helper(cell_card, cell_card_splitter, cell_type):
 
     return cell_object, cell_name, cell_fill_object, cell_region
 
-def _translate_obj(obj, translation_args):
+def translate_obj(obj, translation_args):
     if type(obj) == openmc.Surface:
         obj = obj.translate(translation_args)
     elif type(obj) == openmc.Cell:
@@ -471,7 +493,7 @@ def _translate_obj(obj, translation_args):
 
     return obj
 
-def _rotate_obj(obj, rotation_args):
+def rotate_obj(obj, rotation_args):
     if type(obj) == openmc.Surface:
         obj = obj.rotate(rotation_args)
     elif type(obj) == openmc.Cell:
@@ -488,7 +510,7 @@ def _rotate_obj(obj, rotation_args):
 
 
 
-def _check_for_multiline_lattice_univ(current_line_idx, lat_args, lat_univ_index):
+def check_for_multiline_lattice_univ(current_line_idx, lattice_args, lat_univ_index):
     """
     Helper function that looks for multi-line lattice arguments
 
@@ -496,7 +518,7 @@ def _check_for_multiline_lattice_univ(current_line_idx, lat_args, lat_univ_index
     ----------
     current_line_idx : int
         Index of the current line in the geometry file
-    lat_args : list of str
+    lattice_args : list of str
         arguments for the lat card. May or may not contain
         the universe names
     lat_univ_index : int
@@ -525,12 +547,12 @@ def _check_for_multiline_lattice_univ(current_line_idx, lat_args, lat_univ_index
                lat_multiline_match = re.search(LAT_MULTILINE_REGEX, next_line)
     else:
         multiline_lattice_univ_exist = False
-        lat_lines = lat_args[lat_univ_index:]
-        lat_lines = np.array(lat_args)
+        lat_lines = lattice_args[lat_univ_index:]
+        lat_lines = np.array(lattice_args)
 
     return multiline_lattice_univ_exist, lat_lines
 
-def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
+def get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
     """
     Helper function that creates an array
     of universes for lattice creation
@@ -554,15 +576,15 @@ def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
          Array containing the lattice universes
     """
 
-    if lat_type == '1':
-            x0 = float(lat_args[0])
-            y0 = float(lat_args[1])
-            Nx = int(lat_args[2])
-            Ny = int(lat_args[3])
-            pitch = float(lat_args[4])
+    if lattice_type == '1':
+            x0 = float(lattice_args[0])
+            y0 = float(lattice_args[1])
+            Nx = int(lattice_args[2])
+            Ny = int(lattice_args[3])
+            pitch = float(lattice_args[4])
             lat_univ_index = 8
 
-            lat_origin = (x0, y0)
+            lattice_origin = (x0, y0)
             lattice_elements = (Nx, Ny)
             lattice_pitch = (pitch, pitch)
    ## TO IMPLEMENT ##
@@ -586,7 +608,7 @@ def _get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
         raise ValueError(f"Type {lat_type} lattices are currently unsupported")
 
     multiline_lattice_univ_exist, lattice_lines = \
-        _check_for_multiline_lattice_univ(current_line_idx, lat_args, lat_univ_index)
+        check_for_multiline_lattice_univ(current_line_idx, lattice_args, lat_univ_index)
     if not multiline_lattice_univ_exist: # to implement
         # universe names are already in a lattice structure
         lattice_univ_name_array = np.reshape(lattice_lines,lattice_elements)
