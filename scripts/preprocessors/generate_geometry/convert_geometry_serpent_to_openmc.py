@@ -220,5 +220,6 @@ root_univ = schp.universe_dict[schp.root_name]
 #root_univ.add_cells(all_cells)
 openmc_geometry = openmc.Geometry()
 openmc_geometry.root_universe = root_univ
-print(path)
+print(f"Root universe name: {schp.root_name}")
+print(f"Root universe id: {root_univ.id}")
 openmc_geometry.export_to_xml(os.path.join(path, fname+'.xml'))
