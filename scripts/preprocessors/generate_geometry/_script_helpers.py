@@ -605,7 +605,7 @@ def get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
    # elif lat_type == 13:
    #     ...
     else:
-        raise ValueError(f"Type {lat_type} lattices are currently unsupported")
+        raise ValueError(f"Type {lattice_type} lattices are currently unsupported")
 
     multiline_lattice_univ_exist, lattice_lines = \
         check_for_multiline_lattice_univ(current_line_idx, lattice_args, lat_univ_index)
