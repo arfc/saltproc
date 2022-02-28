@@ -361,7 +361,7 @@ class DepcodeOpenMC(Depcode):
         self.write_depletion_settings(reactor, dep_step)
         self.write_saltproc_openmc_tallies(materials, geometry)
 
-    def write_depletion_settings(reactor, current_depstep_idx):
+    def write_depletion_settings(self, reactor, current_depstep_idx):
         """Write the depeletion settings for the ``openmc.depelete``
         module.
 
@@ -434,7 +434,7 @@ class DepcodeOpenMC(Depcode):
 
         """
 
-    def write_saltproc_openmc_tallies(materials, geometry):
+    def write_saltproc_openmc_tallies(self, materials, geometry):
         """
         Write tallies for calculating burnup and delayed neutron
         parameters.
