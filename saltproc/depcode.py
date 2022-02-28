@@ -386,7 +386,7 @@ class DepcodeOpenMC(Depcode):
                 reactor.dep_step_length_cumulative[current_depstep_idx - 1]
 
         out_path = os.path.dirname(self.iter_inputfile['settings'])
-        depletion_settings['directory'] = outpath
+        depletion_settings['directory'] = out_path
         depletion_settings['timesteps'] = [current_depstep]
 
         operator_kwargs = {}
