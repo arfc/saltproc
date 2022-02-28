@@ -278,7 +278,7 @@ def test_write_saltproc_openmc_tallies():
     """
 
     mat = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
-    geo = om.Geometry.from_xml(openmc.template_inputfiles_path['geometry'], geo)
+    geo = om.Geometry.from_xml(openmc.template_inputfiles_path['geometry'], mat)
     openmc.write_saltproc_openmc_tallies(mat, geo)
     tallies = om.Tallies.from_xml(openmc.iter_inputfile['tallies'])
 
