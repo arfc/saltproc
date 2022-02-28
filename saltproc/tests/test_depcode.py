@@ -245,12 +245,40 @@ def test_write_depcode_input():
                                False)
     # Load in the iter_ objects
     iter_materials = om.Materials.from_xml(openmc.iter_matfile)
-    iter_geometry = om.Geometry.from_xml(openmc.iter_inputfile['geometry'])
+    iter_geometry = om.Geometry.from_xml(openmc.iter_inputfile['geometry'], materials=iter_materials)
     iter_settings = om.Settings.from_xml(openmc.iter_inputfile['settings'])
 
+    ## an easier approach may just be to compare the
+    # file contents themselves
+
     # check that the two match
-    assert input_materials == iter_materials
-    assert input_geometry == iter_geometry
+    assert len(input_materials) == len(iter_materials)
+    for mat_index in range(0, len(input_materials)):
+        input_mat = input_materials[mat_index]
+        iter_mat = iter_materials[mat_index]
+        assert input_mat.name == iter_mat.name
+        assert input_mat.id == iter_mat.id
+        assert input_mat.density == iter_mat.density
+        assert input_mat.nuclides == iter_mat.nuclides
+        assert input_mat.temperature == iter_mat.temperature
+        assert input_mat.volume == iter_mat.volume
+        assert input_mat._sab == iter_mat._sab
+    # now do the same for the geometry
+    input_cells = ...
+    iter_cells = ...
+
+    input_lattices = ...
+    iter_lattices = ...
+
+    input_surfaces = ...
+    iter_surfaces = ...
+
+    input_materials = ...
+    iter_materials = ...
+
+    input_universes = ...
+    iter_universes = ...
+
     assert iter_settings.inactive == openmc.inactive_cycles
     assert iter_settings.batches == openmc.active_cycles + \
         openmc.inactive_cycles
@@ -264,7 +292,7 @@ def test_write_depletion_settings():
     with open(openmc.iter_inputfile['depletion_settings']) as f:
         j = json.load(f)
         assert j['directory'] == directory
-        assert j['timesteps'] == msr.dep_step_length_cumulative[0]
+        assert j['timesteps'][0] == msr.dep_step_length_cumulative[0]
         assert j['operator_kwargs']['chain_file'] == \
             openmc.template_inputfiles_path['chain_file']
         assert j['integrator_kwargs']['power'] == msr.power_levels[0]
@@ -330,5 +358,7 @@ def test_switch_to_next_geometry():
     openmc.switch_to_next_geometry()
     # fill in the rest based on the python API for openmc.Geometry
     geometry_switched = om.Geometry.from_xml(openmc.iter_inputfile['geometry'], mat)
+
+    ## again, it may be easier to compare the xml files.
     assert geometry_expected == geometry_switched
 
