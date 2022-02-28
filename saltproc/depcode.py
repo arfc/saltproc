@@ -6,6 +6,7 @@ import re
 import tables as tb
 from pyne import nucname as pyname
 from pyne import serpent
+import openmc
 from abc import ABC, abstractmethod
 
 
