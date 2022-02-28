@@ -7,6 +7,7 @@ import tables as tb
 from pyne import nucname as pyname
 from pyne import serpent
 import openmc
+import json
 from abc import ABC, abstractmethod
 
 
@@ -395,7 +396,7 @@ class DepcodeOpenMC(Depcode):
         # In the future we can make this fanciet
         try:
             operator_kwargs['chain_file'] = \
-                template_inputfiles_path['chain_file']
+                self.template_inputfiles_path['chain_file']
         except KeyError:
             raise SyntaxError("No chain file defined. Please provide \
             a chain file in your saltproc input file")
@@ -409,7 +410,7 @@ class DepcodeOpenMC(Depcode):
         depletion_settings['integrator_kwargs'] = integrator_kwargs
 
         self.iter_inputfile['depletion_settings'] = \
-            os.path.join(path, 'depletion_settings.json')
+            os.path.join(out_path, 'depletion_settings.json')
         json_dep_settings = json.JSONEncoder().encode(depletion_settings)
         with open(self.iter_inputfile['depletion_settings'], 'w') as f:
             f.writelines(json_dep_settings)
