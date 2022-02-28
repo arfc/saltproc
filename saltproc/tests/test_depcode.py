@@ -277,8 +277,8 @@ def test_write_saltproc_openmc_tallies():
     Unit test for `DepcodeOpenMC.write_saltproc_openmc_tallies`
     """
 
-    mat = om.Materials.from_xml(openmc.template_inputfiles_path['test_materials'])
-    geo = om.Geometry.from_xml(openmc.template_inputfiles_path['test_geometry'])
+    mat = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
+    geo = om.Geometry.from_xml(openmc.template_inputfiles_path['geometry'], geo)
     openmc.write_saltproc_openmc_tallies(mat, geo)
     tallies = om.Tallies.from_xml(openmc.iter_inputfile['tallies'])
 
@@ -325,9 +325,10 @@ def test_switch_to_next_geometry():
     serpent.iter_inputfile = iter_inputfile_old
 
     # OpenMC
-    geometry_expected = om.Geometry.from_xml(openmc.geo_files[0])
+    mat = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
+    geometry_expected = om.Geometry.from_xml(openmc.geo_files[0], mat)
     openmc.switch_to_next_geometry()
     # fill in the rest based on the python API for openmc.Geometry
-    geometry_switched = om.Geometry.from_xml(openmc.iter_inputfile['geometry'])
+    geometry_switched = om.Geometry.from_xml(openmc.iter_inputfile['geometry'], mat)
     assert geometry_expected == geometry_switched
 
