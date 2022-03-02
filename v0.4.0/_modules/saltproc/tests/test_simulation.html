@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>saltproc.tests.test_simulation &mdash; Saltproc 0.4.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.4.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>saltproc.tests.test_simulation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for saltproc.tests.test_simulation</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">DepcodeSerpent</span>
+<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Simulation</span>
+<span class="kn">import</span> <span class="nn">saltproc.app</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tables</span> <span class="k">as</span> <span class="nn">tb</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
+<span class="c1"># global class object</span>
+<span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/test&#39;</span>
+<span class="n">main_input</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/test.json&#39;</span>
+<span class="n">dot_input</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/test.dot&#39;</span>
+
+<span class="n">serpent</span> <span class="o">=</span> <span class="n">DepcodeSerpent</span><span class="p">(</span>
+    <span class="n">exec_path</span><span class="o">=</span><span class="s1">&#39;/home/andrei2/serpent/serpent2/src_2131/sss2&#39;</span><span class="p">,</span>
+    <span class="n">template_inputfile_path</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/template.inp&#39;</span><span class="p">,</span>
+    <span class="n">iter_inputfile</span><span class="o">=</span><span class="n">iter_inputfile</span><span class="p">,</span>
+    <span class="n">iter_matfile</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/material&#39;</span><span class="p">,</span>
+    <span class="n">geo_files</span><span class="o">=</span><span class="p">[</span>
+        <span class="s1">&#39;../../examples/406.inp&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;../../examples/988.inp&#39;</span><span class="p">])</span>
+
+<span class="n">simulation</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">sim_name</span><span class="o">=</span><span class="s1">&#39;Simulation unit tests&#39;</span><span class="p">,</span>
+                        <span class="n">sim_depcode</span><span class="o">=</span><span class="n">serpent</span><span class="p">,</span>
+                        <span class="n">core_number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="n">node_number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="n">db_path</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/test_db.h5&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="test_check_switch_geo_trigger"><a class="viewcode-back" href="../../../src/saltproc.tests.test_simulation.html#saltproc.tests.test_simulation.test_check_switch_geo_trigger">[docs]</a><span class="k">def</span> <span class="nf">test_check_switch_geo_trigger</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This unit test checks that ``check_switch_geo_trigger`` functions</span>
+<span class="sd">    consistently with its docstring.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">switch_times</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">31</span><span class="p">,</span> <span class="mf">86.23333</span><span class="p">,</span> <span class="mf">1e-16</span><span class="p">,</span> <span class="mf">2e-18</span><span class="p">,</span> <span class="s2">&quot;two o clock&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">simulation</span><span class="o">.</span><span class="n">check_switch_geo_trigger</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">switch_times</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">simulation</span><span class="o">.</span><span class="n">check_switch_geo_trigger</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">switch_times</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">simulation</span><span class="o">.</span><span class="n">check_switch_geo_trigger</span><span class="p">(</span><span class="o">-</span><span class="mi">32</span><span class="p">,</span> <span class="n">switch_times</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+    <span class="k">assert</span> <span class="n">simulation</span><span class="o">.</span><span class="n">check_switch_geo_trigger</span><span class="p">(</span><span class="mf">86.233</span><span class="p">,</span> <span class="n">switch_times</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+    <span class="k">assert</span> <span class="n">simulation</span><span class="o">.</span><span class="n">check_switch_geo_trigger</span><span class="p">(</span><span class="mf">1e-16</span><span class="p">,</span> <span class="n">switch_times</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">simulation</span><span class="o">.</span><span class="n">check_switch_geo_trigger</span><span class="p">(</span><span class="mf">5e-18</span><span class="p">,</span> <span class="n">switch_times</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+    <span class="k">assert</span> <span class="n">simulation</span><span class="o">.</span><span class="n">check_switch_geo_trigger</span><span class="p">(</span><span class="s2">&quot;three o clock&quot;</span><span class="p">,</span>
+                                               <span class="n">switch_times</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+    <span class="k">assert</span> <span class="n">simulation</span><span class="o">.</span><span class="n">check_switch_geo_trigger</span><span class="p">(</span><span class="s2">&quot;two o clock&quot;</span><span class="p">,</span>
+                                               <span class="n">switch_times</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="test_store_after_repr"><a class="viewcode-back" href="../../../src/saltproc.tests.test_simulation.html#saltproc.tests.test_simulation.test_store_after_repr">[docs]</a><span class="k">def</span> <span class="nf">test_store_after_repr</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This unit test checks that select entries that ``store_after_repr_()`</span>
+<span class="sd">    stores in the database match the corresponding entries from the input</span>
+<span class="sd">    explicity in value and implicitly in type.</span>
+
+<span class="sd">    unchecked processes: waste_bypass</span>
+<span class="sd">                        waste_core_inlet</span>
+<span class="sd">                        waste_core_outlet</span>
+<span class="sd">                        waste_heat_exchanger</span>
+<span class="sd">                        removal_tb_dy</span>
+<span class="sd">                        feed_pure_gd</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">saltproc</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">read_main_input</span><span class="p">(</span><span class="n">main_input</span><span class="p">)</span>
+
+    <span class="c1"># read data</span>
+    <span class="n">mats</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span>
+        <span class="kc">True</span><span class="p">)</span>
+    <span class="n">waste_st</span><span class="p">,</span> <span class="n">rem_mass</span> <span class="o">=</span> <span class="n">saltproc</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">reprocessing</span><span class="p">(</span><span class="n">mats</span><span class="p">)</span>
+    <span class="n">m_after_refill</span> <span class="o">=</span> <span class="n">saltproc</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">refill</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">rem_mass</span><span class="p">,</span> <span class="n">waste_st</span><span class="p">)</span>
+
+    <span class="n">fuel_st</span> <span class="o">=</span> <span class="n">m_after_refill</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span>
+
+    <span class="n">f_feed_leu</span> <span class="o">=</span> <span class="n">fuel_st</span><span class="p">[</span><span class="s1">&#39;feed_leu&#39;</span><span class="p">]</span>
+    <span class="n">f_entrain_sep</span> <span class="o">=</span> <span class="n">fuel_st</span><span class="p">[</span><span class="s1">&#39;waste_entrainment_separator&#39;</span><span class="p">]</span>
+    <span class="n">f_liq_met</span> <span class="o">=</span> <span class="n">fuel_st</span><span class="p">[</span><span class="s1">&#39;waste_liquid_metal&#39;</span><span class="p">]</span>
+    <span class="n">f_nickel_filt</span> <span class="o">=</span> <span class="n">fuel_st</span><span class="p">[</span><span class="s1">&#39;waste_nickel_filter&#39;</span><span class="p">]</span>
+    <span class="n">f_sparger</span> <span class="o">=</span> <span class="n">fuel_st</span><span class="p">[</span><span class="s1">&#39;waste_sparger&#39;</span><span class="p">]</span>
+
+    <span class="c1"># we want to keep the old path for other sims, but for this</span>
+    <span class="c1"># test we&#39;ll want a fresh db</span>
+    <span class="n">db_path_old</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span>
+    <span class="n">db_file</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s1">&#39;.h5&#39;</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_file</span>
+
+    <span class="c1"># store data</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">store_mat_data</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">store_after_repr</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">m_after_refill</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># read stored data</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
+                          <span class="n">filters</span><span class="o">=</span><span class="n">simulation</span><span class="o">.</span><span class="n">compression_params</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Unable to assign correct value to db.</span><span class="se">\</span>
+<span class="s1">              See error stack for more info.&#39;</span><span class="p">)</span>
+
+    <span class="n">tmats</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">materials</span>
+    <span class="n">tfuel_st</span> <span class="o">=</span> <span class="n">tmats</span><span class="o">.</span><span class="n">fuel</span><span class="o">.</span><span class="n">in_out_streams</span>
+
+    <span class="n">tf_feed_leu</span> <span class="o">=</span> <span class="n">tfuel_st</span><span class="o">.</span><span class="n">feed_leu</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tf_entrain_sep</span> <span class="o">=</span> <span class="n">tfuel_st</span><span class="o">.</span><span class="n">waste_entrainment_separator</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tf_liq_met</span> <span class="o">=</span> <span class="n">tfuel_st</span><span class="o">.</span><span class="n">waste_liquid_metal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tf_nickel_filt</span> <span class="o">=</span> <span class="n">tfuel_st</span><span class="o">.</span><span class="n">waste_nickel_filter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tf_sparger</span> <span class="o">=</span> <span class="n">tfuel_st</span><span class="o">.</span><span class="n">waste_sparger</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">tf_feed_leu</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_feed_leu</span><span class="p">[</span><span class="s1">&#39;Li6&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_feed_leu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_feed_leu</span><span class="p">[</span><span class="s1">&#39;Li7&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_feed_leu</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_feed_leu</span><span class="p">[</span><span class="s1">&#39;F19&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_feed_leu</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_feed_leu</span><span class="p">[</span><span class="s1">&#39;U235&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_feed_leu</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_feed_leu</span><span class="p">[</span><span class="s1">&#39;U238&#39;</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="n">tf_entrain_sep</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_entrain_sep</span><span class="p">[</span><span class="s1">&#39;H1&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_entrain_sep</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_entrain_sep</span><span class="p">[</span><span class="s1">&#39;H2&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_entrain_sep</span><span class="p">[</span><span class="mi">459</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_entrain_sep</span><span class="p">[</span><span class="s1">&#39;Kr91&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_entrain_sep</span><span class="p">[</span><span class="mi">461</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_entrain_sep</span><span class="p">[</span><span class="s1">&#39;Kr93&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_entrain_sep</span><span class="p">[</span><span class="mi">991</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_entrain_sep</span><span class="p">[</span><span class="s1">&#39;Xe135&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_entrain_sep</span><span class="p">[</span><span class="mi">993</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_entrain_sep</span><span class="p">[</span><span class="s1">&#39;Xe136&#39;</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="n">tf_liq_met</span><span class="p">[</span><span class="mi">117</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_liq_met</span><span class="p">[</span><span class="s1">&#39;Ca49&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_liq_met</span><span class="p">[</span><span class="mi">288</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_liq_met</span><span class="p">[</span><span class="s1">&#39;Cu69&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_liq_met</span><span class="p">[</span><span class="mi">513</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_liq_met</span><span class="p">[</span><span class="s1">&#39;Sr102&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_liq_met</span><span class="p">[</span><span class="mi">518</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_liq_met</span><span class="p">[</span><span class="s1">&#39;Y89&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_liq_met</span><span class="p">[</span><span class="mi">1123</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_liq_met</span><span class="p">[</span><span class="s1">&#39;Pr159&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_liq_met</span><span class="p">[</span><span class="mi">1124</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_liq_met</span><span class="p">[</span><span class="s1">&#39;Nd142&#39;</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="n">tf_nickel_filt</span><span class="p">[</span><span class="mi">309</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_nickel_filt</span><span class="p">[</span><span class="s1">&#39;Zn70&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_nickel_filt</span><span class="p">[</span><span class="mi">437</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_nickel_filt</span><span class="p">[</span><span class="s1">&#39;Br90&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_nickel_filt</span><span class="p">[</span><span class="mi">964</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_nickel_filt</span><span class="p">[</span><span class="s1">&#39;I134&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_nickel_filt</span><span class="p">[</span><span class="mi">630</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_nickel_filt</span><span class="p">[</span><span class="s1">&#39;Tc99&#39;</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="n">tf_sparger</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_sparger</span><span class="p">[</span><span class="s1">&#39;H1&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_sparger</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_sparger</span><span class="p">[</span><span class="s1">&#39;H2&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_sparger</span><span class="p">[</span><span class="mi">459</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_sparger</span><span class="p">[</span><span class="s1">&#39;Kr91&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_sparger</span><span class="p">[</span><span class="mi">461</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_sparger</span><span class="p">[</span><span class="s1">&#39;Kr93&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_sparger</span><span class="p">[</span><span class="mi">991</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_sparger</span><span class="p">[</span><span class="s1">&#39;Xe135&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tf_sparger</span><span class="p">[</span><span class="mi">993</span><span class="p">]</span> <span class="o">==</span> <span class="n">f_sparger</span><span class="p">[</span><span class="s1">&#39;Xe136&#39;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;incorrect Value&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;incorrect key&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;something went wrong. See error stack for details&quot;</span><span class="p">)</span>
+
+    <span class="c1"># close the file</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># delete test file</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+
+    <span class="c1"># use original db path</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span></div>
+
+
+<div class="viewcode-block" id="test_store_mat_data"><a class="viewcode-back" href="../../../src/saltproc.tests.test_simulation.html#saltproc.tests.test_simulation.test_store_mat_data">[docs]</a><span class="k">def</span> <span class="nf">test_store_mat_data</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This unit test checks that select entries that ``store_mat_data_()`</span>
+<span class="sd">    stores in the database match the corresponding entries from the input</span>
+<span class="sd">    explicity in value and implicitly in type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># read data</span>
+    <span class="n">mats_before</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span>
+        <span class="kc">False</span><span class="p">)</span>
+    <span class="n">mats_after</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span>
+        <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">fuel_before</span> <span class="o">=</span> <span class="n">mats_before</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span>
+    <span class="n">pois_before</span> <span class="o">=</span> <span class="n">mats_before</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span>
+
+    <span class="n">fuel_after</span> <span class="o">=</span> <span class="n">mats_after</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span>
+    <span class="n">pois_after</span> <span class="o">=</span> <span class="n">mats_after</span><span class="p">[</span><span class="s1">&#39;ctrlPois&#39;</span><span class="p">]</span>
+
+    <span class="c1"># we want to keep the old path for other sims, but for this</span>
+    <span class="c1"># test we&#39;ll want a fresh db</span>
+    <span class="n">db_path_old</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span>
+    <span class="n">db_file</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s1">&#39;.h5&#39;</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_file</span>
+
+    <span class="c1"># store data at end</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">store_mat_data</span><span class="p">(</span><span class="n">mats_before</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">store_mat_data</span><span class="p">(</span><span class="n">mats_after</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># read stored data</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
+                          <span class="n">filters</span><span class="o">=</span><span class="n">simulation</span><span class="o">.</span><span class="n">compression_params</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Unable to assign correct value to db.</span><span class="se">\</span>
+<span class="s1">              See error stack for more info.&#39;</span><span class="p">)</span>
+
+    <span class="n">tmats</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">materials</span>
+
+    <span class="n">tfuel_before</span> <span class="o">=</span> <span class="n">tmats</span><span class="o">.</span><span class="n">fuel</span><span class="o">.</span><span class="n">before_reproc</span><span class="o">.</span><span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tfuel_before_params</span> <span class="o">=</span> <span class="n">tmats</span><span class="o">.</span><span class="n">fuel</span><span class="o">.</span><span class="n">before_reproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">tfuel_after</span> <span class="o">=</span> <span class="n">tmats</span><span class="o">.</span><span class="n">fuel</span><span class="o">.</span><span class="n">after_reproc</span><span class="o">.</span><span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tfuel_after_params</span> <span class="o">=</span> <span class="n">tmats</span><span class="o">.</span><span class="n">fuel</span><span class="o">.</span><span class="n">after_reproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">tpois_before</span> <span class="o">=</span> <span class="n">tmats</span><span class="o">.</span><span class="n">ctrlPois</span><span class="o">.</span><span class="n">before_reproc</span><span class="o">.</span><span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tpois_before_params</span> <span class="o">=</span> <span class="n">tmats</span><span class="o">.</span><span class="n">ctrlPois</span><span class="o">.</span><span class="n">before_reproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">tpois_after</span> <span class="o">=</span> <span class="n">tmats</span><span class="o">.</span><span class="n">ctrlPois</span><span class="o">.</span><span class="n">after_reproc</span><span class="o">.</span><span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tpois_after_params</span> <span class="o">=</span> <span class="n">tmats</span><span class="o">.</span><span class="n">ctrlPois</span><span class="o">.</span><span class="n">after_reproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Check the mass fractions</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">tfuel_before</span><span class="p">[</span><span class="mi">1566</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="p">[</span><span class="s1">&#39;U235&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tfuel_before</span><span class="p">[</span><span class="mi">1570</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="p">[</span><span class="s1">&#39;U238&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tfuel_before</span><span class="p">[</span><span class="mi">37</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="p">[</span><span class="s1">&#39;F19&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tfuel_before</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="p">[</span><span class="s1">&#39;Li7&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tfuel_before</span><span class="p">[</span><span class="mi">1610</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="p">[</span><span class="s1">&#39;Cm240&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tfuel_before</span><span class="p">[</span><span class="mi">1589</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="p">[</span><span class="s1">&#39;Pu239&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tpois_before</span><span class="p">[</span><span class="mi">1213</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_before</span><span class="p">[</span><span class="s1">&#39;Gd155&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tpois_before</span><span class="p">[</span><span class="mi">32</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_before</span><span class="p">[</span><span class="s1">&#39;O16&#39;</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="n">tfuel_after</span><span class="p">[</span><span class="mi">1566</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="p">[</span><span class="s1">&#39;U235&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tfuel_after</span><span class="p">[</span><span class="mi">1570</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="p">[</span><span class="s1">&#39;U238&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tfuel_after</span><span class="p">[</span><span class="mi">37</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="p">[</span><span class="s1">&#39;F19&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tfuel_after</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="p">[</span><span class="s1">&#39;Li7&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tfuel_after</span><span class="p">[</span><span class="mi">1610</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="p">[</span><span class="s1">&#39;Cm240&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tfuel_after</span><span class="p">[</span><span class="mi">1589</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="p">[</span><span class="s1">&#39;Pu239&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tpois_after</span><span class="p">[</span><span class="mi">1213</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_after</span><span class="p">[</span><span class="s1">&#39;Gd155&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tpois_after</span><span class="p">[</span><span class="mi">32</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_after</span><span class="p">[</span><span class="s1">&#39;O16&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Check the parameters</span>
+        <span class="k">assert</span> <span class="n">tfuel_before_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="o">.</span><span class="n">mass</span>
+        <span class="k">assert</span> <span class="n">tfuel_before_params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="o">.</span><span class="n">density</span>
+        <span class="k">assert</span> <span class="n">tfuel_before_params</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="o">.</span><span class="n">vol</span>
+        <span class="k">assert</span> <span class="n">tfuel_before_params</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="o">.</span><span class="n">temp</span>
+        <span class="k">assert</span> <span class="n">tfuel_before_params</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="o">.</span><span class="n">mass_flowrate</span>
+        <span class="k">assert</span> <span class="n">tfuel_before_params</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="o">.</span><span class="n">void_frac</span>
+        <span class="k">assert</span> <span class="n">tfuel_before_params</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_before</span><span class="o">.</span><span class="n">burnup</span>
+
+        <span class="k">assert</span> <span class="n">tpois_before_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_before</span><span class="o">.</span><span class="n">mass</span>
+        <span class="k">assert</span> <span class="n">tpois_before_params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_before</span><span class="o">.</span><span class="n">density</span>
+        <span class="k">assert</span> <span class="n">tpois_before_params</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_before</span><span class="o">.</span><span class="n">vol</span>
+        <span class="k">assert</span> <span class="n">tpois_before_params</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_before</span><span class="o">.</span><span class="n">temp</span>
+        <span class="k">assert</span> <span class="n">tpois_before_params</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_before</span><span class="o">.</span><span class="n">mass_flowrate</span>
+        <span class="k">assert</span> <span class="n">tpois_before_params</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_before</span><span class="o">.</span><span class="n">void_frac</span>
+        <span class="k">assert</span> <span class="n">tpois_before_params</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_before</span><span class="o">.</span><span class="n">burnup</span>
+
+        <span class="k">assert</span> <span class="n">tfuel_after_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="o">.</span><span class="n">mass</span>
+        <span class="k">assert</span> <span class="n">tfuel_after_params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="o">.</span><span class="n">density</span>
+        <span class="k">assert</span> <span class="n">tfuel_after_params</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="o">.</span><span class="n">vol</span>
+        <span class="k">assert</span> <span class="n">tfuel_after_params</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="o">.</span><span class="n">temp</span>
+        <span class="k">assert</span> <span class="n">tfuel_after_params</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="o">.</span><span class="n">mass_flowrate</span>
+        <span class="k">assert</span> <span class="n">tfuel_after_params</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="o">.</span><span class="n">void_frac</span>
+        <span class="k">assert</span> <span class="n">tfuel_after_params</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="n">fuel_after</span><span class="o">.</span><span class="n">burnup</span>
+
+        <span class="k">assert</span> <span class="n">tpois_after_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_after</span><span class="o">.</span><span class="n">mass</span>
+        <span class="k">assert</span> <span class="n">tpois_after_params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_after</span><span class="o">.</span><span class="n">density</span>
+        <span class="k">assert</span> <span class="n">tpois_after_params</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_after</span><span class="o">.</span><span class="n">vol</span>
+        <span class="k">assert</span> <span class="n">tpois_after_params</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_after</span><span class="o">.</span><span class="n">temp</span>
+        <span class="k">assert</span> <span class="n">tpois_after_params</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_after</span><span class="o">.</span><span class="n">mass_flowrate</span>
+        <span class="k">assert</span> <span class="n">tpois_after_params</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_after</span><span class="o">.</span><span class="n">void_frac</span>
+        <span class="k">assert</span> <span class="n">tpois_after_params</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="n">pois_after</span><span class="o">.</span><span class="n">burnup</span>
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;incorrect Value&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;incorrect key&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;something went wrong. See error stack for details&quot;</span><span class="p">)</span>
+
+    <span class="c1"># close the file</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># delete test file</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+
+    <span class="c1"># use original db path</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span></div>
+
+
+<div class="viewcode-block" id="test_store_run_init_info"><a class="viewcode-back" href="../../../src/saltproc.tests.test_simulation.html#saltproc.tests.test_simulation.test_store_run_init_info">[docs]</a><span class="k">def</span> <span class="nf">test_store_run_init_info</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This unit test checks that the entries ``store_run_init_info()`</span>
+<span class="sd">    stores in the database match the corresponding entries from the input</span>
+<span class="sd">    explicity in value and implicitly in type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># read data</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_depcode_info</span><span class="p">()</span>
+    <span class="n">init_info</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span>
+
+    <span class="c1"># we want to keep the old path for other sims, but for this</span>
+    <span class="c1"># test we&#39;ll want a fresh db</span>
+    <span class="n">db_path_old</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span>
+    <span class="n">db_file</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s1">&#39;.h5&#39;</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_file</span>
+
+    <span class="c1"># store data at</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">store_run_init_info</span><span class="p">()</span>
+
+    <span class="c1"># read stored data</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
+                          <span class="n">filters</span><span class="o">=</span><span class="n">simulation</span><span class="o">.</span><span class="n">compression_params</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Unable to assign correct value to db.</span><span class="se">\</span>
+<span class="s1">              See error stack for more info.&#39;</span><span class="p">)</span>
+
+    <span class="n">tinit_info</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">initial_depcode_siminfo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">tinit_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">simulation</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">npop</span>
+        <span class="k">assert</span> <span class="n">tinit_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">simulation</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">active_cycles</span>
+        <span class="k">assert</span> <span class="n">tinit_info</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">simulation</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">inactive_cycles</span>
+        <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="n">tinit_info</span><span class="p">[</span><span class="mi">3</span><span class="p">])[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">init_info</span><span class="p">[</span><span class="s1">&#39;depcode_name&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="n">tinit_info</span><span class="p">[</span><span class="mi">4</span><span class="p">])[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">init_info</span><span class="p">[</span><span class="s1">&#39;depcode_version&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="n">tinit_info</span><span class="p">[</span><span class="mi">5</span><span class="p">])[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">init_info</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="n">tinit_info</span><span class="p">[</span><span class="mi">6</span><span class="p">])[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">init_info</span><span class="p">[</span><span class="s1">&#39;depcode_input_filename&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="n">tinit_info</span><span class="p">[</span><span class="mi">7</span><span class="p">])[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">init_info</span><span class="p">[</span><span class="s1">&#39;depcode_working_dir&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="n">tinit_info</span><span class="p">[</span><span class="mi">8</span><span class="p">])[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">init_info</span><span class="p">[</span><span class="s1">&#39;xs_data_path&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tinit_info</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">==</span> <span class="n">init_info</span><span class="p">[</span><span class="s1">&#39;OMP_threads&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tinit_info</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">==</span> <span class="n">init_info</span><span class="p">[</span><span class="s1">&#39;MPI_tasks&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tinit_info</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">==</span> <span class="n">init_info</span><span class="p">[</span><span class="s1">&#39;memory_optimization_mode&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">tinit_info</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">==</span> <span class="n">init_info</span><span class="p">[</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;incorrect Value&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;incorrect key&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;something went wrong. See error stack for details&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="c1"># close the file</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># delete test file</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+
+    <span class="c1"># use original db path</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span></div>
+
+
+<div class="viewcode-block" id="test_store_run_step_info"><a class="viewcode-back" href="../../../src/saltproc.tests.test_simulation.html#saltproc.tests.test_simulation.test_store_run_step_info">[docs]</a><span class="k">def</span> <span class="nf">test_store_run_step_info</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This unit test checks that the entries ``store_run_step_info()`</span>
+<span class="sd">    stores in the database match the corresponding entries from the input</span>
+<span class="sd">    explicity in value and implicitly in type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># read data</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_depcode_step_param</span><span class="p">()</span>
+    <span class="n">step_info</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span>
+
+    <span class="c1"># we want to keep the old path for other sims, but for this</span>
+    <span class="c1"># test we&#39;ll want a fresh db</span>
+    <span class="n">db_path_old</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span>
+    <span class="n">db_file</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s1">&#39;.h5&#39;</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_file</span>
+
+    <span class="c1"># store data at</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">store_run_step_info</span><span class="p">()</span>
+
+    <span class="c1"># read stored data</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
+                          <span class="n">filters</span><span class="o">=</span><span class="n">simulation</span><span class="o">.</span><span class="n">compression_params</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Unable to assign correct value to db.</span><span class="se">\</span>
+<span class="s1">              See error stack for more info.&#39;</span><span class="p">)</span>
+
+    <span class="n">tstep_info</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">simulation_parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">tstep_info</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                              <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;beta_eff&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">tstep_info</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                              <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;breeding_ratio&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">tstep_info</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">simulation</span><span class="o">.</span><span class="n">burn_time</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">tstep_info</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                              <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;delayed_neutrons_lambda&#39;</span><span class="p">]</span><span class="o">.</span>
+                              <span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">tstep_info</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;fission_mass_bds&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">tstep_info</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;fission_mass_eds&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">tstep_info</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span>
+                              <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">tstep_info</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span>
+                              <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">tstep_info</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">==</span> <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;memory_usage&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">tstep_info</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">==</span> <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;power_level&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">tstep_info</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">==</span> <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;execution_time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;incorrect Value&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;incorrect key&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;something went wrong. See error stack for details&quot;</span><span class="p">)</span>
+
+    <span class="c1"># close the file</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># delete test file</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span>
+
+    <span class="c1"># use original db path</span>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path_old</span></div>
+
+
+<div class="viewcode-block" id="test_read_k_eds_delta"><a class="viewcode-back" href="../../../src/saltproc.tests.test_simulation.html#saltproc.tests.test_simulation.test_read_k_eds_delta">[docs]</a><span class="k">def</span> <span class="nf">test_read_k_eds_delta</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">simulation</span><span class="o">.</span><span class="n">read_k_eds_delta</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: v0.4.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="../../../../v0.3.0/index.html">v0.3.0</a></dd>
+      <dd><a href="test_simulation.html">v0.4.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../../../master/index.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

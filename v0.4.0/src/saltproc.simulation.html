@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>saltproc.simulation module &mdash; Saltproc 0.4.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.4.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>saltproc.simulation module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/src/saltproc.simulation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-saltproc.simulation">
+<span id="saltproc-simulation-module"></span><h1>saltproc.simulation module<a class="headerlink" href="#module-saltproc.simulation" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="saltproc.simulation.Simulation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">saltproc.simulation.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_depcode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'depcode'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'db_saltproc.h5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjust_geo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Filters(complevel=9,</span> <span class="pre">complib='blosc',</span> <span class="pre">shuffle=True,</span> <span class="pre">bitshuffle=False,</span> <span class="pre">fletcher32=True,</span> <span class="pre">least_significant_digit=None)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for handling simulation information. Contains information
+for running simulation wiht parallelism. Also contains the simulation
+name, a <cite>Depcode</cite> object, and the filename for the simulation database.
+Contains methods to store simulation metadata and depletion results in
+a database, predict reactor criticality at next depletion step, and
+switch simulation geometry.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.simulation.Simulation.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_depcode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'depcode'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'db_saltproc.h5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjust_geo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Filters(complevel=9,</span> <span class="pre">complib='blosc',</span> <span class="pre">shuffle=True,</span> <span class="pre">bitshuffle=False,</span> <span class="pre">fletcher32=True,</span> <span class="pre">least_significant_digit=None)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the Simulation object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sim_name</strong> (<em>str</em>) – Name to identify the simulation. May contain information such as
+the number of a reference case, a paper name, or some other
+specific information identify the simulation.</p></li>
+<li><p><strong>sim_depcode</strong> (<cite>Depcode</cite> object) – An instance of one of the <cite>Depcode</cite> child classes</p></li>
+<li><p><strong>cores</strong> (<em>int</em>) – Number of cores to use for depletion code run (<cite>-omp</cite> flag in
+Serpent).</p></li>
+<li><p><strong>nodes</strong> (<em>int</em>) – Number of nodes to use for depletion code run (<cite>-mpi</cite> flag in
+Serpent).</p></li>
+<li><p><strong>db_path</strong> (<em>str</em>) – Path of HDF5 database that stores simulation information and
+data.</p></li>
+<li><p><strong>restart_flag</strong> (<em>bool</em>) – This value determines our initial condition. If <cite>True</cite>, then
+then we run the simulation starting from the inital material
+composition in the material input file inside our <cite>depcode</cite>
+object. If <cite>False</cite>, then we runthe simulation starting from
+the final material composition resulting within the <cite>.h5</cite>
+database.</p></li>
+<li><p><strong>adjust_geo</strong> (<em>bool</em>) – This value determines if we switch reactor geometry when keff
+drops below 1.0</p></li>
+<li><p><strong>compression_params</strong> (<em>Pytables filter object</em>) – Compression parameters for HDF5 database.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.simulation.Simulation.check_restart">
+<span class="sig-name descname"><span class="pre">check_restart</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.check_restart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.check_restart" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the user set <cite>restart_flag</cite>
+for <cite>False</cite> clean out iteration files and database from previous run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>restart_flag</strong> (<em>bool</em>) – Is the current simulation restarted?</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.simulation.Simulation.check_switch_geo_trigger">
+<span class="sig-name descname"><span class="pre">check_switch_geo_trigger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">switch_time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.check_switch_geo_trigger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.check_switch_geo_trigger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares the current timestep with the user defined times
+at which to switch reactor geometry, and returns <cite>True</cite> if there
+is a match.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>current_timestep</strong> (<em>int</em>) – Current time after depletion started.</p></li>
+<li><p><strong>switch_time</strong> (<em>list</em>) – List containing moments in time when geometry have to be switched.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>is the next geometry must be used at the next step?</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.simulation.Simulation.read_k_eds_delta">
+<span class="sig-name descname"><span class="pre">read_k_eds_delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_timestep</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.read_k_eds_delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.read_k_eds_delta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads from database delta between previous and current <cite>keff</cite> at the
+end of depletion step and returns <cite>True</cite> if predicted <cite>keff</cite> at the
+next depletion step drops below 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>current_timestep</strong> (<em>int</em>) – Number of current depletion time step.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Is the reactor will become subcritical at the next step?</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.simulation.Simulation.store_after_repr">
+<span class="sig-name descname"><span class="pre">store_after_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">after_mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dep_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.store_after_repr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.store_after_repr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add data for waste streams [grams per depletion step] of each
+process to the HDF5 database after reprocessing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>after_mats</strong> (<cite>Materialflow</cite>) – <cite>Materialflow</cite> object representing a material stream after
+performing reprocessing.</p></li>
+<li><p><strong>waste_dict</strong> (<em>dict of str to Materialflow</em>) – <p>Dictionary that maps <cite>Process</cite> objects to waste <cite>Materialflow</cite>
+objects.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p><cite>Process</cite> name (<cite>str</cite>)</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object containing waste streams data.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>dep_step</strong> (<em>int</em>) – Current depletion time step.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.simulation.Simulation.store_mat_data">
+<span class="sig-name descname"><span class="pre">store_mat_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dep_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_at_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.store_mat_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.store_mat_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the HDF5/Pytables database (if it doesn’t exist) or
+append the following data at the current depletion step to the
+database: burnable material composition, mass, density, volume,
+temperature, burnup,  mass_flowrate, void_fraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mats</strong> (<em>dict of str to Materialflow</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object holding composition and properties.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>dep_step</strong> (<em>int</em>) – Current depletion step.</p></li>
+<li><p><strong>store_at_end</strong> (<em>bool</em><em>, </em><em>optional</em>) – Controls at which moment in the depletion step to store data from.
+If <cite>True</cite>, the function stores data from the end of the
+depletion step. Otherwise, the function stores data from the
+beginning of the depletion step.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.simulation.Simulation.store_run_init_info">
+<span class="sig-name descname"><span class="pre">store_run_init_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.store_run_init_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.store_run_init_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the following depletion code and SaltProc simulation parameters
+to the database:
+neutron population, active cycles, inactive cycles, depletion code
+version simulation title, depetion code input file path, depletion code
+working directory, cross section data path, # of OMP threads, # of MPI
+tasks, memory optimization mode (Serpent), depletion timestep size.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.simulation.Simulation.store_run_step_info">
+<span class="sig-name descname"><span class="pre">store_run_step_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/simulation.html#Simulation.store_run_step_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.simulation.Simulation.store_run_step_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the following depletion code and SaltProc simulation
+data at the current depletion step to the database:
+execution time, memory usage, multiplication factor, breeding ratio,
+delayed neutron precursor data, fission mass, cumulative depletion
+time, power level.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: v0.4.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="../../v0.3.0/index.html">v0.3.0</a></dd>
+      <dd><a href="saltproc.simulation.html">v0.4.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../master/index.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
