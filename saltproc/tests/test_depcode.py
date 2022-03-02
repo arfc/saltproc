@@ -220,6 +220,29 @@ def test_create_iter_matfile():
     assert out[0].split()[-1] == '\"' + serpent.iter_matfile + '\"'
     os.remove(serpent.iter_matfile)
 
+def _get_iterable_for_object(iterable_object):
+    # helper function to DRY
+    iterable_type = type(iterable_object)
+    if issubclass(iterable_type, list) or issubclass(iterable_type, tuple):
+            iterable = range(0, len(iterable_object))
+    elif issubclass(iterable_type, dict):
+        iterable = iterable_object
+    else:
+        raise ValueError(f"Iterable of type {type(iterable_object)} is unsupported")
+    return iterable
+
+def _check_none_or_iterable_of_ndarray_equal(object1, object2):
+    # helper function to DRY
+    if issubclass(type(object1), np.ndarray):
+        assert (object1 == object2).all()
+    elif issubclass(type(object1), tuple) or issubclass(type(object1), list):
+        iterable = _get_iterable_for_object(object1)
+        for ref in iterable:
+            subobject1 = object1[ref]
+            subobject2 = object2[ref]
+            _check_none_or_iterable_of_ndarray_equal(subobject1, subobject2)
+    else:
+        assert object1 == object2
 
 def _check_openmc_objects_equal(object1, object2):
     """
@@ -233,10 +256,6 @@ def _check_openmc_objects_equal(object1, object2):
     object2 :  openmc.Surface, openmc.Universe, openmc.Cell, openmc.Material, openmc.Lattice
         Second openmc object to compare
 
-    Returns
-    -------
-    objects_equal : bool
-        True if object1 has the same type and attributes as object 2. Otherwise False.
     """
     objects_equal = True
     try:
@@ -245,30 +264,62 @@ def _check_openmc_objects_equal(object1, object2):
         assert object1.id == object2.id
         assert object1.name == object2.name # this may not apply to all objects.
                                             # need to check
-        if object_type == openmc.Material:
+        if object_type == om.Material:
             assert object1.density == object2.density
             assert object1.nuclides == object2.nuclides
             assert object1.temperature == object2.temperature
             assert object1.volume == object2.volume
             assert object1._sab == object2._sab
 
-        elif object_type == openmc.Cell:
-            ...
-        elif object_type == openmc.Lattice:
-            ...
-        elif object_type == openmc.Surface:
-            ...
-        elif object_type == openmc.Universe
-            ...
+        elif object_type == om.Cell:
+            #assert object1.fill == object2.fill
+            assert object1.fill_type == object2.fill_type
+            _check_none_or_iterable_of_ndarray_equal(object1.rotation, object2.rotation)
+            _check_none_or_iterable_of_ndarray_equal(object1.rotation_matrix, object2.rotation_matrix)
+            _check_none_or_iterable_of_ndarray_equal(object1.translation, object2.translation)
+            # assert object1.atoms == object2.atoms
+
+        elif issubclass(object_type, om.Lattice):
+            _check_none_or_iterable_of_ndarray_equal(object1.pitch, object2.pitch)
+            assert object1.outer == object2.outer
+            _check_openmc_iterables_equal({'univ': (object1.universes, object2.universes)})
+            #assert object1.universes == object2.universes
+
+        elif issubclass(object_type, om.Surface):
+            assert object1.boundary_type == object2.boundary_type
+            assert object1.coefficients == object2.coefficients
+            assert object1.type == object2.type
+
+        elif object_type == om.Universe:
+            _check_openmc_iterables_equal({'cells': (object1.cells, object2.cells)})
+            #assert object1.cells == object2.cells
+            assert object1.volume == object2.volume
+            _check_none_or_iterable_of_ndarray_equal(object1.bounding_box, object2.bounding_box)
         else:
             raise ValueError(f"Object of type {object_type} is not an openmc object.")
 
     except AssertionError:
-        objects_equal = False
-    except:
-        raise RuntimeError("see error message above for details")
+        raise AssertionError(f"objects of type {object_type} with ids {object1.id} and {object2.id} not equal")
 
-    return objects_equal
+
+def _check_openmc_iterables_equal(iterable_dict):
+    """
+    Helper function to check if the given dictionary of iterbales
+
+    Parameters:
+    iterable_dict : dict of str to 2-tuple
+        Dictionary containing tuples of iterables to compare
+    """
+    for object_type in iterable_dict:
+        object1_iterable, object2_iterable = iterable_dict[object_type]
+        assert len(object1_iterable) == len(object2_iterable)
+        iterable = _get_iterable_for_object(object1_iterable)
+        for ref in iterable:
+            object1 = object2_iterable[ref]
+            object2 = object1_iterable[ref]
+            _check_openmc_objects_equal(object1, object2)
+
+
 
 def test_write_depcode_input():
     # Serpent
@@ -321,14 +372,7 @@ def test_write_depcode_input():
                       'surfs': (input_surfaces, iter_surfaces),
                       'univs': (input_universes, iter_universes)}
 
-    for object_type in assertion_dict:
-        input_object_dict, iter_object_dict = assertion_dict[object_type]
-        assert len(input_object_dict) == len(iter_object_dict)
-        for object_key in range(0, len(input_object_dict)):
-            input_object = input_object_dict[object_key]
-            iter_object = iter_object_dict[object_key]
-            assert _check_openmc_objects_equal(input_object, iter_object)
-
+    _check_openmc_iterables_equal(assertion_dict)
     assert iter_settings.inactive == openmc.inactive_cycles
     assert iter_settings.batches == openmc.active_cycles + \
         openmc.inactive_cycles
@@ -424,19 +468,11 @@ def test_switch_to_next_geometry():
     switched_universes = switched_geometry.get_all_universes()
     del switched_geometry
 
-    assertion_dict = {'mat': (expected_materias, switched_materials),
-                      'cells': (expected_cells, switched_cells),
+    assertion_dict = {'cells': (expected_cells, switched_cells),
                       'lattices': (expected_lattices, switched_lattices),
                       'surfs': (expected_surfaces, switched_surfaces),
                       'univs': (expected_universes, switched_universes)}
 
-    for object_type in assertion_dict:
-        expected_object_dict, switched_object_dict = assertion_dict[object_type]
-        assert len(expected_object_dict) == len(switched_object_dict)
-        for object_key in range(0, len(expected_object_dict)):
-            expected_object = expected_object_dict[object_key]
-            switched_object = switched_object_dict[object_key]
-            assert _check_openmc_objects_equal(expected_object, switched_object)
-
+    _check_openmc_iterables_equal(assertion_dict)
 
     del mat
