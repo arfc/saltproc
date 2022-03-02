@@ -324,6 +324,7 @@ class DepcodeOpenMC(Depcode):
             path=self.geo_files.pop(0),
             materials=mats)
         next_geometry.export_to_xml(path=self.iter_inputfile['geometry'])
+        del mats, next_geometry
 
 
     def write_depcode_input(self, reactor, dep_step, restart):
@@ -361,6 +362,7 @@ class DepcodeOpenMC(Depcode):
         settings.export_to_xml(self.iter_inputfile['settings'])
         self.write_depletion_settings(reactor, dep_step)
         self.write_saltproc_openmc_tallies(materials, geometry)
+        del materials, geometry, settings
 
     def write_depletion_settings(self, reactor, current_depstep_idx):
         """Write the depeletion settings for the ``openmc.depelete``
@@ -479,6 +481,7 @@ class DepcodeOpenMC(Depcode):
         self.iter_inputfile['tallies'] = \
             os.path.join(out_path, 'tallies.xml')
         tallies.export_to_xml(self.iter_inputfile['tallies'])
+        del tallies
 
 class DepcodeSerpent(Depcode):
     r"""Class contains information about input, output, geometry, and
