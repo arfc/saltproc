@@ -7,13 +7,15 @@ def parse_arguments():
 
     Parameters
     ----------
-    materials: str
+    materials : str
         Path to openmc material `.xml` file
-    geometry: int
+    geometry : int
         Path to openmc geometry `.xml` file
-    settings: str
+    settings : str
         Path to openmc settings `.xml` file
-    depletion_settings: str
+    tallies : str
+        Parth to openmc tallies `.xml` file
+    depletion_settings : str
         Path to the DepcodeOpenMC depletion_settings file
 
     """
