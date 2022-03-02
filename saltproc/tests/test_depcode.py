@@ -14,6 +14,7 @@ sys.path.append(os.path.dirname(os.path.dirname(path)))
 # global class object
 directory = os.path.dirname(path)
 
+# Serpent initalization
 serpent = DepcodeSerpent(
     exec_path='sss2',
     template_inputfiles_path=directory +
@@ -24,7 +25,9 @@ serpent = DepcodeSerpent(
             '../test_geo.inp')])
 serpent.iter_inputfile=directory + '/test'
 serpent.iter_matfile=directory + '/material'
+geo_test_input = directory + '/test_geometry_switch.inp'
 
+# Openmc initlialization
 openmc_input_path = os.path.join(directory, 'test_data/openmc/')
 openmc_test_inputfiles = {
     "materials": "test_materials.xml",
@@ -38,6 +41,8 @@ openmc_iter_inputfiles = {
     "settings": "settings.xml",
 }
 
+# prepend the correct paths to our
+# template and iter input files
 for key in openmc_test_inputfiles:
     openmc_test_inputfiles[key] = os.path.join(
         openmc_input_path, openmc_test_inputfiles[key])
@@ -60,7 +65,6 @@ msr = Reactor(volume=1.0,
               power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
               dep_step_length_cumulative=[111.111, 2101.9, 3987.5])
 
-geo_test_input = directory + '/test_geometry_switch.inp'
 
 
 def test_create_nuclide_name_map_zam_to_serpent():
@@ -217,6 +221,55 @@ def test_create_iter_matfile():
     os.remove(serpent.iter_matfile)
 
 
+def _check_openmc_objects_equal(object1, object2):
+    """
+    Helper function for the unit tests to determine equality of
+    various OpenMC objects
+
+    Parameters
+    ----------
+    object1 : openmc.Surface, openmc.Universe, openmc.Cell, openmc.Material, openmc.Lattice
+        First openmc object to compare
+    object2 :  openmc.Surface, openmc.Universe, openmc.Cell, openmc.Material, openmc.Lattice
+        Second openmc object to compare
+
+    Returns
+    -------
+    objects_equal : bool
+        True if object1 has the same type and attributes as object 2. Otherwise False.
+    """
+    objects_equal = True
+    try:
+        object_type = type(object1)
+        assert object_type == type(object2)
+        assert object1.id == object2.id
+        assert object1.name == object2.name # this may not apply to all objects.
+                                            # need to check
+        if object_type == openmc.Material:
+            assert object1.density == object2.density
+            assert object1.nuclides == object2.nuclides
+            assert object1.temperature == object2.temperature
+            assert object1.volume == object2.volume
+            assert object1._sab == object2._sab
+
+        elif object_type == openmc.Cell:
+            ...
+        elif object_type == openmc.Lattice:
+            ...
+        elif object_type == openmc.Surface:
+            ...
+        elif object_type == openmc.Universe
+            ...
+        else:
+            raise ValueError(f"Object of type {object_type} is not an openmc object.")
+
+    except AssertionError:
+        objects_equal = False
+    except:
+        raise RuntimeError("see error message above for details")
+
+    return objects_equal
+
 def test_write_depcode_input():
     # Serpent
     iter_inputfile_old = serpent.iter_inputfile
@@ -240,6 +293,12 @@ def test_write_depcode_input():
     # OpenMC
     input_materials = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
     input_geometry = om.Geometry.from_xml(openmc.template_inputfiles_path['geometry'], materials=input_materials)
+
+    input_cells = input_geometry.get_all_cells()
+    input_lattices = input_geometry.get_all_lattices()
+    input_surfaces = input_geometry.get_all_surfaces()
+    input_universes = input_geometry.get_all_universes()
+
     openmc.write_depcode_input(msr,
                                0,
                                False)
@@ -248,41 +307,35 @@ def test_write_depcode_input():
     iter_geometry = om.Geometry.from_xml(openmc.iter_inputfile['geometry'], materials=iter_materials)
     iter_settings = om.Settings.from_xml(openmc.iter_inputfile['settings'])
 
+    iter_cells = iter_geometry.get_all_cells()
+    iter_lattices = iter_geometry.get_all_lattices()
+    iter_surfaces = iter_geometry.get_all_surfaces()
+    iter_universes = iter_geometry.get_all_universes()
+
+
     ## an easier approach may just be to compare the
     # file contents themselves
+    assertion_dict = {'mat': (input_materials, iter_materials),
+                      'cells': (input_cells, iter_cells),
+                      'lattices': (input_lattices, iter_lattices),
+                      'surfs': (input_surfaces, iter_surfaces),
+                      'univs': (input_universes, iter_universes)}
 
-    # check that the two match
-    assert len(input_materials) == len(iter_materials)
-    for mat_index in range(0, len(input_materials)):
-        input_mat = input_materials[mat_index]
-        iter_mat = iter_materials[mat_index]
-        assert input_mat.name == iter_mat.name
-        assert input_mat.id == iter_mat.id
-        assert input_mat.density == iter_mat.density
-        assert input_mat.nuclides == iter_mat.nuclides
-        assert input_mat.temperature == iter_mat.temperature
-        assert input_mat.volume == iter_mat.volume
-        assert input_mat._sab == iter_mat._sab
-    # now do the same for the geometry
-    input_cells = ...
-    iter_cells = ...
-
-    input_lattices = ...
-    iter_lattices = ...
-
-    input_surfaces = ...
-    iter_surfaces = ...
-
-    input_materials = ...
-    iter_materials = ...
-
-    input_universes = ...
-    iter_universes = ...
+    for object_type in assertion_dict:
+        input_object_dict, iter_object_dict = assertion_dict[object_type]
+        assert len(input_object_dict) == len(iter_object_dict)
+        for object_key in range(0, len(input_object_dict)):
+            input_object = input_object_dict[object_key]
+            iter_object = iter_object_dict[object_key]
+            assert _check_openmc_objects_equal(input_object, iter_object)
 
     assert iter_settings.inactive == openmc.inactive_cycles
     assert iter_settings.batches == openmc.active_cycles + \
         openmc.inactive_cycles
     assert iter_settings.particles == openmc.npop
+
+    del iter_materials, iter_geometry
+    del input_materials, input_geometry
 
 def test_write_depletion_settings():
     """
@@ -308,6 +361,7 @@ def test_write_saltproc_openmc_tallies():
     mat = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
     geo = om.Geometry.from_xml(openmc.template_inputfiles_path['geometry'], mat)
     openmc.write_saltproc_openmc_tallies(mat, geo)
+    del mat, geo
     tallies = om.Tallies.from_xml(openmc.iter_inputfile['tallies'])
 
     # now write asserts statements based on the openmc.Tallies API and
@@ -354,11 +408,35 @@ def test_switch_to_next_geometry():
 
     # OpenMC
     mat = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
-    geometry_expected = om.Geometry.from_xml(openmc.geo_files[0], mat)
+    expected_geometry = om.Geometry.from_xml(openmc.geo_files[0], mat)
+    expected_cells = expected_geometry.get_all_cells()
+    expected_lattices = expected_geometry.get_all_lattices()
+    expected_surfaces = expected_geometry.get_all_surfaces()
+    expected_universes = expected_geometry.get_all_universes()
+    del expected_geometry
+
     openmc.switch_to_next_geometry()
-    # fill in the rest based on the python API for openmc.Geometry
-    geometry_switched = om.Geometry.from_xml(openmc.iter_inputfile['geometry'], mat)
+    switched_geometry = om.Geometry.from_xml(openmc.iter_inputfile['geometry'], mat)
 
-    ## again, it may be easier to compare the xml files.
-    assert geometry_expected == geometry_switched
+    switched_cells = switched_geometry.get_all_cells()
+    switched_lattices = switched_geometry.get_all_lattices()
+    switched_surfaces = switched_geometry.get_all_surfaces()
+    switched_universes = switched_geometry.get_all_universes()
+    del switched_geometry
 
+    assertion_dict = {'mat': (expected_materias, switched_materials),
+                      'cells': (expected_cells, switched_cells),
+                      'lattices': (expected_lattices, switched_lattices),
+                      'surfs': (expected_surfaces, switched_surfaces),
+                      'univs': (expected_universes, switched_universes)}
+
+    for object_type in assertion_dict:
+        expected_object_dict, switched_object_dict = assertion_dict[object_type]
+        assert len(expected_object_dict) == len(switched_object_dict)
+        for object_key in range(0, len(expected_object_dict)):
+            expected_object = expected_object_dict[object_key]
+            switched_object = switched_object_dict[object_key]
+            assert _check_openmc_objects_equal(expected_object, switched_object)
+
+
+    del mat
