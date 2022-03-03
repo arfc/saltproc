@@ -15,10 +15,10 @@
 - [ ] My code follows the code style of this project.
 - [ ] My change requires a change to the documentation.
   - [ ] I have updated the documentation accordingly.
+  - [ ] I have recorded my changes in the changelog for the upcoming release 
 - [ ] My change is a source code change
   - [ ] I have added/modified tests to cover my changes
   - [ ] I have explained why my change does not require new/modified tests
-  - [ ] I have recorded my changes in the changelog for the upcoming release 
 - [ ] My change is related to the repository
   - [ ] I have verified or justified that my change will work as intended.
 - [ ] All new and existing tests passed.
