@@ -17,12 +17,13 @@
   - [ ] I have updated the documentation accordingly.
 - [ ] My change is a source code change
   - [ ] I have added/modified tests to cover my changes
-  - [ ] I have explained why my change does not require new/modified tests 
+  - [ ] I have explained why my change does not require new/modified tests
+  - [ ] I have recorded my changes in the changelog for the upcoming release 
+- [ ] My change is related to the repository
+  - [ ] I have verified or justified that my change will work as intended.
 - [ ] All new and existing tests passed.
   - [ ] CI tests pass
   - [ ] Local tests pass (including Serpent2 integration tests)
-- [ ] I have recorded my changes in the changelog for the upcoming release
-- [ ] My change is only related to the repository and does not need to be recorded in the release changelog.
 
 ## Associated Issues and PRs
 <!--- Please note any issues or pull requests associated with this pull request -->
