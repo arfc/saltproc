@@ -139,7 +139,6 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           branch: "${{ env.NEW_RELEASE_VERSION }}-final"
-          base: master
           delete-branch: true
           commit-message: "final changes before publishing ${{ env.NEW_RELEASE_VERSION }}"
           title: "[REQUIRED FOR PUBLISHING] Finishing touches for version ${{ env.NEW_RELEASE_VERSION }}"
