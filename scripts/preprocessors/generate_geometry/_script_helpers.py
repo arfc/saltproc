@@ -91,8 +91,8 @@ geo_dict = {
         "torz": openmc.ZTorus,
         "sqc": openmc.model.rectangular_prism,
         "rect": openmc.model.rectangular_prism,
-        "hexxc": openmc.model.hexagonal_prism, #to implement
-        "hexyc": openmc.model.hexagonal_prism,  #to implement
+        "hexxc": openmc.model.hexagonal_prism,
+        "hexyc": openmc.model.hexagonal_prism,
         "cube": openmc.model.RectangularParallelepiped,
         "cuboid": openmc.model.RectangularParallelepiped
     },
@@ -269,13 +269,21 @@ def construct_surface_helper(surf_card):
            surface_params = [width, height, axis, origin]
            has_subsurfaces = True
 
-       # elif surf_type == "hexxc":
-       #      ...
-       #     surface_params = []
+        elif surf_type == "hexxc" or surf_type == "hexyc":
+            x0 = surf_params[0]
+            y0 = surf_params[1]
+            d = surf_params[2]
 
-       # elif surf_type == "hexyc":
-       #     ...
-       #     surface_params = []
+            edge_length = 2 * d / np.sqrt(3)
+            if surf_type == "hexxc":
+                orientation = 'y'
+            else:
+                orientation = 'x'
+
+            origin = (x0,y0)
+            surface_params = [edge_length, orientation, origin]
+            has_subsurface = True
+
         elif surf_type == "cube":
             x0 = surf_params[0]
             y0 = surf_params[1]
