@@ -22,6 +22,7 @@
   - [ ] CI tests pass
   - [ ] Local tests pass (including Serpent2 integration tests)
 - [ ] I have recorded my changes in the changelog for the upcoming release
+- [ ] My change is only related to the repository and does not need to be recorded in the release changelog.
 
 ## Associated Issues and PRs
 <!--- Please note any issues or pull requests associated with this pull request -->
