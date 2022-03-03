@@ -99,7 +99,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Make initial changes for ${{ env.NEW_RELEASE_VERISON }}"
+      - name: "Make initial changes for ${{ env.NEW_RELEASE_VERSION }}"
         run: |
           echo "Update version.py"
           sed -i "s/_version_micro = '*[0-9]*'*/_version_micro = ''/g" saltproc/version.py
