@@ -510,9 +510,9 @@ def rotate_obj(obj, rotation_args):
 
 
 
-def check_for_multiline_lattice_univ(current_line_idx, lattice_args, lat_univ_index):
+def get_lattice_universe_names(current_line_idx, lattice_args, lat_univ_index):
     """
-    Helper function that looks for multi-line lattice arguments
+    Helper function that looks for the lattice universe arguments
 
     Parameters
     ----------
@@ -527,30 +527,33 @@ def check_for_multiline_lattice_univ(current_line_idx, lattice_args, lat_univ_in
 
     Returns
     -------
-    multiline_lattice_univ_exist : bool
-        True if multi-line lattice arguments exist.
-        Otherwise False
-    lat_lines : `numpy.ndarray`
+    lat_univ_names : `numpy.ndarray`
         numpy array containing the lattice universe names
     """
     next_line = geo_data[current_line_idx + 1]
     lat_multiline_match = re.search(LAT_MULTILINE_REGEX, next_line)
+    # Not sure why anyone would do this, but just to be safe
+    # check the args for any universe specifications
+    try:
+        lat_univ_names += lattice_args[lat_univ_index:]
+    except:
+        lat_univ_names = []
     if bool(lat_multiline_match):
         multiline_lattice_univ_exist = True
-        lat_lines = []
         i = current_line_idx + 1
         while (bool(lat_multiline_match)):
                line_data = lat_multiline_match.group(0).split()
-               lat_lines.append(line_data)
+               lat_univ_names.append(line_data)
                i += 1
                next_line = geo_data[i]
                lat_multiline_match = re.search(LAT_MULTILINE_REGEX, next_line)
     else:
         multiline_lattice_univ_exist = False
-        lat_lines = lattice_args[lat_univ_index:]
-        lat_lines = np.array(lattice_args)
+        lat_univ_names = lattice_args[lat_univ_index:]
 
-    return multiline_lattice_univ_exist, lat_lines
+    lat_univ_names = np.array(lat_univ_names)
+
+    return lat_univ_names
 
 def get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
     """
@@ -572,7 +575,7 @@ def get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
         The lattice origin coordinate
     lattice_pitch : tuple of float
         The lattice pitch in each dimension
-    lattice_univ_array : list of list of openmc.Universe
+    lattice_universe_array : `numpy.ndarray` of openmc.Universe
          Array containing the lattice universes
     """
 
@@ -607,15 +610,14 @@ def get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
     else:
         raise ValueError(f"Type {lattice_type} lattices are currently unsupported")
 
-    multiline_lattice_univ_exist, lattice_lines = \
-        check_for_multiline_lattice_univ(current_line_idx, lattice_args, lat_univ_index)
-    if not multiline_lattice_univ_exist: # to implement
-        # universe names are already in a lattice structure
-        lattice_univ_name_array = np.reshape(lattice_lines,lattice_elements)
+    lat_univ_names = \
+        get_lattice_universe_names(current_line_idx, lattice_args, lat_univ_index)
+
+    lattice_universe_name_array = np.reshape(lat_univ_names,lattice_elements)
 
     # flip the array because serpent and openmc have opposing conventions
     # for the universe order
-    lattice_univ_name_array = np.flip(lattice_lines, axis=0)
+    lattice_universe_name_array = np.flip(lattice_universe_name_array, axis=0)
 
     # need to calculate the new origin
     # the procedure is different for square/rect and hex lattices
@@ -632,11 +634,11 @@ def get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
         raise ValueError(f"Unsupported lattice type: {lattice_type}")
 
     lattice_origin = tuple(lattice_origin)
-    lattice_univ_array = np.empty(lattice_elements, dtype=openmc.Universe)
-    for n in np.unique(lattice_univ_name_array):
-        lattice_univ_array[np.where(lattice_univ_name_array == n)] = \
+    lattice_universe_array = np.empty(lattice_elements, dtype=openmc.Universe)
+    for n in np.unique(lattice_universe_name_array):
+        lattice_universe_array[np.where(lattice_universe_name_array == n)] = \
             universe_dict[n]
 
-    return lattice_origin, lattice_pitch, lattice_univ_array
+    return lattice_origin, lattice_pitch, lattice_universe_array
 
 
