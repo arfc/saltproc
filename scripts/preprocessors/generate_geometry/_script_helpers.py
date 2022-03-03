@@ -17,20 +17,21 @@ universe_dict = {}
 universe_to_cell_names_dict = {}
 geo_data = []
 
-COMMENT_IGNORE_BEG_REGEX="^\s*[^%]*\s*"
-COMMENT_IGNORE_END_REGEX="\s*[^%]*"
-BC_REGEX_CORE = "set\s+bc(\s+([1-3]|black|reflective|periodic)){1,3}"
-SURF_REGEX_CORE = "surf\s+[a-zA-Z0-9]+\s+[a-z]{2,}(\s+[0-9]+(\.[0-9]+)?\s*)*"
-CELL_REGEX1_CORE = "cell(\s+[a-zA-Z0-9]+){3}"
-CELL_REGEX2_CORE = "cell(\s+[a-zA-Z0-9]+){2}\s+fill\s+[a-zA-Z0-9]+"
-CELL_REGEX3_CORE = "cell(\s+[a-zA-Z0-9]+){2}\s+outside"
-CELL_SURFACE_REGEX = "(\s+\-?\:?\#?[a-zA-Z0-9]+)+"
-ROOT_REGEX_CORE = "set\s+root\s+[a-zA-Z0-9]+"
-USYM_REGEX_CORE = "set\s+usym\s+[a-zA-Z0-9]+\s+(1|2|3)\s+(\s+-?[0-9]+(\.[0-9]+)?)"
-TRANS_REGEX_CORE = "trans\s+[A-Z]{1}\s+[a-zA-Z0-9]+(\s+-?[0-9]+(\.[0-9]+)?)+"
-CARD_IGNORE_REGEX = "^\s*(?!.*%)(?!.*lat)(?!.*cell)(?!.*set)(?!.*surf)(?!.*dtrans)(?!.*ftrans)(?!.*ltrans)(?!.*pin)(?!.*solid)(?!.*strans)(?!.*trans)"
-LAT_REGEX_CORE = "lat\s+[a-zA-Z0-9]+\s+[0-9]{1,2}(\s+-?[0-9]+(\.[0-9]+)?){2,4}(\s+[0-9]+){0,3}((\s+-?[0-9]+(\.[0-9]+)?){0,2}\s+[a-zA-Z0-9]+)+"
-LAT_MULTILINE_REGEX_CORE = "([a-zA-Z0-9]{1,3}\s+)+" # right now this is limiting universe names to 3 chars until I can come up witha more robust regex
+NUM_REGEX = '-?[0-9]+(\.[0-9]+)?'
+COMMENT_IGNORE_BEG_REGEX='^\s*[^%]*\s*'
+COMMENT_IGNORE_END_REGEX='\s*[^%]*'
+BC_REGEX_CORE = 'set\s+bc(\s+([1-3]|black|reflective|periodic)){1,3}'
+SURF_REGEX_CORE = 'surf\s+[a-zA-Z0-9]+\s+[a-z]{2,}(\s+'+NUM_REGEX+'\s*)*'
+CELL_REGEX1_CORE = 'cell(\s+[a-zA-Z0-9]+){3}'
+CELL_REGEX2_CORE = 'cell(\s+[a-zA-Z0-9]+){2}\s+fill\s+[a-zA-Z0-9]+'
+CELL_REGEX3_CORE = 'cell(\s+[a-zA-Z0-9]+){2}\s+outside'
+CELL_SURFACE_REGEX = '(\s+\-?\:?\#?[a-zA-Z0-9]+)+'
+ROOT_REGEX_CORE = 'set\s+root\s+[a-zA-Z0-9]+'
+USYM_REGEX_CORE = 'set\s+usym\s+[a-zA-Z0-9]+\s+(1|2|3)\s+(\s+'+NUM_REGEX+')'
+TRANS_REGEX_CORE = 'trans\s+[A-Z]{1}\s+[a-zA-Z0-9]+(\s+'+NUM_REGEX+')+'
+CARD_IGNORE_REGEX = '^\s*(?!.*%)(?!.*lat)(?!.*cell)(?!.*set)(?!.*surf)(?!.*dtrans)(?!.*ftrans)(?!.*ltrans)(?!.*pin)(?!.*solid)(?!.*strans)(?!.*trans)'
+LAT_REGEX_CORE = 'lat\s+[a-zA-Z0-9]+\s+[0-9]{1,2}(\s+'+NUM_REGEX+'){2,4}(\s+[0-9]+){0,3}((\s+'+NUM_REGEX+'){0,2}\s+[a-zA-Z0-9]+)+'
+LAT_MULTILINE_REGEX_CORE = '(('+NUM_REGEX+'){0,2}[a-zA-Z0-9]{1,3}\s+)+' # right now this is limiting universe names to 3 chars until I can come up witha more robust regex
 BC_REGEX=COMMENT_IGNORE_BEG_REGEX + \
     BC_REGEX_CORE + \
     COMMENT_IGNORE_END_REGEX
@@ -50,7 +51,7 @@ CELL_REGEX3 = COMMENT_IGNORE_BEG_REGEX + \
     CELL_SURFACE_REGEX + \
     COMMENT_IGNORE_END_REGEX
 CELL_REGEX_ALL = COMMENT_IGNORE_BEG_REGEX + \
-    f"({CELL_REGEX2_CORE}|{CELL_REGEX3_CORE}|{CELL_REGEX1_CORE})" + \
+    f'({CELL_REGEX2_CORE}|{CELL_REGEX3_CORE}|{CELL_REGEX1_CORE})' + \
     CELL_SURFACE_REGEX + \
     COMMENT_IGNORE_END_REGEX
 ROOT_REGEX=COMMENT_IGNORE_BEG_REGEX + \
@@ -579,9 +580,10 @@ def get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
          Array containing the lattice universes
     """
 
-    if lattice_type == '1':
-            x0 = float(lattice_args[0])
-            y0 = float(lattice_args[1])
+    x0 = float(lattice_args[0])
+    y0 = float(lattice_args[1])
+
+    if re.match("(1|2|3)", lattice_type):
             Nx = int(lattice_args[2])
             Ny = int(lattice_args[3])
             pitch = float(lattice_args[4])
@@ -590,17 +592,20 @@ def get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
             lattice_origin = (x0, y0)
             lattice_elements = (Nx, Ny)
             lattice_pitch = (pitch, pitch)
-   ## TO IMPLEMENT ##
-   # elif lat_type == 2:
-   #     ...
-   # elif lat_type == 3:
-   #     ...
+   ## TO IMPLEMENT
    # elif lat_type == 6:
    #     ...
    # elif lat_type == 7:
    #     ...
    # elif lat_type == 8:
    #     ...
+   # elif lat_type == 9: # vertical stack
+   #     N_L = int(lattice_args[2])
+   #     lat_univ_index = 4
+
+   #     lattice_origin = (x0, y0)
+   #     lattice_elements = (N_L, 2)
+
    # elif lat_type == 11:
    #     ...
    # elif lat_type == 12:
@@ -617,17 +622,37 @@ def get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
 
     # flip the array because serpent and openmc have opposing conventions
     # for the universe order
-    lattice_universe_name_array = np.flip(lattice_universe_name_array, axis=0)
 
     # need to calculate the new origin
     # the procedure is different for square/rect and hex lattices
     if re.match("(1|6|11)", lattice_type): # square/rect lattice
+        lattice_universe_name_array = np.flip(lattice_universe_name_array, axis=0)
         lattice_origin = np.empty(len(lattice_elements),dtype=float)
         for Ncoord in lattice_elements:
             index = lattice_elements.index(Ncoord)
             lattice_origin[index] = Ncoord * 0.5 * lattice_pitch[index]
 
+   #elif lattice_type == '9':
+   #    lattice_universe_name_array = lattice_universe_name_array[:,1]
+   #    zcoords = lattice_universe_names[:,0]
+   #    lattice_cells = {}
+   #    for universe_name in lattice_universe_name_array:
+   #        if universe_dict.get(universe_name):
+   #        universe_cell = openmc.Cell()
+   #        cell_names = univese_to_cell_names_dict[universe_name]
+   #        add_cell_name_to_universe(universe_name, cell_name)
+
+
+
    ## TO IMPLEMENT ##
+   # in serpent, hexagonal lattices are rectilinear tilings, wheras
+   # in openmc they are concentric hexagonal rings
+   #elif re.match("(2|3)", lattice_type):
+   #    lattice_pitch = [pitch]
+   #    if lattice_type == '2':
+   #        orientation = 'y'
+   #    else:
+   #        orientation = 'x'
    # elif re.match("(2|3|7|8|12|13)"): # hex lattice
    #     lattice_origin = ...
     else:
