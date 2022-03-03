@@ -1,6 +1,6 @@
 ## SaltProc
 
-[![Build Status](https://travis-ci.org/andrewryh/saltproc.svg?branch=develop)](https://travis-ci.org/andrewryh/saltproc)
+![Build Status](https://github.com/arfc/saltproc/actions/workflows/test-saltproc.yml/badge.svg?branch=master)
 
 The SaltProc is a fuel reprocessing simulation tool for liquid fueled nuclear
 reactors.
