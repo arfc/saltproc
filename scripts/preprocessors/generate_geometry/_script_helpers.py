@@ -94,7 +94,9 @@ geo_dict = {
         "hexxc": openmc.model.hexagonal_prism,
         "hexyc": openmc.model.hexagonal_prism,
         "cube": openmc.model.RectangularParallelepiped,
-        "cuboid": openmc.model.RectangularParallelepiped
+        "cuboid": openmc.model.RectangularParallelepiped,
+        "octa" : None, # to implement
+        "pad" : None # to implement, can use the positive half spaceof a cylinder with the negative half-space of openmc.RightCircularCylinder
     },
     "cell": openmc.Cell,
     "lat": {
