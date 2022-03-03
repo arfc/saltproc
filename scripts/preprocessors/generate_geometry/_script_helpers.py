@@ -453,18 +453,35 @@ def construct_cell_helper(cell_card, cell_card_splitter, cell_type):
             if has_subsurfaces:
                 # write subsurfaces snippet for the csg expression
                 region_expr = ''
-                i = 0
-                if len(surface_object) == 4:
-                    for subsurf in surface_object:
+                subsurf_names = list(surface_object)
+                if len(surface_object) == 4: # rect
+                    for subsurf_name in subsurf_names:
                         if i == 0 or i == 2:
-                            region_expr += f"+{surface_object[subsurf].id} "
+                            region_expr += f"+{surface_object[subsurf_name].id} "
                         elif i == 1 or i == 3:
-                            region_expr += f"-{surface_object[subsurf].id} "
-                        i += 1
+                            region_expr += f"-{surface_object[subsurf_name].id} "
+                        else:
+                            raise ValueError("Bad index when creating csg expression for subsurfaces")
                     region_expr = '(' + region_expr[:-1] + ')'
 
-                #elif len(surface_object) == 6:
-                #    ...
+                elif len(surface_object) == 6: # hex
+                    subsurf_names = list(surface_object)
+                    if surface_object[subsurf_names[0]] == openmc.XPlane:
+                        for subsurf_name in subsurf_names:
+                            if i == 0 or i == 2 or i == 3:
+                                region_rexpr += f"-{surface_object[subsurf_name].id}"
+                            elif i == 1 or i == 4 or i == 5:
+                                region_rexpr += f"+{surface_object[subsurf_name].id}"
+                            else:
+                                raise ValueError("Bad index when creating csg expression for subsurfaces")
+                    elif surface_object[subsurf_names[0]] == openmc.YPlane:
+                        for subsurf_name in subsurf_names:
+                            if i == 0 or i == 2 or i == 5:
+                                region_rexpr += f"-{surface_object[subsurf_name].id}"
+                            elif i == 1 or i == 4 or i == 3:
+                                region_rexpr += f"+{surface_object[subsurf_name].id}"
+                            else:
+                                raise ValueError("Bad index when creating csg expression for subsurfaces")
                 else:
                     raise ValueError("There were too many subsurfaces in the region")
                 surface_name_to_surface_id[surface_name] = region_expr
