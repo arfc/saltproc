@@ -223,8 +223,10 @@ def test_create_iter_matfile():
 def _get_iterable_for_object(iterable_object):
     # helper function to DRY
     iterable_type = type(iterable_object)
-    if issubclass(iterable_type, list) or issubclass(iterable_type, tuple):
-            iterable = range(0, len(iterable_object))
+    if issubclass(iterable_type, list) or issubclass(iterable_type, tuple) or issubclass(iterable_type, np.ndarray):
+        if issubclass(iterable_type, np.ndarray):
+            iterable_object = iterable_object.flatten()
+        iterable = range(0, len(iterable_object))
     elif issubclass(iterable_type, dict):
         iterable = iterable_object
     else:
@@ -243,6 +245,13 @@ def _check_none_or_iterable_of_ndarray_equal(object1, object2):
             _check_none_or_iterable_of_ndarray_equal(subobject1, subobject2)
     else:
         assert object1 == object2
+
+def _check_none_or_openmc_object_equal(object1, object2):
+    if object1 == None:
+        assert object2 == None
+    else:
+        _check_openmc_objects_equal(object1, object2)
+
 
 def _check_openmc_objects_equal(object1, object2):
     """
@@ -272,27 +281,29 @@ def _check_openmc_objects_equal(object1, object2):
             assert object1._sab == object2._sab
 
         elif object_type == om.Cell:
-            #assert object1.fill == object2.fill
             assert object1.fill_type == object2.fill_type
+            _check_none_or_openmc_object_equal(object1.fill, object2.fill)
+            assert object1.region == object2.region
             _check_none_or_iterable_of_ndarray_equal(object1.rotation, object2.rotation)
             _check_none_or_iterable_of_ndarray_equal(object1.rotation_matrix, object2.rotation_matrix)
             _check_none_or_iterable_of_ndarray_equal(object1.translation, object2.translation)
+            assert object1.volume == object2.volume
             # assert object1.atoms == object2.atoms
 
         elif issubclass(object_type, om.Lattice):
-            _check_none_or_iterable_of_ndarray_equal(object1.pitch, object2.pitch)
-            assert object1.outer == object2.outer
+            assert object1.shape == object2.shape
+            assert object1.lower_left == object2.lower_left
+            assert object1.pitch == object2.pitch
+            _check_none_or_openmc_object_equal(object1.outer, object2.outer)
             _check_openmc_iterables_equal({'univ': (object1.universes, object2.universes)})
-            #assert object1.universes == object2.universes
 
         elif issubclass(object_type, om.Surface):
             assert object1.boundary_type == object2.boundary_type
-            assert object1.coefficients == object2.coefficients
+            _check_none_or_iterable_of_ndarray_equal(object1.coefficients, object2.coefficients)
             assert object1.type == object2.type
 
         elif object_type == om.Universe:
             _check_openmc_iterables_equal({'cells': (object1.cells, object2.cells)})
-            #assert object1.cells == object2.cells
             assert object1.volume == object2.volume
             _check_none_or_iterable_of_ndarray_equal(object1.bounding_box, object2.bounding_box)
         else:
@@ -314,6 +325,9 @@ def _check_openmc_iterables_equal(iterable_dict):
         object1_iterable, object2_iterable = iterable_dict[object_type]
         assert len(object1_iterable) == len(object2_iterable)
         iterable = _get_iterable_for_object(object1_iterable)
+        if issubclass(type(object1_iterable), np.ndarray):
+            object1_iterable = object1_iterable.flatten()
+            object2_iterable = object2_iterable.flatten()
         for ref in iterable:
             object1 = object2_iterable[ref]
             object2 = object1_iterable[ref]
