@@ -22,7 +22,7 @@ The following cards are unsupported, but we're working on adding support soon!
   - `cone`
   - Truncated cylinders
   - `tri` (triangular prism)
-  - `hexxc`, `hexyc`, `hexxprism`, `hexyprism`
+  - `hexxprism`, `hexyprism`
   - `octa` and `dode`
   - `ppd`
   - `pad`
@@ -40,3 +40,4 @@ The following cards are unsupported, but we're working on adding support soon!
   - `rot` rotations
   - lattice transformations
 - `usym`
+- `pin`
