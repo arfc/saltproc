@@ -1,6 +1,6 @@
 ## SaltProc
 
-[![Build Status](https://travis-ci.org/andrewryh/saltproc.svg?branch=develop)](https://travis-ci.org/andrewryh/saltproc)
+![Build Status](https://github.com/arfc/saltproc/actions/workflows/test-saltproc.yml/badge.svg?branch=master)
 
 The SaltProc is a fuel reprocessing simulation tool for liquid fueled nuclear
 reactors.
@@ -8,7 +8,7 @@ reactors.
 How to run SaltProc:
 
 cd /path/to/saltproc
-python run_saltproc.py -n 4 -d 1 -i examples/tap_main.json
+python saltproc -n 4 -d 1 -i examples/tap/tap_main.json
 ```
 -n          number of cluster nodes to use in Serpent
 -d          number of threads to use in Serpent
