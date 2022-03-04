@@ -39,6 +39,11 @@ jobs:
         with:
           token: ${{ secrets.token }}
           base: master
+          add-paths: |
+            saltproc/version.py
+            doc/releasenotes/${{ inputs.new-release-version }}.rst
+            doc/releasenotes/index.rst
+
           branch: "${{ inputs.new-release-version }}-final"
           delete-branch: true
           commit-message: "final changes before publishing ${{ inputs.new-release-version }}"

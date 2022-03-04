@@ -24,6 +24,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.token }}
+          ref: master
 
       - name: "Make initial changes for ${{ inputs.new-release-version }}"
         run: |
@@ -42,6 +43,11 @@ jobs:
         with:
           token: ${{ secrets.token }}
           base: master
+          add-paths: |
+            saltproc/version.py
+            doc/releasenotes/${{ inputs.new-release-version }}.rst
+            doc/releasenotes/index.rst
+
           branch: "${{ inputs.new-release-version }}-init"
           delete-branch: true
           commit-message: "inital changes for ${{ inputs.new-release-version }}"
