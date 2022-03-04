@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ inputs.token }}
+          token: ${{ secrets.token }}
 
       - name: "Make initial changes for ${{ inputs.new-release-version }}"
         run: |
@@ -40,7 +40,7 @@ jobs:
       - name: "Create PR containing inital changes for ${{ inputs.new-release-version }}" 
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ inputs.token }}
+          token: ${{ secrets.token }}
           branch: "${{ inputs.new-release-version }}-init"
           delete-branch: true
           commit-message: "inital changes for ${{ inputs.new-release-version }}"
