@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  next-release-minor:
+  get-environment-variables:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -95,22 +95,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Create PR containing inital changes for ${{ env.NEW_RELEASE_VERSION }}" 
-        uses: ./.github/workflows/next-release-init-pr.yml
-        with:
-          release-version: "${{ env.RELEASE_VERSION }}"
-          new-release-version: "${{ env.NEW_RELEASE_VERSION }}"
-          minor-version: "${{ env.MINOR_VERSION }}"
-          milestone-number: ${{ env.MILESTONE_NUMBER }}
-        secrets:
-          token: ${{ secrets.GITHUB_TOKEN }}
+  make-next-version-init-pr:
+    needs: get-environment-variables
+    uses: ./.github/workflows/next-release-init-pr.yml
+    with:
+      release-version: "${{ env.RELEASE_VERSION }}"
+      new-release-version: "${{ env.NEW_RELEASE_VERSION }}"
+      minor-version: "${{ env.MINOR_VERSION }}"
+      milestone-number: ${{ env.MILESTONE_NUMBER }}
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Create PR containing changes necessary for publishing ${{ env.NEW_RELEASE_VERSION }}"
-        uses: ./.github/workflows/next-release-final-pr.yml
-        with:
-          release-version: "${{ env.RELEASE_VERSION }}"
-          new-release-version: "${{ env.NEW_RELEASE_VERSION }}"
-          minor-version: "${{ env.MINOR_VERSION }}"
-          milestone-number: ${{ env.MILESTONE_NUMBER }}
-        secrets:
-          token: ${{ secrets.GITHUB_TOKEN }}
+  make-next-version-final-pr:
+    needs: get-environment-variables
+    uses: ./.github/workflows/next-release-final-pr.yml
+    with:
+      release-version: "${{ env.RELEASE_VERSION }}"
+      new-release-version: "${{ env.NEW_RELEASE_VERSION }}"
+      minor-version: "${{ env.MINOR_VERSION }}"
+      milestone-number: ${{ env.MILESTONE_NUMBER }}
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
