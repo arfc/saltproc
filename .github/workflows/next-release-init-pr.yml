@@ -41,6 +41,7 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.token }}
+          base: master
           branch: "${{ inputs.new-release-version }}-init"
           delete-branch: true
           commit-message: "inital changes for ${{ inputs.new-release-version }}"
