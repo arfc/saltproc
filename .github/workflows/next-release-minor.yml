@@ -24,7 +24,7 @@ jobs:
         id: release-version-step
         run: |
           echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/tags --jq '.[0] | .name')" >> $GITHUB_ENV
-          echo "::set-output name=release-version::${{ env.RELEASE_VERSION }}"
+          echo "::set-output name=release-version::$RELEASE_VERSION"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -109,6 +109,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   make-next-version-init-pr:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
     needs: get-environment-variables
     uses: ./.github/workflows/next-release-init-pr.yml
     with:
@@ -120,6 +125,11 @@ jobs:
       token: ${{ secrets.GITHUB_TOKEN }}
 
   make-next-version-final-pr:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
     needs: get-environment-variables
     uses: ./.github/workflows/next-release-final-pr.yml
     with:
