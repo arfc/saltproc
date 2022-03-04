@@ -24,7 +24,7 @@ jobs:
         id: release-version-step
         run: |
           echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/tags --jq '.[0] | .name')" >> $GITHUB_ENV
-          echo "::set-output name=release-version::$RELEASE_VERSION"
+          echo "::set-output name=release-version::"${{ env.RELEASE_VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
