@@ -109,7 +109,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   make-next-version-init-pr:
-    runs-on: ubuntu-latest
     needs: get-environment-variables
     uses: ./.github/workflows/next-release-init-pr.yml
     with:
@@ -121,7 +120,6 @@ jobs:
       token: ${{ secrets.GITHUB_TOKEN }}
 
   make-next-version-final-pr:
-    runs-on: ubuntu-latest
     needs: get-environment-variables
     uses: ./.github/workflows/next-release-final-pr.yml
     with:
