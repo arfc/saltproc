@@ -15,10 +15,6 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Get most recent release version
         run: |
           echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/tags --jq '.[0] | .name')" >> $GITHUB_ENV
@@ -99,57 +95,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Make initial changes for ${{ env.NEW_RELEASE_VERSION }}"
-        run: |
-          echo "Update version.py"
-          sed -i "s/_version_micro = '*[0-9]*'*/_version_micro = ''/g" saltproc/version.py
-          sed -i "s/_version_minor = [0-9]*/_version_minor = ${{ env.MINOR_VERSION }}/g" saltproc/version.py
-          sed -i "s/^# _version_extra = 'dev'/_version_extra = 'dev'/g" saltproc/version.py
-          sed -i "s/^_version_extra = '0'/# _version_extra = '0'/g" saltproc/version.py
-          echo "Create new release notes"
-          cp doc/releasenotes/template.rst doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
-          sed -i "s/vx.x.x/${{ env.NEW_RELEASE_VERSION }}/g" doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
-          sed -i "s/${{ env.RELEASE_VERSION }}/${{ env.NEW_RELEASE_VERSION }}\n  ${{ env.RELEASE_VERSION }}/g" doc/releasenotes/index.rst
-
       - name: "Create PR containing inital changes for ${{ env.NEW_RELEASE_VERSION }}" 
-        uses: peter-evans/create-pull-request@v3
+        uses: ./.github/workflows/next-release-init-pr.yml
         with:
-          branch: "${{ env.NEW_RELEASE_VERSION }}-init"
-          delete-branch: true
-          commit-message: "inital changes for ${{ env.NEW_RELEASE_VERSION }}"
-          title: "[INIT] Update `version.py` and create release notes for version ${{ env.NEW_RELEASE_VERSION }}"
-          body: "This is an automated PR that updates the version number and creates the release notes file for version ${{ env.NEW_RELEASE_VERSION }}. This should be the first PR merged during development of version ${{ env.NEW_RELEASE_VERSION }}"
-          reviewers: yardasol
-          milestone: ${{ env.MILESTONE_NUMBER }}
-          labels: |
-            Priority:1-Critical
-            Status:5-In Review
-            Type:Style
-            Type:Docs
-            Difficulty:1-Beginner
-            Comp:Build
-
-      - name: "Make changes necessary for publishing ${{ env.NEW_RELEASE_VERSION }} in advance"
-        run: |
-          sed -i "s/\.\. note:: These release notes are currently in production\.//g" doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
-          sed -i "s/^_version_extra = 'dev'/# _version_extra = 'dev'/g" saltproc/version.py
-          sed -i "s/# _version_extra = '0'/_version_extra = '0'/g" saltproc/version.py
+          release-version: "${{ env.RELEASE_VERSION }}"
+          new-release-version: "${{ env.NEW_RELEASE_VERSION }}"
+          minor-version: "${{ env.MINOR_VERSION }}"
+          milestone-number: ${{ env.MILESTONE_NUMBER }}
+        secrets:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Create PR containing changes necessary for publishing ${{ env.NEW_RELEASE_VERSION }}"
-        uses: peter-evans/create-pull-request@v3
+        uses: ./.github/workflows/next-release-final-pr.yml
         with:
-          branch: "${{ env.NEW_RELEASE_VERSION }}-final"
-          delete-branch: true
-          commit-message: "final changes before publishing ${{ env.NEW_RELEASE_VERSION }}"
-          title: "[REQUIRED FOR PUBLISHING] Finishing touches for version ${{ env.NEW_RELEASE_VERSION }}"
-          body: "This is an automated PR that updates the version number and release notes in preparation for the full release of version ${{ env.NEW_RELEASE_VERSION }}. This should be last PR merged before publishing version ${{ env.NEW_RELEASE_VERSION }}. Rebasing this PR on top of the most recent commit in `master` is a prequisite of publishing version ${{ env.NEW_RELEASE_VERSION }}. We rebase becasue the commits in this PR were created around the same time development on ${{ env.NEW_RELEASE_VERSION }} began."
-          reviewers: yardasol
-          milestone: ${{ env.MILESTONE_NUMBER }}
-          labels: |
-            Priority:2-Normal
-            Status:1-New
-            Type:Style
-            Type:Docs
-            Difficulty:1-Beginner
-            Comp:Build
-
+          release-version: "${{ env.RELEASE_VERSION }}"
+          new-release-version: "${{ env.NEW_RELEASE_VERSION }}"
+          minor-version: "${{ env.MINOR_VERSION }}"
+          milestone-number: ${{ env.MILESTONE_NUMBER }}
+        secrets:
+          token: ${{ secrets.GITHUB_TOKEN }}
