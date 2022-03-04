@@ -110,10 +110,6 @@ jobs:
 
   make-next-version-init-pr:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
-
     needs: get-environment-variables
     uses: ./.github/workflows/next-release-init-pr.yml
     with:
@@ -126,10 +122,6 @@ jobs:
 
   make-next-version-final-pr:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
-
     needs: get-environment-variables
     uses: ./.github/workflows/next-release-final-pr.yml
     with:
