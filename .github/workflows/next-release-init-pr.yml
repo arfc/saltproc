@@ -12,7 +12,7 @@ on:
         type: string
       milestone-number:
         required: true
-        type: number
+        type: string
     secrets:
       token:
         required: true
