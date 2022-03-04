@@ -124,7 +124,7 @@ jobs:
       token: ${{ secrets.GITHUB_TOKEN }}
 
   make-next-version-final-pr:
-    needs: get-environment-variables
+    needs: [get-environment-variables, make-next-version-init-pr]
     uses: ./.github/workflows/next-release-final-pr.yml
     with:
       release-version: ${{ needs.get-environment-variables.outputs.release-version }}

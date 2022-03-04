@@ -25,18 +25,10 @@ jobs:
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.token }}
+          ref: "${{ inputs.new-release-version }}-init"
 
       - name: "Make changes necessary for publishing ${{ inputs.new-release-version }} in advance"
         run: |
-          echo "Update version.py"
-          sed -i "s/_version_micro = '*[0-9]*'*/_version_micro = ''/g" saltproc/version.py
-          sed -i "s/_version_minor = [0-9]*/_version_minor = ${{ inputs.minor-version }}/g" saltproc/version.py
-          sed -i "s/^# _version_extra = 'dev'/_version_extra = 'dev'/g" saltproc/version.py
-          sed -i "s/^_version_extra = '0'/# _version_extra = '0'/g" saltproc/version.py
-          echo "Create new release notes"
-          cp doc/releasenotes/template.rst doc/releasenotes/${{ inputs.new-release-version }}.rst
-          sed -i "s/vx.x.x/${{ inputs.new-release-version }}/g" doc/releasenotes/${{ inputs.new-release-version }}.rst
-          sed -i "s/${{ inputs.release-version }}/${{ inputs.new-release-version }}\n  ${{ inputs.release-version }}/g" doc/releasenotes/index.rst
           echo "Prepare for full release"
           sed -i "s/\.\. note:: These release notes are currently in production\.//g" doc/releasenotes/${{ inputs.new-release-version }}.rst
           sed -i "s/^_version_extra = 'dev'/# _version_extra = 'dev'/g" saltproc/version.py
@@ -46,6 +38,7 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.token }}
+          base: master
           branch: "${{ inputs.new-release-version }}-final"
           delete-branch: true
           commit-message: "final changes before publishing ${{ inputs.new-release-version }}"
