@@ -162,6 +162,7 @@ jobs:
 
   make-next-version-final-pr:
     needs: [get-environment-variables, make-next-version-init-pr]
+    env:
       NEW_RELEASE_VERSION: ${{ needs.get-environment-variables.outputs.new-release-version }}
       MILESTONE_NUMBER: ${{ needs.get-environment-variables.outputs.milestone-number }}
     runs-on: ubuntu-latest
