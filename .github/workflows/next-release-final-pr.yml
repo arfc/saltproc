@@ -29,13 +29,8 @@ jobs:
           #ref: "${{ inputs.new-release-version }}-init"
           
       - name: Get changes from the INIT PR
-        uses: devmasx/merge-branch@master
-        with:
-            type: now
-            from_branch: ${{ inputs.new-release-version }}-init
-            target_branch: master
-            github_token: ${{ secrets.token }}
-            
+        run: |
+            git pull origin ${{ inputs.new-release-version }}-init
 
       - name: "Make changes necessary for publishing ${{ inputs.new-release-version }} in advance"
         run: |
