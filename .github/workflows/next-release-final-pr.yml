@@ -25,7 +25,17 @@ jobs:
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.token }}
-          ref: "${{ inputs.new-release-version }}-init"
+          ref: master
+          #ref: "${{ inputs.new-release-version }}-init"
+          
+      - name: Get changes from the INIT PR
+        uses: devmasx/merge-branch@master
+        with:
+            type: now
+            from_branch: ${{ inputs.new-release-version }}-init
+            targe_branch: master
+            github_token: ${{ secrets.token }}
+            
 
       - name: "Make changes necessary for publishing ${{ inputs.new-release-version }} in advance"
         run: |
