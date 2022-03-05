@@ -120,7 +120,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ env.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           ref: master
 
       - name: "Make initial changes for ${{ env.NEW_RELEASE_VERSION }}"
@@ -138,7 +138,7 @@ jobs:
       - name: "Create PR containing inital changes for ${{ env.NEW_RELEASE_VERSION }}" 
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ env.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           base: master
           add-paths: |
             saltproc/version.py
@@ -169,7 +169,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ env.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           ref: master
           
       - name: Get changes from the INIT PR
@@ -186,7 +186,7 @@ jobs:
       - name: "Create PR containing changes necessary for publishing ${{ env.NEW_RELEASE_VERSION }}"
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ env.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           base: master
           add-paths: |
             saltproc/version.py
