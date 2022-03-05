@@ -33,7 +33,7 @@ jobs:
         with:
             type: now
             from_branch: ${{ inputs.new-release-version }}-init
-            targe_branch: master
+            target_branch: master
             github_token: ${{ secrets.token }}
             
 
