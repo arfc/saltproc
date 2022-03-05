@@ -6,6 +6,7 @@ SaltProc has the following dependencies:
   #. `Python`_ (>=3.5)
   #. `Serpent`_ (>=2.1.31)
   #. `PyNE`_ (>=0.5.11)
+  #. `OpenMC`_ (>=0.13.0)
   #. `NumPy`_ (>=1.14.0)
   #. `PyTables`_
   #. `NetworkX`_
@@ -14,6 +15,7 @@ SaltProc has the following dependencies:
 
 .. _Serpent: http://montecarlo.vtt.fi
 .. _PyNE: http://pyne.io
+.. _OpenMC: https://openmc.org/
 .. _Python: http://python.org
 .. _NumPy: http://numpy.org
 .. _PyTables: http://pytables.org
@@ -65,11 +67,18 @@ repository (assuming the `saltproc-env` environment is active):
 
 Please let us know if you run into trouble.
 
+
 Cross Section Configuration
 ---------------------------
-SaltProc can use any cross section library that Serpent can. See `this page on the Serpent wiki`_ for information on how to configure the libraries. 
+SaltProc can use any cross section library that its depetion codes can. Currently supporte depletion codes and their guides on cross section confguration are listed below:
+
+  - Serpent: See `this page on the Serpent wiki`_ for information on how to configure the libraries. 
+  - OpenMC: See `this page on the OpenMC docs`_ for information on how to configure the libraries. You can also convert a Serpent cross section library to an OpenMC cross section libary using `their included scripts`_.
 
 .. _this page on the Serpent wiki: https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries
+.. _this page on the OpenMC docs: https://docs.openmc.org/en/stable/usersguide/cross_sections.html
+.. _their included scripts: https://docs.openmc.org/en/stable/usersguide/scripts.html#openmc-ace-to-hdf5
+
 
 Testing
 -------
@@ -78,13 +87,16 @@ The unit tests check that the individual functions and classes of the ``saltproc
 module return the correct type of variables and correct values, where applicable. 
 The regression tests run a full SaltProc simulation and check the final result
 with a precalculated result. 
-The integration tests require the `JEFF 3.1.2 cross section library`_ as well
+The ``DepcodeSerpent`` integration tests require the `JEFF 3.1.2 cross section library`_ as well
 as neutron induces and spontaneous fission product yield data from JEFF 3.3. 
-The publicly available versions of JEFF 3.1.2  cannot be used with Serpent right
+The publicly available versions of JEFF 3.1.2 cannot be used with Serpent right
 out of the box due to `Serpent's notation for isomeric states`_. The scripts in
 ``scripts/xsdata`` download all necessary libraries and perform all the necessary processing on them for use in Serpent 2.
 We recommend using them for your convenience. 
 See the `README`_ for more information.
+
+..
+  The ``DepcodeOpenmc`` integration tests require...
 
 .. _Serpent's notation for isomeric states: https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries
 .. _JEFF 3.1.2 cross section library: https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/
