@@ -1,33 +1,19 @@
 ================
 HDF5 Output File
 ================
+This file format specification uses the pytables terminology.
 
-**/materials/fuel/<before or after>_reproc/**
+**/**
 
-Base Input
-----------
+:Leaves: - **inital_depcode_siminfo** -- (*Table*)
+         - **simulation_parameters** -- (*Table*)
+   
+**/materials/<fuel/ctrlPois>/<before/after>_reproc/**
 
-:proc_input_file:
-  Path to the ``.json`` file containing the salt processing system objects
-
-:dot_input_file:
-  Path to ``.dot`` graph file containing processing system structure
-
-:output_path:
-  Path to directory where simulation data written  
-
-:num_depsteps:
-  The number of depletion steps
+:Leaves: - **parameters** ()
+         - **comp** (*double[][]*) -- wt-percent composition of nuclides in the fuel. The array has the shape (number of timesteps, number of nuclides)
 
 
-``depcode`` object
-------------------
+**/materials/<fuel/ctrlPois>/in_out_streams/**
 
-Input parameters for the `Depcode` class 
-
-:codename:
-
-:exec_path:
-
-:template_input_file:
- 
+:Leaves: - **<stream name>** ()
