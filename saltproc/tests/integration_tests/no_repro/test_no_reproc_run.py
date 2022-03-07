@@ -30,8 +30,8 @@ depcode = DepcodeSerpent(
     npop=100,
     active_cycles=20,
     inactive_cycles=5)
-depcode.iter_inputfile=sss_file,
-depcode.iter_matfile=iter_matfile,
+depcode.iter_inputfile=sss_file
+depcode.iter_matfile=iter_matfile
 
 simulation = Simulation(sim_name='Integration test',
                         sim_depcode=depcode,
