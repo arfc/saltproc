@@ -19,7 +19,7 @@
 - [ ] My change is a source code change
   - [ ] I have added/modified tests to cover my changes
   - [ ] I have explained why my change does not require new/modified tests
-- [ ] My change is related to the repository
+- [ ] My change is exclusively related to the repository (e.g. GitHub actions workflows, PR/issue templates, etc.)
   - [ ] I have verified or justified that my change will work as intended.
 - [ ] All new and existing tests passed.
   - [ ] CI tests pass
