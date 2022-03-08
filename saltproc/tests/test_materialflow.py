@@ -14,8 +14,8 @@ serpent = DepcodeSerpent(
     '/template.inp',
     geo_files=None)
 
-serpent.iter_inputfile=iter_inputfile
-serpent.iter_matfile=directory + '/material'
+serpent.iter_inputfile = iter_inputfile
+serpent.iter_matfile = directory + '/material'
 
 
 def test_get_mass():

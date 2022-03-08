@@ -1,6 +1,7 @@
 import re
 import os
 import sys
+from scipy.spatial.transform import Rotation as sprot
 import openmc
 import _script_helpers as schp
 # Read command line input
@@ -26,7 +27,7 @@ schp.geo_data = []
 fname = serpent_geo_path.split('/').pop(-1).split('.')[0]
 path = os.path.dirname(serpent_geo_path)
 openmc_mats = openmc.Materials.from_xml(openmc_mat_path)
-#global mat_dict = {}
+# global mat_dict = {}
 for mat in openmc_mats:
     schp.mat_dict[mat.name] = mat
 # add void material
@@ -35,10 +36,11 @@ schp.mat_dict['void'] = None
 with open(serpent_geo_path, 'r') as file:
     schp.geo_data = file.readlines()
 
-schp.surface_bc, schp.root_name = schp.get_boundary_conditions_and_root(schp.geo_data)
+schp.surface_bc, schp.root_name = schp.get_boundary_conditions_and_root(
+    schp.geo_data)
 schp.n_bcs = len(set(schp.surface_bc))
-#surf_dict = {} # surf name to surface object
-#cell_dict = {} # cell name to cell object
+# surf_dict = {} # surf name to surface object
+# cell_dict = {} # cell name to cell object
 #universe_to_cell_names_dict = {}
 #universe_dict = {}
 root_univ = openmc.Universe(name=schp.root_name)
@@ -54,7 +56,8 @@ for line in schp.geo_data:
     # Create openmc Cell objects
     # corresponding to serpent cell cards
     elif re.search(schp.CELL_REGEX_ALL, line):
-        cell_card = re.search(schp.CELL_REGEX_ALL, line).group(0) # get the cell card without comments
+        cell_card = re.search(schp.CELL_REGEX_ALL, line).group(
+            0)  # get the cell card without comments
         if re.search(schp.CELL_REGEX2_CORE, cell_card):
             split_regex = schp.CELL_REGEX2_CORE
             cell_type = "fill"
@@ -66,16 +69,16 @@ for line in schp.geo_data:
             cell_type = "material"
         else:
             raise ValueError("Erroneous cell card type")
-        my_cell, cell_name, fill_obj, cell_region = schp.construct_cell_helper(cell_card, split_regex, cell_type)
+        my_cell, cell_name, fill_obj, cell_region = schp.construct_cell_helper(
+            cell_card, split_regex, cell_type)
         my_cell.name = cell_name
         my_cell.fill = fill_obj
         my_cell.region = cell_region
         schp.cell_dict[cell_name] = my_cell
 
-
     # transformations
     elif re.search(schp.TRANS_REGEX, line):
-        trans_card = re.search(schp.TRANS_REGEX,line).group(0)
+        trans_card = re.search(schp.TRANS_REGEX, line).group(0)
         trans_data = trans_card.split()
         trans_object_type = trans_data[1]
         trans_object_name = trans_data[2]
@@ -83,13 +86,14 @@ for line in schp.geo_data:
         # look for transformation object type
         if trans_object_type == "U":
             trans_objects_dict = schp.cell_dict
-            trans_object_names = schp.universe_to_cell_names_dict[trans_object_name]
-        elif trans_type == "S":
+            trans_object_names = \
+                schp.universe_to_cell_names_dict[trans_object_name]
+        elif trans_object_type == "S":
             trans_objects_dict = schp.surf_dict
             trans_objects_names = [schp.surf_dict[trans_object_name]]
         else:
             raise ValueError(f"Transforming objects of type \
-                             {trans_type} is currently unsupported")
+                             {trans_object_type} is currently unsupported")
 
         trans_objects = []
         for name in trans_object_names:
@@ -99,7 +103,7 @@ for line in schp.geo_data:
         ### lattice transformations not currently supported ###
         trans_args = trans_data[3:]
         n_args = len(trans_args)
-        for i in range(0,n_args):
+        for i in range(0, n_args):
             a = trans_args[i]
             a = float(a)
             trans_args[i] = a
@@ -108,15 +112,15 @@ for line in schp.geo_data:
         rotation_args = []
         ORD = None
         # LVL, and 'rot' transformations currently unsupported
-        if n_args == 3: # transformation
+        if n_args == 3:  # transformation
             x, y, z = tuple(trans_args)
             translation_args = [x, y, z]
             trans_types = ['translation']
-        elif n_args == 7: # transformation + rotation using angles wrt axis
+        elif n_args == 7:  # transformation + rotation using angles wrt axis
             x, y, z, tx, ty, tz, ORD = tuple(trans_args)
             rotation_args = sprot.from_euler('xyz', [tx, ty, tz]).as_matrix()
             translation_args = [x, y, z]
-        elif n_args == 13: # transformation + rotation using rotation matrix
+        elif n_args == 13:  # transformation + rotation using rotation matrix
             x, y, z, a1, a2, a3, a4, \
                 a5, a6, a7, a8, a9, ORD = tuple(trans_args)
             rotation_args = [[a1, a2, a3],
@@ -134,15 +138,16 @@ for line in schp.geo_data:
             else:
                 raise ValueError(f"{ORD} is an invalid value for ORD")
 
-
         transformed_objects = {}
         for trans_type in trans_types:
             if trans_type == 'translation':
                 for obj in trans_objects:
-                    transformed_objects[obj.name] = schp.translate_obj(obj,translation_args)
+                    transformed_objects[obj.name] = schp.translate_obj(
+                        obj, translation_args)
             elif trans_type == 'rotation':
                 for obj in trans_objects:
-                    transformed_objects[obj.name] = schp.rotate_obj(obj,rotation_args)
+                    transformed_objects[obj.name] = schp.rotate_obj(
+                        obj, rotation_args)
 
         for obj_name in transformed_objects:
             trans_objects_dict[obj_name] = transformed_objects[obj_name]
@@ -155,16 +160,18 @@ for line in schp.geo_data:
         lat_type = lat_data[2]
         lat_args = lat_data[3:]
 
-        if not bool(schp.universe_dict.get(lat_universe_name)) and lat_universe_name != schp.root_name:
-           schp.universe_dict[lat_universe_name] = openmc.Universe(name=lat_universe_name)
+        if not bool(schp.universe_dict.get(lat_universe_name)
+                    ) and lat_universe_name != schp.root_name:
+            schp.universe_dict[lat_universe_name] = openmc.Universe(
+                name=lat_universe_name)
 
         # get lattice universe array
         current_line_idx = schp.geo_data.index(line)
         lattice_origin, \
             lattice_pitch, \
             lattice_univ_array = schp.get_lattice_univ_array(lat_type,
-                                                         lat_args,
-                                                         current_line_idx)
+                                                             lat_args,
+                                                             current_line_idx)
 
         lattice_object = schp.geo_dict["lat"][lat_type](name=lat_universe_name)
         if re.search("(1|6|11)", lat_type):
@@ -176,14 +183,15 @@ for line in schp.geo_data:
 
         lattice_object.pitch = lattice_pitch
         lattice_object.universes = lattice_univ_array
-        lattice_cell = openmc.Cell(fill=lattice_object)#, region=universe_dict[lat_universe_name])
+        # , region=universe_dict[lat_universe_name])
+        lattice_cell = openmc.Cell(fill=lattice_object)
         lattice_cell.name = lat_universe_name
         schp.cell_dict[lat_universe_name] = lattice_cell
         schp.add_cell_name_to_universe(lat_universe_name, lattice_cell.name)
 
-    ## universe symmetry
+    # universe symmetry
     elif re.search(schp.USYM_REGEX, line):
-        usym_card = re.search(USYM_REGEX, line)
+        usym_card = re.search(schp.USYM_REGEX, line)
         usym_data = usym_card.split()
         usym_universe_name = usym_data[2]
         usym_axis = usym_data[3]
@@ -194,10 +202,9 @@ for line in schp.geo_data:
         usym_width_ang = usym_data[8]
         usym_args = usym_data[9:]
 
-        ... # look into symmetries in openmc
-            # otherwise we have a lot of processing to do
-            # alternativley we can just use hte same BC on a plane object.
-
+        ...  # look into symmetries in openmc
+        # otherwise we have a lot of processing to do
+        # alternativley we can just use hte same BC on a plane object.
 
 
 for universe_name in schp.universe_to_cell_names_dict:
@@ -210,16 +217,16 @@ for universe_name in schp.universe_to_cell_names_dict:
     schp.universe_dict[universe_name] = universe
 
 root_univ = schp.universe_dict[schp.root_name]
-## there's osmething not working with the cells and root universe right now
-## Ill need to look into it.
+# there's osmething not working with the cells and root universe right now
+# Ill need to look into it.
 # make dict of cell ids to cell obj
 #all_cells = []
-#for cell_name in cell_dict:
+# for cell_name in cell_dict:
 #    cell = cell_dict[cell_name]
 #    all_cells += [cell]
-#root_univ.add_cells(all_cells)
+# root_univ.add_cells(all_cells)
 openmc_geometry = openmc.Geometry()
 openmc_geometry.root_universe = root_univ
 print(f"Root universe name: {schp.root_name}")
 print(f"Root universe id: {root_univ.id}")
-openmc_geometry.export_to_xml(os.path.join(path, fname+'.xml'))
+openmc_geometry.export_to_xml(os.path.join(path, fname + '.xml'))

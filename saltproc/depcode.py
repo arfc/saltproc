@@ -3,7 +3,6 @@ import subprocess
 import os
 import shutil
 import re
-import tables as tb
 from pyne import nucname as pyname
 from pyne import serpent
 import openmc
@@ -125,7 +124,6 @@ class Depcode(ABC):
             Number of nodes to use for depletion code run.
         """
 
-
     @abstractmethod
     def switch_to_next_geometry(self):
         """Changes the geometry used in the depletion code simulation to the
@@ -236,7 +234,6 @@ class DepcodeOpenMC(Depcode):
                                'settings': './settings.xml'},
         self.iter_matfile = './materials.xml'
 
-
     def read_depcode_info(self):
         """Parses initial OpenMC simulation info from the OpenMC output files
         and stores it in the `Depcode` object's ``sim_info`` attribute.
@@ -314,7 +311,6 @@ class DepcodeOpenMC(Depcode):
                                % (self.codename))
         print('Finished OpenMC Run')
 
-
     def switch_to_next_geometry(self):
         """Switches the geometry file for the OpenMC depletion simulation to
         the next geometry file in `geo_files`.
@@ -325,7 +321,6 @@ class DepcodeOpenMC(Depcode):
             materials=mats)
         next_geometry.export_to_xml(path=self.iter_inputfile['geometry'])
         del mats, next_geometry
-
 
     def write_depcode_input(self, reactor, dep_step, restart):
         """ Writes prepared data into OpenMC input file(s).
@@ -342,20 +337,22 @@ class DepcodeOpenMC(Depcode):
         """
 
         if dep_step == 0 and not restart:
-            materials = openmc.Materials.from_xml(self.template_inputfiles_path['materials'])
-            geometry = openmc.Geometry.from_xml(self.template_inputfiles_path['geometry'],
-                                                materials=materials)
-            settings = openmc.Settings.from_xml(self.template_inputfiles_path['settings'])
+            materials = openmc.Materials.from_xml(
+                self.template_inputfiles_path['materials'])
+            geometry = openmc.Geometry.from_xml(
+                self.template_inputfiles_path['geometry'], materials=materials)
+            settings = openmc.Settings.from_xml(
+                self.template_inputfiles_path['settings'])
             settings.particles = self.npop
-            #settings.generations_per_batch = ??
+            # settings.generations_per_batch = ??
             settings.inactive = self.inactive_cycles
             settings.batches = self.active_cycles + self.inactive_cycles
         else:
             materials = openmc.Materials.from_xml(self.iter_matfile)
-            geometry = openmc.Geometry.from_xml(self.iter_inputfile['geometry'],
-                                                materials=materials)
-            settings = openmc.Settings.from_xml(self.iter_inputfile['settings'])
-
+            geometry = openmc.Geometry.from_xml(
+                self.iter_inputfile['geometry'], materials=materials)
+            settings = openmc.Settings.from_xml(
+                self.iter_inputfile['settings'])
 
         materials.export_to_xml(self.iter_matfile)
         geometry.export_to_xml(self.iter_inputfile['geometry'])
@@ -403,10 +400,9 @@ class DepcodeOpenMC(Depcode):
             raise SyntaxError("No chain file defined. Please provide \
             a chain file in your saltproc input file")
 
-
         integrator_kwargs = {}
         integrator_kwargs['power'] = current_depstep_power
-        integrator_kwargs['timestep_units'] = 'd' # days
+        integrator_kwargs['timestep_units'] = 'd'  # days
 
         depletion_settings['operator_kwargs'] = operator_kwargs
         depletion_settings['integrator_kwargs'] = integrator_kwargs
@@ -416,7 +412,6 @@ class DepcodeOpenMC(Depcode):
         json_dep_settings = json.JSONEncoder().encode(depletion_settings)
         with open(self.iter_inputfile['depletion_settings'], 'w') as f:
             f.writelines(json_dep_settings)
-
 
     def write_mat_file(self, dep_dict, dep_end_time):
         """Writes the iteration input file containing the burnable materials
@@ -453,7 +448,7 @@ class DepcodeOpenMC(Depcode):
         tallies = openmc.Tallies()
 
         tally = openmc.Tally(name='delayed-fission-neutrons')
-        tally.filters = [openmc.DelayedGroupFilter([1,2,3,4,5,6])]
+        tally.filters = [openmc.DelayedGroupFilter([1, 2, 3, 4, 5, 6])]
         tally.scores = ['delayed-nu-fission']
         tallies.append(tally)
 
@@ -463,13 +458,16 @@ class DepcodeOpenMC(Depcode):
         tallies.append(tally)
 
         tally = openmc.Tally(name='precursor-decay-constants')
-        tally.filters = [openmc.DelayedGroupFilter([1,2,3,4,5,6])]
+        tally.filters = [openmc.DelayedGroupFilter([1, 2, 3, 4, 5, 6])]
         tally.scores = ['decay-rate']
         tallies.append(tally)
 
         tally = openmc.Tally(name='fission-energy')
         tally.filters = [openmc.UniverseFilter(geometry.root_universe)]
-        tally.scores = ['fission-q-recoverable', 'fission-q-prompt', 'kappa-fission']
+        tally.scores = [
+            'fission-q-recoverable',
+            'fission-q-prompt',
+            'kappa-fission']
         tallies.append(tally)
 
         tally = openmc.Tally(name='normalization-factor')
@@ -482,6 +480,7 @@ class DepcodeOpenMC(Depcode):
             os.path.join(out_path, 'tallies.xml')
         tallies.export_to_xml(self.iter_inputfile['tallies'])
         del tallies
+
 
 class DepcodeSerpent(Depcode):
     r"""Class contains information about input, output, geometry, and
@@ -540,7 +539,6 @@ class DepcodeSerpent(Depcode):
                          inactive_cycles)
         self.iter_inputfile = './serpent_iter_input.serpent'
         self.iter_matfile = './serpent_iter_mat.ini'
-
 
     def change_sim_par(self, template_data):
         """Finds simulation parameters (neutron population, cycles) in the

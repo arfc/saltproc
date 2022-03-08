@@ -420,9 +420,8 @@ def run():
     elif depcode_inp['codename'] == 'openmc':
         iter_inputfile = {}
         for key in depcode_inp['template_inputfiles_path']:
-            value = depcode_inp['template_inputfiles_path'][key]
             iter_inputfile[key] = \
-                os.path.join(output_path, key+'.xml')
+                os.path.join(output_path, key + '.xml')
 
         iter_matfile = os.path.join(output_path, 'materals.xml')
         depcode = DepcodeOpenMC()
@@ -430,11 +429,11 @@ def run():
         raise ValueError(
             f'{depcode_inp["codename"]} is not a supported depletion code')
 
-    depcode.template_inputfiles_path=depcode_inp['template_inputfiles_path']
-    depcode.geo_files=depcode_inp['geo_file_paths']
-    depcode.npop=depcode_inp['npop']
-    depcode.active_cycles=depcode_inp['active_cycles']
-    depcode.inactive_cycles=depcode_inp['inactive_cycles']
+    depcode.template_inputfiles_path = depcode_inp['template_inputfiles_path']
+    depcode.geo_files = depcode_inp['geo_file_paths']
+    depcode.npop = depcode_inp['npop']
+    depcode.active_cycles = depcode_inp['active_cycles']
+    depcode.inactive_cycles = depcode_inp['inactive_cycles']
 
     depcode.iter_inputfile = iter_inputfile
     depcode.iter_matfile = iter_matfile

@@ -294,6 +294,7 @@ class Simulation():
         # Initialize beta groups number
         b_g = len(self.sim_depcode.param['beta_eff'])
         # numpy array row storage for run info
+
         class Step_info(tb.IsDescription):
             keff_bds = tb.Float32Col((2,))
             keff_eds = tb.Float32Col((2,))

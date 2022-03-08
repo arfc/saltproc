@@ -16,8 +16,8 @@ serpent = DepcodeSerpent(
     '/template.inp',
     geo_files=None)
 
-serpent.iter_inputfile=iter_inputfile
-serpent.iter_matfile=directory + '/material'
+serpent.iter_inputfile = iter_inputfile
+serpent.iter_matfile = directory + '/material'
 
 process = Process(mass_flowrate=10,
                   capacity=99.0,

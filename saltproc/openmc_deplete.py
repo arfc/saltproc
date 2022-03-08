@@ -2,6 +2,7 @@ import openmc
 import openmc.deplete as od
 import argparse
 
+
 def parse_arguments():
     """Parses arguments from command line.
 
@@ -49,6 +50,7 @@ def parse_arguments():
     return str(args.mat), str(args.geo), str(args.set), \
         str(args.dep), str(args.tal)
 
+
 args = parse_arguments()
 
 # Initalize OpenMC objects
@@ -58,7 +60,7 @@ settings = openmc.Settings.from_xml(args.set)
 tallies = openmc.Tallies.from_xml(args.tal)
 model = openmc.model.Model(materials=materials,
                            geometry=geometry,
-                           settings=settings
+                           settings=settings,
                            tallies=tallies)
 
 depletion_settings = {}

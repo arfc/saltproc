@@ -21,8 +21,8 @@ serpent = DepcodeSerpent(
         '../../examples/406.inp',
         '../../examples/988.inp'])
 
-serpent.iter_inputfile=iter_inputfile
-serpent.iter_matfile=directory + '/material'
+serpent.iter_inputfile = iter_inputfile
+serpent.iter_matfile = directory + '/material'
 
 
 simulation = Simulation(sim_name='Simulation unit tests',
