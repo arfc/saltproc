@@ -177,11 +177,11 @@ def get_boundary_conditions_and_root(geo_data):
         bc_data = bc_card.split()
         bc_data = bc_data[2:]
         for bc in bc_data:
-            if bc == '1' or bc == 'black':
+            if bc in ('1', 'black'):
                 surface_bc += ['vacuum']
-            elif bc == '2' or bc == 'reflective':
+            elif bc in ('2', 'reflective'):
                 surface_bc += ['reflective']
-            elif bc == '3' or bc == 'periodic':
+            elif bc in ('3', 'periodic'):
                 surface_bc += ['periodic']
             # elif bool(float(bc)):
             #    surface_bc += ['white'] #I'm not sure this is correct
@@ -198,37 +198,15 @@ def get_boundary_conditions_and_root(geo_data):
         root_name = root_card.split()[2]
     return surface_bc, root_name
 
-
-def construct_surface_helper(surf_card):
-    """
-    Helper function for creating `openmc.Surface` objects
-    corresponding to Serpent `surf` cards
-
-    Parameters
-    ----------
-    surf_card : str
-        A string containing a Serpent `surf` card
-
-    """
-    surf_data = surf_card.split()
-    surf_name = surf_data[1]
-    surf_type = surf_data[2]
-    surf_args = surf_data[3:]
-    surf_params = surf_args.copy()
-    for i in range(0, len(surf_params)):
-        p = float(surf_params[i])
-        surf_params[i] = p
-
+def _get_openmc_surface_params(surf_type, surf_params):
     # generic case
+    surface_params = None
     set_attributes = True
     has_subsurfaces = False
     # handle special cases
     if bool(special_case_surfaces.count(surf_type)):
         set_attributes = False
-        if surf_type == "inf":
-            surface_object = "inf"  # We'll replace this later
     elif bool(geo_dict['surf'].get(surf_type)):
-        surface_object = geo_dict['surf'][surf_type]
         if surf_type == "plane":
             # convert 3-point form to ABCD form for
             # equation of a plane
@@ -279,7 +257,7 @@ def construct_surface_helper(surf_card):
             surface_params = [width, height, axis, origin]
             has_subsurfaces = True
 
-        elif surf_type == "hexxc" or surf_type == "hexyc":
+        elif surf_type in ("hexxc","hexyc"):
             x0 = surf_params[0]
             y0 = surf_params[1]
             d = surf_params[2]
@@ -312,6 +290,36 @@ def construct_surface_helper(surf_card):
         raise ValueError(
             f"Surfaces of type {surf_type} are currently unsupported")
 
+    return surface_params, set_attributes, has_subsurfaces
+
+
+def construct_and_store_openmc_surface(surf_card):
+    """
+    Helper function for creating `openmc.Surface` objects
+    corresponding to Serpent `surf` cards
+
+    Parameters
+    ----------
+    surf_card : str
+        A string containing a Serpent `surf` card
+
+    """
+    surf_data = surf_card.split()
+    surf_name = surf_data[1]
+    surf_type = surf_data[2]
+    surf_args = surf_data[3:]
+    surf_params = surf_args.copy()
+    for i, p in enumerate(surf_params):
+        p = float(p)
+        surf_params[i] = p
+
+    surface_params, set_attributes, has_subsurfaces = _get_openmc_surface_params(surf_type,surf_params)
+
+    if surface_params is None:
+        surface_object = surf_type
+    else:
+        surface_object = geo_dict['surf'][surf_type]
+
     if set_attributes:
         surface_params = tuple(surface_params)
         surface_object = surface_object(*surface_params)
@@ -331,7 +339,7 @@ def construct_surface_helper(surf_card):
     surf_dict[surf_name] = surface_object
 
 
-def strip_csg_operators(csg_expression):
+def _strip_csg_operators(csg_expression):
     """
     Helper function for `_construct_cell_helper`
 
@@ -374,15 +382,15 @@ def _get_subsurf_region_expr(subsurf_dict):
     subsurf_names = list(subsurf_dict)
     n_surfs = len(subsurf_dict)
     if n_surfs == 4:  # rect
-        match_pos_hs = lambda i: i == 0 or i == 2
-        match_neg_hs = lambda i: i == 1 or i == 3
+        match_pos_hs = lambda i: i in (0, 2)
+        match_neg_hs = lambda i: i in (1, 3)
     elif n_surfs == 6:  # hex
         if subsurf_dict[subsurf_names[0]] == openmc.XPlane:
-            match_pos_hs = lambda i: i == 0 or i == 2 or i == 3
-            match_neg_hs = lambda i: i == 1 or i == 4 or i == 5
+            match_pos_hs = lambda i: i in (0, 2, 3)
+            match_neg_hs = lambda i: i in (1, 4, 5)
         elif subsurf_dict[subsurf_names[0]] == openmc.YPlane:
-            match_pos_hs = lambda i: i == 0 or i == 2 or i == 5
-            match_neg_hs = lambda i: i == 1 or i == 4 or i == 3
+            match_pos_hs = lambda i: i in (0, 2, 5)
+            match_neg_hs = lambda i: i in (1, 4, 3)
     else:
         raise ValueError("There were too many \
                          subsurfaces in the region")
@@ -394,7 +402,7 @@ def _get_subsurf_region_expr(subsurf_dict):
     region_expr = '(' + region_expr[:-1] + ')'
     return region_expr
 
-def construct_cell_helper(cell_card, cell_card_splitter, cell_type):
+def construct_openmc_cell(cell_card, cell_card_splitter, cell_type):
     """Helper function for creating cells
 
     Parameters
@@ -457,7 +465,7 @@ def construct_cell_helper(cell_card, cell_card_splitter, cell_type):
         cell_fill_object_name = cell_data[fill_object_name_index]
         cell_fill_object = cell_fill_obj_dict[cell_fill_object_name]
     csg_expression = re.split(cell_card_splitter, cell_card)[-1]
-    surface_names = strip_csg_operators(csg_expression)
+    surface_names = _strip_csg_operators(csg_expression)
     subsurface_regions = {}
 
     # Handle special cases #
@@ -568,7 +576,7 @@ def rotate_obj(obj, rotation_args):
     return obj
 
 
-def get_lattice_universe_names(current_line_idx, lattice_args, lat_univ_index):
+def _get_lattice_universe_names(current_line_idx, lattice_args, lat_univ_index):
     """
     Helper function that looks for the lattice universe arguments
 
@@ -671,7 +679,7 @@ def get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
         raise ValueError(
             f"Type {lattice_type} lattices are currently unsupported")
 
-    lat_univ_names = get_lattice_universe_names(
+    lat_univ_names = _get_lattice_universe_names(
         current_line_idx, lattice_args, lat_univ_index)
 
     lattice_universe_name_array = np.reshape(lat_univ_names, lattice_elements)

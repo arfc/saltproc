@@ -51,7 +51,7 @@ for line in schp.geo_data:
     # corresponding to serpent surf cards
     if re.search(schp.SURF_REGEX, line):
         surf_card = re.search(schp.SURF_REGEX, line).group(0)
-        schp.construct_surface_helper(surf_card)
+        schp.construct_and_store_openmc_surface(surf_card)
 
     # Create openmc Cell objects
     # corresponding to serpent cell cards
@@ -69,7 +69,7 @@ for line in schp.geo_data:
             cell_type = "material"
         else:
             raise ValueError("Erroneous cell card type")
-        my_cell, cell_name, fill_obj, cell_region = schp.construct_cell_helper(
+        my_cell, cell_name, fill_obj, cell_region = schp.construct_openmc_cell(
             cell_card, split_regex, cell_type)
         my_cell.name = cell_name
         my_cell.fill = fill_obj
