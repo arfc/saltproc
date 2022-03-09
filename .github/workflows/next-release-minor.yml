@@ -8,17 +8,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  next-release-minor:
+  get-environment-variables:
+    outputs:
+      release-version: ${{ steps.job-outputs-step.outputs.release-version }}
+      new-release-version: ${{ steps.job-outputs-step.outputs.new-release-version }}
+      minor-version: ${{ steps.job-outputs-step.outputs.minor-version }}
+      milestone-number: ${{ steps.job-outputs-step.outputs.milestone-number }}
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Get most recent release version
         run: |
           echo "RELEASE_VERSION=$(gh api repos/${{ github.repository }}/tags --jq '.[0] | .name')" >> $GITHUB_ENV
@@ -33,7 +34,7 @@ jobs:
           NEW_RELEASE_VERSION="${arr[0]}.${arr[1]}.${arr[2]}"
           echo "MINOR_VERSION="$MINOR_VERSION >> $GITHUB_ENV
           echo "NEW_RELEASE_VERSION="$NEW_RELEASE_VERSION >> $GITHUB_ENV
-
+          
       - name: "Check for existing ${{ env.NEW_RELEASE_VERSION }} draft release"
         run: |
           RELEASES=$(gh api repos/${{ github.repository }}/releases \
@@ -99,7 +100,30 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Make initial changes for ${{ env.NEW_RELEASE_VERISON }}"
+      - name: Get job outputs
+        id: job-outputs-step
+        run: |
+          echo "::set-output name=release-version::${{ env.RELEASE_VERSION }}"
+          echo "::set-output name=minor-version::${{ env.MINOR_VERSION }}"
+          echo "::set-output name=new-release-version::${{ env.NEW_RELEASE_VERSION }}"
+          echo "::set-output name=milestone-number::${{ env.MILESTONE_NUMBER }}"
+
+
+  make-next-version-inital-pr:
+    needs: get-environment-variables
+    env:
+      RELEASE_VERSION: ${{ needs.get-environment-variables.outputs.release-version }}
+      NEW_RELEASE_VERSION: ${{ needs.get-environment-variables.outputs.new-release-version }}
+      MINOR_VERSION: ${{ needs.get-environment-variables.outputs.minor-version }}
+      MILESTONE_NUMBER: ${{ needs.get-environment-variables.outputs.milestone-number }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: master
+
+      - name: "Make initial changes for ${{ env.NEW_RELEASE_VERSION }}"
         run: |
           echo "Update version.py"
           sed -i "s/_version_micro = '*[0-9]*'*/_version_micro = ''/g" saltproc/version.py
@@ -114,6 +138,13 @@ jobs:
       - name: "Create PR containing inital changes for ${{ env.NEW_RELEASE_VERSION }}" 
         uses: peter-evans/create-pull-request@v3
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: master
+          add-paths: |
+            saltproc/version.py
+            doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
+            doc/releasenotes/index.rst
+
           branch: "${{ env.NEW_RELEASE_VERSION }}-init"
           delete-branch: true
           commit-message: "inital changes for ${{ env.NEW_RELEASE_VERSION }}"
@@ -129,8 +160,25 @@ jobs:
             Difficulty:1-Beginner
             Comp:Build
 
+  make-next-version-final-pr:
+    needs: [get-environment-variables, make-next-version-inital-pr]
+    env:
+      NEW_RELEASE_VERSION: ${{ needs.get-environment-variables.outputs.new-release-version }}
+      MILESTONE_NUMBER: ${{ needs.get-environment-variables.outputs.milestone-number }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: master
+          
+      - name: Get changes from the INIT PR
+        run: |
+            git pull origin ${{ env.NEW_RELEASE_VERSION }}-init
+
       - name: "Make changes necessary for publishing ${{ env.NEW_RELEASE_VERSION }} in advance"
         run: |
+          echo "Prepare for full release"
           sed -i "s/\.\. note:: These release notes are currently in production\.//g" doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
           sed -i "s/^_version_extra = 'dev'/# _version_extra = 'dev'/g" saltproc/version.py
           sed -i "s/# _version_extra = '0'/_version_extra = '0'/g" saltproc/version.py
@@ -138,8 +186,14 @@ jobs:
       - name: "Create PR containing changes necessary for publishing ${{ env.NEW_RELEASE_VERSION }}"
         uses: peter-evans/create-pull-request@v3
         with:
-          branch: "${{ env.NEW_RELEASE_VERSION }}-final"
+          token: ${{ secrets.GITHUB_TOKEN }}
           base: master
+          add-paths: |
+            saltproc/version.py
+            doc/releasenotes/${{ env.NEW_RELEASE_VERSION }}.rst
+            doc/releasenotes/index.rst
+
+          branch: "${{ env.NEW_RELEASE_VERSION }}-final"
           delete-branch: true
           commit-message: "final changes before publishing ${{ env.NEW_RELEASE_VERSION }}"
           title: "[REQUIRED FOR PUBLISHING] Finishing touches for version ${{ env.NEW_RELEASE_VERSION }}"
@@ -153,4 +207,3 @@ jobs:
             Type:Docs
             Difficulty:1-Beginner
             Comp:Build
-
