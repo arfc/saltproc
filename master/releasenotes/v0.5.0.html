@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>saltproc &mdash; Saltproc 0.5.dev documentation</title>
+  <title>Release notes for v0.5.0 &mdash; Saltproc 0.5.dev documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -17,7 +17,9 @@
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Release notes for v0.4.0" href="v0.4.0.html" />
+    <link rel="prev" title="Release Notes" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,12 +40,27 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">SaltProc API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Release Notes</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Release notes for v0.5.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dependency-changes">Dependency Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#new-features">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bug-fixes">Bug Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#script-changes">Script Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-api-changes">Python API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#contributors">Contributors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviewers">Reviewers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="v0.4.0.html">Release notes for v0.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v0.3.0.html">Release notes for v0.3.0</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
@@ -62,9 +79,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>saltproc</li>
+          <li><a href="index.html">Release Notes</a> &raquo;</li>
+      <li>Release notes for v0.5.0</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/src/modules.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/releasenotes/v0.5.0.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -72,42 +90,47 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="saltproc">
-<h1>saltproc<a class="headerlink" href="#saltproc" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="saltproc.html">saltproc package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="saltproc.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.tests.html">saltproc.tests package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="saltproc.tests.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="saltproc.tests.html#module-saltproc.tests">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="saltproc.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.app.html">saltproc.app module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html">saltproc.depcode module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.materialflow.html">saltproc.materialflow module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.process.html">saltproc.process module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.reactor.html">saltproc.reactor module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html">saltproc.separator module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.simulation.html">saltproc.simulation module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html">saltproc.sparger module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.version.html">saltproc.version module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="saltproc.html#module-saltproc">Module contents</a></li>
-</ul>
-</li>
-</ul>
+  <section id="release-notes-for-v0-5-0">
+<h1>Release notes for v0.5.0<a class="headerlink" href="#release-notes-for-v0-5-0" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These release notes are currently in production.</p>
 </div>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="dependency-changes">
+<h2>Dependency Changes<a class="headerlink" href="#dependency-changes" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="new-features">
+<h2>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="bug-fixes">
+<h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="script-changes">
+<h2>Script Changes<a class="headerlink" href="#script-changes" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="python-api-changes">
+<h2>Python API Changes<a class="headerlink" href="#python-api-changes" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="contributors">
+<h2>Contributors<a class="headerlink" href="#contributors" title="Permalink to this headline">¶</a></h2>
+<p>The following people contributed code to this release of SaltProc:</p>
+</section>
+<section id="reviewers">
+<h2>Reviewers<a class="headerlink" href="#reviewers" title="Permalink to this headline">¶</a></h2>
+<p>The following people reviewed code for this release of SaltProc:</p>
+</section>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Release Notes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="v0.4.0.html" class="btn btn-neutral float-right" title="Release notes for v0.4.0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
@@ -140,7 +163,7 @@
     </dl>
     <dl>
       <dt>Branches</dt>
-      <dd><a href="modules.html">master</a></dd>
+      <dd><a href="v0.5.0.html">master</a></dd>
     </dl>
   </div>
 </div><script>
