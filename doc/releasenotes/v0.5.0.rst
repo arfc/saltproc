@@ -13,8 +13,10 @@ Release notes for v0.5.0
 ..
   Links to packages/issues/bug fixes/contributors/reviewers
 
+
 .. _openmc: https://github.com/openmc-dev/openmc
 .. _@yardasol: https://github.com/yardasol
+
 
 
 
@@ -24,8 +26,10 @@ Summary
 .. 
   Describe generally the features of this release
 
+
 This release adds support for ``OpenMC`` in ``SaltProc`` via the addition of
 the ``DepcodeOpenMC`` class
+
 
 
 Dependency Changes
@@ -34,9 +38,11 @@ Dependency Changes
 ..
   Describe any new/removed/modified package dependencies
 
+
 - ``SaltProc`` now optionally required the following package:
 
   - (new) → `openmc`_
+
 
 
 New Features
@@ -46,6 +52,7 @@ New Features
   Describe any new features to the code.
 
 - ``openmc`` support via `DepcodeOpenMC`
+
 
 
 Bug Fixes
@@ -64,10 +71,12 @@ Script Changes
   Describe any script additions/modifications/removals
 
 
+
 - Two new helper scripts
 
   - ``scripts/preprocessors/generate_mat_composition/convert_material_serpent_to_openmc.py``. Converts a Serpent2 material file to an OpenMC material file.
   - ``scripts/preprocessors/generate_geometry/convert_geometry_serpent_to_openmcy.py``. Converts a Serpent2 geometry file to an OpenMC geometry file.
+
 
 
 Python API Changes
@@ -75,6 +84,7 @@ Python API Changes
 
 ..
   Describe any changes to the API
+
 
 - Input file format changes:
 
@@ -113,6 +123,7 @@ Python API Changes
     - ``write_saltproc_openmc_tallies()``
 
 
+
 Contributors
 ============
 ..
@@ -124,6 +135,7 @@ The following people contributed code to this release of SaltProc:
   `@gh_username <https://github.com/gh_uname>`_
 
 - `@yardasol`_
+
 
 
 
