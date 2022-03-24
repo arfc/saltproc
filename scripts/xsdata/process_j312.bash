@@ -4,10 +4,9 @@
 # DATADIR is the directory where the xs library is extracted to
 # @yardasol reccomends naming the parent directory where the files
 # will be extractd to as "jeff312"
-XSLOC=$PROJECTS/cross-section-libraries
-if [[ -d "$XSLOC" ]]
+if [[ -d "$XSDIR" ]]
 then
-    DATADIR=$XSLOC/jeff312
+    DATADIR=$XSDIR/jeff312
 else
     DATADIR=$PWD/jeff312
 fi
