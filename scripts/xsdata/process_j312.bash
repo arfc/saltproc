@@ -4,7 +4,13 @@
 # DATADIR is the directory where the xs library is extracted to
 # @yardasol reccomends naming the parent directory where the files
 # will be extractd to as "jeff312"
-DATADIR=$PWD/jeff312
+XSLOC=$PROJECTS/cross-section-libraries
+if [[ -d "$XSLOC" ]]
+then
+    DATADIR=$XSLOC/jeff312
+else
+    DATADIR=$PWD/jeff312
+fi
 LN="https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/ACE/"
 SLUG="ACEs_"
 EXT="K.zip"
