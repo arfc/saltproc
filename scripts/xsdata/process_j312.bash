@@ -21,8 +21,6 @@ TEMPS=(900)
 
 #Uncomment if you want all temperatures (will take a VERY long time)
 #TEMPS=(300 400 500 600 700 800 900 1000 1200 1500 1800)
-echo $DATADIR
-echo $XSDIR
 for T in ${TEMPS[@]}
 do
     if [[ ! -f $DATADIR/$SLUG$T$EXT ]]
@@ -146,4 +144,16 @@ do
     rm $DATADIR/$T/*.dir
     rm -r $DATADIR/$T
 
+    # download cross section dir convert script
+    if [[ ! -f $XSDIR/xsdirconvert.pl ]]
+    then
+        wget -O $XSDIR/xsdirconvert.pl http://montecarlo.vtt.fi/download/xsdirconvert.pl
+    fi
+
+    # Run the xsdirconvert script
+    perl $XSDIR/xsdirconvert.pl $DATDIR/sss_jeff312.xsdir > $DATADIR/sss_jeff312.xsdata
+ 
+    # Add seprpent variables to PATH (to be created)
+    echo "export SERPENT_DATA="$DATADIR"" >> $BRC
+    echo "export SERPENT_ACELIB="$DATADIR/sss_jeff312.xsdata"" >> $BRC
 done
