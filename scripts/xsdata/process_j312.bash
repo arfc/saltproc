@@ -21,7 +21,8 @@ TEMPS=(900)
 
 #Uncomment if you want all temperatures (will take a VERY long time)
 #TEMPS=(300 400 500 600 700 800 900 1000 1200 1500 1800)
-
+echo $DATADIR
+echo $XSDIR
 for T in ${TEMPS[@]}
 do
     if [[ ! -f $DATADIR/$SLUG$T$EXT ]]
