@@ -78,6 +78,201 @@ LAT_MULTILINE_REGEX = CARD_IGNORE_REGEX + \
     COMMENT_IGNORE_END_REGEX
 
 
+
+def _plane_from_points(p1, p2, p3):
+    # get plane from points p1, p2, p3
+    n = np.cross(p2 - p1, p3 - p1)
+    n0 = -p1
+    A = n[0]
+    B = n[1]
+    C = n[2]
+    D = np.dot(n, n0)
+
+    return [A, B, C, D]
+
+
+class Octagon(openmc.model.CompositeSurface):
+    """Infinite octogonal prism composite surface
+
+    An octagonal prism is composed of eight surfaces. The prism is parallel to
+    the x, y, or z axis; two pars of surfaces are perpendicualr to the z and y,
+    x and z, or y and x axes, respectively.
+
+    This class
+    acts as a proper surface, meaning that unary `+` and `-` operators applied
+    to it will produce a half-space. The negative side is defined to be the
+    region inside of the octogonal prism.
+
+    Parameters
+    ----------
+    center : 2-tuple
+        (q1,q2) coordinate for the center of the octagon. (q1,q2) pairs are
+        (z,y), (x,z), or (x,y).
+    r1 : float
+        Half-width of octagon across axis-perpendicualr sides
+    r2 : float
+        Half-width of octagon across off-axis sides
+    axis : char
+        Central axis of ocatgon. Defaults to 'z'
+
+    Attributes
+    ----------
+    top : openmc.ZPlane or openmc.XPlane
+        Top planar surface of Hexagon
+    bottom : openmc.ZPlane or openmc.XPlane
+    right: openmc.YPlane or openmc.ZPlane
+    left: openmc.YPlane or openmc.ZPlane
+    upper_right : openmc.Plane
+    lower_right : openmc.Plane
+    lower_left : openmc.Plane
+    upper_left : openmc.Plane
+
+    """
+
+    _surface_names = ('top', 'bottom',
+                      'upper_right', 'lower_left',
+                      'right', 'left',
+                      'lower_right', 'upper_left')
+
+    def __init__(self, center, r1, r2, axis='z', **kwargs):
+        q1c, q2c = center
+
+        # Coords for axis-perpendicular planes
+        ctop = q1c+r1
+        cbottom = q1c-r1
+
+        cright= q2c+r1
+        cleft = q2c-r1
+
+        # Side lengths
+        L_perp_ax1 = (r1 * np.sqrt(2) - r2) * 2
+        L_perp_ax2 = (r2 * np.sqrt(2) - r1) * 2
+
+        # Coords for quadrant planes
+        p1_upper_right = [L_perp_ax1/2, r1,0]
+        p2_upper_right = [r1, L_perp_ax1/2,0]
+        p2_upper_right = [r1, L_perp_ax1/2,1]
+
+        p1_lower_right = [r1, -L_perp_ax1/2,0]
+        p2_lower_right = [L_perp_ax1/2, -r1,0]
+        p2_lower_right = [L_perp_ax1/2, -r1,1]
+
+        points = [p1_upper_right, p2_upper_right, p3_upper_right,
+                  p1_lower_right, p2_lower_right, p3_lower_right]
+
+        # Orientation specific variables
+        if axis == 'x':
+            coord_map = [2,1,0]
+            self.top, self.bottom = openmc.ZPlane(z0=ctop), openmc.ZPlane(z0=cbottom)
+            self.right, self.left = openmc.YPlane(y0=cright), openmc.YPlane(y0=cleft)
+
+        elif axis == 'y':
+            coord_map = [1,0,2]
+            self.top, self.bottom = openmc.XPlane(x0=ctop), openmc.XPlane(x0=cbottom)
+            self.right, self.left = openmc.ZPlane(z0=cright), openmc.ZPlane(z0=cleft)
+
+        elif axis == 'z':
+            coord_map = [0,1,2]
+            self.top, self.bottom = openmc.XPlane(x0=ctop), openmc.XPlane(x0=cbottom)
+            self.right, self.left = openmc.YPlane(y0=cright), openmc.YPlane(y0=cleft)
+
+
+        # Put our coordinates in (x,y,z) order
+        for p in points:
+            p_temp = []
+            for i in coord_map:
+                p_temp += p[i]
+            p = p_temp
+
+        p1_upper_right, p2_upper_right, p3_upper_right,\
+            p1_lower_right, p2_lower_right, p3_lower_right = points
+
+        upper_right_params = _plane_from_points(p1_upper_right, p2_upper_right, p3_upper_right)
+        lower_right_params = _plane_from_points(p1_lower_right, p2_lower_right, p3_lower_right)
+        lower_left_params = _plane_from_points(-p1_upper_right, -p2_upper_right, -p3_upper_right)
+        upper_left_params = _plane_from_points(-p1_lower_right, -p2_lower_right, -p3_lower_right)
+
+        self.upper_right = openmc.Plane(*tuple(upper_right_params))
+        self.lower_right = openmc.Plane(*tuple(lower_right_params))
+        self.lower_left = openmc.Plane(*tuple(lower_left_params))
+        self.upper_left = openmc.Plane(*tuple(upper_left_params))
+
+
+        def __neg__(self):
+            return -self.top & +self.bottom & -self.right &  +self.left & \
+                -self.upper_right & +self.lower_right & +self.lower_left & \
+                self.upper_left
+
+
+        def __pos__(self):
+            return +self.top | -self.bottom | +self.right | -self.left | \
+                +self.upper_right | -self.lower_right | -self.lower_left | \
+                +self.upper_left
+
+
+
+
+class CylinderSector(openmc.model.CompositeSurface):
+    """Infinite cylindrical sector composite surface
+
+    This class
+    acts as a proper surface, meaning that unary `+` and `-` operators applied
+    to it will produce a half-space. The negative side is defined to be the
+    region inside of the octogonal prism.
+
+    Parameters
+    ----------
+    center : 2-tuple
+        (x,y) coordiante of cylinder's central axis
+    r1, r2 : float
+        Inner and outer radius
+    alpha1, alpha2 : float
+        Angular segmentation
+
+    Attributes
+    ----------
+    outer : openmc.ZCylinder
+        Outer cylinder surface
+    inner : openmc.ZCylinder
+        Inner cylinder surface
+    plane_a : openmc.Plane
+    plane_b : openmc.Plane
+
+    """
+
+    _surface_names = ('outer','inner',
+                      'plane_a', 'plane_b')
+
+    def __init__(self, center, r1, r2, alpha1, alpha2, **kwargs):
+
+        # Coords for axis-perpendicular planes
+        p1 = [0,0,1]
+
+        p2_plane_a = [r1 * np.cos(alpha1), -r1 * np.sin(alpha1), 0]
+        p3_plane_a = [r2 * np.cos(alpha1), -r2 * np.sin(alpha1), 0]
+
+        p2_plane_b = [r1 * np.cos(alpha2), r1 * np.sin(alpha2), 0]
+        p3_plane_b = [r2 * np.cos(alpha2), r2 * np.sin(alpha2), 0]
+
+        plane_a_params = _plane_from_points(p1, p2_plane_a, p3_plane_a)
+        plane_b_params = _plane_from_points(p1, p2_plane_b, p3_plane_b)
+
+        self.inner = openmc.ZCylinder(x0=xc, y0=yc, r=r1)
+        self.outer = openmc.ZCylinder(x0=xc, y0=yc, r=r2)
+        self.plane_a = openmc.Plane(*plane_a_params)
+        self.plane_b = openmc.Plane(*plane_b_params)
+
+
+        def __neg__(self):
+            return -self.outer & +self.inner & -self.plane_a &  +self.plane_b
+
+
+        def __pos__(self):
+            return +self.outer | -self.inner | +self.plane_a | -self.plane_b
+
+
+
+
 geo_dict = {
     "surf": {
         "px": openmc.XPlane,
@@ -101,10 +296,8 @@ geo_dict = {
         "hexyc": openmc.model.hexagonal_prism,
         "cube": openmc.model.RectangularParallelepiped,
         "cuboid": openmc.model.RectangularParallelepiped,
-        "octa": None,  # to implement
-        "pad": None  # to implement, can use the positive half spaceof
-                     # a cylinder with the negative half-space of
-                     # openmc.RightCircularCylinder
+        "octa": Octagon,
+        "pad": CylinderSector
     },
     "cell": openmc.Cell,
     "lat": {
@@ -112,12 +305,10 @@ geo_dict = {
         "2": openmc.HexLattice,  # X-type hexagonal lattice (y type in openmc)
         "3": openmc.HexLattice,  # Y-type hexagonal lattice (x type in openmc)
         #   "4": None,     # Circular cluster array (address as special case)
-        #   "5": None,       # Does not exist
         "6": openmc.RectLattice,    # Same as 1 but infinite
         "7": openmc.HexLattice,     # Same as 3 but infinite
         "8": openmc.HexLattice,     # Same as 2 but infinite
-        #   "9": None,          # Vertical stack (address as special case)
-        #   "10": None,         # Does not exist
+        "9": None,          # Vertical stack (address as special case)
         "11": openmc.RectLattice,   # Cuboidal lattice
         "12": openmc.HexLattice,  # X-type hexagonal prism lattice
         "13": openmc.HexLattice  # Y-type hexagonal prism lattice
@@ -126,7 +317,6 @@ geo_dict = {
 }
 
 special_case_surfaces = tuple(['inf'])
-
 
 def add_cell_name_to_universe(univ_name,
                               cell_name):
@@ -223,14 +413,7 @@ def _get_openmc_surface_params(surf_type,
                 p3 = np.array([surf_params[2],
                                surf_params[5],
                                surf_params[8]])
-                n = np.cross(p2 - p1, p3 - p1)
-                n0 = -p1
-                A = n[0]
-                B = n[1]
-                C = n[2]
-                D = np.dot(n, n0)[0]
-
-                surface_params = [A, B, C, D]
+                surface_params = _plane_from_points(p1, p2, p3)
 
         elif surf_type == "cylv":
             p1 = tuple(surf_params[:3])
@@ -285,6 +468,27 @@ def _get_openmc_surface_params(surf_type,
             for q0 in org_coord:
                 surface_params += [q0 - d]
                 surface_params += [q0 + d]
+
+        elif surf_type == "octa":
+            x0 = surf_params[0]
+            y0 = surf_params[1]
+            d1 = surf_params[2]
+            d2 = surf_params[3]
+
+            origin = (x0, y0)
+            surface_params = [origin, d1, d2, 'z']
+
+        elif surf_type == "pad":
+            x0 = surf_params[0]
+            y0 = surf_params[1]
+            r1 = surf_params[2]
+            r2 = surf_params[3]
+            a1 = surf_params[4]
+            a2 = surf_params[5]
+
+            origin = (x0, y0)
+            surface_params = [origin, d1, d2, a1, a2]
+
         else:
             surface_params = surf_params    # every other surf card type
                                             # already  has the necessary
@@ -677,7 +881,7 @@ def get_lattice_univ_array(lattice_type,
     #    ...
     #elif lat_type == 8:
     #    ...
-    elif lat_type == 9: # vertical stack
+    elif lat_type == 9:  # vertical stack
         raise ValueError("To implement!")
         N_L = int(lattice_args[2])
         lat_univ_index = 4
