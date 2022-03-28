@@ -128,7 +128,8 @@ geo_dict = {
 special_case_surfaces = tuple(['inf'])
 
 
-def add_cell_name_to_universe(univ_name, cell_name):
+def add_cell_name_to_universe(univ_name,
+                              cell_name):
     """
     univ_name : str
         Name of the universe
@@ -199,7 +200,8 @@ def get_boundary_conditions_and_root(geo_data):
     return surface_bc, root_name
 
 
-def _get_openmc_surface_params(surf_type, surf_params):
+def _get_openmc_surface_params(surf_type,
+                               surf_params):
     # generic case
     surface_params = None
     set_attributes = True
@@ -258,7 +260,7 @@ def _get_openmc_surface_params(surf_type, surf_params):
             surface_params = [width, height, axis, origin]
             has_subsurfaces = True
 
-        elif surf_type in ("hexxc","hexyc"):
+        elif surf_type in ("hexxc", "hexyc"):
             x0 = surf_params[0]
             y0 = surf_params[1]
             d = surf_params[2]
@@ -406,7 +408,10 @@ def _get_subsurf_region_expr(subsurf_dict):
     region_expr = '(' + region_expr[:-1] + ')'
     return region_expr
 
-def construct_openmc_cell(cell_card, cell_card_splitter, cell_type):
+
+def construct_openmc_cell(cell_card,
+                          cell_card_splitter,
+                          cell_type):
     """Helper function for creating cells
 
     Parameters
@@ -547,7 +552,8 @@ def construct_openmc_cell(cell_card, cell_card_splitter, cell_type):
     return cell_object, cell_name, cell_fill_object, cell_region
 
 
-def translate_obj(obj, translation_args):
+def translate_obj(obj,
+                  translation_args):
     if isinstance(obj, openmc.Surface):
         obj = obj.translate(translation_args)
     elif isinstance(obj, openmc.Cell):
@@ -564,7 +570,8 @@ def translate_obj(obj, translation_args):
     return obj
 
 
-def rotate_obj(obj, rotation_args):
+def rotate_obj(obj,
+               rotation_args):
     if isinstance(obj, openmc.Surface):
         obj = obj.rotate(rotation_args)
     elif isinstance(obj, openmc.Cell):
@@ -580,7 +587,9 @@ def rotate_obj(obj, rotation_args):
     return obj
 
 
-def _get_lattice_universe_names(current_line_idx, lattice_args, lat_univ_index):
+def _get_lattice_universe_names(current_line_idx,
+                                lattice_args,
+                                lat_univ_index):
     """
     Helper function that looks for the lattice universe arguments
 
@@ -623,7 +632,9 @@ def _get_lattice_universe_names(current_line_idx, lattice_args, lat_univ_index):
     return lat_univ_names
 
 
-def get_lattice_univ_array(lattice_type, lattice_args, current_line_idx):
+def get_lattice_univ_array(lattice_type,
+                           lattice_args,
+                           current_line_idx):
     """
     Helper function that creates an array
     of universes for lattice creation
