@@ -670,26 +670,28 @@ def get_lattice_univ_array(lattice_type,
         lattice_origin = (x0, y0)
         lattice_elements = (Nx, Ny)
         lattice_pitch = (pitch, pitch)
-   # TO IMPLEMENT
-   # elif lat_type == 6:
-   #     ...
-   # elif lat_type == 7:
-   #     ...
-   # elif lat_type == 8:
-   #     ...
-   # elif lat_type == 9: # vertical stack
-   #     N_L = int(lattice_args[2])
-   #     lat_univ_index = 4
+    # TO IMPLEMENT
+    #elif lat_type == 6:
+    #    ...
+    #elif lat_type == 7:
+    #    ...
+    #elif lat_type == 8:
+    #    ...
+    elif lat_type == 9: # vertical stack
+        raise ValueError("To implement!")
+        N_L = int(lattice_args[2])
+        lat_univ_index = 4
 
-   #     lattice_origin = (x0, y0)
-   #     lattice_elements = (N_L, 2)
+        lattice_origin = (x0, y0)
+        lattice_elements = (N_L, 2)
+        ...
 
-   # elif lat_type == 11:
-   #     ...
-   # elif lat_type == 12:
-   #     ...
-   # elif lat_type == 13:
-   #     ...
+    #elif lat_type == 11:
+    #    ...
+    #elif lat_type == 12:
+    #    ...
+    #elif lat_type == 13:
+    #    ...
     else:
         raise ValueError(
             f"Type {lattice_type} lattices are currently unsupported")
@@ -711,28 +713,27 @@ def get_lattice_univ_array(lattice_type,
         for Ncoord in lattice_elements:
             index = lattice_elements.index(Ncoord)
             lattice_origin[index] = Ncoord * 0.5 * lattice_pitch[index]
+    #elif lattice_type == '9':
+    #   lattice_universe_name_array = lattice_universe_name_array[:,1]
+    #   zcoords = lattice_universe_names[:,0]
+    #   lattice_cells = {}
+    #   for universe_name in lattice_universe_name_array:
+    #       if universe_dict.get(universe_name):
+    #       universe_cell = openmc.Cell()
+    #       cell_names = univese_to_cell_names_dict[universe_name]
+    #       add_cell_name_to_universe(universe_name, cell_name)
 
-   # elif lattice_type == '9':
-   #    lattice_universe_name_array = lattice_universe_name_array[:,1]
-   #    zcoords = lattice_universe_names[:,0]
-   #    lattice_cells = {}
-   #    for universe_name in lattice_universe_name_array:
-   #        if universe_dict.get(universe_name):
-   #        universe_cell = openmc.Cell()
-   #        cell_names = univese_to_cell_names_dict[universe_name]
-   #        add_cell_name_to_universe(universe_name, cell_name)
-
-   ## TO IMPLEMENT ##
-   # in serpent, hexagonal lattices are rectilinear tilings, wheras
-   # in openmc they are concentric hexagonal rings
-   # elif re.match("(2|3)", lattice_type):
-   #    lattice_pitch = [pitch]
-   #    if lattice_type == '2':
-   #        orientation = 'y'
-   #    else:
-   #        orientation = 'x'
-   # elif re.match("(2|3|7|8|12|13)"): # hex lattice
-   #     lattice_origin = ...
+    ## TO IMPLEMENT ##
+    # in serpent, hexagonal lattices are rectilinear tilings, wheras
+    # in openmc they are concentric hexagonal rings
+    #elif re.match("(2|3)", lattice_type):
+    #   lattice_pitch = [pitch]
+    #   if lattice_type == '2':
+    #       orientation = 'y'
+    #   else:
+    #       orientation = 'x'
+    #elif re.match("(2|3|7|8|12|13)"): # hex lattice
+    #    lattice_origin = ...
     else:
         raise ValueError(f"Unsupported lattice type: {lattice_type}")
 
