@@ -198,6 +198,7 @@ def get_boundary_conditions_and_root(geo_data):
         root_name = root_card.split()[2]
     return surface_bc, root_name
 
+
 def _get_openmc_surface_params(surf_type, surf_params):
     # generic case
     surface_params = None
@@ -313,7 +314,8 @@ def construct_and_store_openmc_surface(surf_card):
         p = float(p)
         surf_params[i] = p
 
-    surface_params, set_attributes, has_subsurfaces = _get_openmc_surface_params(surf_type,surf_params)
+    surface_params, set_attributes, has_subsurfaces = \
+        _get_openmc_surface_params(surf_type, surf_params)
 
     if surface_params is None:
         surface_object = surf_type
@@ -362,6 +364,7 @@ def _strip_csg_operators(csg_expression):
 
     return surf_names
 
+
 def _get_subsurf_region_expr_helper(subsurf_names,
                                     subsurf_dict,
                                     match_pos_hs,
@@ -378,19 +381,20 @@ def _get_subsurf_region_expr_helper(subsurf_names,
                              expression for subsurfaces")
     return region_expr
 
+
 def _get_subsurf_region_expr(subsurf_dict):
     subsurf_names = list(subsurf_dict)
     n_surfs = len(subsurf_dict)
     if n_surfs == 4:  # rect
-        match_pos_hs = lambda i: i in (0, 2)
-        match_neg_hs = lambda i: i in (1, 3)
+        def match_pos_hs(i): return i in (0, 2)
+        def match_neg_hs(i): return i in (1, 3)
     elif n_surfs == 6:  # hex
         if subsurf_dict[subsurf_names[0]] == openmc.XPlane:
-            match_pos_hs = lambda i: i in (0, 2, 3)
-            match_neg_hs = lambda i: i in (1, 4, 5)
+            def match_pos_hs(i): return i in (0, 2, 3)
+            def match_neg_hs(i): return i in (1, 4, 5)
         elif subsurf_dict[subsurf_names[0]] == openmc.YPlane:
-            match_pos_hs = lambda i: i in (0, 2, 5)
-            match_neg_hs = lambda i: i in (1, 4, 3)
+            def match_pos_hs(i): return i in (0, 2, 5)
+            def match_neg_hs(i): return i in (1, 4, 3)
     else:
         raise ValueError("There were too many \
                          subsurfaces in the region")

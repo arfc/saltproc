@@ -39,10 +39,6 @@ with open(serpent_geo_path, 'r') as file:
 schp.surface_bc, schp.root_name = schp.get_boundary_conditions_and_root(
     schp.geo_data)
 schp.n_bcs = len(set(schp.surface_bc))
-# surf_dict = {} # surf name to surface object
-# cell_dict = {} # cell name to cell object
-#universe_to_cell_names_dict = {}
-#universe_dict = {}
 root_univ = openmc.Universe(name=schp.root_name)
 schp.universe_dict[schp.root_name] = root_univ
 
@@ -100,7 +96,7 @@ for line in schp.geo_data:
             trans_objects += [trans_objects_dict[name]]
 
         # check type of transformation
-        ### lattice transformations not currently supported ###
+        # LATTICE TRANSFORMATIONS NOT CURRENTLY SUPPORTED #
         trans_args = trans_data[3:]
         n_args = len(trans_args)
         for i in range(0, n_args):
