@@ -16,28 +16,28 @@ universe_dict = {}
 universe_to_cell_names_dict = {}
 geo_data = []
 
-NUM_REGEX = '-?[0-9]+(\\.[0-9]+)?'
-COMMENT_IGNORE_BEG_REGEX = '^\\s*[^%]*\\s*'
-COMMENT_IGNORE_END_REGEX = '\\s*[^%]*'
-BC_REGEX_CORE = 'set\\s+bc(\\s+([1-3]|black|reflective|periodic)){1,3}'
-SURF_REGEX_CORE = 'surf\\s+[a-zA-Z0-9]+\\s+[a-z]{2,}(\\s+' + \
-    NUM_REGEX + '\\s*)*'
-CELL_REGEX1_CORE = 'cell(\\s+[a-zA-Z0-9]+){3}'
-CELL_REGEX2_CORE = 'cell(\\s+[a-zA-Z0-9]+){2}\\s+fill\\s+[a-zA-Z0-9]+'
-CELL_REGEX3_CORE = 'cell(\\s+[a-zA-Z0-9]+){2}\\s+outside'
-CELL_SURFACE_REGEX = '(\\s+\\-?\\:?\\#?[a-zA-Z0-9]+)+'
-ROOT_REGEX_CORE = 'set\\s+root\\s+[a-zA-Z0-9]+'
-USYM_REGEX_CORE = 'set\\s+usym\\s+[a-zA-Z0-9]+\\s+(1|2|3)\\s+(\\s+' + \
+NUM_REGEX = '-?[0-9]+(\.[0-9]+)?'
+COMMENT_IGNORE_BEG_REGEX = '^\s*[^%]*\s*'
+COMMENT_IGNORE_END_REGEX = '\s*[^%]*'
+BC_REGEX_CORE = 'set\s+bc(\s+([1-3]|black|reflective|periodic)){1,3}'
+SURF_REGEX_CORE = 'surf\s+[a-zA-Z0-9]+\s+[a-z]{2,}(\s+' + \
+    NUM_REGEX + '\s*)*'
+CELL_REGEX1_CORE = 'cell(\s+[a-zA-Z0-9]+){3}'
+CELL_REGEX2_CORE = 'cell(\s+[a-zA-Z0-9]+){2}\s+fill\s+[a-zA-Z0-9]+'
+CELL_REGEX3_CORE = 'cell(\s+[a-zA-Z0-9]+){2}\s+outside'
+CELL_SURFACE_REGEX = '(\s+\-?\:?\#?[a-zA-Z0-9]+)+'
+ROOT_REGEX_CORE = 'set\s+root\s+[a-zA-Z0-9]+'
+USYM_REGEX_CORE = 'set\s+usym\s+[a-zA-Z0-9]+\s+(1|2|3)\s+(\s+' + \
     NUM_REGEX + ')'
-TRANS_REGEX_CORE = 'trans\\s+[A-Z]{1}\\s+[a-zA-Z0-9]+(\\s+' + NUM_REGEX + ')+'
-CARD_IGNORE_REGEX = '^\\s*(?!.*%)(?!.*lat)(?!.*cell)(?!.*set)(?!.*surf)' + \
+TRANS_REGEX_CORE = 'trans\s+[A-Z]{1}\s+[a-zA-Z0-9]+(\s+' + NUM_REGEX + ')+'
+CARD_IGNORE_REGEX = '^\s*(?!.*%)(?!.*lat)(?!.*cell)(?!.*set)(?!.*surf)' + \
     '(?!.*dtrans)(?!.*ftrans)(?!.*ltrans)(?!.*pin)(?!.*solid)(?!.*strans)' + \
     '(?!.*trans)'
-LAT_REGEX_CORE = 'lat\\s+[a-zA-Z0-9]+\\s+[0-9]{1,2}(\\s+' + NUM_REGEX + \
-    '){2,4}(\\s+[0-9]+){0,3}((\\s+' + NUM_REGEX + '){0,2}\\s+[a-zA-Z0-9]+)+'
+LAT_REGEX_CORE = 'lat\s+[a-zA-Z0-9]+\s+[0-9]{1,2}(\s+' + NUM_REGEX + \
+    '){2,4}(\s+[0-9]+){0,3}((\s+' + NUM_REGEX + '){0,2}\s+[a-zA-Z0-9]+)+'
 # right now this is limiting universe names to 3 chars until I can come up
 # witha more robust regex
-LAT_MULTILINE_REGEX_CORE = '((' + NUM_REGEX + '){0,2}[a-zA-Z0-9]{1,3}\\s+)+'
+LAT_MULTILINE_REGEX_CORE = '\s*((' + NUM_REGEX + '\s+){0,2}[a-zA-Z0-9]{1,3}\s+)+'
 BC_REGEX = COMMENT_IGNORE_BEG_REGEX + \
     BC_REGEX_CORE + \
     COMMENT_IGNORE_END_REGEX
@@ -151,11 +151,11 @@ class Octagon(openmc.model.CompositeSurface):
         # Coords for quadrant planes
         p1_upper_right = [L_perp_ax1/2, r1,0]
         p2_upper_right = [r1, L_perp_ax1/2,0]
-        p2_upper_right = [r1, L_perp_ax1/2,1]
+        p3_upper_right = [r1, L_perp_ax1/2,1]
 
         p1_lower_right = [r1, -L_perp_ax1/2,0]
         p2_lower_right = [L_perp_ax1/2, -r1,0]
-        p2_lower_right = [L_perp_ax1/2, -r1,1]
+        p3_lower_right = [L_perp_ax1/2, -r1,1]
 
         points = [p1_upper_right, p2_upper_right, p3_upper_right,
                   p1_lower_right, p2_lower_right, p3_lower_right]
@@ -185,14 +185,15 @@ class Octagon(openmc.model.CompositeSurface):
 
 
         # Put our coordinates in (x,y,z) order
+        calibrated_points = []
         for p in points:
             p_temp = []
             for i in coord_map:
-                p_temp += p[i]
-            p = p_temp
+                p_temp += [p[i]]
+            calibrated_points += [np.array(p_temp)]
 
         p1_upper_right, p2_upper_right, p3_upper_right,\
-            p1_lower_right, p2_lower_right, p3_lower_right = points
+            p1_lower_right, p2_lower_right, p3_lower_right = calibrated_points
 
         upper_right_params = _plane_from_points(p1_upper_right,
                                                 p2_upper_right,
@@ -260,14 +261,15 @@ class CylinderSector(openmc.model.CompositeSurface):
 
     def __init__(self, center, r1, r2, alpha1, alpha2, **kwargs):
 
+        xc,yc = center
         # Coords for axis-perpendicular planes
-        p1 = [0,0,1]
+        p1 = np.array([0,0,1])
 
-        p2_plane_a = [r1 * np.cos(alpha1), -r1 * np.sin(alpha1), 0]
-        p3_plane_a = [r2 * np.cos(alpha1), -r2 * np.sin(alpha1), 0]
+        p2_plane_a = np.array([r1 * np.cos(alpha1), -r1 * np.sin(alpha1), 0])
+        p3_plane_a = np.array([r2 * np.cos(alpha1), -r2 * np.sin(alpha1), 0])
 
-        p2_plane_b = [r1 * np.cos(alpha2), r1 * np.sin(alpha2), 0]
-        p3_plane_b = [r2 * np.cos(alpha2), r2 * np.sin(alpha2), 0]
+        p2_plane_b = np.array([r1 * np.cos(alpha2), r1 * np.sin(alpha2), 0])
+        p3_plane_b = np.array([r2 * np.cos(alpha2), r2 * np.sin(alpha2), 0])
 
         plane_a_params = _plane_from_points(p1, p2_plane_a, p3_plane_a)
         plane_b_params = _plane_from_points(p1, p2_plane_b, p3_plane_b)
@@ -309,16 +311,18 @@ class HalfCone(openmc.model.CompositeSurface):
     cone : openmc.ZCone
         Outer cylinder surface
     bottom : openmc.ZPlane
+    top : openmc.ZPlane
 
     """
 
-    _surface_names = ('cone', 'bottom')
+    _surface_names = ('cone', 'bottom', 'top')
 
     def __init__(self, base, r, h, **kwargs):
 
         xb,yb,zb = base
 
         self.cone = openmc.ZCone(x0=xb,y0=yb,z0=h-zb,r2=r)
+        self.top = openmc.ZPlane(z0 = h-zb)
         self.bottom = openmc.ZPlane(z0=zb)
 
 
@@ -472,6 +476,8 @@ def _get_openmc_surface_params(surf_type,
                                surf_params[5],
                                surf_params[8]])
                 surface_params = _plane_from_points(p1, p2, p3)
+            else:
+                surface_params = surf_params
 
         elif surf_type == "cylv":
             p1 = tuple(surf_params[:3])
@@ -547,7 +553,7 @@ def _get_openmc_surface_params(surf_type,
             a2 = surf_params[5]
 
             origin = (x0, y0)
-            surface_params = [origin, d1, d2, a1, a2]
+            surface_params = [origin, r1, r2, a1, a2]
 
         else:
             surface_params = surf_params    # every other surf card type
@@ -652,15 +658,15 @@ def _get_subsurf_region_expr(subsurf_dict):
     subsurf_names = list(subsurf_dict)
     n_surfs = len(subsurf_dict)
     if n_surfs == 4:  # rect
-        def match_pos_hs(i): return i in (0, 2)
-        def match_neg_hs(i): return i in (1, 3)
+        match_pos_hs = lambda i : i in (0, 2)
+        match_neg_hs = lambda i : i in (1, 3)
     elif n_surfs == 6:  # hex
-        if subsurf_dict[subsurf_names[0]] == openmc.XPlane:
-            def match_pos_hs(i): return i in (0, 2, 3)
-            def match_neg_hs(i): return i in (1, 4, 5)
-        elif subsurf_dict[subsurf_names[0]] == openmc.YPlane:
-            def match_pos_hs(i): return i in (0, 2, 5)
-            def match_neg_hs(i): return i in (1, 4, 3)
+        if isinstance(subsurf_dict[subsurf_names[0]], openmc.XPlane):
+            match_pos_hs = lambda i : i in (0, 2, 3)
+            match_neg_hs = lambda i : i in (1, 4, 5)
+        elif isinstance(subsurf_dict[subsurf_names[0]], openmc.YPlane):
+            match_pos_hs = lambda i : i in (0, 2, 5)
+            match_neg_hs = lambda i : i in (1, 4, 3)
     else:
         raise ValueError("There were too many \
                          subsurfaces in the region")
@@ -808,8 +814,14 @@ def construct_openmc_cell(cell_card,
                     f'-{surface_name}', f'{surface_name}')
                 csg_expression = csg_expression.replace(
                     f'+{surface_name}', f'~{surface_name}')
+
+        # will work on a cleaner implementation later
+        csg_split_expr = csg_expression.split()
+        for i, surface_name in enumerate(surface_names):
             surf_id = surface_name_to_surface_id[surface_name]
-            csg_expression = csg_expression.replace(surface_name, surf_id)
+            surf_expr = csg_split_expr[i]
+            csg_split_expr[i] = surf_expr.replace(surface_name, surf_id)
+        csg_expression = ' '.join(csg_split_expr)
         cell_region = openmc.Region.from_expression(
             csg_expression, cell_surface_dict)
 
@@ -941,9 +953,9 @@ def get_lattice_univ_array(lattice_type,
     #    ...
     #elif lat_type == 8:
     #    ...
-    elif lat_type == 9:  # vertical stack
-        x0 = int(lattice_args[0])
-        y0 = int(lattice_args[1])
+    elif lattice_type == '9':  # vertical stack
+        x0 = float(lattice_args[0])
+        y0 = float(lattice_args[1])
         N_L = int(lattice_args[2])
         lat_univ_index = 4
 
@@ -981,12 +993,12 @@ def get_lattice_univ_array(lattice_type,
             lattice_origin[index] = Ncoord * 0.5 * lattice_pitch[index]
 
     elif lattice_type == '9':  # vertical stack
-       lattice_universe_name_array = lattice_universe_names[:,1]
+       lattice_universe_names = lattice_universe_name_array[:,1]
        lattice_origin = list(lattice_origin)
        lattice_elements = (N_L)
        lattice_pitch = None
 
-       for zcoord, universe_name in lattice_universe_names:
+       for zcoord, universe_name in lattice_universe_name_array:
            cell_names = universe_to_cell_names_dict[universe_name]
 
            # translate the cells
@@ -996,7 +1008,7 @@ def get_lattice_univ_array(lattice_type,
                xy_center = upper_right[0:2] - \
                    (upper_right[0:2] - lower_left[0:2]) / 2
                xy_center_lower_z = np.append(xy_center, lower_left[2])
-               translate_args = np.array(lattice_origin + [zcoord]) - \
+               translate_args = np.array(lattice_origin + [float(zcoord)]) - \
                    xy_center_lower_z
                # translate the cell
                # may need to rewrite to copy cells
@@ -1004,6 +1016,7 @@ def get_lattice_univ_array(lattice_type,
                # universe in a vstack
                cell = translate_obj(cell, translate_args)
                cell_dict[cell_name] = cell
+       lattice_universe_name_array = lattice_universe_names
 
     ## TO IMPLEMENT ##
     # in serpent, hexagonal lattices are rectilinear tilings, wheras

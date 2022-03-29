@@ -181,17 +181,9 @@ for line in schp.geo_data:
             lattice_object.pitch = lattice_pitch
             lattice_object.universes = lattice_univ_array
         elif isinstance(lattice_object, openmc.Universe):
-            # add cells to the universe
-            if bool(schp.universe_dict[lattice_universe_name]):
-                lattice_object = schp.universe_dict[lattice_universe_name]
-            else:
-                # lattice needs to be instantiated
-                lattice_object.name = lattice_universe_name
-                schp.universe_dict[lattice_universe_name] = lattice_object
-
             # get lattice cells...
             lattice_cells = []
-            for univ in lattice_uni_array:
+            for univ in lattice_univ_array:
                 cells_dict = univ.cells
                 for cell_id, cell in cells_dict:
                     lattice_cells += [cell]
