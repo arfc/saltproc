@@ -163,18 +163,25 @@ class Octagon(openmc.model.CompositeSurface):
         # Orientation specific variables
         if axis == 'x':
             coord_map = [2,1,0]
-            self.top, self.bottom = openmc.ZPlane(z0=ctop), openmc.ZPlane(z0=cbottom)
-            self.right, self.left = openmc.YPlane(y0=cright), openmc.YPlane(y0=cleft)
+            self.top = openmc.ZPlane(z0=ctop)
+            self.bottom = openmc.ZPlane(z0=cbottom)
+
+            self.right = openmc.YPlane(y0=cright)
+            self.left = openmc.YPlane(y0=cleft)
 
         elif axis == 'y':
             coord_map = [1,0,2]
-            self.top, self.bottom = openmc.XPlane(x0=ctop), openmc.XPlane(x0=cbottom)
-            self.right, self.left = openmc.ZPlane(z0=cright), openmc.ZPlane(z0=cleft)
+            self.top = openmc.XPlane(x0=ctop)
+            self.bottom = openmc.XPlane(x0=cbottom)
+            self.right = openmc.ZPlane(z0=cright)
+            self.left = openmc.ZPlane(z0=cleft)
 
         elif axis == 'z':
             coord_map = [0,1,2]
-            self.top, self.bottom = openmc.XPlane(x0=ctop), openmc.XPlane(x0=cbottom)
-            self.right, self.left = openmc.YPlane(y0=cright), openmc.YPlane(y0=cleft)
+            self.top = openmc.XPlane(x0=ctop)
+            self.bottom = openmc.XPlane(x0=cbottom)
+            self.right = openmc.YPlane(y0=cright)
+            self.left = openmc.YPlane(y0=cleft)
 
 
         # Put our coordinates in (x,y,z) order
@@ -187,10 +194,18 @@ class Octagon(openmc.model.CompositeSurface):
         p1_upper_right, p2_upper_right, p3_upper_right,\
             p1_lower_right, p2_lower_right, p3_lower_right = points
 
-        upper_right_params = _plane_from_points(p1_upper_right, p2_upper_right, p3_upper_right)
-        lower_right_params = _plane_from_points(p1_lower_right, p2_lower_right, p3_lower_right)
-        lower_left_params = _plane_from_points(-p1_upper_right, -p2_upper_right, -p3_upper_right)
-        upper_left_params = _plane_from_points(-p1_lower_right, -p2_lower_right, -p3_lower_right)
+        upper_right_params = _plane_from_points(p1_upper_right,
+                                                p2_upper_right,
+                                                p3_upper_right)
+        lower_right_params = _plane_from_points(p1_lower_right,
+                                                p2_lower_right,
+                                                p3_lower_right)
+        lower_left_params = _plane_from_points(-p1_upper_right,
+                                               -p2_upper_right,
+                                               -p3_upper_right)
+        upper_left_params = _plane_from_points(-p1_lower_right,
+                                               -p2_lower_right,
+                                               -p3_lower_right)
 
         self.upper_right = openmc.Plane(*tuple(upper_right_params))
         self.lower_right = openmc.Plane(*tuple(lower_right_params))
@@ -198,16 +213,16 @@ class Octagon(openmc.model.CompositeSurface):
         self.upper_left = openmc.Plane(*tuple(upper_left_params))
 
 
-        def __neg__(self):
-            return -self.top & +self.bottom & -self.right &  +self.left & \
-                -self.upper_right & +self.lower_right & +self.lower_left & \
-                self.upper_left
+    def __neg__(self):
+        return -self.top & +self.bottom & -self.right &  +self.left & \
+            -self.upper_right & +self.lower_right & +self.lower_left & \
+            self.upper_left
 
 
-        def __pos__(self):
-            return +self.top | -self.bottom | +self.right | -self.left | \
-                +self.upper_right | -self.lower_right | -self.lower_left | \
-                +self.upper_left
+    def __pos__(self):
+        return +self.top | -self.bottom | +self.right | -self.left | \
+            +self.upper_right | -self.lower_right | -self.lower_left | \
+            +self.upper_left
 
 
 
@@ -263,13 +278,56 @@ class CylinderSector(openmc.model.CompositeSurface):
         self.plane_b = openmc.Plane(*plane_b_params)
 
 
-        def __neg__(self):
-            return -self.outer & +self.inner & -self.plane_a &  +self.plane_b
+    def __neg__(self):
+        return -self.outer & +self.inner & -self.plane_a &  +self.plane_b
 
 
-        def __pos__(self):
-            return +self.outer | -self.inner | +self.plane_a | -self.plane_b
+    def __pos__(self):
+        return +self.outer | -self.inner | +self.plane_a | -self.plane_b
 
+
+class HalfCone(openmc.model.CompositeSurface):
+    """Finite half-cone composite surface. Parallel to z-axis
+
+    This class
+    acts as a proper surface, meaning that unary `+` and `-` operators applied
+    to it will produce a half-space. The negative side is defined to be the
+    region inside of the octogonal prism.
+
+    Parameters
+    ----------
+    base: 3-tuple
+        (x,y,z) coordiante of the point on the base and the
+        cylinder's central axis
+    r : float
+        Base radius
+    h : float
+        Height
+
+    Attributes
+    ----------
+    cone : openmc.ZCone
+        Outer cylinder surface
+    bottom : openmc.ZPlane
+
+    """
+
+    _surface_names = ('cone', 'bottom')
+
+    def __init__(self, base, r, h, **kwargs):
+
+        xb,yb,zb = base
+
+        self.cone = openmc.ZCone(x0=xb,y0=yb,z0=h-zb,r2=r)
+        self.bottom = openmc.ZPlane(z0=zb)
+
+
+    def __neg__(self):
+        return -self.cone & +self.bottom
+
+
+    def __pos__(self):
+        return +self.cone | -self.bottom
 
 
 
@@ -285,7 +343,7 @@ geo_dict = {
         "cyl": openmc.ZCylinder,
         "cylv": openmc.model.cylinder_from_points,
         "sph": openmc.Sphere,
-        "cone": openmc.ZCone,  # to implement
+        "cone": HalfCone,  # to implement
         "quadratic": openmc.Quadric,
         "torx": openmc.XTorus,
         "tory": openmc.YTorus,
@@ -421,9 +479,11 @@ def _get_openmc_surface_params(surf_type,
             r = surf_params[-1]
             surface_params = [p1, p2, r]
 
-        # elif surf_type == "cone":
-        #      ...
-        #     surface_params = []
+        elif surf_type == "cone":
+            base = tuple(surf_params[:3])
+            r = surf_params[3]
+            h = surf_params[4]
+            surface_params = [base, r, h]
 
         elif surf_type == "sqc":
             width = surf_params[2] * 2
