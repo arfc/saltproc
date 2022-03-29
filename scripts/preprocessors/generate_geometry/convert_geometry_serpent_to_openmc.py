@@ -186,9 +186,15 @@ for line in schp.geo_data:
                 lattice_object = schp.universe_dict[lattice_universe_name]
             else:
                 # lattice needs to be instantiated
+                lattice_object.name = lattice_universe_name
+                schp.universe_dict[lattice_universe_name] = lattice_object
 
             # get lattice cells...
-            lattice_cells = ...
+            lattice_cells = []
+            for univ in lattice_uni_array:
+                cells_dict = univ.cells
+                for cell_id, cell in cells_dict:
+                    lattice_cells += [cell]
 
             lattice_object.add_cells(lattice_cells)
 

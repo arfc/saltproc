@@ -308,7 +308,7 @@ geo_dict = {
         "6": openmc.RectLattice,    # Same as 1 but infinite
         "7": openmc.HexLattice,     # Same as 3 but infinite
         "8": openmc.HexLattice,     # Same as 2 but infinite
-        "9": None,          # Vertical stack (address as special case)
+        "9": openmc.Universe,          # Vertical stack (address as special case)
         "11": openmc.RectLattice,   # Cuboidal lattice
         "12": openmc.HexLattice,  # X-type hexagonal prism lattice
         "13": openmc.HexLattice  # Y-type hexagonal prism lattice
@@ -934,7 +934,7 @@ def get_lattice_univ_array(lattice_type,
                cell = cell_dict[cell_name]
                lower_left, upper_right = cell.region.bounding_box
                xy_center = upper_right[0:2] - \
-                   (upper_right[0:2] - lower_left[0:2]) / 2)
+                   (upper_right[0:2] - lower_left[0:2]) / 2
                xy_center_lower_z = np.append(xy_center, lower_left[2])
                translate_args = np.array(lattice_origin + [zcoord]) - \
                    xy_center_lower_z
