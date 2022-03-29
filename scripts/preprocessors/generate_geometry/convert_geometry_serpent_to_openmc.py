@@ -4,6 +4,7 @@ import sys
 from scipy.spatial.transform import Rotation as sprot
 import openmc
 import _script_helpers as schp
+import _helper_regex as hr
 # Read command line input
 
 try:
@@ -45,22 +46,22 @@ schp.universe_dict[schp.root_name] = root_univ
 for line in schp.geo_data:
     # Create openmc Surface objects
     # corresponding to serpent surf cards
-    if re.search(schp.SURF_REGEX, line):
-        surf_card = re.search(schp.SURF_REGEX, line).group(0)
+    if re.search(hr.SURF_REGEX, line):
+        surf_card = re.search(hr.SURF_REGEX, line).group(0)
         schp.construct_and_store_openmc_surface(surf_card)
 
     # Create openmc Cell objects
     # corresponding to serpent cell cards
-    elif re.search(schp.CELL_REGEX_ALL, line):
-        cell_card = re.search(schp.CELL_REGEX_ALL, line).group(
+    elif re.search(hr.CELL_REGEX_ALL, line):
+        cell_card = re.search(hr.CELL_REGEX_ALL, line).group(
             0)  # get the cell card without comments
-        if re.search(schp.CELL_REGEX2_CORE, cell_card):
+        if re.search(hr.CELL_REGEX2_CORE, cell_card):
             split_regex = schp.CELL_REGEX2_CORE
             cell_type = "fill"
-        elif re.search(schp.CELL_REGEX3_CORE, cell_card):
+        elif re.search(hr.CELL_REGEX3_CORE, cell_card):
             split_regex = schp.CELL_REGEX3_CORE
             cell_type = "outside"
-        elif re.search(schp.CELL_REGEX1_CORE, cell_card):
+        elif re.search(hr.CELL_REGEX1_CORE, cell_card):
             split_regex = schp.CELL_REGEX1_CORE
             cell_type = "material"
         else:
@@ -73,8 +74,8 @@ for line in schp.geo_data:
         schp.cell_dict[cell_name] = my_cell
 
     # transformations
-    elif re.search(schp.TRANS_REGEX, line):
-        trans_card = re.search(schp.TRANS_REGEX, line).group(0)
+    elif re.search(hr.TRANS_REGEX, line):
+        trans_card = re.search(hr.TRANS_REGEX, line).group(0)
         trans_data = trans_card.split()
         trans_object_type = trans_data[1]
         trans_object_name = trans_data[2]
@@ -149,8 +150,8 @@ for line in schp.geo_data:
             trans_objects_dict[obj_name] = transformed_objects[obj_name]
 
     # lattices
-    elif re.search(schp.LAT_REGEX, line):
-        lat_card = re.search(schp.LAT_REGEX, line).group(0)
+    elif re.search(hr.LAT_REGEX, line):
+        lat_card = re.search(hr.LAT_REGEX, line).group(0)
         lat_data = lat_card.split()
         lat_universe_name = lat_data[1]
         lat_type = lat_data[2]
@@ -170,35 +171,25 @@ for line in schp.geo_data:
                                                              current_line_idx)
 
         lattice_object = schp.geo_dict["lat"][lat_type](name=lat_universe_name)
-        if isinstance(lattice_object, openmc.Lattice):
-            if re.search("(1|6|11)", lat_type):
-                lattice_object.lower_left = lattice_origin
-            elif re.search("(2|3|7|8|12|13)", lat_type):
-                lattice_object.center = lattice_origin
-            else:
-                raise ValueError("Unsupported lattice type")
+        if re.search("(1|6|11)", lat_type):
+            lattice_object.lower_left = lattice_origin
+        elif re.search("(2|3|7|8|12|13)", lat_type):
+            lattice_object.center = lattice_origin
+        elif re.search("(9)", lat_type):
+            lattice_object.origin = lattice_origin
+        else:
+            raise ValueError("Unsupported lattice type")
 
-            lattice_object.pitch = lattice_pitch
-            lattice_object.universes = lattice_univ_array
-        elif isinstance(lattice_object, openmc.Universe):
-            # get lattice cells...
-            lattice_cells = []
-            for univ in lattice_univ_array:
-                cells_dict = univ.cells
-                for cell_id, cell in cells_dict:
-                    lattice_cells += [cell]
-
-            lattice_object.add_cells(lattice_cells)
-
-        # , region=universe_dict[lat_universe_name])
+        lattice_object.pitch = lattice_pitch
+        lattice_object.universes = lattice_univ_array
         lattice_cell = openmc.Cell(fill=lattice_object)
         lattice_cell.name = lat_universe_name
         schp.cell_dict[lat_universe_name] = lattice_cell
         schp.add_cell_name_to_universe(lat_universe_name, lattice_cell.name)
 
     # universe symmetry
-    elif re.search(schp.USYM_REGEX, line):
-        usym_card = re.search(schp.USYM_REGEX, line)
+    elif re.search(hr.USYM_REGEX, line):
+        usym_card = re.search(hr.USYM_REGEX, line)
         usym_data = usym_card.split()
         usym_universe_name = usym_data[2]
         usym_axis = usym_data[3]
