@@ -170,15 +170,28 @@ for line in schp.geo_data:
                                                              current_line_idx)
 
         lattice_object = schp.geo_dict["lat"][lat_type](name=lat_universe_name)
-        if re.search("(1|6|11)", lat_type):
-            lattice_object.lower_left = lattice_origin
-        elif re.search("(2|3|7|8|12|13)", lat_type):
-            lattice_object.center = lattice_origin
-        else:
-            raise ValueError("Unsupported lattice type")
+        if isinstance(lattice_object, openmc.Lattice):
+            if re.search("(1|6|11)", lat_type):
+                lattice_object.lower_left = lattice_origin
+            elif re.search("(2|3|7|8|12|13)", lat_type):
+                lattice_object.center = lattice_origin
+            else:
+                raise ValueError("Unsupported lattice type")
 
-        lattice_object.pitch = lattice_pitch
-        lattice_object.universes = lattice_univ_array
+            lattice_object.pitch = lattice_pitch
+            lattice_object.universes = lattice_univ_array
+        elif isinstance(lattice_object, openmc.Universe):
+            # add cells to the universe
+            if bool(schp.universe_dict[lattice_universe_name]):
+                lattice_object = schp.universe_dict[lattice_universe_name]
+            else:
+                # lattice needs to be instantiated
+
+            # get lattice cells...
+            lattice_cells = ...
+
+            lattice_object.add_cells(lattice_cells)
+
         # , region=universe_dict[lat_universe_name])
         lattice_cell = openmc.Cell(fill=lattice_object)
         lattice_cell.name = lat_universe_name

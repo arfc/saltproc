@@ -869,7 +869,7 @@ def get_lattice_univ_array(lattice_type,
         Nx = int(lattice_args[2])
         Ny = int(lattice_args[3])
         pitch = float(lattice_args[4])
-        lat_univ_index = 8
+        lat_univ_index = 5
 
         lattice_origin = (x0, y0)
         lattice_elements = (Nx, Ny)
@@ -882,13 +882,13 @@ def get_lattice_univ_array(lattice_type,
     #elif lat_type == 8:
     #    ...
     elif lat_type == 9:  # vertical stack
-        raise ValueError("To implement!")
+        x0 = int(lattice_args[0])
+        y0 = int(lattice_args[1])
         N_L = int(lattice_args[2])
         lat_univ_index = 4
 
         lattice_origin = (x0, y0)
         lattice_elements = (N_L, 2)
-        ...
 
     #elif lat_type == 11:
     #    ...
@@ -905,27 +905,45 @@ def get_lattice_univ_array(lattice_type,
 
     lattice_universe_name_array = np.reshape(lat_univ_names, lattice_elements)
 
-    # flip the array because serpent and openmc have opposing conventions
-    # for the universe order
 
     # need to calculate the new origin
     # the procedure is different for square/rect and hex lattices
     if re.match("(1|6|11)", lattice_type):  # square/rect lattice
+        # flip the array because serpent and openmc have opposing conventions
+        # for the universe order
         lattice_universe_name_array = np.flip(
             lattice_universe_name_array, axis=0)
+
         lattice_origin = np.empty(len(lattice_elements), dtype=float)
+
         for Ncoord in lattice_elements:
             index = lattice_elements.index(Ncoord)
             lattice_origin[index] = Ncoord * 0.5 * lattice_pitch[index]
-    #elif lattice_type == '9':
-    #   lattice_universe_name_array = lattice_universe_name_array[:,1]
-    #   zcoords = lattice_universe_names[:,0]
-    #   lattice_cells = {}
-    #   for universe_name in lattice_universe_name_array:
-    #       if universe_dict.get(universe_name):
-    #       universe_cell = openmc.Cell()
-    #       cell_names = univese_to_cell_names_dict[universe_name]
-    #       add_cell_name_to_universe(universe_name, cell_name)
+
+    elif lattice_type == '9':  # vertical stack
+       lattice_universe_name_array = lattice_universe_names[:,1]
+       lattice_origin = list(lattice_origin)
+       lattice_elements = (N_L)
+       lattice_pitch = None
+
+       for zcoord, universe_name in lattice_universe_names:
+           cell_names = universe_to_cell_names_dict[universe_name]
+
+           # translate the cells
+           for cell_name in cell_names:
+               cell = cell_dict[cell_name]
+               lower_left, upper_right = cell.region.bounding_box
+               xy_center = upper_right[0:2] - \
+                   (upper_right[0:2] - lower_left[0:2]) / 2)
+               xy_center_lower_z = np.append(xy_center, lower_left[2])
+               translate_args = np.array(lattice_origin + [zcoord]) - \
+                   xy_center_lower_z
+               # translate the cell
+               # may need to rewrite to copy cells
+               # if there are multiple of the same
+               # universe in a vstack
+               cell = translate_obj(cell, translate_args)
+               cell_dict[cell_name] = cell
 
     ## TO IMPLEMENT ##
     # in serpent, hexagonal lattices are rectilinear tilings, wheras
