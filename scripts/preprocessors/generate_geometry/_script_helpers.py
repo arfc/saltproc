@@ -217,7 +217,7 @@ class Octagon(openmc.model.CompositeSurface):
     def __neg__(self):
         return -self.top & +self.bottom & -self.right &  +self.left & \
             -self.upper_right & +self.lower_right & +self.lower_left & \
-            self.upper_left
+            -self.upper_left
 
 
     def __pos__(self):
@@ -490,6 +490,7 @@ def _get_openmc_surface_params(surf_type,
             r = surf_params[3]
             h = surf_params[4]
             surface_params = [base, r, h]
+            has_subsurfaces = True
 
         elif surf_type == "sqc":
             width = surf_params[2] * 2
@@ -534,6 +535,7 @@ def _get_openmc_surface_params(surf_type,
             for q0 in org_coord:
                 surface_params += [q0 - d]
                 surface_params += [q0 + d]
+            has_subsurfaces = True
 
         elif surf_type == "octa":
             x0 = surf_params[0]
@@ -543,6 +545,7 @@ def _get_openmc_surface_params(surf_type,
 
             origin = (x0, y0)
             surface_params = [origin, d1, d2, 'z']
+            has_subsurfaces=True
 
         elif surf_type == "pad":
             x0 = surf_params[0]
@@ -554,6 +557,7 @@ def _get_openmc_surface_params(surf_type,
 
             origin = (x0, y0)
             surface_params = [origin, r1, r2, a1, a2]
+            has_subsurfaces=True
 
         else:
             surface_params = surf_params    # every other surf card type
@@ -597,6 +601,8 @@ def construct_and_store_openmc_surface(surf_card):
     if set_attributes:
         surface_params = tuple(surface_params)
         surface_object = surface_object(*surface_params)
+        if isinstance(surface_object, openmc.model.CompositeSurface):
+            surface_object = -surface_object
         surface_object.name = surf_name
         # add the id parameter to CompositeSurface properties
         if not hasattr(surface_object, 'id'):
@@ -657,7 +663,10 @@ def _get_subsurf_region_expr_helper(subsurf_names,
 def _get_subsurf_region_expr(subsurf_dict):
     subsurf_names = list(subsurf_dict)
     n_surfs = len(subsurf_dict)
-    if n_surfs == 4:  # rect
+    if n_surfs == 2: #cone
+        match_pos_hs = lambda i : i in (1,)
+        match_neg_hs = lambda i : i in (0,)
+    elif n_surfs == 4:  # rect
         match_pos_hs = lambda i : i in (0, 2)
         match_neg_hs = lambda i : i in (1, 3)
     elif n_surfs == 6:  # hex
@@ -667,6 +676,9 @@ def _get_subsurf_region_expr(subsurf_dict):
         elif isinstance(subsurf_dict[subsurf_names[0]], openmc.YPlane):
             match_pos_hs = lambda i : i in (0, 2, 5)
             match_neg_hs = lambda i : i in (1, 4, 3)
+    elif n_surfs == 8: #octagon
+        match_pos_hs = lambda i : i in (1,3,5,6)
+        match_neg_hs = lambda i : i in (0,2,4,7)
     else:
         raise ValueError("There were too many \
                          subsurfaces in the region")
@@ -1005,8 +1017,15 @@ def get_lattice_univ_array(lattice_type,
            for cell_name in cell_names:
                cell = cell_dict[cell_name]
                lower_left, upper_right = cell.region.bounding_box
-               xy_center = upper_right[0:2] - \
-                   (upper_right[0:2] - lower_left[0:2]) / 2
+               if np.inf in lower_left or \
+                       np.inf in upper_right or \
+                       -np.inf in lower_left or \
+                       -np.inf in upper_right:
+                   xy_center = np.zeros(2)
+               else:
+                   xy_center = upper_right[0:2] - \
+                       (upper_right[0:2] - lower_left[0:2]) / 2
+
                xy_center_lower_z = np.append(xy_center, lower_left[2])
                translate_args = np.array(lattice_origin + [float(zcoord)]) - \
                    xy_center_lower_z
