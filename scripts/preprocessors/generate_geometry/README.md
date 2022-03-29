@@ -19,13 +19,11 @@ python convert_geometry_serpent_to_openmc.py PATH_TO_GEO_FILE PATH_TO_MAT_FILE
 The following cards are unsupported, but we're working on adding support soon!
 - `surf`
   - `inf` surface type (general use)
-  - `cone`
   - Truncated cylinders
   - `tri` (triangular prism)
   - `hexxprism`, `hexyprism`
-  - `octa` and `dode`
+  - `dode`
   - `ppd`
-  - `pad`
   - `cross` and `gcross`
   - `hexxap`,`hexyap`
   - `involute`
@@ -35,7 +33,7 @@ The following cards are unsupported, but we're working on adding support soon!
 - `lat`
   - hexagonal lattices
   - circular cluster array
-  - vertical stack
+  - vertical stack*
 - `trans`
   - `rot` rotations
   - lattice transformations
