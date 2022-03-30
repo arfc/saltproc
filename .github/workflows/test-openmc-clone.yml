@@ -1,0 +1,39 @@
+# Preamble
+name: Test openmc checkout
+
+on:
+  push:
+  pull_request:
+  workflow_run:
+    workflows: ["Cache dependencies"]
+    types: [completed]
+  # enable worflow to be run manually
+  workflow_dispatch:
+
+env:
+  CACHE_NUMBER: 0 #change to manually reset cache
+
+jobs:
+  test-saltproc:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    env:
+      MPI: no
+      OMP: no
+      PHDF5: no
+      DAGMC: no
+      EVENT: no
+      VECTFIT: no
+      LIBMESH: no
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: checkout OpenMC
+        uses: actions/checkout@v3
+        with:
+          repository: openmc-dev/openmc
+          path: openmc
