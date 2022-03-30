@@ -3,10 +3,6 @@ name: Test download script
 
 on:
   push:
-    paths:
-      - 'saltproc/**'
-      - 'saltproc/tests/**'
-  pull_request:
   workflow_run:
     workflows: ["Cache dependencies"]
     types: [completed]
