@@ -13,9 +13,82 @@ def _plane_from_points(p1, p2, p3):
 
     return [A, B, C, D]
 
-class VerticalStackLattice(openmc.Lattice):
-    """Vertical stack
+class StackLattice(openmc.Lattice):
+    """1D stack lattice
     """
+
+    def __init__(self, lattice_id=None, name=''):
+        super().__init__(lattice_id, name)
+
+        # Initalize Lattice class attributes
+        self._center = None
+        self._num_levels = None
+        self._orientation = 'z'
+
+    def __repr__(self):
+        string = 'StackLattice\n'
+        string += '{0: <16}{1}{2}\n'.format('\tID', '=\t', self._id)
+        string += '{0: <16}{1}{2}\n'.format('\tName', '=\t', self._name)
+        string += '{0: <16}{1}{2}\n'.format('\tOrientation', '=\t',
+                                            self._orientation)
+        string += '{0: <16}{1}{2}\n'.format('\t# Levels', '=\t', self._num_levels)
+        string += '{0: <16}{1}{2}\n'.format('\tCenter', '=\t',
+                                            self._center)
+        string += '{0: <16}{1}{2}\n'.format('\tPitch', '=\t', self._pitch)
+        if self._outer is not None:
+            string += '{0: <16}{1}{2}\n'.format('\tOuter', '=\t',
+                                                self._outer._id)
+        else:
+            string += '{0: <16}{1}{2}\n'.format('\tOuter', '=\t',
+                                                self._outer)
+
+        string += '{: <16}\n'.format('\tUniverses')
+
+        for i, universe in enumerate(np.ravel(self._universes)):
+            string += f'universe._id\n'
+
+        string = string.rstrip('\n')
+
+        return string
+
+    @property
+    def num_levels(self):
+        return self._num_levels
+
+    @property
+    def center(self):
+        return self._center
+
+    @property
+    def orientation(self):
+        return self._orientation
+
+    @property
+    def indices(self):
+        ...
+
+    @property
+    def _natural_inidices(self):
+        ...
+
+    @num_levels.setter
+    def num_levels(self,...):
+        ...
+
+    @center.settter
+    def center(self,...):
+        ...
+
+    @orientation.setter(self,...):
+        ...
+
+    @Lattice.pitch.setter(self,...):
+        ...
+
+    @Lattice.universes.seter(self,...):
+        ...
+
+
     # junk from _script helpers
         # rest of this will get deleted later
        for zcoord, universe_name in lattice_universe_name_array:
