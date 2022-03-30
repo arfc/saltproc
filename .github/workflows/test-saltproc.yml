@@ -31,6 +31,7 @@ jobs:
       EVENT: no
       VECTFIT: no
       LIBMESH: no
+      OPENMC_VERSION: '0.13.0'
 
     steps:
       - uses: actions/checkout@v2
@@ -79,9 +80,10 @@ jobs:
       - name: Build OpenMC
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
         run: |
+          wget -O - https://codeload.github.com/openmc-dev/openmc/tar.gz/refs/tags/v${{ env.OPENMC_VERSION }} | tar -C $HOME -xz
           git clone git@github.com:openmc-dev/openmc $HOME/openmc
           CURRENT=$GITHUB_WORKSPACE
-          cd $HOME/openmc
+          cd $HOME/openmc-${{ env.OPENMC_VERSION }}
           python tools/ci/gha-install.py
           pip install .
           cd $CURRENT
