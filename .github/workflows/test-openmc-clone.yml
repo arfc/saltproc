@@ -37,8 +37,6 @@ jobs:
         with:
           repository: openmc-dev/openmc
           path: openmc
-
-      - name: explore directories
         run: |
           ls
           cd openmc
