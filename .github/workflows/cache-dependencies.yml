@@ -63,23 +63,28 @@ jobs:
 
       - name: Install OpenMC cross section library
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
-        run: scripts/ci/openmc-xs.bash
+        run: $GITHUB_WORKSPACE/scripts/ci/openmc-xs.bash
       
       - name: OpenMC dependencies
         run: |
           sudo apt -y update
           sudo apt install -y libhdf5-dev
-          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
+
+      - name: Download OpenMC
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with: 
+          repository: openmc-dev/openmc
+          path: openmc
 
       - name: Build OpenMC
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
         run: |
-          git clone git@github.com:openmc-dev/openmc $HOME/openmc
-          CURRENT=$GITHUB_WORKSPACE
-          cd $HOME/openmc
+          cd openmc
+          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
           python tools/ci/gha-install.py
           pip install .
-          cd $CURRENT
+          cd ../
 
       - name: Install SaltProc
         run: pip install .
@@ -125,14 +130,20 @@ jobs:
         run: mamba env update -n saltproc-doc-env -f doc/doc-environment.yml
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
 
+      - name: Download OpenMC
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with: 
+          repository: openmc-dev/openmc
+          path: openmc
+
       - name: Build OpenMC API
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
         run: |
-          git clone git@github.com:openmc-dev/openmc $HOME/openmc
-          CURRENT=$GITHUB_WORKSPACE
-          cd $HOME/openmc
+          cd openmc
+          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
           pip install .
-          cd $CURRENT
+          cd ../
 
       - name: Check packages
         run: conda list

@@ -75,7 +75,6 @@ jobs:
         run: |
           sudo apt -y update
           sudo apt install -y libhdf5-dev
-          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
 
       - name: Download OpenMC
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
@@ -88,6 +87,7 @@ jobs:
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
         run: |
           cd openmc
+          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
           python tools/ci/gha-install.py
           pip install .
           cd ../
