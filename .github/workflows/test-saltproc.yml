@@ -31,7 +31,6 @@ jobs:
       EVENT: no
       VECTFIT: no
       LIBMESH: no
-      OPENMC_VERSION: '0.13.0'
 
     steps:
       - uses: actions/checkout@v3
