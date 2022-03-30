@@ -32,5 +32,4 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install OpenMC cross section library
-        shell: bash
-        run: $PWD/scripts/ci/openmc-xs-gha.sh
+        run: $GITHUB_WORKSPACE/scripts/ci/openmc-xs-gha.bash
