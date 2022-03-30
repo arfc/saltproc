@@ -31,7 +31,7 @@ geo_dict = {
         "cyl": openmc.ZCylinder,
         "cylv": openmc.model.cylinder_from_points,
         "sph": openmc.Sphere,
-        "cone": hc.HalfCone,  # to implement
+        "cone": hc.HalfCone,  # look into openmc.model.ZConeOneSided
         "quadratic": openmc.Quadric,
         "torx": openmc.XTorus,
         "tory": openmc.YTorus,
