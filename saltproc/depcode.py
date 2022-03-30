@@ -280,7 +280,7 @@ class DepcodeOpenMC(Depcode):
         nodes : int
             Number of nodes to use for depletion code run.
         """
-        ## need to add flow control for plots option ##
+        # need to add flow control for plots option
         args = (
             'mpiexec',
             '-n',
