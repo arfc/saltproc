@@ -33,4 +33,4 @@ jobs:
 
       - name: Install OpenMC cross section library
         shell: bash
-        run: $GITHUB_WORKSPACE/scripts/ci/openmc-xs.sh
+        run: $GITHUB_WORKSPACE/scripts/ci/openmc-xs-gha.sh
