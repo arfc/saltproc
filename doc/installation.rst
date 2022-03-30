@@ -45,7 +45,14 @@ Clone the source from the SaltProc repository from `GitHub`_.
 
    git clone git@github.com:arfc/saltproc.git
 
-All of the dependencies are readily available through the `conda package manager`_.
+Note on installing OpenMC
+-------------------------
+The ``conda-forge`` build of OpenMC 0.13.0 cannot be installed alongside the ``conda-forge`` build of PyNE due to a conflict in the pinned HDF5 versions required by those builds. Since both are dependencies, users will need to pick one to install from source. We recommend users install OpenMC from source as it has a more active community and a step-by-step guide on how to install it from source on most machines. For Ubuntu users, consider using the `ubuntu-nuclear-software-installer`_
+script to install OpenMC from source.
+
+.. _ubuntu-nuclear-software-installer: https://github.com/yardasol/ubuntu-nuclear-software-installer
+
+Otherwise, all of the dependencies are readily available through the `conda package manager`_.
 
 .. note:: We recommend using the `mamba`_ CLI tool to install packages quickly. SaltProc has a compltex package dependency structure which can result is long environment solve times in the default ``conda`` solver. ``mamba`` is a reimplementation of ``conda`` in ``C++`` and we have found it is significantly faster.
 
