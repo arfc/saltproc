@@ -72,11 +72,6 @@ Script Changes
 
 
 
-- Two new helper scripts
-
-  - ``scripts/preprocessors/generate_mat_composition/convert_material_serpent_to_openmc.py``. Converts a Serpent2 material file to an OpenMC material file.
-  - ``scripts/preprocessors/generate_geometry/convert_geometry_serpent_to_openmcy.py``. Converts a Serpent2 geometry file to an OpenMC geometry file.
-
 
 
 Python API Changes
