@@ -68,7 +68,6 @@ jobs:
 
       - name: Install OpenMC cross section library
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
-        shell: bash
         run: $GITHUB_WORKSPACE/scripts/ci/openmc-xs.bash
       
       - name: OpenMC dependencies
