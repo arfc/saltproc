@@ -446,8 +446,8 @@ class CylinderSector(openmc.model.CompositeSurface):
         return +self.outer | -self.inner | +self.plane_a | -self.plane_b
 
 
-class HalfCone(openmc.model.CompositeSurface):
-    """Finite half-cone composite surface. Parallel to z-axis
+class FiniteCone(openmc.model.CompositeSurface):
+    """Finite cone composite surface. Parallel to z-axis
 
     This class
     acts as a proper surface, meaning that unary `+` and `-` operators applied
@@ -466,7 +466,7 @@ class HalfCone(openmc.model.CompositeSurface):
 
     Attributes
     ----------
-    cone : openmc.ZCone
+    cone : openmc.model.ZConeOneSided
         Outer cylinder surface
     bottom : openmc.ZPlane
 
@@ -478,7 +478,7 @@ class HalfCone(openmc.model.CompositeSurface):
 
         xb,yb,zb = base
 
-        self.cone = openmc.ZCone(x0=xb,y0=yb,z0=h-zb,r2=r)
+        self.cone = openmc.model.ZConeOneSided(x0=xb,y0=yb,z0=h-zb,r2=r,up=False)
         self.bottom = openmc.ZPlane(z0=zb)
 
 
