@@ -2,7 +2,6 @@
 name: Test download script
 
 on:
-  push:
   workflow_run:
     workflows: ["Cache dependencies"]
     types: [completed]
