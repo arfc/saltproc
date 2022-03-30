@@ -80,7 +80,7 @@ jobs:
       - name: Build OpenMC
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
         run: |
-          wget -O - https://codeload.github.com/openmc-dev/openmc/tar.gz/refs/tags/v${{ env.OPENMC_VERSION }} | tar -C $HOME -xz --exclude=".github/"
+          wget -O - https://codeload.github.com/openmc-dev/openmc/tar.gz/refs/tags/v${{ env.OPENMC_VERSION }} | tar -C $HOME -xz
           CURRENT=$GITHUB_WORKSPACE
           cd $HOME/openmc-${{ env.OPENMC_VERSION }}
           python tools/ci/gha-install.py
