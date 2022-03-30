@@ -1,5 +1,5 @@
 # Preamble
-name: Test SaltProc
+name: Test download script
 
 on:
   push:
