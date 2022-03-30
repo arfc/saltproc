@@ -467,7 +467,7 @@ def test_write_saltproc_openmc_tallies():
     assert tal2.scores[0] == 'decay-rate'
     assert tal3.name == 'fission-energy'
     assert isinstance(tal3.filters[0], om.UniverseFilter)
-    assert tal3.scores[0] == 'fission-q-reocverable'
+    assert tal3.scores[0] == 'fission-q-recoverable'
     assert tal3.scores[1] == 'fission-q-prompt'
     assert tal3.scores[2] == 'kappa-fission'
     assert tal4.name == 'normalization-factor'
