@@ -23,6 +23,15 @@ jobs:
       run:
         shell: bash -l {0}
 
+    env:
+      MPI: no
+      OMP: no
+      PHDF5: no
+      DAGMC: no
+      EVENT: no
+      VECTFIT: no
+      LIBMESH: no
+
     steps:
       - uses: actions/checkout@v2
 
@@ -47,6 +56,8 @@ jobs:
         with:
           path: |
             /usr/share/miniconda3/envs/saltproc-env
+            /usr/local/bin/openmc
+            ~/endfb71_hdf5
             ~/.cache/pip
           key: depcache-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
 
@@ -55,8 +66,30 @@ jobs:
         run: mamba env update -n saltproc-env -f environment.yml
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
 
+      - name: Install OpenMC cross section library
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        run: scripts/ci/openmc-xs.bash
+      
+      - name: OpenMC dependencies
+        run: |
+          sudo apt -y update
+          sudo apt install -y libhdf5-dev
+          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
+
+      - name: Build OpenMC
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone git@github.com:openmc-dev/openmc $HOME/openmc
+          CURRENT=$GITHUB_WORKSPACE
+          cd $HOME/openmc
+          python tools/ci/gha-install.py
+          pip install .
+          cd $CURRENT
+
       - name: Install SaltProc
         run:  pip install .
 
       - name: Test SaltProc
-        run: pytest --ignore saltproc/tests/integration_tests saltproc
+        run: |
+          echo "OPENMC_CROSS_SECTIONS=$HOME/endfb71_hdf5/cross_sections.xml" >> $GITHUB_ENV
+          pytest --ignore saltproc/tests/integration_tests saltproc

@@ -52,7 +52,7 @@ jobs:
           path: |
             /usr/share/miniconda3/envs/saltproc-env
             /usr/local/bin/openmc
-            ~/endfb71
+            ~/endfb71_hdf5
             ~/.cache/pip
           key: depcache-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
 
@@ -63,29 +63,23 @@ jobs:
 
       - name: Install OpenMC cross section library
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
-        run: |
-          scripts/ci/openmc-xs.bash
-          echo "OPENMC_CROSS_SECTIONS=$HOME/endfb71_hdf5/cross_sections.xml" >> $GITHUB_ENV
+        run: scripts/ci/openmc-xs.bash
       
-     - name: OpenMC dependencies
-       run: |
+      - name: OpenMC dependencies
+        run: |
           sudo apt -y update
           sudo apt install -y libhdf5-dev
           pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
 
-      - name: Download OpenMC
-        run: |
-          git clone git@github.com:openmc-dev/openmc
-
       - name: Build OpenMC
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
-        run: python openmc/tools/ci/gha-install.py
-
-      - name: install openmc
         run: |
-          cd openmc
+          git clone git@github.com:openmc-dev/openmc $HOME/openmc
+          CURRENT=$GITHUB_WORKSPACE
+          cd $HOME/openmc
+          python tools/ci/gha-install.py
           pip install .
-          cd ../
+          cd $CURRENT
 
       - name: Install SaltProc
         run: pip install .
@@ -130,6 +124,15 @@ jobs:
       - name: Update environment
         run: mamba env update -n saltproc-doc-env -f doc/doc-environment.yml
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
+
+      - name: Build OpenMC API
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone git@github.com:openmc-dev/openmc $HOME/openmc
+          CURRENT=$GITHUB_WORKSPACE
+          cd $HOME/openmc
+          pip install .
+          cd $CURRENT
 
       - name: Check packages
         run: conda list
