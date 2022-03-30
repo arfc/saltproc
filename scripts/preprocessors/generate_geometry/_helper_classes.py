@@ -85,10 +85,141 @@ class StackLattice(openmc.Lattice):
     @Lattice.pitch.setter(self,...):
         ...
 
-    @Lattice.universes.seter(self,...):
+    @Lattice.universes.setter(self,...):
+        ...
+
+    def find_element(self, point):
+        """Determine index of lattice element and local coordinates for a point
+
+        Parameters
+        ----------
+        point : Iterable of float
+            Cartesian coordinates of point
+
+        Returns
+        -------
+        2- or 3-tuple of int
+            A tuple of the corresponding (x,y,z) lattice element indices
+        3-tuple of float
+            Carestian coordinates of the point in the corresponding lattice
+            element coordinate system
+
+        """
+        ...
+
+    def get_local_coordinates(self, point, idx):
+        """Determine local coordinates of a point within a lattice element
+
+        Parameters
+        ----------
+        point : Iterable of float
+            Cartesian coordinates of point
+        idx : Iterable of int
+            (x,y,z) indices of lattice element. If the lattice is 2D, the z
+            index can be omitted.
+
+        Returns
+        -------
+        3-tuple of float
+            Cartesian coordinates of point in the lattice element coordinate
+            system
+        """
         ...
 
 
+    def get_universe_index(self, idx):
+        """Return index in the universes array corresponding
+        to a lattice element index
+
+        Parameters
+        ----------
+        idx : Iterable of int
+            Lattice element indices in the :math:`(x,y,z)` coordinate system
+
+        Returns
+        -------
+        2- or 3-tuple of int
+            Indices used when setting the :attr:`RectLattice.universes` property
+
+        """
+        ...
+
+
+    def is_valid_index(self, idx):
+        """Determine whether lattice element index is within defined range
+
+        Parameters
+        ----------
+        idx : Iterable of int
+            Lattice element indices in the :math:`(x,y,z)` coordinate system
+
+        Returns
+        -------
+        bool
+            Whether index is valid
+
+        """
+        ...
+
+    def create_xml_subelement(self, xml_element, memo=None):
+        """Add the lattice xml representation to an incoming xml element
+
+        Parameters
+        ----------
+        xml_element : xml.etree.ElementTree.Element
+            XML element to be added to
+
+        memo : set or None
+            A set of object id's representing geometry entities already
+            written to the xml_element. This parameter is used internally
+            and should not be specified by users.
+
+        Returns
+        -------
+        None
+
+        """
+        ...
+
+    @classmethod
+    def from_xml_element(cls, elem, get_universe):
+        """Generate rectangular lattice from XML element
+
+        Parameters
+        ----------
+        elem : xml.etree.ElementTree.Element
+            `<lattice>` element
+        get_universe : function
+            Function returning universe (defined in
+            :meth:`openmc.Geometry.from_xml`)
+
+        Returns
+        -------
+        StackLattice
+            Stack lattice
+
+        """
+        ...
+
+    @classmethod
+    def from_hdf5(cls, group, universes):
+        """Create rectangular lattice from HDF5 group
+
+        Parameters
+        ----------
+        group : h5py.Group
+            Group in HDF5 file
+        universes : dict
+            Dictionary mapping universe IDs to instances of
+            :class:`openmc.Universe`.
+
+        Returns
+        -------
+        openmc.StackLattice
+            Stack lattice
+
+        """
+        ...
     # junk from _script helpers
         # rest of this will get deleted later
        for zcoord, universe_name in lattice_universe_name_array:
