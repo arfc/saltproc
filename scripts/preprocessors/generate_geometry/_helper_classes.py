@@ -509,24 +509,24 @@ class Octagon(openmc.model.CompositeSurface):
         # Orientation specific variables
         if axis == 'x':
             coord_map = [2,0,1]
-            self.top = openmc.ZPlane(z0=ctop)
-            self.bottom = openmc.ZPlane(z0=cbottom)
-            self.right = openmc.YPlane(y0=cright)
-            self.left = openmc.YPlane(y0=cleft)
+            self.top = openmc.ZPlane(z0=ctop, **kwargs)
+            self.bottom = openmc.ZPlane(z0=cbottom, **kwargs)
+            self.right = openmc.YPlane(y0=cright, **kwargs)
+            self.left = openmc.YPlane(y0=cleft, **kwargs)
 
         elif axis == 'y':
             coord_map = [0,2,1]
-            self.top = openmc.ZPlane(z0=ctop)
-            self.bottom = openmc.ZPlane(z0=cbottom)
-            self.right = openmc.XPlane(x0=cright)
-            self.left = openmc.XPlane(x0=cleft)
+            self.top = openmc.ZPlane(z0=ctop, **kwargs)
+            self.bottom = openmc.ZPlane(z0=cbottom, **kwargs)
+            self.right = openmc.XPlane(x0=cright, **kwargs)
+            self.left = openmc.XPlane(x0=cleft, **kwargs)
 
         elif axis == 'z':
             coord_map = [0,1,2]
-            self.top = openmc.YPlane(y0=ctop)
-            self.bottom = openmc.YPlane(y0=cbottom)
-            self.right = openmc.XPlane(x0=cright)
-            self.left = openmc.XPlane(x0=cleft)
+            self.top = openmc.YPlane(y0=ctop, **kwargs)
+            self.bottom = openmc.YPlane(y0=cbottom, **kwargs)
+            self.right = openmc.XPlane(x0=cright, **kwargs)
+            self.left = openmc.XPlane(x0=cleft, **kwargs)
 
 
         # Put our coordinates in (x,y,z) order
@@ -553,10 +553,10 @@ class Octagon(openmc.model.CompositeSurface):
                                                -p2_lower_right,
                                                -p3_lower_right)
 
-        self.upper_right = openmc.Plane(*tuple(upper_right_params))
-        self.lower_right = openmc.Plane(*tuple(lower_right_params))
-        self.lower_left = openmc.Plane(*tuple(lower_left_params))
-        self.upper_left = openmc.Plane(*tuple(upper_left_params))
+        self.upper_right = openmc.Plane(*tuple(upper_right_params), **kwargs)
+        self.lower_right = openmc.Plane(*tuple(lower_right_params), **kwargs)
+        self.lower_left = openmc.Plane(*tuple(lower_left_params), **kwargs)
+        self.upper_left = openmc.Plane(*tuple(upper_left_params), **kwargs)
 
 
     def __neg__(self):
@@ -634,10 +634,10 @@ class CylinderSector(openmc.model.CompositeSurface):
         plane1_params = _plane_from_points(p1, p2_plane1, p3_plane1)
         plane2_params = _plane_from_points(p1, p2_plane2, p3_plane2)
 
-        self.inner = openmc.ZCylinder(x0=xc, y0=yc, r=r1)
-        self.outer = openmc.ZCylinder(x0=xc, y0=yc, r=r2)
-        self.plane1 = openmc.Plane(*plane1_params)
-        self.plane2 = openmc.Plane(*plane2_params)
+        self.inner = openmc.ZCylinder(x0=xc, y0=yc, r=r1, **kwargs)
+        self.outer = openmc.ZCylinder(x0=xc, y0=yc, r=r2, **kwargs)
+        self.plane1 = openmc.Plane(*plane1_params, **kwargs)
+        self.plane2 = openmc.Plane(*plane2_params, **kwargs)
 
 
     def __neg__(self):
