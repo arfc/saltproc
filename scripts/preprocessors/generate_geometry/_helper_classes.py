@@ -11,7 +11,7 @@ def _plane_from_points(p1, p2, p3):
     C = n[2]
     D = np.dot(n, n0)
 
-    return [A, B, C, D]
+    return [A, B, C, -D]
 
 class NonuniformStackLattice(openmc.Lattice):
     """A lattice consisting of universes stacked nonuniformly along a central
@@ -139,7 +139,7 @@ class NonuniformStackLattice(openmc.Lattice):
             raise ValueError("NonuniformStackLattice should only have 1 dimension")
 
 
-    @central_axis.settter
+    @central_axis.setter
     def central_axis(self, central_axis):
         cv.check_type('lattice central_axis', central_axis, Iterable, Real)
         cv.check_length('lattice central_axis', central_axis, 2)
@@ -152,14 +152,14 @@ class NonuniformStackLattice(openmc.Lattice):
         self._oreientation = orientation.lower()
 
 
-    @Lattice.pitch.setter
+    @openmc.Lattice.pitch.setter
     def pitch(self, pitch):
         cv.check_type('lattice pitch', pitch, Iterable, Real)
         cv.check_length('lattice pitch', pitch, self.num_levels)
         self._pitch = pitch
 
 
-    @Lattice.universes.setter
+    @openmc.Lattice.universes.setter
     def universes(self, universes):
         cv.check_iterable_type('lattice universes', universes, openmc.UniverseBase, min_depth=1, max_depth=1)
         self._universes = np.asarray(universes)
@@ -445,7 +445,7 @@ class Octagon(openmc.model.CompositeSurface):
     ----------
     center : 2-tuple
         (q1,q2) coordinate for the center of the octagon. (q1,q2) pairs are
-        (z,y), (x,z), or (x,y).
+        (y,z), (x,z), or (x,y).
     r1 : float
         Half-width of octagon across axis-perpendicualr sides
     r2 : float
@@ -456,14 +456,21 @@ class Octagon(openmc.model.CompositeSurface):
     Attributes
     ----------
     top : openmc.ZPlane or openmc.XPlane
-        Top planar surface of Hexagon
+        Top planar surface of octagon
     bottom : openmc.ZPlane or openmc.XPlane
+        Bottom planar surface of octagon
     right: openmc.YPlane or openmc.ZPlane
+        Right planaer surface of octagon
     left: openmc.YPlane or openmc.ZPlane
+        Left planar surface of octagon
     upper_right : openmc.Plane
+        Upper right planar surface of octagon
     lower_right : openmc.Plane
+        Lower right planar surface of octagon
     lower_left : openmc.Plane
+        Lower left planar surface of octagon
     upper_left : openmc.Plane
+        Upper left planar surface of octagon
 
     """
 
@@ -473,6 +480,7 @@ class Octagon(openmc.model.CompositeSurface):
                       'lower_right', 'upper_left')
 
     def __init__(self, center, r1, r2, axis='z', **kwargs):
+        self._axis = axis
         q1c, q2c = center
 
         # Coords for axis-perpendicular planes
@@ -483,43 +491,42 @@ class Octagon(openmc.model.CompositeSurface):
         cleft = q2c-r1
 
         # Side lengths
-        L_perp_ax1 = (r1 * np.sqrt(2) - r2) * 2
-        L_perp_ax2 = (r2 * np.sqrt(2) - r1) * 2
+        L_perp_ax1 = (r2 * np.sqrt(2) - r1) * 2
+        L_perp_ax2 = (r1 * np.sqrt(2) - r2) * 2
 
         # Coords for quadrant planes
-        p1_upper_right = [L_perp_ax1/2, r1,0]
-        p2_upper_right = [r1, L_perp_ax1/2,0]
-        p3_upper_right = [r1, L_perp_ax1/2,1]
+        p1_upper_right = [L_perp_ax1/2, r1, 0]
+        p2_upper_right = [r1, L_perp_ax1/2, 0]
+        p3_upper_right = [r1, L_perp_ax1/2, 1]
 
-        p1_lower_right = [r1, -L_perp_ax1/2,0]
-        p2_lower_right = [L_perp_ax1/2, -r1,0]
-        p3_lower_right = [L_perp_ax1/2, -r1,1]
+        p1_lower_right = [r1, -L_perp_ax1/2, 0]
+        p2_lower_right = [L_perp_ax1/2, -r1, 0]
+        p3_lower_right = [L_perp_ax1/2, -r1, 1]
 
         points = [p1_upper_right, p2_upper_right, p3_upper_right,
                   p1_lower_right, p2_lower_right, p3_lower_right]
 
         # Orientation specific variables
         if axis == 'x':
-            coord_map = [2,1,0]
+            coord_map = [2,0,1]
             self.top = openmc.ZPlane(z0=ctop)
             self.bottom = openmc.ZPlane(z0=cbottom)
-
             self.right = openmc.YPlane(y0=cright)
             self.left = openmc.YPlane(y0=cleft)
 
         elif axis == 'y':
-            coord_map = [1,0,2]
-            self.top = openmc.XPlane(x0=ctop)
-            self.bottom = openmc.XPlane(x0=cbottom)
-            self.right = openmc.ZPlane(z0=cright)
-            self.left = openmc.ZPlane(z0=cleft)
+            coord_map = [0,2,1]
+            self.top = openmc.ZPlane(z0=ctop)
+            self.bottom = openmc.ZPlane(z0=cbottom)
+            self.right = openmc.XPlane(x0=cright)
+            self.left = openmc.XPlane(x0=cleft)
 
         elif axis == 'z':
             coord_map = [0,1,2]
-            self.top = openmc.XPlane(x0=ctop)
-            self.bottom = openmc.XPlane(x0=cbottom)
-            self.right = openmc.YPlane(y0=cright)
-            self.left = openmc.YPlane(y0=cleft)
+            self.top = openmc.YPlane(y0=ctop)
+            self.bottom = openmc.YPlane(y0=cbottom)
+            self.right = openmc.XPlane(x0=cright)
+            self.left = openmc.XPlane(x0=cleft)
 
 
         # Put our coordinates in (x,y,z) order
@@ -553,16 +560,27 @@ class Octagon(openmc.model.CompositeSurface):
 
 
     def __neg__(self):
-        return -self.top & +self.bottom & -self.right &  +self.left & \
-            -self.upper_right & +self.lower_right & +self.lower_left & \
-            -self.upper_left
+        reg = -self.top & +self.bottom & -self.right & +self.left
+        if self._axis == 'y':
+            reg = reg & -self.upper_right & -self.lower_right & \
+                +self.lower_left & +self.upper_left
+        else:
+            reg = reg & +self.upper_right & +self.lower_right & \
+                -self.lower_left & -self.upper_left
+
+        return reg
 
 
     def __pos__(self):
-        return +self.top | -self.bottom | +self.right | -self.left | \
-            +self.upper_right | -self.lower_right | -self.lower_left | \
-            +self.upper_left
+        reg = +self.top | -self.bottom | +self.right | -self.left
+        if self._axis == 'y':
+            reg = reg | +self.upper_right | +self.lower_right | \
+                -self.lower_left | -self.upper_left
+        else:
+            reg = reg | -self.upper_right | -self.lower_right | \
+                +self.lower_left | +self.upper_left
 
+        return reg
 
 
 
@@ -581,7 +599,7 @@ class CylinderSector(openmc.model.CompositeSurface):
     r1, r2 : float
         Inner and outer radius
     alpha1, alpha2 : float
-        Angular segmentation
+        Angular segmentation in degrees relative to the x-axis
 
     Attributes
     ----------
@@ -589,8 +607,10 @@ class CylinderSector(openmc.model.CompositeSurface):
         Outer cylinder surface
     inner : openmc.ZCylinder
         Inner cylinder surface
-    plane_a : openmc.Plane
-    plane_b : openmc.Plane
+    plane_1 : openmc.Plane
+        Segment plane corresponding to :attr:`alpha1`
+    plane_2 : openmc.Plane
+        Segmenting plane correspodning to :attr:`alpha2`
 
     """
 
@@ -599,31 +619,33 @@ class CylinderSector(openmc.model.CompositeSurface):
 
     def __init__(self, center, r1, r2, alpha1, alpha2, **kwargs):
 
+        alpha1 = np.pi / 180 * alpha1
+        alpha2 = np.pi / 180 * alpha2
         xc,yc = center
         # Coords for axis-perpendicular planes
         p1 = np.array([0,0,1])
 
-        p2_plane_a = np.array([r1 * np.cos(alpha1), -r1 * np.sin(alpha1), 0])
-        p3_plane_a = np.array([r2 * np.cos(alpha1), -r2 * np.sin(alpha1), 0])
+        p2_plane1 = np.array([r1 * np.cos(alpha1), -r1 * np.sin(alpha1), 0])
+        p3_plane1 = np.array([r2 * np.cos(alpha1), -r2 * np.sin(alpha1), 0])
 
-        p2_plane_b = np.array([r1 * np.cos(alpha2), r1 * np.sin(alpha2), 0])
-        p3_plane_b = np.array([r2 * np.cos(alpha2), r2 * np.sin(alpha2), 0])
+        p2_plane2 = np.array([r1 * np.cos(alpha2), r1 * np.sin(alpha2), 0])
+        p3_plane2 = np.array([r2 * np.cos(alpha2), r2 * np.sin(alpha2), 0])
 
-        plane_a_params = _plane_from_points(p1, p2_plane_a, p3_plane_a)
-        plane_b_params = _plane_from_points(p1, p2_plane_b, p3_plane_b)
+        plane1_params = _plane_from_points(p1, p2_plane1, p3_plane1)
+        plane2_params = _plane_from_points(p1, p2_plane2, p3_plane2)
 
         self.inner = openmc.ZCylinder(x0=xc, y0=yc, r=r1)
         self.outer = openmc.ZCylinder(x0=xc, y0=yc, r=r2)
-        self.plane_a = openmc.Plane(*plane_a_params)
-        self.plane_b = openmc.Plane(*plane_b_params)
+        self.plane1 = openmc.Plane(*plane1_params)
+        self.plane2 = openmc.Plane(*plane2_params)
 
 
     def __neg__(self):
-        return -self.outer & +self.inner & -self.plane_a &  +self.plane_b
+        return -self.outer & +self.inner & -self.plane1 &  +self.plane2
 
 
     def __pos__(self):
-        return +self.outer | -self.inner | +self.plane_a | -self.plane_b
+        return +self.outer | -self.inner | +self.plane1 | -self.plane2
 
 
 class FiniteCone(openmc.model.CompositeSurface):
@@ -657,8 +679,10 @@ class FiniteCone(openmc.model.CompositeSurface):
     def __init__(self, base, r, h, **kwargs):
 
         xb,yb,zb = base
+        theta = np.arctan(r/h)
+        r2 = (1 / np.cos(theta))**2 - 1
 
-        self.cone = openmc.model.ZConeOneSided(x0=xb,y0=yb,z0=h-zb,r2=r,up=False)
+        self.cone = openmc.model.ZConeOneSided(x0=xb,y0=yb,z0=h+zb,r2=r2,up=False, **kwargs)
         self.bottom = openmc.ZPlane(z0=zb)
 
 
