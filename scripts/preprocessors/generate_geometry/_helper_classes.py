@@ -21,7 +21,7 @@ class StackLattice(openmc.Lattice):
         super().__init__(lattice_id, name)
 
         # Initalize Lattice class attributes
-        self._center = None
+        self._center = Nonen
         self._num_levels = None
         self._orientation = 'z'
 
@@ -51,42 +51,68 @@ class StackLattice(openmc.Lattice):
 
         return string
 
+
     @property
     def num_levels(self):
-        return self._num_levels
+        return self.self.universes.shape[::-1]
+
 
     @property
     def center(self):
         return self._center
 
+
     @property
     def orientation(self):
         return self._orientation
 
+
     @property
     def indices(self):
-        ...
+        if self.ndim == 1:
+            return list(np.broadcast(*np.ogrid[:self.num_levels]))
+        else:
+            raise ValueError(" StackLattice should only have 1 dimension")
+
 
     @property
-    def _natural_inidices(self):
-        ...
+    def _natural_indices(self):
+        """Iterate over all possible lattice element indices.
 
-    @num_levels.setter
-    def num_levels(self,...):
-        ...
+        """
+        if self.ndim == 1:
+            n, = self.num_levels
+            for i in range(n):
+                yield (n,)
+        else:
+            raise ValueError("StackLattice should only have 1 dimension")
+
 
     @center.settter
-    def center(self,...):
-        ...
+    def center(self, center):
+        cv.check_type('lattice center', center, Iterable, Real)
+        cv.check_length('lattice center', center, 2)
+        self._center = center
 
-    @orientation.setter(self,...):
-        ...
 
-    @Lattice.pitch.setter(self,...):
-        ...
+    @orientation.setter
+    def orientation(self, orientation):
+        cv.check_value('orientation', orientation.lower(), ('x','y','z'))
+        self._oreientation = orientation.lower()
 
-    @Lattice.universes.setter(self,...):
-        ...
+
+    @Lattice.pitch.setter
+    def pitch(self, pitch):
+        cv.check_type('lattice pitch', pitch, Iterable, Real)
+        cv.check_length('lattice pitch', pitch, self.num_levels[0])
+        self._pitch = pitch
+
+
+    @Lattice.universes.setter
+    def universes(self, universes):
+        cv.check_iterable_type('lattice universes', universes, openmc.UniverseBase, min_depth=1, max_depth=1)
+        self._universes = np.asarray(universes)
+
 
     def find_element(self, point):
         """Determine index of lattice element and local coordinates for a point
@@ -98,14 +124,28 @@ class StackLattice(openmc.Lattice):
 
         Returns
         -------
-        2- or 3-tuple of int
-            A tuple of the corresponding (x,y,z) lattice element indices
+        1-tuple of int
+            A tuple of the corresponding lattice element index
         3-tuple of float
             Carestian coordinates of the point in the corresponding lattice
             element coordinate system
 
         """
-        ...
+        if self.oriention == 'x':
+            _idx = 0
+        elif self.orientation == 'y':
+            _idx = 1
+        else:
+            _idx = 2
+
+        # find the level:
+        p = point(_idx)
+        idx = 0
+        while not(p >= self.pitch[idx] and p <= self.pitch[idx + 1]):
+               idx += 1
+
+        return idx, self.get_local_coordinates(point, idx)
+
 
     def get_local_coordinates(self, point, idx):
         """Determine local coordinates of a point within a lattice element
@@ -114,9 +154,8 @@ class StackLattice(openmc.Lattice):
         ----------
         point : Iterable of float
             Cartesian coordinates of point
-        idx : Iterable of int
-            (x,y,z) indices of lattice element. If the lattice is 2D, the z
-            index can be omitted.
+        idx : int
+            index of lattice element
 
         Returns
         -------
@@ -124,7 +163,22 @@ class StackLattice(openmc.Lattice):
             Cartesian coordinates of point in the lattice element coordinate
             system
         """
-        ...
+        x,y,z = point
+        c1, c2 = self.center
+        if self.oriention == 'x':
+            x -= self.pitch[idx]
+            y -= c1
+            z -= c2
+        elif self.orientation == 'y':
+            x -= c1
+            y -= self.pitch[idx]
+            z -= c2
+        else:
+            x -= c1
+            y -= c2
+            z -= self.pitch[idx]
+
+        return (x,y,z)
 
 
     def get_universe_index(self, idx):
@@ -133,16 +187,16 @@ class StackLattice(openmc.Lattice):
 
         Parameters
         ----------
-        idx : Iterable of int
-            Lattice element indices in the :math:`(x,y,z)` coordinate system
+        idx : int
+            Lattice element index in the :math:`(x,y,z)` coordinate system
 
         Returns
         -------
-        2- or 3-tuple of int
-            Indices used when setting the :attr:`RectLattice.universes` property
+        int
+            Index used when setting the :attr:`StackLattice.universes` property
 
         """
-        ...
+        return idx
 
 
     def is_valid_index(self, idx):
@@ -150,8 +204,8 @@ class StackLattice(openmc.Lattice):
 
         Parameters
         ----------
-        idx : Iterable of int
-            Lattice element indices in the :math:`(x,y,z)` coordinate system
+        idx : int
+            Lattice element index in the :math:`(x,y,z)` coordinate system
 
         Returns
         -------
@@ -159,7 +213,10 @@ class StackLattice(openmc.Lattice):
             Whether index is valid
 
         """
-        ...
+        if self.ndim == 1:
+            return (0 <= idx < self.num_levels[0])
+        else:
+            raise ValueError("StackLattice must have only one dimension")
 
     def create_xml_subelement(self, xml_element, memo=None):
         """Add the lattice xml representation to an incoming xml element
@@ -179,7 +236,18 @@ class StackLattice(openmc.Lattice):
         None
 
         """
-        ...
+        if memo and self in memo:
+            return
+        if memo is not None:
+            memo.add(self)
+
+        lattice_subelement = ET.Element("lattice")
+        lattice_subelement.set("id", str(self._id))
+        if len(self._name) > 0:
+            lattice_subelement.set("name", str(self._id))
+
+        # Export the Lattice cell pitch
+
 
     @classmethod
     def from_xml_element(cls, elem, get_universe):
