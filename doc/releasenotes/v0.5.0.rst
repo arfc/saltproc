@@ -42,7 +42,9 @@ Dependency Changes
 - ``SaltProc`` now optionally required the following package:
 
   - (new) → `openmc`_
-
+  
+- ``pyne>=0.5.11`` → ``pyne>=0.5.11=nomoab_noopenmc*``
+  
 
 
 New Features
@@ -71,6 +73,7 @@ Script Changes
   Describe any script additions/modifications/removals
 
 
+- A new script, ``scripts/ci/openmc-xs.bash``, that downloads the OpenMC HDF5 cross section library.
 
 
 

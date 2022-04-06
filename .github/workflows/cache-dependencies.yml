@@ -17,6 +17,15 @@ jobs:
       run:
         shell: bash -l {0}
 
+    env:
+      MPI: no
+      OMP: no
+      PHDF5: no
+      DAGMC: no
+      EVENT: no
+      VECTFIT: no
+      LIBMESH: no
+
     steps:
       - uses: actions/checkout@v2
 
@@ -42,6 +51,8 @@ jobs:
         with:
           path: |
             /usr/share/miniconda3/envs/saltproc-env
+            /usr/local/bin/openmc
+            ~/endfb71_hdf5
             ~/.cache/pip
           key: depcache-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
 
@@ -50,11 +61,37 @@ jobs:
         run: mamba env update -n saltproc-env -f environment.yml
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
 
+      - name: Install OpenMC cross section library
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        run: $GITHUB_WORKSPACE/scripts/ci/openmc-xs.bash
+      
+      - name: OpenMC dependencies
+        run: |
+          sudo apt -y update
+          sudo apt install -y libhdf5-dev
+
+      - name: Download OpenMC
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with: 
+          repository: openmc-dev/openmc
+          path: openmc
+
+      - name: Build OpenMC
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        run: |
+          cd openmc
+          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
+          python tools/ci/gha-install.py
+          pip install .
+          cd ../
+
       - name: Install SaltProc
         run: pip install .
 
       - name: Check packages
         run: conda list
+
   cache-doc-dependencies:
     runs-on: ubuntu-latest
     defaults:
@@ -92,6 +129,21 @@ jobs:
       - name: Update environment
         run: mamba env update -n saltproc-doc-env -f doc/doc-environment.yml
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
+
+      - name: Download OpenMC
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with: 
+          repository: openmc-dev/openmc
+          path: openmc
+
+      - name: Build OpenMC API
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        run: |
+          cd openmc
+          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
+          pip install .
+          cd ../
 
       - name: Check packages
         run: conda list
