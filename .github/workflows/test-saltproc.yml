@@ -91,14 +91,6 @@ jobs:
           pip install .
           cd ../
           
-      - name: Build OpenMC
-        if: steps.dependencies-cache.outputs.cache-hit == 'true'
-        run: |
-          cd openmc
-          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
-          pip install .
-          cd ../
-
       - name: Install SaltProc
         run:  pip install .
 
