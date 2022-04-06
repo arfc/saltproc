@@ -102,6 +102,9 @@ jobs:
       - name: Install SaltProc
         run:  pip install .
 
+      - name: Try some openmc commands
+        run: openmc --version
+        
       - name: Test SaltProc
         run: |
           echo "OPENMC_CROSS_SECTIONS=$HOME/endfb71_hdf5/cross_sections.xml" >> $GITHUB_ENV
