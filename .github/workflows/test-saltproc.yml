@@ -56,7 +56,7 @@ jobs:
         with:
           path: |
             /usr/share/miniconda3/envs/saltproc-env
-            /usr/local/bin/openmc
+            ~/build
             ~/endfb71_hdf5
             ~/.cache/pip
           key: depcache-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
@@ -82,15 +82,22 @@ jobs:
           repository: openmc-dev/openmc
           path: openmc
 
-      - name: Build OpenMC
+      - name: Build OpenMC from scratch
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
         run: |
           cd openmc
-          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
           python tools/ci/gha-install.py
+          mv build $HOME/build
           pip install .
           cd ../
-
+          
+      - name: Build OpenMC from cached CMake files
+        if: steps.dependencies-cache.outputs.cache-hit == 'true'
+        run: |
+          cd $HOME/build
+          make install
+          cd $GITHUB_WORKSPACE
+          
       - name: Install SaltProc
         run:  pip install .
 
