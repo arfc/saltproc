@@ -76,7 +76,6 @@ jobs:
           sudo apt install -y libhdf5-dev
 
       - name: Download OpenMC
-        if: steps.dependencies-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v3
         with: 
           repository: openmc-dev/openmc
@@ -94,7 +93,9 @@ jobs:
       - name: Build OpenMC from cached CMake files
         if: steps.dependencies-cache.outputs.cache-hit == 'true'
         run: |
-          cd $HOME/build
+          cd openmc
+          mv $HOME/build .
+          cd build
           make install
           cd $GITHUB_WORKSPACE
           
