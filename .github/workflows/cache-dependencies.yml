@@ -32,7 +32,7 @@ jobs:
 ## TESTING CACHE ##
 # Setup conda 
       - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v2
         with:
           miniforge-variant: Mambaforge # mamba is faster than base conda
           miniforge-version: latest
@@ -46,7 +46,7 @@ jobs:
       - name: Set cache date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: dependencies-cache
         with:
           path: |
