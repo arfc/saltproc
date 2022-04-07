@@ -86,7 +86,6 @@ jobs:
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
         run: |
           cd openmc
-          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
           python tools/ci/gha-install.py
           mv build $HOME/build
           pip install -e .[test]
