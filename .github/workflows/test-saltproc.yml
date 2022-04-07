@@ -89,7 +89,7 @@ jobs:
           pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
           python tools/ci/gha-install.py
           mv build $HOME/build
-          pip install .
+          pip install -e .[test]
           pytest openmc
           cd ../
           
