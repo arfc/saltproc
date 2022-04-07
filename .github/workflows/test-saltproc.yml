@@ -88,14 +88,13 @@ jobs:
           cd openmc
           python tools/ci/gha-install.py
           mv build $HOME/build
-          pip install -e .[test]
+          pip install .
           cd ../
           
       - name: Build OpenMC from cached CMake files
         if: steps.dependencies-cache.outputs.cache-hit == 'true'
-        run: 
+        run: |
           cd $HOME/build
-          make -j4
           make install
           cd $GITHUB_WORKSPACE
           
