@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 env:
-  CACHE_NUMBER: 0 #change to manually reset cache
+  CACHE_NUMBER: 1 #change to manually reset cache
 
 jobs:
   test-saltproc:
@@ -56,13 +56,7 @@ jobs:
         with:
           path: |
             /usr/share/miniconda3/envs/saltproc-env
-            /usr/local/bin/openmc
-            /usr/local/lib/x86_64-linux-gnu
-            /usr/local/share/openmc
-            /usr/local/share/man
-            /usr/local/include
-            /usr/local/bin/openmc
-            /usr/local/lib/x86_64-linux-gnu
+            ~/openmc_src
             ~/endfb71_hdf5
             ~/.cache/pip
           key: depcache-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
@@ -93,9 +87,43 @@ jobs:
         run: |
           cd openmc
           python tools/ci/gha-install.py
+          mkdir openmc_src
+          mdkir openmc_src/bin
+          mkdir openmc_src/lib
+          mkdir openmc_src/share
+          mkdir openmc_src/include
+          cp /usr/local/bin/openmc openmc_src/bin/.
+          cp /usr/local/lib/x86_64-linux-gnu/ openmc_src/lib/.
+          cp /usr/local/share/openmc openmc_src/share/.
+          cp /usr/local/share/man openmc_src/share/.
+          cp /usr/local/include/openmc openmc_src/include/.
+          cp /usr/local/include/pugiconfig.hpp openmc_src/include/.
+          cp /usr/local/include/pugixml.hpp openmc_src/include/.
+          cp /usr/local/include/fmt openmc_src/include/.
+          cp /usr/local/include/xtl openmc_src/include/.
+          cp /usr/local/include/xtensor openmc_src/include/.
+          cp /usr/local/include/gsl openmc_src/include/.
+          cp /usr/local/include/gsl-lite openmc_src/include/.
+          mv openmc_src $HOME/openmc_src
           pip install .
           cd ../
           
+      - name: Restore OpenMC src
+        if: steps.dependencies-cache.outputs.cache-hit == 'true'
+        run: |
+          sudo mv $HOME/openmc_src/bin/openmc /usr/local/bin/openmc
+          sudo mv $HOME/openmc_src/lib/x86_64-linux-gnu /usr/local/lib/x86_64-linux-gnu/
+          sudo mv $HOME/openmc_src/share/openmc /usr/local/share/openmc
+          sudo mv $HOME/openmc_src/share/man /usr/local/share/man
+          sudo mv $HOME/openmc_src/include/openmc /usr/local/include/openmc
+          sudo mv $HOME/openmc_src/include/pugiconfig.hpp /usr/local/include/pugiconfig.hpp
+          sudo mv $HOME/openmc_src/include/pugixml.hpp /usr/local/include/pugixml.hpp
+          sudo mv $HOME/openmc_src/include/fmt /usr/local/include/fmt
+          sudo mv $HOME/openmc_src/include/xtl /usr/local/include/xtl
+          sudo mv $HOME/openmc_src/include/xtensor /usr/local/include/xtensor
+          sudo mv $HOME/openmc_src/include/gsl /usr/local/include/gsl
+          sudo mv $HOME/openmc_src/include/gsl-lit /usr/local/include/gsl-lite
+
       - name: Install SaltProc
         run: pip install .
 
