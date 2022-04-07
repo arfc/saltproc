@@ -122,7 +122,7 @@ jobs:
           sudo mv $HOME/openmc_src/include/xtl /usr/local/include/xtl
           sudo mv $HOME/openmc_src/include/xtensor /usr/local/include/xtensor
           sudo mv $HOME/openmc_src/include/gsl /usr/local/include/gsl
-          sudo mv $HOME/openmc_src/include/gsl-lit /usr/local/include/gsl-lite
+          sudo mv $HOME/openmc_src/include/gsl-lite /usr/local/include/gsl-lite
 
       - name: Install SaltProc
         run: pip install .
