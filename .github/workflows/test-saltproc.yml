@@ -90,7 +90,7 @@ jobs:
           python tools/ci/gha-install.py
           mv build $HOME/build
           pip install -e .[test]
-          pytest openmc
+          pytest
           cd ../
           
       - name: Build OpenMC from cached CMake files
