@@ -51,7 +51,7 @@ jobs:
       - name: Set cache date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: dependencies-cache
         with:
           path: |
@@ -93,17 +93,17 @@ jobs:
           mkdir openmc_src/share
           mkdir openmc_src/include
           cp /usr/local/bin/openmc openmc_src/bin/.
-          cp /usr/local/lib/x86_64-linux-gnu/ openmc_src/lib/.
-          cp /usr/local/share/openmc openmc_src/share/.
-          cp /usr/local/share/man openmc_src/share/.
-          cp /usr/local/include/openmc openmc_src/include/.
+          cp -r /usr/local/lib/x86_64-linux-gnu/ openmc_src/lib/.
+          cp -r /usr/local/share/openmc openmc_src/share/.
+          cp -r /usr/local/share/man openmc_src/share/.
+          cp -r /usr/local/include/openmc openmc_src/include/.
           cp /usr/local/include/pugiconfig.hpp openmc_src/include/.
           cp /usr/local/include/pugixml.hpp openmc_src/include/.
-          cp /usr/local/include/fmt openmc_src/include/.
-          cp /usr/local/include/xtl openmc_src/include/.
-          cp /usr/local/include/xtensor openmc_src/include/.
-          cp /usr/local/include/gsl openmc_src/include/.
-          cp /usr/local/include/gsl-lite openmc_src/include/.
+          cp -r /usr/local/include/fmt openmc_src/include/.
+          cp -r /usr/local/include/xtl openmc_src/include/.
+          cp -r /usr/local/include/xtensor openmc_src/include/.
+          cp -r /usr/local/include/gsl openmc_src/include/.
+          cp -r /usr/local/include/gsl-lite openmc_src/include/.
           mv openmc_src $HOME/openmc_src
           pip install .
           cd ../
