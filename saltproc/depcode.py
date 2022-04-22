@@ -264,6 +264,7 @@ class DepcodeSerpent(Depcode):
                 fix_params = fix_card.split()[1:]
                 fix_params[-1] = float(fix_params[-1])
                 fix_dict.update({mat_name: fix_params]})
+                temp_dict.update({mat_name: fix_params[-1]})
             if bool(tmp_match):
                 tmp_params = tmp_match.group(0)
                 temperature = float(tmp_params.split()[-1])
