@@ -699,7 +699,7 @@ class DepcodeSerpent(Depcode):
             data = self.insert_path_to_geometry(data)
             data = self.change_sim_par(data)
             data = self.create_iter_matfile(data)
-            create_fix_dict()
+            create_temperatures_dict()
         else:
             data = self.read_plaintext_file(self.iter_inputfile)
         data = self.replace_burnup_parameters(data, reactor, dep_step)
