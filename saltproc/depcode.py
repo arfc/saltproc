@@ -65,6 +65,8 @@ class Depcode(ABC):
         self.active_cycles = active_cycles
         self.inactive_cycles = inactive_cycles
         self.param = {}
+        self.temperature_dict = {}
+        self.fix_dict = {}
         self.sim_info = {}
 
     @abstractmethod
@@ -249,8 +251,6 @@ class DepcodeSerpent(Depcode):
     def create_temperature_dicts(self):
         """ Creates dictionary of material names to temperatures as well as
         library information for decay-only nuclides"""
-        temperature_dict = {}
-        fix_dict = {}
         mat_data = self.read_plaintext_file(self.iter_matfile)
         mat_cards = [s for s in mat_data if s.startswith("mat ")]
         for mat_card in mat_cards:
@@ -263,12 +263,12 @@ class DepcodeSerpent(Depcode):
                 fix_params = fix_match.group(0)
                 fix_params = fix_card.split()[1:]
                 fix_params[-1] = float(fix_params[-1])
-                fix_dict.update({mat_name: fix_params]})
-                temp_dict.update({mat_name: fix_params[-1]})
+                self.fix_dict.update({mat_name: fix_params})
+                self.temperature_dict.update({mat_name: fix_params[-1]})
             if bool(tmp_match):
                 tmp_params = tmp_match.group(0)
                 temperature = float(tmp_params.split()[-1])
-                temperature_dict.update({mat_name: temperature})
+                self.temperature_dict.update({mat_name: temperature})
 
         self.temperature_dict = temperature_dict
         self.fix_dict = fix_dict
