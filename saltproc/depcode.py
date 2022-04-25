@@ -65,8 +65,6 @@ class Depcode(ABC):
         self.active_cycles = active_cycles
         self.inactive_cycles = inactive_cycles
         self.param = {}
-        self.temperature_dict = {}
-        self.fix_dict = {}
         self.sim_info = {}
 
     @abstractmethod
@@ -213,6 +211,9 @@ class DepcodeSerpent(Depcode):
                          npop,
                          active_cycles,
                          inactive_cycles)
+
+        self.temperature_dict = {}
+        self.fix_dict = {}
 
     def change_sim_par(self, template_data):
         """Finds simulation parameters (neutron population, cycles) in the
