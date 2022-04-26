@@ -31,8 +31,8 @@ Dependency Changes
 ..
   Describe any new/removed/modified package dependencies
 
-
-
+- ``pyne>=0.5.11`` → ``pyne>=0.5.11=nomoab_noopenmc*``
+  
 
 New Features
 ============
@@ -59,11 +59,15 @@ Script Changes
   Describe any script additions/modifications/removals
 
 
+
 - Added convenience features to ``process_j312.bash``
 
   - Control flow check for an ``XSDIR`` environment variable set by the user. This variable should point to the location where the user would like the library to be installed
   - Commands to download and run the ``xsdirconvert.pl`` script (found on the Serpent wiki) to convert the MCNP ``.dir`` style file to the Serpent ``.xsdata`` style file
   - Add ``SERPENT_DATA`` and ``SERPENT_ACELIB`` variables to ``.bashrc``
+
+- A new script, ``scripts/ci/openmc-xs.bash``, that downloads the OpenMC HDF5 cross section library.
+
 
 
 Python API Changes
