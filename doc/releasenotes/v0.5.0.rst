@@ -86,8 +86,8 @@ Python API Changes
 
 - Input file format changes:
 
-  - ``depcode['template_inputfile_path']`` → ``depcode['template_inputfiles_path']``
-  - The ``depcode['template_inputfiles_path']`` input variable now has the following depletion-code-depentent types:
+  - ``depcode['template_inputfile_path']`` → ``depcode['template_input_file_path']``
+  - The ``depcode['template_input_file_path']`` input variable now has the following depletion-code-depentent types:
     
     - ``str`` for ``Serpent2``
     - ``dict`` of ``str`` to ``str`` for ``openmc``
@@ -104,12 +104,12 @@ Python API Changes
 
   - ``Depcode``
 
-    - ``template_inputfile_path`` → ``template_inputfiles_path``
+    - ``template_inputfile_path`` → ``template_input_file_path``
     - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
 
   - ``DepcodeSerpent``
 
-    - ``template_inputfile_path`` → ``template_inputfiles_path``
+    - ``template_inputfile_path`` → ``template_input_file_path``
     - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
 
 

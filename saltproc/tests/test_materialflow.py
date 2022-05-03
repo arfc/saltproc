@@ -10,7 +10,7 @@ iter_inputfile = directory + '/test'
 
 serpent = DepcodeSerpent(
     exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-    template_inputfiles_path=directory +
+    template_input_file_path=directory +
     '/template.inp',
     geo_files=None)
 

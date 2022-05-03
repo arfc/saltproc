@@ -17,7 +17,7 @@ directory = os.path.dirname(path)
 # Serpent initalization
 serpent = DepcodeSerpent(
     exec_path='sss2',
-    template_inputfiles_path=directory +
+    template_input_file_path=directory +
     '/template.inp',
     geo_files=[
         os.path.join(
@@ -52,7 +52,7 @@ for key in openmc_iter_inputfiles:
 
 openmc = DepcodeOpenMC(
     exec_path='../openmc_deplete.py',
-    template_inputfiles_path=openmc_test_inputfiles,
+    template_input_file_path=openmc_test_inputfiles,
     geo_files=[
         os.path.join(
             openmc_input_path,
@@ -90,7 +90,7 @@ def test_convert_nuclide_name_serpent_to_zam():
 
 def test_read_plaintext_file():
     template_str = serpent.read_plaintext_file(
-        serpent.template_inputfiles_path)
+        serpent.template_input_file_path)
     assert template_str[6] == '%therm zrh_h 900 hzr05.32t hzr06.32t\n'
     assert template_str[18] == 'set pop 30 20 10\n'
     assert template_str[22] == 'set bumode  2\n'
@@ -102,7 +102,7 @@ def test_change_sim_par():
     serpent.active_cycles = 101
     serpent.inactive_cycles = 33
     out = serpent.change_sim_par(
-        serpent.read_plaintext_file(serpent.template_inputfiles_path)
+        serpent.read_plaintext_file(serpent.template_input_file_path)
     )
     assert out[18] == 'set pop %i %i %i\n' % (
         serpent.npop,
@@ -188,7 +188,7 @@ def test_write_mat_file():
 
 
 def test_insert_path_to_geometry():
-    d = serpent.read_plaintext_file(serpent.template_inputfiles_path)
+    d = serpent.read_plaintext_file(serpent.template_input_file_path)
     d_new = serpent.insert_path_to_geometry(d)
     assert d_new[5].split('/')[-1] == 'test_geo.inp"\n'
 
@@ -197,24 +197,24 @@ def test_replace_burnup_parameters():
     time = msr.dep_step_length_cumulative.copy()
     time.insert(0, 0.0)
     depsteps = np.diff(time)
-    d = serpent.read_plaintext_file(serpent.template_inputfiles_path)
+    d = serpent.read_plaintext_file(serpent.template_input_file_path)
     for idx in range(len(msr.power_levels)):
         d = serpent.replace_burnup_parameters(d,
                                               msr,
                                               idx)
-        out_file = open(serpent.template_inputfiles_path + str(idx), 'w')
+        out_file = open(serpent.template_input_file_path + str(idx), 'w')
         out_file.writelines(d)
         out_file.close()
         d_new = serpent.read_plaintext_file(
-            serpent.template_inputfiles_path + str(idx))
+            serpent.template_input_file_path + str(idx))
         assert d_new[8].split()[4] == 'daystep'
         assert d_new[8].split()[2] == str("%5.9E" % msr.power_levels[idx])
         assert d_new[8].split()[5] == str("%7.5E" % depsteps[idx])
-        os.remove(serpent.template_inputfiles_path + str(idx))
+        os.remove(serpent.template_input_file_path + str(idx))
 
 
 def test_create_iter_matfile():
-    d = serpent.read_plaintext_file(serpent.template_inputfiles_path)
+    d = serpent.read_plaintext_file(serpent.template_input_file_path)
     out = serpent.create_iter_matfile(d)
     assert out[0].split()[-1] == '\"' + serpent.iter_matfile + '\"'
     os.remove(serpent.iter_matfile)
@@ -377,9 +377,9 @@ def test_write_depcode_input():
 
     # OpenMC
     input_materials = om.Materials.from_xml(
-        openmc.template_inputfiles_path['materials'])
+        openmc.template_input_file_path['materials'])
     input_geometry = om.Geometry.from_xml(
-        openmc.template_inputfiles_path['geometry'],
+        openmc.template_input_file_path['geometry'],
         materials=input_materials)
 
     input_cells = input_geometry.get_all_cells()
@@ -430,7 +430,7 @@ def test_write_depletion_settings():
         assert j['directory'] == directory
         assert j['timesteps'][0] == msr.dep_step_length_cumulative[0]
         assert j['operator_kwargs']['chain_file'] == \
-            openmc.template_inputfiles_path['chain_file']
+            openmc.template_input_file_path['chain_file']
         assert j['integrator_kwargs']['power'] == msr.power_levels[0]
         assert j['integrator_kwargs']['timestep_units'] == 'd'
 
@@ -440,9 +440,9 @@ def test_write_saltproc_openmc_tallies():
     Unit test for `DepcodeOpenMC.write_saltproc_openmc_tallies`
     """
 
-    mat = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
+    mat = om.Materials.from_xml(openmc.template_input_file_path['materials'])
     geo = om.Geometry.from_xml(
-        openmc.template_inputfiles_path['geometry'], mat)
+        openmc.template_input_file_path['geometry'], mat)
     openmc.write_saltproc_openmc_tallies(mat, geo)
     del mat, geo
     tallies = om.Tallies.from_xml(openmc.iter_inputfile['tallies'])
@@ -488,7 +488,7 @@ def test_switch_to_next_geometry():
     serpent.iter_inputfile = iter_inputfile_old
 
     # OpenMC
-    mat = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
+    mat = om.Materials.from_xml(openmc.template_input_file_path['materials'])
     expected_geometry = om.Geometry.from_xml(openmc.geo_files[0], mat)
     expected_cells = expected_geometry.get_all_cells()
     expected_lattices = expected_geometry.get_all_lattices()
