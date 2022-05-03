@@ -336,7 +336,7 @@ def _check_openmc_objects_equal(object1, object2):
 
 def _check_openmc_iterables_equal(iterable_dict):
     """
-    Helper function to check if the given dictionary of iterbales
+    Helper function to check equality iterables contained in a dictionary.
 
     Parameters:
     iterable_dict : dict of str to 2-tuple

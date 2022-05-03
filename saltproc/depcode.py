@@ -208,9 +208,6 @@ class DepcodeOpenMC(Depcode):
            template_inputfiles_path : dict of str to str
                Path to user input files (``.xml`` file for geometry,
                material, and settings) for OpenMC.
-           iter_matfile : str
-               Name of iterative, rewritable material file for OpenMC
-               rerunning. This file is modified during  the simulation.
            geo_files : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
