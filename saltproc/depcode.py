@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 
 
 class Depcode(ABC):
-    r"""Abstract class for interfacing with monte-carlo particle transport
+    """Abstract class for interfacing with monte-carlo particle transport
     codes. Contains information about input, output, geometry, and template
     files for running depletion simulations. Also contains neutron
     population, active, and inactive cycles. Contains methods to read template
@@ -169,7 +169,7 @@ class Depcode(ABC):
 
 
 class DepcodeOpenMC(Depcode):
-    r"""Class contains information about input, output, geometry, and
+    """Class contains information about input, output, geometry, and
     template files for running OpenMC depletion simulations.
     Also contains neutrons population, active, and inactive cycles.
     Contains methods to read template and output files,
@@ -484,7 +484,7 @@ class DepcodeOpenMC(Depcode):
 
 
 class DepcodeSerpent(Depcode):
-    r"""Class contains information about input, output, geometry, and
+    """Class contains information about input, output, geometry, and
     template files for running Serpent2 depletion simulations.
     Also contains neutrons population, active, and inactive cycles.
     Contains methods to read template and output files,
