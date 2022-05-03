@@ -49,9 +49,11 @@ class Depcode(ABC):
                Name of depletion code.
            exec_path : str
                Path to depletion code executable.
-           template_input_file_path: str or dict of str to str
-               Path(s) to depletion code input file(s). Type depends
-               on depletion code in use.
+           template_input_file_path : str or dict of str to str
+               Path(s) to depletion code input file(s), or a dictionary where
+               the input type (e.g. material, geometry, settings, etc.) as a
+               string are keys, and the path to the input file are values.
+               Type depends on depletion code in use.
            geo_files : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
