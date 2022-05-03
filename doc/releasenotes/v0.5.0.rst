@@ -39,7 +39,7 @@ Dependency Changes
   Describe any new/removed/modified package dependencies
 
 
-- ``SaltProc`` now optionally required the following package:
+- ``SaltProc`` now optionally requires the following package:
 
   - (new) → `openmc`_
   
@@ -87,7 +87,7 @@ Python API Changes
 - Input file format changes:
 
   - ``depcode['template_inputfile_path']`` → ``depcode['template_inputfiles_path']``
-  - The ``depcode['template_inputfiles_path']`` input variable now has depletion-code-depentent type:
+  - The ``depcode['template_inputfiles_path']`` input variable now has the following depletion-code-depentent types:
     
     - ``str`` for ``Serpent2``
     - ``dict`` of ``str`` to ``str`` for ``openmc``
@@ -96,7 +96,8 @@ Python API Changes
   - ``depcode['iter_matfile']`` → (removed)
 
 .. note:: While the ``iter_inputfile`` and ``iter_matfile`` variables have been removed from the saltproc input file,
-   their presence and usage in ``DepcodeSerpent`` class is unchanged, save for the fact they can no longer be initialized by the user during object creation.
+   they remain part of the ``DepcodeSerpent`` class as attributes. Their use is unchanged, save for the fact they can no
+   longer be initialized by the user during object creation.
 
 
 - New/changed classes and methods:
