@@ -20,9 +20,11 @@ class Depcode(ABC):
     Attributes
     -----------
     param : dict of str to type
-        Holds depletion steo parameter information
+        Holds depletion step parameter information. Parameter names are keys
+        and parameter values are values.
     sim_info : dict of str to type
-        Holds simulation settings information
+        Holds simulation settings information. Setting names are keys
+        and setting values are values.
     iter_inputfile : str
         Path to depletion code input file for depletion code rerunning.
     iter_matfile : str
@@ -176,9 +178,11 @@ class DepcodeOpenMC(Depcode):
     Attributes:
     -----------
     param : dict of str to type
-        Holds depletion steo parameter information
+        Holds depletion step parameter information. Parameter names are keys
+        and parameter values are values.
     sim_info : dict of str to type
-        Holds simulation settings information
+        Holds simulation settings information. Setting names are keys
+        and setting values are values.
     iter_inputfile : dict of str to str
         Paths to OpenMC input files for OpenMC rerunning.
     iter_matfile : str
@@ -359,7 +363,7 @@ class DepcodeOpenMC(Depcode):
         del materials, geometry, settings
 
     def write_depletion_settings(self, reactor, current_depstep_idx):
-        """Write the depeletion settings for the ``openmc.depelete``
+        """Write the depeletion settings for the ``openmc.deplete``
         module.
 
         Parameters
@@ -489,9 +493,11 @@ class DepcodeSerpent(Depcode):
     Attributes
     -----------
     param : dict of str to type
-        Holds Serpent depletion step parameter information
+        Holds Serpent depletion step parameter information. Parameter names are
+        keys and parameter values are values.
     sim_info : dict of str to type
-        Holds Serpent simulation settings information
+        Holds Serpent simulation settings information. Setting names are keys
+        and setting values are values.
     iter_inputfile : str
         Path to Serpent2 input file for Serpent2 rerunning.
     iter_matfile : str
