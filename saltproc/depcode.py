@@ -300,7 +300,7 @@ class DepcodeOpenMC(Depcode):
             self.iter_inputfile['depletion_settings'])
 
         print('Running %s' % (self.codename))
-        # Need to figure out how to adapt this to openmc
+        # TODO: Need to figure out how to adapt this to openmc
         try:
             subprocess.check_output(
                 args,
@@ -345,7 +345,6 @@ class DepcodeOpenMC(Depcode):
             settings = openmc.Settings.from_xml(
                 self.template_inputfiles_path['settings'])
             settings.particles = self.npop
-            # settings.generations_per_batch = ??
             settings.inactive = self.inactive_cycles
             settings.batches = self.active_cycles + self.inactive_cycles
         else:
