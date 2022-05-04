@@ -27,7 +27,7 @@ jobs:
       LIBMESH: no
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
 ## TESTING CACHE ##
 # Setup conda 
@@ -46,12 +46,12 @@ jobs:
       - name: Set cache date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: dependencies-cache
         with:
           path: |
             /usr/share/miniconda3/envs/saltproc-env
-            /usr/local/bin/openmc
+            ~/openmc_src
             ~/endfb71_hdf5
             ~/.cache/pip
           key: depcache-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
@@ -76,16 +76,15 @@ jobs:
         with: 
           repository: openmc-dev/openmc
           path: openmc
-
-      - name: Build OpenMC
+          
+      - name: Build OpenMC from source if no cache if found
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
-        run: |
-          cd openmc
-          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
-          python tools/ci/gha-install.py
-          pip install .
-          cd ../
+        run: $GITHUB_WORKSPACE/tools/ci/build-openmc.sh
 
+      - name: Restore OpenMC source build from cache
+        if: steps.dependencies-cache.outputs.cache-hit == 'true'
+        run: $GITHUB_WORKSPACE/tools/ci/restore-openmc.sh
+          
       - name: Install SaltProc
         run: pip install .
 
@@ -99,7 +98,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
 ## DOCUMENTATION CACHE ##
       - name: Set up conda
@@ -117,7 +116,7 @@ jobs:
       - name: Set cache date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: dependencies-cache
         with:
           path: |
@@ -141,7 +140,6 @@ jobs:
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
         run: |
           cd openmc
-          pip install --upgrade-strategy only-if-needed --no-binary=h5py h5py
           pip install .
           cd ../
 
