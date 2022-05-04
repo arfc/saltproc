@@ -14,7 +14,7 @@ mkdir openmc_src/include
 
 # Copy libraries to caching folder 
 cp /usr/local/bin/openmc openmc_src/bin/.
-cp -r /usr/local/lib/x86_64-linux-gnu/ openmc_src/lib/.
+cp -r /usr/local/lib/x86_64-linux-gnu openmc_src/lib/.
 cp -r /usr/local/share/openmc openmc_src/share/.
 cp -r /usr/local/share/man openmc_src/share/.
 cp -r /usr/local/include/openmc openmc_src/include/.
