@@ -213,7 +213,9 @@ class DepcodeOpenMC(Depcode):
                Path to OpenMC depletion script.
            template_input_file_path : dict of str to str
                Path to user input files (``.xml`` file for geometry,
-               material, and settings) for OpenMC.
+               material, and settings) for OpenMC. File type as strings
+               are keys (e.g. 'geometry', 'settings', 'material'), and
+               file path as strings are values.
            geo_files : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
