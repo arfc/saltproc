@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -91,41 +92,48 @@
            <div itemprop="articleBody">
              
   <section id="release-notes-for-v0-5-0">
-<h1>Release notes for v0.5.0<a class="headerlink" href="#release-notes-for-v0-5-0" title="Permalink to this headline">¶</a></h1>
+<h1>Release notes for v0.5.0<a class="headerlink" href="#release-notes-for-v0-5-0" title="Permalink to this heading">¶</a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>These release notes are currently in production.</p>
 </div>
 <section id="summary">
-<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="dependency-changes">
-<h2>Dependency Changes<a class="headerlink" href="#dependency-changes" title="Permalink to this headline">¶</a></h2>
+<h2>Dependency Changes<a class="headerlink" href="#dependency-changes" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">pyne&gt;=0.5.11</span></code> → <code class="docutils literal notranslate"><span class="pre">pyne&gt;=0.5.11=nomoab_noopenmc*</span></code></p></li>
 </ul>
 </section>
 <section id="new-features">
-<h2>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h2>
+<h2>New Features<a class="headerlink" href="#new-features" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="bug-fixes">
-<h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h2>
+<h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="script-changes">
-<h2>Script Changes<a class="headerlink" href="#script-changes" title="Permalink to this headline">¶</a></h2>
+<h2>Script Changes<a class="headerlink" href="#script-changes" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
+<li><p>Added convenience features to <code class="docutils literal notranslate"><span class="pre">process_j312.bash</span></code></p>
+<ul>
+<li><p>Control flow check for an <code class="docutils literal notranslate"><span class="pre">XSDIR</span></code> environment variable set by the user. This variable should point to the location where the user would like the library to be installed</p></li>
+<li><p>Commands to download and run the <code class="docutils literal notranslate"><span class="pre">xsdirconvert.pl</span></code> script (found on the Serpent wiki) to convert the MCNP <code class="docutils literal notranslate"><span class="pre">.dir</span></code> style file to the Serpent <code class="docutils literal notranslate"><span class="pre">.xsdata</span></code> style file</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">SERPENT_DATA</span></code> and <code class="docutils literal notranslate"><span class="pre">SERPENT_ACELIB</span></code> variables to <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code></p></li>
+</ul>
+</li>
 <li><p>A new script, <code class="docutils literal notranslate"><span class="pre">scripts/ci/openmc-xs.bash</span></code>, that downloads the OpenMC HDF5 cross section library.</p></li>
 </ul>
 </section>
 <section id="python-api-changes">
-<h2>Python API Changes<a class="headerlink" href="#python-api-changes" title="Permalink to this headline">¶</a></h2>
+<h2>Python API Changes<a class="headerlink" href="#python-api-changes" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="contributors">
-<h2>Contributors<a class="headerlink" href="#contributors" title="Permalink to this headline">¶</a></h2>
+<h2>Contributors<a class="headerlink" href="#contributors" title="Permalink to this heading">¶</a></h2>
 <p>The following people contributed code to this release of SaltProc:</p>
 </section>
 <section id="reviewers">
-<h2>Reviewers<a class="headerlink" href="#reviewers" title="Permalink to this headline">¶</a></h2>
+<h2>Reviewers<a class="headerlink" href="#reviewers" title="Permalink to this heading">¶</a></h2>
 <p>The following people reviewed code for this release of SaltProc:</p>
 </section>
 </section>
