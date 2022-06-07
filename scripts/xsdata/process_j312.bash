@@ -4,7 +4,12 @@
 # DATADIR is the directory where the xs library is extracted to
 # @yardasol reccomends naming the parent directory where the files
 # will be extractd to as "jeff312"
-DATADIR=$PWD/jeff312
+if [[ -d "$XSDIR" ]]
+then
+    DATADIR=$XSDIR/jeff312
+else
+    DATADIR=$PWD/jeff312
+fi
 LN="https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/ACE/"
 SLUG="ACEs_"
 EXT="K.zip"
@@ -16,7 +21,6 @@ TEMPS=(900)
 
 #Uncomment if you want all temperatures (will take a VERY long time)
 #TEMPS=(300 400 500 600 700 800 900 1000 1200 1500 1800)
-
 for T in ${TEMPS[@]}
 do
     if [[ ! -f $DATADIR/$SLUG$T$EXT ]]
@@ -140,4 +144,16 @@ do
     rm $DATADIR/$T/*.dir
     rm -r $DATADIR/$T
 
+    # download cross section dir convert script
+    if [[ ! -f $XSDIR/xsdirconvert.pl ]]
+    then
+        wget -O $XSDIR/xsdirconvert.pl http://montecarlo.vtt.fi/download/xsdirconvert.pl
+    fi
+
+    # Run the xsdirconvert script
+    perl $XSDIR/xsdirconvert.pl $DATDIR/sss_jeff312.xsdir > $DATADIR/sss_jeff312.xsdata
+ 
+    # Add seprpent variables to PATH (to be created)
+    echo "export SERPENT_DATA="$DATADIR"" >> $BRC
+    echo "export SERPENT_ACELIB="$DATADIR/sss_jeff312.xsdata"" >> $BRC
 done
