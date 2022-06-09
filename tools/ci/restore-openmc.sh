@@ -3,7 +3,7 @@ set -ex
 
 # Move cached OpenMC libaries to PATH
 sudo mv $HOME/openmc_src/bin/openmc /usr/local/bin/openmc
-sudo mv $HOME/openmc_src/lib/x86_64-linux-gnu /usr/local/lib/x86_64-linux-gnu/
+sudo mv $HOME/openmc_src/lib/ /usr/local/lib/
 sudo mv $HOME/openmc_src/share/openmc /usr/local/share/openmc
 sudo mv $HOME/openmc_src/share/man /usr/local/share/man
 sudo mv $HOME/openmc_src/include/openmc /usr/local/include/openmc
