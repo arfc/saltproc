@@ -7,8 +7,8 @@ python tools/ci/gha-install.py
 
 # Create the caching folder
 mkdir openmc_src
-mkdir openmc_src/lib
 mkdir openmc_src/bin
+mkdir openmc_src/lib
 mkdir openmc_src/share
 mkdir openmc_src/include
 
