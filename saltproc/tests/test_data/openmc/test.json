@@ -6,7 +6,7 @@
    "depcode": {
        "codename": "openmc",
        "exec_path": "openmc",
-       "template_inputfiles_path": {
+       "template_input_file_path": {
            "geometry": "./geometry.xml",
            "materials": "./materials.xml",
            "settings": "./settings.xml",

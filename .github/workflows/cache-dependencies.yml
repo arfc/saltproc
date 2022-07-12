@@ -17,8 +17,17 @@ jobs:
       run:
         shell: bash -l {0}
 
+    env:
+      MPI: no
+      OMP: no
+      PHDF5: no
+      DAGMC: no
+      EVENT: no
+      VECTFIT: no
+      LIBMESH: no
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
 ## TESTING CACHE ##
 # Setup conda 
@@ -37,11 +46,13 @@ jobs:
       - name: Set cache date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: dependencies-cache
         with:
           path: |
             /usr/share/miniconda3/envs/saltproc-env
+            ~/openmc_src
+            ~/endfb71_hdf5
             ~/.cache/pip
           key: depcache-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
 
@@ -50,11 +61,36 @@ jobs:
         run: mamba env update -n saltproc-env -f environment.yml
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
 
+      - name: Install OpenMC cross section library
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        run: $GITHUB_WORKSPACE/scripts/ci/openmc-xs.bash
+      
+      - name: OpenMC dependencies
+        run: |
+          sudo apt -y update
+          sudo apt install -y libhdf5-dev
+
+      - name: Download OpenMC
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with: 
+          repository: openmc-dev/openmc
+          path: openmc
+          
+      - name: Build OpenMC from source if no cache if found
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        run: $GITHUB_WORKSPACE/tools/ci/build-openmc.sh
+
+      - name: Restore OpenMC source build from cache
+        if: steps.dependencies-cache.outputs.cache-hit == 'true'
+        run: $GITHUB_WORKSPACE/tools/ci/restore-openmc.sh
+          
       - name: Install SaltProc
         run: pip install .
 
       - name: Check packages
         run: conda list
+
   cache-doc-dependencies:
     runs-on: ubuntu-latest
     defaults:
@@ -62,7 +98,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
 ## DOCUMENTATION CACHE ##
       - name: Set up conda
@@ -80,7 +116,7 @@ jobs:
       - name: Set cache date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: dependencies-cache
         with:
           path: |
@@ -92,6 +128,20 @@ jobs:
       - name: Update environment
         run: mamba env update -n saltproc-doc-env -f doc/doc-environment.yml
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
+
+      - name: Download OpenMC
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with: 
+          repository: openmc-dev/openmc
+          path: openmc
+
+      - name: Build OpenMC API
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        run: |
+          cd openmc
+          pip install .
+          cd ../
 
       - name: Check packages
         run: conda list

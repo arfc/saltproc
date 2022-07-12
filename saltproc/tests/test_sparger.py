@@ -12,12 +12,12 @@ iter_inputfile = directory + '/test'
 
 serpent = DepcodeSerpent(
     exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-    template_inputfiles_path=directory +
+    template_input_file_path=directory +
     '/template.inp',
     geo_files=None)
 
-serpent.iter_inputfile=iter_inputfile
-serpent.iter_matfile=directory + '/material'
+serpent.iter_inputfile = iter_inputfile
+serpent.iter_matfile = directory + '/material'
 
 process = Sparger(mass_flowrate=10,
                   capacity=99.0,

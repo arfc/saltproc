@@ -2,9 +2,9 @@
 name: Deploy SaltProc docs
 
 on:
-  release:
-    type: [published]
   push:
+    branches:
+      - 'master'
     paths:
       - 'doc/**'
       - 'saltproc/**'

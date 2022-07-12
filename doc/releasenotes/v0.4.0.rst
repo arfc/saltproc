@@ -2,8 +2,6 @@
 Release notes for v0.4.0
 ========================
 
-.. note:: These release notes are currently in production.
-
 ..
   When documenting a bug fix or feature, please do so in the following format
 
@@ -28,7 +26,7 @@ Summary
 ..
   Describe generally the features of this release
 
-This version of SaltProc refactors the code in preparation for supporting OpenMC.
+This version of SaltProc refactors the code in preparation for supporting ``OpenMC``.
 
 
 Dependency Changes

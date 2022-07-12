@@ -17,14 +17,14 @@ directory = os.path.dirname(path)
 # Serpent initalization
 serpent = DepcodeSerpent(
     exec_path='sss2',
-    template_inputfiles_path=directory +
+    template_input_file_path=directory +
     '/template.inp',
     geo_files=[
         os.path.join(
             directory,
             '../test_geo.inp')])
-serpent.iter_inputfile=directory + '/test'
-serpent.iter_matfile=directory + '/material'
+serpent.iter_inputfile = directory + '/test'
+serpent.iter_matfile = directory + '/material'
 geo_test_input = directory + '/test_geometry_switch.inp'
 
 # Openmc initlialization
@@ -52,19 +52,18 @@ for key in openmc_iter_inputfiles:
 
 openmc = DepcodeOpenMC(
     exec_path='../openmc_deplete.py',
-    template_inputfiles_path=openmc_test_inputfiles,
+    template_input_file_path=openmc_test_inputfiles,
     geo_files=[
         os.path.join(
             openmc_input_path,
             'test_geometry_switch.xml')])
 openmc.iter_inputfile = openmc_iter_inputfiles
-openmc.iter_matfile=directory + '/materials.xml'
+openmc.iter_matfile = directory + '/materials.xml'
 
 
 msr = Reactor(volume=1.0,
               power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
               dep_step_length_cumulative=[111.111, 2101.9, 3987.5])
-
 
 
 def test_create_nuclide_name_map_zam_to_serpent():
@@ -91,7 +90,7 @@ def test_convert_nuclide_name_serpent_to_zam():
 
 def test_read_plaintext_file():
     template_str = serpent.read_plaintext_file(
-        serpent.template_inputfiles_path)
+        serpent.template_input_file_path)
     assert template_str[6] == '%therm zrh_h 900 hzr05.32t hzr06.32t\n'
     assert template_str[18] == 'set pop 30 20 10\n'
     assert template_str[22] == 'set bumode  2\n'
@@ -103,7 +102,7 @@ def test_change_sim_par():
     serpent.active_cycles = 101
     serpent.inactive_cycles = 33
     out = serpent.change_sim_par(
-        serpent.read_plaintext_file(serpent.template_inputfiles_path)
+        serpent.read_plaintext_file(serpent.template_input_file_path)
     )
     assert out[18] == 'set pop %i %i %i\n' % (
         serpent.npop,
@@ -189,7 +188,7 @@ def test_write_mat_file():
 
 
 def test_insert_path_to_geometry():
-    d = serpent.read_plaintext_file(serpent.template_inputfiles_path)
+    d = serpent.read_plaintext_file(serpent.template_input_file_path)
     d_new = serpent.insert_path_to_geometry(d)
     assert d_new[5].split('/')[-1] == 'test_geo.inp"\n'
 
@@ -198,40 +197,49 @@ def test_replace_burnup_parameters():
     time = msr.dep_step_length_cumulative.copy()
     time.insert(0, 0.0)
     depsteps = np.diff(time)
-    d = serpent.read_plaintext_file(serpent.template_inputfiles_path)
+    d = serpent.read_plaintext_file(serpent.template_input_file_path)
     for idx in range(len(msr.power_levels)):
         d = serpent.replace_burnup_parameters(d,
                                               msr,
                                               idx)
-        out_file = open(serpent.template_inputfiles_path + str(idx), 'w')
+        out_file = open(serpent.template_input_file_path + str(idx), 'w')
         out_file.writelines(d)
         out_file.close()
         d_new = serpent.read_plaintext_file(
-            serpent.template_inputfiles_path + str(idx))
+            serpent.template_input_file_path + str(idx))
         assert d_new[8].split()[4] == 'daystep'
         assert d_new[8].split()[2] == str("%5.9E" % msr.power_levels[idx])
         assert d_new[8].split()[5] == str("%7.5E" % depsteps[idx])
-        os.remove(serpent.template_inputfiles_path + str(idx))
+        os.remove(serpent.template_input_file_path + str(idx))
 
 
 def test_create_iter_matfile():
-    d = serpent.read_plaintext_file(serpent.template_inputfiles_path)
+    d = serpent.read_plaintext_file(serpent.template_input_file_path)
     out = serpent.create_iter_matfile(d)
     assert out[0].split()[-1] == '\"' + serpent.iter_matfile + '\"'
     os.remove(serpent.iter_matfile)
 
+
 def _get_iterable_for_object(iterable_object):
     # helper function to DRY
     iterable_type = type(iterable_object)
-    if issubclass(iterable_type, list) or issubclass(iterable_type, tuple) or issubclass(iterable_type, np.ndarray):
+    if issubclass(
+            iterable_type,
+            list) or issubclass(
+            iterable_type,
+            tuple) or issubclass(
+                iterable_type,
+            np.ndarray):
         if issubclass(iterable_type, np.ndarray):
             iterable_object = iterable_object.flatten()
         iterable = range(0, len(iterable_object))
     elif issubclass(iterable_type, dict):
         iterable = iterable_object
     else:
-        raise ValueError(f"Iterable of type {type(iterable_object)} is unsupported")
+        raise ValueError(
+            f"Iterable of type {type(iterable_object)} is unsupported")
     return iterable
+
 
 def _check_none_or_iterable_of_ndarray_equal(object1, object2):
     # helper function to DRY
@@ -246,9 +254,10 @@ def _check_none_or_iterable_of_ndarray_equal(object1, object2):
     else:
         assert object1 == object2
 
+
 def _check_none_or_openmc_object_equal(object1, object2):
-    if object1 == None:
-        assert object2 == None
+    if object1 is None:
+        assert object2 is None
     else:
         _check_openmc_objects_equal(object1, object2)
 
@@ -260,19 +269,21 @@ def _check_openmc_objects_equal(object1, object2):
 
     Parameters
     ----------
-    object1 : openmc.Surface, openmc.Universe, openmc.Cell, openmc.Material, openmc.Lattice
+    object1 : openmc.Surface, openmc.Universe, openmc.Cell, openmc.Material, \
+    openmc.Lattice
         First openmc object to compare
-    object2 :  openmc.Surface, openmc.Universe, openmc.Cell, openmc.Material, openmc.Lattice
+    object2 :  openmc.Surface, openmc.Universe, openmc.Cell, openmc.Material, \
+    openmc.Lattice
         Second openmc object to compare
 
     """
-    objects_equal = True
     try:
         object_type = type(object1)
-        assert object_type == type(object2)
+        assert isinstance(object2, object_type)
         assert object1.id == object2.id
-        assert object1.name == object2.name # this may not apply to all objects.
-                                            # need to check
+        # this may not apply to all objects.
+        assert object1.name == object2.name
+        # need to check
         if object_type == om.Material:
             assert object1.density == object2.density
             assert object1.nuclides == object2.nuclides
@@ -284,9 +295,12 @@ def _check_openmc_objects_equal(object1, object2):
             assert object1.fill_type == object2.fill_type
             _check_none_or_openmc_object_equal(object1.fill, object2.fill)
             assert object1.region == object2.region
-            _check_none_or_iterable_of_ndarray_equal(object1.rotation, object2.rotation)
-            _check_none_or_iterable_of_ndarray_equal(object1.rotation_matrix, object2.rotation_matrix)
-            _check_none_or_iterable_of_ndarray_equal(object1.translation, object2.translation)
+            _check_none_or_iterable_of_ndarray_equal(
+                object1.rotation, object2.rotation)
+            _check_none_or_iterable_of_ndarray_equal(
+                object1.rotation_matrix, object2.rotation_matrix)
+            _check_none_or_iterable_of_ndarray_equal(
+                object1.translation, object2.translation)
             assert object1.volume == object2.volume
             # assert object1.atoms == object2.atoms
 
@@ -295,27 +309,34 @@ def _check_openmc_objects_equal(object1, object2):
             assert object1.lower_left == object2.lower_left
             assert object1.pitch == object2.pitch
             _check_none_or_openmc_object_equal(object1.outer, object2.outer)
-            _check_openmc_iterables_equal({'univ': (object1.universes, object2.universes)})
+            _check_openmc_iterables_equal(
+                {'univ': (object1.universes, object2.universes)})
 
         elif issubclass(object_type, om.Surface):
             assert object1.boundary_type == object2.boundary_type
-            _check_none_or_iterable_of_ndarray_equal(object1.coefficients, object2.coefficients)
+            _check_none_or_iterable_of_ndarray_equal(
+                object1.coefficients, object2.coefficients)
             assert object1.type == object2.type
 
         elif object_type == om.Universe:
-            _check_openmc_iterables_equal({'cells': (object1.cells, object2.cells)})
+            _check_openmc_iterables_equal(
+                {'cells': (object1.cells, object2.cells)})
             assert object1.volume == object2.volume
-            _check_none_or_iterable_of_ndarray_equal(object1.bounding_box, object2.bounding_box)
+            _check_none_or_iterable_of_ndarray_equal(
+                object1.bounding_box, object2.bounding_box)
         else:
-            raise ValueError(f"Object of type {object_type} is not an openmc object.")
+            raise ValueError(
+                f"Object of type {object_type} is not an openmc object.")
 
     except AssertionError:
-        raise AssertionError(f"objects of type {object_type} with ids {object1.id} and {object2.id} not equal")
+        raise AssertionError(
+            f"objects of type {object_type} with ids {object1.id} and \
+            {object2.id} not equal")
 
 
 def _check_openmc_iterables_equal(iterable_dict):
     """
-    Helper function to check if the given dictionary of iterbales
+    Helper function to check equality iterables contained in a dictionary.
 
     Parameters:
     iterable_dict : dict of str to 2-tuple
@@ -332,7 +353,6 @@ def _check_openmc_iterables_equal(iterable_dict):
             object1 = object2_iterable[ref]
             object2 = object1_iterable[ref]
             _check_openmc_objects_equal(object1, object2)
-
 
 
 def test_write_depcode_input():
@@ -356,8 +376,11 @@ def test_write_depcode_input():
     serpent.iter_inputfile = iter_inputfile_old
 
     # OpenMC
-    input_materials = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
-    input_geometry = om.Geometry.from_xml(openmc.template_inputfiles_path['geometry'], materials=input_materials)
+    input_materials = om.Materials.from_xml(
+        openmc.template_input_file_path['materials'])
+    input_geometry = om.Geometry.from_xml(
+        openmc.template_input_file_path['geometry'],
+        materials=input_materials)
 
     input_cells = input_geometry.get_all_cells()
     input_lattices = input_geometry.get_all_lattices()
@@ -369,7 +392,9 @@ def test_write_depcode_input():
                                False)
     # Load in the iter_ objects
     iter_materials = om.Materials.from_xml(openmc.iter_matfile)
-    iter_geometry = om.Geometry.from_xml(openmc.iter_inputfile['geometry'], materials=iter_materials)
+    iter_geometry = om.Geometry.from_xml(
+        openmc.iter_inputfile['geometry'],
+        materials=iter_materials)
     iter_settings = om.Settings.from_xml(openmc.iter_inputfile['settings'])
 
     iter_cells = iter_geometry.get_all_cells()
@@ -377,8 +402,7 @@ def test_write_depcode_input():
     iter_surfaces = iter_geometry.get_all_surfaces()
     iter_universes = iter_geometry.get_all_universes()
 
-
-    ## an easier approach may just be to compare the
+    # an easier approach may just be to compare the
     # file contents themselves
     assertion_dict = {'mat': (input_materials, iter_materials),
                       'cells': (input_cells, iter_cells),
@@ -395,6 +419,7 @@ def test_write_depcode_input():
     del iter_materials, iter_geometry
     del input_materials, input_geometry
 
+
 def test_write_depletion_settings():
     """
     Unit test for `DepcodeOpenMC.write_depletion_settings`
@@ -405,10 +430,9 @@ def test_write_depletion_settings():
         assert j['directory'] == directory
         assert j['timesteps'][0] == msr.dep_step_length_cumulative[0]
         assert j['operator_kwargs']['chain_file'] == \
-            openmc.template_inputfiles_path['chain_file']
+            openmc.template_input_file_path['chain_file']
         assert j['integrator_kwargs']['power'] == msr.power_levels[0]
         assert j['integrator_kwargs']['timestep_units'] == 'd'
-
 
 
 def test_write_saltproc_openmc_tallies():
@@ -416,8 +440,9 @@ def test_write_saltproc_openmc_tallies():
     Unit test for `DepcodeOpenMC.write_saltproc_openmc_tallies`
     """
 
-    mat = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
-    geo = om.Geometry.from_xml(openmc.template_inputfiles_path['geometry'], mat)
+    mat = om.Materials.from_xml(openmc.template_input_file_path['materials'])
+    geo = om.Geometry.from_xml(
+        openmc.template_input_file_path['geometry'], mat)
     openmc.write_saltproc_openmc_tallies(mat, geo)
     del mat, geo
     tallies = om.Tallies.from_xml(openmc.iter_inputfile['tallies'])
@@ -432,24 +457,22 @@ def test_write_saltproc_openmc_tallies():
     tal4 = tallies[4]
 
     assert tal0.name == 'delayed-fission-neutrons'
-    assert type(tal0.filters[0]) == om.DelayedGroupFilter
+    assert isinstance(tal0.filters[0], om.DelayedGroupFilter)
     assert tal0.scores[0] == 'delayed-nu-fission'
     assert tal1.name == 'total-fission-neutrons'
-    assert type(tal1.filters[0]) == om.UniverseFilter
+    assert isinstance(tal1.filters[0], om.UniverseFilter)
     assert tal1.scores[0] == 'nu-fission'
     assert tal2.name == 'precursor-decay-constants'
-    assert type(tal2.filters[0]) == om.DelayedGroupFilter
+    assert isinstance(tal2.filters[0], om.DelayedGroupFilter)
     assert tal2.scores[0] == 'decay-rate'
     assert tal3.name == 'fission-energy'
-    assert type(tal3.filters[0]) == om.UniverseFilter
-    assert tal3.scores[0] == 'fission-q-reocverable'
+    assert isinstance(tal3.filters[0], om.UniverseFilter)
+    assert tal3.scores[0] == 'fission-q-recoverable'
     assert tal3.scores[1] == 'fission-q-prompt'
     assert tal3.scores[2] == 'kappa-fission'
     assert tal4.name == 'normalization-factor'
-    assert type(tal4.filters[0]) == om.UniverseFilter
+    assert isinstance(tal4.filters[0], om.UniverseFilter)
     assert tal4.scores[0] == 'heating'
-
-
 
 
 def test_switch_to_next_geometry():
@@ -465,7 +488,7 @@ def test_switch_to_next_geometry():
     serpent.iter_inputfile = iter_inputfile_old
 
     # OpenMC
-    mat = om.Materials.from_xml(openmc.template_inputfiles_path['materials'])
+    mat = om.Materials.from_xml(openmc.template_input_file_path['materials'])
     expected_geometry = om.Geometry.from_xml(openmc.geo_files[0], mat)
     expected_cells = expected_geometry.get_all_cells()
     expected_lattices = expected_geometry.get_all_lattices()
@@ -474,7 +497,8 @@ def test_switch_to_next_geometry():
     del expected_geometry
 
     openmc.switch_to_next_geometry()
-    switched_geometry = om.Geometry.from_xml(openmc.iter_inputfile['geometry'], mat)
+    switched_geometry = om.Geometry.from_xml(
+        openmc.iter_inputfile['geometry'], mat)
 
     switched_cells = switched_geometry.get_all_cells()
     switched_lattices = switched_geometry.get_all_lattices()

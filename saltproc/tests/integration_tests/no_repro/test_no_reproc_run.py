@@ -21,7 +21,7 @@ db_file = directory + '/db_test.h5'
 
 depcode = DepcodeSerpent(
     exec_path='sss2',
-    template_inputfiles_path=directory +
+    template_input_file_path=directory +
     '/saltproc_9d.inp',
     geo_files=[
         os.path.join(
@@ -30,8 +30,8 @@ depcode = DepcodeSerpent(
     npop=100,
     active_cycles=20,
     inactive_cycles=5)
-depcode.iter_inputfile=sss_file,
-depcode.iter_matfile=iter_matfile,
+depcode.iter_inputfile = sss_file
+depcode.iter_matfile = iter_matfile
 
 simulation = Simulation(sim_name='Integration test',
                         sim_depcode=depcode,
