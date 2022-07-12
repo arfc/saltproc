@@ -4,6 +4,7 @@ channels:
   - defaults
 dependencies:
   - pyne>=0.5.11=nomoab_noopenmc*
+  - openmc
   - numpy>=1.14.0
   - pytables
   - networkx
