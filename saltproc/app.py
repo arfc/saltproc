@@ -103,12 +103,12 @@ def read_main_input(main_inp_file):
         reactor_inp = j['reactor']
 
         if depcode_inp['codename'] == 'serpent':
-            depcode_inp['template_inputfiles_path'] = os.path.join(
-                input_path, depcode_inp['template_inputfiles_path'])
+            depcode_inp['template_input_file_path'] = os.path.join(
+                input_path, depcode_inp['template_input_file_path'])
         elif depcode_inp['codename'] == 'openmc':
-            for key in depcode_inp['template_inputfiles_path']:
-                value = depcode_inp['template_inputfiles_path'][key]
-                depcode_inp['template_inputfiles_path'][key] = \
+            for key in depcode_inp['template_input_file_path']:
+                value = depcode_inp['template_input_file_path'][key]
+                depcode_inp['template_input_file_path'][key] = \
                     os.path.join(input_path, value)
         else:
             raise ValueError(
@@ -389,12 +389,12 @@ def run():
     read_main_input(sp_input)
     if depcode_inp['codename'] == 'serpent':
         template_file_path = \
-            os.path.abspath(depcode_inp['template_inputfiles_path'])
+            os.path.abspath(depcode_inp['template_input_file_path'])
     elif depcode_inp['codename'] == 'openmc':
         template_file_path = \
             os.path.dirname(
                 os.path.abspath(
-                    depcode_inp['template_inputfiles_path']['materials']))
+                    depcode_inp['template_input_file_path']['materials']))
     iter_file_path = os.path.abspath(output_path)
     # Print out input information
     print('Initiating Saltproc:\n'
@@ -419,7 +419,7 @@ def run():
         depcode = DepcodeSerpent()
     elif depcode_inp['codename'] == 'openmc':
         iter_inputfile = {}
-        for key in depcode_inp['template_inputfiles_path']:
+        for key in depcode_inp['template_input_file_path']:
             iter_inputfile[key] = \
                 os.path.join(output_path, key + '.xml')
 
@@ -429,7 +429,7 @@ def run():
         raise ValueError(
             f'{depcode_inp["codename"]} is not a supported depletion code')
 
-    depcode.template_inputfiles_path = depcode_inp['template_inputfiles_path']
+    depcode.template_input_file_path = depcode_inp['template_input_file_path']
     depcode.geo_files = depcode_inp['geo_file_paths']
     depcode.npop = depcode_inp['npop']
     depcode.active_cycles = depcode_inp['active_cycles']

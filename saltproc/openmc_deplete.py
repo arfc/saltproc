@@ -15,7 +15,7 @@ def parse_arguments():
     settings : str
         Path to openmc settings `.xml` file
     tallies : str
-        Parth to openmc tallies `.xml` file
+        Path to openmc tallies `.xml` file
     depletion_settings : str
         Path to the DepcodeOpenMC depletion_settings file
 

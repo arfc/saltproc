@@ -46,7 +46,7 @@ understanding its limitations, and citing me where appropriate. We would be
 thrilled to work with you on improving it.
 
 
-## Contribution
+## Contributions
 
 This repository is a work in progress. We would love it if you wanted to
 contribute to this code here in this repository. [Here is some information about

@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 
 
 class Depcode(ABC):
-    r"""Abstract class for interfacing with monte-carlo particle transport
+    """Abstract class for interfacing with monte-carlo particle transport
     codes. Contains information about input, output, geometry, and template
     files for running depletion simulations. Also contains neutron
     population, active, and inactive cycles. Contains methods to read template
@@ -20,9 +20,11 @@ class Depcode(ABC):
     Attributes
     -----------
     param : dict of str to type
-        Holds depletion steo parameter information
+        Holds depletion step parameter information. Parameter names are keys
+        and parameter values are values.
     sim_info : dict of str to type
-        Holds simulation settings information
+        Holds simulation settings information. Setting names are keys
+        and setting values are values.
     iter_inputfile : str
         Path to depletion code input file for depletion code rerunning.
     iter_matfile : str
@@ -34,7 +36,7 @@ class Depcode(ABC):
     def __init__(self,
                  codename,
                  exec_path,
-                 template_inputfiles_path,
+                 template_input_file_path,
                  geo_files=None,
                  npop=50,
                  active_cycles=20,
@@ -47,9 +49,11 @@ class Depcode(ABC):
                Name of depletion code.
            exec_path : str
                Path to depletion code executable.
-           template_inputfiles_path: str or dict of str to str
-               Path(s) to depletion code input file(s). Type depends
-               on depletion code in use.
+           template_input_file_path : str or dict of str to str
+               Path(s) to depletion code input file(s), or a dictionary where
+               the input type (e.g. material, geometry, settings, etc.) as a
+               string are keys, and the path to the input file are values.
+               Type depends on depletion code in use.
            geo_files : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
@@ -64,7 +68,7 @@ class Depcode(ABC):
         """
         self.codename = codename
         self.exec_path = exec_path
-        self.template_inputfiles_path = template_inputfiles_path
+        self.template_input_file_path = template_input_file_path
         self.geo_files = geo_files
         self.npop = npop
         self.active_cycles = active_cycles
@@ -167,7 +171,7 @@ class Depcode(ABC):
 
 
 class DepcodeOpenMC(Depcode):
-    r"""Class contains information about input, output, geometry, and
+    """Class contains information about input, output, geometry, and
     template files for running OpenMC depletion simulations.
     Also contains neutrons population, active, and inactive cycles.
     Contains methods to read template and output files,
@@ -176,9 +180,11 @@ class DepcodeOpenMC(Depcode):
     Attributes:
     -----------
     param : dict of str to type
-        Holds depletion steo parameter information
+        Holds depletion step parameter information. Parameter names are keys
+        and parameter values are values.
     sim_info : dict of str to type
-        Holds simulation settings information
+        Holds simulation settings information. Setting names are keys
+        and setting values are values.
     iter_inputfile : dict of str to str
         Paths to OpenMC input files for OpenMC rerunning.
     iter_matfile : str
@@ -191,7 +197,7 @@ class DepcodeOpenMC(Depcode):
 
     def __init__(self,
                  exec_path="openmc_deplete.py",
-                 template_inputfiles_path={"geometry": "./geometry.xml",
+                 template_input_file_path={"geometry": "./geometry.xml",
                                            "materials": "./materials.xml",
                                            "settings": "./settings.xml",
                                            "chain_file": "./chain_simple.xml"},
@@ -205,12 +211,11 @@ class DepcodeOpenMC(Depcode):
            ----------
            exec_path : str
                Path to OpenMC depletion script.
-           template_inputfiles_path : dict of str to str
+           template_input_file_path : dict of str to str
                Path to user input files (``.xml`` file for geometry,
-               material, and settings) for OpenMC.
-           iter_matfile : str
-               Name of iterative, rewritable material file for OpenMC
-               rerunning. This file is modified during  the simulation.
+               material, and settings) for OpenMC. File type as strings
+               are keys (e.g. 'geometry', 'settings', 'material'), and
+               file path as strings are values.
            geo_files : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
@@ -225,7 +230,7 @@ class DepcodeOpenMC(Depcode):
         """
         super().__init__("openmc",
                          exec_path,
-                         template_inputfiles_path,
+                         template_input_file_path,
                          geo_files,
                          npop,
                          active_cycles,
@@ -280,7 +285,7 @@ class DepcodeOpenMC(Depcode):
         nodes : int
             Number of nodes to use for depletion code run.
         """
-        ## need to add flow control for plots option ##
+        # need to add flow control for plots option
         args = (
             'mpiexec',
             '-n',
@@ -299,7 +304,7 @@ class DepcodeOpenMC(Depcode):
             self.iter_inputfile['depletion_settings'])
 
         print('Running %s' % (self.codename))
-        # Need to figure out how to adapt this to openmc
+        # TODO: Need to figure out how to adapt this to openmc
         try:
             subprocess.check_output(
                 args,
@@ -338,13 +343,12 @@ class DepcodeOpenMC(Depcode):
 
         if dep_step == 0 and not restart:
             materials = openmc.Materials.from_xml(
-                self.template_inputfiles_path['materials'])
+                self.template_input_file_path['materials'])
             geometry = openmc.Geometry.from_xml(
-                self.template_inputfiles_path['geometry'], materials=materials)
+                self.template_input_file_path['geometry'], materials=materials)
             settings = openmc.Settings.from_xml(
-                self.template_inputfiles_path['settings'])
+                self.template_input_file_path['settings'])
             settings.particles = self.npop
-            # settings.generations_per_batch = ??
             settings.inactive = self.inactive_cycles
             settings.batches = self.active_cycles + self.inactive_cycles
         else:
@@ -362,7 +366,7 @@ class DepcodeOpenMC(Depcode):
         del materials, geometry, settings
 
     def write_depletion_settings(self, reactor, current_depstep_idx):
-        """Write the depeletion settings for the ``openmc.depelete``
+        """Write the depeletion settings for the ``openmc.deplete``
         module.
 
         Parameters
@@ -391,11 +395,9 @@ class DepcodeOpenMC(Depcode):
 
         operator_kwargs = {}
 
-        # Right now we'll require a path to the chain file.
-        # In the future we can make this fanciet
         try:
             operator_kwargs['chain_file'] = \
-                self.template_inputfiles_path['chain_file']
+                self.template_input_file_path['chain_file']
         except KeyError:
             raise SyntaxError("No chain file defined. Please provide \
             a chain file in your saltproc input file")
@@ -483,7 +485,7 @@ class DepcodeOpenMC(Depcode):
 
 
 class DepcodeSerpent(Depcode):
-    r"""Class contains information about input, output, geometry, and
+    """Class contains information about input, output, geometry, and
     template files for running Serpent2 depletion simulations.
     Also contains neutrons population, active, and inactive cycles.
     Contains methods to read template and output files,
@@ -492,9 +494,11 @@ class DepcodeSerpent(Depcode):
     Attributes
     -----------
     param : dict of str to type
-        Holds Serpent depletion step parameter information
+        Holds Serpent depletion step parameter information. Parameter names are
+        keys and parameter values are values.
     sim_info : dict of str to type
-        Holds Serpent simulation settings information
+        Holds Serpent simulation settings information. Setting names are keys
+        and setting values are values.
     iter_inputfile : str
         Path to Serpent2 input file for Serpent2 rerunning.
     iter_matfile : str
@@ -505,7 +509,7 @@ class DepcodeSerpent(Depcode):
 
     def __init__(self,
                  exec_path="sss2",
-                 template_inputfiles_path="reactor.serpent",
+                 template_input_file_path="reactor.serpent",
                  geo_files=None,
                  npop=50,
                  active_cycles=20,
@@ -516,7 +520,7 @@ class DepcodeSerpent(Depcode):
            ----------
            exec_path : str
                Path to Serpent2 executable.
-           template_inputfiles_path : str
+           template_input_file_path : str
                Path to user input file for Serpent2
            geo_files : str or list, optional
                Path to file that contains the reactor geometry.
@@ -532,7 +536,7 @@ class DepcodeSerpent(Depcode):
         """
         super().__init__("serpent",
                          exec_path,
-                         template_inputfiles_path,
+                         template_input_file_path,
                          geo_files,
                          npop,
                          active_cycles,
@@ -562,13 +566,13 @@ class DepcodeSerpent(Depcode):
             if len(sim_param) > 1:
                 print('ERROR: Template file %s contains multiple lines with '
                       'simulation parameters:\n'
-                      % (self.template_inputfiles_path), sim_param)
+                      % (self.template_input_file_path), sim_param)
                 return
             elif len(sim_param) < 1:
                 print(
                     'ERROR: Template file %s does not contain line with '
                     'simulation parameters.' %
-                    (self.template_inputfiles_path))
+                    (self.template_input_file_path))
                 return
             args = 'set pop %i %i %i\n' % (self.npop, self.active_cycles,
                                            self.inactive_cycles)
@@ -590,11 +594,11 @@ class DepcodeSerpent(Depcode):
             List of strings containing modified user template file.
 
         """
-        data_dir = os.path.dirname(self.template_inputfiles_path)
+        data_dir = os.path.dirname(self.template_input_file_path)
         include_str = [s for s in template_data if s.startswith("include ")]
         if not include_str:
             print('ERROR: Template file %s has no <include "material_file">'
-                  ' statements ' % (self.template_inputfiles_path))
+                  ' statements ' % (self.template_input_file_path))
             return
         src_file = include_str[0].split()[1][1:-1]
         if not os.path.isabs(src_file):
@@ -606,7 +610,7 @@ class DepcodeSerpent(Depcode):
                       ' materials description or <include "material_file">'
                       ' statement is not appears'
                       ' as first <include> statement\n'
-                      % (self.template_inputfiles_path))
+                      % (self.template_input_file_path))
                 return
         # Create data directory
         try:
@@ -913,7 +917,7 @@ class DepcodeSerpent(Depcode):
         try:
             subprocess.check_output(
                 args,
-                cwd=os.path.split(self.template_inputfiles_path)[0],
+                cwd=os.path.split(self.template_input_file_path)[0],
                 stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
             print(error.output.decode("utf-8"))
@@ -990,7 +994,7 @@ class DepcodeSerpent(Depcode):
         """
 
         if dep_step == 0 and not restart:
-            data = self.read_plaintext_file(self.template_inputfiles_path)
+            data = self.read_plaintext_file(self.template_input_file_path)
             data = self.insert_path_to_geometry(data)
             data = self.change_sim_par(data)
             data = self.create_iter_matfile(data)
