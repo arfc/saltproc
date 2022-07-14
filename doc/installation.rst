@@ -31,7 +31,7 @@ SaltProc has the following dependencies:
 .. _conda package manager: https://docs.conda.io/en/latest/
 .. _mamba: https://github.com/mamba-org/mamba
 
-Optional Depenendencies:
+Optional Dependencies:
   #. `pytest`_ (for testing)
   #. `sphinx`_ and `sphinx-rtd-theme`_ (for building documentation)
   #. `matplotlib`_
@@ -77,10 +77,10 @@ Please let us know if you run into trouble.
 
 Cross Section Configuration
 ---------------------------
-SaltProc can use any cross section library that its depetion codes can. Currently supporte depletion codes and their guides on cross section confguration are listed below:
+SaltProc can use any cross section library that its depletion codes can. Currently supported depletion codes and their guides on cross section configuration are listed below:
 
   - Serpent: See `this page on the Serpent wiki`_ for information on how to configure the libraries. 
-  - OpenMC: See `this page on the OpenMC docs`_ for information on how to configure the libraries. You can also convert a Serpent cross section library to an OpenMC cross section libary using `their included scripts`_.
+  - OpenMC: See `this page on the OpenMC docs`_ for information on how to configure the libraries. You can also convert a Serpent cross section library to an OpenMC cross section library using `their included scripts`_.
 
 .. _this page on the Serpent wiki: https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries
 .. _this page on the OpenMC docs: https://docs.openmc.org/en/stable/usersguide/cross_sections.html

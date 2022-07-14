@@ -35,7 +35,7 @@ please use our `Discussions page <https://github.com/arfc/saltproc/discussions>`
 Instructions for setting up a development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The SaltProc is compatible with Python >=3.5. Anaconda is the recommended distribution to use to work on SAltProc; we will assume that if you want to use another distribution or your own set up, you can translate the instructions.
+The SaltProc is compatible with Python >=3.5. Anaconda is the recommended distribution to use to work on SaltProc; we will assume that if you want to use another distribution or your own set up, you can translate the instructions.
 
 You can download Anaconda at https://www.continuum.io/Downloads for the full install. You can also download a mini Anaconda install for a bare-bones install -- this is good for a build server or if you don't have much space. The mini Anaconda installs are available at https://conda.io/miniconda.html.
 
@@ -76,7 +76,7 @@ Tests are automatically detected and run with pytest. Start in the root director
 Run style tests with flake8
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Adherance to style checks in flake8 is encouraged though not strictly enforced. While you should not feel compelled to fix existing failures, please do not add additional flake8 issues.
+Adherence to style checks in flake8 is encouraged though not strictly enforced. While you should not feel compelled to fix existing failures, please do not add additional flake8 issues.
 
 ::
 
@@ -88,7 +88,7 @@ Pull Requests
 
 Please use the provided pull request template. In particular:
 
--  **Make sure the test suite passes** on your computer. To do so, run ``py.test saltproc`` in the repository directory. At a minumum, you must run the tests requring serpent locally as they are not tested by our CI
+-  **Make sure the test suite passes** on your computer. To do so, run ``py.test saltproc`` in the repository directory. At a minimum, you must run the tests reqiuring serpent locally as they are not tested by our CI
 -  Describe your feature/change/fix in the release notes (located in ``doc/releasenotes``) for the currently in-development release version. Use the descriptive comments and examples as reference.
 -  Please reference relevant Github issues in your commit message using ``GH1234`` or ``#1234``.
 -  Changes should be PEP8 compatible `PEP8 <http://www.python.org/dev/peps/pep-0008/>`__.
