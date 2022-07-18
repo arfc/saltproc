@@ -35,19 +35,19 @@ please use our `Discussions page <https://github.com/arfc/saltproc/discussions>`
 Instructions for setting up a development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The SaltProc is compatible with Python >=3.5. Anaconda is the recommended distribution to use to work on SaltProc; we will assume that if you want to use another distribution or your own set up, you can translate the instructions.
+The SaltProc is compatible with Python >=3.9. Anaconda is the recommended distribution to use to work on SaltProc; we will assume that if you want to use another distribution or your own set up, you can translate the instructions.
 
 You can download Anaconda at https://www.continuum.io/Downloads for the full install. You can also download a mini Anaconda install for a bare-bones install -- this is good for a build server or if you don't have much space. The mini Anaconda installs are available at https://conda.io/miniconda.html.
 
-Once your Anaconda package is installed and available, create a Python 3.6 environment in Anaconda --
+Once your Anaconda package is installed and available, create a Python 3.9 environment in Anaconda --
 
 ::
 
-   conda create -q -n saltproc-test-environment python=3.6 scipy numpy matplotlib pytest pytables flake8
+   conda create -q -n saltproc-test-environment python=3.9 scipy numpy matplotlib pytest pytables flake8
 
 Each of these commands will take a bit of time -- give it a few minutes to download and install the packages and their dependences. Once complete, switch to each and install additional packages needed to run and test.
 
-Activate the 3.6 environment and install pyne, networkx and pydotplus
+Activate the 3.9 environment and install pyne, networkx and pydotplus
 
 ::
 
@@ -88,7 +88,7 @@ Pull Requests
 
 Please use the provided pull request template. In particular:
 
--  **Make sure the test suite passes** on your computer. To do so, run ``py.test saltproc`` in the repository directory. At a minimum, you must run the tests reqiuring serpent locally as they are not tested by our CI
+-  **Make sure the test suite passes** on your computer. To do so, run ``pytest saltproc`` in the base directory of this repository. At a minimum, you must run the tests requiring serpent locally as they are not tested by our CI
 -  Describe your feature/change/fix in the release notes (located in ``doc/releasenotes``) for the currently in-development release version. Use the descriptive comments and examples as reference.
 -  Please reference relevant Github issues in your commit message using ``GH1234`` or ``#1234``.
 -  Changes should be PEP8 compatible `PEP8 <http://www.python.org/dev/peps/pep-0008/>`__.

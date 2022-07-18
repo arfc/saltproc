@@ -15,18 +15,18 @@ depletion simulation with the following capabilities:
 How SaltProc works
 -------------------
 
-SaltProc is a driver for Monte Carlo depletion codes (henceforth referred to as *depletion codes*) to simulate online fuel salt reprocessing for
+SaltProc is a driver for Monte Carlo transport codes with depletion capabilities (henceforth referred to as *transport-depletion codes*) to simulate online fuel salt reprocessing for
 Molten Salt Reactors. It performs following major functions:
 
-  - runs the depletion code
+  - runs the transport-depletion code
   - parses and stores depleted material data in HDF5
   - modifies parsed material composition (`reprocesses`)
-  - creates a new depletion code input file
+  - creates a new transport-depletion code input file
 
 
 The code logic flow is the following:
 
-  1. Runs the depletion code (`saltproc.depcode.run_depcode()`)
+  1. Runs the transpor-depletion code (`saltproc.depcode.run_depcode()`)
   2. Parses through the output `*_dep.m` file and creates PyNE Material object
      for each burnable material.
   3. Processes Fuel (`saltproc.app.reprocessing()` and `saltproc.refill`):
@@ -74,7 +74,10 @@ An example is given below. In the example, capacity and mass flow rate are in
 The Future
 ----------
 
-A number of features will be implemented in SaltProc soon.
+.. _issues page on GitHub: https://github.com/arfc/saltproc/issues
+
+A number of features will be implemented in SaltProc soon. Take a look at the 
+`issues page on GitHub`_ to see what we are working on.
 
 .. warning::
 
