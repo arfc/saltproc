@@ -3,7 +3,7 @@ HDF5 Output File
 ================
 This file format specification uses the `pytables terminology`_.
 
-.. _pytables terminoligy: https://www.pytables.org/FAQ.html#what-kind-of-containers-does-pytables-implement
+.. _pytables terminology: https://www.pytables.org/FAQ.html#what-kind-of-containers-does-pytables-implement
 
 :Leaves:
 
