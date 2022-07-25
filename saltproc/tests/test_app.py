@@ -36,9 +36,9 @@ def test_read_main_input():
                             [5, 10])
 
 
-def test_read_processes_from_input():
+def test_get_extraction_processes():
     app.read_main_input(main_input)
-    procs = app.read_processes_from_input()
+    procs = app.get_extraction_processes()
     assert procs['fuel']['heat_exchanger'].volume == 1.37E+7
     assert procs['fuel']['sparger'].efficiency['H'] == 0.6
     assert procs['fuel']['sparger'].efficiency['Kr'] == 0.6

@@ -151,39 +151,41 @@ def read_main_input(main_inp_file):
                     'Depletion step list and power list shape mismatch')
 
 
-def read_processes_from_input():
-    """Parses ``removal`` data from `.json` file with `Process` objects
-    description. Then returns dictionary of `Process` objects describing
+def get_extraction_processes():
+    """Parses ``extraction_processes`` data from the `.json` file with containing processing system objects.
+
+   :class:`saltproc.process.Process` objects
+    description. Then returns dictionary of :class:`saltproc.process.Process` objects describing
     extraction process efficiency for each target chemical element.
 
     Returns
     -------
-    mats : dict of str to Process
-        Dictionary that contains `Process` objects.
+    extraction_processes : dict of str to :class:`saltproc.process.Process`
+        Dictionary mapping material names to processing system objects.
 
         ``key``
             Name of burnable material.
         ``value``
-            `Process` object holding extraction process parameters.
+            :class:`saltproc.process.Process` object holding extraction process parameters.
 
     """
-    processes = OrderedDict()
+    extraction_processes = OrderedDict()
     with open(spc_inp_file) as f:
         j = json.load(f)
         for mat, value in j.items():
-            processes[mat] = OrderedDict()
-            for obj_name, obj_data in j[mat]['extraction_processes'].items():
-                print("Processs object data: ", obj_data)
-                st = obj_data['efficiency']
-                if obj_name == 'sparger' and st == "self":
-                    processes[mat][obj_name] = Sparger(**obj_data)
-                elif obj_name == 'entrainment_separator' and st == "self":
-                    processes[mat][obj_name] = Separator(**obj_data)
+            extraction_processes[mat] = OrderedDict()
+            for proc_name, proc_data in j[mat]['extraction_processes'].items():
+                print("Processs object data: ", proc_data)
+                st = proc_data['efficiency']
+                if proc_name == 'sparger' and st == "self":
+                    extraction_processes[mat][proc_name] = Sparger(**proc_data)
+                elif proc_name == 'entrainment_separator' and st == "self":
+                    extraction_processes[mat][proc_name] = Separator(**proc_data)
                 else:
-                    processes[mat][obj_name] = Process(**obj_data)
+                    extraction_processes[mat][proc_name] = Process(**proc_data)
 
         gc.collect()
-        return processes
+        return extraction_processes
 
 
 def read_feeds_from_input():
@@ -284,9 +286,9 @@ def reprocessing(mats):
     extracted_mass = {}
     waste = OrderedDict()
     forked_mats = OrderedDict()
-    prcs = read_processes_from_input()
+    extraction_processes = get_extraction_processes()
     mats_name_dot, paths = read_dot(dot_inp_file)
-    for mname in prcs.keys():  # iterate over materials
+    for mname in extraction_processes.keys():  # iterate over materials
         waste[mname] = {}
         forked_mats[mname] = []
         inmass[mname] = float(mats[mname].mass)
@@ -299,14 +301,14 @@ def reprocessing(mats):
                 print("Material mass %f" % mats[mname].mass)
                 for p in path:
                     # Calculate fraction of the flow going to the process p
-                    divisor = float(prcs[mname][p].mass_flowrate /
-                                    prcs[mname]['core_outlet'].mass_flowrate)
+                    divisor = float(extraction_processes[mname][p].mass_flowrate /
+                                    extraction_processes[mname]['core_outlet'].mass_flowrate)
                     print('Process %s, divisor=%f' % (p, divisor))
                     # Update materialflow byt multiplying it by flow fraction
                     forked_mats[mname][ctr] = \
                         divisor * copy.deepcopy(forked_mats[mname][ctr])
                     waste[mname][w + p] = \
-                        prcs[mname][p].rem_elements(forked_mats[mname][ctr])
+                        extraction_processes[mname][p].rem_elements(forked_mats[mname][ctr])
                 ctr += 1
             # Sum all forked material objects together
             # initilize correct obj instance
@@ -326,9 +328,9 @@ def reprocessing(mats):
         # Bootstrap for many materials
         if mname == 'ctrlPois':
             waste[mname]['removal_tb_dy'] = \
-                prcs[mname]['removal_tb_dy'].rem_elements(mats[mname])
+                extraction_processes[mname]['removal_tb_dy'].rem_elements(mats[mname])
         extracted_mass[mname] = inmass[mname] - float(mats[mname].mass)
-    del prcs, inmass, mname, forked_mats, mats_name_dot, paths, divisor
+    del extraction_processes, inmass, mname, forked_mats, mats_name_dot, paths, divisor
     return waste, extracted_mass
 
 
