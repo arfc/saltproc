@@ -152,70 +152,70 @@ def read_main_input(main_inp_file):
 
 
 def get_extraction_processes():
-    """Parses ``extraction_processes`` data from the `.json` file with containing processing system objects.
+    """Parses ``extraction_processes`` objects from the `.json` file describing
+    processing system objects.
 
-   :class:`saltproc.process.Process` objects
-    description. Then returns dictionary of :class:`saltproc.process.Process` objects describing
-    extraction process efficiency for each target chemical element.
+    ``extraction_processes`` objects describe components that would perform fuel
+    processing in a real reactor, such as a gas sparger or a nickel filter.
 
     Returns
     -------
-    extraction_processes : dict of str to :class:`saltproc.process.Process`
-        Dictionary mapping material names to processing system objects.
+    extraction_processes : dict of str to dict
+        Dictionary mapping material names to extraction processes.
 
         ``key``
             Name of burnable material.
         ``value``
-            :class:`saltproc.process.Process` object holding extraction process parameters.
+            Dictionary mapping process names to :class:`saltproc.Process` objects.
 
     """
     extraction_processes = OrderedDict()
     with open(spc_inp_file) as f:
         j = json.load(f)
-        for mat, value in j.items():
-            extraction_processes[mat] = OrderedDict()
-            for proc_name, proc_data in j[mat]['extraction_processes'].items():
+        for mat_name in j:
+            extraction_processes[mat_name] = OrderedDict()
+            for proc_name, proc_data in j[mat_name]['extraction_processes'].items():
                 print("Processs object data: ", proc_data)
                 st = proc_data['efficiency']
                 if proc_name == 'sparger' and st == "self":
-                    extraction_processes[mat][proc_name] = Sparger(**proc_data)
+                    extraction_processes[mat_name][proc_name] = Sparger(**proc_data)
                 elif proc_name == 'entrainment_separator' and st == "self":
-                    extraction_processes[mat][proc_name] = Separator(**proc_data)
+                    extraction_processes[mat_name][proc_name] = Separator(**proc_data)
                 else:
-                    extraction_processes[mat][proc_name] = Process(**proc_data)
+                    extraction_processes[mat_name][proc_name] = Process(**proc_data)
 
         gc.collect()
         return extraction_processes
 
 
-def read_feeds_from_input():
-    """Parses ``feed`` data from `.json` file with `Materialflow` objects
-    description. Then returns dictionary of `Materialflow` objects describing
-    fresh fuel feeds.
+def get_feeds():
+    """Parses ``feed`` objects from `.json` file describing processing system objects.
+
+    ``feed`` objects describe material flows that replace nuclides needed to
+    keep the reactor operating that were removed during reprocessing.
 
     Returns
     -------
-    mats : dict of str to Materialflow
-        Dictionary that contains `Materialflow` objects with feeds.
-
+    feeds : dict of str to dict
+        Dictionary that maps material names to material flows
         ``key``
             Name of burnable material.
         ``value``
-            `Materialflow` object holding composition and properties of feed.
+            Dictionary mapping material flow names to
+            :class:`saltproc.Materialflow` objects representing material feeds.
+
     """
     feeds = OrderedDict()
     with open(spc_inp_file) as f:
         j = json.load(f)
-        # print(j['feeds'])
-        for mat, val in j.items():
-            feeds[mat] = OrderedDict()
-            for obj_name, obj_data in j[mat]['feeds'].items():
-                # print(obj_data)
-                nucvec = obj_data['comp']
-                feeds[mat][obj_name] = Materialflow(nucvec)
-                feeds[mat][obj_name].mass = obj_data['mass']
-                feeds[mat][obj_name].density = obj_data['density']
-                feeds[mat][obj_name].vol = obj_data['volume']
+        for mat_name in j:
+            feeds[mat_name] = OrderedDict()
+            for feed_name, feed_data in j[mat_name]['feeds'].items():
+                nucvec = feed_data['comp']
+                feeds[mat][feed_name] = Materialflow(nucvec)
+                feeds[mat][feed_name].mass = feed_data['mass']
+                feeds[mat][feed_name].density = feed_data['density']
+                feeds[mat][feed_name].vol = feed_data['volume']
         return feeds
 
 
@@ -367,7 +367,7 @@ def refill(mats, extracted_mass, waste_dict):
             `Materialflow` object after adding fresh fuel.
     """
     print('Fuel before refill ^^^', mats['fuel'].print_attr())
-    feeds = read_feeds_from_input()
+    feeds = get_feeds()
     refill_mats = OrderedDict()
     for mn, v in feeds.items():  # iterate over materials
         refill_mats[mn] = {}

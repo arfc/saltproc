@@ -50,9 +50,9 @@ def test_get_extraction_processes():
     assert procs['ctrlPois']['removal_tb_dy'].efficiency['Dy'] == 0
 
 
-def test_read_feeds_from_input():
+def test_get_feeds():
     app.read_main_input(main_input)
-    feeds = app.read_feeds_from_input()
+    feeds = app.get_feeds()
     assert feeds['fuel']['leu'].mass == 4.9602E+8
     assert feeds['fuel']['leu'].density == 4.9602
     assert feeds['fuel']['leu']['U235'] == 15426147.398592
