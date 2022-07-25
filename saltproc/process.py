@@ -2,6 +2,7 @@ from saltproc import Materialflow
 from pyne import nucname as pyname
 from math import *
 import numpy as np
+import copy
 
 
 class Process():
@@ -21,14 +22,14 @@ class Process():
             can handle (g/s)
         volume : float
             total volume of the current facility (:math:`cm^3`)
-        efficiency : dict of str to float
+        efficiency : dict of str to float or str
 
             ``key``
                 element name for removal (not isotope)
             ``value``
-                removal efficency for the isotope (weight fraction)
+                removal efficency for the isotope as a weight fraction (float) or a function eps(x,m,t,P,L) (str)
         optional_parameter : float
-            user can define any castom parameter in the input file describing
+            user can define any custom parameter in the input file describing
             processes and use it in efficiency function
         """
         for dictionary in initial_data:
@@ -37,24 +38,26 @@ class Process():
         for key in kwargs:
             setattr(self, key, kwargs[key])
 
-    def calc_rem_efficiency(self, el_name):
-        """Based on data from json file with Processes description calculate
-        value (float) of the removal efficiency. If it was str describing
-        efficiecny as a function (eps(x,m,t,P,L)) then calculating value. If it
-        constant (float in processes.json) then just keep it as is.
+    def calculate_removal_efficiency(self, nuc_name):
+        """Calculate the value of the removal efficiency for a given nuclide
+        in this process.
+
+        If the efficiency is a str describing efficiency as a
+        function (eps(x,m,t,P,L)), then construct the function and evaluate it.
+        Otherwise, it is a float and can be returned.
 
         Parameters
         ----------
-        el_name : str
-            Name of target element to be removed.
+        nuc_name : str
+            Name of target nuclide to be removed.
 
         Returns
         -------
         efficiency : float
-            Extraction efficiency for el_name element.
+            Extraction efficiency for the given nuclide.
 
         """
-        eps = self.efficiency[el_name]
+        eps = self.efficiency[nuc_name]
         if isinstance(eps, str):
             for attr, value in self.__dict__.items():
                 if attr in eps:
@@ -72,44 +75,50 @@ class Process():
         out_stream = self.outflow + self.waste_stream
         np.testing.assert_array_equal(out_stream, self.inflow)
 
-    def rem_elements(self, inflow):
-        """Updates Materialflow object `inflow` after removal target isotopes
-        with specific efficiency in single component of fuel reprocessing
+    def process_material(self, inflow):
+        """Updates :class:`Materialflow` object `inflow` by removing target nuclides
+        with specific efficiencies in single component of fuel reprocessing
         system and returns waste stream Materialflow object.
 
         Parameters
         ----------
         inflow : Materialflow obj
-            Target material stream to remove poisons from.
+            Material flowing into the processing system component.
 
         Returns
         -------
-        Materialflow object
+        waste_stream : Materialflow object
             Waste stream from the reprocessing system component.
+        thru_flow : Materialflow object
+            Remaining material flow that will pass through the
+            reprocessing system component.
 
         """
         waste_nucvec = {}
-        out_nucvec = {}
+        thru_nucvec = {}
         # print("Xe concentration in inflow before % f g" % inflow['Xe136'])
         # print("Current time %f" % (t))
-        for iso in inflow.comp.keys():
-            el_name = pyname.serpent(iso).split('-')[0]
-            if el_name in self.efficiency:
-                # Evaluate removal efficiency for el_name (float)
-                self.efficiency[el_name] = self.calc_rem_efficiency(el_name)
-                out_nucvec[iso] = \
-                    float(inflow.comp[iso]) * \
-                    float(1.0 - self.efficiency[el_name])
-                waste_nucvec[iso] = \
-                    float(inflow[iso]) * self.efficiency[el_name]
+        for nuc in inflow.comp.keys():
+            nuc_name = pyname.serpent(nuc).split('-')[0]
+            if nuc_name in self.efficiency:
+                # Evaluate removal efficiency for nuc_name (float)
+                self.efficiency[nuc_name] = self.calculate_removal_efficiency(nuc_name)
+                thru_nucvec[nuc] = \
+                    float(inflow.comp[nuc]) * \
+                    float(1.0 - self.efficiency[nuc_name])
+                waste_nucvec[nuc] = \
+                    float(inflow[nuc]) * self.efficiency[nuc_name]
             else:
-                out_nucvec[iso] = float(inflow.comp[iso])
-                waste_nucvec[iso] = 0.0  # zeroes everywhere else
-        waste = Materialflow(waste_nucvec)
-        inflow.mass = float(inflow.mass - waste.mass)
-        inflow.comp = out_nucvec
-        inflow.norm_comp()
-        print("Xe concentration in inflow after %f g" % inflow['Xe136'])
-        print("Waste mass %f g\n" % waste.mass)
-        del out_nucvec, waste_nucvec, el_name
-        return waste
+                thru_nucvec[nuc] = float(inflow.comp[nuc])
+                waste_nucvec[nuc] = 0.0  # zeroes everywhere else
+        waste_stream = Materialflow(waste_nucvec)
+        # need to do this copy to pass tests
+        thru_flow = copy.deepcopy(inflow)
+        thru_flow.mass = float(inflow.mass - waste_stream.mass)
+        thru_flow.comp = thru_nucvec
+        thru_flow.norm_comp()
+        print("Xe concentration in thruflow: %f g" % thru_flow['Xe136'])
+        print("Waste mass: %f g\n" % waste_stream.mass)
+        del thru_nucvec, waste_nucvec, nuc_name
+        return thru_flow, waste_stream
+
