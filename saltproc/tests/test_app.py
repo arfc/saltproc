@@ -70,18 +70,18 @@ def test_get_extraction_process_paths():
 def test_reprocess_materials():
     mats = serpent.read_dep_comp(True)
     waste_st, rem_mass = app.reprocess_materials(mats)
-    assert rem_mass['fuel'] == 1401.0846504569054
-    assert rem_mass['ctrlPois'] == 0.0
-    assert waste_st['fuel']['waste_sparger']['Xe135'] == 11.878661583083327
-    assert waste_st['fuel']['waste_nickel_filter']['I135'] == 0.90990472940444
-    assert waste_st['fuel']['waste_liquid_metal']['Sr90'] == 0.7486923392931839
+    np.testing.assert_almost_equal(rem_mass['fuel'], 1401.0846504569054)
+    np.testing.assert_almost_equal(rem_mass['ctrlPois'], 0.0)
+    np.testing.assert_almost_equal(waste_st['fuel']['waste_sparger']['Xe135'], 11.878661583083327)
+    np.testing.assert_almost_equal(waste_st['fuel']['waste_nickel_filter']['I135'], 0.90990472940444)
+    np.testing.assert_almost_equal(waste_st['fuel']['waste_liquid_metal']['Sr90'], 0.7486923392931839)
 
 
 def test_refill_materials():
     mats = serpent.read_dep_comp(True)
     waste_st, rem_mass = app.reprocess_materials(mats)
     m_after_refill = app.refill_materials(mats, rem_mass, waste_st)
-    assert m_after_refill['fuel']['feed_leu']['U235'] == 43.573521906078334
-    assert m_after_refill['fuel']['feed_leu']['U238'] == 827.8969156550545
-    assert m_after_refill['fuel']['feed_leu']['F19'] == 461.8575149906222
-    assert m_after_refill['fuel']['feed_leu']['Li7'] == 67.75331008246572
+    np.testing.assert_almost_equal(m_after_refill['fuel']['feed_leu']['U235'], 43.573521906078334)
+    np.testing.assert_almost_equal(m_after_refill['fuel']['feed_leu']['U238'], 827.8969156550545)
+    np.testing.assert_almost_equal(m_after_refill['fuel']['feed_leu']['F19'], 461.8575149906222)
+    np.testing.assert_almost_equal(m_after_refill['fuel']['feed_leu']['Li7'], 67.75331008246572)

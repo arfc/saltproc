@@ -288,7 +288,7 @@ def reprocess_materials(mats):
         print("Material mass before reprocessing: %f g" % inmass[mat_name])
         if mat_name == 'fuel' and material_for_extraction == 'fuel':
             for i, path in enumerate(extraction_process_paths):
-                forked_mats[mat_name].append(copy.deepcopy(mats[mat_name]))
+                forked_mats[mat_name].append(initial_material)
                 print("Material mass: %f" % initial_material.mass)
                 for proc in path:
                     # Calculate fraction of the flow going to the process proc
@@ -296,7 +296,7 @@ def reprocess_materials(mats):
                                     processes['core_outlet'].mass_flowrate)
                     print('Process: %s, divisor=%f' % (proc, divisor))
                     # Update materialflow by multiplying it by flow fraction
-                    thru_flow, waste_stream = processes[proc].process_material(divisor * copy.deepcopy(forked_mats[mat_name][i]))
+                    thru_flow, waste_stream = processes[proc].process_material(divisor * forked_mats[mat_name][i])
                     waste_streams[mat_name]['waste_' + proc] = waste_stream
                     forked_mats[mat_name][i] = thru_flow
             # Sum all forked material objects together

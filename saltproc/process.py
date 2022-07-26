@@ -113,9 +113,8 @@ class Process():
                 waste_nucvec[nuc] = 0.0  # zeroes everywhere else
         waste_stream = Materialflow(waste_nucvec)
         # need to do this copy to pass tests
-        thru_flow = copy.deepcopy(inflow)
+        thru_flow = Materialflow(thru_nucvec)
         thru_flow.mass = float(inflow.mass - waste_stream.mass)
-        thru_flow.comp = thru_nucvec
         thru_flow.norm_comp()
         print("Xe concentration in thruflow: %f g" % thru_flow['Xe136'])
         print("Waste mass: %f g\n" % waste_stream.mass)
