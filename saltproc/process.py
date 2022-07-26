@@ -27,7 +27,8 @@ class Process():
             ``key``
                 element name for removal (not isotope)
             ``value``
-                removal efficency for the isotope as a weight fraction (float) or a function eps(x,m,t,P,L) (str)
+                removal efficency for the isotope as a weight fraction (float)
+                or a function eps(x,m,t,P,L) (str)
         optional_parameter : float
             user can define any custom parameter in the input file describing
             processes and use it in efficiency function
@@ -76,9 +77,9 @@ class Process():
         np.testing.assert_array_equal(out_stream, self.inflow)
 
     def process_material(self, inflow):
-        """Updates :class:`Materialflow` object `inflow` by removing target nuclides
-        with specific efficiencies in single component of fuel reprocessing
-        system and returns waste stream Materialflow object.
+        """Updates :class:`Materialflow` object `inflow` by removing target
+        nuclides with specific efficiencies in single component of fuel
+        reprocessing system and returns waste stream Materialflow object.
 
         Parameters
         ----------
@@ -98,26 +99,32 @@ class Process():
         thru_nucvec = {}
         # print("Xe concentration in inflow before % f g" % inflow['Xe136'])
         # print("Current time %f" % (t))
+
         for nuc in inflow.comp.keys():
             nuc_name = pyname.serpent(nuc).split('-')[0]
             if nuc_name in self.efficiency:
                 # Evaluate removal efficiency for nuc_name (float)
-                self.efficiency[nuc_name] = self.calculate_removal_efficiency(nuc_name)
+                self.efficiency[nuc_name] = \
+                    self.calculate_removal_efficiency(nuc_name)
+
                 thru_nucvec[nuc] = \
                     float(inflow.comp[nuc]) * \
                     float(1.0 - self.efficiency[nuc_name])
+
                 waste_nucvec[nuc] = \
                     float(inflow[nuc]) * self.efficiency[nuc_name]
             else:
                 thru_nucvec[nuc] = float(inflow.comp[nuc])
                 waste_nucvec[nuc] = 0.0  # zeroes everywhere else
+
         waste_stream = Materialflow(waste_nucvec)
-        # need to do this copy to pass tests
         thru_flow = Materialflow(thru_nucvec)
         thru_flow.mass = float(inflow.mass - waste_stream.mass)
         thru_flow.norm_comp()
+
         print("Xe concentration in thruflow: %f g" % thru_flow['Xe136'])
         print("Waste mass: %f g\n" % waste_stream.mass)
-        del thru_nucvec, waste_nucvec, nuc_name
-        return thru_flow, waste_stream
 
+        del thru_nucvec, waste_nucvec, nuc_name
+
+        return thru_flow, waste_stream

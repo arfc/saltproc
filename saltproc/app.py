@@ -155,8 +155,9 @@ def get_extraction_processes():
     """Parses ``extraction_processes`` objects from the `.json` file describing
     processing system objects.
 
-    ``extraction_processes`` objects describe components that would perform fuel
-    processing in a real reactor, such as a gas sparger or a nickel filter.
+    ``extraction_processes`` objects describe components that would perform
+    fuel processing in a real reactor, such as a gas sparger or a nickel
+    filter.
 
     Returns
     -------
@@ -166,30 +167,35 @@ def get_extraction_processes():
         ``key``
             Name of burnable material.
         ``value``
-            Dictionary mapping process names to :class:`saltproc.process.Process` objects.
+            Dictionary mapping process names to
+            :class:`saltproc.process.Process` objects.
 
     """
     extraction_processes = OrderedDict()
     with open(spc_inp_file) as f:
         j = json.load(f)
-        for mat_name in j:
+        for mat_name, procs in j.items():
             extraction_processes[mat_name] = OrderedDict()
-            for proc_name, proc_data in j[mat_name]['extraction_processes'].items():
+            for proc_name, proc_data in procs['extraction_processes'].items():
                 print("Processs object data: ", proc_data)
                 st = proc_data['efficiency']
                 if proc_name == 'sparger' and st == "self":
-                    extraction_processes[mat_name][proc_name] = Sparger(**proc_data)
+                    extraction_processes[mat_name][proc_name] = \
+                        Sparger(**proc_data)
                 elif proc_name == 'entrainment_separator' and st == "self":
-                    extraction_processes[mat_name][proc_name] = Separator(**proc_data)
+                    extraction_processes[mat_name][proc_name] = \
+                        Separator(**proc_data)
                 else:
-                    extraction_processes[mat_name][proc_name] = Process(**proc_data)
+                    extraction_processes[mat_name][proc_name] = \
+                        Process(**proc_data)
 
         gc.collect()
         return extraction_processes
 
 
 def get_feeds():
-    """Parses ``feed`` objects from `.json` file describing processing system objects.
+    """Parses ``feed`` objects from `.json` file describing processing system
+    objects.
 
     ``feed`` objects describe material flows that replace nuclides needed to
     keep the reactor operating that were removed during reprocessing.
@@ -202,7 +208,8 @@ def get_feeds():
             Name of burnable material.
         ``value``
             Dictionary mapping material flow names to
-            :class:`saltproc.materialflow.Materialflow` objects representing material feeds.
+            :class:`saltproc.materialflow.Materialflow` objects representing
+            material feeds.
 
     """
     feeds = OrderedDict()
@@ -256,8 +263,9 @@ def reprocess_materials(mats):
     Parameters
     ----------
     mats : dict of str to Materialflow
-        Dictionary that contains :class:`saltproc.materialflow.Materialflow` objects with burnable material
-        data right after irradiation in the core.
+        Dictionary that contains :class:`saltproc.materialflow.Materialflow`
+        objects with burnable material data right after irradiation in the
+        core.
 
     Returns
     -------
@@ -267,45 +275,61 @@ def reprocess_materials(mats):
         ``key``
             Material name.
         ``value``
-            Dictionary mapping waste stream names to :class:`saltproc.materialflow.Materialflow`
+            Dictionary mapping waste stream names to
+            :class:`saltproc.materialflow.Materialflow`
             objects representing waste streams.
     extracted_mass: dict of str to float
-        Dictionary mapping material names to the mass in [g] of that material removed
-        via reprocessing.
+        Dictionary mapping material names to the mass in [g] of that material
+        removed via reprocessing.
 
     """
     inmass = {}
     extracted_mass = {}
     waste_streams = OrderedDict()
     forked_mats = OrderedDict()
+
     extraction_processes = get_extraction_processes()
-    material_for_extraction, extraction_process_paths = get_extraction_process_paths(dot_inp_file)
-    for mat_name, processes in extraction_processes.items():  # iterate over materials
+    material_for_extraction, extraction_process_paths = \
+        get_extraction_process_paths(dot_inp_file)
+
+    # iterate over materials
+    for mat_name, processes in extraction_processes.items():
         initial_material = mats[mat_name]
         waste_streams[mat_name] = {}
         forked_mats[mat_name] = []
+
         inmass[mat_name] = float(initial_material.mass)
         print("Material mass before reprocessing: %f g" % inmass[mat_name])
+
         if mat_name == 'fuel' and material_for_extraction == 'fuel':
             for i, path in enumerate(extraction_process_paths):
                 forked_mats[mat_name].append(initial_material)
                 print("Material mass: %f" % initial_material.mass)
+
                 for proc in path:
                     # Calculate fraction of the flow going to the process proc
                     divisor = float(processes[proc].mass_flowrate /
                                     processes['core_outlet'].mass_flowrate)
                     print('Process: %s, divisor=%f' % (proc, divisor))
                     # Update materialflow by multiplying it by flow fraction
-                    thru_flow, waste_stream = processes[proc].process_material(divisor * forked_mats[mat_name][i])
+
+                    thru_flow, waste_stream = \
+                        processes[proc].process_material(
+                            divisor * forked_mats[mat_name][i])
+
                     waste_streams[mat_name]['waste_' + proc] = waste_stream
                     forked_mats[mat_name][i] = thru_flow
+
             # Sum all forked material objects together
             # initilize correct obj instance
             mats[mat_name] = forked_mats[mat_name][0]
             for idx in range(1, len(forked_mats[mat_name])):
                 mats[mat_name] += forked_mats[mat_name][idx]
-            print('1 Forked material mass: %f' % (forked_mats[mat_name][0].mass))
-            print('2 Forked material mass: %f' % (forked_mats[mat_name][1].mass))
+
+            print('1 Forked material mass: %f' %
+                  (forked_mats[mat_name][0].mass))
+            print('2 Forked material mass: %f' %
+                  (forked_mats[mat_name][1].mass))
             print('\nMass balance: %f g = %f + %f + %f + %f + %f + %f' %
                   (inmass[mat_name],
                    mats[mat_name].mass,
@@ -314,13 +338,22 @@ def reprocess_materials(mats):
                    waste_streams[mat_name]['waste_nickel_filter'].mass,
                    waste_streams[mat_name]['waste_bypass'].mass,
                    waste_streams[mat_name]['waste_liquid_metal'].mass))
+
         # Bootstrap for many materials
         if mat_name == 'ctrlPois':
-            thru_flow, waste_stream = processes['removal_tb_dy'].process_material(mats[mat_name])
+            thru_flow, waste_stream = \
+                processes['removal_tb_dy'].process_material(mats[mat_name])
+
             waste_streams[mat_name]['removal_tb_dy'] = waste_stream
             mats[mat_name] = thru_flow
-        extracted_mass[mat_name] = inmass[mat_name] - float(mats[mat_name].mass)
-    del extraction_processes, inmass, mat_name, processes, forked_mats, material_for_extraction, extraction_process_paths, divisor, thru_flow, waste_stream
+
+        extracted_mass[mat_name] = \
+            inmass[mat_name] - float(mats[mat_name].mass)
+
+    del extraction_processes, inmass, mat_name, processes, forked_mats
+    del material_for_extraction, extraction_process_paths, divisor
+    del thru_flow, waste_stream
+
     return waste_streams, extracted_mass
 
 
@@ -330,20 +363,22 @@ def refill_materials(mats, extracted_mass, waste_streams):
     Parameters
     ----------
     mats : dict of str to Materialflow
-        Dicitionary mapping material names to :class:`saltproc.materialflow.Materialflow` objects
-        that have already been reprocessed by `reprocess_materials`.
+        Dicitionary mapping material names to
+        :class:`saltproc.materialflow.Materialflow` objects that have already
+        been reprocessed by `reprocess_materials`.
 
     extracted_mass : dict of str to float
-        Dictionary mapping material names to the mass in [g] of that material removed
-        via reprocessing.
+        Dictionary mapping material names to the mass in [g] of that material
+        removed via reprocessing.
     waste_streams : dict of str to dict
         Dictionary mapping material names to waste streams from reprocessing
 
         ``key``
             Material name.
         ``value``
-            Dictionary mapping waste stream names to :class:`saltproc.materialflow.Materialflow`
-            objects representing waste streams.
+            Dictionary mapping waste stream names to
+            :class:`saltproc.materialflow.Materialflow` objects representing
+            waste streams.
 
     Returns
     -------
@@ -363,7 +398,8 @@ def refill_materials(mats, extracted_mass, waste_streams):
             refill_mats[mat] = scale * feed
             waste_streams[mat]['feed_' + str(feed_name)] = refill_mats[mat]
         mats[mat] += refill_mats[mat]
-        print('Refilled fresh material: %s %f g' % (mat, refill_mats[mat].mass))
+        print('Refilled fresh material: %s %f g' %
+              (mat, refill_mats[mat].mass))
         print('Refill Material: ^^^', refill_mats[mat].print_attr())
         print('Fuel after refill: ^^^', mats[mat].print_attr())
     return waste_streams
@@ -476,7 +512,9 @@ def run():
         # print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
         #       (mats['ctrlPois'].mass,
         #        mats['ctrlPois'].vol))
-        waste_and_feed_streams = refill_materials(mats, extracted_mass, waste_streams)
+        waste_and_feed_streams = refill_materials(mats,
+                                                  extracted_mass,
+                                                  waste_streams)
         print("\nMass and volume of fuel after REFILL: %f g; %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))

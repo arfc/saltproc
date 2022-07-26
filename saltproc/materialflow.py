@@ -4,7 +4,8 @@ from collections import Counter
 
 
 class Materialflow(pymat):
-    """ Class contains information about burnable material flow. Based on :class:`pyne.Material`.
+    """ Class contains information about burnable material flow. Based on
+    :class:`pyne.Material`.
     """
 
     def __init__(
