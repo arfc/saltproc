@@ -1,14 +1,13 @@
 Overview
 =========
 
-SaltProc couples directly with the Monte Carlo neutron transport code Serpent 2
-and enables sophisticated, multi-component online fuel reprocessing system
+SaltProc couples directly with a variety of Monte Carlo neutron transport codes with depletion capabilities and enables sophisticated, multi-component online fuel reprocessing system
 modeling. SaltProc is the first open-source tool for liquid-fueled MSR
 depletion simulation with the following capabilities:
 
 - neutron poison removal with user-defined efficiency,
 - make-up mass loss by fresh fuel injection,
-- reactivity control by adjusting fuel feed rate or geometry change,
+- reactivity control by adjusting fuel feed rate or reactor geometry (i.e. control rod depth),
 - can model any reactor design,
 - potentially, can couple with any depletion tool (i.e., MCNP, SCALE, OpenMC).
 
@@ -16,18 +15,18 @@ depletion simulation with the following capabilities:
 How SaltProc works
 -------------------
 
-SaltProc is a driver for Serpent to simulate online fuel salt reprocessing for
+SaltProc is a driver for Monte Carlo transport codes with depletion capabilities (henceforth referred to as *transport-depletion codes*) to simulate online fuel salt reprocessing for
 Molten Salt Reactors. It performs following major functions:
 
-  - runs SERPENT
-  - parses and stores Serpent output data in HDF5
+  - runs the transport-depletion code
+  - parses and stores depleted material data in HDF5
   - modifies parsed material composition (`reprocesses`)
-  - creates Serpent input file
+  - creates a new transport-depletion code input file
 
 
 The code logic flow is the following:
 
-  1. Runs Serpent (`saltproc.depcode.run_depcode()`)
+  1. Runs the transport-depletion code (`saltproc.depcode.run_depcode()`)
   2. Parses through the output `*_dep.m` file and creates PyNE Material object
      for each burnable material.
   3. Processes Fuel (`saltproc.app.reprocessing()` and `saltproc.refill`):
@@ -73,11 +72,12 @@ An example is given below. In the example, capacity and mass flow rate are in
 						   "volume": 11 }
 
 The Future
------------
+----------
 
-A number of features will be implemented in SaltProc soon. Support of various
-depletion codes (e.g., OpenMC) will be added.
+.. _issues page on GitHub: https://github.com/arfc/saltproc/issues
 
+A number of features will be implemented in SaltProc soon. Take a look at the 
+`issues page on GitHub`_ to see what we are working on.
 
 .. warning::
 

@@ -14,7 +14,7 @@ to SaltProc.
    release notes for updates!
 
 If you're new to software development, please familiarize yourself with the
-`git workflow`_ before getting started. We'll be using terminoigy
+`git workflow`_ before getting started. We'll be using terminology
 in this developer's guide that relies on understanding it.
 
 .. toctree::
