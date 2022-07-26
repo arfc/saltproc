@@ -395,19 +395,15 @@ def refill(mats, extracted_mass, waste_dict):
 def _create_depcode_object():
     """Helper function for `run()` """
     if depcode_inp['codename'] == 'serpent':
-        iter_inputfile = os.path.join(
-            output_path, 'serpent_iter_input.serpent')
-        iter_matfile = os.path.join(
-            output_path, 'serpent_iter_matfile.ini')
-        depcode = DepcodeSerpent()
-    elif depcode_inp['codename'] == 'openmc':
-        iter_inputfile = {}
-        for key in depcode_inp['template_input_file_path']:
-            iter_inputfile[key] = \
-                os.path.join(output_path, key + '.xml')
-
-        iter_matfile = os.path.join(output_path, 'materals.xml')
-        depcode = DepcodeOpenMC()
+        depcode = DepcodeSerpent(
+            exec_path=depcode_inp['exec_path'],
+            template_inputfile_path=depcode_inp['template_inputfile_path'],
+            iter_inputfile=depcode_inp['iter_inputfile'],
+            iter_matfile=depcode_inp['iter_matfile'],
+            geo_files=depcode_inp['geo_file_paths'],
+            npop=depcode_inp['npop'],
+            active_cycles=depcode_inp['active_cycles'],
+            inactive_cycles=depcode_inp['inactive_cycles'])
     else:
         raise ValueError(
             f'{depcode_inp["codename"]} is not a supported depletion code')
