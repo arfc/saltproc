@@ -6,8 +6,8 @@ import copy
 
 
 class Process():
-    """Class describes process which must be applied to Materialflow to change
-     burnable material composition.
+    """Represents an aribtrary processing component that extracts nuclides from
+    a material.
      """
 
     def __init__(self, *initial_data, **kwargs):
