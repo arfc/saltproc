@@ -13,10 +13,10 @@ main_input = directory + '/test.json'
 dot_input = directory + '/test.dot'
 
 serpent = DepcodeSerpent(exec_path='sss2',
-                         template_inputfile_path=directory + '/template.inp',
-                         iter_inputfile=iter_inputfile,
-                         iter_matfile=directory + '/material',
+                         template_input_file_path=directory + '/template.inp',
                          geo_files=None)
+serpent.iter_inputfile = iter_inputfile
+serpent.iter_matfile = directory + '/material'
 
 
 def test_read_main_input():

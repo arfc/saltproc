@@ -8,4 +8,3 @@ To preprocess file with material composition:
 2) Run Python-script to read Serpent output and generate file with material composition.
 
 Number of burnable materials is not limited. Non-burnable materials must be kept it separate file.
-

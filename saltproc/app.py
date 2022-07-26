@@ -1,4 +1,5 @@
 from saltproc import DepcodeSerpent
+from saltproc import DepcodeOpenMC
 from saltproc import Simulation
 from saltproc import Materialflow
 from saltproc import Process
@@ -133,8 +134,18 @@ def read_main_input(main_inp_file):
         simulation_inp = j['simulation']
         reactor_inp = j['reactor']
 
-        depcode_inp['template_inputfile_path'] = os.path.join(
-            input_path, depcode_inp['template_inputfile_path'])
+        if depcode_inp['codename'] == 'serpent':
+            depcode_inp['template_input_file_path'] = os.path.join(
+                input_path, depcode_inp['template_input_file_path'])
+        elif depcode_inp['codename'] == 'openmc':
+            for key in depcode_inp['template_input_file_path']:
+                value = depcode_inp['template_input_file_path'][key]
+                depcode_inp['template_input_file_path'][key] = \
+                    os.path.join(input_path, value)
+        else:
+            raise ValueError(
+                f'{depcode_inp["codename"]} is not a supported depletion code')
+
         geo_list = depcode_inp['geo_file_paths']
 
         # Global geometry file paths
@@ -144,10 +155,6 @@ def read_main_input(main_inp_file):
         depcode_inp['geo_file_paths'] = geo_file_paths
 
         # Global output file paths
-        depcode_inp['iter_inputfile'] = os.path.join(
-            output_path, depcode_inp['iter_inputfile'])
-        depcode_inp['iter_matfile'] = os.path.join(
-            output_path, depcode_inp['iter_matfile'])
         db_name = os.path.join(
             output_path, simulation_inp['db_name'])
         simulation_inp['db_name'] = db_name
@@ -348,6 +355,8 @@ def refill(mats, extracted_mass, waste_dict):
         ``value``
             `Materialflow` object after performing all removals.
     extracted_mass : dict of str to float
+
+        ``key``
             Name of burnable material.
         ``value``
             Mass removed as waste in reprocessing function for each material.
@@ -386,15 +395,19 @@ def refill(mats, extracted_mass, waste_dict):
 def _create_depcode_object():
     """Helper function for `run()` """
     if depcode_inp['codename'] == 'serpent':
-        depcode = DepcodeSerpent(
-            exec_path=depcode_inp['exec_path'],
-            template_inputfile_path=depcode_inp['template_inputfile_path'],
-            iter_inputfile=depcode_inp['iter_inputfile'],
-            iter_matfile=depcode_inp['iter_matfile'],
-            geo_files=depcode_inp['geo_file_paths'],
-            npop=depcode_inp['npop'],
-            active_cycles=depcode_inp['active_cycles'],
-            inactive_cycles=depcode_inp['inactive_cycles'])
+        iter_inputfile = os.path.join(
+            output_path, 'serpent_iter_input.serpent')
+        iter_matfile = os.path.join(
+            output_path, 'serpent_iter_matfile.ini')
+        depcode = DepcodeSerpent()
+    elif depcode_inp['codename'] == 'openmc':
+        iter_inputfile = {}
+        for key in depcode_inp['template_input_file_path']:
+            iter_inputfile[key] = \
+                os.path.join(output_path, key + '.xml')
+
+        iter_matfile = os.path.join(output_path, 'materals.xml')
+        depcode = DepcodeOpenMC()
     else:
         raise ValueError(
             f'{depcode_inp["codename"]} is not a supported depletion code')
@@ -510,6 +523,6 @@ def run():
               simulation.burn_time)
         print("Simulation succeeded.\n")
         '''print("Reactor object data.\n",
-              msr.mass_flowrate,
+        msr.mass_flowrate,
               msr.power_levels,
               msr.dep_step_length_cumulative)'''

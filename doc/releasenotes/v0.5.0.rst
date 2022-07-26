@@ -1,0 +1,158 @@
+========================
+Release notes for v0.5.0
+========================
+
+.. note:: These release notes are currently in production.
+
+..
+  When documenting a bug fix or feature, please do so in the following format
+
+..
+  - `Fixed typo in depcode.py <https://github.com/arfc/saltproc/pull/xx>`_ by @pr_author_username
+
+..
+  Links to packages/issues/bug fixes/contributors/reviewers
+
+
+.. _openmc: https://github.com/openmc-dev/openmc
+.. _@yardasol: https://github.com/yardasol
+
+
+
+
+Summary
+=======
+
+.. 
+  Describe generally the features of this release
+
+
+This release adds support for ``OpenMC`` in ``SaltProc`` via the addition of
+the ``DepcodeOpenMC`` class
+
+
+
+Dependency Changes
+==================
+
+..
+  Describe any new/removed/modified package dependencies
+
+
+- ``SaltProc`` now optionally requires the following package:
+
+  - (new) → `openmc`_
+  
+- ``pyne>=0.5.11`` → ``pyne>=0.5.11=nomoab_noopenmc*``
+  
+
+
+New Features
+============
+
+..
+  Describe any new features to the code.
+
+- ``openmc`` support via `DepcodeOpenMC`
+
+
+
+Bug Fixes
+=========
+
+..
+  Describe any bug fixes.
+
+
+
+
+Script Changes
+==============
+
+..
+  Describe any script additions/modifications/removals
+
+
+
+- Added convenience features to ``process_j312.bash``
+
+  - Control flow check for an ``XSDIR`` environment variable set by the user. This variable should point to the location where the user would like the library to be installed
+  - Commands to download and run the ``xsdirconvert.pl`` script (found on the Serpent wiki) to convert the MCNP ``.dir`` style file to the Serpent ``.xsdata`` style file
+  - Add ``SERPENT_DATA`` and ``SERPENT_ACELIB`` variables to ``.bashrc``
+
+- A new script, ``scripts/ci/openmc-xs.bash``, that downloads the OpenMC HDF5 cross section library.
+
+
+
+Python API Changes
+==================
+
+..
+  Describe any changes to the API
+
+
+- Input file format changes:
+
+  - ``depcode['template_inputfile_path']`` → ``depcode['template_input_file_path']``
+  - The ``depcode['template_input_file_path']`` input variable now has the following depletion-code-depentent types:
+    
+    - ``str`` for ``Serpent2``
+    - ``dict`` of ``str`` to ``str`` for ``openmc``
+
+  - ``depcode['iter_inputfile']`` → (removed)
+  - ``depcode['iter_matfile']`` → (removed)
+
+.. note:: While the ``iter_inputfile`` and ``iter_matfile`` variables have been removed from the saltproc input file,
+   they remain part of the ``DepcodeSerpent`` class as attributes. Their use is unchanged, save for the fact they can no
+   longer be initialized by the user during object creation.
+
+
+- New/changed classes and methods:
+
+  - ``Depcode``
+
+    - ``template_inputfile_path`` → ``template_input_file_path``
+    - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
+
+  - ``DepcodeSerpent``
+
+    - ``template_inputfile_path`` → ``template_input_file_path``
+    - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
+
+
+  - ``DepcodeOpenmc`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
+
+    - ``run_depcode()``
+    - ``switch_to_next_geometry()``
+    - ``write_depcode_input()``
+    - ``write_depletion_settings()``
+    - ``write_saltproc_openmc_tallies()``
+
+
+
+Contributors
+============
+..
+  List of people who contributed features and fixes to this release
+
+The following people contributed code to this release of SaltProc:
+
+..
+  `@gh_username <https://github.com/gh_uname>`_
+
+- `@yardasol`_
+
+
+
+
+Reviewers
+=========
+..
+  List of people who reviewed PRs for this release
+
+The following people reviewed code for this release of SaltProc:
+
+..
+  `@gh_username <https://github.com/gh_uname>`_
+
+

@@ -16,12 +16,14 @@ dot_input = directory + '/test.dot'
 
 serpent = DepcodeSerpent(
     exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-    template_inputfile_path=directory + '/template.inp',
-    iter_inputfile=iter_inputfile,
-    iter_matfile=directory + '/material',
+    template_input_file_path=directory + '/template.inp',
     geo_files=[
         '../../examples/406.inp',
         '../../examples/988.inp'])
+
+serpent.iter_inputfile = iter_inputfile
+serpent.iter_matfile = directory + '/material'
+
 
 simulation = Simulation(sim_name='Simulation unit tests',
                         sim_depcode=serpent,

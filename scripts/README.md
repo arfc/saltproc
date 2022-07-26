@@ -6,9 +6,7 @@ of your SaltProc simulations.
 The script in this directory downloads and processes the JEFF 
 3.1.2 cross section library -- as well as spontaneous and delayed fission neutron and
 decay data -- for running the integration tests 
-on a UNIX-like machine. Set the `DATADIR` variable inside 
-the script to the directory where you want to store the cross 
-section libraries.
+on a UNIX-like machine.
 
 By default, the script will only download the thermal and 900K 
 cross section libraries. If you want data at more temperatures,
@@ -19,5 +17,9 @@ which will download and process the libraries at all available temperatures.
 
 To run the script, execute
 ```
-source process_j312.bash
+XSDIR=[PATH TO XSDIR] bash process_j312.bash
 ```
+
+Where `XSDIR` is a path to the directory where you want to store the cross 
+section libraries. Running the script without setting `XSDIR` will install the cross section library in the current working directory.
+

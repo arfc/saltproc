@@ -4,17 +4,22 @@
    "output_path": "./data",
    "num_depsteps": 2,
    "depcode": {
-       "codename": "serpent",
-       "exec_path": "sss2",
-       "template_input_file_path": "./tap_test1.serpent",
+       "codename": "openmc",
+       "exec_path": "openmc",
+       "template_input_file_path": {
+           "geometry": "./geometry.xml",
+           "materials": "./materials.xml",
+           "settings": "./settings.xml",
+           "chain_file": "./test_chain.xml"
+       },
        "npop": 50,
        "active_cycles": 20,
        "inactive_cycles": 20,
-       "geo_file_paths": ["./347_base.ini"]
+       "geo_file_paths": ["./new_material.xml"]
    },
    "simulation": {
-       "sim_name": "test_simulation",
-       "db_name": "db_saltproc.h5",
+       "sim_name": "test_simulation_openmc",
+       "db_name": "db_saltproc_openmc.h5",
        "restart_flag": false,
        "adjust_geo": false
    },

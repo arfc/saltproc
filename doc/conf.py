@@ -76,7 +76,8 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'sphinx_multiversion']
+    'sphinx_multiversion',
+    'sphinx-jsonschema']
 
 # apidoc settings
 apidoc_module_dir = '../saltproc/'
