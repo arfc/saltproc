@@ -285,28 +285,28 @@ def reprocess_materials(mats):
         waste_streams[mat_name] = {}
         forked_mats[mat_name] = []
         inmass[mat_name] = float(initial_material.mass)
-        print("Material mass before reprocessing %f g" % inmass[mat_name])
+        print("Material mass before reprocessing: %f g" % inmass[mat_name])
         if mat_name == 'fuel' and material_for_extraction == 'fuel':
             for i, path in enumerate(extraction_process_paths):
                 forked_mats[mat_name].append(copy.deepcopy(mats[mat_name]))
-                print("Material mass %f" % initial_material.mass)
+                print("Material mass: %f" % initial_material.mass)
                 for proc in path:
                     # Calculate fraction of the flow going to the process proc
                     divisor = float(processes[proc].mass_flowrate /
                                     processes['core_outlet'].mass_flowrate)
-                    print('Process %s, divisor=%f' % (proc, divisor))
+                    print('Process: %s, divisor=%f' % (proc, divisor))
                     # Update materialflow by multiplying it by flow fraction
-                    o, w = processes[proc].process_material(divisor * copy.deepcopy(forked_mats[mat_name][i]))
-                    waste_streams[mat_name]['waste_' + proc] = w
-                    forked_mats[mat_name][i] = o
+                    thru_flow, waste_stream = processes[proc].process_material(divisor * copy.deepcopy(forked_mats[mat_name][i]))
+                    waste_streams[mat_name]['waste_' + proc] = waste_stream
+                    forked_mats[mat_name][i] = thru_flow
             # Sum all forked material objects together
             # initilize correct obj instance
             mats[mat_name] = forked_mats[mat_name][0]
             for idx in range(1, len(forked_mats[mat_name])):
                 mats[mat_name] += forked_mats[mat_name][idx]
-            print('1 Forked material mass %f' % (forked_mats[mat_name][0].mass))
-            print('2 Forked material mass %f' % (forked_mats[mat_name][1].mass))
-            print('\nMass balance %f g = %f + %f + %f + %f + %f + %f' %
+            print('1 Forked material mass: %f' % (forked_mats[mat_name][0].mass))
+            print('2 Forked material mass: %f' % (forked_mats[mat_name][1].mass))
+            print('\nMass balance: %f g = %f + %f + %f + %f + %f + %f' %
                   (inmass[mat_name],
                    mats[mat_name].mass,
                    waste_streams[mat_name]['waste_sparger'].mass,
@@ -316,10 +316,11 @@ def reprocess_materials(mats):
                    waste_streams[mat_name]['waste_liquid_metal'].mass))
         # Bootstrap for many materials
         if mat_name == 'ctrlPois':
-            waste_streams[mat_name]['removal_tb_dy'] = \
-                processes['removal_tb_dy'].process_material(mats[mat_name])
+            thru_flow, waste_stream = processes['removal_tb_dy'].process_material(mats[mat_name])
+            waste_streams[mat_name]['removal_tb_dy'] = waste_stream
+            mats[mat_name] = thru_flow
         extracted_mass[mat_name] = inmass[mat_name] - float(mats[mat_name].mass)
-    del extraction_processes, inmass, mat_name, processes, forked_mats, material_for_extraction, extraction_process_paths, divisor, o, w
+    del extraction_processes, inmass, mat_name, processes, forked_mats, material_for_extraction, extraction_process_paths, divisor, thru_flow, waste_stream
     return waste_streams, extracted_mass
 
 
@@ -352,7 +353,7 @@ def refill_materials(mats, extracted_mass, waste_streams):
         representing those material feed streams.
 
     """
-    print('Fuel before refill ^^^', mats['fuel'].print_attr())
+    print('Fuel before refill: ^^^', mats['fuel'].print_attr())
     feeds = get_feeds()
     refill_mats = OrderedDict()
     for mat, mat_feeds in feeds.items():  # iterate over materials
@@ -362,9 +363,9 @@ def refill_materials(mats, extracted_mass, waste_streams):
             refill_mats[mat] = scale * feed
             waste_streams[mat]['feed_' + str(feed_name)] = refill_mats[mat]
         mats[mat] += refill_mats[mat]
-        print('Refilled fresh material %s %f g' % (mat, refill_mats[mat].mass))
-        print('Refill Material ^^^', refill_mats[mat].print_attr())
-        print('Fuel after refill ^^^', mats[mat].print_attr())
+        print('Refilled fresh material: %s %f g' % (mat, refill_mats[mat].mass))
+        print('Refill Material: ^^^', refill_mats[mat].print_attr())
+        print('Fuel after refill: ^^^', mats[mat].print_attr())
     return waste_streams
 
 
@@ -462,21 +463,21 @@ def run():
         simulation.store_mat_data(mats, dep_step, False)
         simulation.store_run_step_info()
         # Reprocessing here
-        print("\nMass and volume of fuel before reproc %f g; %f cm3" %
+        print("\nMass and volume of fuel before reproc: %f g; %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
         # print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
         #       (mats['ctrlPois'].mass,
         #        mats['ctrlPois'].vol))
         waste_streams, extracted_mass = reprocess_materials(mats)
-        print("\nMass and volume of fuel after reproc %f g; %f cm3" %
+        print("\nMass and volume of fuel after reproc: %f g; %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
         # print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
         #       (mats['ctrlPois'].mass,
         #        mats['ctrlPois'].vol))
-        waste_feed_st = refill_materials(mats, extracted_mass, waste_streams)
-        print("\nMass and volume of fuel after REFILL %f g; %f cm3" %
+        waste_and_feed_streams = refill_materials(mats, extracted_mass, waste_streams)
+        print("\nMass and volume of fuel after REFILL: %f g; %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
         # print("Mass and volume of ctrlPois after REFILL %f g; %f cm3" %
@@ -484,14 +485,14 @@ def run():
         #        mats['ctrlPois'].vol))
         print("Removed mass [g]:", extracted_mass)
         # Store in DB after reprocessing and refill (right before next depl)
-        simulation.store_after_repr(mats, waste_feed_st, dep_step)
+        simulation.store_after_repr(mats, waste_and_feed_streams, dep_step)
         depcode.write_mat_file(mats, simulation.burn_time)
         del mats, waste_streams, waste_feed_st, extracted_mass
         gc.collect()
         # Switch to another geometry?
         if simulation.adjust_geo and simulation.read_k_eds_delta(dep_step):
             depcode.switch_to_next_geometry()
-        print("\nTime at the end of current depletion step %fd" %
+        print("\nTime at the end of current depletion step: %fd" %
               simulation.burn_time)
         print("Simulation succeeded.\n")
         '''print("Reactor object data.\n",
