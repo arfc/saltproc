@@ -59,17 +59,17 @@ def test_get_feeds():
     assert feeds['fuel']['leu']['U238'] == 293096800.37484
 
 
-def test_read_dot():
-    burnable_mat, paths = app.read_dot(dot_input)
+def test_get_extraction_process_paths():
+    burnable_mat, paths = app.get_extraction_process_paths(dot_input)
     assert burnable_mat == 'fuel'
     assert paths[0][1] == 'sparger'
     assert paths[1][-2] == 'heat_exchanger'
     assert np.shape(paths) == (2, 7)
 
 
-def test_reprocessing():
+def test_reprocess_materials():
     mats = serpent.read_dep_comp(True)
-    waste_st, rem_mass = app.reprocessing(mats)
+    waste_st, rem_mass = app.reprocess_materials(mats)
     assert rem_mass['fuel'] == 1401.0846504569054
     assert rem_mass['ctrlPois'] == 0.0
     assert waste_st['fuel']['waste_sparger']['Xe135'] == 11.878661583083327
@@ -77,10 +77,10 @@ def test_reprocessing():
     assert waste_st['fuel']['waste_liquid_metal']['Sr90'] == 0.7486923392931839
 
 
-def test_refill():
+def test_refill_materials():
     mats = serpent.read_dep_comp(True)
-    waste_st, rem_mass = app.reprocessing(mats)
-    m_after_refill = app.refill(mats, rem_mass, waste_st)
+    waste_st, rem_mass = app.reprocess_materials(mats)
+    m_after_refill = app.refill_materials(mats, rem_mass, waste_st)
     assert m_after_refill['fuel']['feed_leu']['U235'] == 43.573521906078334
     assert m_after_refill['fuel']['feed_leu']['U238'] == 827.8969156550545
     assert m_after_refill['fuel']['feed_leu']['F19'] == 461.8575149906222
