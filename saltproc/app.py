@@ -247,7 +247,7 @@ def get_extraction_process_paths(dot_file):
     graph_pydot = pydotplus.graph_from_dot_file(dot_file)
     digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
     mat_name = digraph.name
-    # iterate over all possible paths between 'core_outlet' and 'core_inlet'
+    # Iterate over all possible paths between 'core_outlet' and 'core_inlet'
     all_simple_paths = nx.all_simple_paths(digraph,
                                            source='core_outlet',
                                            target='core_inlet')
@@ -286,7 +286,7 @@ def reprocess_materials(mats):
     inmass = {}
     extracted_mass = {}
     waste_streams = OrderedDict()
-    forked_mats = OrderedDict()
+    thru_flows = OrderedDict()
 
     extraction_processes = get_extraction_processes()
     material_for_extraction, extraction_process_paths = \
@@ -296,40 +296,39 @@ def reprocess_materials(mats):
     for mat_name, processes in extraction_processes.items():
         initial_material = mats[mat_name]
         waste_streams[mat_name] = {}
-        forked_mats[mat_name] = []
+        thru_flows[mat_name] = []
 
         inmass[mat_name] = float(initial_material.mass)
-        print("Material mass before reprocessing: %f g" % inmass[mat_name])
+        print(f"Mass of material '{mat_name}' before reprocessing: "
+              f"{inmass[mat_name]} g")
 
         if mat_name == 'fuel' and material_for_extraction == 'fuel':
             for i, path in enumerate(extraction_process_paths):
-                forked_mats[mat_name].append(initial_material)
-                print("Material mass: %f" % initial_material.mass)
+                thru_flows[mat_name].append(initial_material)
 
                 for proc in path:
                     # Calculate fraction of the flow going to the process proc
                     divisor = float(processes[proc].mass_flowrate /
                                     processes['core_outlet'].mass_flowrate)
-                    print('Process: %s, divisor=%f' % (proc, divisor))
-                    # Update materialflow by multiplying it by flow fraction
+                    print(f'Process: {proc}, divisor={divisor}')
 
+                    # Calculate waste stream and thru flow on proccess proc
                     thru_flow, waste_stream = \
                         processes[proc].process_material(
-                            divisor * forked_mats[mat_name][i])
+                            divisor * thru_flows[mat_name][i])
 
                     waste_streams[mat_name]['waste_' + proc] = waste_stream
-                    forked_mats[mat_name][i] = thru_flow
+                    thru_flows[mat_name][i] = thru_flow
 
-            # Sum all forked material objects together
-            # initilize correct obj instance
-            mats[mat_name] = forked_mats[mat_name][0]
-            for idx in range(1, len(forked_mats[mat_name])):
-                mats[mat_name] += forked_mats[mat_name][idx]
+            # Sum thru flows from all paths together
+            mats[mat_name] = thru_flows[mat_name][0]
+            print(f'1 Materal mass on path 0:'
+                      f'{thru_flows[mat_name][0].mass}')
+            for idx in range(1, i + 1):
+                mats[mat_name] += thru_flows[mat_name][idx]
+                print(f'{i + 1} Materal mass on path {i}:'
+                      f'{thru_flows[mat_name][i].mass}')
 
-            print('1 Forked material mass: %f' %
-                  (forked_mats[mat_name][0].mass))
-            print('2 Forked material mass: %f' %
-                  (forked_mats[mat_name][1].mass))
             print('\nMass balance: %f g = %f + %f + %f + %f + %f + %f' %
                   (inmass[mat_name],
                    mats[mat_name].mass,
@@ -350,7 +349,8 @@ def reprocess_materials(mats):
         extracted_mass[mat_name] = \
             inmass[mat_name] - float(mats[mat_name].mass)
 
-    del extraction_processes, inmass, mat_name, processes, forked_mats
+    # Clear memory
+    del extraction_processes, inmass, mat_name, processes, thru_flows
     del material_for_extraction, extraction_process_paths, divisor
     del thru_flow, waste_stream
 
@@ -388,12 +388,14 @@ def refill_materials(mats, extracted_mass, waste_streams):
         representing those material feed streams.
 
     """
-    print('Fuel before refill: ^^^', mats['fuel'].print_attr())
+    print('Fuel before refilling: ^^^', mats['fuel'].print_attr())
     feeds = get_feeds()
     refill_mats = OrderedDict()
-    for mat, mat_feeds in feeds.items():  # iterate over materials
+    # Get feed group for each material
+    for mat, mat_feeds in feeds.items():
         refill_mats[mat] = {}
-        for feed_name, feed in mat_feeds.items():  # works with one feed only
+        # Get each feed in the feed group
+        for feed_name, feed in mat_feeds.items():
             scale = extracted_mass[mat] / feed.mass
             refill_mats[mat] = scale * feed
             waste_streams[mat]['feed_' + str(feed_name)] = refill_mats[mat]
