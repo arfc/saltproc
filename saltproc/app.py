@@ -166,7 +166,7 @@ def get_extraction_processes():
         ``key``
             Name of burnable material.
         ``value``
-            Dictionary mapping process names to :class:`saltproc.Process` objects.
+            Dictionary mapping process names to :class:`saltproc.process.Process` objects.
 
     """
     extraction_processes = OrderedDict()
@@ -202,7 +202,7 @@ def get_feeds():
             Name of burnable material.
         ``value``
             Dictionary mapping material flow names to
-            :class:`saltproc.Materialflow` objects representing material feeds.
+            :class:`saltproc.materialflow.Materialflow` objects representing material feeds.
 
     """
     feeds = OrderedDict()
@@ -256,7 +256,7 @@ def reprocess_materials(mats):
     Parameters
     ----------
     mats : dict of str to Materialflow
-        Dictionary that contains :class:`Materialflow` objects with burnable material
+        Dictionary that contains :class:`saltproc.materialflow.Materialflow` objects with burnable material
         data right after irradiation in the core.
 
     Returns
@@ -267,7 +267,7 @@ def reprocess_materials(mats):
         ``key``
             Material name.
         ``value``
-            Dictionary mapping waste stream names to :class:`Materialflow`
+            Dictionary mapping waste stream names to :class:`saltproc.materialflow.Materialflow`
             objects representing waste streams.
     extracted_mass: dict of str to float
         Dictionary mapping material names to the mass in [g] of that material removed
@@ -330,7 +330,7 @@ def refill_materials(mats, extracted_mass, waste_streams):
     Parameters
     ----------
     mats : dict of str to Materialflow
-        Dicitionary mapping material names to :class:`Materialflow` objects
+        Dicitionary mapping material names to :class:`saltproc.materialflow.Materialflow` objects
         that have already been reprocessed by `reprocess_materials`.
 
     extracted_mass : dict of str to float
@@ -342,7 +342,7 @@ def refill_materials(mats, extracted_mass, waste_streams):
         ``key``
             Material name.
         ``value``
-            Dictionary mapping waste stream names to :class:`Materialflow`
+            Dictionary mapping waste stream names to :class:`saltproc.materialflow.Materialflow`
             objects representing waste streams.
 
     Returns
