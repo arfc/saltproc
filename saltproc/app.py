@@ -323,7 +323,7 @@ def reprocess_materials(mats):
             # Sum thru flows from all paths together
             mats[mat_name] = thru_flows[mat_name][0]
             print(f'1 Materal mass on path 0:'
-                      f'{thru_flows[mat_name][0].mass}')
+                  f'{thru_flows[mat_name][0].mass}')
             for idx in range(1, i + 1):
                 mats[mat_name] += thru_flows[mat_name][idx]
                 print(f'{i + 1} Materal mass on path {i}:'

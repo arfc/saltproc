@@ -113,7 +113,9 @@ class Process():
 
                 waste_nucvec[nuc] = \
                     float(inflow[nuc]) * self.efficiency[nuc_name]
-            else: # Assume zero removal
+
+            # Assume zero removal
+            else:
                 thru_nucvec[nuc] = float(inflow.comp[nuc])
                 waste_nucvec[nuc] = 0.0
 
