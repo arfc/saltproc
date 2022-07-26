@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../releasenotes/index.html">Release Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fileformatspec/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -91,12 +92,14 @@
 
 <span class="n">serpent</span> <span class="o">=</span> <span class="n">DepcodeSerpent</span><span class="p">(</span>
     <span class="n">exec_path</span><span class="o">=</span><span class="s1">&#39;/home/andrei2/serpent/serpent2/src_2131/sss2&#39;</span><span class="p">,</span>
-    <span class="n">template_inputfile_path</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/template.inp&#39;</span><span class="p">,</span>
-    <span class="n">iter_inputfile</span><span class="o">=</span><span class="n">iter_inputfile</span><span class="p">,</span>
-    <span class="n">iter_matfile</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/material&#39;</span><span class="p">,</span>
+    <span class="n">template_input_file_path</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/template.inp&#39;</span><span class="p">,</span>
     <span class="n">geo_files</span><span class="o">=</span><span class="p">[</span>
         <span class="s1">&#39;../../examples/406.inp&#39;</span><span class="p">,</span>
         <span class="s1">&#39;../../examples/988.inp&#39;</span><span class="p">])</span>
+
+<span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">iter_inputfile</span>
+<span class="n">serpent</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/material&#39;</span>
+
 
 <span class="n">simulation</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">sim_name</span><span class="o">=</span><span class="s1">&#39;Simulation unit tests&#39;</span><span class="p">,</span>
                         <span class="n">sim_depcode</span><span class="o">=</span><span class="n">serpent</span><span class="p">,</span>

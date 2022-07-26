@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SaltProc Input File &mdash; Saltproc 0.5.dev documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="HDF5 Output File" href="databasefile.html" />
+    <link rel="prev" title="File Format Specifications" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.5.dev
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../src/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">File Format Specifications</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">SaltProc Input File</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#saltproc-input-file-schema">SaltProc input file schema</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="databasefile.html">HDF5 Output File</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">File Format Specifications</a> &raquo;</li>
+      <li>SaltProc Input File</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/fileformatspec/inputfile.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="saltproc-input-file">
+<h1>SaltProc Input File<a class="headerlink" href="#saltproc-input-file" title="Permalink to this heading">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">allOf</span></code> block in under <code class="docutils literal notranslate"><span class="pre">depcode</span></code> picks out the correct schema for <code class="docutils literal notranslate"><span class="pre">template_inputfiles_path</span></code> based on the depletion code.</p>
+</div>
+<section id="saltproc-input-file-schema">
+<h2>SaltProc input file schema<a class="headerlink" href="#saltproc-input-file-schema" title="Permalink to this heading">¶</a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="7"><p><a class="reference external" href="https://github.com/arfc/saltproc">https://github.com/arfc/saltproc</a></p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="6"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="7"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>proc_input_file</strong></p></li>
+</ul>
+</td>
+<td colspan="6"><p>File containing processing system objects</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="5"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>pattern</p></td>
+<td colspan="5"><p>^(.*)\.json$</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p><strong>dot_input_file</strong></p></li>
+</ul>
+</td>
+<td colspan="6"><p>Graph file containing processing system structure</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="5"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>pattern</p></td>
+<td colspan="5"><p>^(.*)\.dot$</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>output_path</strong></p></li>
+</ul>
+</td>
+<td colspan="6"><p>Path output data storing folder</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="5"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>pattern</p></td>
+<td colspan="5"><p>^\.\/(.*)$</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>num_depsteps</p></li>
+</ul>
+</td>
+<td colspan="6"><p>Number of steps for constant power and depletion interval case</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="5"><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="50"><ul class="simple">
+<li><p><strong>depcode</strong></p></li>
+</ul>
+</td>
+<td colspan="6"><p>Depcode class input parameters</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="5"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="6"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>codename</strong></p></li>
+</ul>
+</td>
+<td colspan="5"><p>Name of depletion code</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="4"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>enum</p></td>
+<td colspan="4"><p>serpent, openmc</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>exec_path</strong></p></li>
+</ul>
+</td>
+<td colspan="5"><p>Path to depletion code executable</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="4"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p><strong>template_input_file_path</strong></p></li>
+</ul>
+</td>
+<td colspan="5"><p>Path(s) to user’s template depletion code input file(s) with reactor model</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>npop</strong></p></li>
+</ul>
+</td>
+<td colspan="5"><p>Number of neutrons per generation</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="4"><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td colspan="4"><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p><strong>active_cycles</strong></p></li>
+</ul>
+</td>
+<td colspan="5"><p>number of active generations</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="4"><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td colspan="4"><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>inactive_cycles</strong></p></li>
+</ul>
+</td>
+<td colspan="5"><p>Number of inactive generations</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="4"><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td colspan="4"><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p><strong>geo_file_paths</strong></p></li>
+</ul>
+</td>
+<td colspan="5"><p>Path(s) to geometry file(s) to switch to in depletion code runs</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="4"><p><em>array</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>items</p></td>
+<td><p>type</p></td>
+<td colspan="3"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minItems</p></td>
+<td colspan="4"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>uniqueItems</p></td>
+<td colspan="4"><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="27"><p>allOf</p></td>
+<td rowspan="2"><p>if</p></td>
+<td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>codename</p></li>
+</ul>
+</td>
+<td><p>const</p></td>
+<td colspan="2"><p>serpent</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><p>then</p></td>
+<td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>template_input_file_path</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Path to Serpent template inputfile</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>pattern</p></td>
+<td colspan="2"><p>^\.\/(.*)$</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><p>if</p></td>
+<td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>codename</p></li>
+</ul>
+</td>
+<td><p>const</p></td>
+<td colspan="2"><p>openmc</p></td>
+</tr>
+<tr class="row-even"><td rowspan="19"><p>then</p></td>
+<td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="18"><ul class="simple">
+<li><p>template_input_file_path</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Paths to OpenMC template input files</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>settings</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>OpenMC settings file</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>pattern</p></td>
+<td><p>^\.\/(.*)\.xml$</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p><strong>geometry</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>OpenMC geometry file</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>pattern</p></td>
+<td><p>^\.\/(.*)\.xml$</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>materials</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>OpenMC materials file</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>pattern</p></td>
+<td><p>^\.\/(.*)\.xml$</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>plots</p></li>
+</ul>
+</td>
+<td colspan="2"><p>OpenMC plots file (optional)</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>pattern</p></td>
+<td><p>^\.\/(.*)\.xml$</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>chain_file</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>OpenMC depletion chain file</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>pattern</p></td>
+<td><p>^\.\/(.*)\.xml$</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="12"><ul class="simple">
+<li><p><strong>simulation</strong></p></li>
+</ul>
+</td>
+<td colspan="6"><p>Simulation class input parameters</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="5"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="6"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p>sim_name</p></li>
+</ul>
+</td>
+<td colspan="5"><p>Name of simulation</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="4"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>db_name</p></li>
+</ul>
+</td>
+<td colspan="5"><p>Output HDF5 database file name</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="4"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>pattern</p></td>
+<td colspan="4"><p>^(.*)\.h5$</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>restart_flag</p></li>
+</ul>
+</td>
+<td colspan="5"><p>Restart simulation from the step when it stopped?</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="4"><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>adjust_geo</p></li>
+</ul>
+</td>
+<td colspan="5"><p>switch to another geometry when keff drops below 1?</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="4"><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="21"><ul class="simple">
+<li><p><strong>reactor</strong></p></li>
+</ul>
+</td>
+<td colspan="6"><p>Reactor class input parameters</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="5"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="6"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>volume</strong></p></li>
+</ul>
+</td>
+<td colspan="5"><p>reactor core volume [cm^3]</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="4"><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td colspan="4"><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p><strong>mass_flowrate</strong></p></li>
+</ul>
+</td>
+<td colspan="5"><p>Salt mass flowrate through reactor core [g/s]</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="4"><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td colspan="4"><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="6"><ul class="simple">
+<li><p><strong>power_levels</strong></p></li>
+</ul>
+</td>
+<td colspan="5"><p>Reactor power or power step list durng depletion step [W]</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="4"><p><em>array</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><p>items</p></td>
+<td><p>type</p></td>
+<td colspan="3"><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td colspan="3"><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>minItems</p></td>
+<td colspan="4"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>uniqueItems</p></td>
+<td colspan="4"><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="6"><ul class="simple">
+<li><p><strong>dep_step_length_cumulative</strong></p></li>
+</ul>
+</td>
+<td colspan="5"><p>Depletion step length(s) (cumulative) [d]</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="4"><p><em>array</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><p>items</p></td>
+<td><p>type</p></td>
+<td colspan="3"><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td colspan="3"><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>minItems</p></td>
+<td colspan="4"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>uniqueItems</p></td>
+<td colspan="4"><p>False</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="File Format Specifications" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="databasefile.html" class="btn btn-neutral float-right" title="HDF5 Output File" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: master
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="../../v0.3.0/index.html">v0.3.0</a></dd>
+      <dd><a href="../../v0.4.0/index.html">v0.4.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="inputfile.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

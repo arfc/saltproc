@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../releasenotes/index.html">Release Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fileformatspec/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -74,8 +75,10 @@
              
   <h1>Source code for saltproc.tests.test_depcode</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">DepcodeSerpent</span>
+<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">DepcodeSerpent</span><span class="p">,</span> <span class="n">DepcodeOpenMC</span>
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Reactor</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">openmc</span> <span class="k">as</span> <span class="nn">om</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
@@ -87,24 +90,56 @@
 <span class="c1"># global class object</span>
 <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
+<span class="c1"># Serpent initalization</span>
 <span class="n">serpent</span> <span class="o">=</span> <span class="n">DepcodeSerpent</span><span class="p">(</span>
     <span class="n">exec_path</span><span class="o">=</span><span class="s1">&#39;sss2&#39;</span><span class="p">,</span>
-    <span class="n">template_inputfile_path</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span>
+    <span class="n">template_input_file_path</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span>
     <span class="s1">&#39;/template.inp&#39;</span><span class="p">,</span>
-    <span class="n">iter_inputfile</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span>
-    <span class="s1">&#39;/test&#39;</span><span class="p">,</span>
-    <span class="n">iter_matfile</span><span class="o">=</span><span class="n">directory</span> <span class="o">+</span>
-    <span class="s1">&#39;/material&#39;</span><span class="p">,</span>
     <span class="n">geo_files</span><span class="o">=</span><span class="p">[</span>
         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">directory</span><span class="p">,</span>
             <span class="s1">&#39;../test_geo.inp&#39;</span><span class="p">)])</span>
+<span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/test&#39;</span>
+<span class="n">serpent</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/material&#39;</span>
+<span class="n">geo_test_input</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/test_geometry_switch.inp&#39;</span>
+
+<span class="c1"># Openmc initlialization</span>
+<span class="n">openmc_input_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;test_data/openmc/&#39;</span><span class="p">)</span>
+<span class="n">openmc_test_inputfiles</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;materials&quot;</span><span class="p">:</span> <span class="s2">&quot;test_materials.xml&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="s2">&quot;test_geometry.xml&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;settings&quot;</span><span class="p">:</span> <span class="s2">&quot;test_settings.xml&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;chain_file&quot;</span><span class="p">:</span> <span class="s2">&quot;test_chain.xml&quot;</span>
+<span class="p">}</span>
+
+<span class="n">openmc_iter_inputfiles</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="s2">&quot;geometry.xml&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;settings&quot;</span><span class="p">:</span> <span class="s2">&quot;settings.xml&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># prepend the correct paths to our</span>
+<span class="c1"># template and iter input files</span>
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">openmc_test_inputfiles</span><span class="p">:</span>
+    <span class="n">openmc_test_inputfiles</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">openmc_input_path</span><span class="p">,</span> <span class="n">openmc_test_inputfiles</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">openmc_iter_inputfiles</span><span class="p">:</span>
+    <span class="n">openmc_iter_inputfiles</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">directory</span><span class="p">,</span> <span class="n">openmc_iter_inputfiles</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+<span class="n">openmc</span> <span class="o">=</span> <span class="n">DepcodeOpenMC</span><span class="p">(</span>
+    <span class="n">exec_path</span><span class="o">=</span><span class="s1">&#39;../openmc_deplete.py&#39;</span><span class="p">,</span>
+    <span class="n">template_input_file_path</span><span class="o">=</span><span class="n">openmc_test_inputfiles</span><span class="p">,</span>
+    <span class="n">geo_files</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">openmc_input_path</span><span class="p">,</span>
+            <span class="s1">&#39;test_geometry_switch.xml&#39;</span><span class="p">)])</span>
+<span class="n">openmc</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">openmc_iter_inputfiles</span>
+<span class="n">openmc</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/materials.xml&#39;</span>
+
 
 <span class="n">msr</span> <span class="o">=</span> <span class="n">Reactor</span><span class="p">(</span><span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
               <span class="n">power_levels</span><span class="o">=</span><span class="p">[</span><span class="mf">1.250E+09</span><span class="p">,</span> <span class="mf">1.250E+09</span><span class="p">,</span> <span class="mf">5.550E+09</span><span class="p">],</span>
               <span class="n">dep_step_length_cumulative</span><span class="o">=</span><span class="p">[</span><span class="mf">111.111</span><span class="p">,</span> <span class="mf">2101.9</span><span class="p">,</span> <span class="mf">3987.5</span><span class="p">])</span>
-
-<span class="n">geo_test_input</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/test_geometry_switch.inp&#39;</span>
 
 
 <div class="viewcode-block" id="test_create_nuclide_name_map_zam_to_serpent"><a class="viewcode-back" href="../../../src/saltproc.tests.test_depcode.html#saltproc.tests.test_depcode.test_create_nuclide_name_map_zam_to_serpent">[docs]</a><span class="k">def</span> <span class="nf">test_create_nuclide_name_map_zam_to_serpent</span><span class="p">():</span>
@@ -131,7 +166,7 @@
 
 <div class="viewcode-block" id="test_read_plaintext_file"><a class="viewcode-back" href="../../../src/saltproc.tests.test_depcode.html#saltproc.tests.test_depcode.test_read_plaintext_file">[docs]</a><span class="k">def</span> <span class="nf">test_read_plaintext_file</span><span class="p">():</span>
     <span class="n">template_str</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span>
-        <span class="n">serpent</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">)</span>
+        <span class="n">serpent</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">template_str</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;%therm zrh_h 900 hzr05.32t hzr06.32t</span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="k">assert</span> <span class="n">template_str</span><span class="p">[</span><span class="mi">18</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;set pop 30 20 10</span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="k">assert</span> <span class="n">template_str</span><span class="p">[</span><span class="mi">22</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;set bumode  2</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -143,7 +178,7 @@
     <span class="n">serpent</span><span class="o">.</span><span class="n">active_cycles</span> <span class="o">=</span> <span class="mi">101</span>
     <span class="n">serpent</span><span class="o">.</span><span class="n">inactive_cycles</span> <span class="o">=</span> <span class="mi">33</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">change_sim_par</span><span class="p">(</span>
-        <span class="n">serpent</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">)</span>
+        <span class="n">serpent</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">assert</span> <span class="n">out</span><span class="p">[</span><span class="mi">18</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;set pop </span><span class="si">%i</span><span class="s1"> </span><span class="si">%i</span><span class="s1"> </span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
         <span class="n">serpent</span><span class="o">.</span><span class="n">npop</span><span class="p">,</span>
@@ -229,7 +264,7 @@
 
 
 <div class="viewcode-block" id="test_insert_path_to_geometry"><a class="viewcode-back" href="../../../src/saltproc.tests.test_depcode.html#saltproc.tests.test_depcode.test_insert_path_to_geometry">[docs]</a><span class="k">def</span> <span class="nf">test_insert_path_to_geometry</span><span class="p">():</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">)</span>
     <span class="n">d_new</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">insert_path_to_geometry</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">d_new</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;test_geo.inp&quot;</span><span class="se">\n</span><span class="s1">&#39;</span></div>
 
@@ -238,30 +273,166 @@
     <span class="n">time</span> <span class="o">=</span> <span class="n">msr</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">time</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
     <span class="n">depsteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msr</span><span class="o">.</span><span class="n">power_levels</span><span class="p">)):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">replace_burnup_parameters</span><span class="p">(</span><span class="n">d</span><span class="p">,</span>
                                               <span class="n">msr</span><span class="p">,</span>
                                               <span class="n">idx</span><span class="p">)</span>
-        <span class="n">out_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_inputfile_path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">out_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_input_file_path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
         <span class="n">out_file</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
         <span class="n">out_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="n">d_new</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span>
-            <span class="n">serpent</span><span class="o">.</span><span class="n">template_inputfile_path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+            <span class="n">serpent</span><span class="o">.</span><span class="n">template_input_file_path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
         <span class="k">assert</span> <span class="n">d_new</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;daystep&#39;</span>
         <span class="k">assert</span> <span class="n">d_new</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%5.9E</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msr</span><span class="o">.</span><span class="n">power_levels</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
         <span class="k">assert</span> <span class="n">d_new</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%7.5E</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">depsteps</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_inputfile_path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span></div>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_input_file_path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="test_create_iter_matfile"><a class="viewcode-back" href="../../../src/saltproc.tests.test_depcode.html#saltproc.tests.test_depcode.test_create_iter_matfile">[docs]</a><span class="k">def</span> <span class="nf">test_create_iter_matfile</span><span class="p">():</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">)</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">create_iter_matfile</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">serpent</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">&#39;</span>
     <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span></div>
 
 
+<span class="k">def</span> <span class="nf">_get_iterable_for_object</span><span class="p">(</span><span class="n">iterable_object</span><span class="p">):</span>
+    <span class="c1"># helper function to DRY</span>
+    <span class="n">iterable_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">iterable_object</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span>
+            <span class="n">iterable_type</span><span class="p">,</span>
+            <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">issubclass</span><span class="p">(</span>
+            <span class="n">iterable_type</span><span class="p">,</span>
+            <span class="nb">tuple</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">issubclass</span><span class="p">(</span>
+                <span class="n">iterable_type</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">iterable_type</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">iterable_object</span> <span class="o">=</span> <span class="n">iterable_object</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">iterable_object</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">iterable_type</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="n">iterable_object</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Iterable of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">iterable_object</span><span class="p">)</span><span class="si">}</span><span class="s2"> is unsupported&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">iterable</span>
+
+
+<span class="k">def</span> <span class="nf">_check_none_or_iterable_of_ndarray_equal</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">object2</span><span class="p">):</span>
+    <span class="c1"># helper function to DRY</span>
+    <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">object1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">object1</span> <span class="o">==</span> <span class="n">object2</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">object1</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">object1</span><span class="p">),</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="n">_get_iterable_for_object</span><span class="p">(</span><span class="n">object1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+            <span class="n">subobject1</span> <span class="o">=</span> <span class="n">object1</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span>
+            <span class="n">subobject2</span> <span class="o">=</span> <span class="n">object2</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span>
+            <span class="n">_check_none_or_iterable_of_ndarray_equal</span><span class="p">(</span><span class="n">subobject1</span><span class="p">,</span> <span class="n">subobject2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">object1</span> <span class="o">==</span> <span class="n">object2</span>
+
+
+<span class="k">def</span> <span class="nf">_check_none_or_openmc_object_equal</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">object2</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">object1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">object2</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_check_openmc_objects_equal</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">object2</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="_check_openmc_objects_equal"><a class="viewcode-back" href="../../../src/saltproc.tests.test_depcode.html#saltproc.tests.test_depcode._check_openmc_objects_equal">[docs]</a><span class="k">def</span> <span class="nf">_check_openmc_objects_equal</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">object2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function for the unit tests to determine equality of</span>
+<span class="sd">    various OpenMC objects</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    object1 : openmc.Surface, openmc.Universe, openmc.Cell, openmc.Material, \</span>
+<span class="sd">    openmc.Lattice</span>
+<span class="sd">        First openmc object to compare</span>
+<span class="sd">    object2 :  openmc.Surface, openmc.Universe, openmc.Cell, openmc.Material, \</span>
+<span class="sd">    openmc.Lattice</span>
+<span class="sd">        Second openmc object to compare</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">object_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">object1</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">object_type</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">id</span>
+        <span class="c1"># this may not apply to all objects.</span>
+        <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">name</span>
+        <span class="c1"># need to check</span>
+        <span class="k">if</span> <span class="n">object_type</span> <span class="o">==</span> <span class="n">om</span><span class="o">.</span><span class="n">Material</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">density</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">density</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">nuclides</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">nuclides</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">temperature</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">temperature</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">volume</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">volume</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">_sab</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">_sab</span>
+
+        <span class="k">elif</span> <span class="n">object_type</span> <span class="o">==</span> <span class="n">om</span><span class="o">.</span><span class="n">Cell</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">fill_type</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">fill_type</span>
+            <span class="n">_check_none_or_openmc_object_equal</span><span class="p">(</span><span class="n">object1</span><span class="o">.</span><span class="n">fill</span><span class="p">,</span> <span class="n">object2</span><span class="o">.</span><span class="n">fill</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">region</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">region</span>
+            <span class="n">_check_none_or_iterable_of_ndarray_equal</span><span class="p">(</span>
+                <span class="n">object1</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span> <span class="n">object2</span><span class="o">.</span><span class="n">rotation</span><span class="p">)</span>
+            <span class="n">_check_none_or_iterable_of_ndarray_equal</span><span class="p">(</span>
+                <span class="n">object1</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">,</span> <span class="n">object2</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">)</span>
+            <span class="n">_check_none_or_iterable_of_ndarray_equal</span><span class="p">(</span>
+                <span class="n">object1</span><span class="o">.</span><span class="n">translation</span><span class="p">,</span> <span class="n">object2</span><span class="o">.</span><span class="n">translation</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">volume</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">volume</span>
+            <span class="c1"># assert object1.atoms == object2.atoms</span>
+
+        <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">object_type</span><span class="p">,</span> <span class="n">om</span><span class="o">.</span><span class="n">Lattice</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">shape</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">lower_left</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">lower_left</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">pitch</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">pitch</span>
+            <span class="n">_check_none_or_openmc_object_equal</span><span class="p">(</span><span class="n">object1</span><span class="o">.</span><span class="n">outer</span><span class="p">,</span> <span class="n">object2</span><span class="o">.</span><span class="n">outer</span><span class="p">)</span>
+            <span class="n">_check_openmc_iterables_equal</span><span class="p">(</span>
+                <span class="p">{</span><span class="s1">&#39;univ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">object1</span><span class="o">.</span><span class="n">universes</span><span class="p">,</span> <span class="n">object2</span><span class="o">.</span><span class="n">universes</span><span class="p">)})</span>
+
+        <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">object_type</span><span class="p">,</span> <span class="n">om</span><span class="o">.</span><span class="n">Surface</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">boundary_type</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">boundary_type</span>
+            <span class="n">_check_none_or_iterable_of_ndarray_equal</span><span class="p">(</span>
+                <span class="n">object1</span><span class="o">.</span><span class="n">coefficients</span><span class="p">,</span> <span class="n">object2</span><span class="o">.</span><span class="n">coefficients</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">type</span>
+
+        <span class="k">elif</span> <span class="n">object_type</span> <span class="o">==</span> <span class="n">om</span><span class="o">.</span><span class="n">Universe</span><span class="p">:</span>
+            <span class="n">_check_openmc_iterables_equal</span><span class="p">(</span>
+                <span class="p">{</span><span class="s1">&#39;cells&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">object1</span><span class="o">.</span><span class="n">cells</span><span class="p">,</span> <span class="n">object2</span><span class="o">.</span><span class="n">cells</span><span class="p">)})</span>
+            <span class="k">assert</span> <span class="n">object1</span><span class="o">.</span><span class="n">volume</span> <span class="o">==</span> <span class="n">object2</span><span class="o">.</span><span class="n">volume</span>
+            <span class="n">_check_none_or_iterable_of_ndarray_equal</span><span class="p">(</span>
+                <span class="n">object1</span><span class="o">.</span><span class="n">bounding_box</span><span class="p">,</span> <span class="n">object2</span><span class="o">.</span><span class="n">bounding_box</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Object of type </span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s2"> is not an openmc object.&quot;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;objects of type </span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s2"> with ids </span><span class="si">{</span><span class="n">object1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and </span><span class="se">\</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">object2</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not equal&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_check_openmc_iterables_equal"><a class="viewcode-back" href="../../../src/saltproc.tests.test_depcode.html#saltproc.tests.test_depcode._check_openmc_iterables_equal">[docs]</a><span class="k">def</span> <span class="nf">_check_openmc_iterables_equal</span><span class="p">(</span><span class="n">iterable_dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to check equality iterables contained in a dictionary.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    iterable_dict : dict of str to 2-tuple</span>
+<span class="sd">        Dictionary containing tuples of iterables to compare</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">object_type</span> <span class="ow">in</span> <span class="n">iterable_dict</span><span class="p">:</span>
+        <span class="n">object1_iterable</span><span class="p">,</span> <span class="n">object2_iterable</span> <span class="o">=</span> <span class="n">iterable_dict</span><span class="p">[</span><span class="n">object_type</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">object1_iterable</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">object2_iterable</span><span class="p">)</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="n">_get_iterable_for_object</span><span class="p">(</span><span class="n">object1_iterable</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">object1_iterable</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">object1_iterable</span> <span class="o">=</span> <span class="n">object1_iterable</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="n">object2_iterable</span> <span class="o">=</span> <span class="n">object2_iterable</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+            <span class="n">object1</span> <span class="o">=</span> <span class="n">object2_iterable</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span>
+            <span class="n">object2</span> <span class="o">=</span> <span class="n">object1_iterable</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span>
+            <span class="n">_check_openmc_objects_equal</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">object2</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="test_write_depcode_input"><a class="viewcode-back" href="../../../src/saltproc.tests.test_depcode.html#saltproc.tests.test_depcode.test_write_depcode_input">[docs]</a><span class="k">def</span> <span class="nf">test_write_depcode_input</span><span class="p">():</span>
+    <span class="c1"># Serpent</span>
     <span class="n">iter_inputfile_old</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span>
     <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s1">&#39;_write_test&#39;</span>
     <span class="n">serpent</span><span class="o">.</span><span class="n">write_depcode_input</span><span class="p">(</span><span class="n">msr</span><span class="p">,</span>
@@ -278,10 +449,110 @@
     <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span>
 
-    <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">iter_inputfile_old</span></div>
+    <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">iter_inputfile_old</span>
+
+    <span class="c1"># OpenMC</span>
+    <span class="n">input_materials</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
+        <span class="n">openmc</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;materials&#39;</span><span class="p">])</span>
+    <span class="n">input_geometry</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
+        <span class="n">openmc</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">],</span>
+        <span class="n">materials</span><span class="o">=</span><span class="n">input_materials</span><span class="p">)</span>
+
+    <span class="n">input_cells</span> <span class="o">=</span> <span class="n">input_geometry</span><span class="o">.</span><span class="n">get_all_cells</span><span class="p">()</span>
+    <span class="n">input_lattices</span> <span class="o">=</span> <span class="n">input_geometry</span><span class="o">.</span><span class="n">get_all_lattices</span><span class="p">()</span>
+    <span class="n">input_surfaces</span> <span class="o">=</span> <span class="n">input_geometry</span><span class="o">.</span><span class="n">get_all_surfaces</span><span class="p">()</span>
+    <span class="n">input_universes</span> <span class="o">=</span> <span class="n">input_geometry</span><span class="o">.</span><span class="n">get_all_universes</span><span class="p">()</span>
+
+    <span class="n">openmc</span><span class="o">.</span><span class="n">write_depcode_input</span><span class="p">(</span><span class="n">msr</span><span class="p">,</span>
+                               <span class="mi">0</span><span class="p">,</span>
+                               <span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Load in the iter_ objects</span>
+    <span class="n">iter_materials</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="n">openmc</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span>
+    <span class="n">iter_geometry</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
+        <span class="n">openmc</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">],</span>
+        <span class="n">materials</span><span class="o">=</span><span class="n">iter_materials</span><span class="p">)</span>
+    <span class="n">iter_settings</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Settings</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="n">openmc</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">])</span>
+
+    <span class="n">iter_cells</span> <span class="o">=</span> <span class="n">iter_geometry</span><span class="o">.</span><span class="n">get_all_cells</span><span class="p">()</span>
+    <span class="n">iter_lattices</span> <span class="o">=</span> <span class="n">iter_geometry</span><span class="o">.</span><span class="n">get_all_lattices</span><span class="p">()</span>
+    <span class="n">iter_surfaces</span> <span class="o">=</span> <span class="n">iter_geometry</span><span class="o">.</span><span class="n">get_all_surfaces</span><span class="p">()</span>
+    <span class="n">iter_universes</span> <span class="o">=</span> <span class="n">iter_geometry</span><span class="o">.</span><span class="n">get_all_universes</span><span class="p">()</span>
+
+    <span class="c1"># an easier approach may just be to compare the</span>
+    <span class="c1"># file contents themselves</span>
+    <span class="n">assertion_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mat&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">input_materials</span><span class="p">,</span> <span class="n">iter_materials</span><span class="p">),</span>
+                      <span class="s1">&#39;cells&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">input_cells</span><span class="p">,</span> <span class="n">iter_cells</span><span class="p">),</span>
+                      <span class="s1">&#39;lattices&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">input_lattices</span><span class="p">,</span> <span class="n">iter_lattices</span><span class="p">),</span>
+                      <span class="s1">&#39;surfs&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">input_surfaces</span><span class="p">,</span> <span class="n">iter_surfaces</span><span class="p">),</span>
+                      <span class="s1">&#39;univs&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">input_universes</span><span class="p">,</span> <span class="n">iter_universes</span><span class="p">)}</span>
+
+    <span class="n">_check_openmc_iterables_equal</span><span class="p">(</span><span class="n">assertion_dict</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">iter_settings</span><span class="o">.</span><span class="n">inactive</span> <span class="o">==</span> <span class="n">openmc</span><span class="o">.</span><span class="n">inactive_cycles</span>
+    <span class="k">assert</span> <span class="n">iter_settings</span><span class="o">.</span><span class="n">batches</span> <span class="o">==</span> <span class="n">openmc</span><span class="o">.</span><span class="n">active_cycles</span> <span class="o">+</span> \
+        <span class="n">openmc</span><span class="o">.</span><span class="n">inactive_cycles</span>
+    <span class="k">assert</span> <span class="n">iter_settings</span><span class="o">.</span><span class="n">particles</span> <span class="o">==</span> <span class="n">openmc</span><span class="o">.</span><span class="n">npop</span>
+
+    <span class="k">del</span> <span class="n">iter_materials</span><span class="p">,</span> <span class="n">iter_geometry</span>
+    <span class="k">del</span> <span class="n">input_materials</span><span class="p">,</span> <span class="n">input_geometry</span></div>
+
+
+<div class="viewcode-block" id="test_write_depletion_settings"><a class="viewcode-back" href="../../../src/saltproc.tests.test_depcode.html#saltproc.tests.test_depcode.test_write_depletion_settings">[docs]</a><span class="k">def</span> <span class="nf">test_write_depletion_settings</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unit test for `DepcodeOpenMC.write_depletion_settings`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">openmc</span><span class="o">.</span><span class="n">write_depletion_settings</span><span class="p">(</span><span class="n">msr</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">openmc</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;depletion_settings&#39;</span><span class="p">])</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;directory&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">directory</span>
+        <span class="k">assert</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;timesteps&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">msr</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;operator_kwargs&#39;</span><span class="p">][</span><span class="s1">&#39;chain_file&#39;</span><span class="p">]</span> <span class="o">==</span> \
+            <span class="n">openmc</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;chain_file&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;integrator_kwargs&#39;</span><span class="p">][</span><span class="s1">&#39;power&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">msr</span><span class="o">.</span><span class="n">power_levels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;integrator_kwargs&#39;</span><span class="p">][</span><span class="s1">&#39;timestep_units&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;d&#39;</span></div>
+
+
+<div class="viewcode-block" id="test_write_saltproc_openmc_tallies"><a class="viewcode-back" href="../../../src/saltproc.tests.test_depcode.html#saltproc.tests.test_depcode.test_write_saltproc_openmc_tallies">[docs]</a><span class="k">def</span> <span class="nf">test_write_saltproc_openmc_tallies</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unit test for `DepcodeOpenMC.write_saltproc_openmc_tallies`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="n">openmc</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;materials&#39;</span><span class="p">])</span>
+    <span class="n">geo</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
+        <span class="n">openmc</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">],</span> <span class="n">mat</span><span class="p">)</span>
+    <span class="n">openmc</span><span class="o">.</span><span class="n">write_saltproc_openmc_tallies</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">geo</span><span class="p">)</span>
+    <span class="k">del</span> <span class="n">mat</span><span class="p">,</span> <span class="n">geo</span>
+    <span class="n">tallies</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Tallies</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="n">openmc</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;tallies&#39;</span><span class="p">])</span>
+
+    <span class="c1"># now write asserts statements based on the openmc.Tallies API and</span>
+    <span class="c1"># what we expect our tallies to be</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">tallies</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span>
+    <span class="n">tal0</span> <span class="o">=</span> <span class="n">tallies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tal1</span> <span class="o">=</span> <span class="n">tallies</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">tal2</span> <span class="o">=</span> <span class="n">tallies</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">tal3</span> <span class="o">=</span> <span class="n">tallies</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">tal4</span> <span class="o">=</span> <span class="n">tallies</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="n">tal0</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;delayed-fission-neutrons&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tal0</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">om</span><span class="o">.</span><span class="n">DelayedGroupFilter</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">tal0</span><span class="o">.</span><span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;delayed-nu-fission&#39;</span>
+    <span class="k">assert</span> <span class="n">tal1</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;total-fission-neutrons&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tal1</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">om</span><span class="o">.</span><span class="n">UniverseFilter</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">tal1</span><span class="o">.</span><span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;nu-fission&#39;</span>
+    <span class="k">assert</span> <span class="n">tal2</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;precursor-decay-constants&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tal2</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">om</span><span class="o">.</span><span class="n">DelayedGroupFilter</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">tal2</span><span class="o">.</span><span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;decay-rate&#39;</span>
+    <span class="k">assert</span> <span class="n">tal3</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;fission-energy&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tal3</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">om</span><span class="o">.</span><span class="n">UniverseFilter</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">tal3</span><span class="o">.</span><span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;fission-q-recoverable&#39;</span>
+    <span class="k">assert</span> <span class="n">tal3</span><span class="o">.</span><span class="n">scores</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;fission-q-prompt&#39;</span>
+    <span class="k">assert</span> <span class="n">tal3</span><span class="o">.</span><span class="n">scores</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;kappa-fission&#39;</span>
+    <span class="k">assert</span> <span class="n">tal4</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;normalization-factor&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tal4</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">om</span><span class="o">.</span><span class="n">UniverseFilter</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">tal4</span><span class="o">.</span><span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;heating&#39;</span></div>
 
 
 <div class="viewcode-block" id="test_switch_to_next_geometry"><a class="viewcode-back" href="../../../src/saltproc.tests.test_depcode.html#saltproc.tests.test_depcode.test_switch_to_next_geometry">[docs]</a><span class="k">def</span> <span class="nf">test_switch_to_next_geometry</span><span class="p">():</span>
+    <span class="c1"># Serpent</span>
     <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">geo_test_input</span><span class="p">,</span> <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s1">&#39;_test&#39;</span><span class="p">)</span>
     <span class="n">iter_inputfile_old</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span>
     <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s1">&#39;_test&#39;</span>
@@ -290,7 +561,35 @@
     <span class="n">d</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">d</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;988.inp&quot;</span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
-    <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">iter_inputfile_old</span></div>
+    <span class="n">serpent</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">iter_inputfile_old</span>
+
+    <span class="c1"># OpenMC</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="n">openmc</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;materials&#39;</span><span class="p">])</span>
+    <span class="n">expected_geometry</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="n">openmc</span><span class="o">.</span><span class="n">geo_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mat</span><span class="p">)</span>
+    <span class="n">expected_cells</span> <span class="o">=</span> <span class="n">expected_geometry</span><span class="o">.</span><span class="n">get_all_cells</span><span class="p">()</span>
+    <span class="n">expected_lattices</span> <span class="o">=</span> <span class="n">expected_geometry</span><span class="o">.</span><span class="n">get_all_lattices</span><span class="p">()</span>
+    <span class="n">expected_surfaces</span> <span class="o">=</span> <span class="n">expected_geometry</span><span class="o">.</span><span class="n">get_all_surfaces</span><span class="p">()</span>
+    <span class="n">expected_universes</span> <span class="o">=</span> <span class="n">expected_geometry</span><span class="o">.</span><span class="n">get_all_universes</span><span class="p">()</span>
+    <span class="k">del</span> <span class="n">expected_geometry</span>
+
+    <span class="n">openmc</span><span class="o">.</span><span class="n">switch_to_next_geometry</span><span class="p">()</span>
+    <span class="n">switched_geometry</span> <span class="o">=</span> <span class="n">om</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
+        <span class="n">openmc</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">],</span> <span class="n">mat</span><span class="p">)</span>
+
+    <span class="n">switched_cells</span> <span class="o">=</span> <span class="n">switched_geometry</span><span class="o">.</span><span class="n">get_all_cells</span><span class="p">()</span>
+    <span class="n">switched_lattices</span> <span class="o">=</span> <span class="n">switched_geometry</span><span class="o">.</span><span class="n">get_all_lattices</span><span class="p">()</span>
+    <span class="n">switched_surfaces</span> <span class="o">=</span> <span class="n">switched_geometry</span><span class="o">.</span><span class="n">get_all_surfaces</span><span class="p">()</span>
+    <span class="n">switched_universes</span> <span class="o">=</span> <span class="n">switched_geometry</span><span class="o">.</span><span class="n">get_all_universes</span><span class="p">()</span>
+    <span class="k">del</span> <span class="n">switched_geometry</span>
+
+    <span class="n">assertion_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cells&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">expected_cells</span><span class="p">,</span> <span class="n">switched_cells</span><span class="p">),</span>
+                      <span class="s1">&#39;lattices&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">expected_lattices</span><span class="p">,</span> <span class="n">switched_lattices</span><span class="p">),</span>
+                      <span class="s1">&#39;surfs&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">expected_surfaces</span><span class="p">,</span> <span class="n">switched_surfaces</span><span class="p">),</span>
+                      <span class="s1">&#39;univs&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">expected_universes</span><span class="p">,</span> <span class="n">switched_universes</span><span class="p">)}</span>
+
+    <span class="n">_check_openmc_iterables_equal</span><span class="p">(</span><span class="n">assertion_dict</span><span class="p">)</span>
+
+    <span class="k">del</span> <span class="n">mat</span></div>
 </pre></div>
 
            </div>

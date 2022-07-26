@@ -1,0 +1,7 @@
+saltproc.openmc\_deplete module
+===============================
+
+.. automodule:: saltproc.openmc_deplete
+   :members:
+   :undoc-members:
+   :show-inheritance:

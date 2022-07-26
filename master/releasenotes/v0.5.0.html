@@ -63,6 +63,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fileformatspec/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -99,15 +100,25 @@
 </div>
 <section id="summary">
 <h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">¶</a></h2>
+<p>This release adds support for <code class="docutils literal notranslate"><span class="pre">OpenMC</span></code> in <code class="docutils literal notranslate"><span class="pre">SaltProc</span></code> via the addition of
+the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</span></code> class</p>
 </section>
 <section id="dependency-changes">
 <h2>Dependency Changes<a class="headerlink" href="#dependency-changes" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SaltProc</span></code> now optionally requires the following package:</p>
+<ul>
+<li><p>(new) → <a class="reference external" href="https://github.com/openmc-dev/openmc">openmc</a></p></li>
+</ul>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pyne&gt;=0.5.11</span></code> → <code class="docutils literal notranslate"><span class="pre">pyne&gt;=0.5.11=nomoab_noopenmc*</span></code></p></li>
 </ul>
 </section>
 <section id="new-features">
 <h2>New Features<a class="headerlink" href="#new-features" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">openmc</span></code> support via <cite>DepcodeOpenMC</cite></p></li>
+</ul>
 </section>
 <section id="bug-fixes">
 <h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading">¶</a></h2>
@@ -127,10 +138,61 @@
 </section>
 <section id="python-api-changes">
 <h2>Python API Changes<a class="headerlink" href="#python-api-changes" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Input file format changes:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">depcode['template_inputfile_path']</span></code> → <code class="docutils literal notranslate"><span class="pre">depcode['template_input_file_path']</span></code></p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">depcode['template_input_file_path']</span></code> input variable now has the following depletion-code-depentent types:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">str</span></code> for <code class="docutils literal notranslate"><span class="pre">Serpent2</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dict</span></code> of <code class="docutils literal notranslate"><span class="pre">str</span></code> to <code class="docutils literal notranslate"><span class="pre">str</span></code> for <code class="docutils literal notranslate"><span class="pre">openmc</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depcode['iter_inputfile']</span></code> → (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depcode['iter_matfile']</span></code> → (removed)</p></li>
+</ul>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While the <code class="docutils literal notranslate"><span class="pre">iter_inputfile</span></code> and <code class="docutils literal notranslate"><span class="pre">iter_matfile</span></code> variables have been removed from the saltproc input file,
+they remain part of the <code class="docutils literal notranslate"><span class="pre">DepcodeSerpent</span></code> class as attributes. Their use is unchanged, save for the fact they can no
+longer be initialized by the user during object creation.</p>
+</div>
+<ul class="simple">
+<li><p>New/changed classes and methods:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Depcode</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">template_inputfile_path</span></code> → <code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code></p></li>
+<li><p>Changed <cite>iter_inputfile</cite> and <cite>iter_matfile</cite> to be attributes instead of parameters</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">template_inputfile_path</span></code> → <code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code></p></li>
+<li><p>Changed <cite>iter_inputfile</cite> and <cite>iter_matfile</cite> to be attributes instead of parameters</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DepcodeOpenmc</span></code> is a <code class="docutils literal notranslate"><span class="pre">Depcode</span></code> subclass that interfaces with <code class="docutils literal notranslate"><span class="pre">openmc</span></code>. This class implements the following functions</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_depcode()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">switch_to_next_geometry()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_depcode_input()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_depletion_settings()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_saltproc_openmc_tallies()</span></code></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 </section>
 <section id="contributors">
 <h2>Contributors<a class="headerlink" href="#contributors" title="Permalink to this heading">¶</a></h2>
 <p>The following people contributed code to this release of SaltProc:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/yardasol">&#64;yardasol</a></p></li>
+</ul>
 </section>
 <section id="reviewers">
 <h2>Reviewers<a class="headerlink" href="#reviewers" title="Permalink to this heading">¶</a></h2>

@@ -18,6 +18,7 @@ Submodules
    saltproc.app
    saltproc.depcode
    saltproc.materialflow
+   saltproc.openmc_deplete
    saltproc.process
    saltproc.reactor
    saltproc.separator

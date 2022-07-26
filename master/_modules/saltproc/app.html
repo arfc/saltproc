@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../releasenotes/index.html">Release Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fileformatspec/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -74,6 +75,7 @@
              
   <h1>Source code for saltproc.app</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">DepcodeSerpent</span>
+<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">DepcodeOpenMC</span>
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Simulation</span>
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Materialflow</span>
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Process</span>
@@ -176,8 +178,18 @@
         <span class="n">simulation_inp</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;simulation&#39;</span><span class="p">]</span>
         <span class="n">reactor_inp</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;reactor&#39;</span><span class="p">]</span>
 
-        <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_inputfile_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">input_path</span><span class="p">,</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_inputfile_path&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;serpent&#39;</span><span class="p">:</span>
+            <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">input_path</span><span class="p">,</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;openmc&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">]:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s2">&quot;codename&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> is not a supported depletion code&#39;</span><span class="p">)</span>
+
         <span class="n">geo_list</span> <span class="o">=</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;geo_file_paths&#39;</span><span class="p">]</span>
 
         <span class="c1"># Global geometry file paths</span>
@@ -187,10 +199,6 @@
         <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;geo_file_paths&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geo_file_paths</span>
 
         <span class="c1"># Global output file paths</span>
-        <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;iter_inputfile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">output_path</span><span class="p">,</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;iter_inputfile&#39;</span><span class="p">])</span>
-        <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;iter_matfile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">output_path</span><span class="p">,</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;iter_matfile&#39;</span><span class="p">])</span>
         <span class="n">db_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">output_path</span><span class="p">,</span> <span class="n">simulation_inp</span><span class="p">[</span><span class="s1">&#39;db_name&#39;</span><span class="p">])</span>
         <span class="n">simulation_inp</span><span class="p">[</span><span class="s1">&#39;db_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">db_name</span>
@@ -412,6 +420,8 @@
 <span class="sd">        ``value``</span>
 <span class="sd">            `Materialflow` object after performing all removals.</span>
 <span class="sd">    extracted_mass : dict of str to float</span>
+
+<span class="sd">        ``key``</span>
 <span class="sd">            Name of burnable material.</span>
 <span class="sd">        ``value``</span>
 <span class="sd">            Mass removed as waste in reprocessing function for each material.</span>
@@ -455,37 +465,56 @@
     <span class="n">nodes</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">sp_input</span> <span class="o">=</span> <span class="n">parse_arguments</span><span class="p">()</span>
     <span class="c1"># Read main input file</span>
     <span class="n">read_main_input</span><span class="p">(</span><span class="n">sp_input</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;serpent&#39;</span><span class="p">:</span>
+        <span class="n">template_file_path</span> <span class="o">=</span> \
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;openmc&#39;</span><span class="p">:</span>
+        <span class="n">template_file_path</span> <span class="o">=</span> \
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+                    <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">][</span><span class="s1">&#39;materials&#39;</span><span class="p">]))</span>
+    <span class="n">iter_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
     <span class="c1"># Print out input information</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Initiating Saltproc:</span><span class="se">\n</span><span class="s1">&#39;</span>
           <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Restart = &#39;</span> <span class="o">+</span>
           <span class="nb">str</span><span class="p">(</span><span class="n">simulation_inp</span><span class="p">[</span><span class="s1">&#39;restart_flag&#39;</span><span class="p">])</span> <span class="o">+</span>
           <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Template File Path  = &#39;</span> <span class="o">+</span>
-          <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_inputfile_path&#39;</span><span class="p">])</span> <span class="o">+</span>
+          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Template File Path(s)  = &#39;</span> <span class="o">+</span>
+          <span class="n">template_file_path</span> <span class="o">+</span>
           <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Input File Path     = &#39;</span> <span class="o">+</span>
-          <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;iter_inputfile&#39;</span><span class="p">])</span> <span class="o">+</span>
-          <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Material File Path  = &#39;</span> <span class="o">+</span>
-          <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;iter_matfile&#39;</span><span class="p">])</span> <span class="o">+</span>
+          <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Depletion Step File Path     = &#39;</span> <span class="o">+</span>
+          <span class="n">iter_file_path</span> <span class="o">+</span>
           <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
           <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Output HDF5 database Path = &#39;</span> <span class="o">+</span>
           <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">simulation_inp</span><span class="p">[</span><span class="s1">&#39;db_name&#39;</span><span class="p">])</span> <span class="o">+</span>
           <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="c1"># Intializing objects</span>
     <span class="k">if</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;serpent&#39;</span><span class="p">:</span>
-        <span class="n">depcode</span> <span class="o">=</span> <span class="n">DepcodeSerpent</span><span class="p">(</span>
-            <span class="n">exec_path</span><span class="o">=</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;exec_path&#39;</span><span class="p">],</span>
-            <span class="n">template_inputfile_path</span><span class="o">=</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_inputfile_path&#39;</span><span class="p">],</span>
-            <span class="n">iter_inputfile</span><span class="o">=</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;iter_inputfile&#39;</span><span class="p">],</span>
-            <span class="n">iter_matfile</span><span class="o">=</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;iter_matfile&#39;</span><span class="p">],</span>
-            <span class="n">geo_files</span><span class="o">=</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;geo_file_paths&#39;</span><span class="p">],</span>
-            <span class="n">npop</span><span class="o">=</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;npop&#39;</span><span class="p">],</span>
-            <span class="n">active_cycles</span><span class="o">=</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;active_cycles&#39;</span><span class="p">],</span>
-            <span class="n">inactive_cycles</span><span class="o">=</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;inactive_cycles&#39;</span><span class="p">])</span>
+        <span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;serpent_iter_input.serpent&#39;</span><span class="p">)</span>
+        <span class="n">iter_matfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;serpent_iter_matfile.ini&#39;</span><span class="p">)</span>
+        <span class="n">depcode</span> <span class="o">=</span> <span class="n">DepcodeSerpent</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;openmc&#39;</span><span class="p">:</span>
+        <span class="n">iter_inputfile</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">]:</span>
+            <span class="n">iter_inputfile</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39;.xml&#39;</span><span class="p">)</span>
+
+        <span class="n">iter_matfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;materals.xml&#39;</span><span class="p">)</span>
+        <span class="n">depcode</span> <span class="o">=</span> <span class="n">DepcodeOpenMC</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">depcode_inp</span><span class="p">[</span><span class="s2">&quot;codename&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> is not a supported depletion code&#39;</span><span class="p">)</span>
+
+    <span class="n">depcode</span><span class="o">.</span><span class="n">template_input_file_path</span> <span class="o">=</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">]</span>
+    <span class="n">depcode</span><span class="o">.</span><span class="n">geo_files</span> <span class="o">=</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;geo_file_paths&#39;</span><span class="p">]</span>
+    <span class="n">depcode</span><span class="o">.</span><span class="n">npop</span> <span class="o">=</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;npop&#39;</span><span class="p">]</span>
+    <span class="n">depcode</span><span class="o">.</span><span class="n">active_cycles</span> <span class="o">=</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;active_cycles&#39;</span><span class="p">]</span>
+    <span class="n">depcode</span><span class="o">.</span><span class="n">inactive_cycles</span> <span class="o">=</span> <span class="n">depcode_inp</span><span class="p">[</span><span class="s1">&#39;inactive_cycles&#39;</span><span class="p">]</span>
+
+    <span class="n">depcode</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="n">iter_inputfile</span>
+    <span class="n">depcode</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">=</span> <span class="n">iter_matfile</span>
 
     <span class="n">simulation</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span>
         <span class="n">sim_name</span><span class="o">=</span><span class="s1">&#39;Super test&#39;</span><span class="p">,</span>
@@ -556,7 +585,7 @@
               <span class="n">simulation</span><span class="o">.</span><span class="n">burn_time</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulation succeeded.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="sd">&#39;&#39;&#39;print(&quot;Reactor object data.\n&quot;,</span>
-<span class="sd">              msr.mass_flowrate,</span>
+<span class="sd">        msr.mass_flowrate,</span>
 <span class="sd">              msr.power_levels,</span>
 <span class="sd">              msr.dep_step_length_cumulative)&#39;&#39;&#39;</span></div>
 </pre></div>

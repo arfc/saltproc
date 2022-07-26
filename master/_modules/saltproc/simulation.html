@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../releasenotes/index.html">Release Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fileformatspec/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -369,6 +370,7 @@
         <span class="c1"># Initialize beta groups number</span>
         <span class="n">b_g</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;beta_eff&#39;</span><span class="p">])</span>
         <span class="c1"># numpy array row storage for run info</span>
+
         <span class="k">class</span> <span class="nc">Step_info</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">IsDescription</span><span class="p">):</span>
             <span class="n">keff_bds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">((</span><span class="mi">2</span><span class="p">,))</span>
             <span class="n">keff_eds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">((</span><span class="mi">2</span><span class="p">,))</span>

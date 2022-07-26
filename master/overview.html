@@ -54,6 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="releasenotes/index.html">Release Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fileformatspec/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -83,33 +84,32 @@
              
   <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h1>
-<p>SaltProc couples directly with the Monte Carlo neutron transport code Serpent 2
-and enables sophisticated, multi-component online fuel reprocessing system
+<p>SaltProc couples directly with a variety of Monte Carlo neutron transport codes with depletion capabilities and enables sophisticated, multi-component online fuel reprocessing system
 modeling. SaltProc is the first open-source tool for liquid-fueled MSR
 depletion simulation with the following capabilities:</p>
 <ul class="simple">
 <li><p>neutron poison removal with user-defined efficiency,</p></li>
 <li><p>make-up mass loss by fresh fuel injection,</p></li>
-<li><p>reactivity control by adjusting fuel feed rate or geometry change,</p></li>
+<li><p>reactivity control by adjusting fuel feed rate or reactor geometry (i.e. control rod depth),</p></li>
 <li><p>can model any reactor design,</p></li>
 <li><p>potentially, can couple with any depletion tool (i.e., MCNP, SCALE, OpenMC).</p></li>
 </ul>
 <section id="how-saltproc-works">
 <h2>How SaltProc works<a class="headerlink" href="#how-saltproc-works" title="Permalink to this heading">¶</a></h2>
-<p>SaltProc is a driver for Serpent to simulate online fuel salt reprocessing for
+<p>SaltProc is a driver for Monte Carlo transport codes with depletion capabilities (henceforth referred to as <em>transport-depletion codes</em>) to simulate online fuel salt reprocessing for
 Molten Salt Reactors. It performs following major functions:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>runs SERPENT</p></li>
-<li><p>parses and stores Serpent output data in HDF5</p></li>
+<li><p>runs the transport-depletion code</p></li>
+<li><p>parses and stores depleted material data in HDF5</p></li>
 <li><p>modifies parsed material composition (<cite>reprocesses</cite>)</p></li>
-<li><p>creates Serpent input file</p></li>
+<li><p>creates a new transport-depletion code input file</p></li>
 </ul>
 </div></blockquote>
 <p>The code logic flow is the following:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>Runs Serpent (<cite>saltproc.depcode.run_depcode()</cite>)</p></li>
+<li><p>Runs the transport-depletion code (<cite>saltproc.depcode.run_depcode()</cite>)</p></li>
 <li><p>Parses through the output <cite>*_dep.m</cite> file and creates PyNE Material object
 for each burnable material.</p></li>
 <li><p>Processes Fuel (<cite>saltproc.app.reprocessing()</cite> and <cite>saltproc.refill</cite>):</p></li>
@@ -165,8 +165,8 @@ An example is given below. In the example, capacity and mass flow rate are in
 </section>
 <section id="the-future">
 <h2>The Future<a class="headerlink" href="#the-future" title="Permalink to this heading">¶</a></h2>
-<p>A number of features will be implemented in SaltProc soon. Support of various
-depletion codes (e.g., OpenMC) will be added.</p>
+<p>A number of features will be implemented in SaltProc soon. Take a look at the
+<a class="reference external" href="https://github.com/arfc/saltproc/issues">issues page on GitHub</a> to see what we are working on.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>SaltProc is a relatively new project and is still under heavy development.
