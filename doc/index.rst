@@ -7,14 +7,16 @@ SaltProc
 =========
 
 **SaltProc** is a python package for liquid-fueled nuclear reactor depletion
-calculations. It couples directly with the Serpent 2 Monte Carlo depletion
+calculations. It couples directly with the `Serpent2`_ or `OpenMC`_ Monte Carlo depletion
 software to enable online reprocessing system modeling in depletion
-calculation.
+calculations.
 
 **SaltProc** welcomes your contributions. It already relies on many libraries
 in the Scientific Python ecosystem including `pyne`_, `numpy`_, `matplotlib`_,
 `networkx`_, and `pydotplus`_.
 
+.. _Serpent2: http://montecarlo.vtt.fi
+.. _OpenMC: https://openmc.org/
 .. _pyne: http://pyne.io/
 .. _numpy: http://numpy.org
 .. _matplotlib: http://matplotlib.org
@@ -34,6 +36,7 @@ Documentation
    src/index
    releasenotes/index
    devguide/index
+   fileformatspec/index
    How to cite <https://github.com/arfc/saltproc/blob/master/CITATION.md>
 
 Indices and tables
@@ -71,7 +74,7 @@ Acknowledgment
 SaltProc uses `Shablona`_ template which is universal solution for small
 scientific python projects developed at University of Washington `eScience Insititute`_.
 
-`OpenMC's docpages`_ heavily inspired the strucutre and format for SaltProc's docpages.
+`OpenMC's docpages`_ heavily inspired the structure and format for SaltProc's docpages.
 
 We make our versioned documentation using `sphinx-multiversion`_.
 

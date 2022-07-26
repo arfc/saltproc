@@ -344,6 +344,8 @@ def refill(mats, extracted_mass, waste_dict):
         ``value``
             `Materialflow` object after performing all removals.
     extracted_mass : dict of str to float
+
+        ``key``
             Name of burnable material.
         ``value``
             Mass removed as waste in reprocessing function for each material.

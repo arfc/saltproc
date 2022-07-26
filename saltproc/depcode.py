@@ -177,8 +177,8 @@ class DepcodeOpenMC(Depcode):
     Contains methods to read template and output files,
     write new input files for OpenMC.
 
-    Attributes:
-    -----------
+    Attributes
+    ----------
     param : dict of str to type
         Holds depletion step parameter information. Parameter names are keys
         and parameter values are values.
