@@ -4,8 +4,7 @@ from collections import Counter
 
 
 class Materialflow(pymat):
-    """ Class contains information about burnable material flow. Based on PyNE
-        Material.
+    """ Class contains information about burnable material flow. Based on :class:`pyne.Material`.
     """
 
     def __init__(
@@ -24,7 +23,8 @@ class Materialflow(pymat):
 
         Parameters
         ----------
-        PyNE.Material : class
+
+        :class:`pyne.Material`
             PyNE Material parent class containing nuclide vector, density,
             mass, atoms_per_molecule, metadata
         temp : float
