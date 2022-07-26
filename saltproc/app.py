@@ -342,7 +342,7 @@ def refill(mats, extracted_mass, waste_dict):
         ``key``
             Name of burnable material.
         ``value``
-            Materialflow` object after performing all removals.
+            `Materialflow` object after performing all removals.
     extracted_mass : dict of str to float
 
         ``key``
@@ -354,7 +354,7 @@ def refill(mats, extracted_mass, waste_dict):
         ``key``
             Process name.
         ``value``
-            Materialflow` object containing waste streams data.
+            `Materialflow` object containing waste streams data.
 
     Returns
     -------
@@ -364,7 +364,7 @@ def refill(mats, extracted_mass, waste_dict):
         ``key``
             Name of burnable material.
         ``value``
-            Materialflow` object after adding fresh fuel.
+            `Materialflow` object after adding fresh fuel.
     """
     print('Fuel before refill ^^^', mats['fuel'].print_attr())
     feeds = read_feeds_from_input()

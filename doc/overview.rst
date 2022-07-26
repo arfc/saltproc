@@ -7,7 +7,7 @@ depletion simulation with the following capabilities:
 
 - neutron poison removal with user-defined efficiency,
 - make-up mass loss by fresh fuel injection,
-- reactivity control by adjusting fuel feed rate or geometry,
+- reactivity control by adjusting fuel feed rate or reactor geometry (i.e. control rod depth),
 - can model any reactor design,
 - potentially, can couple with any depletion tool (i.e., MCNP, SCALE, OpenMC).
 
@@ -26,7 +26,7 @@ Molten Salt Reactors. It performs following major functions:
 
 The code logic flow is the following:
 
-  1. Runs the transpor-depletion code (`saltproc.depcode.run_depcode()`)
+  1. Runs the transport-depletion code (`saltproc.depcode.run_depcode()`)
   2. Parses through the output `*_dep.m` file and creates PyNE Material object
      for each burnable material.
   3. Processes Fuel (`saltproc.app.reprocessing()` and `saltproc.refill`):
