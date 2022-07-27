@@ -20,6 +20,75 @@ import pydotplus
 import argparse
 import numpy as np
 
+def run():
+    """ Inititializes main run.
+    """
+    nodes, cores, sp_input = parse_arguments()
+    read_main_input(sp_input)
+    _print_simulation_input_info()
+    # Intializing objects
+    depcode = _create_depcode_object()
+    simulation = _create_simulation_object()
+    msr = _create_reactor_object()
+
+    # Check: Restarting previous simulation or starting new?
+    simulation.check_restart()
+    # Run sequence
+    # Start sequence
+    for dep_step in range(len(msr.dep_step_length_cumulative)):
+        print("\n\n\nStep #%i has been started" % (dep_step + 1))
+        simulation.sim_depcode.write_depcode_input(msr,
+                                                   dep_step,
+                                                   simulation.restart_flag)
+        depcode.run_depcode(cores, nodes)
+        if dep_step == 0 and simulation.restart_flag is False:  # First step
+            # Read general simulation data which never changes
+            simulation.store_run_init_info()
+            # Parse and store data for initial state (beginning of dep_step)
+            mats = depcode.read_dep_comp(False)
+            simulation.store_mat_data(mats, dep_step - 1, False)
+        # Finish of First step
+        # Main sequence
+        mats = depcode.read_dep_comp(True)
+        simulation.store_mat_data(mats, dep_step, False)
+        simulation.store_run_step_info()
+        # Reprocessing here
+        print("\nMass and volume of fuel before reproc %f g; %f cm3" %
+              (mats['fuel'].mass,
+               mats['fuel'].vol))
+        # print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
+        #       (mats['ctrlPois'].mass,
+        #        mats['ctrlPois'].vol))
+        waste_st, rem_mass = reprocessing(mats)
+        print("\nMass and volume of fuel after reproc %f g; %f cm3" %
+              (mats['fuel'].mass,
+               mats['fuel'].vol))
+        # print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
+        #       (mats['ctrlPois'].mass,
+        #        mats['ctrlPois'].vol))
+        waste_feed_st = refill(mats, rem_mass, waste_st)
+        print("\nMass and volume of fuel after REFILL %f g; %f cm3" %
+              (mats['fuel'].mass,
+               mats['fuel'].vol))
+        # print("Mass and volume of ctrlPois after REFILL %f g; %f cm3" %
+        #       (mats['ctrlPois'].mass,
+        #        mats['ctrlPois'].vol))
+        print("Removed mass [g]:", rem_mass)
+        # Store in DB after reprocessing and refill (right before next depl)
+        simulation.store_after_repr(mats, waste_feed_st, dep_step)
+        depcode.write_mat_file(mats, simulation.burn_time)
+        del mats, waste_st, waste_feed_st, rem_mass
+        gc.collect()
+        # Switch to another geometry?
+        if simulation.adjust_geo and simulation.read_k_eds_delta(dep_step):
+            depcode.switch_to_next_geometry()
+        print("\nTime at the end of current depletion step %fd" %
+              simulation.burn_time)
+        print("Simulation succeeded.\n")
+        '''print("Reactor object data.\n",
+        msr.mass_flowrate,
+              msr.power_levels,
+              msr.dep_step_length_cumulative)'''
 
 def parse_arguments():
     """Parses arguments from command line.
@@ -392,9 +461,9 @@ def refill(mats, extracted_mass, waste_dict):
         print('Fuel after refill ^^^', mats[mn].print_attr())
     return waste_dict
 
-def _create_depcode_object():
+def _create_depcode_object(depcode_input):
     """Helper function for `run()` """
-    if depcode_inp['codename'] == 'serpent':
+    if depcode_input['codename'] == 'serpent':
         depcode = DepcodeSerpent(
             exec_path=depcode_inp['exec_path'],
             template_inputfile_path=depcode_inp['template_inputfile_path'],
@@ -453,72 +522,4 @@ def _print_simulation_input_info():
           '\n')
 
 
-def run():
-    """ Inititializes main run.
-    """
-    nodes, cores, sp_input = parse_arguments()
-    read_main_input(sp_input)
-    _print_simulation_input_info()
-    # Intializing objects
-    depcode = _create_depcode_object()
-    simulation = _create_simulation_object()
-    msr = _create_reactor_object()
 
-    # Check: Restarting previous simulation or starting new?
-    simulation.check_restart()
-    # Run sequence
-    # Start sequence
-    for dep_step in range(len(msr.dep_step_length_cumulative)):
-        print("\n\n\nStep #%i has been started" % (dep_step + 1))
-        simulation.sim_depcode.write_depcode_input(msr,
-                                                   dep_step,
-                                                   simulation.restart_flag)
-        depcode.run_depcode(cores, nodes)
-        if dep_step == 0 and simulation.restart_flag is False:  # First step
-            # Read general simulation data which never changes
-            simulation.store_run_init_info()
-            # Parse and store data for initial state (beginning of dep_step)
-            mats = depcode.read_dep_comp(False)
-            simulation.store_mat_data(mats, dep_step - 1, False)
-        # Finish of First step
-        # Main sequence
-        mats = depcode.read_dep_comp(True)
-        simulation.store_mat_data(mats, dep_step, False)
-        simulation.store_run_step_info()
-        # Reprocessing here
-        print("\nMass and volume of fuel before reproc %f g; %f cm3" %
-              (mats['fuel'].mass,
-               mats['fuel'].vol))
-        # print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
-        #       (mats['ctrlPois'].mass,
-        #        mats['ctrlPois'].vol))
-        waste_st, rem_mass = reprocessing(mats)
-        print("\nMass and volume of fuel after reproc %f g; %f cm3" %
-              (mats['fuel'].mass,
-               mats['fuel'].vol))
-        # print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
-        #       (mats['ctrlPois'].mass,
-        #        mats['ctrlPois'].vol))
-        waste_feed_st = refill(mats, rem_mass, waste_st)
-        print("\nMass and volume of fuel after REFILL %f g; %f cm3" %
-              (mats['fuel'].mass,
-               mats['fuel'].vol))
-        # print("Mass and volume of ctrlPois after REFILL %f g; %f cm3" %
-        #       (mats['ctrlPois'].mass,
-        #        mats['ctrlPois'].vol))
-        print("Removed mass [g]:", rem_mass)
-        # Store in DB after reprocessing and refill (right before next depl)
-        simulation.store_after_repr(mats, waste_feed_st, dep_step)
-        depcode.write_mat_file(mats, simulation.burn_time)
-        del mats, waste_st, waste_feed_st, rem_mass
-        gc.collect()
-        # Switch to another geometry?
-        if simulation.adjust_geo and simulation.read_k_eds_delta(dep_step):
-            depcode.switch_to_next_geometry()
-        print("\nTime at the end of current depletion step %fd" %
-              simulation.burn_time)
-        print("Simulation succeeded.\n")
-        '''print("Reactor object data.\n",
-        msr.mass_flowrate,
-              msr.power_levels,
-              msr.dep_step_length_cumulative)'''
