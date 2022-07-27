@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<tallies>
+  <filter id="1" type="delayedgroup">
+    <bins>1 2 3 4 5 6</bins>
+  </filter>
+  <filter id="2" type="universe">
+    <bins>65</bins>
+  </filter>
+  <tally id="1" name="delayed-fission-neutrons">
+    <filters>1</filters>
+    <scores>delayed-nu-fission</scores>
+  </tally>
+  <tally id="2" name="total-fission-neutrons">
+    <filters>2</filters>
+    <scores>nu-fission</scores>
+  </tally>
+  <tally id="3" name="precursor-decay-constants">
+    <filters>1</filters>
+    <scores>decay-rate</scores>
+  </tally>
+  <tally id="4" name="fission-energy">
+    <filters>2</filters>
+    <scores>fission-q-recoverable fission-q-prompt kappa-fission</scores>
+  </tally>
+  <tally id="5" name="normalization-factor">
+    <filters>2</filters>
+    <scores>heating</scores>
+  </tally>
+</tallies>

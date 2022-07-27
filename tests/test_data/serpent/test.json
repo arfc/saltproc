@@ -1,0 +1,27 @@
+{
+   "proc_input_file": "processes.json",
+   "dot_input_file": "test.dot",
+   "output_path": "./data",
+   "num_depsteps": 2,
+   "depcode": {
+       "codename": "serpent",
+       "exec_path": "sss2",
+       "template_inputfiles_path": "./tap_test1.serpent",
+       "npop": 50,
+       "active_cycles": 20,
+       "inactive_cycles": 20,
+       "geo_file_paths": ["./347_base.ini"]
+   },
+   "simulation": {
+       "sim_name": "test_simulation",
+       "db_name": "db_saltproc.h5",
+       "restart_flag": false,
+       "adjust_geo": false
+   },
+   "reactor": {
+       "volume": 1.0,
+       "mass_flowrate": 9.92E+6,
+       "power_levels": [ 1.250E+9 ],
+       "dep_step_length_cumulative": [ 5 ]
+   }
+}

@@ -1,0 +1,24 @@
+include "../../examples/tap/mats/saltproc_prepr_comp.ini"
+include "../../examples/tap/mats/non_burnable_mats.ini"
+
+
+
+
+%therm zrh_h 900 hzr05.32t hzr06.32t
+%set acelib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff312.xsdata"
+%set declib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.dec"
+%set nfylib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.nfy"
+%set sfylib "/projects/sciteam/bahg/serpent/xsdata/jeff312/sss_jeff33.sfy"
+
+set acelib "sss_jeff312.xsdata"
+set declib "sss_jeff33.dec"
+set nfylib "sss_jeff33.nfy"
+set sfylib "sss_jeff33.sfy"
+% --- Neutron population and criticality cycles:
+
+set pop 30 20 10
+
+% --- Depletion parameters
+% --- Options for burnup calculation:
+set bumode  2
+set pcc     1
