@@ -212,7 +212,6 @@ class DepcodeSerpent(Depcode):
                          active_cycles,
                          inactive_cycles)
 
-        self.temperature_dict = {}
         self.fix_dict = {}
 
     def change_sim_par(self, template_data):
@@ -249,31 +248,19 @@ class DepcodeSerpent(Depcode):
                                            self.inactive_cycles)
         return [s.replace(sim_param[0], args) for s in template_data]
 
-    def create_temperature_dicts(self):
-        """ Creates dictionary of material names to temperatures as well as
+    def create_fix_dict(self):
+        """ Creates dictionary of material names to the value of their 'fix' card as well as
         library information for decay-only nuclides"""
         mat_data = self.read_plaintext_file(self.iter_matfile)
         mat_cards = [s for s in mat_data if s.startswith("mat ")]
         for mat_card in mat_cards:
             mat_name = mat_card.split()[1]
-            fix_regex = "\+fix\s+[a-zA-Z0-9]+\s+[0-9]+(\.[0-9]+)?"
-            tmp_regex = "\+tmp\s+[0-9]+(\.[0-9]+)?"
+            fix_regex = "\s+fix\s+[a-zA-Z0-9]+\s+[0-9]+(\.[0-9]+)?"
             fix_match = re.search(fix_regex, mat_card)
-            tmp_match = re.search(tmp_regex, mat_card)
             if bool(fix_match):
-                fix_params = fix_match.group(0)
-                fix_params = fix_card.split()[1:]
-                fix_params[-1] = float(fix_params[-1])
+                fix_params = fix_match.group(0).split()[1:]
+                fix_params[1] = float(fix_params[1])
                 self.fix_dict.update({mat_name: fix_params})
-                self.temperature_dict.update({mat_name: fix_params[-1]})
-            if bool(tmp_match):
-                tmp_params = tmp_match.group(0)
-                temperature = float(tmp_params.split()[-1])
-                self.temperature_dict.update({mat_name: temperature})
-
-        self.temperature_dict = temperature_dict
-        self.fix_dict = fix_dict
-
 
     def create_iter_matfile(self, template_data):
         """Finds ``include`` line with path to material file, copies content of
@@ -470,7 +457,7 @@ class DepcodeSerpent(Depcode):
             mats[m].density = dep['MAT_' + m + '_MDENS'][-1, moment]
             mats[m].mass = mats[m].density * volume
             mats[m].vol = volume
-            mats[m].temp = self.temperature_dict[m]
+            mats[m].temp = self.fix_dict[m][1]
             mats[m].burnup = dep['MAT_' + m + '_BURNUP'][moment]
         self.create_nuclide_name_map_zam_to_serpent()
         return mats
@@ -700,7 +687,7 @@ class DepcodeSerpent(Depcode):
             data = self.insert_path_to_geometry(data)
             data = self.change_sim_par(data)
             data = self.create_iter_matfile(data)
-            create_temperatures_dict()
+            self.create_fix_dict()
         else:
             data = self.read_plaintext_file(self.iter_inputfile)
         data = self.replace_burnup_parameters(data, reactor, dep_step)
@@ -737,7 +724,7 @@ class DepcodeSerpent(Depcode):
                        (key,
                         -dep_dict[key].density,
                         self.fix_dict[key][0],
-                        dep_dict[key].temp,
+                        self.fix_dict[key][1],
                         dep_dict[key].vol))
             for nuc_code, wt_frac in dep_dict[key].comp.items():
                 # Transforms iso name from zas to zzaaam and then to SERPENT
