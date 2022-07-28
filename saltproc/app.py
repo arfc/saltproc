@@ -20,6 +20,7 @@ import pydotplus
 import argparse
 import numpy as np
 
+
 def run():
     """ Inititializes main run.
     """
@@ -281,6 +282,7 @@ def read_main_input(main_inp_file):
                 raise ValueError(
                     'Depletion step list and power list shape mismatch')
 
+
 def reprocess_materials(mats):
     """Applies extraction reprocessing scheme to burnable materials.
 
@@ -380,6 +382,7 @@ def reprocess_materials(mats):
 
     return waste_streams, extracted_mass
 
+
 def get_extraction_processes():
     """Parses ``extraction_processes`` objects from the `.json` file describing
     processing system objects.
@@ -421,6 +424,7 @@ def get_extraction_processes():
         gc.collect()
         return extraction_processes
 
+
 def get_extraction_process_paths(dot_file):
     """Reads directed graph that describes fuel reprocessing system structure
     from a `*.dot` file.
@@ -450,6 +454,7 @@ def get_extraction_process_paths(dot_file):
     for path in all_simple_paths:
         extraction_process_paths.append(path)
     return mat_name, extraction_process_paths
+
 
 def refill_materials(mats, extracted_mass, waste_streams):
     """Makes up material loss in removal processes by adding fresh fuel.
@@ -499,6 +504,7 @@ def refill_materials(mats, extracted_mass, waste_streams):
         print('Refill Material: ^^^', refill_mats[mat].print_attr())
         print('Fuel after refill: ^^^', mats[mat].print_attr())
     return waste_streams
+
 
 def get_feeds():
     """Parses ``feed`` objects from `.json` file describing processing system
