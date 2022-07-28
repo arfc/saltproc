@@ -217,7 +217,7 @@ def _create_depcode_object(depcode_input):
     codename = depcode_input['codename']
     if codename == 'serpent':
         depcode = DepcodeSerpent
-    elif codename == 'openmc'
+    elif codename == 'openmc':
         depcode = DepcodeOpenMC
     else:
         raise ValueError(
