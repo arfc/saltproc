@@ -151,10 +151,15 @@ def read_main_input(main_inp_file):
                     'Depletion step list and power list shape mismatch')
 
 
-def read_processes_from_input():
+def read_processes_from_input(proc_file):
     """Parses ``removal`` data from `.json` file with `Process` objects
     description. Then returns dictionary of `Process` objects describing
     extraction process efficiency for each target chemical element.
+
+    Parameters
+    ----------
+    proc_file : str
+        Path to `.json` file with reprocessing system parameters.
 
     Returns
     -------
@@ -168,7 +173,7 @@ def read_processes_from_input():
 
     """
     processes = OrderedDict()
-    with open(spc_inp_file) as f:
+    with open(proc_file) as f:
         j = json.load(f)
         for mat, value in j.items():
             processes[mat] = OrderedDict()
@@ -186,10 +191,16 @@ def read_processes_from_input():
         return processes
 
 
-def read_feeds_from_input():
+def read_feeds_from_input(proc_file):
     """Parses ``feed`` data from `.json` file with `Materialflow` objects
     description. Then returns dictionary of `Materialflow` objects describing
     fresh fuel feeds.
+
+    Parameters
+    ----------
+    proc_file : str
+        Path to `.json` file with reprocessing system parameters.
+
 
     Returns
     -------
@@ -202,7 +213,7 @@ def read_feeds_from_input():
             `Materialflow` object holding composition and properties of feed.
     """
     feeds = OrderedDict()
-    with open(spc_inp_file) as f:
+    with open(proc_file) as f:
         j = json.load(f)
         # print(j['feeds'])
         for mat, val in j.items():
@@ -236,7 +247,7 @@ def read_dot(dot_file):
         `core_inlet`.
 
     """
-    graph_pydot = pydotplus.graph_from_dot_file(dot_file)
+    dot_file(dot_file)
     digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
     mat_name = digraph.name
     # iterate over all possible paths between 'core_outlet' and 'core_inlet'
@@ -284,7 +295,7 @@ def reprocessing(mats):
     extracted_mass = {}
     waste = OrderedDict()
     forked_mats = OrderedDict()
-    prcs = read_processes_from_input()
+    prcs = read_processes_from_input(proc_inp_file)
     mats_name_dot, paths = read_dot(dot_inp_file)
     for mname in prcs.keys():  # iterate over materials
         waste[mname] = {}
@@ -365,7 +376,7 @@ def refill(mats, extracted_mass, waste_dict):
             `Materialflow` object after adding fresh fuel.
     """
     print('Fuel before refill ^^^', mats['fuel'].print_attr())
-    feeds = read_feeds_from_input()
+    feeds = read_feeds_from_input(proc_inp_file)
     refill_mats = OrderedDict()
     for mn, v in feeds.items():  # iterate over materials
         refill_mats[mn] = {}
