@@ -1,48 +1,54 @@
-#  __future__ import absolute_import, division, print_function
-from saltproc import DepcodeSerpent
-from saltproc import Simulation
-from saltproc import Reactor
-from pyne import serpent
+"""Run SaltProc without reprocessing"""
 import os
 import glob
-import sys
+from pathlib import Path
+
 import numpy as np
 import pytest
 
-path = os.path.realpath(__file__)
-sys.path.append(os.path.dirname(os.path.dirname(path)))
+from pyne import serpent
+from saltproc import app
+from saltproc import DepcodeSerpent, Simulation, Reactor
 
-# global class object
-directory = os.path.dirname(path)
+@pytest.fixture
+def setup():
+    cwd = Path.cwd()
 
-sss_file = directory + '/int_test'
-iter_matfile = directory + '/int_test_mat'
-db_file = directory + '/db_test.h5'
+    process_input_file, path_input_file, object_input = app.read_main_input('test_input.json')
 
-depcode = DepcodeSerpent(
-    exec_path='sss2',
-    template_input_file_path=directory +
-    '/saltproc_9d.inp',
-    geo_files=[
-        os.path.join(
-            directory,
-            '../../test_geo.inp')],
-    npop=100,
-    active_cycles=20,
-    inactive_cycles=5)
-depcode.iter_inputfile = sss_file
-depcode.iter_matfile = iter_matfile
+    depcode = app._create_depcode_object(object_input[0])
+    sss_file = (cwd / 'int_test')
+    depcode.iter_inputfile = sss_file
+    depcode.iter_matfile = (cwd / 'int_test_mat')
 
-simulation = Simulation(sim_name='Integration test',
-                        sim_depcode=depcode,
-                        core_number=1,
-                        node_number=1,
-                        db_path=db_file)
+    simulation = app._create_simulation_object(object_input[1], depcode, 1, 1)
 
-tap = Reactor(volume=1.0,
-              power_levels=[1.250E+09],
-              dep_step_length_cumulative=[3])
+    reactor = app._create_reactor_object(object_input[2])
 
+    return cwd, simulation, reactor, sss_file
+
+@pytest.mark.slow
+def test_integration_2step_saltproc_no_reproc_heavy(setup):
+    runsim_no_reproc(simulation, reactor, 2)
+    saltproc_out = sss_file + '_dep.m'
+
+    ref_result = serpent.parse_dep(cwd / 'serpent_9d_dep.m', make_mats=False)
+    test_result = serpent.parse_dep(saltproc_out, make_mats=False)
+
+    ref_mdens_error = np.loadtxt(cwd / 'sss_vs_sp_no_reproc_error')
+
+    ref_fuel_mdens = ref_result['MAT_fuel_MDENS'][:, -2]
+    test_fuel_mdens = test_result['MAT_fuel_MDENS'][:, -1]
+
+    test_mdens_error = np.array(ref_fuel_mdens - test_fuel_mdens)
+    np.testing.assert_array_equal(test_mdens_error, ref_mdens_error)
+    # Cleaning after testing
+    out_file_list = glob.glob(directory + '/int_test*')
+    for file in out_file_list:
+        try:
+            os.remove(file)
+        except OSError:
+            print("Error while deleting file : ", file)
 
 def runsim_no_reproc(simulation, reactor, nsteps):
     """Run simulation sequence for integration test. No reprocessing
@@ -51,7 +57,9 @@ def runsim_no_reproc(simulation, reactor, nsteps):
 
     Parameters
     ----------
-    reactor : `Reactor`
+    simulation : Simulation
+        Simulation object
+    reactor : Reactor
         Contains information about power load curve and cumulative
         depletion time for the integration test.
     nsteps : int
@@ -92,24 +100,4 @@ def runsim_no_reproc(simulation, reactor, nsteps):
             simulation.burn_time)
 
 
-@pytest.mark.slow
-# @pytest.mark.skip
-def test_integration_2step_saltproc_no_reproc_heavy():
-    runsim_no_reproc(simulation, tap, 2)
-    saltproc_out = sss_file + '_dep.m'
-    dep_ser = serpent.parse_dep(
-        directory + '/serpent_9d_dep.m',
-        make_mats=False)
-    dep_sp = serpent.parse_dep(saltproc_out, make_mats=False)
-    err_expec = np.loadtxt(directory + '/sss_vs_sp_no_reproc_error')
-    fuel_mdens_serpent_eoc = dep_ser['MAT_fuel_MDENS'][:, -2]
-    fuel_mdens_sp_eoc = dep_sp['MAT_fuel_MDENS'][:, -1]
-    err_res = np.array(fuel_mdens_serpent_eoc - fuel_mdens_sp_eoc)
-    np.testing.assert_array_equal(err_res, err_expec)
-    # Cleaning after testing
-    out_file_list = glob.glob(directory + '/int_test*')
-    for file in out_file_list:
-        try:
-            os.remove(file)
-        except OSError:
-            print("Error while deleting file : ", file)
+
