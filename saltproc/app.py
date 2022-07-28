@@ -1,24 +1,17 @@
-from saltproc import DepcodeSerpent
-from saltproc import DepcodeOpenMC
-from saltproc import Simulation
-from saltproc import Materialflow
-from saltproc import Process
-from saltproc import Reactor
-from saltproc import Sparger
-from saltproc import Separator
-# from depcode import Depcode
-# from simulation import Simulation
-# from materialflow import Materialflow
-import os
-import copy
+from pathlib import Path
+from copy import deepcopy
+from collections import OrderedDict
+
+import argparse
+import numpy as np
 import json
 import jsonschema
-from collections import OrderedDict
 import gc
 import networkx as nx
 import pydotplus
-import argparse
-import numpy as np
+
+from saltproc import DepcodeSerpent, DepcodeOpenMC, Simulation, Reactor
+from saltproc import Process, Sparger, Separator, Materialflow
 
 def run():
     """ Inititializes main run"""
@@ -144,10 +137,9 @@ def read_main_input(main_inp_file):
 
     """
 
-    input_schema = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                './input_schema.json')
+    input_schema = (Path(__file__).parents[0] / 'input_schema.json')
     with open(main_inp_file) as f:
-        j = json.load(f)
+        j = json.load(f /)
         with open(input_schema) as s:
             v = json.load(s)
             try:
@@ -157,21 +149,16 @@ def read_main_input(main_inp_file):
                       Please see saltproc/tests/test.json for an example.")
 
         # Global input path
-        path_prefix = os.getcwd()
-        input_path = os.path.join(path_prefix, os.path.dirname(f.name))
+        input_path = (Path.cwd() / Path(f.name))
 
         # Saltproc settings
-        process_input_file = os.path.join(
-            os.path.dirname(f.name),
-            j['proc_input_file'])
-        path_input_file = os.path.join(
-            os.path.dirname(f.name),
-            j['dot_input_file'])
+        process_input_file = (Path(f.name)/ j['proc_input_file'])
+        path_input_file = (Path(f.name) / j['dot_input_file'])
         output_path = j['output_path']
         num_depsteps = j['num_depsteps']
 
         # Global output path
-        output_path = os.path.join(input_path, output_path)
+        output_path = (input_path / output_path)
         j['output_path'] = output_path
 
         # Class settings
@@ -180,13 +167,12 @@ def read_main_input(main_inp_file):
         reactor_input = j['reactor']
 
         if depcode_input['codename'] == 'serpent':
-            depcode_input['template_input_file_path'] = os.path.join(
-                input_path, depcode_input['template_input_file_path'])
+            depcode_input['template_input_file_path'] = \
+                (input_path / depcode_input['template_input_file_path'])
         elif depcode_input['codename'] == 'openmc':
             for key in depcode_input['template_input_file_path']:
                 value = depcode_input['template_input_file_path'][key]
-                depcode_input['template_input_file_path'][key] = \
-                    os.path.join(input_path, value)
+                depcode_input['template_input_file_path'][key] = (input_path / value)
         else:
             raise ValueError(
                 f'{depcode_input["codename"]} is not a supported depletion code')
@@ -196,12 +182,11 @@ def read_main_input(main_inp_file):
         # Global geometry file paths
         geo_file_paths = []
         for g in geo_list:
-            geo_file_paths += [os.path.join(input_path, g)]
+            geo_file_paths += [(input_path / g)]
         depcode_input['geo_file_paths'] = geo_file_paths
 
         # Global output file paths
-        db_name = os.path.join(
-            output_path, simulation_input['db_name'])
+        db_name = (output_path / simulation_input['db_name'])
         simulation_input['db_name'] = db_name
 
         reactor_input = _process_main_input_reactor_params(reactor_input, num_depsteps)
@@ -215,16 +200,16 @@ def _print_simulation_input_info(simulation_input, depcode_input):
           str(simulation_input['restart_flag']) +
           '\n'
           '\tTemplate File Path  = ' +
-          os.path.abspath(depcode_input['template_inputfile_path']) +
+          Path.resolve(depcode_input['template_inputfile_path']) +
           '\n'
           '\tInput File Path     = ' +
-          os.path.abspath(depcode_input['iter_inputfile']) +
+          Path.resolve(depcode_input['iter_inputfile']) +
           '\n'
           '\tMaterial File Path  = ' +
-          os.path.abspath(depcode_input['iter_matfile']) +
+          Path.resolvedepcode_input['iter_matfile']) +
           '\n'
           '\tOutput HDF5 database Path = ' +
-          os.path.abspath(simulation_input['db_name']) +
+          Path.resolve(simulation_input['db_name']) +
           '\n')
 
 def _create_depcode_object(depcode_input):
@@ -345,7 +330,7 @@ def reprocessing(mats, process_input_file, path_input_file):
             w = 'waste_'
             ctr = 0
             for path in paths:
-                forked_mats[mname].append(copy.deepcopy(mats[mname]))
+                forked_mats[mname].append(deepcopy(mats[mname]))
                 print("Material mass %f" % mats[mname].mass)
                 for p in path:
                     # Calculate fraction of the flow going to the process p
@@ -354,7 +339,7 @@ def reprocessing(mats, process_input_file, path_input_file):
                     print('Process %s, divisor=%f' % (p, divisor))
                     # Update materialflow byt multiplying it by flow fraction
                     forked_mats[mname][ctr] = \
-                        divisor * copy.deepcopy(forked_mats[mname][ctr])
+                        divisor * deepcopy(forked_mats[mname][ctr])
                     waste[mname][w + p] = \
                         prcs[mname][p].rem_elements(forked_mats[mname][ctr])
                 ctr += 1
