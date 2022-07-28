@@ -139,7 +139,7 @@ def read_main_input(main_inp_file):
 
     input_schema = (Path(__file__).parents[0] / 'input_schema.json')
     with open(main_inp_file) as f:
-        j = json.load(f /)
+        j = json.load(f)
         with open(input_schema) as s:
             v = json.load(s)
             try:
@@ -149,7 +149,7 @@ def read_main_input(main_inp_file):
                       Please see saltproc/tests/test.json for an example.")
 
         # Global input path
-        input_path = (Path.cwd() / Path(f.name))
+        input_path = (Path.cwd() / Path(f.name).parents[0])
 
         # Saltproc settings
         process_input_file = (Path(f.name)/ j['proc_input_file'])
@@ -159,7 +159,7 @@ def read_main_input(main_inp_file):
 
         # Global output path
         output_path = (input_path / output_path)
-        j['output_path'] = output_path
+        j['output_path'] = Path.resolve(output_path)
 
         # Class settings
         depcode_input= j['depcode']
@@ -168,11 +168,11 @@ def read_main_input(main_inp_file):
 
         if depcode_input['codename'] == 'serpent':
             depcode_input['template_input_file_path'] = \
-                (input_path / depcode_input['template_input_file_path'])
+                Path.resolve(input_path / depcode_input['template_input_file_path'])
         elif depcode_input['codename'] == 'openmc':
             for key in depcode_input['template_input_file_path']:
                 value = depcode_input['template_input_file_path'][key]
-                depcode_input['template_input_file_path'][key] = (input_path / value)
+                depcode_input['template_input_file_path'][key] = Path.resolve(input_path / value)
         else:
             raise ValueError(
                 f'{depcode_input["codename"]} is not a supported depletion code')
@@ -182,12 +182,12 @@ def read_main_input(main_inp_file):
         # Global geometry file paths
         geo_file_paths = []
         for g in geo_list:
-            geo_file_paths += [(input_path / g)]
+            geo_file_paths += [Path.resolve(input_path / g)]
         depcode_input['geo_file_paths'] = geo_file_paths
 
         # Global output file paths
         db_name = (output_path / simulation_input['db_name'])
-        simulation_input['db_name'] = db_name
+        simulation_input['db_name'] = Path.resolve(db_name)
 
         reactor_input = _process_main_input_reactor_params(reactor_input, num_depsteps)
 
@@ -206,7 +206,7 @@ def _print_simulation_input_info(simulation_input, depcode_input):
           Path.resolve(depcode_input['iter_inputfile']) +
           '\n'
           '\tMaterial File Path  = ' +
-          Path.resolvedepcode_input['iter_matfile']) +
+          Path.resolve(depcode_input['iter_matfile']) +
           '\n'
           '\tOutput HDF5 database Path = ' +
           Path.resolve(simulation_input['db_name']) +
@@ -424,7 +424,7 @@ def read_dot(dot_file):
         `core_inlet`.
 
     """
-    dot_file(dot_file)
+    graph_pydot = pydotplus.graph_from_dot_file(dot_file)
     digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
     mat_name = digraph.name
     # iterate over all possible paths between 'core_outlet' and 'core_inlet'
