@@ -152,8 +152,8 @@ def read_main_input(main_inp_file):
         input_path = (Path.cwd() / Path(f.name).parents[0])
 
         # Saltproc settings
-        process_input_file = (Path(f.name)/ j['proc_input_file'])
-        path_input_file = (Path(f.name) / j['dot_input_file'])
+        process_input_file = Path.resolve(input_path / j['proc_input_file']).as_posix()
+        path_input_file = Path.resolve(input_path / j['dot_input_file']).as_posix()
         output_path = j['output_path']
         num_depsteps = j['num_depsteps']
 
@@ -168,11 +168,11 @@ def read_main_input(main_inp_file):
 
         if depcode_input['codename'] == 'serpent':
             depcode_input['template_input_file_path'] = \
-                Path.resolve(input_path / depcode_input['template_input_file_path'])
+                Path.resolve(input_path / depcode_input['template_input_file_path']).as_posix()
         elif depcode_input['codename'] == 'openmc':
             for key in depcode_input['template_input_file_path']:
                 value = depcode_input['template_input_file_path'][key]
-                depcode_input['template_input_file_path'][key] = Path.resolve(input_path / value)
+                depcode_input['template_input_file_path'][key] = Path.resolve(input_path / value).as_posix()
         else:
             raise ValueError(
                 f'{depcode_input["codename"]} is not a supported depletion code')
@@ -182,12 +182,12 @@ def read_main_input(main_inp_file):
         # Global geometry file paths
         geo_file_paths = []
         for g in geo_list:
-            geo_file_paths += [Path.resolve(input_path / g)]
+            geo_file_paths += [Path.resolve(input_path / g).as_posix()]
         depcode_input['geo_file_paths'] = geo_file_paths
 
         # Global output file paths
         db_name = (output_path / simulation_input['db_name'])
-        simulation_input['db_name'] = Path.resolve(db_name)
+        simulation_input['db_name'] = Path.resolve(db_name).as_posix()
 
         reactor_input = _process_main_input_reactor_params(reactor_input, num_depsteps)
 
@@ -217,20 +217,18 @@ def _create_depcode_object(depcode_input):
     codename = depcode_input['codename']
     if codename == 'serpent':
         depcode = DepcodeSerpent
-    elif codename == 'openmc'
+    elif codename == 'openmc':
         depcode = DepcodeOpenMC
     else:
         raise ValueError(
             f'{depcode_input["codename"]} is not a supported depletion code')
 
-    depcode = depcode(exec_path=depcode_input['exec_path'],
-            template_inputfile_path=depcode_input['template_inputfile_path'],
-            iter_inputfile=depcode_input['iter_inputfile'],
-            iter_matfile=depcode_input['iter_matfile'],
-            geo_files=depcode_input['geo_file_paths'],
-            npop=depcode_input['npop'],
-            active_cycles=depcode_input['active_cycles'],
-            inactive_cycles=depcode_input['inactive_cycles'])
+    depcode = depcode(depcode_input['exec_path'],
+                      depcode_input['template_input_file_path'],
+                      geo_files=depcode_input['geo_file_paths'],
+                      npop=depcode_input['npop'],
+                      active_cycles=depcode_input['active_cycles'],
+                      inactive_cycles=depcode_input['inactive_cycles'])
 
     return depcode
 
