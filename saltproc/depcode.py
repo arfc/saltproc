@@ -537,10 +537,10 @@ class DepcodeSerpent(Depcode):
         super().__init__("serpent",
                          exec_path,
                          template_input_file_path,
-                         geo_files,
-                         npop,
-                         active_cycles,
-                         inactive_cycles)
+                         geo_files=geo_files,
+                         npop=npop,
+                         active_cycles=active_cycles,
+                         inactive_cycles=inactive_cycles)
         self.iter_inputfile = './serpent_iter_input.serpent'
         self.iter_matfile = './serpent_iter_mat.ini'
 
