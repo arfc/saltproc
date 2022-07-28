@@ -20,7 +20,7 @@ def run():
     _print_simulation_input_info(obj_in[1], object_input[0])
     # Intializing objects
     depcode = _create_depcode_object(object_input[0])
-    simulation = _create_simulation_object(object_input[1])
+    simulation = _create_simulation_object(object_input[1], depcode, cores, nodes)
     msr = _create_reactor_object(object_input[2])
 
     # Check: Restarting previous simulation or starting new?
@@ -234,7 +234,7 @@ def _create_depcode_object(depcode_input):
 
     return depcode
 
-def _create_simulation_object(simulation_input):
+def _create_simulation_object(simulation_input, depcode, cores, nodes):
     """Helper function for `run()` """
     simulation = Simulation(
         sim_name='Super test',
@@ -498,7 +498,6 @@ def read_feeds_from_input(process_input_file):
     ----------
     proc_file : str
         Path to `.json` file with reprocessing system parameters.
-
 
     Returns
     -------
