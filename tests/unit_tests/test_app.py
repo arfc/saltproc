@@ -7,7 +7,7 @@ import pytest
 from saltproc import app
 
 @pytest.fixture
-def main_input():
+def cwd():
     path = Path(__file__).parents[1]
     filename = path
     return filename
@@ -25,10 +25,13 @@ def dot_test_file():
     return filename
 
 @pytest.mark.parametrize("codename", ("serpent", "openmc"))
-def test_read_main_input(main_input, codename):
+def test_read_main_input(cwd, codename):
 
-    code_input = codename + '_data'
-    out = app.read_main_input(main_input / code_input / 'test.json')
+
+    data_path = codename + '_data'
+    data_path = cwd / data_path
+    main_input = (data_path / 'test.json').as_posix()
+    out = app.read_main_input(main_input)
     process_input_file, path_input_file, object_input = out
     depcode_input, simulation_input, reactor_input = object_input
 
@@ -41,11 +44,11 @@ def test_read_main_input(main_input, codename):
     assert depcode_input['npop'] == 50
     assert depcode_input['active_cycles'] == 20
     assert depcode_input['inactive_cycles'] == 20
-    ## add generic path
-    assert depcode_input['geo_file_paths'][0] == (main_input / code_input / ('geometry_base' + ext))
+    assert depcode_input['geo_file_paths'][0] == \
+        (data_path / ('geometry_base' + ext)).as_posix()
 
-    ## add generic path
-    assert simulation_input['db_name'] == (main_input / 'temp_data/db_saltproc.h5')
+    assert simulation_input['db_name'] == \
+        (data_path / '../temp_data/db_saltproc.h5').resolve().as_posix()
     assert simulation_input['restart_flag'] is False
 
     np.testing.assert_equal(
