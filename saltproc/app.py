@@ -223,14 +223,13 @@ def _create_depcode_object(depcode_input):
         raise ValueError(
             f'{depcode_input["codename"]} is not a supported depletion code')
 
-    depcode = depcode(exec_path=depcode_input['exec_path'],
-            template_inputfile_path=depcode_input['template_inputfile_path'],
-            iter_inputfile=depcode_input['iter_inputfile'],
-            iter_matfile=depcode_input['iter_matfile'],
-            geo_files=depcode_input['geo_file_paths'],
-            npop=depcode_input['npop'],
-            active_cycles=depcode_input['active_cycles'],
-            inactive_cycles=depcode_input['inactive_cycles'])
+    depcode = depcode(codename,
+                      depcode_input['exec_path'],
+                      depcode_input['template_input_file_path'],
+                      geo_files=depcode_input['geo_file_paths'],
+                      npop=depcode_input['npop'],
+                      active_cycles=depcode_input['active_cycles'],
+                      inactive_cycles=depcode_input['inactive_cycles'])
 
     return depcode
 

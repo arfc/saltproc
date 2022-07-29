@@ -12,7 +12,7 @@ from saltproc import DepcodeSerpent, Simulation, Reactor
 
 @pytest.fixture
 def setup():
-    cwd = Path.cwd()
+    cwd = Path(__file__).parents[0]
     main_input = Path.resolve(cwd / 'test_input.json')
 
     process_input_file, path_input_file, object_input = app.read_main_input(main_input)
