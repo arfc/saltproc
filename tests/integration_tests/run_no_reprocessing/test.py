@@ -12,15 +12,15 @@ from saltproc import DepcodeSerpent, Simulation, Reactor
 
 @pytest.fixture
 def setup():
-    cwd = Path(__file__).parents[0]
-    main_input = Path.resolve(cwd / 'test_input.json')
+    cwd = Path(__file__).parents[0].resolve().as_posix()
+    main_input = cwd + '/reference_input.json'
 
     process_input_file, path_input_file, object_input = app.read_main_input(main_input)
 
     depcode = app._create_depcode_object(object_input[0])
-    sss_file = (cwd / 'int_test')
+    sss_file = cwd + '/_test'
     depcode.iter_inputfile = sss_file
-    depcode.iter_matfile = (cwd / 'int_test_mat')
+    depcode.iter_matfile = cwd + '/_test_mat'
 
     simulation = app._create_simulation_object(object_input[1], depcode, 1, 1)
 
@@ -30,13 +30,14 @@ def setup():
 
 @pytest.mark.slow
 def test_integration_2step_saltproc_no_reproc_heavy(setup):
+    cwd, simulation, reactor, sss_file = setup
     runsim_no_reproc(simulation, reactor, 2)
     saltproc_out = sss_file + '_dep.m'
 
-    ref_result = serpent.parse_dep(cwd / 'serpent_9d_dep.m', make_mats=False)
+    ref_result = serpent.parse_dep(cwd + '/reference_dep.m', make_mats=False)
     test_result = serpent.parse_dep(saltproc_out, make_mats=False)
 
-    ref_mdens_error = np.loadtxt(cwd / 'sss_vs_sp_no_reproc_error')
+    ref_mdens_error = np.loadtxt(cwd + '/reference_error')
 
     ref_fuel_mdens = ref_result['MAT_fuel_MDENS'][:, -2]
     test_fuel_mdens = test_result['MAT_fuel_MDENS'][:, -1]
@@ -44,7 +45,7 @@ def test_integration_2step_saltproc_no_reproc_heavy(setup):
     test_mdens_error = np.array(ref_fuel_mdens - test_fuel_mdens)
     np.testing.assert_array_equal(test_mdens_error, ref_mdens_error)
     # Cleaning after testing
-    out_file_list = glob.glob(directory + '/int_test*')
+    out_file_list = glob.glob(cwd + '/_test*')
     for file in out_file_list:
         try:
             os.remove(file)
