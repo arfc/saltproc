@@ -1,17 +1,31 @@
+"""Run SaltProc with reprocessing"""
+
 from __future__ import absolute_import, division, print_function
 import os
 import sys
+from pathlib import Path
+
 import numpy as np
 import pytest
+
 import tables as tb
 import subprocess
 
-path = os.path.realpath(__file__)
-sys.path.append(os.path.dirname(os.path.dirname(path)))
-directory = os.path.dirname(path)
-db_exp_file = directory + '/2step_non_ideal_2.h5'
-db_file = directory + '/data/db_saltproc.h5'
-tol = 1e-9
+#path = os.path.realpath(__file__)
+#sys.path.append(os.path.dirname(os.path.dirname(path)))
+#directory = os.path.dirname(path)
+#db_exp_file = directory + '/2step_non_ideal_2.h5'
+#db_file = directory + '/data/db_saltproc.h5'
+#tol = 1e-9
+
+@pytest.fixture
+def setup():
+    cwd = Path(__file__).parents[0].resolve().as_posix()
+    db_file = directory + '/data/db_saltproc.h5'
+    db_exp_file = directory + '/2step_non_ideal_2.h5'
+    tol = 1e-9
+
+    return db_file, db_exp_file, tol
 
 
 def read_keff_h5(file):
@@ -85,7 +99,7 @@ def read_inout_h5(db_file):
     return mass_w_sprg, mass_w_s, mass_w_ni, mass_feed_leu
 
 
-def assert_waste_check_eq_h5(db, dbe):
+def assert_waste_check_eq_h5(db, dbe, tol):
     sprg_e, sep_e, ni_e, feed_e = read_inout_h5(dbe)
     sprg, sep, ni, feed = read_inout_h5(db)
     for key, val in sprg_e.items():
@@ -98,7 +112,7 @@ def assert_waste_check_eq_h5(db, dbe):
         np.testing.assert_almost_equal(val, feed[key], decimal=tol)
 
 
-def assert_iso_m_check_eq_h5(db, dbe):
+def assert_iso_m_check_eq_h5(db, dbe, tol):
     mass_b_e, mass_a_e = read_iso_m_h5(dbe)
     mass_b, mass_a = read_iso_m_h5(db)
     for key, val in mass_b_e.items():
@@ -107,7 +121,7 @@ def assert_iso_m_check_eq_h5(db, dbe):
         np.testing.assert_almost_equal(val, mass_a[key], decimal=tol)
 
 
-def assert_h5_almost_equal(db, dbe):
+def assert_h5_almost_equal(db, dbe, tol):
     data_exp, param_exp = read_fuel_h5(dbe)
     data, param = read_fuel_h5(db)
     # Compare materials composition
@@ -120,7 +134,8 @@ def assert_h5_almost_equal(db, dbe):
 
 @pytest.mark.slow
 # @pytest.mark.skip
-def test_integration_2step_constant_ideal_removal_heavy():
+def test_integration_2step_constant_ideal_removal_heavy(setup):
+    db_file, db_exp_file, tol = setup
     # app.run()
     subprocess.check_call([
         'python',
@@ -128,4 +143,4 @@ def test_integration_2step_constant_ideal_removal_heavy():
         '-i',
         'saltproc/tests/integration_tests/const_repr/tap_main_test.json'])
     np.testing.assert_equal(read_keff_h5(db_file), read_keff_h5(db_exp_file))
-    assert_h5_almost_equal(db_file, db_exp_file)
+    assert_h5_almost_equal(db_file, db_exp_file, tol)
