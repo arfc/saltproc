@@ -1,8 +1,9 @@
-from saltproc import Materialflow
-from pyne import nucname as pyname
-from math import *
+"""Process module"""
+#from math import *
 import numpy as np
-import copy
+
+from pyne import nucname as pyname
+from saltproc import Materialflow
 
 
 class Process():

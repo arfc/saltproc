@@ -1,6 +1,8 @@
-from pyne.material import Material as pymat
+"""Materialflow module"""
 import copy
 from collections import Counter
+
+from pyne.material import Material as pymat
 
 
 class Materialflow(pymat):

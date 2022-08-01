@@ -1,3 +1,4 @@
+"""Sparger module"""
 import numpy as np
 from saltproc import Process
 
