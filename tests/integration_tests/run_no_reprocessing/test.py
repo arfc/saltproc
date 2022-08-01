@@ -13,9 +13,9 @@ from saltproc import DepcodeSerpent, Simulation, Reactor
 @pytest.fixture
 def setup():
     cwd = Path(__file__).parents[0].resolve().as_posix()
-    main_input = cwd + '/reference_input.json'
+    main_input = cwd + '/test_input.json'
 
-    process_input_file, path_input_file, object_input = app.read_main_input(main_input)
+    input_path, process_input_file, path_input_file, object_input = app.read_main_input(main_input)
 
     depcode = app._create_depcode_object(object_input[0])
     sss_file = cwd + '/_test'
