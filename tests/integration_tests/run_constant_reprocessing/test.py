@@ -1,8 +1,6 @@
 """Run SaltProc with reprocessing"""
 
-from __future__ import absolute_import, division, print_function
-import os
-import sys
+#from __future__ import absolute_import, division, print_function
 from pathlib import Path
 
 import numpy as np
@@ -11,24 +9,17 @@ import pytest
 import tables as tb
 import subprocess
 
-#path = os.path.realpath(__file__)
-#sys.path.append(os.path.dirname(os.path.dirname(path)))
-#directory = os.path.dirname(path)
-#db_exp_file = directory + '/2step_non_ideal_2.h5'
-#db_file = directory + '/data/db_saltproc.h5'
-#tol = 1e-9
-
 @pytest.fixture
 def setup():
     cwd = Path(__file__).parents[0].resolve().as_posix()
-    db_file = directory + '/data/db_saltproc.h5'
-    db_exp_file = directory + '/2step_non_ideal_2.h5'
+    test_db = cwd + '/test_db.h5'
+    ref_db = cwd + '/reference_db.h5'
     tol = 1e-9
 
-    return db_file, db_exp_file, tol
+    return cwd, test_db, ref_db, tol
 
 
-def read_keff_h5(file):
+def read_keff(file):
     db = tb.open_file(file, mode='r')
     sim_param = db.root.simulation_parameters
     # Keff at t=0 depletion step
@@ -41,17 +32,17 @@ def read_keff_h5(file):
     return k_0, k_1, k_0_e, k_1_e
 
 
-def read_fuel_h5(file):
+def read_fuel(file):
     db = tb.open_file(file, mode='r')
     fuel = db.root.materials.fuel
     out_data = {}
     for node in db.walk_nodes(fuel, classname="EArray"):
-        isomap = node.attrs.iso_map
+        nucmap = node.attrs.iso_map
         out_data[node._v_name] = {}
         # print(node)
-        for iso in isomap:
-            out_data[node._v_name][iso] = \
-                np.array([row[isomap[iso]] for row in node])
+        for nuc in nucmap:
+            out_data[node._v_name][nuc] = \
+                np.array([row[nucmap[nuc]] for row in node])
     # Read table with material parameters (density, temperature, mass)
     tmp = fuel.after_reproc.parameters.read()
     # Convert structured array to simple array
@@ -60,87 +51,89 @@ def read_fuel_h5(file):
     return out_data, param
 
 
-def read_iso_m_h5(db_file):
+def read_nuclide_mass(db_file):
     db = tb.open_file(db_file, mode='r')
     fuel_before = db.root.materials.fuel.before_reproc.comp
     fuel_after = db.root.materials.fuel.after_reproc.comp
-    isomap = fuel_before.attrs.iso_map
+    nucmap = fuel_before.attrs.iso_map
 
-    mass_b = {}
-    mass_a = {}
+    mass_before = {}
+    mass_after = {}
 
-    for iso in isomap:
-        mass_b[iso] = np.array([row[isomap[iso]] for row in fuel_before])
-        mass_a[iso] = np.array([row1[isomap[iso]] for row1 in fuel_after])
+    for nuc in nucmap:
+        mass_before[nuc] = np.array([row[nucmap[nuc]] for row in fuel_before])
+        mass_after[nuc] = np.array([row1[nucmap[nuc]] for row1 in fuel_after])
     db.close()
-    return mass_b, mass_a
+    return mass_before, mass_after
 
 
-def read_inout_h5(db_file):
+def read_in_out_streams(db_file):
     db = tb.open_file(db_file, mode='r')
-    waste_sprg = db.root.materials.fuel.in_out_streams.waste_sparger
-    waste_s = db.root.materials.fuel.in_out_streams.waste_entrainment_separator
-    waste_ni = db.root.materials.fuel.in_out_streams.waste_nickel_filter
+    waste_sparger = db.root.materials.fuel.in_out_streams.waste_sparger
+    waste_separator= db.root.materials.fuel.in_out_streams.waste_entrainment_separator
+    waste_ni_filter = db.root.materials.fuel.in_out_streams.waste_nickel_filter
     feed_leu = db.root.materials.fuel.in_out_streams.feed_leu
-    isomap = waste_ni.attrs.iso_map
-    isomap_f = feed_leu.attrs.iso_map
-    mass_w_sprg = {}
-    mass_w_s = {}
-    mass_w_ni = {}
+    waste_nucmap = waste_ni_filter.attrs.iso_map
+    feed_nucmap = feed_leu.attrs.iso_map
+    mass_waste_sparger = {}
+    mass_waste_separator = {}
+    mass_waste_ni_filter = {}
     mass_feed_leu = {}
 
-    for iso in isomap:
-        mass_w_sprg[iso] = np.array([row[isomap[iso]] for row in waste_sprg])
-        mass_w_s[iso] = np.array([row[isomap[iso]] for row in waste_s])
-        mass_w_ni[iso] = np.array([row[isomap[iso]] for row in waste_ni])
-    for iso in isomap_f:
-        mass_feed_leu[iso] = np.array([row[isomap_f[iso]] for row in feed_leu])
+    for nuc in waste_nucmap:
+        mass_waste_sparger[nuc] = np.array([row[waste_nucmap[nuc]] for row in waste_sparger])
+        mass_waste_separator[nuc] = np.array([row[waste_nucmap[nuc]] for row in waste_separator])
+        mass_waste_ni_filter[nuc] = np.array([row[waste_nucmap[nuc]] for row in waste_ni_filter])
+    for nuc in feed_nucmap:
+        mass_feed_leu[nuc] = np.array([row[feed_nucmap[nuc]] for row in feed_leu])
     db.close()
-    return mass_w_sprg, mass_w_s, mass_w_ni, mass_feed_leu
+    return mass_waste_sparger, mass_waste_separator, mass_waste_ni_filter, mass_feed_leu
 
 
-def assert_waste_check_eq_h5(db, dbe, tol):
-    sprg_e, sep_e, ni_e, feed_e = read_inout_h5(dbe)
-    sprg, sep, ni, feed = read_inout_h5(db)
-    for key, val in sprg_e.items():
-        np.testing.assert_almost_equal(val, sprg[key], decimal=tol)
-    for key, val in sep_e.items():
-        np.testing.assert_almost_equal(val, sep[key], decimal=tol)
-    for key, val in ni_e.items():
-        np.testing.assert_almost_equal(val, ni[key], decimal=tol)
-    for key, val in feed_e.items():
-        np.testing.assert_almost_equal(val, feed[key], decimal=tol)
+def assert_in_out_streams_equal(test_db, ref_db, tol):
+    ref_sparger, ref_test_separator, ref_ni_filter, ref_feed = read_in_out_streams(ref_db)
+    test_sparger, test_separator, test_ni_filter, test_feed = read_in_out_streams(test_db)
+    for key, val in ref_sparger.items():
+        np.testing.assert_almost_equal(val, test_sparger[key], decimal=tol)
+    for key, val in ref_test_separator.items():
+        np.testing.assert_almost_equal(val, test_separator[key], decimal=tol)
+    for key, val in ref_ni_filter.items():
+        np.testing.assert_almost_equal(val, test_ni_filter[key], decimal=tol)
+    for key, val in ref_feed.items():
+        np.testing.assert_almost_equal(val, test_feed[key], decimal=tol)
 
 
-def assert_iso_m_check_eq_h5(db, dbe, tol):
-    mass_b_e, mass_a_e = read_iso_m_h5(dbe)
-    mass_b, mass_a = read_iso_m_h5(db)
-    for key, val in mass_b_e.items():
-        np.testing.assert_almost_equal(val, mass_b[key], decimal=tol)
-    for key, val in mass_a_e.items():
-        np.testing.assert_almost_equal(val, mass_a[key], decimal=tol)
+def assert_nuclide_mass_equal(test_db, ref_db, tol):
+    ref_mass_before, ref_mass_after = read_nuclide_mass(ref_db)
+    test_mass_before, test_mass_after = read_nuclide_mass(test_db)
+    for key, val in ref_mass_before.items():
+        np.testing.assert_almost_equal(val, test_mass_before[key], decimal=tol)
+    for key, val in ref_mass_after.items():
+        np.testing.assert_almost_equal(val, test_mass_after[key], decimal=tol)
 
 
-def assert_h5_almost_equal(db, dbe, tol):
-    data_exp, param_exp = read_fuel_h5(dbe)
-    data, param = read_fuel_h5(db)
+def assert_db_almost_equal(test_db, ref_db, tol):
+    assert_nuclide_mass_equal(test_db, ref_db, tol)
+    assert_in_out_streams_equal(test_db, ref_db, tol)
+    ref_data, ref_param = read_fuel(ref_db)
+    test_data, test_param = read_fuel(test_db)
     # Compare materials composition
-    for node_nm, node in data_exp.items():
-        for iso, mass_arr in node.items():
-            np.testing.assert_allclose(mass_arr, data[node_nm][iso], rtol=tol)
+    for node_nm, node in ref_data.items():
+        for nuc, mass_arr in node.items():
+            np.testing.assert_allclose(mass_arr, test_data[node_nm][nuc], rtol=tol)
     # Compare material properties
-    np.testing.assert_allclose(param, param_exp, rtol=tol)
+    np.testing.assert_allclose(test_param, ref_param, rtol=tol)
 
 
 @pytest.mark.slow
 # @pytest.mark.skip
 def test_integration_2step_constant_ideal_removal_heavy(setup):
-    db_file, db_exp_file, tol = setup
+    cwd, test_db, ref_db, tol = setup
     # app.run()
     subprocess.check_call([
         'python',
         'saltproc',
         '-i',
-        'saltproc/tests/integration_tests/const_repr/tap_main_test.json'])
-    np.testing.assert_equal(read_keff_h5(db_file), read_keff_h5(db_exp_file))
-    assert_h5_almost_equal(db_file, db_exp_file, tol)
+        cwd + '/test_input.json'])
+    np.testing.assert_equal(read_keff(test_db), read_keff(ref_db))
+    assert_db_almost_equal(test_db, ref_db, tol)
