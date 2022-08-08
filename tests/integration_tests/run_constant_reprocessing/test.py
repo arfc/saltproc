@@ -1,6 +1,4 @@
 """Run SaltProc with reprocessing"""
-
-#from __future__ import absolute_import, division, print_function
 from pathlib import Path
 
 import numpy as np
@@ -129,7 +127,6 @@ def assert_db_almost_equal(test_db, ref_db, tol):
 # @pytest.mark.skip
 def test_integration_2step_constant_ideal_removal_heavy(setup):
     cwd, test_db, ref_db, tol = setup
-    # app.run()
     subprocess.check_call([
         'python',
         'saltproc',
