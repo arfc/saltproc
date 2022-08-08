@@ -1,24 +1,19 @@
 {
-   "proc_input_file": "processes.json",
-   "dot_input_file": "test.dot",
+   "proc_input_file": "../test_processes.json",
+   "dot_input_file": "../test_paths.dot",
    "output_path": "../temp_data",
    "num_depsteps": 2,
    "depcode": {
-       "codename": "openmc",
-       "exec_path": "openmc",
-       "template_input_file_path": {
-           "geometry": "geometry.xml",
-           "materials": "materials.xml",
-           "settings": "settings.xml",
-           "chain_file": "test_chain.xml"
-       },
+       "codename": "serpent",
+       "exec_path": "sss2",
+       "template_input_file_path": "template.inp",
        "npop": 50,
        "active_cycles": 20,
        "inactive_cycles": 20,
-       "geo_file_paths": ["geometry_base.xml"]
+       "geo_file_paths": ["geometry_base.ini"]
    },
    "simulation": {
-       "sim_name": "test_simulation_openmc",
+       "sim_name": "test_simulation",
        "db_name": "db_saltproc.h5",
        "restart_flag": false,
        "adjust_geo": false
