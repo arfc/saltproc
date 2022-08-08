@@ -1,10 +1,10 @@
 """Test methods in the app package"""
-
 from pathlib import Path
 
 import numpy as np
 import pytest
-from saltproc import app
+from saltproc.app import read_main_input, read_processes_from_input
+from saltproc.app import read_feeds_from_input, read_dot
 
 @pytest.fixture
 def cwd():
@@ -21,24 +21,21 @@ def proc_test_file():
 @pytest.fixture
 def dot_test_file():
     path = Path(__file__).parents[1]
-    filename = (path / 'test.dot')
+    filename = (path / 'test_paths.dot')
     return filename
 
-@pytest.mark.parametrize("codename", ("serpent", "openmc"))
-def test_read_main_input(cwd, codename):
-
-
+@pytest.mark.parametrize("codename, ext", [
+    ("serpent", ".ini"),
+    ("openmc", ".xml")])
+def test_read_main_input(cwd, codename, ext):
     data_path = codename + '_data'
     data_path = cwd / data_path
-    main_input = (data_path / 'test.json').as_posix()
-    out = app.read_main_input(main_input)
-    process_input_file, path_input_file, object_input = out
+    main_input = (data_path / 'test_input.json').as_posix()
+    out = read_main_input(main_input)
+    input_path, process_input_file, path_input_file, object_input = out
     depcode_input, simulation_input, reactor_input = object_input
 
-    if codename == 'serpent':
-        ext = '.ini'
-    elif codename == 'openmc':
-        ext = '.xml'
+    assert input_path == data_path
 
     assert depcode_input['codename'] == codename
     assert depcode_input['npop'] == 50
@@ -58,7 +55,7 @@ def test_read_main_input(cwd, codename):
                             [5, 10])
 
 def test_read_processes_from_input(proc_test_file):
-    procs = app.read_processes_from_input(proc_test_file)
+    procs = read_processes_from_input(proc_test_file)
     assert procs['fuel']['heat_exchanger'].volume == 1.37E+7
     assert procs['fuel']['sparger'].efficiency['H'] == 0.6
     assert procs['fuel']['sparger'].efficiency['Kr'] == 0.6
@@ -70,14 +67,14 @@ def test_read_processes_from_input(proc_test_file):
     assert procs['ctrlPois']['removal_tb_dy'].efficiency['Dy'] == 0
 
 def test_read_feeds_from_input(proc_test_file):
-    feeds = app.read_feeds_from_input(proc_test_file)
+    feeds = read_feeds_from_input(proc_test_file)
     assert feeds['fuel']['leu'].mass == 4.9602E+8
     assert feeds['fuel']['leu'].density == 4.9602
     assert feeds['fuel']['leu']['U235'] == 15426147.398592
     assert feeds['fuel']['leu']['U238'] == 293096800.37484
 
 def test_read_dot(dot_test_file):
-    burnable_mat, paths = app.read_dot(dot_test_file)
+    burnable_mat, paths = read_dot(dot_test_file)
     assert burnable_mat == 'fuel'
     assert paths[0][1] == 'sparger'
     assert paths[1][-2] == 'heat_exchanger'
