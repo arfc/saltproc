@@ -98,8 +98,8 @@ class Process():
         """
         waste_nucvec = {}
         thru_nucvec = {}
-        # print("Xe concentration in inflow before % f g" % inflow['Xe136'])
-        # print("Current time %f" % (t))
+        print("Xe concentration in inflow before % f g" % inflow['Xe136'])
+        print("Current time %f" % (t))
 
         for nuc in inflow.comp.keys():
             nuc_name = pyname.serpent(nuc).split('-')[0]
