@@ -1,5 +1,6 @@
 """Process module"""
-#from math import *
+from copy import deepcopy
+from math import exp
 import numpy as np
 
 from pyne import nucname as pyname
@@ -121,7 +122,10 @@ class Process():
                 waste_nucvec[nuc] = 0.0
 
         waste_stream = Materialflow(waste_nucvec)
-        thru_flow = Materialflow(thru_nucvec)
+        # preserve inflow attributes
+        thru_flow = deepcopy(inflow)
+        thru_flow.comp = thru_nucvec
+        thru_flow.density = inflow.density
         thru_flow.mass = float(inflow.mass - waste_stream.mass)
         thru_flow.norm_comp()
 

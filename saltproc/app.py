@@ -115,14 +115,14 @@ def run():
         simulation.store_mat_data(mats, dep_step, False)
         simulation.store_run_step_info()
         # Reprocessing here
-        print("\nMass and volume of fuel before reproc: %f g; %f cm3" %
+        print("\nMass and volume of fuel before reproc: %f g, %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
         # print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
         #       (mats['ctrlPois'].mass,
         #        mats['ctrlPois'].vol))
         waste_streams, extracted_mass = reprocess_materials(mats)
-        print("\nMass and volume of fuel after reproc: %f g; %f cm3" %
+        print("\nMass and volume of fuel after reproc: %f g, %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
         # print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
@@ -131,7 +131,7 @@ def run():
         waste_and_feed_streams = refill_materials(mats,
                                                   extracted_mass,
                                                   waste_streams)
-        print("\nMass and volume of fuel after REFILL: %f g; %f cm3" %
+        print("\nMass and volume of fuel after REFILL: %f g, %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
         # print("Mass and volume of ctrlPois after REFILL %f g; %f cm3" %
@@ -141,7 +141,7 @@ def run():
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_and_feed_streams, dep_step)
         depcode.write_mat_file(mats, simulation.burn_time)
-        del mats, waste_streams, waste_feed_st, extracted_mass
+        del mats, waste_streams, waste_and_feed_streams, extracted_mass
         gc.collect()
         # Switch to another geometry?
         if simulation.adjust_geo and simulation.read_k_eds_delta(dep_step):
@@ -348,11 +348,11 @@ def reprocess_materials(mats):
 
             # Sum thru flows from all paths together
             mats[mat_name] = thru_flows[mat_name][0]
-            print(f'1 Materal mass on path 0:'
+            print(f'1 Materal mass on path 0: '
                   f'{thru_flows[mat_name][0].mass}')
             for idx in range(1, i + 1):
                 mats[mat_name] += thru_flows[mat_name][idx]
-                print(f'{i + 1} Materal mass on path {i}:'
+                print(f'{i + 1} Materal mass on path {i}: '
                       f'{thru_flows[mat_name][i].mass}')
 
             print('\nMass balance: %f g = %f + %f + %f + %f + %f + %f' %
