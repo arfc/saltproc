@@ -70,8 +70,8 @@ def test_store_after_repr():
     # read data
     mats = simulation.sim_depcode.read_dep_comp(
         True)
-    waste_st, rem_mass = saltproc.app.reprocessing(mats)
-    m_after_refill = saltproc.app.refill(mats, rem_mass, waste_st)
+    waste_st, rem_mass = saltproc.app.reprocess_materials(mats)
+    m_after_refill = saltproc.app.refill_materials(mats, rem_mass, waste_st)
 
     fuel_st = m_after_refill['fuel']
 

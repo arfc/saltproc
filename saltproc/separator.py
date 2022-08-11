@@ -1,10 +1,10 @@
-
+"""Separator module"""
 import numpy as np
 from saltproc import Process
 
 
 class Separator(Process):
-    """Class evaluates gas removal efficiency in separator (bubble separator).
+    """Represents a bubble separator.
 
     Attributes
     ----------
@@ -104,24 +104,27 @@ class Separator(Process):
         self.jl = self.q_salt / self.area
         self.efficiency = self.eff()
 
-    def calc_rem_efficiency(self, el_name):
-        """Overrides the existing method in Process class to provide
-        efficiency values of target isotopes calculated in eff() function.
+    def calculate_removal_efficiency(self, nuc_name):
+        """Calculate the value of the removal efficiency for a given nuclide
+        in this process.
+
+        Overrides the existing method in :class`openmc.process.Process` to
+        provide efficiency values of target isotopes calculated in the
+        ``eff()`` function.
 
         Parameters
         ----------
-        el_name : str
-            Name of target element to be removed.
+        nuc_name : str
+            Name of target nuclide to be removed.
 
         Returns
         -------
         efficiency : float
-            Extraction efficiency for el_name element.
+            Extraction efficiency for the given nuclide.
 
         """
-        efficiency = self.eff()[el_name]
 
-        return efficiency
+        return self.eff()[nuc_name]
 
     def description(self):
         """Class attributes' descriptions for plotting purpose in
