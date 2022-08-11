@@ -74,15 +74,18 @@
            <div itemprop="articleBody">
              
   <h1>Source code for saltproc.process</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Materialflow</span>
-<span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">nucname</span> <span class="k">as</span> <span class="n">pyname</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="o">*</span>
+<span></span><span class="sd">&quot;&quot;&quot;Process module&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">exp</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">nucname</span> <span class="k">as</span> <span class="n">pyname</span>
+<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Materialflow</span>
 
 
 <div class="viewcode-block" id="Process"><a class="viewcode-back" href="../../src/saltproc.process.html#saltproc.process.Process">[docs]</a><span class="k">class</span> <span class="nc">Process</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Class describes process which must be applied to Materialflow to change</span>
-<span class="sd">     burnable material composition.</span>
+    <span class="sd">&quot;&quot;&quot;Represents an aribtrary processing component that extracts nuclides from</span>
+<span class="sd">    a material.</span>
 <span class="sd">     &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Process.__init__"><a class="viewcode-back" href="../../src/saltproc.process.html#saltproc.process.Process.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -97,14 +100,15 @@
 <span class="sd">            can handle (g/s)</span>
 <span class="sd">        volume : float</span>
 <span class="sd">            total volume of the current facility (:math:`cm^3`)</span>
-<span class="sd">        efficiency : dict of str to float</span>
+<span class="sd">        efficiency : dict of str to float or str</span>
 
 <span class="sd">            ``key``</span>
 <span class="sd">                element name for removal (not isotope)</span>
 <span class="sd">            ``value``</span>
-<span class="sd">                removal efficency for the isotope (weight fraction)</span>
+<span class="sd">                removal efficency for the isotope as a weight fraction (float)</span>
+<span class="sd">                or a function eps(x,m,t,P,L) (str)</span>
 <span class="sd">        optional_parameter : float</span>
-<span class="sd">            user can define any castom parameter in the input file describing</span>
+<span class="sd">            user can define any custom parameter in the input file describing</span>
 <span class="sd">            processes and use it in efficiency function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">dictionary</span> <span class="ow">in</span> <span class="n">initial_data</span><span class="p">:</span>
@@ -113,24 +117,26 @@
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="Process.calc_rem_efficiency"><a class="viewcode-back" href="../../src/saltproc.process.html#saltproc.process.Process.calc_rem_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">calc_rem_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Based on data from json file with Processes description calculate</span>
-<span class="sd">        value (float) of the removal efficiency. If it was str describing</span>
-<span class="sd">        efficiecny as a function (eps(x,m,t,P,L)) then calculating value. If it</span>
-<span class="sd">        constant (float in processes.json) then just keep it as is.</span>
+<div class="viewcode-block" id="Process.calculate_removal_efficiency"><a class="viewcode-back" href="../../src/saltproc.process.html#saltproc.process.Process.calculate_removal_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_removal_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the value of the removal efficiency for a given nuclide</span>
+<span class="sd">        in this process.</span>
+
+<span class="sd">        If the efficiency is a str describing efficiency as a</span>
+<span class="sd">        function (eps(x,m,t,P,L)), then construct the function and evaluate it.</span>
+<span class="sd">        Otherwise, it is a float and can be returned.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        el_name : str</span>
-<span class="sd">            Name of target element to be removed.</span>
+<span class="sd">        nuc_name : str</span>
+<span class="sd">            Name of target nuclide to be removed.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        efficiency : float</span>
-<span class="sd">            Extraction efficiency for el_name element.</span>
+<span class="sd">            Extraction efficiency for the given nuclide.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">eps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="n">el_name</span><span class="p">]</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="n">nuc_name</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">eps</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">eps</span><span class="p">:</span>
@@ -148,47 +154,62 @@
         <span class="n">out_stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outflow</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">waste_stream</span>
         <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">out_stream</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflow</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Process.rem_elements"><a class="viewcode-back" href="../../src/saltproc.process.html#saltproc.process.Process.rem_elements">[docs]</a>    <span class="k">def</span> <span class="nf">rem_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inflow</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Updates Materialflow object `inflow` after removal target isotopes</span>
-<span class="sd">        with specific efficiency in single component of fuel reprocessing</span>
-<span class="sd">        system and returns waste stream Materialflow object.</span>
+<div class="viewcode-block" id="Process.process_material"><a class="viewcode-back" href="../../src/saltproc.process.html#saltproc.process.Process.process_material">[docs]</a>    <span class="k">def</span> <span class="nf">process_material</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inflow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Updates :class:`Materialflow` object `inflow` by removing target</span>
+<span class="sd">        nuclides with specific efficiencies in single component of fuel</span>
+<span class="sd">        reprocessing system and returns waste stream Materialflow object.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        inflow : Materialflow obj</span>
-<span class="sd">            Target material stream to remove poisons from.</span>
+<span class="sd">            Material flowing into the processing system component.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Materialflow object</span>
+<span class="sd">        waste_stream : Materialflow object</span>
 <span class="sd">            Waste stream from the reprocessing system component.</span>
+<span class="sd">        thru_flow : Materialflow object</span>
+<span class="sd">            Remaining material flow that will pass through the</span>
+<span class="sd">            reprocessing system component.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">waste_nucvec</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">out_nucvec</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="c1"># print(&quot;Xe concentration in inflow before % f g&quot; % inflow[&#39;Xe136&#39;])</span>
-        <span class="c1"># print(&quot;Current time %f&quot; % (t))</span>
-        <span class="k">for</span> <span class="n">iso</span> <span class="ow">in</span> <span class="n">inflow</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">el_name</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">serpent</span><span class="p">(</span><span class="n">iso</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">el_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">:</span>
-                <span class="c1"># Evaluate removal efficiency for el_name (float)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="n">el_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_rem_efficiency</span><span class="p">(</span><span class="n">el_name</span><span class="p">)</span>
-                <span class="n">out_nucvec</span><span class="p">[</span><span class="n">iso</span><span class="p">]</span> <span class="o">=</span> \
-                    <span class="nb">float</span><span class="p">(</span><span class="n">inflow</span><span class="o">.</span><span class="n">comp</span><span class="p">[</span><span class="n">iso</span><span class="p">])</span> <span class="o">*</span> \
-                    <span class="nb">float</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="n">el_name</span><span class="p">])</span>
-                <span class="n">waste_nucvec</span><span class="p">[</span><span class="n">iso</span><span class="p">]</span> <span class="o">=</span> \
-                    <span class="nb">float</span><span class="p">(</span><span class="n">inflow</span><span class="p">[</span><span class="n">iso</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="n">el_name</span><span class="p">]</span>
+        <span class="n">thru_nucvec</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Xe concentration in inflow before </span><span class="si">% f</span><span class="s2"> g&quot;</span> <span class="o">%</span> <span class="n">inflow</span><span class="p">[</span><span class="s1">&#39;Xe136&#39;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">inflow</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">nuc_name</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">serpent</span><span class="p">(</span><span class="n">nuc</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">nuc_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">:</span>
+                <span class="c1"># Evaluate removal efficiency for nuc_name (float)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="n">nuc_name</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">calculate_removal_efficiency</span><span class="p">(</span><span class="n">nuc_name</span><span class="p">)</span>
+
+                <span class="n">thru_nucvec</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="nb">float</span><span class="p">(</span><span class="n">inflow</span><span class="o">.</span><span class="n">comp</span><span class="p">[</span><span class="n">nuc</span><span class="p">])</span> <span class="o">*</span> \
+                    <span class="nb">float</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="n">nuc_name</span><span class="p">])</span>
+
+                <span class="n">waste_nucvec</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="nb">float</span><span class="p">(</span><span class="n">inflow</span><span class="p">[</span><span class="n">nuc</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="n">nuc_name</span><span class="p">]</span>
+
+            <span class="c1"># Assume zero removal</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">out_nucvec</span><span class="p">[</span><span class="n">iso</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">inflow</span><span class="o">.</span><span class="n">comp</span><span class="p">[</span><span class="n">iso</span><span class="p">])</span>
-                <span class="n">waste_nucvec</span><span class="p">[</span><span class="n">iso</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># zeroes everywhere else</span>
-        <span class="n">waste</span> <span class="o">=</span> <span class="n">Materialflow</span><span class="p">(</span><span class="n">waste_nucvec</span><span class="p">)</span>
-        <span class="n">inflow</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">inflow</span><span class="o">.</span><span class="n">mass</span> <span class="o">-</span> <span class="n">waste</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
-        <span class="n">inflow</span><span class="o">.</span><span class="n">comp</span> <span class="o">=</span> <span class="n">out_nucvec</span>
-        <span class="n">inflow</span><span class="o">.</span><span class="n">norm_comp</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Xe concentration in inflow after </span><span class="si">%f</span><span class="s2"> g&quot;</span> <span class="o">%</span> <span class="n">inflow</span><span class="p">[</span><span class="s1">&#39;Xe136&#39;</span><span class="p">])</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Waste mass </span><span class="si">%f</span><span class="s2"> g</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">waste</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
-        <span class="k">del</span> <span class="n">out_nucvec</span><span class="p">,</span> <span class="n">waste_nucvec</span><span class="p">,</span> <span class="n">el_name</span>
-        <span class="k">return</span> <span class="n">waste</span></div></div>
+                <span class="n">thru_nucvec</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">inflow</span><span class="o">.</span><span class="n">comp</span><span class="p">[</span><span class="n">nuc</span><span class="p">])</span>
+                <span class="n">waste_nucvec</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">waste_stream</span> <span class="o">=</span> <span class="n">Materialflow</span><span class="p">(</span><span class="n">waste_nucvec</span><span class="p">)</span>
+        <span class="c1"># preserve inflow attributes</span>
+        <span class="n">thru_flow</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">inflow</span><span class="p">)</span>
+        <span class="n">thru_flow</span><span class="o">.</span><span class="n">comp</span> <span class="o">=</span> <span class="n">thru_nucvec</span>
+        <span class="n">thru_flow</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">inflow</span><span class="o">.</span><span class="n">density</span>
+        <span class="n">thru_flow</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">inflow</span><span class="o">.</span><span class="n">mass</span> <span class="o">-</span> <span class="n">waste_stream</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+        <span class="n">thru_flow</span><span class="o">.</span><span class="n">norm_comp</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Xe concentration in thruflow: </span><span class="si">%f</span><span class="s2"> g&quot;</span> <span class="o">%</span> <span class="n">thru_flow</span><span class="p">[</span><span class="s1">&#39;Xe136&#39;</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Waste mass: </span><span class="si">%f</span><span class="s2"> g</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">waste_stream</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+
+        <span class="k">del</span> <span class="n">thru_nucvec</span><span class="p">,</span> <span class="n">waste_nucvec</span><span class="p">,</span> <span class="n">nuc_name</span>
+
+        <span class="k">return</span> <span class="n">thru_flow</span><span class="p">,</span> <span class="n">waste_stream</span></div></div>
 </pre></div>
 
            </div>

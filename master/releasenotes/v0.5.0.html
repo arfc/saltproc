@@ -183,6 +183,30 @@ longer be initialized by the user during object creation.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">write_saltproc_openmc_tallies()</span></code></p></li>
 </ul>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">app.py</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">reprocessing()</span></code> → <code class="docutils literal notranslate"><span class="pre">reprocess_materials()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">refill()</span></code> → <code class="docutils literal notranslate"><span class="pre">refill_materials()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_feeds_from_input</span></code> → <code class="docutils literal notranslate"><span class="pre">get_feeds()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_processes_from_input</span></code> → <code class="docutils literal notranslate"><span class="pre">get_extraction_processes()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_dot()</span></code> → <code class="docutils literal notranslate"><span class="pre">get_extraction_process_paths()</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Process</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Sparger</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Separator</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency</span></code></p></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

@@ -146,8 +146,8 @@
     <span class="c1"># read data</span>
     <span class="n">mats</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_dep_comp</span><span class="p">(</span>
         <span class="kc">True</span><span class="p">)</span>
-    <span class="n">waste_st</span><span class="p">,</span> <span class="n">rem_mass</span> <span class="o">=</span> <span class="n">saltproc</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">reprocessing</span><span class="p">(</span><span class="n">mats</span><span class="p">)</span>
-    <span class="n">m_after_refill</span> <span class="o">=</span> <span class="n">saltproc</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">refill</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">rem_mass</span><span class="p">,</span> <span class="n">waste_st</span><span class="p">)</span>
+    <span class="n">waste_st</span><span class="p">,</span> <span class="n">rem_mass</span> <span class="o">=</span> <span class="n">saltproc</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">reprocess_materials</span><span class="p">(</span><span class="n">mats</span><span class="p">)</span>
+    <span class="n">m_after_refill</span> <span class="o">=</span> <span class="n">saltproc</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">refill_materials</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">rem_mass</span><span class="p">,</span> <span class="n">waste_st</span><span class="p">)</span>
 
     <span class="n">fuel_st</span> <span class="o">=</span> <span class="n">m_after_refill</span><span class="p">[</span><span class="s1">&#39;fuel&#39;</span><span class="p">]</span>
 

@@ -77,6 +77,80 @@
   <section id="module-saltproc.app">
 <span id="saltproc-app-module"></span><h1>saltproc.app module<a class="headerlink" href="#module-saltproc.app" title="Permalink to this heading">¶</a></h1>
 <dl class="py function">
+<dt class="sig sig-object py" id="saltproc.app.get_extraction_process_paths">
+<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">get_extraction_process_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dot_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#get_extraction_process_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app.get_extraction_process_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads directed graph that describes fuel reprocessing system structure
+from a <cite>*.dot</cite> file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dot_file</strong> (<em>str</em>) – Path to <cite>.dot</cite> file with reprocessing system structure.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mat_name</strong> (<em>str</em>) – Name of burnable material which the reprocessing scheme applies to.</p></li>
+<li><p><strong>extraction_process_paths</strong> (<em>list</em>) – List of lists containing all possible paths between <cite>core_outlet</cite> and
+<cite>core_inlet</cite>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="saltproc.app.get_extraction_processes">
+<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">get_extraction_processes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#get_extraction_processes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app.get_extraction_processes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses <code class="docutils literal notranslate"><span class="pre">extraction_processes</span></code> objects from the <cite>.json</cite> file describing
+processing system objects.</p>
+<p><code class="docutils literal notranslate"><span class="pre">extraction_processes</span></code> objects describe components that would perform
+fuel processing in a real reactor, such as a gas sparger or a nickel
+filter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p><strong>extraction_processes</strong> – Dictionary mapping material names to extraction processes.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>Dictionary mapping process names to
+<a class="reference internal" href="saltproc.process.html#saltproc.process.Process" title="saltproc.process.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.process.Process</span></code></a> objects.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict of str to dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="saltproc.app.get_feeds">
+<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">get_feeds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#get_feeds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app.get_feeds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses <code class="docutils literal notranslate"><span class="pre">feed</span></code> objects from <cite>.json</cite> file describing processing system
+objects.</p>
+<p><code class="docutils literal notranslate"><span class="pre">feed</span></code> objects describe material flows that replace nuclides needed to
+keep the reactor operating that were removed during reprocessing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p><strong>feeds</strong> – Dictionary that maps material names to material flows
+<code class="docutils literal notranslate"><span class="pre">key</span></code></p>
+<blockquote>
+<div><p>Name of burnable material.</p>
+</div></blockquote>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>Dictionary mapping material flow names to
+<a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow" title="saltproc.materialflow.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.materialflow.Materialflow</span></code></a> objects representing
+material feeds.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict of str to dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="saltproc.app.parse_arguments">
 <span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">parse_arguments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#parse_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app.parse_arguments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses arguments from command line.</p>
@@ -93,50 +167,6 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="saltproc.app.read_dot">
-<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">read_dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dot_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#read_dot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app.read_dot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads directed graph that describes fuel reprocessing system structure
-from <cite>*.dot</cite> file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dot_file</strong> (<em>str</em>) – Path to <cite>.dot</cite> file with reprocessing system structure.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>mat_name</strong> (<em>str</em>) – Name of burnable material which reprocessing scheme described in <cite>.dot</cite>
-file.</p></li>
-<li><p><strong>paths_list</strong> (<em>list</em>) – List of lists containing all possible paths between <cite>core_outlet</cite> and
-<cite>core_inlet</cite>.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="saltproc.app.read_feeds_from_input">
-<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">read_feeds_from_input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#read_feeds_from_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app.read_feeds_from_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses <code class="docutils literal notranslate"><span class="pre">feed</span></code> data from <cite>.json</cite> file with <cite>Materialflow</cite> objects
-description. Then returns dictionary of <cite>Materialflow</cite> objects describing
-fresh fuel feeds.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><p><strong>mats</strong> – Dictionary that contains <cite>Materialflow</cite> objects with feeds.</p>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object holding composition and properties of feed.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict of str to Materialflow</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="saltproc.app.read_main_input">
 <span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">read_main_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">main_inp_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#read_main_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app.read_main_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads main SaltProc input file (json format).</p>
@@ -148,109 +178,64 @@ fresh fuel feeds.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="saltproc.app.read_processes_from_input">
-<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">read_processes_from_input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#read_processes_from_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app.read_processes_from_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses <code class="docutils literal notranslate"><span class="pre">removal</span></code> data from <cite>.json</cite> file with <cite>Process</cite> objects
-description. Then returns dictionary of <cite>Process</cite> objects describing
-extraction process efficiency for each target chemical element.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><p><strong>mats</strong> – Dictionary that contains <cite>Process</cite> objects.</p>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Process</cite> object holding extraction process parameters.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict of str to Process</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="saltproc.app.refill">
-<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">refill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extracted_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#refill"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app.refill" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="saltproc.app.refill_materials">
+<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">refill_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extracted_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_streams</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#refill_materials"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app.refill_materials" title="Permalink to this definition">¶</a></dt>
 <dd><p>Makes up material loss in removal processes by adding fresh fuel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mats</strong> (<em>dict of str to Materialflow</em>) – <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+<li><p><strong>mats</strong> (<em>dict of str to Materialflow</em>) – Dicitionary mapping material names to
+<a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow" title="saltproc.materialflow.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.materialflow.Materialflow</span></code></a> objects that have already
+been reprocessed by <cite>reprocess_materials</cite>.</p></li>
+<li><p><strong>extracted_mass</strong> (<em>dict of str to float</em>) – Dictionary mapping material names to the mass in [g] of that material
+removed via reprocessing.</p></li>
+<li><p><strong>waste_streams</strong> (<em>dict of str to dict</em>) – <p>Dictionary mapping material names to waste streams from reprocessing</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Material name.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object after performing all removals.</p>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>extracted_mass</strong> (<em>dict of str to float</em>) – <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>Mass removed as waste in reprocessing function for each material.</p>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>waste_dict</strong> (<em>dict of str to Materialflow</em>) – <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Process name.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object containing waste streams data.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>Dictionary mapping waste stream names to
+<a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow" title="saltproc.materialflow.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.materialflow.Materialflow</span></code></a> objects representing
+waste streams.</p>
 </dd>
 </dl>
 </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p><strong>refilled_mats</strong> – Dictionary that contains <cite>Materialflow</cite> objects.</p>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object after adding fresh fuel.</p>
-</dd>
-</dl>
-</p>
+<dd class="field-even"><p><strong>waste_streams</strong> – Superset of the input parameter <cite>waste_streams</cite>. Dictionary has
+keys for feed streams that map to <a href="#id1"><span class="problematic" id="id2">:classs:`Materialflow`</span></a> objects
+representing those material feed streams.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict of str to Materialflow</p>
+<dd class="field-odd"><p>dict of str to dict</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="saltproc.app.reprocessing">
-<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">reprocessing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mats</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#reprocessing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app.reprocessing" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies reprocessing scheme to burnable materials.</p>
+<dt class="sig sig-object py" id="saltproc.app.reprocess_materials">
+<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">reprocess_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mats</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#reprocess_materials"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app.reprocess_materials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies extraction reprocessing scheme to burnable materials.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mats</strong> (<em>dict of str to Materialflow</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects with burnable material
-data right after irradiation in the core.</p>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object holding composition and properties.</p>
-</dd>
-</dl>
-</p>
+<dd class="field-odd"><p><strong>mats</strong> (<em>dict of str to Materialflow</em>) – Dictionary that contains <a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow" title="saltproc.materialflow.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.materialflow.Materialflow</span></code></a>
+objects with burnable material data right after irradiation in the
+core.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul>
-<li><p><strong>waste</strong> (<em>dict of str to Materialflow</em>) –</p>
+<li><p><strong>waste_streams</strong> (<em>dict of str to dict</em>) – Dictionary mapping material names to waste streams.</p>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Process name.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Material name.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object containing waste streams data.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>Dictionary mapping waste stream names to
+<a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow" title="saltproc.materialflow.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.materialflow.Materialflow</span></code></a>
+objects representing waste streams.</p>
 </dd>
 </dl>
 </li>
-<li><p><strong>extracted_mass</strong> (<em>dict of str to Materialflow</em>) –</p>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>Mass removed as waste in reprocessing function for each material
-(g).</p>
-</dd>
-</dl>
-</li>
+<li><p><strong>extracted_mass</strong> (<em>dict of str to float</em>) – Dictionary mapping material names to the mass in [g] of that material
+removed via reprocessing.</p></li>
 </ul>
 </p>
 </dd>

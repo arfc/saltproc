@@ -128,6 +128,25 @@ Python API Changes
     - ``write_depletion_settings()``
     - ``write_saltproc_openmc_tallies()``
 
+  - ``app.py``
+
+    - ``reprocessing()`` → ``reprocess_materials()``
+    - ``refill()`` → ``refill_materials()``
+    - ``read_feeds_from_input`` → ``get_feeds()``
+    - ``read_processes_from_input`` → ``get_extraction_processes()``
+    - ``read_dot()`` → ``get_extraction_process_paths()``
+
+  - ``Process``
+
+    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency``
+
+  - ``Sparger``
+
+    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency``
+
+  - ``Separator``
+
+    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency``
 
 
 Contributors

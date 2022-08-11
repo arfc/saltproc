@@ -74,12 +74,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for saltproc.sparger</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="sd">&quot;&quot;&quot;Sparger module&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Process</span>
 
 
 <div class="viewcode-block" id="Sparger"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger">[docs]</a><span class="k">class</span> <span class="nc">Sparger</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class evaluates gas removal efficiency in sparger (bubble generator).</span>
+    <span class="sd">&quot;&quot;&quot;Represents a gas sparger/bubble generator.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -203,24 +204,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">corr</span> <span class="o">=</span> <span class="n">corr</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Sparger.calc_rem_efficiency"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.calc_rem_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">calc_rem_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Overrides the existing method in Process class to provide</span>
-<span class="sd">        efficiency values of target isotopes calculated in eff() function.</span>
+<div class="viewcode-block" id="Sparger.calculate_removal_efficiency"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.calculate_removal_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_removal_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the value of the removal efficiency for a given nuclide</span>
+<span class="sd">        in this process.</span>
+
+<span class="sd">        Overrides the existing method in :class`openmc.process.Process` to</span>
+<span class="sd">        provide efficiency values of target isotopes calculated in the</span>
+<span class="sd">        ``eff()`` function.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        el_name : str</span>
-<span class="sd">            Name of target element to be removed.</span>
+<span class="sd">        nuc_name : str</span>
+<span class="sd">            Name of target nuclide to be removed.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        efficiency : float</span>
-<span class="sd">            Extraction efficiency for el_name element.</span>
+<span class="sd">            Extraction efficiency for the given nuclide.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">isotope</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()[</span><span class="n">el_name</span><span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">isotope</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()[</span><span class="n">nuc_name</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Sparger.description"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.description">[docs]</a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Class attributes&#39; descriptions for plotting purpose in sensitivity</span>

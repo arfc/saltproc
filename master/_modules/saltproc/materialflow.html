@@ -74,14 +74,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for saltproc.materialflow</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pyne.material</span> <span class="kn">import</span> <span class="n">Material</span> <span class="k">as</span> <span class="n">pymat</span>
+<span></span><span class="sd">&quot;&quot;&quot;Materialflow module&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
 
+<span class="kn">from</span> <span class="nn">pyne.material</span> <span class="kn">import</span> <span class="n">Material</span> <span class="k">as</span> <span class="n">pymat</span>
+
 
 <div class="viewcode-block" id="Materialflow"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow">[docs]</a><span class="k">class</span> <span class="nc">Materialflow</span><span class="p">(</span><span class="n">pymat</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Class contains information about burnable material flow. Based on PyNE</span>
-<span class="sd">        Material.</span>
+    <span class="sd">&quot;&quot;&quot; Class contains information about burnable material flow. Based on</span>
+<span class="sd">    :class:`pyne.Material`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Materialflow.__init__"><a class="viewcode-back" href="../../src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -100,7 +102,8 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        PyNE.Material : class</span>
+
+<span class="sd">        :class:`pyne.Material`</span>
 <span class="sd">            PyNE Material parent class containing nuclide vector, density,</span>
 <span class="sd">            mass, atoms_per_molecule, metadata</span>
 <span class="sd">        temp : float</span>
