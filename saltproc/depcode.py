@@ -198,7 +198,6 @@ class DepcodeOpenMC(Depcode):
     def __init__(self,
                  exec_path="openmc_deplete.py",
                  template_input_file_path={"geometry": "./geometry.xml",
-                                           "materials": "./materials.xml",
                                            "settings": "./settings.xml",
                                            "chain_file": "./chain_simple.xml"},
                  geo_files=None,
@@ -345,7 +344,7 @@ class DepcodeOpenMC(Depcode):
             materials = openmc.Materials.from_xml(
                 self.template_input_file_path['materials'])
             geometry = openmc.Geometry.from_xml(
-                self.template_input_file_path['geometry'], materials=materials)
+                self.geo_files[0], materials=materials)
             settings = openmc.Settings.from_xml(
                 self.template_input_file_path['settings'])
             settings.particles = self.npop
