@@ -152,7 +152,7 @@ def read_main_input(main_inp_file):
             try:
                 jsonschema.validate(instance=j, schema=v)
             except jsonschema.exceptions.ValidationError:
-                print("Your input file improperly structured.\
+                print("Your input file is improperly structured.\
                       Please see saltproc/tests/test.json for an example.")
 
         # Global input path
