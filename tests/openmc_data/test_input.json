@@ -7,9 +7,8 @@
        "codename": "openmc",
        "exec_path": "openmc",
        "template_input_file_path": {
-           "geometry": "geometry.xml",
-           "materials": "materials.xml",
-           "settings": "settings.xml",
+           "materials": "test_materials.xml",
+           "settings": "test_settings.xml",
            "chain_file": "test_chain.xml"
        },
        "npop": 50,
