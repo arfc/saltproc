@@ -8,7 +8,7 @@ import tables as tb
 import subprocess
 
 @pytest.fixture
-def setup():
+def setup(scope='module'):
     cwd = Path(__file__).parents[0].resolve().as_posix()
     test_db = cwd + '/test_db.h5'
     ref_db = cwd + '/reference_db.h5'

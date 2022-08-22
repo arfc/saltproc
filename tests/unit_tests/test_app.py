@@ -12,18 +12,6 @@ def cwd():
     filename = path
     return filename
 
-@pytest.fixture
-def proc_test_file():
-    path = Path(__file__).parents[1]
-    filename = (path / 'test_processes.json')
-    return filename
-
-@pytest.fixture
-def dot_test_file():
-    path = Path(__file__).parents[1]
-    filename = (path / 'test_paths.dot')
-    return filename
-
 @pytest.mark.parametrize("codename, ext", [
     ("serpent", ".ini"),
     ("openmc", ".xml")])
@@ -73,8 +61,8 @@ def test_read_feeds_from_input(proc_test_file):
     assert feeds['fuel']['leu']['U235'] == 15426147.398592
     assert feeds['fuel']['leu']['U238'] == 293096800.37484
 
-def test_read_dot(dot_test_file):
-    burnable_mat, paths = read_dot(dot_test_file)
+def test_read_dot(path_test_file):
+    burnable_mat, paths = read_dot(path_test_file)
     assert burnable_mat == 'fuel'
     assert paths[0][1] == 'sparger'
     assert paths[1][-2] == 'heat_exchanger'
