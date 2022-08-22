@@ -4,8 +4,8 @@ import pytest
 
 from saltproc import Sparger
 
-@pytest.fixture
-def sparger(scope='module'):
+@pytest.fixture(scope='module')
+def sparger():
     sparger = Sparger(mass_flowrate=10,
                       capacity=99.0,
                       volume=95.0,

@@ -4,8 +4,8 @@ import pytest
 
 from saltproc import Separator
 
-@pytest.fixture
-def separator(scope='module'):
+@pytest.fixture(scope='module')
+def separator():
     separator = Separator(mass_flowrate=10,
                       capacity=99.0,
                       volume=95.0,

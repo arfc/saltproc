@@ -6,12 +6,6 @@ import pytest
 from saltproc.app import read_main_input, read_processes_from_input
 from saltproc.app import read_feeds_from_input, read_dot
 
-@pytest.fixture
-def cwd():
-    path = Path(__file__).parents[1]
-    filename = path
-    return filename
-
 @pytest.mark.parametrize("codename, ext", [
     ("serpent", ".ini"),
     ("openmc", ".xml")])
