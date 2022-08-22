@@ -1,32 +1,20 @@
-from __future__ import absolute_import, division, print_function
-from saltproc import Process
-from saltproc import DepcodeSerpent
-import os
-import sys
+"""Test Process functions"""
 import numpy as np
-path = os.path.realpath(__file__)
-sys.path.append(os.path.dirname(os.path.dirname(path)))
-# global class object
-directory = os.path.dirname(path)
-iter_inputfile = directory + '/test'
+import pytest
 
-serpent = DepcodeSerpent(
-    exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-    template_input_file_path=directory +
-    '/template.inp',
-    geo_files=None)
+from saltproc import Process
 
-serpent.iter_inputfile = iter_inputfile
-serpent.iter_matfile = directory + '/material'
-
-process = Process(mass_flowrate=10,
-                  capacity=99.0,
-                  volume=95.0,
-                  efficiency={'Xe': 1.0, 'Kr': '9.5/mass_flowrate'})
+@pytest.fixture
+def process(scope='module'):
+    process = Process(mass_flowrate=10,
+                      capacity=99.0,
+                      volume=95.0,
+                      efficiency={'Xe': 1.0, 'Kr': '9.5/mass_flowrate'})
+    return process
 
 
-def test_rem_elements():
-    mats = serpent.read_dep_comp(True)
+def test_rem_elements(depcode_serpent, process):
+    mats = depcode_serpent.read_dep_comp(True)
     waste = process.rem_elements(mats['fuel'])
     np.testing.assert_almost_equal(waste[541350000], 19.79776930513891)
     np.testing.assert_almost_equal(waste[541360000], 176.44741987005173)
@@ -37,3 +25,13 @@ def test_rem_elements():
     np.testing.assert_almost_equal(waste[360920000], 0.0002724894672886946)
     np.testing.assert_almost_equal(waste[360860000], 26.847312879174968)
     assert waste.mass == 531.0633118374121
+
+
+def test_calculate_rem_efficiency(process):
+    for component, efficiency in process.efficiency.items():
+        calculated_efficiency = process.calc_rem_efficiency(component)
+        if isinstance(efficiency, float):
+            assert calculated_efficiency == efficiency
+        elif isinstance(efficiency, str):
+            assert calculated_efficiency == 9.5 / process.mass_flowrate
+

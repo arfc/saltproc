@@ -1,34 +1,21 @@
-from __future__ import absolute_import, division, print_function
-from saltproc import Separator
-from saltproc import DepcodeSerpent
-import os
-import sys
+"""Test Separator functions"""
 import numpy as np
-path = os.path.realpath(__file__)
-sys.path.append(os.path.dirname(os.path.dirname(path)))
-# global class object
-directory = os.path.dirname(path)
-iter_inputfile = directory + '/test'
+import pytest
 
-serpent = DepcodeSerpent(
-    exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-    template_input_file_path=directory +
-    '/template.inp',
-    geo_files=None)
+from saltproc import Separator
 
-serpent.iter_inputfile = iter_inputfile
-serpent.iter_matfile = directory + '/material'
+@pytest.fixture
+def separator(scope='module'):
+    separator = Separator(mass_flowrate=10,
+                      capacity=99.0,
+                      volume=95.0,
+                      efficiency='self')
+    return separator
 
 
-process = Separator(mass_flowrate=10,
-                    capacity=99.0,
-                    volume=95.0,
-                    efficiency="self")
-
-
-def test_rem_elements():
-    mats = serpent.read_dep_comp(True)
-    waste = process.rem_elements(mats['fuel'])
+def test_rem_elements(depcode_serpent, separator):
+    mats = depcode_serpent.read_dep_comp(True)
+    waste = separator.rem_elements(mats['fuel'])
     np.testing.assert_almost_equal(waste[541350000], 19.5320018359295)
     np.testing.assert_almost_equal(waste[541360000], 174.0787699729534)
     np.testing.assert_almost_equal(waste[541280000], 9.778854502227908e-05)
