@@ -96,4 +96,4 @@ jobs:
       - name: Test SaltProc
         run: |
           echo "OPENMC_CROSS_SECTIONS=$HOME/endfb71_hdf5/cross_sections.xml" >> $GITHUB_ENV
-          pytest --ignore=tests/integration_tests/run_* tests/
+          pytest --ignore tests/integration_tests/run_no_reprocessing --ignore tests/integration_tests/run_constant_reprocessing tests/
