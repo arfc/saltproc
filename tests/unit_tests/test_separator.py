@@ -15,7 +15,7 @@ def separator():
 
 def test_rem_elements(depcode_serpent, separator):
     mats = depcode_serpent.read_dep_comp(True)
-    waste = separator.rem_elements(mats['fuel'])
+    thru, waste = separator.process_material(mats['fuel'])
     np.testing.assert_almost_equal(waste[541350000], 19.5320018359295)
     np.testing.assert_almost_equal(waste[541360000], 174.0787699729534)
     np.testing.assert_almost_equal(waste[541280000], 9.778854502227908e-05)

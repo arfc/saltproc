@@ -13,9 +13,9 @@ def process():
     return process
 
 
-def test_rem_elements(depcode_serpent, process):
+def test_process_material(depcode_serpent, process):
     mats = depcode_serpent.read_dep_comp(True)
-    waste = process.rem_elements(mats['fuel'])
+    thru, waste = process.process_material(mats['fuel'])
     np.testing.assert_almost_equal(waste[541350000], 19.79776930513891)
     np.testing.assert_almost_equal(waste[541360000], 176.44741987005173)
     np.testing.assert_almost_equal(waste[541280000], 9.911913132605642e-05)
@@ -27,9 +27,9 @@ def test_rem_elements(depcode_serpent, process):
     assert waste.mass == 531.0633118374121
 
 
-def test_calculate_rem_efficiency(process):
+def test_calculate_removal_efficiency(process):
     for component, efficiency in process.efficiency.items():
-        calculated_efficiency = process.calc_rem_efficiency(component)
+        calculated_efficiency = process.calculate_removal_efficiency(component)
         if isinstance(efficiency, float):
             assert calculated_efficiency == efficiency
         elif isinstance(efficiency, str):
