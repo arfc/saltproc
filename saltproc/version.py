@@ -87,8 +87,7 @@ MICRO = _version_micro
 VERSION = __version__
 PACKAGE_DATA = {'saltproc': [pjoin('data', '*'),
                              './input_schema.json']}
-PACKAGES = ["saltproc",
-            "saltproc.tests"]
+PACKAGES = ["saltproc"]
 REQUIRES = ["numpy",
             "pyne",
             "networkx",
