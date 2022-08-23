@@ -4,9 +4,11 @@ import pytest
 from saltproc.app import read_main_input, _create_depcode_object
 from saltproc import Simulation
 
+
 @pytest.fixture(scope='session')
 def cwd():
     return Path(__file__).parents[0]
+
 
 @pytest.fixture(scope='session')
 def proc_test_file(cwd):
@@ -28,6 +30,7 @@ def depcode_serpent(cwd):
     depcode.iter_inputfile = (cwd / 'serpent_data' / 'ref').as_posix()
 
     return depcode
+
 
 @pytest.fixture(scope='session')
 def depcode_openmc(cwd):
@@ -52,13 +55,16 @@ def depcode_openmc(cwd):
 
     return depcode
 
+
 @pytest.fixture(scope='session')
 def simulation(cwd, depcode_serpent):
-    simulation = Simulation(sim_name='test_simulation',
-                        sim_depcode=depcode_serpent,
-                        core_number=1,
-                        node_number=1,
-                        db_path= (cwd /'serpent_data' / 'ref_db.h5').as_posix())
+    simulation = Simulation(
+        sim_name='test_simulation',
+        sim_depcode=depcode_serpent,
+        core_number=1,
+        node_number=1,
+        db_path=(
+            cwd /
+            'serpent_data' /
+            'ref_db.h5').as_posix())
     return simulation
-
-

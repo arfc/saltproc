@@ -1,4 +1,6 @@
 """Test Materialflow functions"""
+
+
 def test_get_mass(depcode_serpent):
     mats = depcode_serpent.read_dep_comp(True)
     assert mats['fuel'].get_mass() == 112683343.50000001

@@ -4,6 +4,7 @@ import pytest
 
 from saltproc import Sparger
 
+
 @pytest.fixture(scope='module')
 def sparger():
     sparger = Sparger(mass_flowrate=10,

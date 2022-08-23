@@ -7,6 +7,7 @@ import pytest
 import tables as tb
 import subprocess
 
+
 @pytest.fixture
 def setup(scope='module'):
     cwd = Path(__file__).parents[0].resolve().as_posix()
@@ -68,7 +69,8 @@ def read_nuclide_mass(db_file):
 def read_in_out_streams(db_file):
     db = tb.open_file(db_file, mode='r')
     waste_sparger = db.root.materials.fuel.in_out_streams.waste_sparger
-    waste_separator= db.root.materials.fuel.in_out_streams.waste_entrainment_separator
+    waste_separator = \
+        db.root.materials.fuel.in_out_streams.waste_entrainment_separator
     waste_ni_filter = db.root.materials.fuel.in_out_streams.waste_nickel_filter
     feed_leu = db.root.materials.fuel.in_out_streams.feed_leu
     waste_nucmap = waste_ni_filter.attrs.iso_map
@@ -79,18 +81,31 @@ def read_in_out_streams(db_file):
     mass_feed_leu = {}
 
     for nuc in waste_nucmap:
-        mass_waste_sparger[nuc] = np.array([row[waste_nucmap[nuc]] for row in waste_sparger])
-        mass_waste_separator[nuc] = np.array([row[waste_nucmap[nuc]] for row in waste_separator])
-        mass_waste_ni_filter[nuc] = np.array([row[waste_nucmap[nuc]] for row in waste_ni_filter])
+        mass_waste_sparger[nuc] = np.array(
+            [row[waste_nucmap[nuc]] for row in waste_sparger])
+        mass_waste_separator[nuc] = np.array(
+            [row[waste_nucmap[nuc]] for row in waste_separator])
+        mass_waste_ni_filter[nuc] = np.array(
+            [row[waste_nucmap[nuc]] for row in waste_ni_filter])
     for nuc in feed_nucmap:
-        mass_feed_leu[nuc] = np.array([row[feed_nucmap[nuc]] for row in feed_leu])
+        mass_feed_leu[nuc] = np.array(
+            [row[feed_nucmap[nuc]] for row in feed_leu])
     db.close()
-    return mass_waste_sparger, mass_waste_separator, mass_waste_ni_filter, mass_feed_leu
+    return mass_waste_sparger, \
+        mass_waste_separator, \
+        mass_waste_ni_filter, \
+        mass_feed_leu
 
 
 def assert_in_out_streams_equal(test_db, ref_db, tol):
-    ref_sparger, ref_test_separator, ref_ni_filter, ref_feed = read_in_out_streams(ref_db)
-    test_sparger, test_separator, test_ni_filter, test_feed = read_in_out_streams(test_db)
+    ref_sparger, \
+        ref_test_separator, \
+        ref_ni_filter, \
+        ref_feed = read_in_out_streams(ref_db)
+    test_sparger, \
+        test_separator, \
+        test_ni_filter, \
+        test_feed = read_in_out_streams(test_db)
     for key, val in ref_sparger.items():
         np.testing.assert_almost_equal(val, test_sparger[key], decimal=tol)
     for key, val in ref_test_separator.items():
@@ -118,7 +133,8 @@ def assert_db_almost_equal(test_db, ref_db, tol):
     # Compare materials composition
     for node_nm, node in ref_data.items():
         for nuc, mass_arr in node.items():
-            np.testing.assert_allclose(mass_arr, test_data[node_nm][nuc], rtol=tol)
+            np.testing.assert_allclose(
+                mass_arr, test_data[node_nm][nuc], rtol=tol)
     # Compare material properties
     np.testing.assert_allclose(test_param, ref_param, rtol=tol)
 

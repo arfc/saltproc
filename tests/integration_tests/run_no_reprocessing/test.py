@@ -10,12 +10,14 @@ from pyne import serpent
 from saltproc import app
 from saltproc import DepcodeSerpent, Simulation, Reactor
 
+
 @pytest.fixture
 def setup():
     cwd = Path(__file__).parents[0].resolve().as_posix()
     main_input = cwd + '/test_input.json'
 
-    input_path, process_input_file, path_input_file, object_input = app.read_main_input(main_input)
+    input_path, process_input_file, path_input_file, object_input = \
+        app.read_main_input(main_input)
 
     depcode = app._create_depcode_object(object_input[0])
     sss_file = cwd + '/_test'
@@ -27,6 +29,7 @@ def setup():
     reactor = app._create_reactor_object(object_input[2])
 
     return cwd, simulation, reactor, sss_file
+
 
 @pytest.mark.slow
 def test_integration_2step_saltproc_no_reproc_heavy(setup):
@@ -51,6 +54,7 @@ def test_integration_2step_saltproc_no_reproc_heavy(setup):
             os.remove(file)
         except OSError:
             print("Error while deleting file : ", file)
+
 
 def runsim_no_reproc(simulation, reactor, nsteps):
     """Run simulation sequence for integration test. No reprocessing
@@ -100,6 +104,3 @@ def runsim_no_reproc(simulation, reactor, nsteps):
         simulation.sim_depcode.write_mat_file(
             mats,
             simulation.burn_time)
-
-
-

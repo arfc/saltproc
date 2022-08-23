@@ -13,21 +13,27 @@ import pydotplus
 from saltproc import DepcodeSerpent, DepcodeOpenMC, Simulation, Reactor
 from saltproc import Process, Sparger, Separator, Materialflow
 
+
 def run():
     """ Inititializes main run"""
     nodes, cores, saltproc_input = parse_arguments()
-    input_path, process_input_file, path_input_file, object_input = read_main_input(saltproc_input)
+    input_path, process_input_file, path_input_file, object_input = \
+        read_main_input(saltproc_input)
     _print_simulation_input_info(object_input[1], object_input[0])
     # Intializing objects
     depcode = _create_depcode_object(object_input[0])
-    simulation = _create_simulation_object(object_input[1], depcode, cores, nodes)
+    simulation = _create_simulation_object(
+        object_input[1], depcode, cores, nodes)
     msr = _create_reactor_object(object_input[2])
 
     if isinstance(depcode.iter_inputfile, str):
-        depcode.iter_inputfile = (input_path / depcode.iter_inputfile).resolve().as_posix()
+        depcode.iter_inputfile = (input_path /
+                                  depcode.iter_inputfile).resolve().as_posix()
     else:
         raise ValueError("not implemented")
-    depcode.iter_matfile = (input_path / depcode.iter_matfile).resolve().as_posix()
+    depcode.iter_matfile = (
+        input_path /
+        depcode.iter_matfile).resolve().as_posix()
     # Check: Restarting previous simulation or starting new?
     simulation.check_restart()
     # Run sequence
@@ -89,6 +95,7 @@ def run():
               msr.power_levels,
               msr.dep_step_length_cumulative)'''
 
+
 def parse_arguments():
     """Parses arguments from command line.
 
@@ -122,6 +129,7 @@ def parse_arguments():
                         help='path and name of SaltProc main input file')
     args = parser.parse_args()
     return int(args.n), int(args.d), str(args.i)
+
 
 def read_main_input(main_inp_file):
     """Reads main SaltProc input file (json format).
@@ -161,8 +169,11 @@ def read_main_input(main_inp_file):
         input_path = (Path.cwd() / Path(f.name).parents[0])
 
         # Saltproc settings
-        process_input_file = (input_path / j['proc_input_file']).resolve().as_posix()
-        path_input_file = (input_path / j['dot_input_file']).resolve().as_posix()
+        process_input_file = (input_path /
+                              j['proc_input_file']).resolve().as_posix()
+        path_input_file = (
+            input_path /
+            j['dot_input_file']).resolve().as_posix()
         output_path = j['output_path']
         num_depsteps = j['num_depsteps']
 
@@ -171,20 +182,23 @@ def read_main_input(main_inp_file):
         j['output_path'] = output_path.resolve()
 
         # Class settings
-        depcode_input= j['depcode']
-        simulation_input= j['simulation']
+        depcode_input = j['depcode']
+        simulation_input = j['simulation']
         reactor_input = j['reactor']
 
         if depcode_input['codename'] == 'serpent':
-            depcode_input['template_input_file_path'] = \
-                (input_path / depcode_input['template_input_file_path']).resolve().as_posix()
+            depcode_input['template_input_file_path'] = (
+                input_path /
+                depcode_input['template_input_file_path']).resolve().as_posix()
         elif depcode_input['codename'] == 'openmc':
             for key in depcode_input['template_input_file_path']:
                 value = depcode_input['template_input_file_path'][key]
-                depcode_input['template_input_file_path'][key] = (input_path / value).resolve().as_posix()
+                depcode_input['template_input_file_path'][key] = (
+                    input_path / value).resolve().as_posix()
         else:
             raise ValueError(
-                f'{depcode_input["codename"]} is not a supported depletion code')
+                f'{depcode_input["codename"]} '
+                'is not a supported depletion code')
 
         geo_list = depcode_input['geo_file_paths']
 
@@ -198,9 +212,12 @@ def read_main_input(main_inp_file):
         db_name = (output_path / simulation_input['db_name'])
         simulation_input['db_name'] = db_name.resolve().as_posix()
 
-        reactor_input = _process_main_input_reactor_params(reactor_input, num_depsteps)
+        reactor_input = _process_main_input_reactor_params(
+            reactor_input, num_depsteps)
 
-        return input_path, process_input_file, path_input_file, (depcode_input, simulation_input, reactor_input)
+        return input_path, process_input_file, path_input_file, (
+            depcode_input, simulation_input, reactor_input)
+
 
 def _print_simulation_input_info(simulation_input, depcode_input):
     """Helper function for `run()` """
@@ -211,15 +228,16 @@ def _print_simulation_input_info(simulation_input, depcode_input):
           '\tTemplate File Path  = ' +
           depcode_input['template_input_file_path'] +
           '\n'
-          #'\tInput File Path     = ' +
-          #depcode_input['iter_inputfile'] +
-          #'\n'
-          #'\tMaterial File Path  = ' +
-          #depcode_input['iter_matfile'] +
-          #'\n'
+          # '\tInput File Path     = ' +
+          # depcode_input['iter_inputfile'] +
+          # '\n'
+          # '\tMaterial File Path  = ' +
+          # depcode_input['iter_matfile'] +
+          # '\n'
           '\tOutput HDF5 database Path = ' +
           simulation_input['db_name'] +
           '\n')
+
 
 def _create_depcode_object(depcode_input):
     """Helper function for `run()` """
@@ -241,6 +259,7 @@ def _create_depcode_object(depcode_input):
 
     return depcode
 
+
 def _create_simulation_object(simulation_input, depcode, cores, nodes):
     """Helper function for `run()` """
     simulation = Simulation(
@@ -253,6 +272,7 @@ def _create_simulation_object(simulation_input, depcode, cores, nodes):
         db_path=simulation_input['db_name'])
     return simulation
 
+
 def _create_reactor_object(reactor_input):
     """Helper function for `run()` """
     msr = Reactor(
@@ -261,6 +281,7 @@ def _create_reactor_object(reactor_input):
         power_levels=reactor_input['power_levels'],
         dep_step_length_cumulative=reactor_input['dep_step_length_cumulative'])
     return msr
+
 
 def _process_main_input_reactor_params(reactor_input, num_depsteps):
     """
@@ -294,6 +315,7 @@ def _process_main_input_reactor_params(reactor_input, num_depsteps):
                 'Depletion step list and power list shape mismatch')
 
     return reactor_input
+
 
 def reprocess_materials(mats, process_input_file, path_input_file):
     """Applies extraction reprocessing scheme to burnable materials.

@@ -4,6 +4,7 @@ import numpy as np
 
 from saltproc import DepcodeSerpent
 
+
 def test_create_nuclide_name_map_zam_to_serpent(depcode_serpent):
     depcode_serpent.create_nuclide_name_map_zam_to_serpent()
     assert depcode_serpent.iso_map[380880] == '38088.09c'

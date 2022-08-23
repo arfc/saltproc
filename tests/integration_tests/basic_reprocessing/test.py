@@ -3,7 +3,11 @@ import pytest
 import numpy as np
 from saltproc.app import reprocess_materials, refill_materials
 
-def test_reprocessing_and_refill(depcode_serpent, proc_test_file, path_test_file):
+
+def test_reprocessing_and_refill(
+        depcode_serpent,
+        proc_test_file,
+        path_test_file):
     mats = depcode_serpent.read_dep_comp(True)
     waste_streams, extracted_mass = reprocess_materials(mats,
                                                         proc_test_file,
@@ -20,7 +24,8 @@ def test_reprocessing_and_refill(depcode_serpent, proc_test_file, path_test_file
         waste_streams['fuel']['waste_liquid_metal']['Sr90'],
         0.7486923392931839)
 
-    waste_feed_streams = refill_materials(mats, extracted_mass, waste_streams, proc_test_file)
+    waste_feed_streams = refill_materials(
+        mats, extracted_mass, waste_streams, proc_test_file)
     np.testing.assert_almost_equal(
         waste_feed_streams['fuel']['feed_leu']['U235'],
         43.573521906078334)
@@ -33,5 +38,3 @@ def test_reprocessing_and_refill(depcode_serpent, proc_test_file, path_test_file
     np.testing.assert_almost_equal(
         waste_feed_streams['fuel']['feed_leu']['Li7'],
         67.75331008246572)
-
-

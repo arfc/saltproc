@@ -1,5 +1,6 @@
 """Test Simulation functions"""
 
+
 def test_check_switch_geo_trigger(simulation):
     """
     This unit test checks that ``check_switch_geo_trigger`` functions

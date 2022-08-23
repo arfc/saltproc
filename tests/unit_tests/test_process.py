@@ -4,6 +4,7 @@ import pytest
 
 from saltproc import Process
 
+
 @pytest.fixture(scope='module')
 def process():
     process = Process(mass_flowrate=10,
@@ -34,4 +35,3 @@ def test_calculate_removal_efficiency(process):
             assert calculated_efficiency == efficiency
         elif isinstance(efficiency, str):
             assert calculated_efficiency == 9.5 / process.mass_flowrate
-

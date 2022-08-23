@@ -7,13 +7,19 @@ import tables as tb
 
 from saltproc.app import reprocess_materials, refill_materials
 
+
 @pytest.fixture(scope='module')
 def db_file(simulation):
     cwd = Path.cwd()
     db_file = (cwd / (simulation.sim_depcode.codename + '_test.h5'))
     return db_file.resolve().as_posix()
 
-def test_store_after_reprocessing(simulation, proc_test_file, path_test_file, db_file):
+
+def test_store_after_reprocessing(
+        simulation,
+        proc_test_file,
+        path_test_file,
+        db_file):
     """
     This unit test checks that select entries that ``store_after_repr_()`
     stores in the database match the corresponding entries from the input
@@ -30,8 +36,10 @@ def test_store_after_reprocessing(simulation, proc_test_file, path_test_file, db
     # read data
     mats = simulation.sim_depcode.read_dep_comp(
         True)
-    waste_streams, extracted_mass = reprocess_materials(mats, proc_test_file, path_test_file)
-    waste_feed_streams = refill_materials(mats, extracted_mass, waste_streams, proc_test_file)
+    waste_streams, extracted_mass = reprocess_materials(
+        mats, proc_test_file, path_test_file)
+    waste_feed_streams = refill_materials(
+        mats, extracted_mass, waste_streams, proc_test_file)
 
     fuel_stream = waste_feed_streams['fuel']
 
@@ -395,5 +403,3 @@ def test_store_run_step_info(simulation):
 
     # use original db path
     simulation.db_path = db_path_old
-
-

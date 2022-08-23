@@ -7,6 +7,7 @@ import openmc
 
 from saltproc import Reactor
 
+
 @pytest.fixture
 def geometry_switch(scope='module'):
     path = Path(__file__).parents[2]
@@ -19,6 +20,7 @@ def msr(scope='module'):
                       power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
                       dep_step_length_cumulative=[111.111, 2101.9, 3987.5])
     return reactor
+
 
 def test_write_depcode_input(depcode_openmc, msr):
     # OpenMC
@@ -34,14 +36,15 @@ def test_write_depcode_input(depcode_openmc, msr):
     input_universes = input_geometry.get_all_universes()
 
     depcode_openmc.write_depcode_input(msr,
-                               0,
-                               False)
+                                       0,
+                                       False)
     # Load in the iter_ objects
     iter_materials = openmc.Materials.from_xml(depcode_openmc.iter_matfile)
     iter_geometry = openmc.Geometry.from_xml(
         depcode_openmc.iter_inputfile['geometry'],
         materials=iter_materials)
-    iter_settings = openmc.Settings.from_xml(depcode_openmc.iter_inputfile['settings'])
+    iter_settings = openmc.Settings.from_xml(
+        depcode_openmc.iter_inputfile['settings'])
 
     iter_cells = iter_geometry.get_all_cells()
     iter_lattices = iter_geometry.get_all_lattices()
@@ -73,7 +76,8 @@ def test_write_depletion_settings(depcode_openmc, msr):
     depcode_openmc.write_depletion_settings(msr, 0)
     with open(depcode_openmc.iter_inputfile['depletion_settings']) as f:
         j = json.load(f)
-        assert j['directory'] == Path(depcode_openmc.iter_inputfile['settings']).parents[0].as_posix()
+        assert j['directory'] == Path(
+            depcode_openmc.iter_inputfile['settings']).parents[0].as_posix()
         assert j['timesteps'][0] == msr.dep_step_length_cumulative[0]
         assert j['operator_kwargs']['chain_file'] == \
             depcode_openmc.template_input_file_path['chain_file']
@@ -86,7 +90,8 @@ def test_write_saltproc_openmc_tallies(depcode_openmc):
     Unit test for `DepcodeOpenMC.write_saltproc_openmc_tallies`
     """
 
-    mat = openmc.Materials.from_xml(depcode_openmc.template_input_file_path['materials'])
+    mat = openmc.Materials.from_xml(
+        depcode_openmc.template_input_file_path['materials'])
     geo = openmc.Geometry.from_xml(
         depcode_openmc.geo_files[0], mat)
     depcode_openmc.write_saltproc_openmc_tallies(mat, geo)
@@ -123,8 +128,10 @@ def test_write_saltproc_openmc_tallies(depcode_openmc):
 
 def test_switch_to_next_geometry(depcode_openmc):
     # OpenMC
-    mat = openmc.Materials.from_xml(depcode_openmc.template_input_file_path['materials'])
-    expected_geometry = openmc.Geometry.from_xml(depcode_openmc.geo_files[0], mat)
+    mat = openmc.Materials.from_xml(
+        depcode_openmc.template_input_file_path['materials'])
+    expected_geometry = openmc.Geometry.from_xml(
+        depcode_openmc.geo_files[0], mat)
     expected_cells = expected_geometry.get_all_cells()
     expected_lattices = expected_geometry.get_all_lattices()
     expected_surfaces = expected_geometry.get_all_surfaces()
@@ -149,6 +156,7 @@ def test_switch_to_next_geometry(depcode_openmc):
     _check_openmc_iterables_equal(assertion_dict)
 
     del mat
+
 
 def _check_openmc_iterables_equal(iterable_dict):
     """
@@ -199,10 +207,16 @@ def _check_openmc_objects_equal(object1, object2):
 
     Parameters
     ----------
-    object1 : depcode_openmc.Surface, depcode_openmc.Universe, depcode_openmc.Cell, depcode_openmc.Material, \
+    object1 : depcode_openmc.Surface, \
+    depcode_openmc.Universe, \
+    depcode_openmc.Cell, \
+    depcode_openmc.Material, \
     depcode_openmc.Lattice
         First openmc object to compare
-    object2 :  depcode_openmc.Surface, depcode_openmc.Universe, depcode_openmc.Cell, depcode_openmc.Material, \
+    object2 :  depcode_openmc.Surface, \
+    depcode_openmc.Universe, \
+    depcode_openmc.Cell, \
+    depcode_openmc.Material, \
     depcode_openmc.Lattice
         Second openmc object to compare
 

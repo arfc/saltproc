@@ -7,6 +7,7 @@ import pytest
 
 from saltproc import Reactor
 
+
 @pytest.fixture
 def geometry_switch(scope='module'):
     path = Path(__file__).parents[2]
@@ -38,7 +39,8 @@ def test_iter_input_from_template(depcode_serpent, msr):
 
     # create_iter_matfile
     file_data = depcode_serpent.create_iter_matfile(file_data)
-    assert file_data[0].split()[-1] == '\"' + depcode_serpent.iter_matfile + '\"'
+    assert file_data[0].split()[-1] == '\"' + \
+        depcode_serpent.iter_matfile + '\"'
     remove(depcode_serpent.iter_matfile)
 
     # replace_burnup_parameters
@@ -67,7 +69,8 @@ def test_write_iter_files(depcode_serpent, msr):
         assert file_data[3].split()[-1] == '2.27175E+07'
         assert file_data[3].split()[2] == '-4.960200000E+00'
         assert file_data[1663].split()[-1] == '1.11635E+04'
-        assert file_data[1664] == '            1001.09c  -1.21000137902945E-35\n'
+        assert file_data[1664] == \
+            '            1001.09c  -1.21000137902945E-35\n'
     elif 'ctrlPois' in file_data[3]:
         assert file_data[3].split()[-1] == '1.11635E+04'
         assert file_data[4] == '            1001.09c  -1.21000137902945E-35\n'
@@ -75,8 +78,8 @@ def test_write_iter_files(depcode_serpent, msr):
 
     # write_depcode_input
     depcode_serpent.write_depcode_input(msr,
-                                0,
-                                False)
+                                        0,
+                                        False)
 
     file = depcode_serpent.iter_inputfile
     file_data = depcode_serpent.read_plaintext_file(file)
@@ -87,7 +90,8 @@ def test_write_iter_files(depcode_serpent, msr):
     assert file_data[20] == 'set pop 50 20 20\n'
 
     # switch_to_next_geometry
-    depcode_serpent.geo_files += ['../../examples/406.inp', '../../examples/988.inp']
+    depcode_serpent.geo_files += ['../../examples/406.inp',
+                                  '../../examples/988.inp']
     depcode_serpent.switch_to_next_geometry()
     file_data = depcode_serpent.read_plaintext_file(file)
     assert file_data[5].split('/')[-1] == '406.inp"\n'
