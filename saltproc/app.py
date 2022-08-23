@@ -136,9 +136,9 @@ def read_main_input(main_inp_file):
     input_path : PosixPath
         Path to main input file
     process_input_file : str
-        Path to the file describing the fuel reprocessing components.
+        Path to the `.json` file describing the fuel reprocessing components.
     path_input_file : str
-        Path to the file describing the fuel reprocessing paths.
+        Path to the `.dot` describing the fuel reprocessing paths.
     object_inputs : 3-tuple of dict
         tuple containing the inputs for constructing the
         :class:`~saltproc.Depcode`, :class:`~saltproc.Simulation`, and
@@ -304,6 +304,10 @@ def reprocess_materials(mats, process_input_file, path_input_file):
         Dictionary that contains :class:`saltproc.materialflow.Materialflow`
         objects with burnable material data right after irradiation in the
         core.
+    process_input_file : str
+        Path to the `.json` file describing the fuel reprocessing components.
+    path_input_file : str
+        Path to the `.dot` describing the fuel reprocessing paths.
 
     Returns
     -------
@@ -406,7 +410,7 @@ def get_extraction_processes(process_input_file):
     Parameters
     ----------
     process_input_file : str
-        Path to `.json` file with reprocessing system parameters.
+        Path to the `.json` file describing the fuel reprocessing components.
 
     Returns
     -------
@@ -442,14 +446,14 @@ def get_extraction_processes(process_input_file):
         return extraction_processes
 
 
-def get_extraction_process_paths(dot_file):
+def get_extraction_process_paths(path_input_file):
     """Reads directed graph that describes fuel reprocessing system structure
     from a `*.dot` file.
 
     Parameters
     ----------
-    dot_file : str
-        Path to `.dot` file with reprocessing system structure.
+    path_input_file : str
+        Path to the `.dot` describing the fuel reprocessing paths.
 
     Returns
     -------
@@ -460,7 +464,7 @@ def get_extraction_process_paths(dot_file):
         `core_inlet`.
 
     """
-    graph_pydot = pydotplus.graph_from_dot_file(dot_file)
+    graph_pydot = pydotplus.graph_from_dot_file(path_input_file)
     digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
     mat_name = digraph.name
     # Iterate over all possible paths between 'core_outlet' and 'core_inlet'
@@ -482,12 +486,13 @@ def refill_materials(mats, extracted_mass, waste_streams, process_input_file):
         Dicitionary mapping material names to
         :class:`saltproc.materialflow.Materialflow` objects that have already
         been reprocessed by `reprocess_materials`.
-
     extracted_mass : dict of str to float
         Dictionary mapping material names to the mass in [g] of that material
         removed via reprocessing.
     waste_streams : dict of str to dict
         Dictionary mapping material names to waste streams from reprocessing
+    process_input_file : str
+        Path to the `.json` file describing the fuel reprocessing components.
 
         ``key``
             Material name.
@@ -530,10 +535,16 @@ def get_feeds(process_input_file):
     ``feed`` objects describe material flows that replace nuclides needed to
     keep the reactor operating that were removed during reprocessing.
 
+    Parameters
+    ----------
+    process_input_file : str
+        Path to the `.json` file describing the fuel reprocessing components.
+
     Returns
     -------
     feeds : dict of str to dict
         Dictionary that maps material names to material flows
+
         ``key``
             Name of burnable material.
         ``value``
