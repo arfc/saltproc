@@ -30,8 +30,8 @@ def test_store_after_reprorcessing(simulation, proc_test_file, path_test_file, d
     # read data
     mats = simulation.sim_depcode.read_dep_comp(
         True)
-    waste_streams, extracted_mass = reprocessing(mats, proc_test_file, path_test_file)
-    waste_feed_streams = refill(mats, extracted_mass, waste_streams, proc_test_file)
+    waste_streams, extracted_mass = reprocess_materials(mats, proc_test_file, path_test_file)
+    waste_feed_streams = refill_materials(mats, extracted_mass, waste_streams, proc_test_file)
 
     fuel_stream = waste_feed_streams['fuel']
 
