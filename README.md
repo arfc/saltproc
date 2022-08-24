@@ -18,7 +18,7 @@ python saltproc -n 4 -d 1 -i examples/tap/tap_main.json
 ### Installation
 
 Detailed installation instructions can be found in the
-[User's Guide](https://arfc.github.io/saltproc/installation.html).
+[User's Guide](https://arfc.github.io/saltproc/master/installation.html).
 
 ### Documentation
 
