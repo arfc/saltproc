@@ -113,11 +113,6 @@ To run the tests, execute:
 
 .. code-block:: bash
 
-   pytest saltproc/
+   pytest test/
 
-from the root directory of SaltProc. If you just want to run the unit tests, execute
-
-.. code-block:: bash
-
-   pytest --ignore saltproc/tests/integration_tests saltproc/
-
+from the root directory of SaltProc.
