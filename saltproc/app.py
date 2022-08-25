@@ -62,7 +62,9 @@ def run():
         # print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
         #       (mats['ctrlPois'].mass,
         #        mats['ctrlPois'].vol))
-        waste_streams, extracted_mass = reprocess_materials(mats)
+        waste_streams, extracted_mass = reprocess_materials(mats,
+                                                            process_input_file,
+                                                            path_input_file)
         print("\nMass and volume of fuel after reproc: %f g, %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
@@ -71,7 +73,8 @@ def run():
         #        mats['ctrlPois'].vol))
         waste_and_feed_streams = refill_materials(mats,
                                                   extracted_mass,
-                                                  waste_streams)
+                                                  waste_streams,
+                                                  process_input_file)
         print("\nMass and volume of fuel after REFILL: %f g, %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
@@ -513,17 +516,17 @@ def refill_materials(mats, extracted_mass, waste_streams, process_input_file):
         removed via reprocessing.
     waste_streams : dict of str to dict
         Dictionary mapping material names to waste streams from reprocessing
-    process_input_file : str
-        Path to the `.json` file describing the fuel reprocessing components.
 
-        ``key``
+         ``key``
             Material name.
         ``value``
             Dictionary mapping waste stream names to
             :class:`saltproc.materialflow.Materialflow` objects representing
             waste streams.
+    process_input_file : str
+        Path to the `.json` file describing the fuel reprocessing components.
 
-    Returns
+        Returns
     -------
     waste_streams : dict of str to dict
         Superset of the input parameter `waste_streams`. Dictionary has
