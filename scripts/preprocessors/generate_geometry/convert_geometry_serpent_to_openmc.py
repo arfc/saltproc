@@ -56,13 +56,13 @@ for line in schp.geo_data:
         cell_card = re.search(hr.CELL_REGEX_ALL, line).group(
             0)  # get the cell card without comments
         if re.search(hr.CELL_REGEX2_CORE, cell_card):
-            split_regex = schp.CELL_REGEX2_CORE
+            split_regex = hr.CELL_REGEX2_CORE
             cell_type = "fill"
         elif re.search(hr.CELL_REGEX3_CORE, cell_card):
-            split_regex = schp.CELL_REGEX3_CORE
+            split_regex = hr.CELL_REGEX3_CORE
             cell_type = "outside"
         elif re.search(hr.CELL_REGEX1_CORE, cell_card):
-            split_regex = schp.CELL_REGEX1_CORE
+            split_regex = hr.CELL_REGEX1_CORE
             cell_type = "material"
         else:
             raise ValueError("Erroneous cell card type")
@@ -88,6 +88,9 @@ for line in schp.geo_data:
         elif trans_object_type == "S":
             trans_objects_dict = schp.surf_dict
             trans_objects_names = [schp.surf_dict[trans_object_name]]
+        elif trans_object_type == "F":
+            trans_objects_dict = schp.cell_dict
+            trans_object_names = [schp.cell_dict[trans_object_name].name]
         else:
             raise ValueError(f"Transforming objects of type \
                              {trans_object_type} is currently unsupported")

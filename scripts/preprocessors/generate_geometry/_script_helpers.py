@@ -42,8 +42,8 @@ geo_dict = {
         "hexyc": openmc.model.hexagonal_prism,
         "cube": openmc.model.RectangularParallelepiped,
         "cuboid": openmc.model.RectangularParallelepiped,
-        "octa": hc.Octagon,
-        "pad": hc.CylinderSector
+        "octa": openmc.model.IsogonalOctagon,
+        "pad": openmc.model.CylinderSector
     },
     "cell": openmc.Cell,
     "lat": {
@@ -54,7 +54,7 @@ geo_dict = {
         "6": openmc.RectLattice,    # Same as 1 but infinite
         "7": openmc.HexLattice,     # Same as 3 but infinite
         "8": openmc.HexLattice,     # Same as 2 but infinite
-        "9": hc.VerticalStackLattice,  # Vertical stack (to be implemented)
+        # "9": hc.VerticalStackLattice,  # Vertical stack (to be implemented)
         "11": openmc.RectLattice,   # Cuboidal lattice
         "12": openmc.HexLattice,  # X-type hexagonal prism lattice
         "13": openmc.HexLattice  # Y-type hexagonal prism lattice
@@ -228,7 +228,7 @@ def _get_openmc_surface_params(surf_type,
             d2 = surf_params[3]
 
             origin = (x0, y0)
-            surface_params = [origin, d1, d2, 'z']
+            surface_params = [origin, d1, d2]
             has_subsurfaces=True
 
         elif surf_type == "pad":
@@ -239,8 +239,15 @@ def _get_openmc_surface_params(surf_type,
             a1 = surf_params[4]
             a2 = surf_params[5]
 
+            if a1 > a2:
+                t1 = a2
+                t2 = a1
+            else:
+                t1 = a1
+                t2 = a2
+
             origin = (x0, y0)
-            surface_params = [origin, r1, r2, a1, a2]
+            surface_params = [r1, r2, t1, t2, origin]
             has_subsurfaces=True
 
         else:
@@ -347,9 +354,9 @@ def _get_subsurf_region_expr_helper(subsurf_names,
 def _get_subsurf_region_expr(subsurf_dict):
     subsurf_names = list(subsurf_dict)
     n_surfs = len(subsurf_dict)
-    if n_surfs == 2: #cone
-        match_pos_hs = lambda i : i in (1,)
-        match_neg_hs = lambda i : i in (0,)
+    if n_surfs == 3: #cone
+        match_pos_hs = lambda i : i in (2,)
+        match_neg_hs = lambda i : i in (0,1)
     elif n_surfs == 4:  # rect
         match_pos_hs = lambda i : i in (0, 2)
         match_neg_hs = lambda i : i in (1, 3)
