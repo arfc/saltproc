@@ -1,9 +1,11 @@
 import re
-import os
 import sys
-from pyne import nucname as pyname
+
 import openmc
+from pathlib import Path
 import neutronics_material_maker as nmm  # you'll need to install this manually
+
+from saltproc.depcode import convert_nuclide_name_serpent_to_zam
 
 WO_REGEX = "\\-[0-9]+\\."
 COMP_REGEX = "\\-?[0-9]+\\.[0-9]+E?(\\+|\\-)?[0-9]{0,2}"
@@ -23,36 +25,6 @@ S_a_b_dict = {
     'poly': ['c_H_in_CH2']
 }
 
-
-def convert_nuclide_name_serpent_to_zam(nuc_code):
-    """Checks Serpent2-specific meta stable-flag for zzaaam. For instance,
-    47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented
-    with `aaa` started with ``3``.
-
-    Parameters
-    ----------
-    nuc_code : str
-        Name of nuclide in Serpent2 form. For instance, `47310`.
-
-    Returns
-    -------
-    nuc_zzaam : int
-        Name of nuclide in `zzaaam` form (`471101`).
-
-    """
-    zz = pyname.znum(nuc_code)
-    aa = pyname.anum(nuc_code)
-    if aa > 300:
-        if zz > 76:
-            aa_new = aa - 100
-        else:
-            aa_new = aa - 200
-        zzaaam = str(zz) + str(aa_new) + '1'
-    else:
-        zzaaam = nuc_code
-    return int(zzaaam)
-
-
 # read command line input
 try:
     serpent_mat_path = str(sys.argv[1])
@@ -60,132 +32,88 @@ except IndexError:
     raise SyntaxError("No file specified")
 
 fname = serpent_mat_path.split('/').pop(-1).split('.')[0]
-path = os.path.dirname(serpent_mat_path)
+path = Path(serpent_mat_path).parents[0]
 
-mat_data = []
+mat_file = []
 with open(serpent_mat_path, 'r') as file:
-    mat_data = file.readlines()
+    mat_file = file.readlines()
 
-first_material = True
-openmc_mats = openmc.Materials([])
+openmc_materials = openmc.Materials([])
 # read serpent materials
-for line in mat_data:
+for line in mat_file:
     if re.search(MATERIAL_REGEX, line):
         # Check if we've hit a new material
-        if first_material:
-            first_material = False
-        else:
-            if not bool(my_mat['isotopes']):
-                my_mat.pop('isotopes')
-            if not bool(my_mat['elements']):
-                my_mat.pop('elements')
-
-            S_a_b = my_mat.pop('S_a_b')
-            S_a_b_tables = False
-            if bool(S_a_b):
-                S_a_b_tables = True
-
-            depletable = my_mat.pop('depletable')
-            my_mat = nmm.Material(**my_mat)
-            openmc_mats.append(my_mat.openmc_material)
-            openmc_mats[-1].depletable = depletable
-            if bool(my_mat.volume_in_cm3):
-                openmc_mats[-1].volume = my_mat.volume_in_cm3
-            if S_a_b_tables:
-                for t in S_a_b:
-                    openmc_mats[-1].add_s_alpha_beta(t)
-
-        my_mat = {}
-        my_mat['isotopes'] = {}
-        my_mat['elements'] = {}
-        my_mat['S_a_b'] = []
 
         # get info about material
-        my_mat_data = line.split()
-        my_mat_map = {}
-        mat_cards = ['vol', 'burn', 'tmp', 'tms']
-        for card in mat_cards:
-            data = []
-            if card in my_mat_data:
-                i = my_mat_data.index(card)
-                if card in ['vol', 'tmp', 'tms']:
-                    data = float(my_mat_data[i + 1])
-                if card in ['burn']:
-                    data = int(my_mat_data[i + 1])
-                my_mat_map[card] = data
-        my_mat['name'] = str(my_mat_data[1])
-        my_mat['density'] = abs(float(my_mat_data[2]))
+        openmc_material = openmc.Material()
+        mat_data = line.split()
+        mat_name = mat_data[1]
+        mat_dens = mat_data[2]
 
-        # Doesn't support sum option
-        if re.search(WO_REGEX, my_mat_data[2]):
+        # set name and density
+        openmc_material.name = str(mat_name)
+        if re.search(WO_REGEX, mat_data[2]):
             density_unit = 'g/cm3'
         else:
             density_unit = 'atom/cm3'
 
-        my_mat['density_unit'] = density_unit
+        openmc_material.set_density(density_unit, abs(float(mat_dens)))
 
-        # set optional cards
-        my_mat['depletable'] = False
-        for card in my_mat_map:
-            if card == 'vol':
-                my_mat['volume_in_cm3'] = my_mat_map[card]
-            if card == 'tms' or card == 'tmp':
-                my_mat['temperature'] = my_mat_map[card]
-                my_mat['temperature_to_neutronics_code'] = True
-            if card == 'burn':
-                if my_mat_map[card] == 1:
-                    my_mat['depletable'] = True
-    elif re.search(ELEMENT_REGEX, line):
+
+        mat_cards = ['vol', 'burn', 'tmp', 'tms']
+        for card in mat_cards:
+            card_data = []
+            if card in mat_data:
+                val = mat_data[mat_data.index(card) + 1]
+                if card == 'vol':
+                    openmc_material.volume = float(val)
+                elif card == 'tmp' or card == 'tms':
+                    openmc_material.temperature = float(val)
+                elif card == 'burn':
+                    openmc_material.depletable = bool(int(val))
+
+        openmc_materials.append(openmc_material)
+
+    elif re.search(ELEMENT_REGEX, line) or re.search(NUCLIDE_REGEX_1, line): # or re.search(NUCLIDE_REGEX_2, line):
         # get info about element
-        elem_info = line.split()
-        elem_code = elem_info[0].split('.')[0]
-        comp = elem_info[1]
+        component_info = line.split()
+        component_code = component_info[0].split('.')[0]
+        percent = component_info[1]
+
+        # for decay only nuclides there's a zero
+        # on the end of the nuclide code
+        # indcated the ground state
+        #if re.search(NUCLIDE_REGEX_2, line):
+        #    component_code = component_code[:-1]
 
         # get info about nuclide
         # need to switch reading into OpenMC directly
         # to handle the case where nuclides in one
         # Material have a difference percent type
-        if re.search(WO_REGEX, comp):
+        if re.search(WO_REGEX, percent):
             percent_type = 'wo'
         else:
             percent_type = 'ao'
 
-        elem_name = nmm.zaid_to_isotope(elem_code)
-        elem_name = elem_name[:-1]
-        my_mat['elements'][elem_name] = abs(float(comp))
-        my_mat['percent_type'] = percent_type
-
-    elif (re.search(NUCLIDE_REGEX_1, line) or
-          re.search(NUCLIDE_REGEX_2, line)):
-        nuclide_info = line.split()
-        nuc_code = nuclide_info[0].split('.')[0]
-        # for decay only nuclides there's a zero
-        # on the end of the nuclide code
-        # indcated the ground state
-        if re.search(NUCLIDE_REGEX_2, line):
-            nuc_code = nuc_code[:-1]
         metastable = False
-        if nuc_code[-3] == '3':
+        if component_code[-3] == '3':
             metastable = True
-            nuc_code = str(convert_nuclide_name_serpent_to_zam(nuc_code))
+            component_code = str(convert_nuclide_name_serpent_to_zam(component_code))
             # remove the 0 at the end of the
             # nuclide code that our helper function
             # adds to it.
-            nuc_code = nuc_code[:-1]
-        comp = nuclide_info[1]
-        # get info about nuclide
-        if re.search(WO_REGEX, comp):
-            percent_type = 'wo'
-        else:
-            percent_type = 'ao'
-
-        # use openmc or nmm libraries to convert code toanme
-        nuc_name = nmm.zaid_to_isotope(nuc_code)
+            component_code = component_code[:-1]
         if metastable:
-            nuc_name += 'm'
+            component_name += 'm'
 
-        my_mat['isotopes'][nuc_name] = abs(float(comp))
-        my_mat['percent_type'] = percent_type
+        component_name = nmm.zaid_to_isotope(component_code)
+        if re.search(ELEMENT_REGEX, line):
+            component_name = component_name[:-1]
+        elif metastable:
+            component_name += 'm'
+        else:
+            pass
+        openmc_materials[-1].add_components({component_name: abs(float(percent))}, percent_type)
 
     elif re.search(THERM_REGEX, line):
         data = line.split()[2:]
@@ -193,26 +121,7 @@ for line in mat_data:
             table_name = item.split('.')[0]
             table_name = table_name[:-2]
             if bool(S_a_b_dict.get(table_name)):
-                if S_a_b_dict[table_name][0] not in my_mat['S_a_b']:
-                    my_mat['S_a_b'] += S_a_b_dict[table_name]
+                for openmc_sab_name in S_a_b_dict[table_name]:
+                    openmc_materials[-1].add_s_alpha_beta(openmc_sab_name)
 
-if not bool(my_mat['isotopes']):
-    my_mat.pop('isotopes')
-if not bool(my_mat['elements']):
-    my_mat.pop('elements')
-
-S_a_b = my_mat.pop('S_a_b')
-S_a_b_tables = False
-if bool(S_a_b):
-    S_a_b_tables = True
-
-depletable = my_mat.pop('depletable')
-my_mat = nmm.Material(**my_mat)
-openmc_mats.append(my_mat.openmc_material)
-openmc_mats[-1].depletable = depletable
-if bool(my_mat.volume_in_cm3):
-    openmc_mats[-1].volume = my_mat.volume_in_cm3
-if S_a_b_tables:
-    for t in S_a_b:
-        openmc_mats[-1].add_s_alpha_beta(t)
-openmc_mats.export_to_xml(os.path.join(path, fname + '.xml'))
+openmc_materials.export_to_xml(path / f'{fname}.xml')
