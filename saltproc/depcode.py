@@ -9,6 +9,33 @@ import openmc
 import json
 from abc import ABC, abstractmethod
 
+def convert_nuclide_name_serpent_to_zam(self, nuc_code):
+    """Checks Serpent2-specific meta stable-flag for zzaaam. For instance,
+    47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented
+    with `aaa` started with ``3``.
+
+    Parameters
+    ----------
+    nuc_code : str
+        Name of nuclide in Serpent2 form. For instance, `47310`.
+
+    Returns
+    -------
+    nuc_zzaam : int
+        Name of nuclide in `zzaaam` form (`471101`).
+
+    """
+    zz = pyname.znum(nuc_code)
+    aa = pyname.anum(nuc_code)
+    if aa > 300:
+        if zz > 76:
+            aa_new = aa - 100
+        else:
+            aa_new = aa - 200
+        zzaaam = str(zz) + str(aa_new) + '1'
+    else:
+        zzaaam = nuc_code
+    return int(zzaaam)
 
 class Depcode(ABC):
     """Abstract class for interfacing with monte-carlo particle transport
@@ -665,7 +692,7 @@ class DepcodeSerpent(Depcode):
             else:
                 nuc_name = pyname.name(nuc_code)
         nuc_zzaaam = \
-            self.convert_nuclide_name_serpent_to_zam(pyname.zzaaam(nuc_code))
+            convert_nuclide_name_serpent_to_zam(pyname.zzaaam(nuc_code))
         return nuc_name, nuc_zzaaam
 
     def create_nuclide_name_map_zam_to_serpent(self):
@@ -924,34 +951,6 @@ class DepcodeSerpent(Depcode):
             raise RuntimeError('\n %s RUN FAILED\n see error message above'
                                % (self.codename))
         print('Finished Serpent2 Run')
-
-    def convert_nuclide_name_serpent_to_zam(self, nuc_code):
-        """Checks Serpent2-specific meta stable-flag for zzaaam. For instance,
-        47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented
-        with `aaa` started with ``3``.
-
-        Parameters
-        ----------
-        nuc_code : str
-            Name of nuclide in Serpent2 form. For instance, `47310`.
-
-        Returns
-        -------
-        nuc_zzaam : int
-            Name of nuclide in `zzaaam` form (`471101`).
-
-        """
-        zz = pyname.znum(nuc_code)
-        aa = pyname.anum(nuc_code)
-        if aa > 300:
-            if zz > 76:
-                aa_new = aa - 100
-            else:
-                aa_new = aa - 200
-            zzaaam = str(zz) + str(aa_new) + '1'
-        else:
-            zzaaam = nuc_code
-        return int(zzaaam)
 
     def switch_to_next_geometry(self):
         """Inserts line with path to next Serpent geometry file at the
