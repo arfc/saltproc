@@ -69,7 +69,7 @@ with open(args.dep) as f:
 
 model.deplete(depletion_settings['timesteps'],
               directory=depletion_settings['directory'],
-              operator_kwargs=**depletion_settings['operator_kwargs'],
+              operator_kwargs=depletion_settings['operator_kwargs'],
               **depletion_settings['integrator_kwargs'])
 
 del materials, geometry, settings, tallies, model

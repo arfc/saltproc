@@ -25,9 +25,9 @@ process = Process(mass_flowrate=10,
                   efficiency={'Xe': 1.0, 'Kr': '9.5/mass_flowrate'})
 
 
-def test_rem_elements():
+def test_process_material():
     mats = serpent.read_dep_comp(True)
-    waste = process.rem_elements(mats['fuel'])
+    thru, waste = process.process_material(mats['fuel'])
     np.testing.assert_almost_equal(waste[541350000], 19.79776930513891)
     np.testing.assert_almost_equal(waste[541360000], 176.44741987005173)
     np.testing.assert_almost_equal(waste[541280000], 9.911913132605642e-05)
