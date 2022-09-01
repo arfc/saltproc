@@ -9,7 +9,7 @@ import openmc
 import json
 from abc import ABC, abstractmethod
 
-def convert_nuclide_name_serpent_to_zam(self, nuc_code):
+def convert_nuclide_name_serpent_to_zam(nuc_code):
     """Checks Serpent2-specific meta stable-flag for zzaaam. For instance,
     47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented
     with `aaa` started with ``3``.
