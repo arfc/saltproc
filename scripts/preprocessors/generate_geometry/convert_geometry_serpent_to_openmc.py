@@ -160,10 +160,10 @@ for line in schp.geo_data:
         lat_type = lat_data[2]
         lat_args = lat_data[3:]
 
-        if not bool(schp.universe_dict.get(lat_universe_name)
-                    ) and lat_universe_name != schp.root_name:
-            schp.universe_dict[lat_universe_name] = openmc.Universe(
-                name=lat_universe_name)
+        #if not bool(schp.universe_dict.get(lat_universe_name)
+        #            ) and lat_universe_name != schp.root_name:
+        #    schp.universe_dict[lat_universe_name] = openmc.Universe(
+        #        name=lat_universe_name)
 
         # get lattice universe array
         current_line_idx = schp.geo_data.index(line)
@@ -185,10 +185,11 @@ for line in schp.geo_data:
 
         lattice_object.pitch = lattice_pitch
         lattice_object.universes = lattice_univ_array
-        lattice_cell = openmc.Cell(fill=lattice_object)
-        lattice_cell.name = lat_universe_name
-        schp.cell_dict[lat_universe_name] = lattice_cell
-        schp.add_cell_name_to_universe(lat_universe_name, lattice_cell.name)
+        schp.lattice_dict[lat_universe_name] = lattice_object
+        #lattice_cell = openmc.Cell(fill=lattice_object)
+        #lattice_cell.name = lat_universe_name
+        #schp.cell_dict[lat_universe_name] = lattice_cell
+        #schp.add_cell_name_to_universe(lat_universe_name, lat_universe_name)
 
     # universe symmetry
     elif re.search(hr.USYM_REGEX, line):

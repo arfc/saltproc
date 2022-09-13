@@ -7,7 +7,7 @@ import _helper_classes as hc
 from _helper_classes import _plane_from_points
 import _helper_regex as hr
 
-global surf_dict, cell_dict, mat_dict, universe_dict
+global surf_dict, cell_dict, mat_dict, universe_dict, lattice_dict
 global universe_to_cell_names_dict
 global geo_data, n_bcs
 global surface_bc, root_name
@@ -15,6 +15,7 @@ global surface_bc, root_name
 surf_dict = {}
 cell_dict = {}
 mat_dict = {}
+lattice_dict = {}
 universe_dict = {}
 universe_to_cell_names_dict = {}
 geo_data = []
@@ -435,12 +436,17 @@ def construct_openmc_cell(cell_card,
             cell_fill_obj_dict = mat_dict
         elif cell_type == 'fill':
             fill_object_name_index = 4
-            cell_fill_obj_dict = universe_dict
-            filling_universe_name = cell_data[fill_object_name_index]
-            if not bool(universe_dict.get(filling_universe_name)
-                        ) and filling_universe_name != root_name:
-                universe_dict[filling_universe_name] = openmc.Universe(
-                    name=filling_universe_name)
+            filling_obj_name = cell_data[fill_object_name_index]
+            if filling_obj_name in universe_dict:
+                cell_fill_obj_dict = universe_dict
+                if not bool(universe_dict.get(filling_obj_name)
+                            ) and filling_obj_name != root_name:
+                    universe_dict[filling_obj_name] = openmc.Universe(
+                        name=filling_obj_name)
+            elif filling_obj_name in lattice_dict:
+                cell_fill_obj_dict = lattice_dict
+            else:
+                raise ValueError(f"object with name {filling_obj_name} is unknown")
         else:
             raise ValueError(f"cell_type: {cell_type} is erroneous")
 
