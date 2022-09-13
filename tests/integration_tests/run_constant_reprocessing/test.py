@@ -140,7 +140,6 @@ def assert_db_almost_equal(test_db, ref_db, tol):
 
 
 @pytest.mark.slow
-# @pytest.mark.skip
 def test_integration_2step_constant_ideal_removal_heavy(setup):
     cwd, test_db, ref_db, tol = setup
     subprocess.check_call([
