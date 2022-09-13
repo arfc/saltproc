@@ -231,12 +231,6 @@ def _print_simulation_input_info(simulation_input, depcode_input):
           '\tTemplate File Path  = ' +
           depcode_input['template_input_file_path'] +
           '\n'
-          # '\tInput File Path     = ' +
-          # depcode_input['iter_inputfile'] +
-          # '\n'
-          # '\tMaterial File Path  = ' +
-          # depcode_input['iter_matfile'] +
-          # '\n'
           '\tOutput HDF5 database Path = ' +
           simulation_input['db_name'] +
           '\n')
