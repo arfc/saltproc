@@ -17,7 +17,7 @@ from saltproc import Process, Sparger, Separator, Materialflow
 def run():
     """ Inititializes main run"""
     nodes, cores, saltproc_input = parse_arguments()
-    input_path, process_input_file, path_input_file, object_input = \
+    input_path, process_file, dot_file, object_input = \
         read_main_input(saltproc_input)
     _print_simulation_input_info(object_input[1], object_input[0])
     # Intializing objects
@@ -63,8 +63,8 @@ def run():
         #       (mats['ctrlPois'].mass,
         #        mats['ctrlPois'].vol))
         waste_streams, extracted_mass = reprocess_materials(mats,
-                                                            process_input_file,
-                                                            path_input_file)
+                                                            process_file,
+                                                            dot_file)
         print("\nMass and volume of fuel after reproc: %f g, %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
@@ -74,7 +74,7 @@ def run():
         waste_and_feed_streams = refill_materials(mats,
                                                   extracted_mass,
                                                   waste_streams,
-                                                  process_input_file)
+                                                  process_file)
         print("\nMass and volume of fuel after REFILL: %f g, %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
@@ -146,9 +146,9 @@ def read_main_input(main_inp_file):
     -------
     input_path : PosixPath
         Path to main input file
-    process_input_file : str
+    process_file : str
         Path to the `.json` file describing the fuel reprocessing components.
-    path_input_file : str
+    dot_file : str
         Path to the `.dot` describing the fuel reprocessing paths.
     object_inputs : 3-tuple of dict
         tuple containing the inputs for constructing the
@@ -172,9 +172,9 @@ def read_main_input(main_inp_file):
         input_path = (Path.cwd() / Path(f.name).parents[0])
 
         # Saltproc settings
-        process_input_file = (input_path /
+        process_file = (input_path /
                               j['proc_input_file']).resolve().as_posix()
-        path_input_file = (
+        dot_file = (
             input_path /
             j['dot_input_file']).resolve().as_posix()
         output_path = j['output_path']
@@ -218,7 +218,7 @@ def read_main_input(main_inp_file):
         reactor_input = _process_main_input_reactor_params(
             reactor_input, num_depsteps)
 
-        return input_path, process_input_file, path_input_file, (
+        return input_path, process_file, dot_file, (
             depcode_input, simulation_input, reactor_input)
 
 
@@ -314,7 +314,7 @@ def _process_main_input_reactor_params(reactor_input, num_depsteps):
     return reactor_input
 
 
-def reprocess_materials(mats, process_input_file, path_input_file):
+def reprocess_materials(mats, process_file, dot_file):
     """Applies extraction reprocessing scheme to burnable materials.
 
     Parameters
@@ -323,9 +323,9 @@ def reprocess_materials(mats, process_input_file, path_input_file):
         Dictionary that contains :class:`saltproc.materialflow.Materialflow`
         objects with burnable material data right after irradiation in the
         core.
-    process_input_file : str
+    process_file : str
         Path to the `.json` file describing the fuel reprocessing components.
-    path_input_file : str
+    dot_file : str
         Path to the `.dot` describing the fuel reprocessing paths.
 
     Returns
@@ -349,9 +349,9 @@ def reprocess_materials(mats, process_input_file, path_input_file):
     waste_streams = OrderedDict()
     thru_flows = OrderedDict()
 
-    extraction_processes = get_extraction_processes(process_input_file)
+    extraction_processes = get_extraction_processes(process_file)
     material_for_extraction, extraction_process_paths = \
-        get_extraction_process_paths(path_input_file)
+        get_extraction_process_paths(dot_file)
 
     # iterate over materials
     for mat_name, processes in extraction_processes.items():
@@ -418,7 +418,7 @@ def reprocess_materials(mats, process_input_file, path_input_file):
     return waste_streams, extracted_mass
 
 
-def get_extraction_processes(process_input_file):
+def get_extraction_processes(process_file):
     """Parses ``extraction_processes`` objects from the `.json` file describing
     processing system objects.
 
@@ -428,7 +428,7 @@ def get_extraction_processes(process_input_file):
 
     Parameters
     ----------
-    process_input_file : str
+    process_file : str
         Path to the `.json` file describing the fuel reprocessing components.
 
     Returns
@@ -444,7 +444,7 @@ def get_extraction_processes(process_input_file):
 
     """
     extraction_processes = OrderedDict()
-    with open(process_input_file) as f:
+    with open(process_file) as f:
         j = json.load(f)
         for mat_name, procs in j.items():
             extraction_processes[mat_name] = OrderedDict()
@@ -465,13 +465,13 @@ def get_extraction_processes(process_input_file):
         return extraction_processes
 
 
-def get_extraction_process_paths(path_input_file):
+def get_extraction_process_paths(dot_file):
     """Reads directed graph that describes fuel reprocessing system structure
     from a `*.dot` file.
 
     Parameters
     ----------
-    path_input_file : str
+    dot_file : str
         Path to the `.dot` describing the fuel reprocessing paths.
 
     Returns
@@ -483,7 +483,7 @@ def get_extraction_process_paths(path_input_file):
         `core_inlet`.
 
     """
-    graph_pydot = pydotplus.graph_from_dot_file(path_input_file)
+    graph_pydot = pydotplus.graph_from_dot_file(dot_file)
     digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
     mat_name = digraph.name
     # Iterate over all possible paths between 'core_outlet' and 'core_inlet'
@@ -496,7 +496,7 @@ def get_extraction_process_paths(path_input_file):
     return mat_name, extraction_process_paths
 
 
-def refill_materials(mats, extracted_mass, waste_streams, process_input_file):
+def refill_materials(mats, extracted_mass, waste_streams, process_file):
     """Makes up material loss in removal processes by adding fresh fuel.
 
     Parameters
@@ -517,7 +517,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_input_file):
             Dictionary mapping waste stream names to
             :class:`saltproc.materialflow.Materialflow` objects representing
             waste streams.
-    process_input_file : str
+    process_file : str
         Path to the `.json` file describing the fuel reprocessing components.
 
     Returns
@@ -529,7 +529,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_input_file):
 
     """
     print('Fuel before refilling: ^^^', mats['fuel'].print_attr())
-    feeds = get_feeds(process_input_file)
+    feeds = get_feeds(process_file)
     refill_mats = OrderedDict()
     # Get feed group for each material
     for mat, mat_feeds in feeds.items():
@@ -547,7 +547,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_input_file):
     return waste_streams
 
 
-def get_feeds(process_input_file):
+def get_feeds(process_file):
     """Parses ``feed`` objects from `.json` file describing processing system
     objects.
 
@@ -556,7 +556,7 @@ def get_feeds(process_input_file):
 
     Parameters
     ----------
-    process_input_file : str
+    process_file : str
         Path to the `.json` file describing the fuel reprocessing components.
 
     Returns
@@ -573,7 +573,7 @@ def get_feeds(process_input_file):
 
     """
     feeds = OrderedDict()
-    with open(process_input_file) as f:
+    with open(process_file) as f:
         j = json.load(f)
         for mat in j:
             feeds[mat] = OrderedDict()
