@@ -24,6 +24,7 @@ def path_test_file(cwd):
 
 @pytest.fixture(scope='session')
 def depcode_serpent(cwd):
+    """DepcodeSerpent object for unit tests"""
     saltproc_input = (cwd / 'serpent_data' / 'test_input.json').as_posix()
     _, _, _, object_input = read_main_input(saltproc_input)
     depcode = _create_depcode_object(object_input[0])
@@ -34,6 +35,7 @@ def depcode_serpent(cwd):
 
 @pytest.fixture(scope='session')
 def depcode_openmc(cwd):
+    """DepcodeOpenMC object for unit tests"""
     saltproc_input = (cwd / 'openmc_data' / 'test_input.json').as_posix()
     _, _, _, object_input = read_main_input(saltproc_input)
     depcode = _create_depcode_object(object_input[0])
@@ -58,6 +60,7 @@ def depcode_openmc(cwd):
 
 @pytest.fixture(scope='session')
 def simulation(cwd, depcode_serpent):
+    """Simulation object for unit tests"""
     simulation = Simulation(
         sim_name='test_simulation',
         sim_depcode=depcode_serpent,
