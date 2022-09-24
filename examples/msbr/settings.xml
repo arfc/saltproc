@@ -4,4 +4,6 @@
   <particles>300</particles>
   <batches>400</batches>
   <inactive>5</inactive>
+  <temperature_default>900.0</temperature_default>
+  <temperature_method>interpolation</temperature_method>
 </settings>
