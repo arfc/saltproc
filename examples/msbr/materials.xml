@@ -21,10 +21,11 @@
     <nuclide name="Ni61" wo="0.008011341006475749" />
     <nuclide name="Ni62" wo="0.025961746987204326" />
     <nuclide name="Ni64" wo="0.006825178309348437" />
-    <nuclide name="W182" wo="0.06586367321439639" />
-    <nuclide name="W183" wo="0.03560104121403704" />
-    <nuclide name="W184" wo="0.07664447890066664" />
-    <nuclide name="W186" wo="0.07189080667089996" />
+    <nuclide name="W180" wo="0.00029364388293333545" />
+    <nuclide name="W182" wo="0.0655676236926255" />
+    <nuclide name="W183" wo="0.03560150632186718" />
+    <nuclide name="W184" wo="0.07664548021821405" />
+    <nuclide name="W186" wo="0.07189174588435995" />
     <nuclide name="Cr50" wo="0.002921580575502679" />
     <nuclide name="Cr52" wo="0.05858955364682328" />
     <nuclide name="Cr53" wo="0.006771510820966751" />
