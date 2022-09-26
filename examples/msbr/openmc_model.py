@@ -146,6 +146,7 @@ univ = openmc.Universe()
 univ.add_cells([cr, main, iib_m, iib_f, lp, a, rr, rb, rt, vr, vb, vt])
 
 geo.root_universe = univ
+geo.remove_redundant_surfaces()
 geo.export_to_xml()
 
 # Settings
