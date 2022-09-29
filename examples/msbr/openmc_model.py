@@ -155,6 +155,7 @@ settings.particles = 300
 settings.batches = 400
 settings.inative = 5
 settings.temperature = {'default': 900, 'method': 'interpolation'}
+settings.export_to_xml()
 
 # Plots
 plots_3d = False
@@ -356,8 +357,6 @@ if plots_3d:
     plot.width = (700., 700., 650.)
     plot.pixels = (10000, 10000, 10000)
 
-plots = openmc.Plots()
-plots.append(plot)
-plots.export_to_xml()
+    plots.append(plot)
 
 plots.export_to_xml()
