@@ -12,23 +12,23 @@ def cwd():
 
 @pytest.fixture(scope='session')
 def proc_test_file(cwd):
-    filename = (cwd / 'test_processes.json')
+    filename = (cwd / 'tap_processes.json')
     return filename
 
 
 @pytest.fixture(scope='session')
 def path_test_file(cwd):
-    filename = (cwd / 'test_paths.dot')
+    filename = (cwd / 'tap_paths.dot')
     return filename
 
 
 @pytest.fixture(scope='session')
 def depcode_serpent(cwd):
     """DepcodeSerpent object for unit tests"""
-    saltproc_input = (cwd / 'serpent_data' / 'test_input.json').as_posix()
+    saltproc_input = (cwd / 'serpent_data' / 'tap_input.json').as_posix()
     _, _, _, object_input = read_main_input(saltproc_input)
     depcode = _create_depcode_object(object_input[0])
-    depcode.iter_inputfile = (cwd / 'serpent_data' / 'ref').as_posix()
+    depcode.iter_inputfile = (cwd / 'serpent_data' / 'tap_reference').as_posix()
 
     return depcode
 
@@ -36,7 +36,7 @@ def depcode_serpent(cwd):
 @pytest.fixture(scope='session')
 def depcode_openmc(cwd):
     """DepcodeOpenMC object for unit tests"""
-    saltproc_input = (cwd / 'openmc_data' / 'test_input.json').as_posix()
+    saltproc_input = (cwd / 'openmc_data' / 'tap_input.json').as_posix()
     _, _, _, object_input = read_main_input(saltproc_input)
     depcode = _create_depcode_object(object_input[0])
 
@@ -69,5 +69,5 @@ def simulation(cwd, depcode_serpent):
         db_path=(
             cwd /
             'serpent_data' /
-            'ref_db.h5').as_posix())
+            'tap_reference_db.h5').as_posix())
     return simulation

@@ -13,7 +13,7 @@ from saltproc.app import get_feeds, get_extraction_process_paths
 def test_read_main_input(cwd, codename, ext):
     data_path = codename + '_data'
     data_path = cwd / data_path
-    main_input = (data_path / 'test_input.json').as_posix()
+    main_input = (data_path / 'tap_input.json').as_posix()
     out = read_main_input(main_input)
     input_path, process_input_file, path_input_file, object_input = out
     depcode_input, simulation_input, reactor_input = object_input
@@ -25,7 +25,7 @@ def test_read_main_input(cwd, codename, ext):
     assert depcode_input['active_cycles'] == 20
     assert depcode_input['inactive_cycles'] == 20
     assert depcode_input['geo_file_paths'][0] == \
-        (data_path / ('geometry_base' + ext)).as_posix()
+        (data_path / ('tap_geometry_base' + ext)).as_posix()
 
     assert simulation_input['db_name'] == \
         (data_path / '../temp_data/db_saltproc.h5').resolve().as_posix()

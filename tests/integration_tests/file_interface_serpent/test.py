@@ -11,7 +11,7 @@ from saltproc import Reactor
 @pytest.fixture
 def geometry_switch(scope='module'):
     path = Path(__file__).parents[2]
-    return (path / 'serpent_data' / 'geometry_switch.ini')
+    return (path / 'serpent_data' / 'tap_geometry_switch.ini')
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def test_iter_input_from_template(depcode_serpent, msr):
 
     # insert_path_to_geometry
     file_data = depcode_serpent.insert_path_to_geometry(file_data)
-    assert file_data[5].split('/')[-1] == 'geometry_base.ini"\n'
+    assert file_data[5].split('/')[-1] == 'tap_geometry_base.ini"\n'
 
     # create_iter_matfile
     file_data = depcode_serpent.create_iter_matfile(file_data)

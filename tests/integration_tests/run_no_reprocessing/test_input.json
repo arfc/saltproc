@@ -10,7 +10,7 @@
        "npop": 100,
        "active_cycles": 20,
        "inactive_cycles": 5,
-       "geo_file_paths": ["../../serpent_data/geometry_base.ini"]
+       "geo_file_paths": ["../../serpent_data/tap_geometry_base.ini"]
    },
    "simulation": {
        "sim_name": "Integration test",

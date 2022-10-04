@@ -12,7 +12,7 @@ import subprocess
 def setup(scope='module'):
     cwd = Path(__file__).parents[0].resolve().as_posix()
     test_db = cwd + '/test_db.h5'
-    ref_db = cwd + '/reference_db.h5'
+    ref_db = cwd + '/tap_reference_db.h5'
     tol = 1e-9
 
     return cwd, test_db, ref_db, tol
@@ -24,7 +24,7 @@ def test_integration_2step_constant_ideal_removal_heavy(setup):
         'python',
         'saltproc',
         '-i',
-        cwd + '/test_input.json'])
+        cwd + '/tap_input.json'])
     np.testing.assert_equal(read_keff(test_db), read_keff(ref_db))
     assert_db_almost_equal(test_db, ref_db, tol)
 
