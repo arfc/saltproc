@@ -29,11 +29,11 @@ section libraries. Running the script without setting `XSDIR` will install the c
 
 
 #### `download_endfb71.bash`
-Downloads and processes the endfb7x incident neutron data, and 
-ENDFB71 thermal scattering data in ACE format-- as well as
-spontaneous and delayed fission neutron and
-decay data -- for running Serpent models
-on a UNIX-like machine.
+Downloads and processes the endfb7x incident neutron data, and ENDFB71 or
+ENDFB70 thermal scattering data in ACE format (depending on if the user's Serpent
+version supports interpolation of continuous energy thermal scattering cross
+sections) -- as well as spontaneous and delayed fission neutron and decay data --
+for running Serpent models on a UNIX-like machine.
 
 To run the script, execute
 ```

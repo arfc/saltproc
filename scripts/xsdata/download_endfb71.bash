@@ -1,15 +1,16 @@
 #! ~/bin/bash
-
-# Get conda working in non interactive shell
-CONDA_PATH=$(conda info | grep -i 'base environment' | awk '{print $4}')
-source $CONDA_PATH/etc/profile.d/conda.sh
-
 ################
 ### DOWNLOAD ###
 ################
+# Serpent version 2.32 added support for interpolating continuous energy thermal
+# scattering cross sections. If a user has this serpent version, then the script
+# will download the ENDF/B-VII.1 thermal scattering data which is continuous in
+# energy. Otherwise, the script will download the ENDF/B-VII.0 thermal scattering
+# data which is tabulated in energy, but is the same evaluation as the ENDF/B-VII.1 data
+SUPPORTS_INTERPOLATE_CONTINUOUS_ENERGY=false
 # DATADIR is the directory where the xs library is extracted to
 # @yardasol reccomends naming the parent directory where the files
-# will be extractd to as "jeff312"
+# will be extractd to as "endfb71_ace"
 if [[ -d "$XSDIR" ]]
 then
     DATADIR=$XSDIR/endfb71_ace
@@ -29,14 +30,20 @@ do
     then
         wget -P $DATADIR $LN$SLUG$D$EXT
     fi
-    mkdir -p $DATADIR/$D
-    unzip -j $DATADIR/$SLUG$D$EXT -d $DATADIR/$D
-    touch $DATADIR/endfb71.$D
-    files=$(ls $DATADIR/$D/*.[Ee][Nn][Dd][Ff])
-    for file in $files
-    do
-        cat $file >> $DATADIR/endfb71.$D
-    done
+    if [[ ! -d $DATADIR/$D ]]
+    then
+        mkdir -p $DATADIR/$D
+        unzip -j $DATADIR/$SLUG$D$EXT -d $DATADIR/$D
+    fi
+    if [[ ! -f $DATADIR/endfb71.$D ]]
+    then
+        touch $DATADIR/endfb71.$D
+        files=$(ls $DATADIR/$D/*.[Ee][Nn][Dd][Ff])
+        for file in $files
+        do
+            cat $file >> $DATADIR/endfb71.$D
+        done
+    fi
 done
 
 # OpenMC depletion chain
@@ -59,11 +66,9 @@ tar -xOzf $DATADIR/$ACEGZ xsdir | cat > $DATADIR/$XSDIR_FILE
 DATADIR_REGEX=${DATADIR//\//\\\/}
 
 # Fix datapath
-sed -i "s/datapath/datapath=$DATADIR_REGEX\/acedata/" $DATADIR/$XSDIR_FILE
-#echo "datapath=$DATADIR/acedata" > $DATADIR/$XSDIR_FILE
+sed -i "s/datapath/datapath=$DATADIR_REGEX/" $DATADIR/$XSDIR_FILE
 
 # Get cutoff line number
-echo "Get cutoff"
 LN="$(grep -n "directory" $DATADIR/$XSDIR_FILE)"
 IFS=':' read -ra arr <<< "$LN"
 LN=${arr[0]}
@@ -72,11 +77,16 @@ LN=${arr[0]}
 head -n$LN $DATADIR/$XSDIR_FILE | cat > $DATADIR/temp
 cat $DATADIR/temp > $DATADIR/$XSDIR_FILE
 rm $DATADIR/temp
-#echo "directory" >> $DATADIR/$XSDIR_FILE
 
 # Neutron and thermal scattering data
 LN="https://nucleardata.lanl.gov/lib/"
-DATA=("endf71x" "ENDF71SaB")
+if ! $SUPPORTS_INTERPOLATE_CONTINUOUS_ENERGY
+then
+    THERM="endf70sab"
+else
+    THERM="ENDF71SaB"
+fi
+DATA=("$THERM" "endf71x")
 EXT=".tgz"
 for D in ${DATA[@]}
 do
@@ -84,10 +94,15 @@ do
     then
         wget -P $DATADIR $LN$D$EXT
     fi
-    tar -xzf $DATADIR/"$D$EXT" -C $DATADIR --verbose
-    mv $DATADIR/$D/$D $DATADIR/acedata/.
+    if [[ ! -d $DATADIR/acedata/$D ]]
+    then
+        tar -xzf $DATADIR/"$D$EXT" -C $DATADIR --verbose
+        mv $DATADIR/$D/$D $DATADIR/acedata/.
+    fi
 
     cat $DATADIR/$D/xsdir >> $DATADIR/$XSDIR_FILE
+    echo "" >> $DATADIR/$XSDIR_FILE
+    sed -i "s/$D\//acedata\/$D\//" $DATADIR/$XSDIR_FILE
 done
 
 

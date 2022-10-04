@@ -11,4 +11,4 @@ fi
 mkdir -p $DATADIR
 
 conda activate $OPENMC_ENV
-python $OPENMCDIR/scripts/openmc-ace-to-hdf5 --xsdir $XSDIR/endfb71_ace/endfb71.xsdir -d $DATADIR
+python $OPENMCDIR/scripts/openmc-ace-to-hdf5 -d $DATADIR --xsdir $XSDIR/endfb71_ace/endfb71.xsdir -m mcnp
