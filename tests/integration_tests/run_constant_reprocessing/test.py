@@ -17,6 +17,16 @@ def setup(scope='module'):
 
     return cwd, test_db, ref_db, tol
 
+@pytest.mark.slow
+def test_integration_2step_constant_ideal_removal_heavy(setup):
+    cwd, test_db, ref_db, tol = setup
+    subprocess.check_call([
+        'python',
+        'saltproc',
+        '-i',
+        cwd + '/test_input.json'])
+    np.testing.assert_equal(read_keff(test_db), read_keff(ref_db))
+    assert_db_almost_equal(test_db, ref_db, tol)
 
 def read_keff(file):
     db = tb.open_file(file, mode='r')
@@ -30,25 +40,26 @@ def read_keff(file):
     db.close()
     return k_0, k_1, k_0_e, k_1_e
 
+def assert_db_almost_equal(test_db, ref_db, tol):
+    assert_nuclide_mass_equal(test_db, ref_db, tol)
+    assert_in_out_streams_equal(test_db, ref_db, tol)
+    ref_data, ref_param = read_fuel(ref_db)
+    test_data, test_param = read_fuel(test_db)
+    # Compare materials composition
+    for node_nm, node in ref_data.items():
+        for nuc, mass_arr in node.items():
+            np.testing.assert_allclose(
+                mass_arr, test_data[node_nm][nuc], rtol=tol)
+    # Compare material properties
+    np.testing.assert_allclose(test_param, ref_param, rtol=tol)
 
-def read_fuel(file):
-    db = tb.open_file(file, mode='r')
-    fuel = db.root.materials.fuel
-    out_data = {}
-    for node in db.walk_nodes(fuel, classname="EArray"):
-        nucmap = node.attrs.iso_map
-        out_data[node._v_name] = {}
-        # print(node)
-        for nuc in nucmap:
-            out_data[node._v_name][nuc] = \
-                np.array([row[nucmap[nuc]] for row in node])
-    # Read table with material parameters (density, temperature, mass)
-    tmp = fuel.after_reproc.parameters.read()
-    # Convert structured array to simple array
-    param = tmp.view(np.float64).reshape(tmp.shape + (-1,))
-    db.close()
-    return out_data, param
-
+def assert_nuclide_mass_equal(test_db, ref_db, tol):
+    ref_mass_before, ref_mass_after = read_nuclide_mass(ref_db)
+    test_mass_before, test_mass_after = read_nuclide_mass(test_db)
+    for key, val in ref_mass_before.items():
+        np.testing.assert_almost_equal(val, test_mass_before[key], decimal=tol)
+    for key, val in ref_mass_after.items():
+        np.testing.assert_almost_equal(val, test_mass_after[key], decimal=tol)
 
 def read_nuclide_mass(db_file):
     db = tb.open_file(db_file, mode='r')
@@ -65,6 +76,23 @@ def read_nuclide_mass(db_file):
     db.close()
     return mass_before, mass_after
 
+def assert_in_out_streams_equal(test_db, ref_db, tol):
+    ref_sparger, \
+        ref_test_separator, \
+        ref_ni_filter, \
+        ref_feed = read_in_out_streams(ref_db)
+    test_sparger, \
+        test_separator, \
+        test_ni_filter, \
+        test_feed = read_in_out_streams(test_db)
+    for key, val in ref_sparger.items():
+        np.testing.assert_almost_equal(val, test_sparger[key], decimal=tol)
+    for key, val in ref_test_separator.items():
+        np.testing.assert_almost_equal(val, test_separator[key], decimal=tol)
+    for key, val in ref_ni_filter.items():
+        np.testing.assert_almost_equal(val, test_ni_filter[key], decimal=tol)
+    for key, val in ref_feed.items():
+        np.testing.assert_almost_equal(val, test_feed[key], decimal=tol)
 
 def read_in_out_streams(db_file):
     db = tb.open_file(db_file, mode='r')
@@ -96,57 +124,20 @@ def read_in_out_streams(db_file):
         mass_waste_ni_filter, \
         mass_feed_leu
 
-
-def assert_in_out_streams_equal(test_db, ref_db, tol):
-    ref_sparger, \
-        ref_test_separator, \
-        ref_ni_filter, \
-        ref_feed = read_in_out_streams(ref_db)
-    test_sparger, \
-        test_separator, \
-        test_ni_filter, \
-        test_feed = read_in_out_streams(test_db)
-    for key, val in ref_sparger.items():
-        np.testing.assert_almost_equal(val, test_sparger[key], decimal=tol)
-    for key, val in ref_test_separator.items():
-        np.testing.assert_almost_equal(val, test_separator[key], decimal=tol)
-    for key, val in ref_ni_filter.items():
-        np.testing.assert_almost_equal(val, test_ni_filter[key], decimal=tol)
-    for key, val in ref_feed.items():
-        np.testing.assert_almost_equal(val, test_feed[key], decimal=tol)
-
-
-def assert_nuclide_mass_equal(test_db, ref_db, tol):
-    ref_mass_before, ref_mass_after = read_nuclide_mass(ref_db)
-    test_mass_before, test_mass_after = read_nuclide_mass(test_db)
-    for key, val in ref_mass_before.items():
-        np.testing.assert_almost_equal(val, test_mass_before[key], decimal=tol)
-    for key, val in ref_mass_after.items():
-        np.testing.assert_almost_equal(val, test_mass_after[key], decimal=tol)
-
-
-def assert_db_almost_equal(test_db, ref_db, tol):
-    assert_nuclide_mass_equal(test_db, ref_db, tol)
-    assert_in_out_streams_equal(test_db, ref_db, tol)
-    ref_data, ref_param = read_fuel(ref_db)
-    test_data, test_param = read_fuel(test_db)
-    # Compare materials composition
-    for node_nm, node in ref_data.items():
-        for nuc, mass_arr in node.items():
-            np.testing.assert_allclose(
-                mass_arr, test_data[node_nm][nuc], rtol=tol)
-    # Compare material properties
-    np.testing.assert_allclose(test_param, ref_param, rtol=tol)
-
-
-@pytest.mark.slow
-# @pytest.mark.skip
-def test_integration_2step_constant_ideal_removal_heavy(setup):
-    cwd, test_db, ref_db, tol = setup
-    subprocess.check_call([
-        'python',
-        'saltproc',
-        '-i',
-        cwd + '/test_input.json'])
-    np.testing.assert_equal(read_keff(test_db), read_keff(ref_db))
-    assert_db_almost_equal(test_db, ref_db, tol)
+def read_fuel(file):
+    db = tb.open_file(file, mode='r')
+    fuel = db.root.materials.fuel
+    out_data = {}
+    for node in db.walk_nodes(fuel, classname="EArray"):
+        nucmap = node.attrs.iso_map
+        out_data[node._v_name] = {}
+        # print(node)
+        for nuc in nucmap:
+            out_data[node._v_name][nuc] = \
+                np.array([row[nucmap[nuc]] for row in node])
+    # Read table with material parameters (density, temperature, mass)
+    tmp = fuel.after_reproc.parameters.read()
+    # Convert structured array to simple array
+    param = tmp.view(np.float64).reshape(tmp.shape + (-1,))
+    db.close()
+    return out_data, param

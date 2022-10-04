@@ -225,9 +225,7 @@ def _check_openmc_objects_equal(object1, object2):
         object_type = type(object1)
         assert isinstance(object2, object_type)
         assert object1.id == object2.id
-        # this may not apply to all objects.
         assert object1.name == object2.name
-        # need to check
         if object_type == openmc.Material:
             assert object1.density == object2.density
             assert object1.nuclides == object2.nuclides
