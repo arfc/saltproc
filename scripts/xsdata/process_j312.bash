@@ -14,7 +14,7 @@ LN="https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/ACE/"
 SLUG="ACEs_"
 EXT="K.zip"
 SLUG1="STL_ACEs.zip"
-TEMPS=(800 900 1000)
+TEMPS=(900)
 BRC=$HOME/.bashrc
 
 #Uncomment for a good range of temperatures (will take a long time)
