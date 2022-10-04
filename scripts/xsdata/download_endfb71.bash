@@ -7,9 +7,15 @@ source $CONDA_PATH/etc/profile.d/conda.sh
 ################
 ### DOWNLOAD ###
 ################
+# Serpent version 2.32 added support for interpolating continuous energy thermal
+# scattering cross sections. If a user has this serpent version, then the script
+# will download the ENDF/B-VII.1 thermal scattering data which is continuous in
+# energy. Otherwise, the script will download the ENDF/B-VII.0 thermal scattering
+# data which is tabulated in energy, but is the same evaluation as the ENDF/B-VII.1 data
+SUPPORTS_INTERPOLATE_CONTINUOUS_ENERGY=false
 # DATADIR is the directory where the xs library is extracted to
 # @yardasol reccomends naming the parent directory where the files
-# will be extractd to as "jeff312"
+# will be extractd to as "endfb71_ace"
 if [[ -d "$XSDIR" ]]
 then
     DATADIR=$XSDIR/endfb71_ace
@@ -76,7 +82,13 @@ rm $DATADIR/temp
 
 # Neutron and thermal scattering data
 LN="https://nucleardata.lanl.gov/lib/"
-DATA=("endf71x" "ENDF71SaB")
+if [[ ! $SUPPORTS_INTERPOLATE_CONTINUOUS_ENERGY ]]
+then
+    THERM="endf70sab"
+else
+    THERM="ENDF71SaB"
+fi
+DATA=("endf71x" "$THERM")
 EXT=".tgz"
 for D in ${DATA[@]}
 do
