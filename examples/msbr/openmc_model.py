@@ -7,7 +7,7 @@ from _root_geometry import *
 
 # Materials
 
-fuel = openmc.Material(name='fuel', temperature=900.0)
+fuel = openmc.Material(name='fuel')
 fuel.set_density('g/cm3', density=3.35)
 fuel.add_components({'Li7': 0.0787474673879085,
                      'Be9': 0.0225566879138321,
@@ -18,12 +18,12 @@ fuel.add_components({'Li7': 0.0787474673879085,
 fuel.depletable = True
 fuel.volume = 48710000.0
 
-moder = openmc.Material(name='graphite', temperature=900.0)
+moder = openmc.Material(name='graphite')
 moder.set_density('g/cm3', density=1.84)
 moder.add_nuclide('C0', 1.000, percent_type='wo')
 moder.add_s_alpha_beta('c_Graphite')
 
-hast = openmc.Material(name='hastelloyN', temperature=900.0)
+hast = openmc.Material(name='hastelloyN')
 hast.set_density('g/cm3', density=8.671)
 hast.add_components({'Al27': 0.003,
                      'Ni': 0.677,
@@ -153,7 +153,7 @@ geo.export_to_xml()
 settings = openmc.Settings()
 settings.particles = 300
 settings.batches = 400
-settings.inative = 5
+settings.inactive = 10
 settings.temperature = {'default': 900, 'method': 'interpolation'}
 settings.export_to_xml()
 

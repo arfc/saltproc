@@ -45,7 +45,7 @@ rgb 127 205 187
 % --- Thermal scattering data for graphite:
 % endfb71
 %therm gr 900 grph.25t grph.26t  % 900K C-nat
-$% endfb70
+% endfb70
 therm gr 900 grph.15t grph.16t  % 900K C-nat
 
 
