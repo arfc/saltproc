@@ -1,57 +1,25 @@
-from __future__ import absolute_import, division, print_function
-from saltproc import DepcodeSerpent
-from saltproc import Simulation
-import saltproc.app
+from pathlib import Path
 import os
-import sys
+
+import pytest
 import numpy as np
 import tables as tb
-path = os.path.realpath(__file__)
-sys.path.append(os.path.dirname(os.path.dirname(path)))
-# global class object
-directory = os.path.dirname(path)
-iter_inputfile = directory + '/test'
-main_input = directory + '/test.json'
-dot_input = directory + '/test.dot'
 
-serpent = DepcodeSerpent(
-    exec_path='/home/andrei2/serpent/serpent2/src_2131/sss2',
-    template_input_file_path=directory + '/template.inp',
-    geo_files=[
-        '../../examples/406.inp',
-        '../../examples/988.inp'])
-
-serpent.iter_inputfile = iter_inputfile
-serpent.iter_matfile = directory + '/material'
+from saltproc.app import reprocess_materials, refill_materials
 
 
-simulation = Simulation(sim_name='Simulation unit tests',
-                        sim_depcode=serpent,
-                        core_number=1,
-                        node_number=1,
-                        db_path=directory + '/test_db.h5')
+@pytest.fixture(scope='module')
+def db_file(simulation):
+    cwd = Path.cwd()
+    db_file = (cwd / (simulation.sim_depcode.codename + '_test.h5'))
+    return db_file.resolve().as_posix()
 
 
-def test_check_switch_geo_trigger():
-    """
-    This unit test checks that ``check_switch_geo_trigger`` functions
-    consistently with its docstring.
-    """
-
-    switch_times = [1.0, 3, -31, 86.23333, 1e-16, 2e-18, "two o clock"]
-    assert simulation.check_switch_geo_trigger(1.0, switch_times) is True
-    assert simulation.check_switch_geo_trigger(3, switch_times) is True
-    assert simulation.check_switch_geo_trigger(-32, switch_times) is False
-    assert simulation.check_switch_geo_trigger(86.233, switch_times) is False
-    assert simulation.check_switch_geo_trigger(1e-16, switch_times) is True
-    assert simulation.check_switch_geo_trigger(5e-18, switch_times) is False
-    assert simulation.check_switch_geo_trigger("three o clock",
-                                               switch_times) is False
-    assert simulation.check_switch_geo_trigger("two o clock",
-                                               switch_times) is True
-
-
-def test_store_after_repr():
+def test_store_after_reprocessing(
+        simulation,
+        proc_test_file,
+        path_test_file,
+        db_file):
     """
     This unit test checks that select entries that ``store_after_repr_()`
     stores in the database match the corresponding entries from the input
@@ -65,31 +33,30 @@ def test_store_after_repr():
                         feed_pure_gd
 
     """
-    saltproc.app.read_main_input(main_input)
-
     # read data
     mats = simulation.sim_depcode.read_dep_comp(
         True)
-    waste_st, rem_mass = saltproc.app.reprocess_materials(mats)
-    m_after_refill = saltproc.app.refill_materials(mats, rem_mass, waste_st)
+    waste_streams, extracted_mass = reprocess_materials(
+        mats, proc_test_file, path_test_file)
+    waste_feed_streams = refill_materials(
+        mats, extracted_mass, waste_streams, proc_test_file)
 
-    fuel_st = m_after_refill['fuel']
+    fuel_stream = waste_feed_streams['fuel']
 
-    f_feed_leu = fuel_st['feed_leu']
-    f_entrain_sep = fuel_st['waste_entrainment_separator']
-    f_liq_met = fuel_st['waste_liquid_metal']
-    f_nickel_filt = fuel_st['waste_nickel_filter']
-    f_sparger = fuel_st['waste_sparger']
+    f_feed_leu = fuel_stream['feed_leu']
+    f_entrain_sep = fuel_stream['waste_entrainment_separator']
+    f_liq_met = fuel_stream['waste_liquid_metal']
+    f_nickel_filt = fuel_stream['waste_nickel_filter']
+    f_sparger = fuel_stream['waste_sparger']
 
     # we want to keep the old path for other sims, but for this
-    # test we'll want a fresh db
+    # test we'll want a fresh database
     db_path_old = simulation.db_path
-    db_file = serpent.iter_inputfile + '.h5'
     simulation.db_path = db_file
 
     # store data
     simulation.store_mat_data(mats, 0, False)
-    simulation.store_after_repr(mats, m_after_refill, 0)
+    simulation.store_after_repr(mats, waste_feed_streams, 0)
 
     # read stored data
     try:
@@ -100,13 +67,13 @@ def test_store_after_repr():
               See error stack for more info.')
 
     tmats = db.root.materials
-    tfuel_st = tmats.fuel.in_out_streams
+    tfuel_stream = tmats.fuel.in_out_streams
 
-    tf_feed_leu = tfuel_st.feed_leu[0]
-    tf_entrain_sep = tfuel_st.waste_entrainment_separator[0]
-    tf_liq_met = tfuel_st.waste_liquid_metal[0]
-    tf_nickel_filt = tfuel_st.waste_nickel_filter[0]
-    tf_sparger = tfuel_st.waste_sparger[0]
+    tf_feed_leu = tfuel_stream.feed_leu[0]
+    tf_entrain_sep = tfuel_stream.waste_entrainment_separator[0]
+    tf_liq_met = tfuel_stream.waste_liquid_metal[0]
+    tf_nickel_filt = tfuel_stream.waste_nickel_filter[0]
+    tf_sparger = tfuel_stream.waste_sparger[0]
     try:
         assert tf_feed_leu[0] == f_feed_leu['Li6']
         assert tf_feed_leu[1] == f_feed_leu['Li7']
@@ -165,7 +132,7 @@ def test_store_after_repr():
     simulation.db_path = db_path_old
 
 
-def test_store_mat_data():
+def test_store_mat_data(simulation):
     """
     This unit test checks that select entries that ``store_mat_data_()`
     stores in the database match the corresponding entries from the input
@@ -186,7 +153,7 @@ def test_store_mat_data():
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
     db_path_old = simulation.db_path
-    db_file = serpent.iter_inputfile + '.h5'
+    db_file = simulation.sim_depcode.codename + '_test.h5'
     simulation.db_path = db_file
 
     # store data at end
@@ -293,7 +260,7 @@ def test_store_mat_data():
     simulation.db_path = db_path_old
 
 
-def test_store_run_init_info():
+def test_store_run_init_info(simulation):
     """
     This unit test checks that the entries ``store_run_init_info()`
     stores in the database match the corresponding entries from the input
@@ -307,7 +274,7 @@ def test_store_run_init_info():
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
     db_path_old = simulation.db_path
-    db_file = serpent.iter_inputfile + '.h5'
+    db_file = simulation.sim_depcode.codename + '_test.h5'
     simulation.db_path = db_file
 
     # store data at
@@ -366,7 +333,7 @@ def test_store_run_init_info():
     simulation.db_path = db_path_old
 
 
-def test_store_run_step_info():
+def test_store_run_step_info(simulation):
     """
     This unit test checks that the entries ``store_run_step_info()`
     stores in the database match the corresponding entries from the input
@@ -379,7 +346,7 @@ def test_store_run_step_info():
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
     db_path_old = simulation.db_path
-    db_file = serpent.iter_inputfile + '.h5'
+    db_file = simulation.sim_depcode.codename + '_test.h5'
     simulation.db_path = db_file
 
     # store data at
@@ -436,7 +403,3 @@ def test_store_run_step_info():
 
     # use original db path
     simulation.db_path = db_path_old
-
-
-def test_read_k_eds_delta():
-    assert simulation.read_k_eds_delta(7) is False

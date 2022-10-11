@@ -90,6 +90,7 @@ Python API Changes
 ..
   Describe any changes to the API
 
+- The test suite has been overhauled and moved to the `tests/` directory. The test suite is no longer part of the `saltproc` package.
 
 - Input file format changes:
 

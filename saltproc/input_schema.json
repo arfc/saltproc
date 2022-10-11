@@ -84,10 +84,6 @@
                                         "description": "OpenMC settings file",
                                         "type": "string",
                                         "pattern": "^\\.\\/(.*)\\.xml$"},
-                                    "geometry": {
-                                        "description": "OpenMC geometry file",
-                                        "type": "string",
-                                        "pattern": "^\\.\\/(.*)\\.xml$"},
                                     "materials": {
                                         "description": "OpenMC materials file",
                                         "type": "string",
@@ -102,7 +98,7 @@
                                         "pattern": "^\\.\\/(.*)\\.xml$"}
                                 },
 
-                                "required": ["settings", "geometry", "materials", "chain_file"]
+                                "required": ["settings", "materials", "chain_file"]
                             }
                         }
                     }
