@@ -16,6 +16,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -155,7 +156,7 @@
 <tr class="row-even"><td><p>type</p></td>
 <td colspan="5"><p><em>number</em></p></td>
 </tr>
-<tr class="row-odd"><td rowspan="50"><ul class="simple">
+<tr class="row-odd"><td rowspan="47"><ul class="simple">
 <li><p><strong>depcode</strong></p></li>
 </ul>
 </td>
@@ -248,7 +249,7 @@
 <tr class="row-odd"><td><p>uniqueItems</p></td>
 <td colspan="4"><p>False</p></td>
 </tr>
-<tr class="row-even"><td rowspan="27"><p>allOf</p></td>
+<tr class="row-even"><td rowspan="24"><p>allOf</p></td>
 <td rowspan="2"><p>if</p></td>
 <td colspan="4"><p>properties</p></td>
 </tr>
@@ -284,10 +285,10 @@
 <td><p>const</p></td>
 <td colspan="2"><p>openmc</p></td>
 </tr>
-<tr class="row-even"><td rowspan="19"><p>then</p></td>
+<tr class="row-even"><td rowspan="16"><p>then</p></td>
 <td colspan="4"><p>properties</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="18"><ul class="simple">
+<tr class="row-odd"><td rowspan="15"><ul class="simple">
 <li><p>template_input_file_path</p></li>
 </ul>
 </td>
@@ -311,10 +312,10 @@
 <td><p>^\.\/(.*)\.xml$</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
-<li><p><strong>geometry</strong></p></li>
+<li><p><strong>materials</strong></p></li>
 </ul>
 </td>
-<td colspan="2"><p>OpenMC geometry file</p></td>
+<td colspan="2"><p>OpenMC materials file</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
 <td><p><em>string</em></p></td>
@@ -323,10 +324,10 @@
 <td><p>^\.\/(.*)\.xml$</p></td>
 </tr>
 <tr class="row-even"><td rowspan="3"><ul class="simple">
-<li><p><strong>materials</strong></p></li>
+<li><p>plots</p></li>
 </ul>
 </td>
-<td colspan="2"><p>OpenMC materials file</p></td>
+<td colspan="2"><p>OpenMC plots file (optional)</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
 <td><p><em>string</em></p></td>
@@ -335,10 +336,10 @@
 <td><p>^\.\/(.*)\.xml$</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
-<li><p>plots</p></li>
+<li><p><strong>chain_file</strong></p></li>
 </ul>
 </td>
-<td colspan="2"><p>OpenMC plots file (optional)</p></td>
+<td colspan="2"><p>OpenMC depletion chain file</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
 <td><p><em>string</em></p></td>
@@ -346,84 +347,84 @@
 <tr class="row-odd"><td><p>pattern</p></td>
 <td><p>^\.\/(.*)\.xml$</p></td>
 </tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
-<li><p><strong>chain_file</strong></p></li>
-</ul>
-</td>
-<td colspan="2"><p>OpenMC depletion chain file</p></td>
-</tr>
-<tr class="row-odd"><td><p>type</p></td>
-<td><p><em>string</em></p></td>
-</tr>
-<tr class="row-even"><td><p>pattern</p></td>
-<td><p>^\.\/(.*)\.xml$</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="12"><ul class="simple">
+<tr class="row-even"><td rowspan="12"><ul class="simple">
 <li><p><strong>simulation</strong></p></li>
 </ul>
 </td>
 <td colspan="6"><p>Simulation class input parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>type</p></td>
+<tr class="row-odd"><td><p>type</p></td>
 <td colspan="5"><p><em>object</em></p></td>
 </tr>
-<tr class="row-odd"><td colspan="6"><p>properties</p></td>
+<tr class="row-even"><td colspan="6"><p>properties</p></td>
 </tr>
-<tr class="row-even"><td rowspan="2"><ul class="simple">
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
 <li><p>sim_name</p></li>
 </ul>
 </td>
 <td colspan="5"><p>Name of simulation</p></td>
 </tr>
-<tr class="row-odd"><td><p>type</p></td>
+<tr class="row-even"><td><p>type</p></td>
 <td colspan="4"><p><em>string</em></p></td>
 </tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>db_name</p></li>
 </ul>
 </td>
 <td colspan="5"><p>Output HDF5 database file name</p></td>
 </tr>
-<tr class="row-odd"><td><p>type</p></td>
+<tr class="row-even"><td><p>type</p></td>
 <td colspan="4"><p><em>string</em></p></td>
 </tr>
-<tr class="row-even"><td><p>pattern</p></td>
+<tr class="row-odd"><td><p>pattern</p></td>
 <td colspan="4"><p>^(.*)\.h5$</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<tr class="row-even"><td rowspan="2"><ul class="simple">
 <li><p>restart_flag</p></li>
 </ul>
 </td>
 <td colspan="5"><p>Restart simulation from the step when it stopped?</p></td>
 </tr>
-<tr class="row-even"><td><p>type</p></td>
+<tr class="row-odd"><td><p>type</p></td>
 <td colspan="4"><p><em>boolean</em></p></td>
 </tr>
-<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<tr class="row-even"><td rowspan="2"><ul class="simple">
 <li><p>adjust_geo</p></li>
 </ul>
 </td>
 <td colspan="5"><p>switch to another geometry when keff drops below 1?</p></td>
 </tr>
-<tr class="row-even"><td><p>type</p></td>
+<tr class="row-odd"><td><p>type</p></td>
 <td colspan="4"><p><em>boolean</em></p></td>
 </tr>
-<tr class="row-odd"><td rowspan="21"><ul class="simple">
+<tr class="row-even"><td rowspan="21"><ul class="simple">
 <li><p><strong>reactor</strong></p></li>
 </ul>
 </td>
 <td colspan="6"><p>Reactor class input parameters</p></td>
 </tr>
-<tr class="row-even"><td><p>type</p></td>
+<tr class="row-odd"><td><p>type</p></td>
 <td colspan="5"><p><em>object</em></p></td>
 </tr>
-<tr class="row-odd"><td colspan="6"><p>properties</p></td>
+<tr class="row-even"><td colspan="6"><p>properties</p></td>
 </tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p><strong>volume</strong></p></li>
 </ul>
 </td>
 <td colspan="5"><p>reactor core volume [cm^3]</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="4"><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td colspan="4"><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>mass_flowrate</strong></p></li>
+</ul>
+</td>
+<td colspan="5"><p>Salt mass flowrate through reactor core [g/s]</p></td>
 </tr>
 <tr class="row-odd"><td><p>type</p></td>
 <td colspan="4"><p><em>number</em></p></td>
@@ -431,60 +432,48 @@
 <tr class="row-even"><td><p>minimum</p></td>
 <td colspan="4"><p>0</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
-<li><p><strong>mass_flowrate</strong></p></li>
-</ul>
-</td>
-<td colspan="5"><p>Salt mass flowrate through reactor core [g/s]</p></td>
-</tr>
-<tr class="row-even"><td><p>type</p></td>
-<td colspan="4"><p><em>number</em></p></td>
-</tr>
-<tr class="row-odd"><td><p>minimum</p></td>
-<td colspan="4"><p>0</p></td>
-</tr>
-<tr class="row-even"><td rowspan="6"><ul class="simple">
+<tr class="row-odd"><td rowspan="6"><ul class="simple">
 <li><p><strong>power_levels</strong></p></li>
 </ul>
 </td>
 <td colspan="5"><p>Reactor power or power step list durng depletion step [W]</p></td>
 </tr>
-<tr class="row-odd"><td><p>type</p></td>
+<tr class="row-even"><td><p>type</p></td>
 <td colspan="4"><p><em>array</em></p></td>
 </tr>
-<tr class="row-even"><td rowspan="2"><p>items</p></td>
+<tr class="row-odd"><td rowspan="2"><p>items</p></td>
 <td><p>type</p></td>
 <td colspan="3"><p><em>number</em></p></td>
 </tr>
-<tr class="row-odd"><td><p>minimum</p></td>
+<tr class="row-even"><td><p>minimum</p></td>
 <td colspan="3"><p>0</p></td>
 </tr>
-<tr class="row-even"><td><p>minItems</p></td>
+<tr class="row-odd"><td><p>minItems</p></td>
 <td colspan="4"><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><p>uniqueItems</p></td>
+<tr class="row-even"><td><p>uniqueItems</p></td>
 <td colspan="4"><p>False</p></td>
 </tr>
-<tr class="row-even"><td rowspan="6"><ul class="simple">
+<tr class="row-odd"><td rowspan="6"><ul class="simple">
 <li><p><strong>dep_step_length_cumulative</strong></p></li>
 </ul>
 </td>
 <td colspan="5"><p>Depletion step length(s) (cumulative) [d]</p></td>
 </tr>
-<tr class="row-odd"><td><p>type</p></td>
+<tr class="row-even"><td><p>type</p></td>
 <td colspan="4"><p><em>array</em></p></td>
 </tr>
-<tr class="row-even"><td rowspan="2"><p>items</p></td>
+<tr class="row-odd"><td rowspan="2"><p>items</p></td>
 <td><p>type</p></td>
 <td colspan="3"><p><em>number</em></p></td>
 </tr>
-<tr class="row-odd"><td><p>minimum</p></td>
+<tr class="row-even"><td><p>minimum</p></td>
 <td colspan="3"><p>0</p></td>
 </tr>
-<tr class="row-even"><td><p>minItems</p></td>
+<tr class="row-odd"><td><p>minItems</p></td>
 <td colspan="4"><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><p>uniqueItems</p></td>
+<tr class="row-even"><td><p>uniqueItems</p></td>
 <td colspan="4"><p>False</p></td>
 </tr>
 </tbody>

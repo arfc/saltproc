@@ -16,6 +16,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -183,21 +184,21 @@ extraction process efficiency for each target chemical element.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mat</strong> (<em>dict of str to Materialflow</em>) – <dl class="simple">
+<li><p><strong>mat</strong> (<em>dict</em><em> of </em><em>str to Materialflow</em>) – <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object after performing all removals.</p>
 </dd>
 </dl>
 </p></li>
-<li><p><strong>extracted_mass</strong> (<em>dict of str to float</em>) – <dl class="simple">
+<li><p><strong>extracted_mass</strong> (<em>dict</em><em> of </em><em>str to float</em>) – <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>Mass removed as waste in reprocessing function for each material.</p>
 </dd>
 </dl>
 </p></li>
-<li><p><strong>waste</strong> (<em>dict of str to Materialflow</em>) – <dl class="simple">
+<li><p><strong>waste</strong> (<em>dict</em><em> of </em><em>str to Materialflow</em>) – <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Process name.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object containing waste streams data.</p>
@@ -228,7 +229,7 @@ extraction process efficiency for each target chemical element.</p>
 <dd><p>Applies reprocessing scheme to burnable materials.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mats</strong> (<em>dict of str to Materialflow</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects with burnable material
+<dd class="field-odd"><p><strong>mats</strong> (<em>dict</em><em> of </em><em>str to Materialflow</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects with burnable material
 data right after irradiation in the core.</p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>

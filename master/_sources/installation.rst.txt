@@ -22,6 +22,7 @@ SaltProc has the following dependencies:
 .. _NetworkX: http://networkx.github.io
 .. _PyDotPlus: https://pydotplus.readthedocs.io/
 .. _pytest: https://docs.pytest.org
+.. _pytest documentation: https://docs.pytest.org/en/latest/how-to/usage.html
 .. _sphinx: https://www.sphinx-doc.org
 .. _sphinx-rtd-theme: https://sphinx-rtd-theme.readthedocs.io
 .. _matplotlib: http://matplotlib.org
@@ -113,11 +114,19 @@ To run the tests, execute:
 
 .. code-block:: bash
 
-   pytest saltproc/
+   pytest test/
 
-from the root directory of SaltProc. If you just want to run the unit tests, execute
+from the root directory of SaltProc. If you want to just the unit tests,
+execute:
 
 .. code-block:: bash
 
-   pytest --ignore saltproc/tests/integration_tests saltproc/
+   pytest tests/unit_tests
 
+Similarly, for just the integration tests, execute:
+
+.. code-block:: bash
+
+   pytest tests/integration_tests
+
+For more precise control, please refer to the `pytest documentation`_.

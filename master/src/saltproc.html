@@ -16,6 +16,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -76,40 +77,187 @@
              
   <section id="saltproc-package">
 <h1>saltproc package<a class="headerlink" href="#saltproc-package" title="Permalink to this heading">¶</a></h1>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="saltproc.tests.html">saltproc.tests package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="saltproc.tests.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.tests.test_app.html">saltproc.tests.test_app module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.tests.test_depcode.html">saltproc.tests.test_depcode module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.tests.test_materialflow.html">saltproc.tests.test_materialflow module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.tests.test_process.html">saltproc.tests.test_process module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.tests.test_separator.html">saltproc.tests.test_separator module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.tests.test_simulation.html">saltproc.tests.test_simulation module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="saltproc.tests.test_sparger.html">saltproc.tests.test_sparger module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="saltproc.tests.html#module-saltproc.tests">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="saltproc.app.html">saltproc.app module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="saltproc.depcode.html">saltproc.depcode module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="saltproc.materialflow.html">saltproc.materialflow module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="saltproc.app.html">saltproc.app module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app._create_depcode_object"><code class="docutils literal notranslate"><span class="pre">_create_depcode_object()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app._create_reactor_object"><code class="docutils literal notranslate"><span class="pre">_create_reactor_object()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app._create_simulation_object"><code class="docutils literal notranslate"><span class="pre">_create_simulation_object()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app._print_simulation_input_info"><code class="docutils literal notranslate"><span class="pre">_print_simulation_input_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app._process_main_input_reactor_params"><code class="docutils literal notranslate"><span class="pre">_process_main_input_reactor_params()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app.get_extraction_process_paths"><code class="docutils literal notranslate"><span class="pre">get_extraction_process_paths()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app.get_extraction_processes"><code class="docutils literal notranslate"><span class="pre">get_extraction_processes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app.get_feeds"><code class="docutils literal notranslate"><span class="pre">get_feeds()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app.parse_arguments"><code class="docutils literal notranslate"><span class="pre">parse_arguments()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app.read_main_input"><code class="docutils literal notranslate"><span class="pre">read_main_input()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app.refill_materials"><code class="docutils literal notranslate"><span class="pre">refill_materials()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app.reprocess_materials"><code class="docutils literal notranslate"><span class="pre">reprocess_materials()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.app.html#saltproc.app.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="saltproc.depcode.html">saltproc.depcode module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode"><code class="docutils literal notranslate"><span class="pre">Depcode</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode.param"><code class="docutils literal notranslate"><span class="pre">Depcode.param</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode.sim_info"><code class="docutils literal notranslate"><span class="pre">Depcode.sim_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode.iter_inputfile"><code class="docutils literal notranslate"><span class="pre">Depcode.iter_inputfile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode.iter_matfile"><code class="docutils literal notranslate"><span class="pre">Depcode.iter_matfile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode.__init__"><code class="docutils literal notranslate"><span class="pre">Depcode.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode.read_dep_comp"><code class="docutils literal notranslate"><span class="pre">Depcode.read_dep_comp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode.read_depcode_info"><code class="docutils literal notranslate"><span class="pre">Depcode.read_depcode_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode.read_depcode_step_param"><code class="docutils literal notranslate"><span class="pre">Depcode.read_depcode_step_param()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode.run_depcode"><code class="docutils literal notranslate"><span class="pre">Depcode.run_depcode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode.switch_to_next_geometry"><code class="docutils literal notranslate"><span class="pre">Depcode.switch_to_next_geometry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode.write_depcode_input"><code class="docutils literal notranslate"><span class="pre">Depcode.write_depcode_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.Depcode.write_mat_file"><code class="docutils literal notranslate"><span class="pre">Depcode.write_mat_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.param"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.param</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.sim_info"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.sim_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.iter_inputfile"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.iter_inputfile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.iter_matfile"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.iter_matfile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.__init__"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.read_dep_comp"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.read_dep_comp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.read_depcode_info"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.read_depcode_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.read_depcode_step_param"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.read_depcode_step_param()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.run_depcode"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.run_depcode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.switch_to_next_geometry"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.switch_to_next_geometry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.write_depcode_input"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.write_depcode_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.write_depletion_settings"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.write_depletion_settings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.write_mat_file"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.write_mat_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.write_saltproc_openmc_tallies"><code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC.write_saltproc_openmc_tallies()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.param"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.param</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.sim_info"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.sim_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.iter_inputfile"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.iter_inputfile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.iter_matfile"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.iter_matfile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.__init__"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.change_sim_par"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.change_sim_par()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.convert_nuclide_name_serpent_to_zam"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.convert_nuclide_name_serpent_to_zam()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.create_iter_matfile"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.create_iter_matfile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.create_nuclide_name_map_zam_to_serpent"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.create_nuclide_name_map_zam_to_serpent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.get_nuc_name"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.get_nuc_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.insert_path_to_geometry"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.insert_path_to_geometry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_dep_comp"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.read_dep_comp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_depcode_info"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.read_depcode_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_depcode_step_param"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.read_depcode_step_param()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_plaintext_file"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.read_plaintext_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.replace_burnup_parameters"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.replace_burnup_parameters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.run_depcode"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.run_depcode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.switch_to_next_geometry"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.switch_to_next_geometry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.write_depcode_input"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.write_depcode_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.write_mat_file"><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent.write_mat_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="saltproc.materialflow.html">saltproc.materialflow module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow"><code class="docutils literal notranslate"><span class="pre">Materialflow</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow.__add__"><code class="docutils literal notranslate"><span class="pre">Materialflow.__add__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow.__deepcopy__"><code class="docutils literal notranslate"><span class="pre">Materialflow.__deepcopy__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow.__eq__"><code class="docutils literal notranslate"><span class="pre">Materialflow.__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow.__init__"><code class="docutils literal notranslate"><span class="pre">Materialflow.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow.__rmul__"><code class="docutils literal notranslate"><span class="pre">Materialflow.__rmul__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow.copy_pymat_attrs"><code class="docutils literal notranslate"><span class="pre">Materialflow.copy_pymat_attrs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow.get_mass"><code class="docutils literal notranslate"><span class="pre">Materialflow.get_mass()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow.print_attr"><code class="docutils literal notranslate"><span class="pre">Materialflow.print_attr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.materialflow.html#saltproc.materialflow.Materialflow.scale_matflow"><code class="docutils literal notranslate"><span class="pre">Materialflow.scale_matflow()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="saltproc.openmc_deplete.html">saltproc.openmc_deplete module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="saltproc.process.html">saltproc.process module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="saltproc.reactor.html">saltproc.reactor module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="saltproc.separator.html">saltproc.separator module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="saltproc.simulation.html">saltproc.simulation module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="saltproc.sparger.html">saltproc.sparger module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="saltproc.process.html">saltproc.process module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.process.html#saltproc.process.Process"><code class="docutils literal notranslate"><span class="pre">Process</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.process.html#saltproc.process.Process.__init__"><code class="docutils literal notranslate"><span class="pre">Process.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.process.html#saltproc.process.Process.calculate_removal_efficiency"><code class="docutils literal notranslate"><span class="pre">Process.calculate_removal_efficiency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.process.html#saltproc.process.Process.check_mass_conservation"><code class="docutils literal notranslate"><span class="pre">Process.check_mass_conservation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.process.html#saltproc.process.Process.process_material"><code class="docutils literal notranslate"><span class="pre">Process.process_material()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="saltproc.reactor.html">saltproc.reactor module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.reactor.html#saltproc.reactor.Reactor"><code class="docutils literal notranslate"><span class="pre">Reactor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.reactor.html#saltproc.reactor.Reactor.__init__"><code class="docutils literal notranslate"><span class="pre">Reactor.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="saltproc.separator.html">saltproc.separator module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator"><code class="docutils literal notranslate"><span class="pre">Separator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.q_salt"><code class="docutils literal notranslate"><span class="pre">Separator.q_salt</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.q_he"><code class="docutils literal notranslate"><span class="pre">Separator.q_he</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.do"><code class="docutils literal notranslate"><span class="pre">Separator.do</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.dp"><code class="docutils literal notranslate"><span class="pre">Separator.dp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.db"><code class="docutils literal notranslate"><span class="pre">Separator.db</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.deltap"><code class="docutils literal notranslate"><span class="pre">Separator.deltap</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.temp_room"><code class="docutils literal notranslate"><span class="pre">Separator.temp_room</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.k"><code class="docutils literal notranslate"><span class="pre">Separator.k</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.eff"><code class="docutils literal notranslate"><span class="pre">Separator.eff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.description"><code class="docutils literal notranslate"><span class="pre">Separator.description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.calc_rem_efficiency"><code class="docutils literal notranslate"><span class="pre">Separator.calc_rem_efficiency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.__init__"><code class="docutils literal notranslate"><span class="pre">Separator.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#saltproc.separator.Separator.calculate_removal_efficiency"><code class="docutils literal notranslate"><span class="pre">Separator.calculate_removal_efficiency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#id0"><code class="docutils literal notranslate"><span class="pre">Separator.description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#id1"><code class="docutils literal notranslate"><span class="pre">Separator.eff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.separator.html#id2"><code class="docutils literal notranslate"><span class="pre">Separator.k</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="saltproc.simulation.html">saltproc.simulation module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.simulation.html#saltproc.simulation.Simulation"><code class="docutils literal notranslate"><span class="pre">Simulation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.simulation.html#saltproc.simulation.Simulation.__init__"><code class="docutils literal notranslate"><span class="pre">Simulation.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.simulation.html#saltproc.simulation.Simulation.check_restart"><code class="docutils literal notranslate"><span class="pre">Simulation.check_restart()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.simulation.html#saltproc.simulation.Simulation.check_switch_geo_trigger"><code class="docutils literal notranslate"><span class="pre">Simulation.check_switch_geo_trigger()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.simulation.html#saltproc.simulation.Simulation.read_k_eds_delta"><code class="docutils literal notranslate"><span class="pre">Simulation.read_k_eds_delta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.simulation.html#saltproc.simulation.Simulation.store_after_repr"><code class="docutils literal notranslate"><span class="pre">Simulation.store_after_repr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.simulation.html#saltproc.simulation.Simulation.store_mat_data"><code class="docutils literal notranslate"><span class="pre">Simulation.store_mat_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.simulation.html#saltproc.simulation.Simulation.store_run_init_info"><code class="docutils literal notranslate"><span class="pre">Simulation.store_run_init_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.simulation.html#saltproc.simulation.Simulation.store_run_step_info"><code class="docutils literal notranslate"><span class="pre">Simulation.store_run_step_info()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="saltproc.sparger.html">saltproc.sparger module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger"><code class="docutils literal notranslate"><span class="pre">Sparger</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.h_const"><code class="docutils literal notranslate"><span class="pre">Sparger.h_const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.gas_const"><code class="docutils literal notranslate"><span class="pre">Sparger.gas_const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.diffusivity"><code class="docutils literal notranslate"><span class="pre">Sparger.diffusivity</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.temp_room"><code class="docutils literal notranslate"><span class="pre">Sparger.temp_room</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.exp_const"><code class="docutils literal notranslate"><span class="pre">Sparger.exp_const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.q_salt"><code class="docutils literal notranslate"><span class="pre">Sparger.q_salt</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.q_he"><code class="docutils literal notranslate"><span class="pre">Sparger.q_he</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.length"><code class="docutils literal notranslate"><span class="pre">Sparger.length</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.dp"><code class="docutils literal notranslate"><span class="pre">Sparger.dp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.db"><code class="docutils literal notranslate"><span class="pre">Sparger.db</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.temp_salt"><code class="docutils literal notranslate"><span class="pre">Sparger.temp_salt</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.area"><code class="docutils literal notranslate"><span class="pre">Sparger.area</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.eps"><code class="docutils literal notranslate"><span class="pre">Sparger.eps()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.eff"><code class="docutils literal notranslate"><span class="pre">Sparger.eff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.sherwood"><code class="docutils literal notranslate"><span class="pre">Sparger.sherwood()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.description"><code class="docutils literal notranslate"><span class="pre">Sparger.description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.calc_rem_efficiency"><code class="docutils literal notranslate"><span class="pre">Sparger.calc_rem_efficiency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.__init__"><code class="docutils literal notranslate"><span class="pre">Sparger.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#saltproc.sparger.Sparger.calculate_removal_efficiency"><code class="docutils literal notranslate"><span class="pre">Sparger.calculate_removal_efficiency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#id0"><code class="docutils literal notranslate"><span class="pre">Sparger.description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#id1"><code class="docutils literal notranslate"><span class="pre">Sparger.diffusivity</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#id2"><code class="docutils literal notranslate"><span class="pre">Sparger.eff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#id3"><code class="docutils literal notranslate"><span class="pre">Sparger.eps()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#id4"><code class="docutils literal notranslate"><span class="pre">Sparger.exp_const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#id5"><code class="docutils literal notranslate"><span class="pre">Sparger.gas_const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#id6"><code class="docutils literal notranslate"><span class="pre">Sparger.h_const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#id7"><code class="docutils literal notranslate"><span class="pre">Sparger.sherwood()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.sparger.html#id8"><code class="docutils literal notranslate"><span class="pre">Sparger.temp_room</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="saltproc.version.html">saltproc.version module</a></li>
 </ul>
 </div>

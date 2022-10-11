@@ -1,14 +1,6 @@
 saltproc package
 ================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   saltproc.tests
-
 Submodules
 ----------
 

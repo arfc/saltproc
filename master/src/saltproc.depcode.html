@@ -16,6 +16,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -141,7 +142,7 @@ rerunning. This file is modified during  the simulation.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>codename</strong> (<em>str</em>) – Name of depletion code.</p></li>
 <li><p><strong>exec_path</strong> (<em>str</em>) – Path to depletion code executable.</p></li>
-<li><p><strong>template_input_file_path</strong> (<em>str</em><em> or </em><em>dict of str to str</em>) – Path(s) to depletion code input file(s), or a dictionary where
+<li><p><strong>template_input_file_path</strong> (<em>str</em><em> or </em><em>dict</em><em> of </em><em>str to str</em>) – Path(s) to depletion code input file(s), or a dictionary where
 the input type (e.g. material, geometry, settings, etc.) as a
 string are keys, and the path to the input file are values.
 Type depends on depletion code in use.</p></li>
@@ -245,7 +246,7 @@ step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dep_dict</strong> (<em>dict of str to Materialflow</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects.</p>
+<li><p><strong>dep_dict</strong> (<em>dict</em><em> of </em><em>str to Materialflow</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects.</p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
 </dd>
@@ -263,7 +264,7 @@ step.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="saltproc.depcode.DepcodeOpenMC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">saltproc.depcode.</span></span><span class="sig-name descname"><span class="pre">DepcodeOpenMC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exec_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'openmc_deplete.py'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'chain_file':</span> <span class="pre">'./chain_simple.xml',</span> <span class="pre">'geometry':</span> <span class="pre">'./geometry.xml',</span> <span class="pre">'materials':</span> <span class="pre">'./materials.xml',</span> <span class="pre">'settings':</span> <span class="pre">'./settings.xml'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#DepcodeOpenMC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.depcode.DepcodeOpenMC" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">saltproc.depcode.</span></span><span class="sig-name descname"><span class="pre">DepcodeOpenMC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exec_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'openmc_deplete.py'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'chain_file':</span> <span class="pre">'./chain_simple.xml',</span> <span class="pre">'geometry':</span> <span class="pre">'./geometry.xml',</span> <span class="pre">'settings':</span> <span class="pre">'./settings.xml'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#DepcodeOpenMC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.depcode.DepcodeOpenMC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#saltproc.depcode.Depcode" title="saltproc.depcode.Depcode"><code class="xref py py-class docutils literal notranslate"><span class="pre">Depcode</span></code></a></p>
 <p>Class contains information about input, output, geometry, and
 template files for running OpenMC depletion simulations.
@@ -319,13 +320,13 @@ rerunning. This file is modified during the simulation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="saltproc.depcode.DepcodeOpenMC.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exec_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'openmc_deplete.py'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'chain_file':</span> <span class="pre">'./chain_simple.xml',</span> <span class="pre">'geometry':</span> <span class="pre">'./geometry.xml',</span> <span class="pre">'materials':</span> <span class="pre">'./materials.xml',</span> <span class="pre">'settings':</span> <span class="pre">'./settings.xml'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#DepcodeOpenMC.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.depcode.DepcodeOpenMC.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exec_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'openmc_deplete.py'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'chain_file':</span> <span class="pre">'./chain_simple.xml',</span> <span class="pre">'geometry':</span> <span class="pre">'./geometry.xml',</span> <span class="pre">'settings':</span> <span class="pre">'./settings.xml'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/depcode.html#DepcodeOpenMC.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.depcode.DepcodeOpenMC.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the DepcodeOpenMC object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>exec_path</strong> (<em>str</em>) – Path to OpenMC depletion script.</p></li>
-<li><p><strong>template_input_file_path</strong> (<em>dict of str to str</em>) – Path to user input files (<code class="docutils literal notranslate"><span class="pre">.xml</span></code> file for geometry,
+<li><p><strong>template_input_file_path</strong> (<em>dict</em><em> of </em><em>str to str</em>) – Path to user input files (<code class="docutils literal notranslate"><span class="pre">.xml</span></code> file for geometry,
 material, and settings) for OpenMC. File type as strings
 are keys (e.g. ‘geometry’, ‘settings’, ‘material’), and
 file path as strings are values.</p></li>
@@ -446,7 +447,7 @@ depletion step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dep_dict</strong> (<em>dict of str to Materialflow</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects.</p>
+<li><p><strong>dep_dict</strong> (<em>dict</em><em> of </em><em>str to Materialflow</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects.</p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
 </dd>
@@ -807,7 +808,7 @@ step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dep_dict</strong> (<em>dict of str to Materialflow</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects.</p>
+<li><p><strong>dep_dict</strong> (<em>dict</em><em> of </em><em>str to Materialflow</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects.</p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
 </dd>

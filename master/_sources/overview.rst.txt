@@ -26,10 +26,10 @@ Molten Salt Reactors. It performs following major functions:
 
 The code logic flow is the following:
 
-  1. Runs the transport-depletion code (`saltproc.depcode.run_depcode()`)
+  1. Runs the transport-depletion code (:meth:`saltproc.depcode.Depcode.run_depcode()`)
   2. Parses through the output `*_dep.m` file and creates PyNE Material object
      for each burnable material.
-  3. Processes Fuel (`saltproc.app.reprocessing()` and `saltproc.refill`):
+  3. Processes Fuel (:meth:`saltproc.app.reprocess_materials()` and :meth:`saltproc.app.refill_materials()`):
 
     * Passes fuel composition throughout Processes objects (reprocessing system
       components) to remove poisons with specific efficiency.
