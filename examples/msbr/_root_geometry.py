@@ -58,35 +58,48 @@ def zoneIIB(zone_i_boundary, zone_ii_boundary, annulus_boundary, core_base, core
     zone_iib_reg = None
     elem_cells = []
     for i, pos in enumerate(large_positions):
+        pos = np.round(pos, 3)
         r1, r2 = big_radii[i]
         t1 = pos - large_half_w
         t2 = pos + large_half_w
         large_elem = openmc.model.CylinderSector(r1, r2, t1, t2)
         elem_hole = hole_region.rotate((0.0, 0.0, pos))
-        elem_reg = -large_elem & elem_hole
+        elem_reg = -large_elem
         if isinstance(zone_iib_reg, openmc.Region):
             zone_iib_reg = zone_iib_reg | elem_reg
         else:
             zone_iib_reg = elem_reg
-        small_start = t2 + adjacent_angular_offset
+
+        elem_reg = -large_elem & elem_hole
+        elem_cells.append(openmc.Cell(fill=moder, region=elem_reg,
+                                      name=f'iib_large_element_moderator_{pos}'))
+        elem_cells.append(openmc.Cell(fill=fuel, region=~elem_hole,
+                                      name=f'iib_large_element_fuel_hole_{pos}'))
+        t1 = t2 + adjacent_angular_offset
         r1, r2 = small_radii
-        t1 = small_start
         for i in range(0, small_elems_per_octant):
             t2 = t1 + small_angular_width
-            elem_reg = -openmc.model.CylinderSector(r1, r2, t1, t2)
+            elem_reg = -openmc.model.CylinderSector(small_radii[0], small_radii[1], t1, t2)
             pos = t2 - (small_angular_width / 2)
+            pos = np.round(pos, 3)
+            elem_cells.append(openmc.Cell(fill=moder, region=elem_reg, name=f'iib_small_element_{pos}'))
             zone_iib_reg = zone_iib_reg | elem_reg
             t1 = t2 + adjacent_angular_offset
-    c1 = openmc.Cell(fill=moder, region=(zone_iib_reg &
-                                         ~zone_i_boundary &
-                                         +core_base &
-                                         -core_top), name='iib_moderator')
-    c2 = openmc.Cell(fill=fuel, region=(~zone_iib_reg &
+    c1 = openmc.Cell(fill=fuel, region=(~zone_iib_reg &
                                         ~zone_i_boundary &
                                         -zone_ii_boundary &
                                         +core_base &
                                         -core_top), name='iib_fuel')
-    return c1, c2
+
+    iib = openmc.Universe(name='zone_iib')
+    iib.add_cells(elem_cells)
+    iib.add_cell(c1)
+
+    iib = openmc.Cell(fill=iib, region=(~zone_i_boundary &
+                                        -zone_ii_boundary &
+                                        +core_base &
+                                        -core_top), name='zone_iib')
+    return iib
 
 def annulus(zone_ii_boundary, annulus_boundary, core_base, core_top, fuel):
     annulus_reg = +zone_ii_boundary & -annulus_boundary & +core_base & -core_top
