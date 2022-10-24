@@ -12,10 +12,10 @@ include "mats/msbr_saltproc_prepr_comp_endfb71.ini"
 
 include "geometry/msbr_full.ini"
 % --- Moderator graphite:
-mat moder    -1.84 tmp 900 rgb 68 1 84 moder gr 6000 6000.82c    -1.0 %tmp 908
+mat moder    -1.84 tmp 900 rgb 128 0 128 moder gr 6000 6000.82c    -1.0 %tmp 908
 % --- Hastelloy N
 mat hast     -8.671
-rgb 127 205 187
+rgb 0 0 255
 % Natural Ni
 %28000.82c    -0.677
 28058.82c    -0.45492846488214814
@@ -58,8 +58,8 @@ set sfylib "endfb71.sfy"
 
 % --- Neutron population and criticality cycles:
 
-set pop 300 400 10 1.0 1 %500 400 60 1.0 1  %30000 400 100 1.0 1
-%set gcu -1
+set pop 10000 125 25 1.0 1 %500 400 60 1.0 1  %30000 400 100 1.0 1
+set gcu -1
 %set usym 0 3 2 0.0 0.0 0 90
 
 % --- Reproducibility off (set value to 1 and define seed to set on):
@@ -80,24 +80,25 @@ set fpcut   1E-6
 set stabcut 1E-12
 
 % --- Geometry and mesh plots:
-%plot 33 3000 3000 150.5
+%plot 30 10000 10000 150.5
 %trans 10 0 0 0 0 0 45
 
-%plot 13 1550 3400 0.0 -155 0
-%plot 13 1000 1000 0 -20 20 135 175
-%plot 13 2000 2000 16.5
+%plot 10 1550 3400 0.0 -155 0
+%plot 10 1000 1000 0 -20 20 135 175
+%plot 10 2000 2000 16.5
 
 % --- Depletion parameters
 % --- Options for burnup calculation:
-set bumode  2  % CRAM method
-set pcc     2  % Predictor-corrector calculation off (Linear extrapolation)
+%%set bumode  2 -48 % IPF CRAM-48 method
+%%set pcc     0  % Predictor
+%set pcc     1  % CELI
 %set xscalc  2  % Cross sections from spectrum
 %set bunorm 2
 %set opti 3
 
-%set power 2.25E+9 dep daytot 60000.0
+%%set power 2.25E+9 dep daystep 3 3 3 3 3 3 3 3 3 3 3 3
 
 %set rfw 1 restart
-set inventory fuel all
+%%set inventory fuel all
 
-%set printm 1 0.0
+%set printm 1 0.0%set printm 1 0.0
