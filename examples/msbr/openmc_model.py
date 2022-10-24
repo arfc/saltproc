@@ -424,8 +424,7 @@ univ.add_cells(main)
 univ.add_cells(iib)
 
 geo.root_universe = univ
-if not optimized:
-    geo.remove_redundant_surfaces()
+geo.remove_redundant_surfaces()
 geo.export_to_xml()
 
 # Settings
