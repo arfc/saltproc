@@ -68,15 +68,15 @@ def zoneIIB(zone_i_boundary, zone_ii_boundary, annulus_boundary, core_base, core
     for i, pos in enumerate(large_positions):
         pos = np.round(pos, 3)
         r1_big, r2_big = big_radii[i]
-        t1_big = pos - large_half_w
-        t2_big = pos + large_half_w
+        t1_big = np.round(pos - large_half_w, 3)
+        t2_big = np.round(pos + large_half_w, 3)
         s1 = openmc.model.CylinderSector(r1_big, r2_big, t1_big, t2_big, name=f'iib_large_element_{pos}')
         s2 = openmc.ZCylinder(**hole_args[i])
 
         elem_cells.append(openmc.Cell(fill=moder, region=(-s1 & +s2), name=f'iib_large_element_{pos}'))
         elem_cells.append(openmc.Cell(fill=fuel, region=(-s2), name=f'iib_large_element_fuel_hole_{pos}'))
 
-        t1_small = t2_big + adjacent_angular_offset
+        t1_small = np.round(t2_big + adjacent_angular_offset, 3)
         r1_small, r2_small = small_radii
 
         if optimized:
@@ -86,8 +86,7 @@ def zoneIIB(zone_i_boundary, zone_ii_boundary, annulus_boundary, core_base, core
             cpos = np.round(cpos, 3)
             elem_cells.append(openmc.Cell(fill=fuel, region=-s3, name=f'inter_element_fuel_channel_{cpos}'))
 
-            t4a = t1_big - adjacent_angular_offset
-            s4 = openmc.model.CylinderSector(r1_small, r1_big, t4a, t1_small)
+            s4 = openmc.model.CylinderSector(r1_small, r1_big, t1_big, t2_big)
             elem_cells.append(openmc.Cell(fill=fuel, region=-s4, name=f'inter_element_fuel_channel_{pos}'))
         else:
             if isinstance(zone_iib_reg, openmc.Region):
@@ -96,7 +95,7 @@ def zoneIIB(zone_i_boundary, zone_ii_boundary, annulus_boundary, core_base, core
                 zone_iib_reg = +s1
 
         for i in range(0, small_elems_per_octant):
-            t2_small = t1_small + small_angular_width
+            t2_small = np.round(t1_small + small_angular_width, 3)
 
             # reflector element
             pos = t2_small - (small_angular_width / 2)
@@ -104,7 +103,7 @@ def zoneIIB(zone_i_boundary, zone_ii_boundary, annulus_boundary, core_base, core
             s5 = openmc.model.CylinderSector(r1_small, r2_small, t1_small, t2_small, name=f'iib_small_element_{pos}')
             elem_cells.append(openmc.Cell(fill=moder, region=-s5, name=f'iib_small_element_{pos}'))
 
-            t1_small = t2_small + adjacent_angular_offset
+            t1_small = np.round(t2_small + adjacent_angular_offset, 3)
 
             if optimized:
                 # inter-element fuel channel

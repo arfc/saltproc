@@ -330,9 +330,9 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
     if optimized:
         # Octagon subsurfaces
         oct1_maxy, oct1_miny, oct1_maxx, oct1_minx, oct1_ur, oct1_br, oct1_bl, oct1_ul = list((-s1).get_surfaces().values())
-        oct2_maxy, oct2_miny, oct2_maxx, oct2_minx, oct2_ur, oct2_br, oct2_bl, oct2_ul = list((-s3).get_surfaces().values())
-        oct3_maxy, oct3_miny, oct3_maxx, oct3_minx, oct3_ur, oct3_br, oct3_bl, oct3_ul = list((-s2).get_surfaces().values())
-        # cb_minx, cb_maxx, cb_miny, cb_maxy = list(cr_boundary.get_surfaces().values())
+        oct2_maxy, oct2_miny, oct2_maxx, oct2_minx, oct2_ur, oct2_br, oct2_bl, oct2_ul = list((-s2).get_surfaces().values())
+        oct3_maxy, oct3_miny, oct3_maxx, oct3_minx, oct3_ur, oct3_br, oct3_bl, oct3_ul = list((-s3).get_surfaces().values())
+        cb_minx, cb_maxx, cb_miny, cb_maxy = list(cr_boundary.get_surfaces().values())
 
         c1_ur = (-oct3_ur & +oct2_ur & -oct2_maxx & -oct2_maxy)
         c1_ul = (+oct3_ul & -oct2_ul & +oct2_minx & -oct2_maxy)
@@ -343,23 +343,23 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
               [c1_bl, 'smaller_octader_bl'],
               [c1_br, 'smaller_octader_br']]
 
-        #c2_r = (+cb_maxx & +cb_miny & -cb_maxy & -oct3_maxx)
-        #c2_ur = (+cb_maxx & +cb_maxy & -oct3_maxx & -oct3_maxy & +oct3_ur)
-        #c2_u = (+cb_maxy & +cb_minx & -cb_maxx & -oct3_maxy)
-        #c2_ul = (-cb_minx & +cb_maxy & +oct3_minx & -oct3_maxy & -oct3_ul)
-        #c2_l = (-cb_minx & +cb_miny & -cb_maxy & +oct3_minx)
-        #c2_bl = (-cb_minx & -cb_miny & +oct3_minx & +oct3_miny & -oct3_bl)
-        #c2_b = (-cb_miny & +cb_minx & -cb_maxx & +oct3_miny)
-        #c2_br = (+cb_maxx & -cb_miny & -oct3_maxx & +oct3_miny & +oct3_br)
-        #c2 = [[c2_r, 'smallest_octader_r'],
-        #      [c2_ur, 'smallest_octader_ur'],
-        #      [c2_u, 'smallest_octader_u'],
-        #      [c2_ul, 'smallest_octader_ul'],
-        #      [c2_l, 'smallest_octader_l'],
-        #      [c2_bl, 'smallest_octader_bl'],
-        #      [c2_b, 'smallest_octader_b'],
-        #      [c2_br, 'smallest_octader_br']]
-        c2 = [[-s3, 'smallest_octader']]
+        c2_r = (+cb_maxx & +cb_miny & -cb_maxy & -oct3_maxx)
+        c2_ur = (+cb_maxx & +cb_maxy & -oct3_maxx & -oct3_maxy & +oct3_ur)
+        c2_u = (+cb_maxy & +cb_minx & -cb_maxx & -oct3_maxy)
+        c2_ul = (-cb_minx & +cb_maxy & +oct3_minx & -oct3_maxy & -oct3_ul)
+        c2_l = (-cb_minx & +cb_miny & -cb_maxy & +oct3_minx)
+        c2_bl = (-cb_minx & -cb_miny & +oct3_minx & +oct3_miny & -oct3_bl)
+        c2_b = (-cb_miny & +cb_minx & -cb_maxx & +oct3_miny)
+        c2_br = (+cb_maxx & -cb_miny & -oct3_maxx & +oct3_miny & +oct3_br)
+        c2 = [[c2_r, 'smallest_octader_r'],
+              [c2_ur, 'smallest_octader_ur'],
+              [c2_u, 'smallest_octader_u'],
+              [c2_ul, 'smallest_octader_ul'],
+              [c2_l, 'smallest_octader_l'],
+              [c2_bl, 'smallest_octader_bl'],
+              [c2_b, 'smallest_octader_b'],
+              [c2_br, 'smallest_octader_br']]
+        #c2 = [[-s3, 'smallest_octader']]
 
         c3_ur = (-oct2_ur & +oct1_ur & -oct1_maxx & -oct1_maxy)
         c3_ul = (+oct2_ul & -oct1_ul & +oct1_minx & -oct1_maxy)
@@ -433,7 +433,7 @@ settings = openmc.Settings()
 settings.particles = 10000
 settings.batches = 150
 settings.inactive = 25
-settings.temperature = {'default': 900, 'method': 'interpolation'}
+settings.temperature = {'default': 900, 'method': 'interpolation', 'range': (800, 1000)}
 settings.export_to_xml()
 
 # Plots
@@ -446,6 +446,42 @@ colormap = {moder: 'purple',
             fuel: 'yellow'}
 ## Slice plots
 plots = openmc.Plots()
+
+plot = openmc.Plot(name='serpent-plot1')
+plot.origin=(0., 0., 150.5)
+plot.pixels=full_pixels
+plot.width=(686.816, 686.816)
+plot.color_by='material'
+plot.colors=colormap
+plot.basis='xy'
+plots.append(plot)
+
+plot = openmc.Plot(name='serpent-plot1')
+plot.origin=(0.0, -77.5, 306.07)
+plot.pixels=(1550, 3400)
+plot.width=(155, 612.14)
+plot.color_by='material'
+plot.colors=colormap
+plot.basis='yz'
+plots.append(plot)
+
+plot = openmc.Plot(name='serpent-plot2')
+plot.origin=(0, 0, 155)
+plot.pixels=(1000, 1000)
+plot.width=(40, 40)
+plot.color_by='material'
+plot.colors=colormap
+plot.basis='yz'
+plots.append(plot)
+
+plot = openmc.Plot(name='serpent-plot3')
+plot.origin=(16.5, 0, 306.07)
+plot.pixels=(2000, 2000)
+plot.width=(686.816, 612.14)
+plot.color_by='material'
+plot.colors=colormap
+plot.basis='yz'
+plots.append(plot)
 
 plot = openmc.Plot(name='detail-zoneIA-IIA-lower1')
 plot.origin=(215, 0, 10.0)
@@ -530,7 +566,7 @@ plots.append(plot)
 
 plot = openmc.Plot(name='full-zoneIA-IIA-lower1')
 plot.origin=(0.0, 0, 10.0)
-plot.width=(600, 600)
+plot.width=(522.232, 522.232)
 plot.pixels=full_pixels
 plot.color_by='material'
 plot.colors=colormap
@@ -539,7 +575,7 @@ plots.append(plot)
 
 plot = openmc.Plot(name='full-zoneIA-main')
 plot.origin=(0, 0, 23.0)
-plot.width=(600, 600)
+plot.width=(522.232, 522.232)
 plot.pixels=full_pixels
 plot.color_by='material'
 plot.colors=colormap
@@ -548,7 +584,7 @@ plots.append(plot)
 
 plot = openmc.Plot(name='full-zoneIIA-upper1')
 plot.origin=(0, 0, 435)
-plot.width=(600, 600)
+plot.width=(522.232, 522.232)
 plot.pixels=full_pixels
 plot.color_by='material'
 plot.colors=colormap
@@ -557,7 +593,7 @@ plots.append(plot)
 
 plot = openmc.Plot(name='full-zoneIA-upper1')
 plot.origin=(0, 0, 420)
-plot.width=(600, 600)
+plot.width=(522.232, 522.232)
 plot.pixels=full_pixels
 plot.color_by='material'
 plot.colors=colormap
@@ -566,7 +602,7 @@ plots.append(plot)
 
 plot = openmc.Plot(name='full-zoneIIA-upper2')
 plot.origin=(0, 0, 437)
-plot.width=(600, 600)
+plot.width=(522.232, 522.232)
 plot.pixels=full_pixels
 plot.color_by='material'
 plot.colors=colormap
@@ -575,7 +611,7 @@ plots.append(plot)
 
 plot = openmc.Plot(name='full-zoneIA-upper2')
 plot.origin=(0, 0, 439)
-plot.width=(600, 600)
+plot.width=(522.232, 522.232)
 plot.pixels=full_pixels
 plot.color_by='material'
 plot.colors=colormap
@@ -584,7 +620,7 @@ plots.append(plot)
 
 plot = openmc.Plot(name='full-zoneIIA-upper3')
 plot.origin=(0, 0, 440)
-plot.width=(600, 600)
+plot.width=(522.232, 522.232)
 plot.pixels=full_pixels
 plot.color_by='material'
 plot.colors=colormap
@@ -593,7 +629,7 @@ plots.append(plot)
 
 plot = openmc.Plot(name='full-zoneIA-upper3')
 plot.origin=(0, 0, 448)
-plot.width=(600, 600)
+plot.width=(522.232, 522.232)
 plot.pixels=full_pixels
 plot.color_by='material'
 plot.colors=colormap
@@ -602,7 +638,7 @@ plots.append(plot)
 
 plot = openmc.Plot(name='full-zoneIIA-upper4')
 plot.origin=(0, 0, 442)
-plot.width=(600, 600)
+plot.width=(522.232, 522.232)
 plot.pixels=full_pixels
 plot.color_by='material'
 plot.colors=colormap
@@ -619,8 +655,8 @@ plot.basis='xz'
 plots.append(plot)
 
 plot = openmc.Plot(name='full-core-xz')
-plot.origin=(0, 0, 200)
-plot.width=(700, 700)
+plot.origin=(0, 0, 306.07)
+plot.width = (686.816, 612.14)
 plot.pixels=full_pixels
 plot.color_by='material'
 plot.colors=colormap
