@@ -64,7 +64,16 @@ def parse_arguments():
     args = parser.parse_args()
     return bool(args.optimized), bool(args.deplete)
 
-def shared_elem_geometry(elem_type, gr_sq_d, gr_sq_r, r_rib, l1, l2, l3, r_es, es_name, optimized):
+def shared_elem_geometry(elem_type,
+                         gr_sq_d,
+                         gr_sq_r,
+                         r_rib,
+                         l1,
+                         l2,
+                         l3,
+                         r_es,
+                         es_name,
+                         optimized):
     """Creates surfaces and regions for lattice elements.
 
     Parameters
@@ -145,22 +154,30 @@ def shared_elem_geometry(elem_type, gr_sq_d, gr_sq_r, r_rib, l1, l2, l3, r_es, e
             # Graphite element rib regions. 'fill' regions fill in the gap between
             # the rounded corner and the 'main' rib.
             rib_ul = -ul & +gr_maxy
-            rib_ul_fill = -ul & +gr_cyl_ul & -gr_maxy & -gr_cyl_minx & +gr_cyl_maxy
+            rib_ul_fill = (-ul & +gr_cyl_ul & -gr_maxy &
+                           -gr_cyl_minx & +gr_cyl_maxy)
             rib_br = -br & -gr_miny
-            rib_br_fill = -br & +gr_cyl_br & +gr_miny & +gr_cyl_maxx & -gr_cyl_miny
+            rib_br_fill = (-br & +gr_cyl_br & +gr_miny &
+                           +gr_cyl_maxx & -gr_cyl_miny)
             rib_lb = -lb & -gr_minx
-            rib_lb_fill = -lb & +gr_cyl_lb & +gr_minx & -gr_cyl_minx & -gr_cyl_miny
+            rib_lb_fill = (-lb & +gr_cyl_lb & +gr_minx &
+                           -gr_cyl_minx & -gr_cyl_miny)
             rib_ru = -ru & +gr_maxx
-            rib_ru_fill = -ru & +gr_cyl_ru & -gr_maxx & +gr_cyl_maxx & +gr_cyl_maxy
+            rib_ru_fill = (-ru & +gr_cyl_ru & -gr_maxx &
+                           +gr_cyl_maxx & +gr_cyl_maxy)
 
             # inter-element fuel channel regions
-            iec_r = +gr_cyl_miny & -gr_cyl_maxy & +gr_maxx & +lb_t & +ru & +gr_cyl_ru
+            iec_r = (+gr_cyl_miny & -gr_cyl_maxy & +gr_maxx &
+                     +lb_t & +ru & +gr_cyl_ru)
             iec_ru = (+gr_cyl_ru & +gr_cyl_maxx & +gr_cyl_maxy) & +ru & +br_t
-            iec_u = +gr_cyl_minx & -gr_cyl_maxx & +gr_maxy & +br_t & +ul & +gr_cyl_ul
+            iec_u = (+gr_cyl_minx & -gr_cyl_maxx & +gr_maxy &
+                     +br_t & +ul & +gr_cyl_ul)
             iec_ul = (+gr_cyl_ul & -gr_cyl_minx & +gr_cyl_maxy) & +ul & +ru_t
-            iec_l = +gr_cyl_miny & -gr_cyl_maxy & -gr_minx & +ru_t & +lb & +gr_cyl_lb
+            iec_l = (+gr_cyl_miny & -gr_cyl_maxy & -gr_minx &
+                     +ru_t & +lb & +gr_cyl_lb)
             iec_lb = (+gr_cyl_lb & -gr_cyl_minx & -gr_cyl_miny) & +lb & +ul_t
-            iec_b = +gr_cyl_minx & -gr_cyl_maxx & -gr_miny & +ul_t & +br & +gr_cyl_br
+            iec_b = (+gr_cyl_minx & -gr_cyl_maxx &
+            -gr_miny & +ul_t & +br & +gr_cyl_br)
             iec_br = (+gr_cyl_br & +gr_cyl_maxx & -gr_cyl_miny) & +br & +lb_t
 
             inter_elem_channel = [[iec_r, 'outer_r'], [iec_ru, 'outer_ru'],
@@ -184,10 +201,14 @@ def shared_elem_geometry(elem_type, gr_sq_d, gr_sq_r, r_rib, l1, l2, l3, r_es, e
         r_c = 0.18
 
         # Base rib region
-        ul = openmc.model.hexagonal_prism(origin=(-l1, l2), edge_length=e_d, orientation='x', corner_radius=r_c)
-        br = openmc.model.hexagonal_prism(origin=(l1, -l2), edge_length=e_d, orientation='x',corner_radius=r_c)
-        lb = openmc.model.hexagonal_prism(origin=(-l2, -l1), edge_length=e_d, orientation='y',corner_radius=r_c)
-        ru = openmc.model.hexagonal_prism(origin=(l2, l1), edge_length=e_d, orientation='y',corner_radius=r_c)
+        ul = openmc.model.hexagonal_prism(origin=(-l1, l2), edge_length=e_d,
+                                          orientation='x', corner_radius=r_c)
+        br = openmc.model.hexagonal_prism(origin=(l1, -l2), edge_length=e_d,
+                                          orientation='x',corner_radius=r_c)
+        lb = openmc.model.hexagonal_prism(origin=(-l2, -l1), edge_length=e_d,
+                                          orientation='y',corner_radius=r_c)
+        ru = openmc.model.hexagonal_prism(origin=(l2, l1), edge_length=e_d,
+                                          orientation='y',corner_radius=r_c)
 
         if optimized:
             # Split base rib region into component surfaces
@@ -223,13 +244,17 @@ def shared_elem_geometry(elem_type, gr_sq_d, gr_sq_r, r_rib, l1, l2, l3, r_es, e
             # Graphite element rib regions. 'fill' regions fill in the gap
             # between the rounded element corner and the 'main' rib.
             rib_ul = -ul_ul & -ul_ur & +gr_maxy
-            rib_ul_fill = -ul_ul & +ul_bl & +ul_cyl_l_out & +gr_cyl_ul & -gr_maxy & -gr_cyl_minx & +gr_cyl_maxy
+            rib_ul_fill = (-ul_ul & +ul_bl & +ul_cyl_l_out & +gr_cyl_ul &
+                           -gr_maxy & -gr_cyl_minx & +gr_cyl_maxy)
             rib_lb = +lb_bl & -lb_ul & -gr_minx
-            rib_lb_fill = +lb_bl & +lb_br & +lb_cyl_b_out & +gr_cyl_lb & +gr_minx & -gr_cyl_miny & -gr_cyl_minx
+            rib_lb_fill = (+lb_bl & +lb_br & +lb_cyl_b_out & +gr_cyl_lb &
+                           +gr_minx & -gr_cyl_miny & -gr_cyl_minx)
             rib_br = +br_br & +br_bl & -gr_miny
-            rib_br_fill = +br_br & -br_ur & +br_cyl_r_out & +gr_cyl_br & +gr_miny & +gr_cyl_maxx & -gr_cyl_miny
+            rib_br_fill = (+br_br & -br_ur & +br_cyl_r_out & +gr_cyl_br &
+                           +gr_miny & +gr_cyl_maxx & -gr_cyl_miny)
             rib_ru = +ru_br & -ru_ur & +gr_maxx
-            rib_ru_fill = -ru_ur & -ru_ul & +ru_cyl_u_out & +gr_cyl_ru & -gr_maxx & +gr_cyl_maxy & +gr_cyl_maxx
+            rib_ru_fill = (-ru_ur & -ru_ul & +ru_cyl_u_out & +gr_cyl_ru &
+                           -gr_maxx & +gr_cyl_maxy & +gr_cyl_maxx)
 
             # Inter-element channel regions. 'fill' regions fill in the gap
             # between the rounded element corner and the 'main' rib
@@ -249,14 +274,22 @@ def shared_elem_geometry(elem_type, gr_sq_d, gr_sq_r, r_rib, l1, l2, l3, r_es, e
             iec_br_main = +gr_cyl_br & (-br_br) & +lb_t
             iec_br_fill1 = +gr_cyl_br & -gr_cyl_miny & (+br_ur & +br_br) & +lb_t
             iec_br_fill2 = +gr_cyl_br & ((-br_cyl_r_out)) & -br_ur & +br_br
-            inter_elem_channel = [[iec_r, 'outer_r'], [iec_ru_main, 'outer_ru_main'],
-                                  [iec_ru_fill1, 'outer_ru_fill1'], [iec_ru_fill2, 'outer_ru_fill2'],
-                                  [iec_u, 'outer_u'], [iec_ul_main, 'outer_ul_main'],
-                                  [iec_ul_fill1, 'outer_ul_fill1'], [iec_ul_fill2, 'outer_ul_fill2'],
-                                  [iec_l, 'outer_l'], [iec_lb_main, 'outer_lb_main'],
-                                  [iec_lb_fill1, 'outer_lb_fill1'], [iec_lb_fill2, 'outer_lb_fill2'],
-                                  [iec_b, 'outer_b'], [iec_br_main, 'outer_br_main'],
-                                  [iec_br_fill1, 'outer_br_fill1'], [iec_br_fill2, 'outer_br_fill2']]
+            inter_elem_channel = [[iec_r, 'outer_r'],
+                                  [iec_ru_main, 'outer_ru_main'],
+                                  [iec_ru_fill1, 'outer_ru_fill1'],
+                                  [iec_ru_fill2, 'outer_ru_fill2'],
+                                  [iec_u, 'outer_u'],
+                                  [iec_ul_main, 'outer_ul_main'],
+                                  [iec_ul_fill1, 'outer_ul_fill1'],
+                                  [iec_ul_fill2, 'outer_ul_fill2'],
+                                  [iec_l, 'outer_l'],
+                                  [iec_lb_main, 'outer_lb_main'],
+                                  [iec_lb_fill1, 'outer_lb_fill1'],
+                                  [iec_lb_fill2, 'outer_lb_fill2'],
+                                  [iec_b, 'outer_b'],
+                                  [iec_br_main, 'outer_br_main'],
+                                  [iec_br_fill1, 'outer_br_fill1'],
+                                  [iec_br_fill2, 'outer_br_fill2']]
 
         else:
             rib_ul = ul
@@ -266,11 +299,20 @@ def shared_elem_geometry(elem_type, gr_sq_d, gr_sq_r, r_rib, l1, l2, l3, r_es, e
 
             inter_elem_channel = ~ul & ~br & ~lb & ~ru
 
-    ribs = [[rib_ul, 'rib_ul'], [rib_br, 'rib_br'],  [rib_ru, 'rib_ru'], [rib_lb, 'rib_lb'],
-               [rib_ul_t, 'rib_ul_t'], [rib_br_t, 'rib_br_t'], [rib_ru_t, 'rib_ru_t'], [rib_lb_t, 'rib_lb_t']]
+    ribs = [[rib_ul, 'rib_ul'],
+            [rib_br, 'rib_br'],
+            [rib_ru, 'rib_ru'],
+            [rib_lb, 'rib_lb'],
+            [rib_ul_t, 'rib_ul_t'],
+            [rib_br_t, 'rib_br_t'],
+            [rib_ru_t, 'rib_ru_t'],
+            [rib_lb_t, 'rib_lb_t']]
 
     if optimized:
-        ribs += [[rib_ul_fill, 'rib_ul_fill'], [rib_br_fill, 'rib_br_fill'], [rib_ru_fill, 'rib_ru_fill'], [rib_lb_fill, 'rib_lb_fill']]
+        ribs += [[rib_ul_fill, 'rib_ul_fill'],
+                 [rib_br_fill, 'rib_br_fill'],
+                 [rib_ru_fill, 'rib_ru_fill'],
+                 [rib_lb_fill, 'rib_lb_fill']]
 
         # Rectangular slabs regions that line up with rounded corners
         slab_u = -gr_maxy & +gr_cyl_maxy & -gr_cyl_maxx & +gr_cyl_minx
@@ -283,10 +325,14 @@ def shared_elem_geometry(elem_type, gr_sq_d, gr_sq_r, r_rib, l1, l2, l3, r_es, e
         corner_br = -gr_cyl_br & +gr_cyl_maxx & -gr_cyl_miny
         corner_lb = -gr_cyl_lb & -gr_cyl_minx & -gr_cyl_miny
         corner_ru = -gr_cyl_ru & +gr_cyl_maxx & +gr_cyl_maxy
-        corners = [[quarter_ul, 'quarter_ul'], [quarter_br, 'quarter_br'],  [quarter_ru, 'quarter_ru'], [quarter_lb, 'quarter_lb']]
+        corners = [[corner_ul, 'corner_ul'],
+                   [corner_br, 'corner_br'],
+                   [corner_ru, 'corner_ru'],
+                   [corner_lb, 'corner_lb']]
 
         gr_extra_regions= slabs + corners + ribs
     else:
+        gr_extra_regions = ribs
         inter_elem_channel = inter_elem_channel & +ul_t & +br_t & +ru_t & +lb_t
 
 
@@ -318,13 +364,51 @@ def cr_lattice(cr_boundary, core_base, core_top, optimized):
         Cell containing the control rod lattice.
 
     """
-    gr_sq_neg, gr_extra_regions, inter_elem_channel, fuel_hole = shared_elem_geometry('cr', 7.23645, 0.99, 0.8, 5.8801, 6.505, 8.03646, 5.08, 'cr_fuel_hole', optimized)
+    (gr_sq_neg,
+     gr_extra_regions,
+     inter_elem_channel,
+     fuel_hole) = shared_elem_geometry('cr',
+                                       7.23645,
+                                       0.99,
+                                       0.8,
+                                       5.8801,
+                                       6.505,
+                                       8.03646,
+                                       5.08,
+                                       'cr_fuel_hole',
+                                       optimized)
 
-    f = control_rod(gr_sq_neg, gr_extra_regions, inter_elem_channel, fuel_hole, fuel, moder, optimized)
+    f = control_rod(gr_sq_neg,
+                    gr_extra_regions,
+                    inter_elem_channel,
+                    fuel_hole,
+                    fuel,
+                    moder,
+                    optimized)
     if optimized:
         # call a second time to have unique surfaces
-        gr_sq_neg, gr_extra_regions, inter_elem_channel, fuel_hole = shared_elem_geometry('cr', 7.23645, 0.99, 0.8, 5.8801, 6.505, 8.03646, 5.08, 'cr_fuel_hole', optimized)
-    e = control_rod_channel(gr_sq_neg, gr_extra_regions, inter_elem_channel, fuel_hole, fuel, moder, optimized)
+        (gr_sq_neg,
+         gr_extra_regions,
+         inter_elem_channel,
+         fuel_hole) = shared_elem_geometry('cr',
+                                           7.23645,
+                                           0.99,
+                                           0.8,
+                                           5.8801,
+                                           6.505,
+                                           8.03646,
+                                           5.08,
+                                           'cr_fuel_hole',
+                                           optimized)
+
+
+    e = control_rod_channel(gr_sq_neg,
+                            gr_extra_regions,
+                            inter_elem_channel,
+                            fuel_hole,
+                            fuel,
+                            moder,
+                            optimized)
 
     cr = openmc.RectLattice()
     cr.pitch = np.array([15.24, 15.24])
@@ -332,7 +416,8 @@ def cr_lattice(cr_boundary, core_base, core_top, optimized):
     cr.lower_left = -1 * cr.pitch * N
     cr.universes = [[f, e],
                     [e, f]]
-    c1 = openmc.Cell(fill=cr, region=(+core_base & -core_top & cr_boundary), name='cr_lattice')
+    c1 = openmc.Cell(fill=cr, region=(+core_base & -core_top & cr_boundary),
+                     name='cr_lattice')
 
     return c1
 
@@ -360,16 +445,49 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
     main_cells : list of openmc.Cell
         Cells containing the main lattice.
 
-    """    optimized : bool
-        Flag indicating whether or not to construct 'optimized' geometry
-        with cell regions consiting only of :class:`openmc.Intersection`
-        objects. This will speed up any calculations by around 50%, and is thus
-        optimized.
+    """
+    (gr_sq_neg,
+     gr_extra_regions,
+     inter_elem_channel,
+     gr_round_4) = shared_elem_geometry('core',
+                                        4.953,
+                                        0.46,
+                                        0.66802,
+                                        4.28498,
+                                        4.53898,
+                                        5.62102,
+                                        2.2225,
+                                        'gr_round_4',
+                                        optimized)
+    l = zoneIA(gr_sq_neg,
+               gr_extra_regions,
+               inter_elem_channel,
+               gr_round_4,
+               moder,
+               fuel,
+               hast,
+               optimized)
+    (gr_sq_neg,
+     gr_extra_regions,
+     inter_elem_channel,
+     gr_round_4) = shared_elem_geometry('core',
+                                        4.953,
+                                        0.46,
+                                        0.66802,
+                                        4.28498,
+                                        4.53898,
+                                        5.62102,
+                                        2.2225,
+                                        'gr_round_4',
+                                        optimized)
 
-    gr_sq_neg, gr_extra_regions, inter_elem_channel, gr_round_4 = shared_elem_geometry('core', 4.953, 0.46, 0.66802, 4.28498, 4.53898, 5.62102, 2.2225, 'gr_round_4', optimized)
-    l = zoneIA(gr_sq_neg, gr_extra_regions, inter_elem_channel, gr_round_4, moder, fuel, hast, optimized)
-    gr_sq_neg, gr_extra_regions, inter_elem_channel, gr_round_4 = shared_elem_geometry('core', 4.953, 0.46, 0.66802, 4.28498, 4.53898, 5.62102, 2.2225, 'gr_round_4', optimized)
-    z = zoneIIA(gr_sq_neg, gr_extra_regions, inter_elem_channel, gr_round_4, moder, fuel, optimized)
+    z = zoneIIA(gr_sq_neg,
+                gr_extra_regions,
+                inter_elem_channel,
+                gr_round_4,
+                moder,
+                fuel,
+                optimized)
     v = void_cell()
     # tres, uno, dos, quatro
     t, u, d, q = graphite_triangles(fuel, moder)
@@ -427,10 +545,22 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
                       [v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, t, z, z, z, z, z, z, z, z, z, q, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v]]
     if optimized:
         # Octagon subsurfaces
-        oct1_maxy, oct1_miny, oct1_maxx, oct1_minx, oct1_ur, oct1_br, oct1_bl, oct1_ul = list((-s1).get_surfaces().values())
-        oct2_maxy, oct2_miny, oct2_maxx, oct2_minx, oct2_ur, oct2_br, oct2_bl, oct2_ul = list((-s2).get_surfaces().values())
-        oct3_maxy, oct3_miny, oct3_maxx, oct3_minx, oct3_ur, oct3_br, oct3_bl, oct3_ul = list((-s3).get_surfaces().values())
-        cb_minx, cb_maxx, cb_miny, cb_maxy = list(cr_boundary.get_surfaces().values())
+        (oct1_maxy, oct1_miny,
+         oct1_maxx, oct1_minx,
+         oct1_ur, oct1_br,
+         oct1_bl, oct1_ul) = list((-s1).get_surfaces().values())
+        (oct2_maxy, oct2_miny,
+         oct2_maxx, oct2_minx,
+         oct2_ur, oct2_br,
+         oct2_bl, oct2_ul) = list((-s2).get_surfaces().values())
+        (oct3_maxy, oct3_miny,
+         oct3_maxx, oct3_minx,
+         oct3_ur, oct3_br,
+         oct3_bl, oct3_ul) = list((-s3).get_surfaces().values())
+        (cb_minx,
+         cb_maxx,
+         cb_miny,
+         cb_maxy) = list(cr_boundary.get_surfaces().values())
 
         # Smaller octader subcells
         c1_ur = (-oct3_ur & +oct2_ur & -oct2_maxx & -oct2_maxy)
@@ -473,50 +603,94 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
         regs = c1 + c2 + c3
         main_cells = []
         for reg, name in regs:
-            main_cells.append(openmc.Cell(fill=main, region=(reg & +core_base & -core_top), name=f'main_lattice_{name}'))
+            main_cells.append(openmc.Cell(fill=main, region=(reg &
+                                                             +core_base &
+                                                             -core_top),
+                                          name=f'main_lattice_{name}'))
 
     else:
-        c1 = openmc.Cell(fill=main, region=(+core_base & -core_top &
-                                            +zone_i_boundary[2] & -zone_i_boundary[1] &
+        c1 = openmc.Cell(fill=main, region=(+core_base &
+                                            -core_top &
+                                            +zone_i_boundary[2] &
+                                            -zone_i_boundary[1] &
                                             ~cr_boundary), name='main_lattice_smaller_octader')
-        c2 = openmc.Cell(fill=main, region=(+core_base & -core_top &
+        c2 = openmc.Cell(fill=main, region=(+core_base &
+                                            -core_top &
                                             -zone_i_boundary[2] &
-                                            ~cr_boundary), name='main_lattice_insite_smallest_octader')
-        c3 = openmc.Cell(fill=main, region=(+core_base & -core_top &
-                                            -zone_i_boundary[0] & +zone_i_boundary[1] & +zone_i_boundary[2] &
-                                            ~cr_boundary), name='main_lattice_inside_base_octader_deducted_smaller_smallest')
+                                            ~cr_boundary),
+                         name='main_lattice_insite_smallest_octader')
+        c3 = openmc.Cell(fill=main, region=(+core_base &
+                                            -core_top &
+                                            -zone_i_boundary[0] &
+                                            +zone_i_boundary[1] &
+                                            +zone_i_boundary[2] &
+                                            ~cr_boundary),
+                         name=('main_lattice_inside_base_octader'
+                              '_deducted_smaller_smallest'))
         main_cells = [c1, c2, c3]
     return main_cells
 
 optimized, deplete = parse_arguments()
-zone_bounds, core_bounds, reflector_bounds, vessel_bounds = shared_root_geometry()
+(zone_bounds,
+ core_bounds,
+ reflector_bounds,
+ vessel_bounds) = shared_root_geometry()
 
-cr_boundary, zone_i_boundary, zone_ii_boundary = zone_bounds
-annulus_boundary, lower_plenum_boundary, core_base, core_top = core_bounds
-radial_reflector_boundary, bottom_reflector_boundary, top_reflector_boundary = reflector_bounds
-radial_vessel_boundary, bottom_vessel_boundary, top_vessel_boundary= vessel_bounds
+(cr_boundary,
+ zone_i_boundary,
+ zone_ii_boundary) = zone_bounds
+(annulus_boundary,
+ lower_plenum_boundary,
+ core_base,
+ core_top) = core_bounds
+(radial_reflector_boundary,
+ bottom_reflector_boundary,
+ top_reflector_boundary) = reflector_bounds
+(radial_vessel_boundary,
+ bottom_vessel_boundary,
+ top_vessel_boundary) = vessel_bounds
 
-main = main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized)
-cr = cr_lattice(cr_boundary, core_base, core_top, optimized)
-iib = zoneIIB(zone_i_boundary, zone_ii_boundary, core_base, core_top, fuel, moder, optimized)
-a = annulus(zone_ii_boundary, annulus_boundary, core_base, core_top, fuel)
-lp = lower_plenum(core_base, lower_plenum_boundary, annulus_boundary, fuel)
+main = main_lattice(zone_i_boundary,
+                    cr_boundary,
+                    core_base,
+                    core_top,
+                    optimized)
+cr = cr_lattice(cr_boundary,
+                core_base,
+                core_top,
+                optimized)
+iib = zoneIIB(zone_i_boundary,
+              zone_ii_boundary,
+              core_base,
+              core_top,
+              fuel,
+              moder,
+              optimized)
+a = annulus(zone_ii_boundary,
+            annulus_boundary,
+            core_base,
+            core_top,
+            fuel)
+lp = lower_plenum(core_base,
+                  lower_plenum_boundary,
+                  annulus_boundary,
+                  fuel)
 
 rr, rb, rt = reflectors(annulus_boundary,
-               radial_reflector_boundary,
-               lower_plenum_boundary,
-               bottom_reflector_boundary,
-               core_top,
-               top_reflector_boundary,
-               moder)
+                        radial_reflector_boundary,
+                        lower_plenum_boundary,
+                        bottom_reflector_boundary,
+                        core_top,
+                        top_reflector_boundary,
+                        moder)
 
 vr, vb, vt = vessel(radial_reflector_boundary,
-           radial_vessel_boundary,
-           bottom_vessel_boundary,
-           top_vessel_boundary,
-           top_reflector_boundary,
-           bottom_reflector_boundary,
-           hast)
+                    radial_vessel_boundary,
+                    bottom_vessel_boundary,
+                    top_vessel_boundary,
+                    top_reflector_boundary,
+                    bottom_reflector_boundary,
+                    hast)
 
 geo = openmc.Geometry()
 univ = openmc.Universe(cells=[cr, lp, a, rr, rb, rt, vr, vb, vt])
@@ -532,7 +706,9 @@ settings = openmc.Settings()
 settings.particles = 10000
 settings.batches = 150
 settings.inactive = 25
-settings.temperature = {'default': 900, 'method': 'interpolation', 'range': (800, 1000)}
+settings.temperature = {'default': 900,
+                        'method': 'interpolation',
+                        'range': (800, 1000)}
 settings.export_to_xml()
 
 # Plots
@@ -858,7 +1034,12 @@ if deplete:
         "Th227": 190640950.14927194
     }
     model = openmc.Model.from_xml()
-    op = CoupledOperator(model, chain_file='chain_endfb71_pwr.xml', fission_q=fiss_q)
+    op = CoupledOperator(model,
+                         chain_file='chain_endfb71_pwr.xml',
+                         fission_q=fiss_q)
     timesteps = [3] * 12
-    integrator = PredictorIntegrator(op, timesteps, timestep_units='d', power=2.25e9)
+    integrator = PredictorIntegrator(op,
+                                     timesteps,
+                                     timestep_units='d',
+                                     power=2.25e9)
     integrator.integrate()

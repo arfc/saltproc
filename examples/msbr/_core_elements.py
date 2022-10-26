@@ -26,7 +26,14 @@ def _bound_zone_cells(cells_tuples, levels):
             cell_list.append(cell)
     return cell_list
 
-def zoneIA(gr_sq_neg, gr_extra_regions, inter_elem_channel, gr_round_4, moder, fuel, hast, optimized):
+def zoneIA(gr_sq_neg,
+           gr_extra_regions,
+           inter_elem_channel,
+           gr_round_4,
+           moder,
+           fuel,
+           hast,
+           optimized):
     """Create universe for Zone IA element. Based on specification in
     Robertson, 1971 Fig 3.4 (p. 17)
 
@@ -83,17 +90,24 @@ def zoneIA(gr_sq_neg, gr_extra_regions, inter_elem_channel, gr_round_4, moder, f
 
     if optimized:
         s2 = s2.clone()
-        c5 = openmc.Cell(fill=moder, region=(+s2 & gr_sq_neg), name='ia_moderator_main_core')
+        c5 = openmc.Cell(fill=moder, region=(+s2 & gr_sq_neg),
+                         name='ia_moderator_main_core')
         iam = [c4, c5]
         for (reg, name) in inter_elem_channel:
-            iam.append(openmc.Cell(fill=fuel, region=reg, name=f'ia_fuel_outer_main_{name}'))
+            iam.append(openmc.Cell(fill=fuel, region=reg,
+                                   name=f'ia_fuel_outer_main_{name}'))
     else:
-        c5 = openmc.Cell(fill=moder, region=(+s2 & gr_sq_neg & inter_elem_channel), name='ia_moderator_main')
-        c6 = openmc.Cell(fill=fuel, region=(~gr_sq_neg & inter_elem_channel), name='ia_fuel_outer_main')
+        c5 = openmc.Cell(fill=moder, region=(+s2 &
+                                             gr_sq_neg &
+                                             inter_elem_channel),
+                         name='ia_moderator_main')
+        c6 = openmc.Cell(fill=fuel, region=(~gr_sq_neg & inter_elem_channel),
+                         name='ia_fuel_outer_main')
         iam = [c4, c5, c6]
 
     for (reg, name) in gr_extra_regions:
-            iam.append(openmc.Cell(fill=moder, region=reg, name=f'ia_moderator_main_{name}'))
+            iam.append(openmc.Cell(fill=moder, region=reg,
+                                   name=f'ia_moderator_main_{name}'))
 
 
     # I-A 2 (upper 1)
@@ -118,9 +132,12 @@ def zoneIA(gr_sq_neg, gr_extra_regions, inter_elem_channel, gr_round_4, moder, f
     # I-A 4 (upper 3)
     if optimized:
         s2 = s2.clone()
-    c13 = openmc.Cell(fill=hast, region=(-s2), name='ia_hast')
-    c14 = openmc.Cell(fill=moder, region=(+s2 & -gr_round_4), name='ia_moderator_4')
-    c15 = openmc.Cell(fill=fuel, region=(+gr_round_4), name='ia_fuel_outer_4')
+    c13 = openmc.Cell(fill=hast, region=(-s2),
+                      name='ia_hast')
+    c14 = openmc.Cell(fill=moder, region=(+s2 & -gr_round_4),
+                      name='ia_moderator_4')
+    c15 = openmc.Cell(fill=fuel, region=(+gr_round_4),
+                      name='ia_fuel_outer_4')
     ia4 = (c13, c14, c15)
 
     elem_cells = [ia1, iam, ia2, ia3, ia4]
@@ -129,7 +146,13 @@ def zoneIA(gr_sq_neg, gr_extra_regions, inter_elem_channel, gr_round_4, moder, f
     ia.add_cells(_bound_zone_cells(elem_cells, level_bounds))
     return ia
 
-def zoneIIA(gr_sq_neg, gr_extra_regions, inter_elem_channel, gr_round_4, moder, fuel, optimized):
+def zoneIIA(gr_sq_neg,
+            gr_extra_regions,
+            inter_elem_channel,
+            gr_round_4,
+            moder,
+            fuel,
+            optimized):
     """Create universe for Zone IIA element. Based on specification in
     Robertson, 1971 Fig 3.5 (p. 18)
 
@@ -184,36 +207,51 @@ def zoneIIA(gr_sq_neg, gr_extra_regions, inter_elem_channel, gr_round_4, moder, 
     c4 = openmc.Cell(fill=fuel, region=(-s2), name='iia_fuel_inner_2')
     if optimized:
         # II-A main (lower 1)
-        c2 = openmc.Cell(fill=moder, region=(+s1 & gr_sq_neg), name='iia_moderator_main_core')
+        c2 = openmc.Cell(fill=moder, region=(+s1 & gr_sq_neg),
+                         name='iia_moderator_main_core')
         iiam = [c1, c2]
 
         # II-A 2 (upper 1)
         gr_sq_neg = gr_sq_neg.clone()
-        c5 = openmc.Cell(fill=moder, region=(+s2 & gr_sq_neg), name='iia_moderator_2_core')
+        c5 = openmc.Cell(fill=moder, region=(+s2 & gr_sq_neg),
+                         name='iia_moderator_2_core')
         iia2 = [c4, c5]
 
         for (reg, name) in gr_extra_regions:
-            iiam.append(openmc.Cell(fill=moder, region=reg, name=f'iia_moderator_main_{name}'))
-            iia2.append(openmc.Cell(fill=moder, region=(reg), name=f'iia_moderator_main_{name}'))
+            iiam.append(openmc.Cell(fill=moder, region=reg,
+                                    name=f'iia_moderator_main_{name}'))
+            iia2.append(openmc.Cell(fill=moder, region=(reg),
+                                    name=f'iia_moderator_main_{name}'))
         for (reg, name) in inter_elem_channel:
-            iiam.append(openmc.Cell(fill=fuel, region=reg, name=f'iia_fuel_outer_main_{name}'))
-            iia2.append(openmc.Cell(fill=fuel, region=(reg), name=f'iia_fuel_outer_2_{name}'))
+            iiam.append(openmc.Cell(fill=fuel, region=reg,
+                                    name=f'iia_fuel_outer_main_{name}'))
+            iia2.append(openmc.Cell(fill=fuel, region=(reg),
+                                    name=f'iia_fuel_outer_2_{name}'))
 
     else:
         # II-A main (lower 1)
-        c2 = openmc.Cell(fill=moder, region=(+s1 & gr_sq_neg & inter_elem_channel), name='iia_moderator_main')
-        c3 = openmc.Cell(fill=fuel, region=(~gr_sq_neg & inter_elem_channel), name='iia_fuel_outer_main')
+        c2 = openmc.Cell(fill=moder, region=(+s1 &
+                                             gr_sq_neg &
+                                             inter_elem_channel),
+                         name='iia_moderator_main')
+        c3 = openmc.Cell(fill=fuel, region=(~gr_sq_neg & inter_elem_channel),
+                         name='iia_fuel_outer_main')
         iiam = [c1, c2, c3]
 
         # II-A 2 (upper 1)
-        c5 = openmc.Cell(fill=moder, region=(+s2 & gr_sq_neg & inter_elem_channel), name='iia_moderator_2')
+        c5 = openmc.Cell(fill=moder, region=(+s2 &
+                                             gr_sq_neg &
+                                             inter_elem_channel),
+                         name='iia_moderator_2')
         c6 = c3.clone(clone_materials=False)
         c6.name = 'iia_fuel_outer_2'
         iia2 = [c4, c5, c6]
 
         for (reg, name) in gr_extra_regions:
-            iiam.append(openmc.Cell(fill=moder, region=reg, name=f'iia_moderator_main_{name}'))
-            iia2.append(openmc.Cell(fill=moder, region=reg, name=f'iia_moderator_2_{name}'))
+            iiam.append(openmc.Cell(fill=moder, region=reg,
+                                    name=f'iia_moderator_main_{name}'))
+            iia2.append(openmc.Cell(fill=moder, region=reg,
+                                    name=f'iia_moderator_2_{name}'))
 
     # II-A 3 (upper 2)
     if optimized:

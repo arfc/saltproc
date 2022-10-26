@@ -2,7 +2,7 @@ import openmc
 import numpy as np
 
 def shared_root_geometry():
-"""Creates surfaces and regions for root geometry.
+    """Creates surfaces and regions for root geometry.
 
     Returns
     -------
@@ -20,28 +20,46 @@ def shared_root_geometry():
     core_base = openmc.ZPlane(z0=0.0, name='core_base')
     core_top = openmc.ZPlane(z0=449.58, name='core_top')
 
-    s1 = openmc.model.IsogonalOctagon(center=(0.0,0.0), r1=208.28, r2=222.71, name='base_octader')
-    s2 = openmc.model.IsogonalOctagon(center=(0.0,0.0), r1=218.44, r2=215.53, name='smaller_octader')
-    s3 = openmc.model.IsogonalOctagon(center=(0.0,0.0), r1=228.60, r2=193.97, name='smallest_octader')
+    s1 = openmc.model.IsogonalOctagon(center=(0.0,0.0), r1=208.28, r2=222.71,
+                                      name='base_octader')
+    s2 = openmc.model.IsogonalOctagon(center=(0.0,0.0), r1=218.44, r2=215.53,
+                                      name='smaller_octader')
+    s3 = openmc.model.IsogonalOctagon(center=(0.0,0.0), r1=228.60, r2=193.97,
+                                      name='smallest_octader')
 
     zone_i_boundary = (s1, s2, s3)
 
     zone_ii_boundary = openmc.ZCylinder(r=256.032, name='iib_boundary')
     annulus_boundary = openmc.ZCylinder(r=261.112, name='annulus_boundary')
-    lower_plenum_boundary = openmc.ZPlane(z0=-7.62, name='lower_plenum_boundary')
+    lower_plenum_boundary = openmc.ZPlane(z0=-7.62,
+                                          name='lower_plenum_boundary')
 
-    zone_bounds = (cr_boundary, zone_i_boundary, zone_ii_boundary)
-    core_bounds = (annulus_boundary, lower_plenum_boundary, core_base, core_top)
-    radial_reflector_boundary = openmc.ZCylinder(r=338.328, name='radial_reflector_boundary')
-    bottom_reflector_boundary = openmc.ZPlane(z0=-76.2, name='bottom_axial_reflector_boundary')
-    top_reflector_boundary = openmc.ZPlane(z0=525.78, name='top_axial_reflector_boundary')
+    zone_bounds = (cr_boundary,
+                   zone_i_boundary,
+                   zone_ii_boundary)
+    core_bounds = (annulus_boundary,
+                   lower_plenum_boundary,
+                   core_base,
+                   core_top)
+    radial_reflector_boundary = \
+        openmc.ZCylinder(r=338.328, name='radial_reflector_boundary')
+    bottom_reflector_boundary = \
+        openmc.ZPlane(z0=-76.2, name='bottom_axial_reflector_boundary')
+    top_reflector_boundary = \
+        openmc.ZPlane(z0=525.78, name='top_axial_reflector_boundary')
     reflector_bounds = (radial_reflector_boundary,
                         bottom_reflector_boundary,
                         top_reflector_boundary)
 
-    radial_vessel_boundary = openmc.ZCylinder(r=343.408, name='radial_vessel_wall', boundary_type='vacuum')
-    bottom_vessel_boundary = openmc.ZPlane(z0=-81.28, name='bottom_vessel_wall', boundary_type='vacuum')
-    top_vessel_boundary = openmc.ZPlane(z0=530.86, name='top_vessel_wall', boundary_type='vacuum')
+    radial_vessel_boundary = openmc.ZCylinder(r=343.408,
+                                              name='radial_vessel_wall',
+                                              boundary_type='vacuum')
+    bottom_vessel_boundary = openmc.ZPlane(z0=-81.28,
+                                           name='bottom_vessel_wall',
+                                           boundary_type='vacuum')
+    top_vessel_boundary = openmc.ZPlane(z0=530.86,
+                                        name='top_vessel_wall',
+                                        boundary_type='vacuum')
 
     vessel_bounds = (radial_vessel_boundary,
                      bottom_vessel_boundary,
@@ -49,7 +67,13 @@ def shared_root_geometry():
 
     return zone_bounds, core_bounds, reflector_bounds, vessel_bounds
 
-def zoneIIB(zone_i_boundary, zone_ii_boundary, core_base, core_top, fuel, moder, optimized):
+def zoneIIB(zone_i_boundary,
+            zone_ii_boundary,
+            core_base,
+            core_top,
+            fuel,
+            moder,
+            optimized):
     """ Creates Zone IIB graphite slab elements.
 
     Parameters
@@ -113,24 +137,41 @@ def zoneIIB(zone_i_boundary, zone_ii_boundary, core_base, core_top, fuel, moder,
         r1_big, r2_big = big_radii[i]
         t1_big = np.round(pos - large_half_w, 3)
         t2_big = np.round(pos + large_half_w, 3)
-        s1 = openmc.model.CylinderSector(r1_big, r2_big, t1_big, t2_big, name=f'iib_large_element_{pos}')
+        s1 = openmc.model.CylinderSector(r1_big,
+                                         r2_big,
+                                         t1_big,
+                                         t2_big,
+                                         name=f'iib_large_element_{pos}')
         s2 = openmc.ZCylinder(**hole_args[i])
 
-        elem_cells.append(openmc.Cell(fill=moder, region=(-s1 & +s2), name=f'iib_large_element_{pos}'))
-        elem_cells.append(openmc.Cell(fill=fuel, region=(-s2), name=f'iib_large_element_fuel_hole_{pos}'))
+        elem_cells.append(openmc.Cell(fill=moder, region=(-s1 & +s2),
+                                      name=f'iib_large_element_{pos}'))
+        elem_cells.append(openmc.Cell(fill=fuel, region=(-s2),
+                                      name=('iib_large_element'
+                                            f'_fuel_hole_{pos}')))
 
         t1_small = np.round(t2_big + adjacent_angular_offset, 3)
         r1_small, r2_small = small_radii
 
         if optimized:
             # Inter element fuel channel
-            s3 = openmc.model.CylinderSector(r1_small, r2_small, t2_big, t1_small)
+            s3 = openmc.model.CylinderSector(r1_small,
+                                             r2_small,
+                                             t2_big,
+                                             t1_small)
             cpos = t2_big + (adjacent_angular_offset / 2)
             cpos = np.round(cpos, 3)
-            elem_cells.append(openmc.Cell(fill=fuel, region=-s3, name=f'inter_element_fuel_channel_{cpos}'))
+            elem_cells.append(openmc.Cell(fill=fuel, region=-s3,
+                                          name=('inter_element_fuel'
+                                                f'_channel_{cpos}')))
 
-            s4 = openmc.model.CylinderSector(r1_small, r1_big, t1_big, t2_big)
-            elem_cells.append(openmc.Cell(fill=fuel, region=-s4, name=f'inter_element_fuel_channel_{pos}'))
+            s4 = openmc.model.CylinderSector(r1_small,
+                                             r1_big,
+                                             t1_big,
+                                             t2_big)
+            elem_cells.append(openmc.Cell(fill=fuel, region=-s4,
+                                          name=('inter_element_fuel'
+                                                f'_channel_{pos}')))
         else:
             if isinstance(zone_iib_reg, openmc.Region):
                 zone_iib_reg = zone_iib_reg & +s1
@@ -143,8 +184,13 @@ def zoneIIB(zone_i_boundary, zone_ii_boundary, core_base, core_top, fuel, moder,
             # reflector element
             pos = t2_small - (small_angular_width / 2)
             pos = np.round(pos, 3)
-            s5 = openmc.model.CylinderSector(r1_small, r2_small, t1_small, t2_small, name=f'iib_small_element_{pos}')
-            elem_cells.append(openmc.Cell(fill=moder, region=-s5, name=f'iib_small_element_{pos}'))
+            s5 = openmc.model.CylinderSector(r1_small,
+                                             r2_small,
+                                             t1_small,
+                                             t2_small,
+                                             name=f'iib_small_element_{pos}')
+            elem_cells.append(openmc.Cell(fill=moder, region=-s5,
+                                          name=f'iib_small_element_{pos}'))
 
             t1_small = np.round(t2_small + adjacent_angular_offset, 3)
 
@@ -152,8 +198,15 @@ def zoneIIB(zone_i_boundary, zone_ii_boundary, core_base, core_top, fuel, moder,
                 # inter-element fuel channel
                 cpos = t2_small + (adjacent_angular_offset/2)
                 cpos = np.round(cpos, 3)
-                s6 = openmc.model.CylinderSector(r1_small, r2_small, t2_small, t1_small,  name=f'inter_element_fuel_channel_{cpos}')
-                elem_cells.append(openmc.Cell(fill=fuel, region=-s6, name=f'inter_element_fuel_channel_{cpos}'))
+                s6 = openmc.model.CylinderSector(r1_small,
+                                                 r2_small,
+                                                 t2_small,
+                                                 t1_small,
+                                                 name=('inter_element_fuel'
+                                                       f'_channel_{cpos}'))
+                elem_cells.append(openmc.Cell(fill=fuel, region=-s6,
+                                              name=('inter_element_fuel'
+                                                    f'_channel_{cpos}')))
             else:
                 zone_iib_reg = zone_iib_reg & +s5
 
@@ -161,9 +214,18 @@ def zoneIIB(zone_i_boundary, zone_ii_boundary, core_base, core_top, fuel, moder,
     iib = openmc.Universe(name='zone_iib', cells=elem_cells)
     s1, s2, s3 = zone_i_boundary
     if optimized:
-        oct1_maxy, oct1_miny, oct1_maxx, oct1_minx, oct1_ur, oct1_br, oct1_bl, oct1_ul = list((-s1).get_surfaces().values())
-        oct2_maxy, oct2_miny, oct2_maxx, oct2_minx, oct2_ur, oct2_br, oct2_bl, oct2_ul = list((-s3).get_surfaces().values())
-        oct3_maxy, oct3_miny, oct3_maxx, oct3_minx, oct3_ur, oct3_br, oct3_bl, oct3_ul = list((-s2).get_surfaces().values())
+        (oct1_maxy, oct1_miny,
+         oct1_maxx, oct1_minx,
+         oct1_ur, oct1_br,
+         oct1_bl, oct1_ul) = list((-s1).get_surfaces().values())
+        (oct2_maxy, oct2_miny,
+         oct2_maxx, oct2_minx,
+         oct2_ur, oct2_br,
+         oct2_bl, oct2_ul) = list((-s2).get_surfaces().values())
+        (oct3_maxy, oct3_miny,
+         oct3_maxx, oct3_minx,
+         oct3_ur, oct3_br,
+         oct3_bl, oct3_ul) = list((-s3).get_surfaces().values())
 
         cap_r =(+oct3_maxx & -zone_ii_boundary)
 
@@ -208,15 +270,20 @@ def zoneIIB(zone_i_boundary, zone_ii_boundary, core_base, core_top, fuel, moder,
 
         iib_cells = []
         for reg, name in regs:
-            iib_cells.append(openmc.Cell(fill=iib, region=(reg & +core_base & -core_top), name=f'zone_iib_{name}'))
+            iib_cells.append(openmc.Cell(fill=iib, region=(reg &
+                                                           +core_base &
+                                                           -core_top),
+                                         name=f'zone_iib_{name}'))
 
 
     else:
-        iib.add_cell(openmc.Cell(fill=fuel, region=zone_iib_reg, name='zone_iib_fuel'))
+        iib.add_cell(openmc.Cell(fill=fuel, region=zone_iib_reg,
+                                 name='zone_iib_fuel'))
         iib_cells = [openmc.Cell(fill=iib, region=(+s1 & +s2 & +s3 &
                                                    -zone_ii_boundary &
                                                    +core_base &
-                                                   -core_top), name='zone_iib')]
+                                                   -core_top),
+                                 name='zone_iib')]
     return iib_cells
 
 def annulus(zone_ii_boundary, annulus_boundary, core_base, core_top, fuel):
@@ -302,13 +369,23 @@ def reflectors(annulus_boundary,
     c3 : openmc.Cell
         Top axial reflector.
     """
-    radial_reflector_reg = +annulus_boundary & -radial_reflector_boundary & +bottom_reflector_boundary & -top_reflector_boundary
-    bottom_reflector_reg = -annulus_boundary & -lower_plenum_boundary & +bottom_reflector_boundary
-    top_reflector_reg = -annulus_boundary & +core_top & -top_reflector_boundary
+    radial_reflector_reg = (+annulus_boundary &
+                            -radial_reflector_boundary &
+                            +bottom_reflector_boundary &
+                            -top_reflector_boundary)
+    bottom_reflector_reg = (-annulus_boundary &
+                            -lower_plenum_boundary &
+                            +bottom_reflector_boundary)
+    top_reflector_reg = (-annulus_boundary &
+                         +core_top &
+                         -top_reflector_boundary)
 
-    c1 = openmc.Cell(fill=moder, region=radial_reflector_reg, name='radial_reflector')
-    c2 = openmc.Cell(fill=moder, region=bottom_reflector_reg, name='bottom_axial_reflector')
-    c3 = openmc.Cell(fill=moder, region=top_reflector_reg, name='top_axial_reflector')
+    c1 = openmc.Cell(fill=moder, region=radial_reflector_reg,
+                     name='radial_reflector')
+    c2 = openmc.Cell(fill=moder, region=bottom_reflector_reg,
+                     name='bottom_axial_reflector')
+    c3 = openmc.Cell(fill=moder, region=top_reflector_reg,
+                     name='top_axial_reflector')
     return c1, c2, c3
 
 def vessel(radial_reflector_boundary,
@@ -346,11 +423,21 @@ def vessel(radial_reflector_boundary,
     c3 : openmc.Cell
         Top vessel wall.
     """
-    radial_vessel_reg = +radial_reflector_boundary & -radial_vessel_boundary & -top_vessel_boundary & +bottom_vessel_boundary
-    bottom_vessel_reg = -radial_reflector_boundary & -bottom_reflector_boundary & +bottom_vessel_boundary
-    top_vessel_reg = -radial_reflector_boundary & -top_vessel_boundary & +top_reflector_boundary
+    radial_vessel_reg = (+radial_reflector_boundary &
+                         -radial_vessel_boundary &
+                         -top_vessel_boundary &
+                         +bottom_vessel_boundary)
+    bottom_vessel_reg = (-radial_reflector_boundary &
+                         -bottom_reflector_boundary &
+                         +bottom_vessel_boundary)
+    top_vessel_reg = (-radial_reflector_boundary &
+                      -top_vessel_boundary &
+                      +top_reflector_boundary)
 
-    c1 = openmc.Cell(fill=hast, region=radial_vessel_reg, name='radial_vessel_wall')
-    c2 = openmc.Cell(fill=hast, region=bottom_vessel_reg, name='bottom_vessel_wall')
-    c3 = openmc.Cell(fill=hast, region=top_vessel_reg, name='top_vessel_wall')
+    c1 = openmc.Cell(fill=hast, region=radial_vessel_reg,
+                     name='radial_vessel_wall')
+    c2 = openmc.Cell(fill=hast, region=bottom_vessel_reg,
+                     name='bottom_vessel_wall')
+    c3 = openmc.Cell(fill=hast, region=top_vessel_reg,
+                     name='top_vessel_wall')
     return c1, c2, c3
