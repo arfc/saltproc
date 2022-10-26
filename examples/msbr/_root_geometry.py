@@ -2,6 +2,20 @@ import openmc
 import numpy as np
 
 def shared_root_geometry():
+"""Creates surfaces and regions for root geometry.
+
+    Returns
+    -------
+    zone_bounds : tuple
+        Tuple containing zone bounding surfaces
+    core_bounds : list of openmc.Surface
+        List of reactor core bounding surfaces
+    reflector_bounds : list of openmc.Surface
+        List of reflector boundng surfaces
+    vessel_bounds : list of openmc.Surface
+        List of reactor vessel bounding surfaces
+
+    """
     cr_boundary = openmc.model.rectangular_prism(15.24*2, 15.24*2)
     core_base = openmc.ZPlane(z0=0.0, name='core_base')
     core_top = openmc.ZPlane(z0=449.58, name='core_top')
@@ -35,7 +49,36 @@ def shared_root_geometry():
 
     return zone_bounds, core_bounds, reflector_bounds, vessel_bounds
 
-def zoneIIB(zone_i_boundary, zone_ii_boundary, annulus_boundary, core_base, core_top, moder, fuel, optimized):
+def zoneIIB(zone_i_boundary, zone_ii_boundary, core_base, core_top, fuel, moder, optimized):
+    """ Creates Zone IIB graphite slab elements.
+
+    Parameters
+    ----------
+    zone_i_boundary : 3-tuple of openmc.model.IsogonalOctagon
+        Zone I bounding surfaces in the xy-plane
+    zone_ii_boundary : openmc.ZCylinder
+        Zone II bounding surface in the xy-plance
+    core_base : openmc.ZPlane
+        Core bottom bounding surface.
+    core_top : openmc.ZPlane
+        Core top bounding surface.
+    fuel : openmc.Material
+        Fuel salt material
+    moder : openmc.Material
+        Graphite material
+    optimized : bool
+        Flag indicating whether or not to construct 'optimized' geometry
+        with cell regions consiting only of :class:`openmc.Intersection`
+        objects. This will speed up any calculations by around 50%, and is thus
+        optimized.
+
+    Returns
+    -------
+    iib_cells : list of openmc.Cell
+        Cells containing graphite slabs in Zone IIB.
+    """
+
+
     # Large elements
     large_angular_width = 3.538
     large_half_w = large_angular_width / 2
@@ -177,11 +220,49 @@ def zoneIIB(zone_i_boundary, zone_ii_boundary, annulus_boundary, core_base, core
     return iib_cells
 
 def annulus(zone_ii_boundary, annulus_boundary, core_base, core_top, fuel):
+    """ Creates annulus cell.
+
+    Parameters
+    ----------
+    zone_ii_boundary : openmc.ZCylinder
+        Zone II bounding surfaces in the xy-plane
+    annulus_boundary : openmc.ZCylinder
+        Annulus bounding surface in the xy-plance
+    core_base : openmc.ZPlane
+        Core bottom bounding surface.
+    core_top : openmc.ZPlane
+        Core top bounding surface.
+    fuel : openmc.Material
+        Fuel salt material
+
+    Returns
+    -------
+    c1 : openmc.Cell
+        Annulus cell.
+    """
     annulus_reg = +zone_ii_boundary & -annulus_boundary & +core_base & -core_top
     c1 = openmc.Cell(fill=fuel, region=annulus_reg, name='annulus')
     return c1
 
 def lower_plenum(core_base, lower_plenum_boundary, annulus_boundary, fuel):
+    """ Creates lower plenum cell.
+
+    Parameters
+    ----------
+    core_base : openmc.ZPlane
+        Core bottom bounding surface.
+    lower_plenum_boundary : openmc.ZPlane
+        Lower plenum bottom bounding surface.
+    annulus_boundary : openmc.ZCylinder
+        Annulus bounding surface in the xy-plance
+    fuel : openmc.Material
+        Fuel salt material
+
+    Returns
+    -------
+    c1 : openmc.Cell
+        Lower plenum cell
+    """
     lower_plenum_reg = -core_base & +lower_plenum_boundary & -annulus_boundary
     c1 = openmc.Cell(fill=fuel, region=lower_plenum_reg, name='lower_plenum')
     return c1
@@ -193,6 +274,34 @@ def reflectors(annulus_boundary,
                core_top,
                top_reflector_boundary,
                moder):
+    """ Creates graphite reflector cells.
+
+    Parameters
+    ----------
+    annulus_boundary : openmc.ZCylinder
+        Annulus bounding surface in the xy-plance
+    radial_reflector_boundary : openmc.ZCylinder
+        Reflector bounding surface in the xy-plance
+    lower_plenum_boundary : openmc.ZPlane
+        Lower plenum bottom bounding surface.
+    bottom_reflector_boundary : openmc.ZPlane
+        Reflector bottom bounding surface.
+    core_top : openmc.ZPlane
+        Core top bounding surface.
+    top_reflector_boundary : openmc.ZPlane
+        Reflector top bounding surface.
+    moder : openmc.Material
+        Graphite material
+
+    Returns
+    -------
+    c1 : openmc.Cell
+        Radial reflector.
+    c2 : openmc.Cell
+        Bottom axial reflector.
+    c3 : openmc.Cell
+        Top axial reflector.
+    """
     radial_reflector_reg = +annulus_boundary & -radial_reflector_boundary & +bottom_reflector_boundary & -top_reflector_boundary
     bottom_reflector_reg = -annulus_boundary & -lower_plenum_boundary & +bottom_reflector_boundary
     top_reflector_reg = -annulus_boundary & +core_top & -top_reflector_boundary
@@ -209,6 +318,34 @@ def vessel(radial_reflector_boundary,
            top_reflector_boundary,
            bottom_reflector_boundary,
            hast):
+    """ Creates reactor vessel cells.
+
+    Parameters
+    ----------
+    radial_reflector_boundary : openmc.ZCylinder
+        Reflector bounding surface in the xy-plance
+    radial_vessel_boundary : openmc.ZCylinder
+        Vessel bounding surface in the xy-plane
+    bottom_vessel_boundary : openmc.ZPlane
+        Vessel bottom bounding surface.
+    top_vessel_boundary : openmc.ZPlane
+        Vessel top bounding surface.
+    top_reflector_boundary : openmc.ZPlane
+        Reflector top bounding surface.
+    bottom_reflector_boundary : openmc.ZPlane
+        Reflector bottom bounding surface.
+    hast : openmc.Material
+        Hastelloy-N material
+
+    Returns
+    -------
+    c1 : openmc.Cell
+        Radial vessel wall.
+    c2 : openmc.Cell
+        Bottom vessel wall.
+    c3 : openmc.Cell
+        Top vessel wall.
+    """
     radial_vessel_reg = +radial_reflector_boundary & -radial_vessel_boundary & -top_vessel_boundary & +bottom_vessel_boundary
     bottom_vessel_reg = -radial_reflector_boundary & -bottom_reflector_boundary & +bottom_vessel_boundary
     top_vessel_reg = -radial_reflector_boundary & -top_vessel_boundary & +top_reflector_boundary

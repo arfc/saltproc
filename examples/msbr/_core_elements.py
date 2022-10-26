@@ -26,8 +26,40 @@ def _bound_zone_cells(cells_tuples, levels):
             cell_list.append(cell)
     return cell_list
 
-def zoneIA(gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, hast, optimized):
-    """Zone IA element. Specs found in Robertson, 1971 Fig 3.4 (p. 17)"""
+def zoneIA(gr_sq_neg, gr_extra_regions, inter_elem_channel, gr_round_4, moder, fuel, hast, optimized):
+    """Create universe for Zone IA element. Based on specification in
+    Robertson, 1971 Fig 3.4 (p. 17)
+
+    Parameters
+    ----------
+    gr_sq_neg : openmc.Intersection
+        The region bounding the outer surface of the 4 in. x 4 in. graphite
+        element.
+    gr_extra_regions : list of (openmc.Region, str)
+        'Add-on' regions and their names for the graphite element.
+        Includes ribs, rib tips, and gap-filling regions.
+    inter_elem_channel : openmc.Region, list of (openmc.Region, str)
+        Inter-element channel region(s).
+    gr_round_4 : openmc.ZCylinder
+        Outer bounding surface for cylindrical graphite in uppermost part of
+        element.
+    fuel : openmc.Material
+        Fuel salt material
+    moder : openmc.Material
+        Graphite material
+    hast : openmc.Material
+        Hastelloy-N material.
+    optimized : bool
+        Flag indicating whether or not to construct 'optimized' geometry
+        with cell regions consiting only of :class:`openmc.Intersection`
+        objects. This will speed up any calculations by around 50%, and is thus
+        optimized.
+
+    Returns
+    -------
+    ia : openmc.Universe
+        Universe for Zone IA element.
+    """
     elem_levels = [22.86, 419.10, 438.15, 445.135]
     level_bounds = []
     for level in elem_levels:
@@ -60,7 +92,7 @@ def zoneIA(gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, h
         c6 = openmc.Cell(fill=fuel, region=(~gr_sq_neg & inter_elem_channel), name='ia_fuel_outer_main')
         iam = [c4, c5, c6]
 
-    for (reg, name) in gr_corners:
+    for (reg, name) in gr_extra_regions:
             iam.append(openmc.Cell(fill=moder, region=reg, name=f'ia_moderator_main_{name}'))
 
 
@@ -97,8 +129,41 @@ def zoneIA(gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, h
     ia.add_cells(_bound_zone_cells(elem_cells, level_bounds))
     return ia
 
-def zoneIIA(gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, optimized):
-    """Zone IIA element. Specs found in Robertson, 1971 Fig 3.5 (p. 18)"""
+def zoneIIA(gr_sq_neg, gr_extra_regions, inter_elem_channel, gr_round_4, moder, fuel, optimized):
+    """Create universe for Zone IIA element. Based on specification in
+    Robertson, 1971 Fig 3.5 (p. 18)
+
+    Parameters
+    ----------
+    gr_sq_neg : openmc.Intersection
+        The region bounding the outer surface of the 4 in. x 4 in. graphite
+        element.
+    gr_extra_regions : list of (openmc.Region, str)
+        'Add-on' regions and their names for the graphite element.
+        Includes ribs, rib tips, and gap-filling regions.
+    inter_elem_channel : openmc.Region, list of (openmc.Region, str)
+        Inter-element channel region(s).
+    gr_round_4 : openmc.ZCylinder
+        Outer bounding surface for cylindrical graphite in uppermost part of
+        element.
+    fuel : openmc.Material
+        Fuel salt material
+    moder : openmc.Material
+        Graphite material
+    hast : openmc.Material
+        Hastelloy-N material.
+    optimized : bool
+        Flag indicating whether or not to construct 'optimized' geometry
+        with cell regions consiting only of :class:`openmc.Intersection`
+        objects. This will speed up any calculations by around 50%, and is thus
+        optimized.
+
+    Returns
+    -------
+    iia : openmc.Universe
+        Universe for Zone IIA element.
+    """
+
     elem_levels = [434.34, 436.88, 439.42, 441.96]
     level_bounds = []
     for level in elem_levels:
@@ -127,7 +192,7 @@ def zoneIIA(gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, 
         c5 = openmc.Cell(fill=moder, region=(+s2 & gr_sq_neg), name='iia_moderator_2_core')
         iia2 = [c4, c5]
 
-        for (reg, name) in gr_corners:
+        for (reg, name) in gr_extra_regions:
             iiam.append(openmc.Cell(fill=moder, region=reg, name=f'iia_moderator_main_{name}'))
             iia2.append(openmc.Cell(fill=moder, region=(reg), name=f'iia_moderator_main_{name}'))
         for (reg, name) in inter_elem_channel:
@@ -146,7 +211,7 @@ def zoneIIA(gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, 
         c6.name = 'iia_fuel_outer_2'
         iia2 = [c4, c5, c6]
 
-        for (reg, name) in gr_corners:
+        for (reg, name) in gr_extra_regions:
             iiam.append(openmc.Cell(fill=moder, region=reg, name=f'iia_moderator_main_{name}'))
             iia2.append(openmc.Cell(fill=moder, region=reg, name=f'iia_moderator_2_{name}'))
 
@@ -176,13 +241,36 @@ def zoneIIA(gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, 
     return iia
 
 def void_cell():
+    """Creates a void cell universe for filling unused parts of core lattice.
+
+    Returns
+    -------
+    v : openmc.Universe
+        Void universe
+    """
     c1 = openmc.Cell(name='lattice_void')
     #universe_id=5
     v = openmc.Universe(name='lattice_void')
     v.add_cell(c1)
     return v
 
-def graphite_triangles(moder, fuel):
+def graphite_triangles(fuel, moder):
+    """Creates triangular prism elements that fill in 90-degree corners
+    on the outermost layer of Zone IIA,
+
+    Parameters
+    ----------
+    fuel : openmc.Material
+        Fuel salt material
+    moder : openmc.Material
+        Graphite material
+
+    Returns
+    -------
+    tri_univs : list of openmc.Universe
+        Universes for graphite trangular prism elements.
+
+    """
     s1 = openmc.Plane(1.0, 1.0, 0.0, 0.0)
     s2 = openmc.Plane(-1.0, 1.0, 0.0, 0.0)
     s3 = openmc.Plane(1.0, -1.0, 0.0, 0.0)
@@ -191,12 +279,12 @@ def graphite_triangles(moder, fuel):
              (s1, 'top_right'),
              (s2, 'top_left'),
              (s3, 'bottom_right')]
-    univs = []
+    tri_univs = []
     for i, (s, name) in enumerate(surfs):
         c1 = openmc.Cell(fill=moder, region=(-s))
         c2 = openmc.Cell(fill=fuel, region=(+s))
         # universe_id = 6+i
         gr_tri = openmc.Universe(name=f'{name}_triangle')
         gr_tri.add_cells([c1, c2])
-        univs.append(gr_tri)
-    return univs
+        tri_univs.append(gr_tri)
+    return tri_univs
