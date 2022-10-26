@@ -54,6 +54,7 @@ New Features
   Describe any new features to the code.
 
 - ``openmc`` support via `DepcodeOpenMC`
+- OpenMC compatible MSBR model.
 
 
 
@@ -81,7 +82,9 @@ Script Changes
   - Add ``SERPENT_DATA`` and ``SERPENT_ACELIB`` variables to ``.bashrc``
 
 - A new script, ``scripts/ci/openmc-xs.bash``, that downloads the OpenMC HDF5 cross section library.
-
+- A new script, ``download_endfb71.bash``, that downloads the ENDF/B 7.1 cross section library -- including thermal scattering, decay, and fission yield data -- in ACE format.
+- A new script, ``process_endfb71_to_openmc.bash``, that converts the library created by ``download_endfb71.bash`` into an OpenMC-usable HDF5 format. Requires OpenMC to be installed from source to use.
+- A new script ``openmc_msbr_model.py``, that creates an OpenMC-usable MSBR model based on the Serpent MSBR model.
 
 
 Python API Changes
