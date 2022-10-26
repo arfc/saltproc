@@ -1,7 +1,7 @@
 import openmc
 import numpy as np
 
-def control_rod(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, fuel_hole, fuel, moder, optimized):
+def control_rod(gr_sq_neg, gr_corners, inter_elem_channel, fuel_hole, fuel, moder, optimized):
     s1 = openmc.ZCylinder(r=4.7625, name='control_rod')
 
     c1 = openmc.Cell(fill=moder, region=-s1, name='control_rod')
@@ -27,7 +27,7 @@ def control_rod(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, fuel_hole
 
     return cr
 
-def control_rod_channel(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, fuel_hole, fuel, moder, optimized):
+def control_rod_channel(gr_sq_neg, gr_corners, inter_elem_channel, fuel_hole, fuel, moder, optimized):
     c1 = openmc.Cell(fill=fuel, region=(-fuel_hole), name='crc_fuel_inner')
 
     if optimized:

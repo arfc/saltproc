@@ -61,10 +61,10 @@ def parse_arguments():
     args = parser.parse_args()
     return bool(args.optimized), bool(args.deplete)
 
-def shared_elem_geometry(elem_type, eb_d, gr_sq_d, gr_sq_r, r_dt, l1, l2, l3, r_es, es_name, optimized):
+def shared_elem_geometry(elem_type, gr_sq_d, gr_sq_r, r_dt, l1, l2, l3, r_es, es_name, optimized):
     """Surfaces and regions shared by Zone IA and Zone IIA elements.
     Specs found in Robertson, 1971 Fig 3.4 (p. 17) and Fig 3.5 (p.18)"""
-    elem_bound = openmc.rectangular_prism(eb_d*2, eb_d*2) # Pin outer boundary
+    #elem_bound = openmc.rectangular_prism(eb_d*2, eb_d*2) # Pin outer boundary
     gr_sq_neg = openmc.rectangular_prism(gr_sq_d*2, gr_sq_d*2, corner_radius=gr_sq_r) # Graphite square
 
     ul_t = openmc.ZCylinder(-l1, -l3, r_dt, name='corner_ul_tip')
@@ -73,7 +73,7 @@ def shared_elem_geometry(elem_type, eb_d, gr_sq_d, gr_sq_r, r_dt, l1, l2, l3, r_
     lb_t = openmc.ZCylinder(l3, -l1, r_dt, name='corner_lb_tip')
 
     if optimized:
-        eb_minx, eb_maxx, eb_miny, eb_maxy = list(elem_bound.get_surfaces().values())
+        #eb_minx, eb_maxx, eb_miny, eb_maxy = list(elem_bound.get_surfaces().values())
 
         gr_sq_neg = openmc.rectangular_prism(gr_sq_d*2, gr_sq_d*2, corner_radius=gr_sq_r) # Graphite square
         (gr_minx, gr_maxx, gr_miny, gr_maxy,
@@ -246,16 +246,16 @@ def shared_elem_geometry(elem_type, eb_d, gr_sq_d, gr_sq_r, r_dt, l1, l2, l3, r_
     extra_surf = openmc.ZCylinder(r=r_es, name=es_name)
 
 
-    return elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, extra_surf
+    return gr_sq_neg, gr_corners, inter_elem_channel, extra_surf
 
 def cr_lattice(cr_boundary, core_base, core_top, optimized):
-    elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, fuel_hole = shared_elem_geometry('cr', 7.62, 7.23645, 0.99, 0.8, 5.8801, 6.505, 8.03646, 5.08, 'cr_fuel_hole', optimized)
+    gr_sq_neg, gr_corners, inter_elem_channel, fuel_hole = shared_elem_geometry('cr', 7.23645, 0.99, 0.8, 5.8801, 6.505, 8.03646, 5.08, 'cr_fuel_hole', optimized)
 
-    f = control_rod(elem_bound, gr_sq_neg, gr_corners,inter_elem_channel, fuel_hole, fuel, moder, optimized)
+    f = control_rod(gr_sq_neg, gr_corners, inter_elem_channel, fuel_hole, fuel, moder, optimized)
     if optimized:
         # call a second time to have unique surfaces
-        elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, fuel_hole = shared_elem_geometry('cr', 7.62, 7.23645, 0.99, 0.8, 5.8801, 6.505, 8.03646, 5.08, 'cr_fuel_hole', optimized)
-    e = control_rod_channel(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, fuel_hole, fuel, moder, optimized)
+        gr_sq_neg, gr_corners, inter_elem_channel, fuel_hole = shared_elem_geometry('cr', 7.23645, 0.99, 0.8, 5.8801, 6.505, 8.03646, 5.08, 'cr_fuel_hole', optimized)
+    e = control_rod_channel(gr_sq_neg, gr_corners, inter_elem_channel, fuel_hole, fuel, moder, optimized)
 
     cr = openmc.RectLattice()
     cr.pitch = np.array([15.24, 15.24])
@@ -268,13 +268,13 @@ def cr_lattice(cr_boundary, core_base, core_top, optimized):
     return c1
 
 def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
-    elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4 = shared_elem_geometry('core', 5.08, 4.953, 0.46, 0.66802, 4.28498, 4.53898, 5.62102, 2.2225, 'gr_round_4', optimized)
-    l = zoneIA(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, hast, optimized)
-    elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4 = shared_elem_geometry('core', 5.08, 4.953, 0.46, 0.66802, 4.28498, 4.53898, 5.62102, 2.2225, 'gr_round_4', optimized)
-    z = zoneIIA(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, optimized)
-    v = void_cell(elem_bound, optimized)
+    gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4 = shared_elem_geometry('core', 4.953, 0.46, 0.66802, 4.28498, 4.53898, 5.62102, 2.2225, 'gr_round_4', optimized)
+    l = zoneIA(gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, hast, optimized)
+    gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4 = shared_elem_geometry('core', 4.953, 0.46, 0.66802, 4.28498, 4.53898, 5.62102, 2.2225, 'gr_round_4', optimized)
+    z = zoneIIA(gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, optimized)
+    v = void_cell()
     # tres, uno, dos, quatro
-    t, u, d, q = graphite_triangles(elem_bound, moder, fuel, optimized)
+    t, u, d, q = graphite_triangles(moder, fuel)
 
     s1, s2, s3 = zone_i_boundary
 
@@ -359,7 +359,6 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
               [c2_bl, 'smallest_octader_bl'],
               [c2_b, 'smallest_octader_b'],
               [c2_br, 'smallest_octader_br']]
-        #c2 = [[-s3, 'smallest_octader']]
 
         c3_ur = (-oct2_ur & +oct1_ur & -oct1_maxx & -oct1_maxy)
         c3_ul = (+oct2_ul & -oct1_ul & +oct1_minx & -oct1_maxy)

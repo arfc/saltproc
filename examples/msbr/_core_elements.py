@@ -26,7 +26,7 @@ def _bound_zone_cells(cells_tuples, levels):
             cell_list.append(cell)
     return cell_list
 
-def zoneIA(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, hast, optimized):
+def zoneIA(gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, hast, optimized):
     """Zone IA element. Specs found in Robertson, 1971 Fig 3.4 (p. 17)"""
     elem_levels = [22.86, 419.10, 438.15, 445.135]
     level_bounds = []
@@ -42,7 +42,7 @@ def zoneIA(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, mo
 
     c1 = openmc.Cell(fill=fuel, region=(-s2), name='ia_fuel_inner_1')
     c2 = openmc.Cell(fill=moder, region=(+s2 & -s1), name='ia_moderator_1')
-    c3 = openmc.Cell(fill=fuel, region=(+s1 & elem_bound), name='ia_fuel_outer_1')
+    c3 = openmc.Cell(fill=fuel, region=(+s1), name='ia_fuel_outer_1')
     ia1 = (c1, c2, c3)
 
     # I-A  main (lower 2)
@@ -57,7 +57,7 @@ def zoneIA(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, mo
             iam.append(openmc.Cell(fill=fuel, region=reg, name=f'ia_fuel_outer_main_{name}'))
     else:
         c5 = openmc.Cell(fill=moder, region=(+s2 & gr_sq_neg & inter_elem_channel), name='ia_moderator_main')
-        c6 = openmc.Cell(fill=fuel, region=(~gr_sq_neg & elem_bound & inter_elem_channel), name='ia_fuel_outer_main')
+        c6 = openmc.Cell(fill=fuel, region=(~gr_sq_neg & inter_elem_channel), name='ia_fuel_outer_main')
         iam = [c4, c5, c6]
 
     for (reg, name) in gr_corners:
@@ -77,20 +77,18 @@ def zoneIA(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, mo
     if optimized:
         s2 = s2.clone()
         s3 = s3.clone()
-        elem_bound = elem_bound.clone()
     c10 = c1.clone(clone_materials=False)
     c10.name = 'ia_fuel_inner_3'
     c11 = openmc.Cell(fill=moder, region=(+s2 & -s3), name='ia_moderator_3')
-    c12 = openmc.Cell(fill=fuel, region=(+s3 & elem_bound), name='ia_fuel_outer_3')
+    c12 = openmc.Cell(fill=fuel, region=(+s3), name='ia_fuel_outer_3')
     ia3 = (c10, c11, c12)
 
     # I-A 4 (upper 3)
     if optimized:
         s2 = s2.clone()
-        elem_bound = elem_bound.clone()
     c13 = openmc.Cell(fill=hast, region=(-s2), name='ia_hast')
     c14 = openmc.Cell(fill=moder, region=(+s2 & -gr_round_4), name='ia_moderator_4')
-    c15 = openmc.Cell(fill=fuel, region=(+gr_round_4 & elem_bound), name='ia_fuel_outer_4')
+    c15 = openmc.Cell(fill=fuel, region=(+gr_round_4), name='ia_fuel_outer_4')
     ia4 = (c13, c14, c15)
 
     elem_cells = [ia1, iam, ia2, ia3, ia4]
@@ -99,7 +97,7 @@ def zoneIA(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, mo
     ia.add_cells(_bound_zone_cells(elem_cells, level_bounds))
     return ia
 
-def zoneIIA(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, optimized):
+def zoneIIA(gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, moder, fuel, optimized):
     """Zone IIA element. Specs found in Robertson, 1971 Fig 3.5 (p. 18)"""
     elem_levels = [434.34, 436.88, 439.42, 441.96]
     level_bounds = []
@@ -177,14 +175,14 @@ def zoneIIA(elem_bound, gr_sq_neg, gr_corners, inter_elem_channel, gr_round_4, m
     iia.add_cells(_bound_zone_cells(elem_cells, level_bounds))
     return iia
 
-def void_cell(elem_bound, optimized):
+def void_cell():
     c1 = openmc.Cell(name='lattice_void')
     #universe_id=5
     v = openmc.Universe(name='lattice_void')
     v.add_cell(c1)
     return v
 
-def graphite_triangles(elem_bound, moder, fuel, optimized):
+def graphite_triangles(moder, fuel):
     s1 = openmc.Plane(1.0, 1.0, 0.0, 0.0)
     s2 = openmc.Plane(-1.0, 1.0, 0.0, 0.0)
     s3 = openmc.Plane(1.0, -1.0, 0.0, 0.0)
