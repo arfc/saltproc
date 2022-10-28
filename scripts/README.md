@@ -53,7 +53,7 @@ Information about how to do this can be found [here](https://docs.openmc.org/en/
 
 To run the script, execute
 ```
-XSDIR=[PATH TO XSDIR] $OPENMC_ENV=[NAME OF OPENMC CONDA ENVIRONMENT] $OPENMC_DIR=[PATH TO OPENMC REPO] bash download_endfb71.bash
+XSDIR=[PATH TO XSDIR] OPENMC_ENV=[NAME OF OPENMC CONDA ENVIRONMENT] OPENMCDIR=[PATH TO OPENMC REPO] bash download_endfb71.bash
 ```
 
 Where `XSDIR` is a path to the directory where you want to store the cross 
