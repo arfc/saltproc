@@ -1,5 +1,6 @@
 % Include file with burnable material composition on the line below
 include "mats/msbr_saltproc_prepr_comp_endfb71.ini"
+%%include "mats/msbr_saltproc_prepr_comp_endfb71.ini"
 % Include file with non-burnable material composition on the line below
 %include "mats/non_burnable_mats.ini"
 % Geometry import will be added by SaltProc on the next line
