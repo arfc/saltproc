@@ -136,6 +136,21 @@ def zoneIIB(zone_i_boundary,
         pos = np.round(pos, 3)
         r1_big, r2_big = big_radii[i]
         t1_big = np.round(pos - large_half_w, 3)
+        if i == 0:
+            t1_big_0 = t1_big
+        elif i > 0 and optimized:
+                cpos = t2_small + (adjacent_angular_offset/2)
+                cpos = np.round(cpos, 3)
+                s6 = openmc.model.CylinderSector(r1_small,
+                                                 r2_small,
+                                                 t2_small,
+                                                 t1_big,
+                                                 name=('inter_element_fuel'
+                                                       f'_channel_{cpos}'))
+                elem_cells.append(openmc.Cell(fill=fuel, region=-s6,
+                                              name=('inter_element_fuel'
+                                                    f'_channel_{cpos}')))
+
         t2_big = np.round(pos + large_half_w, 3)
         s1 = openmc.model.CylinderSector(r1_big,
                                          r2_big,
@@ -195,20 +210,37 @@ def zoneIIB(zone_i_boundary,
             t1_small = np.round(t2_small + adjacent_angular_offset, 3)
 
             if optimized:
-                # inter-element fuel channel
-                cpos = t2_small + (adjacent_angular_offset/2)
-                cpos = np.round(cpos, 3)
-                s6 = openmc.model.CylinderSector(r1_small,
-                                                 r2_small,
-                                                 t2_small,
-                                                 t1_small,
-                                                 name=('inter_element_fuel'
-                                                       f'_channel_{cpos}'))
-                elem_cells.append(openmc.Cell(fill=fuel, region=-s6,
-                                              name=('inter_element_fuel'
-                                                    f'_channel_{cpos}')))
+                if i < small_elems_per_octant - 1:
+                    # inter-element fuel channel
+                    cpos = t2_small + (adjacent_angular_offset/2)
+                    cpos = np.round(cpos, 3)
+                    s6 = openmc.model.CylinderSector(r1_small,
+                                                     r2_small,
+                                                     t2_small,
+                                                     t1_small,
+                                                     name=('inter_element_fuel'
+                                                           f'_channel_{cpos}'))
+                    elem_cells.append(openmc.Cell(fill=fuel, region=-s6,
+                                                  name=('inter_element_fuel'
+                                                        f'_channel_{cpos}')))
             else:
                 zone_iib_reg = zone_iib_reg & +s5
+
+    # gotta do this again to fill the last gap with
+    # fuel material... gonna rewrite this algorithm to make it less verbose,
+    # but it works for now.
+    if optimized:
+        cpos = t2_small + (adjacent_angular_offset/2)
+        cpos = np.round(cpos, 3)
+        s6 = openmc.model.CylinderSector(r1_small,
+                                         r2_small,
+                                         t2_small,
+                                         360 + t1_big_0,
+                                         name=('inter_element_fuel'
+                                               f'_channel_{cpos}'))
+        elem_cells.append(openmc.Cell(fill=fuel, region=-s6,
+                                      name=('inter_element_fuel'
+                                            f'_channel_{cpos}')))
 
     #universe_id=10
     iib = openmc.Universe(name='zone_iib', cells=elem_cells)
