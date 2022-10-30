@@ -176,8 +176,8 @@ def shared_elem_geometry(elem_type,
             iec_l = (+gr_cyl_miny & -gr_cyl_maxy & -gr_minx &
                      +ru_t & +lb & +gr_cyl_lb)
             iec_lb = (+gr_cyl_lb & -gr_cyl_minx & -gr_cyl_miny) & +lb & +ul_t
-            iec_b = (+gr_cyl_minx & -gr_cyl_maxx &
-            -gr_miny & +ul_t & +br & +gr_cyl_br)
+            iec_b = (+gr_cyl_minx & -gr_cyl_maxx & -gr_miny &
+                     +ul_t & +br & +gr_cyl_br)
             iec_br = (+gr_cyl_br & +gr_cyl_maxx & -gr_cyl_miny) & +br & +lb_t
 
             inter_elem_channel = [[iec_r, 'outer_r'], [iec_ru, 'outer_ru'],
@@ -330,7 +330,7 @@ def shared_elem_geometry(elem_type,
                    [corner_ru, 'corner_ru'],
                    [corner_lb, 'corner_lb']]
 
-        gr_extra_regions= slabs + corners + ribs
+        gr_extra_regions = slabs + corners + ribs
     else:
         gr_extra_regions = ribs
         inter_elem_channel = inter_elem_channel & +ul_t & +br_t & +ru_t & +lb_t
