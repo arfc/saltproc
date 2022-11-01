@@ -72,8 +72,7 @@ def zoneIIB(zone_i_boundary,
             core_base,
             core_top,
             fuel,
-            moder,
-            optimized):
+            moder):
     """ Creates Zone IIB graphite slab elements.
 
     Parameters
@@ -90,11 +89,6 @@ def zoneIIB(zone_i_boundary,
         Fuel salt material
     moder : openmc.Material
         Graphite material
-    optimized : bool
-        Flag indicating whether or not to construct 'optimized' geometry
-        with cell regions consiting only of :class:`openmc.Intersection`
-        objects. This will speed up any calculations by around 50%, and is thus
-        optimized.
 
     Returns
     -------
@@ -136,21 +130,6 @@ def zoneIIB(zone_i_boundary,
         pos = np.round(pos, 3)
         r1_big, r2_big = big_radii[i]
         t1_big = np.round(pos - large_half_w, 3)
-        if i == 0:
-            t1_big_0 = t1_big
-        elif i > 0 and optimized:
-                cpos = t2_small + (adjacent_angular_offset/2)
-                cpos = np.round(cpos, 3)
-                s6 = openmc.model.CylinderSector(r1_small,
-                                                 r2_small,
-                                                 t2_small,
-                                                 t1_big,
-                                                 name=('inter_element_fuel'
-                                                       f'_channel_{cpos}'))
-                elem_cells.append(openmc.Cell(fill=fuel, region=-s6,
-                                              name=('inter_element_fuel'
-                                                    f'_channel_{cpos}')))
-
         t2_big = np.round(pos + large_half_w, 3)
         s1 = openmc.model.CylinderSector(r1_big,
                                          r2_big,
@@ -168,30 +147,10 @@ def zoneIIB(zone_i_boundary,
         t1_small = np.round(t2_big + adjacent_angular_offset, 3)
         r1_small, r2_small = small_radii
 
-        if optimized:
-            # Inter element fuel channel
-            s3 = openmc.model.CylinderSector(r1_small,
-                                             r2_small,
-                                             t2_big,
-                                             t1_small)
-            cpos = t2_big + (adjacent_angular_offset / 2)
-            cpos = np.round(cpos, 3)
-            elem_cells.append(openmc.Cell(fill=fuel, region=-s3,
-                                          name=('inter_element_fuel'
-                                                f'_channel_{cpos}')))
-
-            s4 = openmc.model.CylinderSector(r1_small,
-                                             r1_big,
-                                             t1_big,
-                                             t2_big)
-            elem_cells.append(openmc.Cell(fill=fuel, region=-s4,
-                                          name=('inter_element_fuel'
-                                                f'_channel_{pos}')))
+        if isinstance(zone_iib_reg, openmc.Region):
+            zone_iib_reg = zone_iib_reg & +s1
         else:
-            if isinstance(zone_iib_reg, openmc.Region):
-                zone_iib_reg = zone_iib_reg & +s1
-            else:
-                zone_iib_reg = +s1
+            zone_iib_reg = +s1
 
         for i in range(0, small_elems_per_octant):
             t2_small = np.round(t1_small + small_angular_width, 3)
@@ -209,113 +168,19 @@ def zoneIIB(zone_i_boundary,
 
             t1_small = np.round(t2_small + adjacent_angular_offset, 3)
 
-            if optimized:
-                if i < small_elems_per_octant - 1:
-                    # inter-element fuel channel
-                    cpos = t2_small + (adjacent_angular_offset/2)
-                    cpos = np.round(cpos, 3)
-                    s6 = openmc.model.CylinderSector(r1_small,
-                                                     r2_small,
-                                                     t2_small,
-                                                     t1_small,
-                                                     name=('inter_element_fuel'
-                                                           f'_channel_{cpos}'))
-                    elem_cells.append(openmc.Cell(fill=fuel, region=-s6,
-                                                  name=('inter_element_fuel'
-                                                        f'_channel_{cpos}')))
-            else:
-                zone_iib_reg = zone_iib_reg & +s5
-
-    # gotta do this again to fill the last gap with
-    # fuel material... gonna rewrite this algorithm to make it less verbose,
-    # but it works for now.
-    if optimized:
-        cpos = t2_small + (adjacent_angular_offset/2)
-        cpos = np.round(cpos, 3)
-        s6 = openmc.model.CylinderSector(r1_small,
-                                         r2_small,
-                                         t2_small,
-                                         360 + t1_big_0,
-                                         name=('inter_element_fuel'
-                                               f'_channel_{cpos}'))
-        elem_cells.append(openmc.Cell(fill=fuel, region=-s6,
-                                      name=('inter_element_fuel'
-                                            f'_channel_{cpos}')))
+            zone_iib_reg = zone_iib_reg & +s5
 
     #universe_id=10
     iib = openmc.Universe(name='zone_iib', cells=elem_cells)
     s1, s2, s3 = zone_i_boundary
-    if optimized:
-        (oct1_maxy, oct1_miny,
-         oct1_maxx, oct1_minx,
-         oct1_ur, oct1_br,
-         oct1_bl, oct1_ul) = list((-s1).get_surfaces().values())
-        (oct2_maxy, oct2_miny,
-         oct2_maxx, oct2_minx,
-         oct2_ur, oct2_br,
-         oct2_bl, oct2_ul) = list((-s2).get_surfaces().values())
-        (oct3_maxy, oct3_miny,
-         oct3_maxx, oct3_minx,
-         oct3_ur, oct3_br,
-         oct3_bl, oct3_ul) = list((-s3).get_surfaces().values())
 
-        cap_r =(+oct3_maxx & -zone_ii_boundary)
-
-        c23_urr = (+oct2_maxx & -oct3_maxx & -oct3_ur & +oct2_ur)
-        c12_urr = (+oct1_maxx & -oct3_maxx & -oct2_ur & +oct1_ur)
-        cap_ur = (-oct3_maxy & -oct3_maxx & -oct1_ur & -zone_ii_boundary)
-        c12_uru = (+oct1_maxy & -oct3_maxy & -oct2_ur & +oct1_ur)
-        c23_uru = (+oct2_maxy & -oct3_maxy & -oct3_ur & +oct2_ur)
-
-        cap_u = (+oct3_maxy & -zone_ii_boundary)
-
-        c23_ulu = (+oct2_maxy & -oct3_maxy & +oct3_ul & -oct2_ul)
-        c12_ulu = (+oct1_maxy & -oct3_maxy & +oct2_ul & -oct1_ul)
-        cap_ul = (-oct3_maxy & +oct3_minx & +oct1_ul & -zone_ii_boundary)
-        c12_ull = (-oct1_minx & +oct3_minx & +oct2_ul & -oct1_ul)
-        c23_ull = (-oct2_minx & +oct3_minx & +oct3_ul & -oct2_ul)
-
-        cap_l = (-oct3_minx & -zone_ii_boundary)
-
-        c23_bll = (-oct2_minx & +oct3_minx & +oct3_bl & -oct2_bl)
-        c12_bll = (-oct1_minx & +oct3_minx & +oct2_bl & -oct1_bl)
-        cap_bl  = (+oct3_minx & +oct3_miny & +oct1_bl & -zone_ii_boundary)
-        c12_blb = (-oct1_miny & +oct3_miny & +oct2_bl & -oct1_bl)
-        c23_blb = (-oct2_miny & +oct3_miny & +oct3_bl & -oct2_bl)
-
-        cap_b = (-oct3_miny & -zone_ii_boundary)
-
-        c23_brb = (-oct2_miny & +oct3_miny & -oct3_br & +oct2_br)
-        c12_brb = (-oct1_miny & +oct3_miny & -oct2_br & +oct1_br)
-        cap_rb = (-oct3_maxx & +oct3_miny & -oct1_br & -zone_ii_boundary)
-        c12_brr = (+oct1_maxx & -oct3_maxx & -oct2_br & +oct1_br)
-        c23_brr = (+oct2_maxx & -oct3_maxx & -oct3_br & +oct2_br)
-
-        regs = ([cap_r, 'cap_r'], [c23_urr, '23_urr'], [c12_urr, '12_urr'],
-                [cap_ur, 'cap_ur'], [c12_uru, '12_uru'], [c23_uru, '23_uru'],
-                [cap_u, 'cap_u'], [c23_ulu, '23_ulu'], [c12_ulu, '12_ulu'],
-                [cap_ul, 'cap_ul'], [c12_ull, '12_ull'], [c23_ull, '23_ull'],
-                [cap_l, 'cap_l'], [c23_bll, '23_bll'], [c12_bll, '12_bll'],
-                [cap_bl, 'cap_bl'], [c12_blb, '12_blb'], [c23_blb, '23_blb'],
-                [cap_b, 'cap_b'], [c23_brb, '23_brb'], [c12_brb, '12_brb'],
-                [cap_rb, 'cap_rb'], [c12_brr, '12_brr'], [c23_brr, '23_brr'])
-
-        iib_cells = []
-        for reg, name in regs:
-            iib_cells.append(openmc.Cell(fill=iib, region=(reg &
-                                                           +core_base &
-                                                           -core_top),
-                                         name=f'zone_iib_{name}'))
-
-
-    else:
-        iib.add_cell(openmc.Cell(fill=fuel, region=zone_iib_reg,
-                                 name='zone_iib_fuel'))
-        iib_cells = [openmc.Cell(fill=iib, region=(+s1 & +s2 & +s3 &
-                                                   -zone_ii_boundary &
-                                                   +core_base &
-                                                   -core_top),
-                                 name='zone_iib')]
+    iib.add_cell(openmc.Cell(fill=fuel, region=zone_iib_reg,
+                             name='zone_iib_fuel'))
+    iib_cells = [openmc.Cell(fill=iib, region=(+s1 & +s2 & +s3 &
+                                               -zone_ii_boundary &
+                                               +core_base &
+                                               -core_top),
+                             name='zone_iib')]
     return iib_cells
 
 def annulus(zone_ii_boundary, annulus_boundary, core_base, core_top, fuel):

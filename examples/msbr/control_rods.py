@@ -6,8 +6,7 @@ def control_rod(gr_sq_neg,
                 inter_elem_channel,
                 fuel_hole,
                 fuel,
-                moder,
-                optimized):
+                moder):
     """Create universe for control rod element with control rod fully inserted.
     Based on specification in Roberton, 1971.
 
@@ -27,11 +26,6 @@ def control_rod(gr_sq_neg,
         Fuel salt material
     moder : openmc.Material
         Graphite material
-    optimized : bool
-        Flag indicating whether or not to construct 'optimized' geometry
-        with cell regions consiting only of :class:`openmc.Intersection`
-        objects. This will speed up any calculations by around 50%, and is thus
-        optimized.
 
     Returns
     -------
@@ -43,25 +37,14 @@ def control_rod(gr_sq_neg,
 
     c1 = openmc.Cell(fill=moder, region=-s1, name='control_rod')
     c2 = openmc.Cell(fill=fuel, region=(+s1 & -fuel_hole), name='cr_fuel_inner')
-    if optimized:
-        c3 = openmc.Cell(fill=moder, region=(+fuel_hole & gr_sq_neg),
-                         name='cr_moderator_core')
-
-        #universe_id=3
-        cr = openmc.Universe(name='control_rod', cells=[c1, c2, c3])
-
-        for (reg, name) in inter_elem_channel:
-            cr.add_cell(openmc.Cell(fill=fuel, region=reg,
-                                    name=f'cr_fuel_outer_{name}'))
-    else:
-        c3 = openmc.Cell(fill=moder, region=(+fuel_hole &
-                                             gr_sq_neg &
-                                             inter_elem_channel),
-                         name='cr_moderator')
-        c4 = openmc.Cell(fill=fuel, region= (~gr_sq_neg & inter_elem_channel),
-                         name='cr_fuel_outer')
-        #universe_id=3
-        cr = openmc.Universe(name='control_rod', cells=[c1, c2, c3, c4])
+    c3 = openmc.Cell(fill=moder, region=(+fuel_hole &
+                                         gr_sq_neg &
+                                         inter_elem_channel),
+                     name='cr_moderator')
+    c4 = openmc.Cell(fill=fuel, region= (~gr_sq_neg & inter_elem_channel),
+                     name='cr_fuel_outer')
+    #universe_id=3
+    cr = openmc.Universe(name='control_rod', cells=[c1, c2, c3, c4])
 
     for (reg, name) in gr_extra_regions:
             cr.add_cell(openmc.Cell(fill=moder, region=reg,
@@ -74,8 +57,7 @@ def control_rod_channel(gr_sq_neg,
                         inter_elem_channel,
                         fuel_hole,
                         fuel,
-                        moder,
-                        optimized):
+                        moder):
     """Create universe for control rod element with control rod fully withdrawn.
     Based on specification in Roberton, 1971.
 
@@ -95,11 +77,6 @@ def control_rod_channel(gr_sq_neg,
         Fuel salt material
     moder : openmc.Material
         Graphite material
-    optimized : bool
-        Flag indicating whether or not to construct 'optimized' geometry
-        with cell regions consiting only of :class:`openmc.Intersection`
-        objects. This will speed up any calculations by around 50%, and is thus
-        optimized.
 
     Returns
     -------
@@ -109,30 +86,18 @@ def control_rod_channel(gr_sq_neg,
 
     c1 = openmc.Cell(fill=fuel, region=(-fuel_hole), name='crc_fuel_inner')
 
-    if optimized:
-        c2 = openmc.Cell(fill=moder, region=(+fuel_hole & gr_sq_neg),
-                         name='crc_moderator_core')
+    c2 = openmc.Cell(fill=moder, region=(+fuel_hole &
+                                         gr_sq_neg &
+                                         inter_elem_channel),
+                     name='crc_moderator')
+    c3 = openmc.Cell(fill=fuel, region=(~gr_sq_neg & inter_elem_channel),
+                     name='crc_fuel_outer')
 
-        # universe_id=4
-        crc = openmc.Universe(name='control_rod_channel', cells=[c1, c2])
-
-        for (reg, name) in inter_elem_channel:
-            crc.add_cell(openmc.Cell(fill=fuel, region=reg,
-                                     name=f'crc_fuel_outer_{name}'))
-    else:
-        c2 = openmc.Cell(fill=moder, region=(+fuel_hole &
-                                             gr_sq_neg &
-                                             inter_elem_channel),
-                         name='crc_moderator')
-        c3 = openmc.Cell(fill=fuel, region=(~gr_sq_neg & inter_elem_channel),
-                         name='crc_fuel_outer')
-
-        # universe_id=4
-        crc = openmc.Universe(name='control_rod_channel', cells=[c1, c2, c3])
+    # universe_id=4
+    crc = openmc.Universe(name='control_rod_channel', cells=[c1, c2, c3])
 
     for (reg, name) in gr_extra_regions:
         crc.add_cell(openmc.Cell(fill=moder, region=reg,
                                  name=f'crc_moderator_{name}'))
-
 
     return crc

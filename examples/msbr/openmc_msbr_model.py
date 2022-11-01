@@ -37,32 +37,26 @@ hast.add_components({'Al27': 0.003,
 mat = openmc.Materials(materials=[fuel, moder, hast])
 mat.export_to_xml()
 
+colormap = {moder: 'purple',
+            hast: 'blue',
+            fuel: 'yellow'}
+
 def parse_arguments():
     """Parses arguments from command line.
 
     Returns
     -------
-    optimized : bool
-        Flag indicating whether or not to construct 'optimized' geometry
-        with cell regions consiting only of :class:`openmc.Intersection`
-        objects. This will speed up any calculations by around 50%, and is thus
-        optimized.
     deplete : bool
         Flag indicated whether or not to run a depletion simulation.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--optimized',
-                        type=bool,
-                        default=False,
-                        help='flag to generate model \
-                        with only simple regions')
     parser.add_argument('--deplete',
                         type=bool,
                         default=False,
                         help='flag for running depletion')
 
     args = parser.parse_args()
-    return bool(args.optimized), bool(args.deplete)
+    return bool(args.deplete)
 
 def shared_elem_geometry(elem_type,
                          gr_sq_d,
@@ -72,8 +66,7 @@ def shared_elem_geometry(elem_type,
                          l2,
                          l3,
                          r_es,
-                         es_name,
-                         optimized):
+                         es_name):
     """Creates surfaces and regions for lattice elements.
 
     Parameters
@@ -97,11 +90,6 @@ def shared_elem_geometry(elem_type,
         Radius of extra cylindrical surface used for element
     es_name : str
         Name of extra cylindrical surface.
-    optimized : bool
-        Flag indicating whether or not to construct 'optimized' geometry
-        with cell regions consiting only of :class:`openmc.Intersection`
-        objects. This will speed up any calculations by around 50%, and is thus
-        optimized.
 
     Returns
     -------
@@ -127,16 +115,6 @@ def shared_elem_geometry(elem_type,
     ru_t = openmc.ZCylinder(-l3, l1, r_rib, name='rib_ru_tip')
     lb_t = openmc.ZCylinder(l3, -l1, r_rib, name='rib_lb_tip')
 
-    if optimized:
-        # Split the graphite square region into component surfaces
-        (gr_minx, gr_maxx, gr_miny, gr_maxy,
-        gr_cyl_lb, gr_cyl_minx, gr_cyl_miny,
-        gr_cyl_ul, gr_cyl_maxy, gr_cyl_br,
-        gr_cyl_maxx, gr_cyl_ru) = list(gr_sq_neg.get_surfaces().values())
-
-        # The 'core' graphite square region
-        gr_sq_neg = +gr_minx & -gr_maxx & +gr_cyl_miny & -gr_cyl_maxy
-
     # Graphite element rib tip regions
     rib_ul_t = -ul_t
     rib_br_t = -br_t
@@ -150,49 +128,14 @@ def shared_elem_geometry(elem_type,
         lb = openmc.ZCylinder(-l2, -l1, r_rib, name='rib_lb')
         ru = openmc.ZCylinder(l2, l1, r_rib, name='rib_ru')
 
-        if optimized:
-            # Graphite element rib regions. 'fill' regions fill in the gap between
-            # the rounded corner and the 'main' rib.
-            rib_ul = -ul & +gr_maxy
-            rib_ul_fill = (-ul & +gr_cyl_ul & -gr_maxy &
-                           -gr_cyl_minx & +gr_cyl_maxy)
-            rib_br = -br & -gr_miny
-            rib_br_fill = (-br & +gr_cyl_br & +gr_miny &
-                           +gr_cyl_maxx & -gr_cyl_miny)
-            rib_lb = -lb & -gr_minx
-            rib_lb_fill = (-lb & +gr_cyl_lb & +gr_minx &
-                           -gr_cyl_minx & -gr_cyl_miny)
-            rib_ru = -ru & +gr_maxx
-            rib_ru_fill = (-ru & +gr_cyl_ru & -gr_maxx &
-                           +gr_cyl_maxx & +gr_cyl_maxy)
+        # Graphite element rib regions.
+        rib_ul = -ul
+        rib_br = -br
+        rib_lb = -lb
+        rib_ru = -ru
 
-            # inter-element fuel channel regions
-            iec_r = (+gr_cyl_miny & -gr_cyl_maxy & +gr_maxx &
-                     +lb_t & +ru & +gr_cyl_ru)
-            iec_ru = (+gr_cyl_ru & +gr_cyl_maxx & +gr_cyl_maxy) & +ru & +br_t
-            iec_u = (+gr_cyl_minx & -gr_cyl_maxx & +gr_maxy &
-                     +br_t & +ul & +gr_cyl_ul)
-            iec_ul = (+gr_cyl_ul & -gr_cyl_minx & +gr_cyl_maxy) & +ul & +ru_t
-            iec_l = (+gr_cyl_miny & -gr_cyl_maxy & -gr_minx &
-                     +ru_t & +lb & +gr_cyl_lb)
-            iec_lb = (+gr_cyl_lb & -gr_cyl_minx & -gr_cyl_miny) & +lb & +ul_t
-            iec_b = (+gr_cyl_minx & -gr_cyl_maxx & -gr_miny &
-                     +ul_t & +br & +gr_cyl_br)
-            iec_br = (+gr_cyl_br & +gr_cyl_maxx & -gr_cyl_miny) & +br & +lb_t
-
-            inter_elem_channel = [[iec_r, 'outer_r'], [iec_ru, 'outer_ru'],
-                                  [iec_u, 'outer_u'], [iec_ul, 'outer_ul'],
-                                  [iec_l, 'outer_l'], [iec_lb, 'outer_lb'],
-                                  [iec_b, 'outer_b'], [iec_br, 'outer_br']]
-        else:
-            # Graphite element rib regions.
-            rib_ul = -ul
-            rib_br = -br
-            rib_lb = -lb
-            rib_ru = -ru
-
-            # inter-element fuel channel region
-            inter_elem_channel = +ul & +br & +lb & +ru
+        # inter-element fuel channel region
+        inter_elem_channel = +ul & +br & +lb & +ru
 
     elif elem_type == 'cr':
         # Parameters for control rod element
@@ -210,94 +153,12 @@ def shared_elem_geometry(elem_type,
         ru = openmc.model.hexagonal_prism(origin=(l2, l1), edge_length=e_d,
                                           orientation='y',corner_radius=r_c)
 
-        if optimized:
-            # Split base rib region into component surfaces
-            (ul_u, ul_b, ul_ur, ul_br, ul_bl, ul_ul,
-             ul_cyl_bl_in, ul_cyl_bl_out,
-             ul_cyl_ul_in, ul_cyl_ul_out,
-             ul_cyl_br_in, ul_cyl_br_out,
-             ul_cyl_ur_in, ul_cyl_ur_out,
-             ul_cyl_l_in, ul_cyl_l_out,
-             ul_cyl_r_in, ul_cyl_r_out)= list(ul.get_surfaces().values())
-            (br_u, br_b, br_ur, br_br, br_bl, br_ul,
-             br_cyl_bl_in, br_cyl_bl_out,
-             br_cyl_ul_in, br_cyl_ul_out,
-             br_cyl_br_in, br_cyl_br_out,
-             br_cyl_ur_in, br_cyl_ur_out,
-             br_cyl_l_in, br_cyl_l_out,
-             br_cyl_r_in, br_cyl_r_out)= list(br.get_surfaces().values())
-            (lb_r, lb_l, lb_ur, lb_ul, lb_br, lb_bl,
-             lb_cyl_lb_in, lb_cyl_lb_out,
-             lb_cyl_lu_in, lb_cyl_lu_out,
-             lb_cyl_rb_in, lb_cyl_rb_out,
-             lb_cyl_ru_in, lb_cyl_ru_out,
-             lb_cyl_b_in, lb_cyl_b_out,
-             lb_cyl_u_in, lb_cyl_u_out)= list(lb.get_surfaces().values())
-            (ru_r, ru_l, ru_ur, ru_ul, ru_br, ru_bl,
-             ru_cyl_lb_in, ru_cyl_lb_out,
-             ru_cyl_lu_in, ru_cyl_lu_out,
-             ru_cyl_rb_in, ru_cyl_rb_out,
-             ru_cyl_ru_in, ru_cyl_ru_out,
-             ru_cyl_b_in, ru_cyl_b_out,
-             ru_cyl_u_in, ru_cyl_u_out)= list(ru.get_surfaces().values())
+        rib_ul = ul
+        rib_lb = br
+        rib_br = lb
+        rib_ru = ru
 
-            # Graphite element rib regions. 'fill' regions fill in the gap
-            # between the rounded element corner and the 'main' rib.
-            rib_ul = -ul_ul & -ul_ur & +gr_maxy
-            rib_ul_fill = (-ul_ul & +ul_bl & +ul_cyl_l_out & +gr_cyl_ul &
-                           -gr_maxy & -gr_cyl_minx & +gr_cyl_maxy)
-            rib_lb = +lb_bl & -lb_ul & -gr_minx
-            rib_lb_fill = (+lb_bl & +lb_br & +lb_cyl_b_out & +gr_cyl_lb &
-                           +gr_minx & -gr_cyl_miny & -gr_cyl_minx)
-            rib_br = +br_br & +br_bl & -gr_miny
-            rib_br_fill = (+br_br & -br_ur & +br_cyl_r_out & +gr_cyl_br &
-                           +gr_miny & +gr_cyl_maxx & -gr_cyl_miny)
-            rib_ru = +ru_br & -ru_ur & +gr_maxx
-            rib_ru_fill = (-ru_ur & -ru_ul & +ru_cyl_u_out & +gr_cyl_ru &
-                           -gr_maxx & +gr_cyl_maxy & +gr_cyl_maxx)
-
-            # Inter-element channel regions. 'fill' regions fill in the gap
-            # between the rounded element corner and the 'main' rib
-            iec_r = +gr_cyl_miny & +gr_maxx & +lb_t & -ru_br
-            iec_ru_main = +gr_cyl_ru & (+ru_ur) & +br_t
-            iec_ru_fill1 = +gr_cyl_ru & +gr_cyl_maxx & (+ru_ul & -ru_ur) & +br_t
-            iec_ru_fill2 = +gr_cyl_ru & ((-ru_cyl_u_out)) & -ru_ul & -ru_ur
-            iec_u = -gr_cyl_maxx & +gr_maxy & +br_t & +ul_ur
-            iec_ul_main = +gr_cyl_ul & (+ul_ul) & +ru_t
-            iec_ul_fill1 = +gr_cyl_ul & +gr_cyl_maxy & (-ul_bl & -ul_ul) & +ru_t
-            iec_ul_fill2 = +gr_cyl_ul & ((-ul_cyl_l_out)) & +ul_bl & -ul_ul
-            iec_l = -gr_cyl_maxy & -gr_minx & +ru_t & +lb_ul
-            iec_lb_main = +gr_cyl_lb & (-lb_bl) & +ul_t
-            iec_lb_fill1 = +gr_cyl_lb & -gr_cyl_minx & (-lb_br & +lb_bl) & +ul_t
-            iec_lb_fill2 = +gr_cyl_lb & ((-lb_cyl_b_out)) & +lb_br & +lb_bl
-            iec_b = +gr_cyl_minx & -gr_miny & +ul_t & -br_bl
-            iec_br_main = +gr_cyl_br & (-br_br) & +lb_t
-            iec_br_fill1 = +gr_cyl_br & -gr_cyl_miny & (+br_ur & +br_br) & +lb_t
-            iec_br_fill2 = +gr_cyl_br & ((-br_cyl_r_out)) & -br_ur & +br_br
-            inter_elem_channel = [[iec_r, 'outer_r'],
-                                  [iec_ru_main, 'outer_ru_main'],
-                                  [iec_ru_fill1, 'outer_ru_fill1'],
-                                  [iec_ru_fill2, 'outer_ru_fill2'],
-                                  [iec_u, 'outer_u'],
-                                  [iec_ul_main, 'outer_ul_main'],
-                                  [iec_ul_fill1, 'outer_ul_fill1'],
-                                  [iec_ul_fill2, 'outer_ul_fill2'],
-                                  [iec_l, 'outer_l'],
-                                  [iec_lb_main, 'outer_lb_main'],
-                                  [iec_lb_fill1, 'outer_lb_fill1'],
-                                  [iec_lb_fill2, 'outer_lb_fill2'],
-                                  [iec_b, 'outer_b'],
-                                  [iec_br_main, 'outer_br_main'],
-                                  [iec_br_fill1, 'outer_br_fill1'],
-                                  [iec_br_fill2, 'outer_br_fill2']]
-
-        else:
-            rib_ul = ul
-            rib_lb = br
-            rib_br = lb
-            rib_ru = ru
-
-            inter_elem_channel = ~ul & ~br & ~lb & ~ru
+        inter_elem_channel = ~ul & ~br & ~lb & ~ru
 
     ribs = [[rib_ul, 'rib_ul'],
             [rib_br, 'rib_br'],
@@ -308,40 +169,14 @@ def shared_elem_geometry(elem_type,
             [rib_ru_t, 'rib_ru_t'],
             [rib_lb_t, 'rib_lb_t']]
 
-    if optimized:
-        ribs += [[rib_ul_fill, 'rib_ul_fill'],
-                 [rib_br_fill, 'rib_br_fill'],
-                 [rib_ru_fill, 'rib_ru_fill'],
-                 [rib_lb_fill, 'rib_lb_fill']]
-
-        # Rectangular slabs regions that line up with rounded corners
-        slab_u = -gr_maxy & +gr_cyl_maxy & -gr_cyl_maxx & +gr_cyl_minx
-        slab_b = +gr_miny & -gr_cyl_miny & -gr_cyl_maxx & +gr_cyl_minx
-        slabs = [[slab_u, 'slab_u'],
-                 [slab_b, 'slab_b']]
-
-        # Rounded corner regions
-        corner_ul = -gr_cyl_ul & -gr_cyl_minx & +gr_cyl_maxy
-        corner_br = -gr_cyl_br & +gr_cyl_maxx & -gr_cyl_miny
-        corner_lb = -gr_cyl_lb & -gr_cyl_minx & -gr_cyl_miny
-        corner_ru = -gr_cyl_ru & +gr_cyl_maxx & +gr_cyl_maxy
-        corners = [[corner_ul, 'corner_ul'],
-                   [corner_br, 'corner_br'],
-                   [corner_ru, 'corner_ru'],
-                   [corner_lb, 'corner_lb']]
-
-        gr_extra_regions = slabs + corners + ribs
-    else:
-        gr_extra_regions = ribs
-        inter_elem_channel = inter_elem_channel & +ul_t & +br_t & +ru_t & +lb_t
-
+    gr_extra_regions = ribs
+    inter_elem_channel = inter_elem_channel & +ul_t & +br_t & +ru_t & +lb_t
 
     extra_surf = openmc.ZCylinder(r=r_es, name=es_name)
 
-
     return gr_sq_neg, gr_extra_regions, inter_elem_channel, extra_surf
 
-def cr_lattice(cr_boundary, core_base, core_top, optimized):
+def cr_lattice(cr_boundary, core_base, core_top):
     """Creates the control rod lattice.
 
     Parameters
@@ -352,11 +187,6 @@ def cr_lattice(cr_boundary, core_base, core_top, optimized):
         Core bottom bounding surface.
     core_top : openmc.ZPlane
         Core top bounding surface.
-    optimized : bool
-        Flag indicating whether or not to construct 'optimized' geometry
-        with cell regions consiting only of :class:`openmc.Intersection`
-        objects. This will speed up any calculations by around 50%, and is thus
-        optimized.
 
     Returns
     -------
@@ -375,40 +205,20 @@ def cr_lattice(cr_boundary, core_base, core_top, optimized):
                                        6.505,
                                        8.03646,
                                        5.08,
-                                       'cr_fuel_hole',
-                                       optimized)
+                                       'cr_fuel_hole')
 
     f = cr.control_rod(gr_sq_neg,
                        gr_extra_regions,
                        inter_elem_channel,
                        fuel_hole,
                        fuel,
-                       moder,
-                       optimized)
-    if optimized:
-        # call a second time to have unique surfaces
-        (gr_sq_neg,
-         gr_extra_regions,
-         inter_elem_channel,
-         fuel_hole) = shared_elem_geometry('cr',
-                                           7.23645,
-                                           0.99,
-                                           0.8,
-                                           5.8801,
-                                           6.505,
-                                           8.03646,
-                                           5.08,
-                                           'cr_fuel_hole',
-                                           optimized)
-
-
+                       moder)
     e = cr.control_rod_channel(gr_sq_neg,
                                gr_extra_regions,
                                inter_elem_channel,
                                fuel_hole,
                                fuel,
-                               moder,
-                               optimized)
+                               moder)
 
     cl = openmc.RectLattice()
     cl.pitch = np.array([15.24, 15.24])
@@ -421,7 +231,7 @@ def cr_lattice(cr_boundary, core_base, core_top, optimized):
 
     return c1
 
-def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
+def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top):
     """Creates the core lattice.
 
     Parameters
@@ -434,11 +244,6 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
         Core bottom bounding surface.
     core_top : openmc.ZPlane
         Core top bounding surface.
-    optimized : bool
-        Flag indicating whether or not to construct 'optimized' geometry
-        with cell regions consiting only of :class:`openmc.Intersection`
-        objects. This will speed up any calculations by around 50%, and is thus
-        optimized.
 
     Returns
     -------
@@ -457,16 +262,14 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
                                         4.53898,
                                         5.62102,
                                         2.2225,
-                                        'gr_round_4',
-                                        optimized)
+                                        'gr_round_4')
     l = ce.zoneIA(gr_sq_neg,
                   gr_extra_regions,
                   inter_elem_channel,
                   gr_round_4,
                   moder,
                   fuel,
-                  hast,
-                  optimized)
+                  hast)
     (gr_sq_neg,
      gr_extra_regions,
      inter_elem_channel,
@@ -478,16 +281,14 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
                                         4.53898,
                                         5.62102,
                                         2.2225,
-                                        'gr_round_4',
-                                        optimized)
+                                        'gr_round_4')
 
     z = ce.zoneIIA(gr_sq_neg,
                    gr_extra_regions,
                    inter_elem_channel,
                    gr_round_4,
                    moder,
-                   fuel,
-                   optimized)
+                   fuel)
     v = ce.void_cell()
     # tres, uno, dos, quatro
     t, u, d, q = ce.graphite_triangles(fuel, moder)
@@ -543,91 +344,26 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
                       [v, v, v, v, v, v, v, v, v, v, v, t, z, z, l, l, l, l, l, l, l, l, l, l, l, l, l, l, l, l, l, z, z, q, v, v, v, v, v, v, v, v, v, v, v],
                       [v, v, v, v, v, v, v, v, v, v, v, v, v, t, z, z, z, z, l, l, l, l, l, l, l, l, l, z, z, z, z, q, v, v, v, v, v, v, v, v, v, v, v, v, v],
                       [v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, t, z, z, z, z, z, z, z, z, z, q, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v]]
-    if optimized:
-        # Octagon subsurfaces
-        (oct1_maxy, oct1_miny,
-         oct1_maxx, oct1_minx,
-         oct1_ur, oct1_br,
-         oct1_bl, oct1_ul) = list((-s1).get_surfaces().values())
-        (oct2_maxy, oct2_miny,
-         oct2_maxx, oct2_minx,
-         oct2_ur, oct2_br,
-         oct2_bl, oct2_ul) = list((-s2).get_surfaces().values())
-        (oct3_maxy, oct3_miny,
-         oct3_maxx, oct3_minx,
-         oct3_ur, oct3_br,
-         oct3_bl, oct3_ul) = list((-s3).get_surfaces().values())
-        (cb_minx,
-         cb_maxx,
-         cb_miny,
-         cb_maxy) = list(cr_boundary.get_surfaces().values())
 
-        # Smaller octader subcells
-        c1_ur = (-oct3_ur & +oct2_ur & -oct2_maxx & -oct2_maxy)
-        c1_ul = (+oct3_ul & -oct2_ul & +oct2_minx & -oct2_maxy)
-        c1_bl = (+oct3_bl & -oct2_bl & +oct2_minx & +oct2_miny)
-        c1_br = (-oct3_br & +oct2_br & -oct2_maxx & +oct2_miny)
-        c1 = [[c1_ur, 'smaller_octader_ur'],
-              [c1_ul, 'smaller_octader_ul'],
-              [c1_bl, 'smaller_octader_bl'],
-              [c1_br, 'smaller_octader_br']]
-
-        # Smallest octader subcells
-        c2_r = (+cb_maxx & +cb_miny & -cb_maxy & -oct3_maxx)
-        c2_ur = (+cb_maxx & +cb_maxy & -oct3_maxx & -oct3_maxy & +oct3_ur)
-        c2_u = (+cb_maxy & +cb_minx & -cb_maxx & -oct3_maxy)
-        c2_ul = (-cb_minx & +cb_maxy & +oct3_minx & -oct3_maxy & -oct3_ul)
-        c2_l = (-cb_minx & +cb_miny & -cb_maxy & +oct3_minx)
-        c2_bl = (-cb_minx & -cb_miny & +oct3_minx & +oct3_miny & -oct3_bl)
-        c2_b = (-cb_miny & +cb_minx & -cb_maxx & +oct3_miny)
-        c2_br = (+cb_maxx & -cb_miny & -oct3_maxx & +oct3_miny & +oct3_br)
-        c2 = [[c2_r, 'smallest_octader_r'],
-              [c2_ur, 'smallest_octader_ur'],
-              [c2_u, 'smallest_octader_u'],
-              [c2_ul, 'smallest_octader_ul'],
-              [c2_l, 'smallest_octader_l'],
-              [c2_bl, 'smallest_octader_bl'],
-              [c2_b, 'smallest_octader_b'],
-              [c2_br, 'smallest_octader_br']]
-
-        # Base octader subcells
-        c3_ur = (-oct2_ur & +oct1_ur & -oct1_maxx & -oct1_maxy)
-        c3_ul = (+oct2_ul & -oct1_ul & +oct1_minx & -oct1_maxy)
-        c3_bl = (+oct2_bl & -oct1_bl & +oct1_minx & +oct1_miny)
-        c3_br = (-oct2_br & +oct1_br & -oct1_maxx & +oct1_miny)
-        c3 = [[c3_ur, 'base_octader_ur'],
-              [c3_ul, 'base_octader_ul'],
-              [c3_bl, 'base_octader_bl'],
-              [c3_br, 'base_octader_br']]
-
-        regs = c1 + c2 + c3
-        main_cells = []
-        for reg, name in regs:
-            main_cells.append(openmc.Cell(fill=main, region=(reg &
-                                                             +core_base &
-                                                             -core_top),
-                                          name=f'main_lattice_{name}'))
-
-    else:
-        c1 = openmc.Cell(fill=main, region=(+core_base &
-                                            -core_top &
-                                            +zone_i_boundary[2] &
-                                            -zone_i_boundary[1] &
-                                            ~cr_boundary), name='main_lattice_smaller_octader')
-        c2 = openmc.Cell(fill=main, region=(+core_base &
-                                            -core_top &
-                                            -zone_i_boundary[2] &
-                                            ~cr_boundary),
-                         name='main_lattice_insite_smallest_octader')
-        c3 = openmc.Cell(fill=main, region=(+core_base &
-                                            -core_top &
-                                            -zone_i_boundary[0] &
-                                            +zone_i_boundary[1] &
-                                            +zone_i_boundary[2] &
-                                            ~cr_boundary),
-                         name=('main_lattice_inside_base_octader'
-                              '_deducted_smaller_smallest'))
-        main_cells = [c1, c2, c3]
+    c1 = openmc.Cell(fill=main, region=(+core_base &
+                                        -core_top &
+                                        +zone_i_boundary[2] &
+                                        -zone_i_boundary[1] &
+                                        ~cr_boundary), name='main_lattice_smaller_octader')
+    c2 = openmc.Cell(fill=main, region=(+core_base &
+                                        -core_top &
+                                        -zone_i_boundary[2] &
+                                        ~cr_boundary),
+                     name='main_lattice_insite_smallest_octader')
+    c3 = openmc.Cell(fill=main, region=(+core_base &
+                                        -core_top &
+                                        -zone_i_boundary[0] &
+                                        +zone_i_boundary[1] &
+                                        +zone_i_boundary[2] &
+                                        ~cr_boundary),
+                     name=('main_lattice_inside_base_octader'
+                          '_deducted_smaller_smallest'))
+    main_cells = [c1, c2, c3]
     return main_cells
 
 def plot_geometry(name,
@@ -648,7 +384,8 @@ def plot_geometry(name,
     return plot
 
 
-optimized, deplete = parse_arguments()
+deplete = parse_arguments()
+
 (zone_bounds,
  core_bounds,
  reflector_bounds,
@@ -657,13 +394,16 @@ optimized, deplete = parse_arguments()
 (cr_boundary,
  zone_i_boundary,
  zone_ii_boundary) = zone_bounds
+
 (annulus_boundary,
  lower_plenum_boundary,
  core_base,
  core_top) = core_bounds
+
 (radial_reflector_boundary,
  bottom_reflector_boundary,
  top_reflector_boundary) = reflector_bounds
+
 (radial_vessel_boundary,
  bottom_vessel_boundary,
  top_vessel_boundary) = vessel_bounds
@@ -671,24 +411,25 @@ optimized, deplete = parse_arguments()
 main = main_lattice(zone_i_boundary,
                     cr_boundary,
                     core_base,
-                    core_top,
-                    optimized)
+                    core_top)
+
 cr = cr_lattice(cr_boundary,
                 core_base,
-                core_top,
-                optimized)
+                core_top)
+
 iib = rg.zoneIIB(zone_i_boundary,
                  zone_ii_boundary,
                  core_base,
                  core_top,
                  fuel,
-                 moder,
-                 optimized)
+                 moder)
+
 a = rg.annulus(zone_ii_boundary,
                annulus_boundary,
                core_base,
                core_top,
                fuel)
+
 lp = rg.lower_plenum(core_base,
                      lower_plenum_boundary,
                      annulus_boundary,
@@ -729,13 +470,6 @@ settings.temperature = {'default': 900,
                         'range': (800, 1000)}
 settings.export_to_xml()
 
-# Plots
-detail_pixels = (1000, 1000)
-full_pixels = (10000, 10000)
-
-colormap = {moder: 'purple',
-            hast: 'blue',
-            fuel: 'yellow'}
 ## Slice plots
 
 plots = openmc.Plots()
