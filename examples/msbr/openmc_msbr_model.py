@@ -4,9 +4,9 @@ import argparse
 
 from openmc.deplete import CoupledOperator, PredictorIntegrator, CELIIntegrator
 
-from _core_elements import *
-from _control_rods import *
-from _root_geometry import *
+import core_elements as ce
+import control_rods as cr
+import root_geometry as rg
 
 # Materials
 
@@ -378,13 +378,13 @@ def cr_lattice(cr_boundary, core_base, core_top, optimized):
                                        'cr_fuel_hole',
                                        optimized)
 
-    f = control_rod(gr_sq_neg,
-                    gr_extra_regions,
-                    inter_elem_channel,
-                    fuel_hole,
-                    fuel,
-                    moder,
-                    optimized)
+    f = cr.control_rod(gr_sq_neg,
+                       gr_extra_regions,
+                       inter_elem_channel,
+                       fuel_hole,
+                       fuel,
+                       moder,
+                       optimized)
     if optimized:
         # call a second time to have unique surfaces
         (gr_sq_neg,
@@ -402,21 +402,21 @@ def cr_lattice(cr_boundary, core_base, core_top, optimized):
                                            optimized)
 
 
-    e = control_rod_channel(gr_sq_neg,
-                            gr_extra_regions,
-                            inter_elem_channel,
-                            fuel_hole,
-                            fuel,
-                            moder,
-                            optimized)
+    e = cr.control_rod_channel(gr_sq_neg,
+                               gr_extra_regions,
+                               inter_elem_channel,
+                               fuel_hole,
+                               fuel,
+                               moder,
+                               optimized)
 
-    cr = openmc.RectLattice()
-    cr.pitch = np.array([15.24, 15.24])
+    cl = openmc.RectLattice()
+    cl.pitch = np.array([15.24, 15.24])
     N = 2 / 2
-    cr.lower_left = -1 * cr.pitch * N
-    cr.universes = [[f, e],
+    cl.lower_left = -1 * cl.pitch * N
+    cl.universes = [[f, e],
                     [e, f]]
-    c1 = openmc.Cell(fill=cr, region=(+core_base & -core_top & cr_boundary),
+    c1 = openmc.Cell(fill=cl, region=(+core_base & -core_top & cr_boundary),
                      name='cr_lattice')
 
     return c1
@@ -459,14 +459,14 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
                                         2.2225,
                                         'gr_round_4',
                                         optimized)
-    l = zoneIA(gr_sq_neg,
-               gr_extra_regions,
-               inter_elem_channel,
-               gr_round_4,
-               moder,
-               fuel,
-               hast,
-               optimized)
+    l = ce.zoneIA(gr_sq_neg,
+                  gr_extra_regions,
+                  inter_elem_channel,
+                  gr_round_4,
+                  moder,
+                  fuel,
+                  hast,
+                  optimized)
     (gr_sq_neg,
      gr_extra_regions,
      inter_elem_channel,
@@ -481,16 +481,16 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
                                         'gr_round_4',
                                         optimized)
 
-    z = zoneIIA(gr_sq_neg,
-                gr_extra_regions,
-                inter_elem_channel,
-                gr_round_4,
-                moder,
-                fuel,
-                optimized)
-    v = void_cell()
+    z = ce.zoneIIA(gr_sq_neg,
+                   gr_extra_regions,
+                   inter_elem_channel,
+                   gr_round_4,
+                   moder,
+                   fuel,
+                   optimized)
+    v = ce.void_cell()
     # tres, uno, dos, quatro
-    t, u, d, q = graphite_triangles(fuel, moder)
+    t, u, d, q = ce.graphite_triangles(fuel, moder)
 
     s1, s2, s3 = zone_i_boundary
 
@@ -630,11 +630,29 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top, optimized):
         main_cells = [c1, c2, c3]
     return main_cells
 
+def plot_geometry(name,
+                  origin=(0.,0.,0.),
+                  pixels=(10000,10000),
+                  width=(686.816, 686.816),
+                  color_by='material',
+                  colormap=colormap,
+                  basis='xy'):
+    plot = openmc.Plot(name=name)
+    plot.origin = origin
+    plot.pixels = pixels
+    plot.width = width
+    plot.color_by = color_by
+    plot.colors = colormap
+    plot.basis = basis
+
+    return plot
+
+
 optimized, deplete = parse_arguments()
 (zone_bounds,
  core_bounds,
  reflector_bounds,
- vessel_bounds) = shared_root_geometry()
+ vessel_bounds) = rg.shared_root_geometry()
 
 (cr_boundary,
  zone_i_boundary,
@@ -659,38 +677,38 @@ cr = cr_lattice(cr_boundary,
                 core_base,
                 core_top,
                 optimized)
-iib = zoneIIB(zone_i_boundary,
-              zone_ii_boundary,
-              core_base,
-              core_top,
-              fuel,
-              moder,
-              optimized)
-a = annulus(zone_ii_boundary,
-            annulus_boundary,
-            core_base,
-            core_top,
-            fuel)
-lp = lower_plenum(core_base,
-                  lower_plenum_boundary,
-                  annulus_boundary,
-                  fuel)
+iib = rg.zoneIIB(zone_i_boundary,
+                 zone_ii_boundary,
+                 core_base,
+                 core_top,
+                 fuel,
+                 moder,
+                 optimized)
+a = rg.annulus(zone_ii_boundary,
+               annulus_boundary,
+               core_base,
+               core_top,
+               fuel)
+lp = rg.lower_plenum(core_base,
+                     lower_plenum_boundary,
+                     annulus_boundary,
+                     fuel)
 
-rr, rb, rt = reflectors(annulus_boundary,
-                        radial_reflector_boundary,
-                        lower_plenum_boundary,
-                        bottom_reflector_boundary,
-                        core_top,
-                        top_reflector_boundary,
-                        moder)
+rr, rb, rt = rg.reflectors(annulus_boundary,
+                           radial_reflector_boundary,
+                           lower_plenum_boundary,
+                           bottom_reflector_boundary,
+                           core_top,
+                           top_reflector_boundary,
+                           moder)
 
-vr, vb, vt = vessel(radial_reflector_boundary,
-                    radial_vessel_boundary,
-                    bottom_vessel_boundary,
-                    top_vessel_boundary,
-                    top_reflector_boundary,
-                    bottom_reflector_boundary,
-                    hast)
+vr, vb, vt = rg.vessel(radial_reflector_boundary,
+                       radial_vessel_boundary,
+                       bottom_vessel_boundary,
+                       top_vessel_boundary,
+                       top_reflector_boundary,
+                       bottom_reflector_boundary,
+                       hast)
 
 geo = openmc.Geometry()
 univ = openmc.Universe(cells=[cr, lp, a, rr, rb, rt, vr, vb, vt])
@@ -712,7 +730,6 @@ settings.temperature = {'default': 900,
 settings.export_to_xml()
 
 # Plots
-plots_3d = False
 detail_pixels = (1000, 1000)
 full_pixels = (10000, 10000)
 
@@ -720,235 +737,99 @@ colormap = {moder: 'purple',
             hast: 'blue',
             fuel: 'yellow'}
 ## Slice plots
+
 plots = openmc.Plots()
 
-plot = openmc.Plot(name='serpent-plot1')
-plot.origin=(0., 0., 150.5)
-plot.pixels=full_pixels
-plot.width=(686.816, 686.816)
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='serpent-plot1')
-plot.origin=(0.0, -77.5, 306.07)
-plot.pixels=(1550, 3400)
-plot.width=(155, 612.14)
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='yz'
-plots.append(plot)
-
-plot = openmc.Plot(name='serpent-plot2')
-plot.origin=(0, 0, 155)
-plot.pixels=(1000, 1000)
-plot.width=(40, 40)
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='yz'
-plots.append(plot)
-
-plot = openmc.Plot(name='serpent-plot3')
-plot.origin=(16.5, 0, 306.07)
-plot.pixels=(2000, 2000)
-plot.width=(686.816, 612.14)
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='yz'
-plots.append(plot)
-
-plot = openmc.Plot(name='detail-zoneIA-IIA-lower1')
-plot.origin=(215, 0, 10.0)
-plot.width=(40, 40)
-plot.pixels=detail_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='detail-zoneIA-main')
-plot.origin=(215, 0, 23.0)
-plot.width=(40, 40)
-plot.pixels=detail_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='detail-zoneIIA-upper1')
-plot.origin=(215, 0, 435)
-plot.width=(40, 40)
-plot.pixels=detail_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='detail-zoneIA-upper1')
-plot.origin=(215, 0, 420)
-plot.width=(40, 40)
-plot.pixels=detail_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='detail-zoneIIA-upper2')
-plot.origin=(215, 0, 437)
-plot.width=(40, 40)
-plot.pixels=detail_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='detail-zoneIA-upper2')
-plot.origin=(215, 0, 439)
-plot.width=(40, 40)
-plot.pixels=detail_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='detail-zoneIIA-upper3')
-plot.origin=(215, 0, 440)
-plot.width=(40, 40)
-plot.pixels=detail_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='detail-zoneIA-upper3')
-plot.origin=(215, 0, 448)
-plot.width=(40, 40)
-plot.pixels=detail_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='detail-zoneIIA-upper4')
-plot.origin=(215, 0, 442)
-plot.width=(40, 40)
-plot.pixels=detail_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='full-zoneIA-IIA-lower1')
-plot.origin=(0.0, 0, 10.0)
-plot.width=(522.232, 522.232)
-plot.pixels=full_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='full-zoneIA-main')
-plot.origin=(0, 0, 23.0)
-plot.width=(522.232, 522.232)
-plot.pixels=full_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='full-zoneIIA-upper1')
-plot.origin=(0, 0, 435)
-plot.width=(522.232, 522.232)
-plot.pixels=full_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='full-zoneIA-upper1')
-plot.origin=(0, 0, 420)
-plot.width=(522.232, 522.232)
-plot.pixels=full_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='full-zoneIIA-upper2')
-plot.origin=(0, 0, 437)
-plot.width=(522.232, 522.232)
-plot.pixels=full_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='full-zoneIA-upper2')
-plot.origin=(0, 0, 439)
-plot.width=(522.232, 522.232)
-plot.pixels=full_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='full-zoneIIA-upper3')
-plot.origin=(0, 0, 440)
-plot.width=(522.232, 522.232)
-plot.pixels=full_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='full-zoneIA-upper3')
-plot.origin=(0, 0, 448)
-plot.width=(522.232, 522.232)
-plot.pixels=full_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='full-zoneIIA-upper4')
-plot.origin=(0, 0, 442)
-plot.width=(522.232, 522.232)
-plot.pixels=full_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xy'
-plots.append(plot)
-
-plot = openmc.Plot(name='core-xz-detail-upper')
-plot.origin=(215, 0, 440)
-plot.width=(100, 100)
-plot.pixels=detail_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xz'
-plots.append(plot)
-
-plot = openmc.Plot(name='full-core-xz')
-plot.origin=(0, 0, 306.07)
-plot.width = (686.816, 612.14)
-plot.pixels=full_pixels
-plot.color_by='material'
-plot.colors=colormap
-plot.basis='xz'
-plots.append(plot)
-
-if plots_3d:
-    plot = openmc.Plot(name='full-core-3d')
-    plot.origin=(0,0,220)
-    plot.type = 'voxel'
-    plot.color_by='materials'
-    plot.colors=colormap
-    plot.width = (700., 700., 650.)
-    plot.pixels = (10000, 10000, 10000)
-
-    plots.append(plot)
-
+plots.append(plot_geometry('serpent-plot1',
+                           origin=(0., 0., 150.5)))
+plots.append(plot_geometry('serpent-plot2',
+                           origin=(0., -77.5, 306.07),
+                           pixels=(1550, 3400),
+                           width=(155, 612.14),
+                           basis='yz'))
+plots.append(plot_geometry('serpent-plot3',
+                           origin=(0., 0., 155.),
+                           pixels=(1000, 1000),
+                           width=(40, 40),
+                           basis='yz'))
+plots.append(plot_geometry('serpent-plot4',
+                           origin=(16.5, 0., 306.07),
+                           pixels=(2000, 2000),
+                           width=(686.816, 612.14),
+                           basis='yz'))
+plots.append(plot_geometry('detail-zoneIA-IIA-lower1',
+                           origin=(215, 0., 10.0),
+                           pixels=(1000, 1000),
+                           width=(40, 40)))
+plots.append(plot_geometry('detail-zoneIA-main',
+                           origin=(215, 0., 23.0),
+                           pixels=(1000, 1000),
+                           width=(40, 40)))
+plots.append(plot_geometry('detail-zoneIA-upper1',
+                           origin=(215, 0., 420),
+                           pixels=(1000, 1000),
+                           width=(40, 40)))
+plots.append(plot_geometry('detail-zoneIIA-upper',
+                           origin=(215, 0., 435),
+                           pixels=(1000, 1000),
+                           width=(40, 40)))
+plots.append(plot_geometry('detail-zoneIIA-upper2',
+                           origin=(215, 0., 437),
+                           pixels=(1000, 1000),
+                           width=(40, 40)))
+plots.append(plot_geometry('detail-zoneIA-upper2',
+                           origin=(215, 0., 439),
+                           pixels=(1000, 1000),
+                           width=(40, 40)))
+plots.append(plot_geometry('detail-zoneIIA-upper3',
+                           origin=(215, 0., 440),
+                           pixels=(1000, 1000),
+                           width=(40, 40)))
+plots.append(plot_geometry('detail-zoneIIA-upper4',
+                           origin=(215, 0., 442),
+                           pixels=(1000, 1000),
+                           width=(40, 40)))
+plots.append(plot_geometry('detail-zoneIA-upper3',
+                           origin=(215, 0., 448),
+                           pixels=(1000, 1000),
+                           width=(40, 40)))
+plots.append(plot_geometry('full-zoneIA-IIA-lower1',
+                           origin=(0., 0., 10.0),
+                           width=(522.232, 522.232)))
+plots.append(plot_geometry('full-zoneIA-main',
+                           origin=(0., 0., 23.0),
+                           width=(522.232, 522.232)))
+plots.append(plot_geometry('full-zoneIA-upper1',
+                           origin=(0., 0., 420),
+                           width=(522.232, 522.232)))
+plots.append(plot_geometry('full-zoneIIA-upper',
+                           origin=(0., 0., 435),
+                           width=(522.232, 522.232)))
+plots.append(plot_geometry('full-zoneIIA-upper2',
+                           origin=(0., 0., 437),
+                           width=(522.232, 522.232)))
+plots.append(plot_geometry('full-zoneIA-upper2',
+                           origin=(0., 0., 439),
+                           width=(522.232, 522.232)))
+plots.append(plot_geometry('full-zoneIIA-upper3',
+                           origin=(0., 0., 440),
+                           width=(522.232, 522.232)))
+plots.append(plot_geometry('full-zoneIIA-upper4',
+                           origin=(0., 0., 442),
+                           width=(522.232, 522.232)))
+plots.append(plot_geometry('full-zoneIA-upper3',
+                           origin=(0., 0., 448),
+                           width=(522.232, 522.232)))
+plots.append(plot_geometry('detail-core-xz-upper',
+                           origin=(215, 0., 440),
+                           pixels=(1000, 1000),
+                           width=(100, 100),
+                           basis='xz'))
+plots.append(plot_geometry('full-core-xz',
+                           origin=(0., 0., 306.07),
+                           pixels=(10000,10000),
+                           width=(618.816, 612.14),
+                           basis='xz'))
 plots.export_to_xml()
 
 if deplete:
