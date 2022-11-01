@@ -1,6 +1,6 @@
 % Include file with burnable material composition on the line below
-include "mats/msbr_saltproc_prepr_comp_endfb71.ini"
-%%include "mats/msbr_saltproc_prepr_comp_endfb71.ini"
+include "mats/msbr_saltproc_prepr_comp_endfb71-base.ini"
+%%include "mats/msbr_saltproc_prepr_comp_endfb71-diluted.ini"
 % Include file with non-burnable material composition on the line below
 %include "mats/non_burnable_mats.ini"
 % Geometry import will be added by SaltProc on the next line
@@ -97,7 +97,7 @@ set stabcut 1E-12
 %set bunorm 2
 %set opti 3
 
-%%set power 2.25E+9 dep daystep 3 3 3 3 3 3 3 3 3 3 3 3
+set power 2.25E+9 dep daystep 3 3 3 3 3 3 3 3 3 3 3 3
 
 %set rfw 1 restart
 %%set inventory fuel all
