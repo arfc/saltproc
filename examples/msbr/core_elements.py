@@ -79,7 +79,6 @@ def zoneIA(gr_sq_neg,
     ia1 = (c1, c2, c3)
 
     # I-A  main (lower 2)
-    #c4 = c1.clone(clone_materials=False, clone_region=False)
     c4 = c1.clone(clone_materials=False)
     c4.name = 'ia_fuel_inner_main'
 
@@ -97,9 +96,6 @@ def zoneIA(gr_sq_neg,
 
 
     # I-A 2 (upper 1)
-    #c7 = c1.clone(clone_materials=False, clone_region=False)
-    #c8 = c2.clone(clone_materials=False, clone_region=False)
-    #c9 = c3.clone(clone_materials=False, clone_region=False)
     c7 = c1.clone(clone_materials=False)
     c8 = c2.clone(clone_materials=False)
     c9 = c3.clone(clone_materials=False)
@@ -110,7 +106,6 @@ def zoneIA(gr_sq_neg,
     ia2 = (c7, c8, c9)
 
     # I-A 3 (upper 2)
-    #c10 = c1.clone(clone_materials=False, clone_region=False)
     c10 = c1.clone(clone_materials=False)
     c10.name = 'ia_fuel_inner_3'
     c11 = openmc.Cell(fill=moder, region=(+s2 & -s3), name='ia_moderator_3')
@@ -197,7 +192,6 @@ def zoneIIA(gr_sq_neg,
                                          gr_sq_neg &
                                          inter_elem_channel),
                      name='iia_moderator_2')
-    #c6 = c3.clone(clone_materials=False, clone_region=False)
     c6 = c3.clone(clone_materials=False)
     c6.name = 'iia_fuel_outer_2'
     iia2 = [c4, c5, c6]
@@ -209,7 +203,6 @@ def zoneIIA(gr_sq_neg,
                                 name=f'iia_moderator_2_{name}'))
 
     # II-A 3 (upper 2)
-    #c7 = c4.clone(clone_materials=False, clone_region=False)
     c7 = c4.clone(clone_materials=False)
     c7.name = 'iia_fuel_inner_3'
     c8 = openmc.Cell(fill=moder, region=(+s2 & -s3), name='iia_moderator_3')
