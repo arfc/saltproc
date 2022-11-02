@@ -1,6 +1,5 @@
 % Include file with burnable material composition on the line below
-include "mats/msbr_saltproc_prepr_comp_endfb71-base.ini"
-%%include "mats/msbr_saltproc_prepr_comp_endfb71-diluted.ini"
+include "mats/msbr_saltproc_prepr_comp_endfb71-diluted.ini"
 % Include file with non-burnable material composition on the line below
 %include "mats/non_burnable_mats.ini"
 % Geometry import will be added by SaltProc on the next line
@@ -11,7 +10,7 @@ include "mats/msbr_saltproc_prepr_comp_endfb71-base.ini"
 
 
 
-include "geometry/msbr_full.ini"
+%%include "geometry/msbr_full.ini"
 % --- Moderator graphite:
 mat moder    -1.84 tmp 900 rgb 128 0 128 moder gr 6000 6000.82c    -1.0 %tmp 908
 % --- Hastelloy N
@@ -90,16 +89,16 @@ set stabcut 1E-12
 
 % --- Depletion parameters
 % --- Options for burnup calculation:
-%%set bumode  2 -48 % IPF CRAM-48 method
-%%set pcc     0  % Predictor
+set bumode  2 -48 % IPF CRAM-48 method
+set pcc     0  % Predictor
 %set pcc     1  % CELI
 %set xscalc  2  % Cross sections from spectrum
 %set bunorm 2
 %set opti 3
 
-set power 2.25E+9 dep daystep 3 3 3 3 3 3 3 3 3 3 3 3
+%%set power 2.25E+9 dep daystep 3 3 3 3 3 3 3 3 3 3 3 3
 
 %set rfw 1 restart
-%%set inventory fuel all
+set inventory fuel all
 
-%set printm 1 0.0%set printm 1 0.0
+%set printm 1 0.0
