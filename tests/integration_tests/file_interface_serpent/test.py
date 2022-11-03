@@ -22,33 +22,33 @@ def msr(scope='module'):
     return reactor
 
 
-def test_iter_input_from_template(depcode_serpent, msr):
-    file = depcode_serpent.template_input_file_path
-    file_data = depcode_serpent.read_plaintext_file(file)
+def test_iter_input_from_template(serpent_depcode, msr):
+    file = serpent_depcode.template_input_file_path
+    file_data = serpent_depcode.read_plaintext_file(file)
 
     # change_sim_par
-    file_data = depcode_serpent.change_sim_par(file_data)
+    file_data = serpent_depcode.change_sim_par(file_data)
     assert file_data[18] == 'set pop %i %i %i\n' % (
-        depcode_serpent.npop,
-        depcode_serpent.active_cycles,
-        depcode_serpent.inactive_cycles)
+        serpent_depcode.npop,
+        serpent_depcode.active_cycles,
+        serpent_depcode.inactive_cycles)
 
     # insert_path_to_geometry
-    file_data = depcode_serpent.insert_path_to_geometry(file_data)
+    file_data = serpent_depcode.insert_path_to_geometry(file_data)
     assert file_data[5].split('/')[-1] == 'tap_geometry_base.ini"\n'
 
     # create_iter_matfile
-    file_data = depcode_serpent.create_iter_matfile(file_data)
+    file_data = serpent_depcode.create_iter_matfile(file_data)
     assert file_data[0].split()[-1] == '\"' + \
-        depcode_serpent.iter_matfile + '\"'
-    remove(depcode_serpent.iter_matfile)
+        serpent_depcode.iter_matfile + '\"'
+    remove(serpent_depcode.iter_matfile)
 
     # replace_burnup_parameters
     time = msr.dep_step_length_cumulative.copy()
     time.insert(0, 0.0)
     depsteps = np.diff(time)
     for idx in range(len(msr.power_levels)):
-        file_data = depcode_serpent.replace_burnup_parameters(file_data,
+        file_data = serpent_depcode.replace_burnup_parameters(file_data,
                                                               msr,
                                                               idx)
 
@@ -57,13 +57,13 @@ def test_iter_input_from_template(depcode_serpent, msr):
         assert file_data[8].split()[5] == str("%7.5E" % depsteps[idx])
 
 
-def test_write_iter_files(depcode_serpent, msr):
-    mats = depcode_serpent.read_dep_comp(True)
+def test_write_iter_files(serpent_depcode, msr):
+    mats = serpent_depcode.read_dep_comp(True)
 
     # write_mat_file
-    depcode_serpent.write_mat_file(mats, 12.0)
-    file = depcode_serpent.iter_matfile
-    file_data = depcode_serpent.read_plaintext_file(file)
+    serpent_depcode.write_mat_file(mats, 12.0)
+    file = serpent_depcode.iter_matfile
+    file_data = serpent_depcode.read_plaintext_file(file)
     assert file_data[0] == '% Material compositions (after 12.000000 days)\n'
     if 'fuel' in file_data[3]:
         assert file_data[3].split()[-1] == '2.27175E+07'
@@ -74,15 +74,15 @@ def test_write_iter_files(depcode_serpent, msr):
     elif 'ctrlPois' in file_data[3]:
         assert file_data[3].split()[-1] == '1.11635E+04'
         assert file_data[4] == '            1001.09c  -1.21000137902945E-35\n'
-    remove(depcode_serpent.iter_matfile)
+    remove(serpent_depcode.iter_matfile)
 
     # write_depcode_input
-    depcode_serpent.write_depcode_input(msr,
+    serpent_depcode.write_depcode_input(msr,
                                         0,
                                         False)
 
-    file = depcode_serpent.iter_inputfile
-    file_data = depcode_serpent.read_plaintext_file(file)
+    file = serpent_depcode.iter_inputfile
+    file_data = serpent_depcode.read_plaintext_file(file)
     assert file_data[0] == 'include "./serpent_iter_mat.ini"\n'
     assert file_data[8].split()[2] == '1.250000000E+09'
     assert file_data[8].split()[4] == 'daystep'
@@ -90,10 +90,10 @@ def test_write_iter_files(depcode_serpent, msr):
     assert file_data[20] == 'set pop 50 20 20\n'
 
     # switch_to_next_geometry
-    depcode_serpent.geo_files += ['../../examples/406.inp',
+    serpent_depcode.geo_files += ['../../examples/406.inp',
                                   '../../examples/988.inp']
-    depcode_serpent.switch_to_next_geometry()
-    file_data = depcode_serpent.read_plaintext_file(file)
+    serpent_depcode.switch_to_next_geometry()
+    file_data = serpent_depcode.read_plaintext_file(file)
     assert file_data[5].split('/')[-1] == '406.inp"\n'
 
-    remove(depcode_serpent.iter_inputfile)
+    remove(serpent_depcode.iter_inputfile)

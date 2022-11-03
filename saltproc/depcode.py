@@ -170,7 +170,7 @@ class Depcode(ABC):
         """
 
 
-class DepcodeOpenMC(Depcode):
+class OpenMCDepcode(Depcode):
     """Class contains information about input, output, geometry, and
     template files for running OpenMC depletion simulations.
     Also contains neutrons population, active, and inactive cycles.
@@ -204,7 +204,7 @@ class DepcodeOpenMC(Depcode):
                  npop=50,
                  active_cycles=20,
                  inactive_cycles=20):
-        """Initializes the DepcodeOpenMC object.
+        """Initializes the OpenMCDepcode object.
 
            Parameters
            ----------
@@ -483,7 +483,7 @@ class DepcodeOpenMC(Depcode):
         del tallies
 
 
-class DepcodeSerpent(Depcode):
+class SerpentDepcode(Depcode):
     """Class contains information about input, output, geometry, and
     template files for running Serpent2 depletion simulations.
     Also contains neutrons population, active, and inactive cycles.
@@ -513,7 +513,7 @@ class DepcodeSerpent(Depcode):
                  npop=50,
                  active_cycles=20,
                  inactive_cycles=20):
-        """Initializes the DepcodeSerpent object.
+        """Initializes the SerpentDepcode object.
 
            Parameters
            ----------
@@ -778,7 +778,7 @@ class DepcodeSerpent(Depcode):
 
     def read_depcode_info(self):
         """Parses initial simulation info data from Serpent2 output and stores
-        it in the `DepcodeSerpent` object's ``sim_info`` attributes.
+        it in the `SerpentDepcode` object's ``sim_info`` attributes.
         """
         res = serpent.parse_res(self.iter_inputfile + "_res.m")
         depcode_name, depcode_ver = res['VERSION'][0].decode('utf-8').split()
@@ -799,7 +799,7 @@ class DepcodeSerpent(Depcode):
 
     def read_depcode_step_param(self):
         """Parses data from Serpent2 output for each step and stores it in
-        `DepcodeSerpent` object's ``param`` attributes.
+        `SerpentDepcode` object's ``param`` attributes.
         """
         res = serpent.parse_res(self.iter_inputfile + "_res.m")
         self.param['keff_bds'] = res['IMP_KEFF'][0]

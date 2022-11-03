@@ -8,7 +8,7 @@ import pytest
 
 from pyne import serpent
 from saltproc import app
-from saltproc import DepcodeSerpent, Simulation, Reactor
+from saltproc import SerpentDepcode, Simulation, Reactor
 
 
 @pytest.fixture

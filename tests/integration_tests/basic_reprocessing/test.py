@@ -5,10 +5,10 @@ from saltproc.app import reprocess_materials, refill_materials
 
 
 def test_reprocessing_and_refill(
-        depcode_serpent,
+        serpent_depcode,
         proc_test_file,
         path_test_file):
-    mats = depcode_serpent.read_dep_comp(True)
+    mats = serpent_depcode.read_dep_comp(True)
     waste_streams, extracted_mass = reprocess_materials(mats,
                                                         proc_test_file,
                                                         path_test_file)
