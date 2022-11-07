@@ -193,42 +193,41 @@ class SerpentDepcode(Depcode):
             self.convert_nuclide_name_serpent_to_zam(pyname.zzaaam(nuc_code))
         return nuc_name, nuc_zzaaam
 
-    def create_nuclide_name_map_zam_to_serpent(self):
-        """ Create a map that accepts nuclide names in `zzaaam` format and
-        returns the Serpent2 nuclide code format. Uses Serpent2 `*.out` file
-        with list of all nuclides in simulation.
+    def map_nuclide_code_zam_to_serpent(self):
+        """Creates a dictionary mapping nuclide codes in `zzaaam` format
+        to Serpent2's nuclide code format.
 
         Returns
         -------
-        nuclide_map : dict of str to str
-            Contains mapping for nuclide names from `zzaaam` to Serpent2
-            format imported from Serpent2 ouput file:
+        nuc_code_map : dict of str to str
+            Maps `zzaaam` nuclide codes to Serpent2
+            nuclide codes.
 
             ``key``
-                The key is nuclide name in `zzaaam` format. For example,
+                Nuclide code in `zzaaam` format. For example,
                 `922350` or `982510`.
             ``value``
-                Serpent2-oriented name. For instance, 92235.09c for transport
-                isotope or 982510 for decay only isotope).
+                Nuclide code in Serpent2 formate. For instance, 92235.09c for a
+                nuclide with cross section data, 982510 for a decay-only nuclide).
 
         """
-        map_dict = {}
+        nuc_code_map = {}
         # Construct path to the *.out File
         out_file = os.path.join('%s.out' % self.iter_inputfile)
-        file = open(out_file, 'r')
-        str_list = file.read().split('\n')
-        # Stop-line
-        end = ' --- Table  2: Reaction and decay data: '
-        for line in str_list:
-            if not line:
-                continue
-            if end in line:
-                break
-            if 'c  TRA' in line or 'c  DEC' in line:
-                line = line.split()
-                iname, zzaaam = self.get_nuc_name(line[2])
-                map_dict.update({zzaaam: line[2]})
-        self.iso_map = map_dict
+        with open(out_file, 'r') as f:
+            file_lines = f.read().split('\n')
+            # Stop-line
+            end = ' --- Table  2: Reaction and decay data: '
+            for line in file_lines:
+                if not line:
+                    continue
+                if end in line:
+                    break
+                if 'c  TRA' in line or 'c  DEC' in line:
+                    line = line.split()
+                    iname, zzaaam = self.get_nuc_name(line[2])
+                    nuc_code_map.update({zzaaam: line[2]})
+        return nuc_code_map
 
     def insert_path_to_geometry(self, template_data):
         """Inserts ``include <first_geometry_file>`` line on the 6th line of
@@ -299,7 +298,6 @@ class SerpentDepcode(Depcode):
             depleted_materials[name].mass = depleted_materials[name].density * volume
             depleted_materials[name].vol = volume
             depleted_materials[name].burnup = results[f'MAT_{name}_BURNUP'][moment]
-        self.create_nuclide_name_map_zam_to_serpent()
         return depleted_materials
 
     def read_step_metadata(self):
@@ -559,6 +557,7 @@ class SerpentDepcode(Depcode):
         matf = open(self.iter_matfile, 'w')
         matf.write('%% Material compositions (after %f days)\n\n'
                    % dep_end_time)
+        nuc_code_map = self.map_nuclide_code_zam_to_serpent()
         for key, value in dep_dict.items():
             matf.write('mat  %s  %5.9E burn 1 fix %3s %4i vol %7.5E\n' %
                        (key,
@@ -570,6 +569,6 @@ class SerpentDepcode(Depcode):
                 # Transforms iso name from zas to zzaaam and then to SERPENT
                 iso_name_serpent = pyname.zzaaam(nuc_code)
                 matf.write('           %9s  %7.14E\n' %
-                           (self.iso_map[iso_name_serpent],
+                           (nuc_code_map[iso_name_serpent],
                             -wt_frac))
         matf.close()

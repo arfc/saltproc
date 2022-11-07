@@ -6,15 +6,15 @@ from saltproc import SerpentDepcode
 
 
 def test_create_nuclide_name_map_zam_to_serpent(serpent_depcode):
-    serpent_depcode.create_nuclide_name_map_zam_to_serpent()
-    assert serpent_depcode.iso_map[380880] == '38088.09c'
-    assert serpent_depcode.iso_map[962400] == '96240.09c'
-    assert serpent_depcode.iso_map[952421] == '95342.09c'
-    assert serpent_depcode.iso_map[340831] == '340831'
-    assert serpent_depcode.iso_map[300732] == '300732'
-    assert serpent_depcode.iso_map[511262] == '511262'
-    assert serpent_depcode.iso_map[420931] == '420931'
-    assert serpent_depcode.iso_map[410911] == '410911'
+    nuc_code_map = serpent_depcode.map_nuclide_code_zam_to_serpent()
+    assert nuc_code_map[380880] == '38088.09c'
+    assert nuc_code_map[962400] == '96240.09c'
+    assert nuc_code_map[952421] == '95342.09c'
+    assert nuc_code_map[340831] == '340831'
+    assert nuc_code_map[300732] == '300732'
+    assert nuc_code_map[511262] == '511262'
+    assert nuc_code_map[420931] == '420931'
+    assert nuc_code_map[410911] == '410911'
 
 
 def test_convert_nuclide_name_serpent_to_zam(serpent_depcode):
