@@ -268,8 +268,8 @@ def test_store_run_init_info(simulation):
     """
 
     # read data
-    simulation.sim_depcode.read_depcode_info()
-    init_info = simulation.sim_depcode.sim_info
+    simulation.sim_depcode.read_step_metadata()
+    init_info = simulation.sim_depcode.step_metadata
 
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db

@@ -12,9 +12,9 @@ class Depcode(ABC):
     param : dict of str to type
         Holds depletion step parameter information. Parameter names are keys
         and parameter values are values.
-    sim_info : dict of str to type
-        Holds simulation settings information. Setting names are keys
-        and setting values are values.
+    step_metadata : dict of str to type
+        Holds depletion code depletion step metadata. Metadata labels are keys
+        and metadata values are values.
     iter_inputfile : str
         Path to depletion code input file for depletion code rerunning.
     iter_matfile : str
@@ -64,14 +64,14 @@ class Depcode(ABC):
         self.active_cycles = active_cycles
         self.inactive_cycles = inactive_cycles
         self.param = {}
-        self.sim_info = {}
+        self.step_metadata = {}
         self.iter_inputfile = './iter_input'
         self.iter_matfile = './iter_mat'
 
     @abstractmethod
-    def read_depcode_info(self):
-        """Parses initial depletion code info data from depletion code
-        output and stores it in the `Depcode` object's ``sim_info`` attribute.
+    def read_step_metadata(self):
+        """Reads depletion code's depletion step metadata and stores it in the
+        :class:`Depcode` object's :attr:`step_metadata` attribute.
         """
 
     @abstractmethod

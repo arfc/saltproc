@@ -21,9 +21,9 @@ class SerpentDepcode(Depcode):
     param : dict of str to type
         Holds Serpent depletion step parameter information. Parameter names are
         keys and parameter values are values.
-    sim_info : dict of str to type
-        Holds Serpent simulation settings information. Setting names are keys
-        and setting values are values.
+    step_metadata : dict of str to type
+        Holds Serpent2 depletion step metadata. Metadata labels are keys
+        and metadata values are values.
     iter_inputfile : str
         Path to Serpent2 input file for Serpent2 rerunning.
     iter_matfile : str
@@ -302,26 +302,26 @@ class SerpentDepcode(Depcode):
         self.create_nuclide_name_map_zam_to_serpent()
         return mats
 
-    def read_depcode_info(self):
-        """Parses initial simulation info data from Serpent2 output and stores
-        it in the `SerpentDepcode` object's ``sim_info`` attributes.
+    def read_step_metadata(self):
+        """Reads Serpent2 depletion step metadata and stores it in the
+        :class:`SerpentDepcode` object's :attr:`step_metadata` attribute.
         """
         res = serpent.parse_res(self.iter_inputfile + "_res.m")
         depcode_name, depcode_ver = res['VERSION'][0].decode('utf-8').split()
-        self.sim_info['depcode_name'] = depcode_name
-        self.sim_info['depcode_version'] = depcode_ver
-        self.sim_info['title'] = res['TITLE'][0].decode('utf-8')
-        self.sim_info['depcode_input_filename'] = \
+        self.step_metadata['depcode_name'] = depcode_name
+        self.step_metadata['depcode_version'] = depcode_ver
+        self.step_metadata['title'] = res['TITLE'][0].decode('utf-8')
+        self.step_metadata['depcode_input_filename'] = \
             res['INPUT_FILE_NAME'][0].decode('utf-8')
-        self.sim_info['depcode_working_dir'] = \
+        self.step_metadata['depcode_working_dir'] = \
             res['WORKING_DIRECTORY'][0].decode('utf-8')
-        self.sim_info['xs_data_path'] = \
+        self.step_metadata['xs_data_path'] = \
             res['XS_DATA_FILE_PATH'][0].decode('utf-8')
-        self.sim_info['OMP_threads'] = res['OMP_THREADS'][0]
-        self.sim_info['MPI_tasks'] = res['MPI_TASKS'][0]
-        self.sim_info['memory_optimization_mode'] = res['OPTIMIZATION_MODE'][0]
-        self.sim_info['depletion_timestep'] = res['BURN_DAYS'][1][0]
-        self.sim_info['depletion_timestep'] = res['BURN_DAYS'][1][0]
+        self.step_metadata['OMP_threads'] = res['OMP_THREADS'][0]
+        self.step_metadata['MPI_tasks'] = res['MPI_TASKS'][0]
+        self.step_metadata['memory_optimization_mode'] = res['OPTIMIZATION_MODE'][0]
+        self.step_metadata['depletion_timestep'] = res['BURN_DAYS'][1][0]
+        self.step_metadata['depletion_timestep'] = res['BURN_DAYS'][1][0]
 
     def read_depcode_step_param(self):
         """Parses data from Serpent2 output for each step and stores it in

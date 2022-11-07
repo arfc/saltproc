@@ -23,9 +23,9 @@ class OpenMCDepcode(Depcode):
     param : dict of str to type
         Holds depletion step parameter information. Parameter names are keys
         and parameter values are values.
-    sim_info : dict of str to type
-        Holds simulation settings information. Setting names are keys
-        and setting values are values.
+    step_metadata : dict of str to type
+        Holds OpenMC depletion step metadata. Metadata labels are keys
+        and metadata values are values.
     iter_inputfile : dict of str to str
         Paths to OpenMC input files for OpenMC rerunning.
     iter_matfile : str
@@ -79,9 +79,9 @@ class OpenMCDepcode(Depcode):
                                'settings': './settings.xml'},
         self.iter_matfile = './materials.xml'
 
-    def read_depcode_info(self):
-        """Parses initial OpenMC simulation info from the OpenMC output files
-        and stores it in the `Depcode` object's ``sim_info`` attribute.
+    def read_step_metadata(self):
+        """Reads OpenMC's depletion step metadata and stores it in the
+        :class:`OpenMCDepcode` object's :attr:`step_metadata` attribute.
         """
 
     def read_depcode_step_param(self):

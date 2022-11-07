@@ -108,21 +108,25 @@ Python API Changes
    longer be initialized by the user during object creation.
 
 
-- New/changed classes and methods:
+- New/changed classes, methods, and attributes:
 
   - ``Depcode``
 
     - ``template_inputfile_path`` → ``template_input_file_path``
     - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
+    - ``read_depcode_info()`` → ``read_step_metadata()``
+    - ``sim_info`` → ``step_metadata``
 
   - ``DepcodeSerpent`` → ``SerpentDepcode``
 
     - ``template_inputfile_path`` → ``template_input_file_path``
     - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
+    - ``read_depcode_info()`` → ``read_depletion_step_metadata()``
+    - ``sim_info`` → ``step_metadata``
 
 
   - ``OpenMCDepcode`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
-
+    - ``read_depletion_step_metadata()``
     - ``run_depcode()``
     - ``switch_to_next_geometry()``
     - ``write_depcode_input()``

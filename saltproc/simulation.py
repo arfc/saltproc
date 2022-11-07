@@ -367,7 +367,7 @@ class Simulation():
         # numpy arraw row storage for run info
         # delete and make this datatype specific
         # to Depcode subclasses
-        sim_info_dtype = np.dtype([
+        step_metadata_dtype = np.dtype([
             ('neutron_population', int),
             ('active_cycles', int),
             ('inactive_cycles', int),
@@ -383,24 +383,24 @@ class Simulation():
             ('depletion_timestep', float)
         ])
         # Read info from depcode _res.m File
-        self.sim_depcode.read_depcode_info()
+        self.sim_depcode.read_step_metadata()
         # Store information about material properties in new array row
-        sim_info_row = (
+        step_metadata_row = (
             self.sim_depcode.npop,
             self.sim_depcode.active_cycles,
             self.sim_depcode.inactive_cycles,  # delete the below
-            self.sim_depcode.sim_info['depcode_name'],
-            self.sim_depcode.sim_info['depcode_version'],
-            self.sim_depcode.sim_info['title'],
-            self.sim_depcode.sim_info['depcode_input_filename'],
-            self.sim_depcode.sim_info['depcode_working_dir'],
-            self.sim_depcode.sim_info['xs_data_path'],
-            self.sim_depcode.sim_info['OMP_threads'],
-            self.sim_depcode.sim_info['MPI_tasks'],
-            self.sim_depcode.sim_info['memory_optimization_mode'],
-            self.sim_depcode.sim_info['depletion_timestep']
+            self.sim_depcode.step_metadata['depcode_name'],
+            self.sim_depcode.step_metadata['depcode_version'],
+            self.sim_depcode.step_metadata['title'],
+            self.sim_depcode.step_metadata['depcode_input_filename'],
+            self.sim_depcode.step_metadata['depcode_working_dir'],
+            self.sim_depcode.step_metadata['xs_data_path'],
+            self.sim_depcode.step_metadata['OMP_threads'],
+            self.sim_depcode.step_metadata['MPI_tasks'],
+            self.sim_depcode.step_metadata['memory_optimization_mode'],
+            self.sim_depcode.step_metadata['depletion_timestep']
         )
-        sim_info_array = np.array([sim_info_row], dtype=sim_info_dtype)
+        step_metadata_array = np.array([step_metadata_row], dtype=step_metadata_dtype)
 
         # Open or restore db and append datat to it
         db = tb.open_file(
@@ -408,14 +408,14 @@ class Simulation():
             mode='a',
             filters=self.compression_params)
         try:
-            sim_info_table = db.get_node(db.root, 'initial_depcode_siminfo')
+            step_metadata_table = db.get_node(db.root, 'initial_depcode_siminfo')
         except Exception:
-            sim_info_table = db.create_table(
+            step_metadata_table = db.create_table(
                 db.root,
                 'initial_depcode_siminfo',
-                sim_info_array,
+                step_metadata_array,
                 "Initial depletion code simulation parameters")
-        sim_info_table.flush()
+        step_metadata_table.flush()
         db.close()
 
     def read_k_eds_delta(self, current_timestep):

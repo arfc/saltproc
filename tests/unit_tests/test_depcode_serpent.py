@@ -53,22 +53,22 @@ def test_get_nuc_name(serpent_depcode):
     assert serpent_depcode.get_nuc_name('491142')[0] == 'In114m2'
 
 
-def test_read_depcode_info(serpent_depcode):
-    serpent_depcode.read_depcode_info()
-    assert serpent_depcode.sim_info['depcode_name'] == 'Serpent'
-    assert serpent_depcode.sim_info['depcode_version'] == '2.1.31'
-    assert serpent_depcode.sim_info['title'] == 'Untitled'
-    assert serpent_depcode.sim_info['depcode_input_filename'] == \
+def test_read_step_metadata(serpent_depcode):
+    serpent_depcode.read_step_metadata()
+    assert serpent_depcode.step_metadata['depcode_name'] == 'Serpent'
+    assert serpent_depcode.step_metadata['depcode_version'] == '2.1.31'
+    assert serpent_depcode.step_metadata['title'] == 'Untitled'
+    assert serpent_depcode.step_metadata['depcode_input_filename'] == \
         '/home/andrei2/Desktop/git/saltproc/develop/saltproc/data/saltproc_tap'
-    assert serpent_depcode.sim_info['depcode_working_dir'] == \
+    assert serpent_depcode.step_metadata['depcode_working_dir'] == \
         '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
-    assert serpent_depcode.sim_info['xs_data_path'] == \
+    assert serpent_depcode.step_metadata['xs_data_path'] == \
         '/home/andrei2/serpent/xsdata/jeff312/sss_jeff312.xsdata'
 
-    assert serpent_depcode.sim_info['MPI_tasks'] == 1
-    assert serpent_depcode.sim_info['OMP_threads'] == 4
-    assert serpent_depcode.sim_info['memory_optimization_mode'] == 4
-    assert serpent_depcode.sim_info['depletion_timestep'] == 3.0
+    assert serpent_depcode.step_metadata['MPI_tasks'] == 1
+    assert serpent_depcode.step_metadata['OMP_threads'] == 4
+    assert serpent_depcode.step_metadata['memory_optimization_mode'] == 4
+    assert serpent_depcode.step_metadata['depletion_timestep'] == 3.0
 
 
 def test_read_depcode_step_param(serpent_depcode):
