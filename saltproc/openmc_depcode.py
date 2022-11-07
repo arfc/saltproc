@@ -114,8 +114,8 @@ class OpenMCDepcode(Depcode):
 
         """
 
-    def run_depcode(self, cores, nodes):
-        """Runs OpenMC depletion simulation as a subprocess with the given
+    def run_depletion_step(self, cores, nodes):
+        """Runs a depletion step in OpenMC as a subprocess with the given
         parameters.
 
         Parameters

@@ -82,7 +82,7 @@ def runsim_no_reproc(simulation, reactor, nsteps):
                 reactor,
                 dep_step,
                 False)
-            simulation.sim_depcode.run_depcode(
+            simulation.sim_depcode.run_depletion_step(
                 simulation.core_number,
                 simulation.node_number)
             # Read general simulation data which never changes
@@ -94,7 +94,7 @@ def runsim_no_reproc(simulation, reactor, nsteps):
         # Finish of First step
         # Main sequence
         else:
-            simulation.sim_depcode.run_depcode(
+            simulation.sim_depcode.run_depletion_step(
                 simulation.core_number,
                 simulation.node_number)
         mats = simulation.sim_depcode.read_depleted_materials(

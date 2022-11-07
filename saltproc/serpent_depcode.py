@@ -410,8 +410,9 @@ class SerpentDepcode(Depcode):
                               current_depstep))
         return template_data
 
-    def run_depcode(self, cores, nodes):
-        """Runs Serpent2 as a subprocess with the given parameters.
+    def run_depletion_step(self, cores, nodes):
+        """Runs a depletion step in Serpent2 as a subprocess with the given
+        parameters.
 
         Parameters
         ----------
@@ -422,25 +423,7 @@ class SerpentDepcode(Depcode):
 
         """
 
-        if self.exec_path.startswith('/projects/sciteam/bahg/'):  # check if BW
-            args = (
-                'aprun',
-                '-n',
-                str(nodes),
-                '-d', str(cores),
-                self.exec_path,
-                '-omp',
-                str(cores),
-                self.iter_inputfile)
-        elif self.exec_path.startswith('/apps/exp_ctl/'):  # check if Falcon
-            args = (
-                'mpiexec',
-                self.exec_path,
-                self.iter_inputfile,
-                '-omp',
-                str(18))
-        else:
-            args = (self.exec_path, '-omp', str(cores), self.iter_inputfile)
+        args = (self.exec_path, '-omp', str(cores), self.iter_inputfile)
         print('Running %s' % (self.codename))
         try:
             subprocess.check_output(

@@ -106,8 +106,8 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def run_depcode(self, cores, nodes):
-        """Runs depletion code as a subprocess with the given parameters.
+    def run_depletion_step(self, cores, nodes):
+        """Runs a depletion step as a subprocess with the given parameters.
 
         Parameters
         ----------

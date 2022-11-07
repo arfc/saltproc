@@ -43,7 +43,7 @@ def run():
         simulation.sim_depcode.write_depcode_input(msr,
                                                    dep_step,
                                                    simulation.restart_flag)
-        depcode.run_depcode(cores, nodes)
+        depcode.run_depletion_step(cores, nodes)
         if dep_step == 0 and simulation.restart_flag is False:  # First step
             # Read general simulation data which never changes
             simulation.store_run_init_info()
