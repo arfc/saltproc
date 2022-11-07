@@ -84,7 +84,7 @@ def run():
         print("Removed mass [g]:", extracted_mass)
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_and_feed_streams, dep_step)
-        depcode.write_mat_file(mats, simulation.burn_time)
+        depcode.update_depletable_materials(mats, simulation.burn_time)
         del mats, waste_streams, waste_and_feed_streams, extracted_mass
         gc.collect()
         # Switch to another geometry?
@@ -520,7 +520,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
     process_file : str
         Path to the `.json` file describing the fuel reprocessing components.
 
-        Returns
+    Returns
     -------
     waste_streams : dict of str to dict
         Superset of the input parameter `waste_streams`. Dictionary has

@@ -518,40 +518,36 @@ class SerpentDepcode(Depcode):
             out_file.writelines(data)
             out_file.close()
 
-    def write_mat_file(self, dep_dict, dep_end_time):
-        """Writes the iteration input file containing the burnable materials
-        composition used in Serpent2 runs and updated after each depletion
-        step.
+    def update_depletable_materials(self, mats, dep_end_time):
+        """Update material file with reprocessed material compositions.
 
         Parameters
         ----------
-        dep_dict : dict of str to Materialflow
-            Dictionary that contains `Materialflow` objects.
+        mats : dict of str to Materialflow
+            Dictionary containing reprocessed material compositions
 
             ``key``
                 Name of burnable material.
             ``value``
-                `Materialflow` object holding composition and properties.
+                :class:`Materialflow` object holding composition and properties.
         dep_end_time : float
             Current time at the end of the depletion step (d).
 
         """
 
-        matf = open(self.iter_matfile, 'w')
-        matf.write('%% Material compositions (after %f days)\n\n'
-                   % dep_end_time)
-        nuc_code_map = self.map_nuclide_code_zam_to_serpent()
-        for key, value in dep_dict.items():
-            matf.write('mat  %s  %5.9E burn 1 fix %3s %4i vol %7.5E\n' %
-                       (key,
-                        -dep_dict[key].density,
-                        '09c',
-                        dep_dict[key].temp,
-                        dep_dict[key].vol))
-            for nuc_code, wt_frac in dep_dict[key].comp.items():
-                # Transforms iso name from zas to zzaaam and then to SERPENT
-                iso_name_serpent = pyname.zzaaam(nuc_code)
-                matf.write('           %9s  %7.14E\n' %
-                           (nuc_code_map[iso_name_serpent],
-                            -wt_frac))
-        matf.close()
+        with open(self.iter_matfile, 'w') as f:
+            f.write('%% Material compositions (after %f days)\n\n'
+                    % dep_end_time)
+            nuc_code_map = self.map_nuclide_code_zam_to_serpent()
+            for name, mat in mats.items():
+                f.write('mat  %s  %5.9E burn 1 fix %3s %4i vol %7.5E\n' %
+                        (name,
+                         -mat.density,
+                         '09c',
+                         mat.temp,
+                         mat.vol))
+                for nuc_code, mass_fraction in mat.comp.items():
+                    zam_code = pyname.zzaaam(nuc_code)
+                    f.write('           %9s  %7.14E\n' %
+                            (nuc_code_map[zam_code],
+                             -mass_fraction))

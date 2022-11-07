@@ -255,20 +255,18 @@ class OpenMCDepcode(Depcode):
         with open(self.iter_inputfile['depletion_settings'], 'w') as f:
             f.writelines(json_dep_settings)
 
-    def write_mat_file(self, dep_dict, dep_end_time):
-        """Writes the iteration input file containing the burnable materials
-        composition used in OpenMC depletion runs and updated after each
-        depletion step.
+    def update_depletable_materials(self, mats, dep_end_time):
+        """Updates material file with reprocessed material compositions.
 
         Parameters
         ----------
-        dep_dict : dict of str to Materialflow
-            Dictionary that contains `Materialflow` objects.
+        mats : dict of str to Materialflow
+            Dictionary containing reprocessed material compositions
 
             ``key``
                 Name of burnable material.
             ``value``
-                `Materialflow` object holding composition and properties.
+                :class:`Materialflow` object holding composition and properties.
         dep_end_time : float
             Current time at the end of the depletion step (d).
 

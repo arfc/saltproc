@@ -60,8 +60,8 @@ def test_iter_input_from_template(serpent_depcode, msr):
 def test_write_iter_files(serpent_depcode, msr):
     mats = serpent_depcode.read_depleted_materials(True)
 
-    # write_mat_file
-    serpent_depcode.write_mat_file(mats, 12.0)
+    # update_depletable_materials
+    serpent_depcode.update_depletable_materials(mats, 12.0)
     file = serpent_depcode.iter_matfile
     file_data = serpent_depcode.read_plaintext_file(file)
     assert file_data[0] == '% Material compositions (after 12.000000 days)\n'

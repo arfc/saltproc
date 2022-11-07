@@ -101,6 +101,6 @@ def runsim_no_reproc(simulation, reactor, nsteps):
             True)
         simulation.store_mat_data(mats, dep_step, False)
         simulation.store_run_step_info()
-        simulation.sim_depcode.write_mat_file(
+        simulation.sim_depcode.update_depletable_materials(
             mats,
             simulation.burn_time)
