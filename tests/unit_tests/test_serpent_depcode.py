@@ -82,8 +82,8 @@ def test_read_neutronics_parameters(serpent_depcode):
     assert serpent_depcode.neutronics_parameters['breeding_ratio'][1] == 5.20000e-04
 
 
-def test_read_dep_comp(serpent_depcode):
-    mats = serpent_depcode.read_dep_comp(True)
+def test_read_depleted_materials(serpent_depcode):
+    mats = serpent_depcode.read_depleted_materials(True)
     assert mats['fuel']['U235'] == 3499538.3359278883
     assert mats['fuel']['U238'] == 66580417.24509208
     assert mats['fuel']['F19'] == 37145139.35897285

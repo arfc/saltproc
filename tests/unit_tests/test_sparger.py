@@ -15,7 +15,7 @@ def sparger():
 
 
 def test_rem_elements(serpent_depcode, sparger):
-    mats = serpent_depcode.read_dep_comp(True)
+    mats = serpent_depcode.read_depleted_materials(True)
     thru, waste = sparger.process_material(mats['fuel'])
     np.testing.assert_almost_equal(waste[541350000], 8.061014535231715)
     np.testing.assert_almost_equal(waste[541360000], 71.8437109936129)

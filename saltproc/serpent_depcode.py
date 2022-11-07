@@ -250,27 +250,26 @@ class SerpentDepcode(Depcode):
                              'include \"' + str(self.geo_files[0]) + '\"\n')
         return template_data
 
-    def read_dep_comp(self, read_at_end=False):
-        """Reads the Serpent2 `*_dep.m` file and returns a dictionary with
-        a `Materialflow` object for each burnable material.
+    def read_depleted_materials(self, read_at_end=False):
+        """Reads depleted materials from Serpent2's `*_dep.m`
+        file and returns a dictionary containing them.
 
         Parameters
         ----------
         read_at_end : bool, optional
-            Controls at which moment in the depletion step to read the data.
             If `True`, the function reads data at the end of the
             depletion step. Otherwise, the function reads data at the
             beginning of the depletion step.
 
         Returns
         -------
-        mats : dict of str to Materialflow
-            Dictionary that contains `Materialflow` objects.
+        depleted_materials : dict of str to Materialflow
+            Dictionary containing depleted materials.
 
             ``key``
                 Name of burnable material.
             ``value``
-                `Materialflow` object holding composition and properties.
+                :class:`Materialflow` object holding material composition and properties.
 
         """
         # Determine moment in depletion step to read data from
@@ -279,28 +278,29 @@ class SerpentDepcode(Depcode):
         else:
             moment = 0
 
-        dep_file = os.path.join('%s_dep.m' % self.iter_inputfile)
-        dep = serpent.parse_dep(dep_file, make_mats=False)
-        self.days = dep['DAYS'][moment]
-        # Read materials names from the file
-        mat_name = []
-        mats = {}
-        for key in dep.keys():
-            m = re.search('MAT_(.+?)_VOLUME', key)
-            if m:
-                mat_name.append(m.group(1))
-        zai = list(map(int, dep['ZAI'][:-2]))  # zzaaam codes of isotopes
+        results_file = os.path.join('%s_dep.m' % self.iter_inputfile)
+        results = serpent.parse_dep(results_file, make_mats=False)
+        self.days = results['DAYS'][moment]
 
-        for m in mat_name:
-            volume = dep['MAT_' + m + '_VOLUME'][moment]
-            nucvec = dict(zip(zai, dep['MAT_' + m + '_MDENS'][:, moment]))
-            mats[m] = Materialflow(nucvec)
-            mats[m].density = dep['MAT_' + m + '_MDENS'][-1, moment]
-            mats[m].mass = mats[m].density * volume
-            mats[m].vol = volume
-            mats[m].burnup = dep['MAT_' + m + '_BURNUP'][moment]
+        # Get material names
+        mat_names = []
+        depleted_materials = {}
+        for key in results.keys():
+            name_match = re.search('MAT_(.+?)_VOLUME', key)
+            if name_match:
+                mat_names.append(name_match.group(1))
+        zai = list(map(int, results['ZAI'][:-2]))  # zzaaam codes of isotopes
+
+        for name in mat_names:
+            volume = results[f'MAT_{name}_VOLUME'][moment]
+            nucvec = dict(zip(zai, results[f'MAT_{name}_MDENS'][:, moment]))
+            depleted_materials[name] = Materialflow(nucvec)
+            depleted_materials[name].density = results[f'MAT_{name}_MDENS'][-1, moment]
+            depleted_materials[name].mass = depleted_materials[name].density * volume
+            depleted_materials[name].vol = volume
+            depleted_materials[name].burnup = results[f'MAT_{name}_BURNUP'][moment]
         self.create_nuclide_name_map_zam_to_serpent()
-        return mats
+        return depleted_materials
 
     def read_step_metadata(self):
         """Reads Serpent2 depletion step metadata and stores it in the

@@ -48,11 +48,11 @@ def run():
             # Read general simulation data which never changes
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dep_step)
-            mats = depcode.read_dep_comp(False)
+            mats = depcode.read_depleted_materials(False)
             simulation.store_mat_data(mats, dep_step - 1, False)
         # Finish of First step
         # Main sequence
-        mats = depcode.read_dep_comp(True)
+        mats = depcode.read_depleted_materials(True)
         simulation.store_mat_data(mats, dep_step, False)
         simulation.store_run_step_info()
         # Reprocessing here

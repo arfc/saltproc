@@ -58,7 +58,7 @@ def test_iter_input_from_template(serpent_depcode, msr):
 
 
 def test_write_iter_files(serpent_depcode, msr):
-    mats = serpent_depcode.read_dep_comp(True)
+    mats = serpent_depcode.read_depleted_materials(True)
 
     # write_mat_file
     serpent_depcode.write_mat_file(mats, 12.0)

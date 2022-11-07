@@ -8,7 +8,7 @@ def test_reprocessing_and_refill(
         serpent_depcode,
         proc_test_file,
         path_test_file):
-    mats = serpent_depcode.read_dep_comp(True)
+    mats = serpent_depcode.read_depleted_materials(True)
     waste_streams, extracted_mass = reprocess_materials(mats,
                                                         proc_test_file,
                                                         path_test_file)

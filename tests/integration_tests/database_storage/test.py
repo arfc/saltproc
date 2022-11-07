@@ -34,7 +34,7 @@ def test_store_after_reprocessing(
 
     """
     # read data
-    mats = simulation.sim_depcode.read_dep_comp(
+    mats = simulation.sim_depcode.read_depleted_materials(
         True)
     waste_streams, extracted_mass = reprocess_materials(
         mats, proc_test_file, path_test_file)
@@ -139,9 +139,9 @@ def test_store_mat_data(simulation):
     explicity in value and implicitly in type.
     """
     # read data
-    mats_before = simulation.sim_depcode.read_dep_comp(
+    mats_before = simulation.sim_depcode.read_depleted_materials(
         False)
-    mats_after = simulation.sim_depcode.read_dep_comp(
+    mats_after = simulation.sim_depcode.read_depleted_materials(
         True)
 
     fuel_before = mats_before['fuel']

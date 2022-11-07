@@ -90,28 +90,27 @@ class OpenMCDepcode(Depcode):
         attribute.
         """
 
-    def read_dep_comp(self, read_at_end=False):
-        """Reads the depleted material data from the OpenMC depletion
-        simulation and returns a dictionary with a `Materialflow` object for
-        each burnable material.
+    def read_depleted_materials(self, read_at_end=False):
+        """Reads depleted materials from OpenMC's `depletion_results.h5` file
+        and returns a dictionary with a :class:`Materialflow` object for each
+        depleted material.
 
         Parameters
         ----------
         read_at_end : bool, optional
-            Controls at which moment in the depletion step to read the data.
             If `True`, the function reads data at the end of the
             depletion step. Otherwise, the function reads data at the
             beginning of the depletion step.
 
         Returns
         -------
-        mats : dict of str to Materialflow
-            Dictionary that contains `Materialflow` objects.
+        depleted_materials : dict of str to Materialflow
+            Dictionary containing depleted materials.
 
             ``key``
                 Name of burnable material.
             ``value``
-                `Materialflow` object holding composition and properties.
+                :class:`Materialflow` object holding composition and properties.
 
         """
 

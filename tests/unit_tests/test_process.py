@@ -15,7 +15,7 @@ def process():
 
 
 def test_process_material(serpent_depcode, process):
-    mats = serpent_depcode.read_dep_comp(True)
+    mats = serpent_depcode.read_depleted_materials(True)
     thru, waste = process.process_material(mats['fuel'])
     np.testing.assert_almost_equal(waste[541350000], 19.79776930513891)
     np.testing.assert_almost_equal(waste[541360000], 176.44741987005173)
