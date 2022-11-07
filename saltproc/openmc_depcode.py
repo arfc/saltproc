@@ -20,9 +20,9 @@ class OpenMCDepcode(Depcode):
 
     Attributes
     ----------
-    param : dict of str to type
-        Holds depletion step parameter information. Parameter names are keys
-        and parameter values are values.
+    neutronics_parameters : dict of str to type
+        Holds OpenMC depletion step neutronics parameters. Parameter names are
+        keys and parameter values are values.
     step_metadata : dict of str to type
         Holds OpenMC depletion step metadata. Metadata labels are keys
         and metadata values are values.
@@ -84,9 +84,10 @@ class OpenMCDepcode(Depcode):
         :class:`OpenMCDepcode` object's :attr:`step_metadata` attribute.
         """
 
-    def read_depcode_step_param(self):
-        """Parses data from OpenMC depletion output for each step and stores
-        it in `Depcode` object's ``param`` attributes.
+    def read_neutronics_parameters(self):
+        """Reads OpenMC depletion step neutronics parameters and stores them
+        in :class:`OpenMCDepcode` object's :attr:`neutronics_parameters`
+        attribute.
         """
 
     def read_dep_comp(self, read_at_end=False):

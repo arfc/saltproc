@@ -9,8 +9,8 @@ class Depcode(ABC):
 
     Attributes
     -----------
-    param : dict of str to type
-        Holds depletion step parameter information. Parameter names are keys
+    neutronics_parameters : dict of str to type
+        Holds depletion step neutronics parameters. Parameter names are keys
         and parameter values are values.
     step_metadata : dict of str to type
         Holds depletion code depletion step metadata. Metadata labels are keys
@@ -63,7 +63,7 @@ class Depcode(ABC):
         self.npop = npop
         self.active_cycles = active_cycles
         self.inactive_cycles = inactive_cycles
-        self.param = {}
+        self.neutronics_parameters = {}
         self.step_metadata = {}
         self.iter_inputfile = './iter_input'
         self.iter_matfile = './iter_mat'
@@ -75,9 +75,10 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def read_depcode_step_param(self):
-        """Parses data from depletion code output for each step and stores
-        it in `Depcode` object's ``param`` attributes.
+    def read_neutronics_parameters(self):
+        """Reads depletion code's depletion step neutronics parameters and
+        stores them in :class:`Depcode` object's
+        :attr:`neutronics_parameters` attribute.
         """
 
     @abstractmethod

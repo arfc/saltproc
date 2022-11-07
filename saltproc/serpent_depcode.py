@@ -18,8 +18,8 @@ class SerpentDepcode(Depcode):
 
     Attributes
     -----------
-    param : dict of str to type
-        Holds Serpent depletion step parameter information. Parameter names are
+    neutronics_parameters : dict of str to type
+        Holds Serpent2 depletion step neutronics parameters. Parameter names are
         keys and parameter values are values.
     step_metadata : dict of str to type
         Holds Serpent2 depletion step metadata. Metadata labels are keys
@@ -321,26 +321,31 @@ class SerpentDepcode(Depcode):
         self.step_metadata['MPI_tasks'] = res['MPI_TASKS'][0]
         self.step_metadata['memory_optimization_mode'] = res['OPTIMIZATION_MODE'][0]
         self.step_metadata['depletion_timestep'] = res['BURN_DAYS'][1][0]
-        self.step_metadata['depletion_timestep'] = res['BURN_DAYS'][1][0]
+        self.step_metadata['execution_time'] = res['RUNNING_TIME'][1]
+        self.step_metadata['memory_usage'] = res['MEMSIZE'][0]
 
-    def read_depcode_step_param(self):
-        """Parses data from Serpent2 output for each step and stores it in
-        `SerpentDepcode` object's ``param`` attributes.
+
+    def read_neutronics_parameters(self):
+        """Reads Serpent2 depletion step neutronics parameters and stores them
+        in :class:`SerpentDepcode` object's :attr:`neutronics_parameters`
+        attribute.
         """
         res = serpent.parse_res(self.iter_inputfile + "_res.m")
-        self.param['keff_bds'] = res['IMP_KEFF'][0]
-        self.param['keff_eds'] = res['IMP_KEFF'][1]
-        self.param['breeding_ratio'] = res['CONVERSION_RATIO'][1]
-        self.param['execution_time'] = res['RUNNING_TIME'][1]
-        self.param['burn_days'] = res['BURN_DAYS'][1][0]
-        self.param['power_level'] = res['TOT_POWER'][1][0]
-        self.param['memory_usage'] = res['MEMSIZE'][0]
+        self.neutronics_parameters['keff_bds'] = res['IMP_KEFF'][0]
+        self.neutronics_parameters['keff_eds'] = res['IMP_KEFF'][1]
+        self.neutronics_parameters['breeding_ratio'] = \
+            res['CONVERSION_RATIO'][1]
+        self.neutronics_parameters['burn_days'] = res['BURN_DAYS'][1][0]
+        self.neutronics_parameters['power_level'] = res['TOT_POWER'][1][0]
         b_l = int(.5 * len(res['FWD_ANA_BETA_ZERO'][1]))
-        self.param['beta_eff'] = res['FWD_ANA_BETA_ZERO'][1].reshape((b_l, 2))
-        self.param['delayed_neutrons_lambda'] = \
+        self.neutronics_parameters['beta_eff'] = \
+            res['FWD_ANA_BETA_ZERO'][1].reshape((b_l, 2))
+        self.neutronics_parameters['delayed_neutrons_lambda'] = \
             res['FWD_ANA_LAMBDA'][1].reshape((b_l, 2))
-        self.param['fission_mass_bds'] = res['INI_FMASS'][1]
-        self.param['fission_mass_eds'] = res['TOT_FMASS'][1]
+        self.neutronics_parameters['fission_mass_bds'] = \
+            res['INI_FMASS'][1]
+        self.neutronics_parameters['fission_mass_eds'] = \
+            res['TOT_FMASS'][1]
 
     def read_plaintext_file(self, file_path):
         """Reads the content of a plaintext file for use by other methods.

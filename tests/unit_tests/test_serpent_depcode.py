@@ -69,17 +69,17 @@ def test_read_step_metadata(serpent_depcode):
     assert serpent_depcode.step_metadata['OMP_threads'] == 4
     assert serpent_depcode.step_metadata['memory_optimization_mode'] == 4
     assert serpent_depcode.step_metadata['depletion_timestep'] == 3.0
+    assert serpent_depcode.step_metadata['memory_usage'] == [10552.84]
+    assert serpent_depcode.step_metadata['execution_time'] == [81.933]
 
 
-def test_read_depcode_step_param(serpent_depcode):
-    serpent_depcode.read_depcode_step_param()
-    assert serpent_depcode.param['memory_usage'] == [10552.84]
-    assert serpent_depcode.param['execution_time'] == [81.933]
-    assert serpent_depcode.param['keff_bds'][0] == 1.00651e+00
-    assert serpent_depcode.param['keff_eds'][0] == 1.00569e+00
-    assert serpent_depcode.param['fission_mass_bds'] == [70081]
-    assert serpent_depcode.param['fission_mass_eds'] == [70077.1]
-    assert serpent_depcode.param['breeding_ratio'][1] == 5.20000e-04
+def test_read_neutronics_parameters(serpent_depcode):
+    serpent_depcode.read_neutronics_parameters()
+    assert serpent_depcode.neutronics_parameters['keff_bds'][0] == 1.00651e+00
+    assert serpent_depcode.neutronics_parameters['keff_eds'][0] == 1.00569e+00
+    assert serpent_depcode.neutronics_parameters['fission_mass_bds'] == [70081]
+    assert serpent_depcode.neutronics_parameters['fission_mass_eds'] == [70077.1]
+    assert serpent_depcode.neutronics_parameters['breeding_ratio'][1] == 5.20000e-04
 
 
 def test_read_dep_comp(serpent_depcode):

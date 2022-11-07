@@ -290,19 +290,17 @@ class Simulation():
         """
 
         # Read info from depcode _res.m File
-        self.sim_depcode.read_depcode_step_param()
+        self.sim_depcode.read_neutronics_parameters()
         # Initialize beta groups number
-        b_g = len(self.sim_depcode.param['beta_eff'])
+        b_g = len(self.sim_depcode.neutronics_parameters['beta_eff'])
         # numpy array row storage for run info
 
         class Step_info(tb.IsDescription):
             keff_bds = tb.Float32Col((2,))
             keff_eds = tb.Float32Col((2,))
             breeding_ratio = tb.Float32Col((2,))
-            step_execution_time = tb.Float32Col()
             cumulative_time_at_eds = tb.Float32Col()
             power_level = tb.Float32Col()
-            memory_usage = tb.Float32Col()
             beta_eff_eds = tb.Float32Col((b_g, 2))
             delayed_neutrons_lambda_eds = tb.Float32Col((b_g, 2))
             fission_mass_bds = tb.Float32Col()
@@ -326,28 +324,24 @@ class Simulation():
                 "Simulation parameters after each timestep")
             # Intializing burn_time array at the first depletion step
             self.burn_time = 0.0
-        self.burn_time += self.sim_depcode.param['burn_days']
+        self.burn_time += self.sim_depcode.neutronics_parameters['burn_days']
         # Define row of table as step_info
         step_info = step_info_table.row
         # Define all values in the row
 
-        step_info['keff_bds'] = self.sim_depcode.param['keff_bds']
-        step_info['keff_eds'] = self.sim_depcode.param['keff_eds']
-        step_info['breeding_ratio'] = self.sim_depcode.param[
+        step_info['keff_bds'] = self.sim_depcode.neutronics_parameters['keff_bds']
+        step_info['keff_eds'] = self.sim_depcode.neutronics_parameters['keff_eds']
+        step_info['breeding_ratio'] = self.sim_depcode.neutronics_parameters[
             'breeding_ratio']
-        step_info['step_execution_time'] = self.sim_depcode.param[
-            'execution_time']
         step_info['cumulative_time_at_eds'] = self.burn_time
-        step_info['power_level'] = self.sim_depcode.param['power_level']
-        step_info['memory_usage'] = self.sim_depcode.param[
-            'memory_usage']
-        step_info['beta_eff_eds'] = self.sim_depcode.param[
+        step_info['power_level'] = self.sim_depcode.neutronics_parameters['power_level']
+        step_info['beta_eff_eds'] = self.sim_depcode.neutronics_parameters[
             'beta_eff']
-        step_info['delayed_neutrons_lambda_eds'] = self.sim_depcode.param[
+        step_info['delayed_neutrons_lambda_eds'] = self.sim_depcode.neutronics_parameters[
             'delayed_neutrons_lambda']
-        step_info['fission_mass_bds'] = self.sim_depcode.param[
+        step_info['fission_mass_bds'] = self.sim_depcode.neutronics_parameters[
             'fission_mass_bds']
-        step_info['fission_mass_eds'] = self.sim_depcode.param[
+        step_info['fission_mass_eds'] = self.sim_depcode.neutronics_parameters[
             'fission_mass_eds']
 
         # Inject the Record value into the table
@@ -380,7 +374,9 @@ class Simulation():
             ('OMP_threads', int),
             ('MPI_tasks', int),
             ('memory_optimization_mode', int),
-            ('depletion_timestep', float)
+            ('depletion_timestep', float),
+            ('execution_time', float),
+            ('memory_usage', float)
         ])
         # Read info from depcode _res.m File
         self.sim_depcode.read_step_metadata()
@@ -398,7 +394,10 @@ class Simulation():
             self.sim_depcode.step_metadata['OMP_threads'],
             self.sim_depcode.step_metadata['MPI_tasks'],
             self.sim_depcode.step_metadata['memory_optimization_mode'],
-            self.sim_depcode.step_metadata['depletion_timestep']
+            self.sim_depcode.step_metadata['depletion_timestep'],
+            self.sim_depcode.step_metadata['execution_time'],
+            self.sim_depcode.step_metadata['memory_usage']
+
         )
         step_metadata_array = np.array([step_metadata_row], dtype=step_metadata_dtype)
 

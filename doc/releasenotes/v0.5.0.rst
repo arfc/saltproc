@@ -116,6 +116,8 @@ Python API Changes
     - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
     - ``read_depcode_info()`` → ``read_step_metadata()``
     - ``sim_info`` → ``step_metadata``
+    - ``read_depcode_step_param()`` → ``read_neutronics_parameters()``
+    - ``param`` → ``neutronics_parameters``
 
   - ``DepcodeSerpent`` → ``SerpentDepcode``
 
@@ -123,6 +125,8 @@ Python API Changes
     - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
     - ``read_depcode_info()`` → ``read_depletion_step_metadata()``
     - ``sim_info`` → ``step_metadata``
+    - ``read_depcode_step_param()`` → ``read_neutronics_parameters()``
+    - ``param`` → ``neutronics_parameters``
 
 
   - ``OpenMCDepcode`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
