@@ -114,3 +114,12 @@ fi
 
 # Run the xsdirconvert script
 perl $XSDIR/xsdirconvert.pl $DATADIR/$XSDIR_FILE > $DATADIR/endfb71.xsdata
+
+# Fix bad names for Am242
+sed -i "s/Am-242/Am-242m/" $DATADIR/endfb71.xsdata
+sed -i "s/ Am-242/Am-242/" $DATADIR/endfb71.xsdata
+sed -i "s/Am-242mm/ Am-242/" $DATADIR/endfb71.xsdata
+sed -i "s/c  1  95242  0/c  1  95242  2/" $DATADIR/endfb71.xsdata
+sed -i "s/c  1  95242  1/c  1  95242  0/" $DATADIR/endfb71.xsdata
+sed -i "s/c  1  95242  2/c  1  95242  1/" $DATADIR/endfb71.xsdata
+sed -i "s/c  1  95042  0/c  1  95242  0/" $DATADIR/endfb71.xsdata
