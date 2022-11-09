@@ -146,23 +146,20 @@ class SerpentDepcode(Depcode):
         shutil.copy2(abs_src_matfile, self.iter_matfile)
         return [s.replace(src_file, self.iter_matfile) for s in template_data]
 
-    def get_nuc_name(self, nuc_code):
-        """Returns nuclide name in human-readable notation: chemical symbol
-        (one or two characters), dash, and the atomic weight. Lastly, if the
-        nuclide is in metastable state, the letter `m` is concatenated with
-        number of excited state. For example, `Am-242m1`.
+    def convert_nuclide_code_to_name(self, nuc_code):
+        """Converts Serpent2 nuclide code to symbolic nuclide name.
+        If nuclide is in a metastable state, the nuclide name is concatenated
+        with the letter `m` and the state index.
 
         Parameters
         ----------
         nuc_code : str
-            Name of nuclide in Serpent2 form. For instance, `Am-242m`.
+            Nuclide code in Serpent2 format (`47310.09c`)
 
         Returns
         -------
         nuc_name : str
-            Name of nuclide in human-readable notation (`Am-242m1`).
-        nuc_zzaaam : str
-            Name of nuclide in `zzaaam` form (`952421`).
+            Symbolic nuclide name (`Am242m1`).
 
         """
 
@@ -171,7 +168,6 @@ class SerpentDepcode(Depcode):
             zz = pyname.znum(nuc_code)
             aa = pyname.anum(nuc_code)
             aa_str = str(aa)
-            # at_mass = pydata.atomic_mass(nuc_code_id)
             if aa > 300:
                 if zz > 76:
                     aa_str = str(aa - 100) + 'm1'
@@ -189,9 +185,8 @@ class SerpentDepcode(Depcode):
                 nuc_name = pyname.name(nuc_code)[:-1] + 'm' + str(meta_flag)
             else:
                 nuc_name = pyname.name(nuc_code)
-        nuc_zzaaam = \
-            self.convert_nuclide_name_serpent_to_zam(pyname.zzaaam(nuc_code))
-        return nuc_name, nuc_zzaaam
+
+        return nuc_name
 
     def map_nuclide_code_zam_to_serpent(self):
         """Creates a dictionary mapping nuclide codes in `zzaaam` format
@@ -207,8 +202,8 @@ class SerpentDepcode(Depcode):
                 Nuclide code in `zzaaam` format. For example,
                 `922350` or `982510`.
             ``value``
-                Nuclide code in Serpent2 formate. For instance, 92235.09c for a
-                nuclide with cross section data, 982510 for a decay-only nuclide).
+                Nuclide code in Serpent2 format. For instance, 92235.09c for a
+                nuclide with cross section data or 982510 for a decay-only nuclide.
 
         """
         nuc_code_map = {}
@@ -225,7 +220,13 @@ class SerpentDepcode(Depcode):
                     break
                 if 'c  TRA' in line or 'c  DEC' in line:
                     line = line.split()
-                    iname, zzaaam = self.get_nuc_name(line[2])
+                    nuc_code = line[2]
+                    if '.' in str(nuc_code):
+                        nuc_code = pyname.zzzaaa_to_id(int(nuc_code.split('.')[0]))
+
+                    zzaaam = \
+                        self.convert_nuclide_code_to_zam(pyname.zzaaam(nuc_code))
+
                     nuc_code_map.update({zzaaam: line[2]})
         return nuc_code_map
 
@@ -436,22 +437,24 @@ class SerpentDepcode(Depcode):
                                % (self.codename))
         print('Finished Serpent2 Run')
 
-    def convert_nuclide_name_serpent_to_zam(self, nuc_code):
-        """Checks Serpent2-specific meta stable-flag for zzaaam. For instance,
+    def convert_nuclide_code_to_zam(self, nuc_code):
+        """Converts nuclide code from Serpent2 format to zam format.
+        Checks Serpent2-specific meta stable-flag for zzaaam. For instance,
         47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented
         with `aaa` started with ``3``.
 
         Parameters
         ----------
-        nuc_code : str
-            Name of nuclide in Serpent2 form. For instance, `47310`.
+        nuc_code : int
+            Nuclide code in Serpent2 format (`47310`).
 
         Returns
         -------
         nuc_zzaam : int
-            Name of nuclide in `zzaaam` form (`471101`).
+            Nuclide code in in `zzaaam` form (`471101`).
 
         """
+
         zz = pyname.znum(nuc_code)
         aa = pyname.anum(nuc_code)
         if aa > 300:

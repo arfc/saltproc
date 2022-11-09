@@ -133,7 +133,7 @@ class Simulation():
                 # Read isotopes from Materialflow
                 for nuc, wt_frac in waste_dict[mn][proc].comp.items():
                     # Dictonary in format {isotope_name : index(int)}
-                    iso_idx[self.sim_depcode.get_nuc_name(nuc)[0]] = coun
+                    iso_idx[self.sim_depcode.convert_nuclide_code_to_name(nuc)] = coun
                     # Convert wt% to absolute [user units]
                     iso_wt_frac.append(wt_frac * waste_dict[mn][proc].mass)
                     coun += 1
@@ -230,7 +230,7 @@ class Simulation():
             # Read isotopes from Materialflow for material
             for nuc_code, wt_frac in mats[key].comp.items():
                 # Dictonary in format {isotope_name : index(int)}
-                iso_idx[key][self.sim_depcode.get_nuc_name(nuc_code)[0]] = coun
+                iso_idx[key][self.sim_depcode.convert_nuclide_code_to_name(nuc_code)] = coun
                 # Convert wt% to absolute [user units]
                 iso_wt_frac.append(wt_frac * mats[key].mass)
                 coun += 1

@@ -17,14 +17,14 @@ def test_create_nuclide_name_map_zam_to_serpent(serpent_depcode):
     assert nuc_code_map[410911] == '410911'
 
 
-def test_convert_nuclide_name_serpent_to_zam(serpent_depcode):
-    assert serpent_depcode.convert_nuclide_name_serpent_to_zam(47310) == 471101
-    assert serpent_depcode.convert_nuclide_name_serpent_to_zam(95342) == 952421
-    assert serpent_depcode.convert_nuclide_name_serpent_to_zam(61348) == 611481
-    assert serpent_depcode.convert_nuclide_name_serpent_to_zam(52327) == 521271
-    assert serpent_depcode.convert_nuclide_name_serpent_to_zam(1001) == 1001
-    assert serpent_depcode.convert_nuclide_name_serpent_to_zam(1002) == 1002
-    assert serpent_depcode.convert_nuclide_name_serpent_to_zam(48315) == 481151
+def test_convert_nuclide_code_to_zam(serpent_depcode):
+    assert serpent_depcode.convert_nuclide_code_to_zam(47310) == 471101
+    assert serpent_depcode.convert_nuclide_code_to_zam(95342) == 952421
+    assert serpent_depcode.convert_nuclide_code_to_zam(61348) == 611481
+    assert serpent_depcode.convert_nuclide_code_to_zam(52327) == 521271
+    assert serpent_depcode.convert_nuclide_code_to_zam(1001) == 1001
+    assert serpent_depcode.convert_nuclide_code_to_zam(1002) == 1002
+    assert serpent_depcode.convert_nuclide_code_to_zam(48315) == 481151
 
 
 def test_read_plaintext_file(serpent_depcode):
@@ -36,21 +36,21 @@ def test_read_plaintext_file(serpent_depcode):
     assert template_str[23] == 'set pcc     1\n'
 
 
-def test_get_nuc_name(serpent_depcode):
-    assert serpent_depcode.get_nuc_name('92235.09c')[0] == 'U235'
-    assert serpent_depcode.get_nuc_name('38088.09c')[0] == 'Sr88'
-    assert serpent_depcode.get_nuc_name('95342.09c')[0] == 'Am242m1'
-    assert serpent_depcode.get_nuc_name('61348.03c')[0] == 'Pm148m1'
-    assert serpent_depcode.get_nuc_name('20060')[0] == 'He6'
-    assert serpent_depcode.get_nuc_name('110241')[0] == 'Na24m1'
-    assert serpent_depcode.get_nuc_name('170381')[0] == 'Cl38m1'
-    assert serpent_depcode.get_nuc_name('310741')[0] == 'Ga74m1'
-    assert serpent_depcode.get_nuc_name('290702')[0] == 'Cu70m2'
-    assert serpent_depcode.get_nuc_name('250621')[0] == 'Mn62m1'
-    assert serpent_depcode.get_nuc_name('300732')[0] == 'Zn73m2'
-    assert serpent_depcode.get_nuc_name('370981')[0] == 'Rb98m1'
-    assert serpent_depcode.get_nuc_name('390972')[0] == 'Y97m2'
-    assert serpent_depcode.get_nuc_name('491142')[0] == 'In114m2'
+def test_convert_nuclide_code_to_name(serpent_depcode):
+    assert serpent_depcode.convert_nuclide_code_to_name('92235.09c') == 'U235'
+    assert serpent_depcode.convert_nuclide_code_to_name('38088.09c') == 'Sr88'
+    assert serpent_depcode.convert_nuclide_code_to_name('95342.09c') == 'Am242m1'
+    assert serpent_depcode.convert_nuclide_code_to_name('61348.03c') == 'Pm148m1'
+    assert serpent_depcode.convert_nuclide_code_to_name('20060') == 'He6'
+    assert serpent_depcode.convert_nuclide_code_to_name('110241') == 'Na24m1'
+    assert serpent_depcode.convert_nuclide_code_to_name('170381') == 'Cl38m1'
+    assert serpent_depcode.convert_nuclide_code_to_name('310741') == 'Ga74m1'
+    assert serpent_depcode.convert_nuclide_code_to_name('290702') == 'Cu70m2'
+    assert serpent_depcode.convert_nuclide_code_to_name('250621') == 'Mn62m1'
+    assert serpent_depcode.convert_nuclide_code_to_name('300732') == 'Zn73m2'
+    assert serpent_depcode.convert_nuclide_code_to_name('370981') == 'Rb98m1'
+    assert serpent_depcode.convert_nuclide_code_to_name('390972') == 'Y97m2'
+    assert serpent_depcode.convert_nuclide_code_to_name('491142') == 'In114m2'
 
 
 def test_read_step_metadata(serpent_depcode):
