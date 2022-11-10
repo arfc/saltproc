@@ -7,13 +7,15 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   saltproc.abc
    saltproc.app
-   saltproc.depcode
    saltproc.materialflow
+   saltproc.openmc_depcode
    saltproc.openmc_deplete
    saltproc.process
    saltproc.reactor
    saltproc.separator
+   saltproc.serpent_depcode
    saltproc.simulation
    saltproc.sparger
    saltproc.version

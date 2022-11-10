@@ -63,9 +63,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      <li>saltproc.app</li>
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">saltproc.app</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -87,7 +87,7 @@
 <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
 <span class="kn">import</span> <span class="nn">pydotplus</span>
 
-<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">DepcodeSerpent</span><span class="p">,</span> <span class="n">DepcodeOpenMC</span><span class="p">,</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">Reactor</span>
+<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">SerpentDepcode</span><span class="p">,</span> <span class="n">OpenMCDepcode</span><span class="p">,</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">Reactor</span>
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Sparger</span><span class="p">,</span> <span class="n">Separator</span><span class="p">,</span> <span class="n">Materialflow</span>
 
 
@@ -317,9 +317,9 @@
     <span class="sd">&quot;&quot;&quot;Helper function for `run()` &quot;&quot;&quot;</span>
     <span class="n">codename</span> <span class="o">=</span> <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">codename</span> <span class="o">==</span> <span class="s1">&#39;serpent&#39;</span><span class="p">:</span>
-        <span class="n">depcode</span> <span class="o">=</span> <span class="n">DepcodeSerpent</span>
+        <span class="n">depcode</span> <span class="o">=</span> <span class="n">SerpentDepcode</span>
     <span class="k">elif</span> <span class="n">codename</span> <span class="o">==</span> <span class="s1">&#39;openmc&#39;</span><span class="p">:</span>
-        <span class="n">depcode</span> <span class="o">=</span> <span class="n">DepcodeOpenMC</span>
+        <span class="n">depcode</span> <span class="o">=</span> <span class="n">OpenMCDepcode</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">depcode_input</span><span class="p">[</span><span class="s2">&quot;codename&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> is not a supported depletion code&#39;</span><span class="p">)</span>

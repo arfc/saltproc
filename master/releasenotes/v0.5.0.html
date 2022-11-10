@@ -81,9 +81,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Release Notes</a> &raquo;</li>
-      <li>Release notes for v0.5.0</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Release Notes</a></li>
+      <li class="breadcrumb-item active">Release notes for v0.5.0</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/releasenotes/v0.5.0.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -170,13 +170,13 @@ longer be initialized by the user during object creation.</p>
 <li><p>Changed <cite>iter_inputfile</cite> and <cite>iter_matfile</cite> to be attributes instead of parameters</p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent</span></code> → <code class="docutils literal notranslate"><span class="pre">SerpentDepcode</span></code></p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">template_inputfile_path</span></code> → <code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code></p></li>
 <li><p>Changed <cite>iter_inputfile</cite> and <cite>iter_matfile</cite> to be attributes instead of parameters</p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">DepcodeOpenmc</span></code> is a <code class="docutils literal notranslate"><span class="pre">Depcode</span></code> subclass that interfaces with <code class="docutils literal notranslate"><span class="pre">openmc</span></code>. This class implements the following functions</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">OpenMCDepcode</span></code> is a <code class="docutils literal notranslate"><span class="pre">Depcode</span></code> subclass that interfaces with <code class="docutils literal notranslate"><span class="pre">openmc</span></code>. This class implements the following functions</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">run_depcode()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">switch_to_next_geometry()</span></code></p></li>

@@ -72,8 +72,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Overview</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Overview</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/overview.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -110,7 +110,7 @@ Molten Salt Reactors. It performs following major functions:</p>
 <p>The code logic flow is the following:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>Runs the transport-depletion code (<a class="reference internal" href="src/saltproc.depcode.html#saltproc.depcode.Depcode.run_depcode" title="saltproc.depcode.Depcode.run_depcode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">saltproc.depcode.Depcode.run_depcode()</span></code></a>)</p></li>
+<li><p>Runs the transport-depletion code (<code class="xref py py-meth docutils literal notranslate"><span class="pre">saltproc.depcode.Depcode.run_depcode()</span></code>)</p></li>
 <li><p>Parses through the output <cite>*_dep.m</cite> file and creates PyNE Material object
 for each burnable material.</p></li>
 <li><p>Processes Fuel (<a class="reference internal" href="src/saltproc.app.html#saltproc.app.reprocess_materials" title="saltproc.app.reprocess_materials"><code class="xref py py-meth docutils literal notranslate"><span class="pre">saltproc.app.reprocess_materials()</span></code></a> and <a class="reference internal" href="src/saltproc.app.html#saltproc.app.refill_materials" title="saltproc.app.refill_materials"><code class="xref py py-meth docutils literal notranslate"><span class="pre">saltproc.app.refill_materials()</span></code></a>):</p></li>

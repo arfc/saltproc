@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>saltproc.depcode &mdash; Saltproc 0.5.dev documentation</title>
+  <title>saltproc.serpent_depcode &mdash; Saltproc 0.5.dev documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -63,9 +63,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      <li>saltproc.depcode</li>
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">saltproc.serpent_depcode</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -74,493 +74,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for saltproc.depcode</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Materialflow</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
+  <h1>Source code for saltproc.serpent_depcode</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">re</span>
+
 <span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">nucname</span> <span class="k">as</span> <span class="n">pyname</span>
 <span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">serpent</span>
-<span class="kn">import</span> <span class="nn">openmc</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 
+<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Materialflow</span>
+<span class="kn">from</span> <span class="nn">saltproc.abc</span> <span class="kn">import</span> <span class="n">Depcode</span>
 
-<div class="viewcode-block" id="Depcode"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode">[docs]</a><span class="k">class</span> <span class="nc">Depcode</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Abstract class for interfacing with monte-carlo particle transport</span>
-<span class="sd">    codes. Contains information about input, output, geometry, and template</span>
-<span class="sd">    files for running depletion simulations. Also contains neutron</span>
-<span class="sd">    population, active, and inactive cycles. Contains methods to read template</span>
-<span class="sd">    and output files, and write new input files for the depletion code.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    -----------</span>
-<span class="sd">    param : dict of str to type</span>
-<span class="sd">        Holds depletion step parameter information. Parameter names are keys</span>
-<span class="sd">        and parameter values are values.</span>
-<span class="sd">    sim_info : dict of str to type</span>
-<span class="sd">        Holds simulation settings information. Setting names are keys</span>
-<span class="sd">        and setting values are values.</span>
-<span class="sd">    iter_inputfile : str</span>
-<span class="sd">        Path to depletion code input file for depletion code rerunning.</span>
-<span class="sd">    iter_matfile : str</span>
-<span class="sd">        Path to iterative, rewritable material file for depletion code</span>
-<span class="sd">        rerunning. This file is modified during  the simulation.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="Depcode.__init__"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">codename</span><span class="p">,</span>
-                 <span class="n">exec_path</span><span class="p">,</span>
-                 <span class="n">template_input_file_path</span><span class="p">,</span>
-                 <span class="n">geo_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">npop</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-                 <span class="n">active_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-                 <span class="n">inactive_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the Depcode object.</span>
-
-<span class="sd">           Parameters</span>
-<span class="sd">           ----------</span>
-<span class="sd">           codename : str</span>
-<span class="sd">               Name of depletion code.</span>
-<span class="sd">           exec_path : str</span>
-<span class="sd">               Path to depletion code executable.</span>
-<span class="sd">           template_input_file_path : str or dict of str to str</span>
-<span class="sd">               Path(s) to depletion code input file(s), or a dictionary where</span>
-<span class="sd">               the input type (e.g. material, geometry, settings, etc.) as a</span>
-<span class="sd">               string are keys, and the path to the input file are values.</span>
-<span class="sd">               Type depends on depletion code in use.</span>
-<span class="sd">           geo_files : str or list, optional</span>
-<span class="sd">               Path to file that contains the reactor geometry.</span>
-<span class="sd">               List of `str` if reactivity control by</span>
-<span class="sd">               switching geometry is `On` or just `str` otherwise.</span>
-<span class="sd">           npop : int, optional</span>
-<span class="sd">               Size of neutron population per cycle for Monte Carlo.</span>
-<span class="sd">           active_cycles : int, optional</span>
-<span class="sd">               Number of active cycles.</span>
-<span class="sd">           inactive_cycles : int, optional</span>
-<span class="sd">               Number of inactive cycles.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">codename</span> <span class="o">=</span> <span class="n">codename</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span> <span class="o">=</span> <span class="n">exec_path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span> <span class="o">=</span> <span class="n">template_input_file_path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span> <span class="o">=</span> <span class="n">geo_files</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">npop</span> <span class="o">=</span> <span class="n">npop</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span> <span class="o">=</span> <span class="n">active_cycles</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span> <span class="o">=</span> <span class="n">inactive_cycles</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="s1">&#39;./iter_input&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">=</span> <span class="s1">&#39;./iter_mat&#39;</span></div>
-
-<div class="viewcode-block" id="Depcode.read_depcode_info"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.read_depcode_info">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">read_depcode_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Parses initial depletion code info data from depletion code</span>
-<span class="sd">        output and stores it in the `Depcode` object&#39;s ``sim_info`` attribute.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-
-<div class="viewcode-block" id="Depcode.read_depcode_step_param"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.read_depcode_step_param">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">read_depcode_step_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Parses data from depletion code output for each step and stores</span>
-<span class="sd">        it in `Depcode` object&#39;s ``param`` attributes.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-
-<div class="viewcode-block" id="Depcode.read_dep_comp"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.read_dep_comp">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">read_dep_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Reads the depleted material data from the depcode simulation</span>
-<span class="sd">        and returns a dictionary with a `Materialflow` object for each</span>
-<span class="sd">        burnable material.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        read_at_end : bool, optional</span>
-<span class="sd">            Controls at which moment in the depletion step to read the data.</span>
-<span class="sd">            If `True`, the function reads data at the end of the</span>
-<span class="sd">            depletion step. Otherwise, the function reads data at the</span>
-<span class="sd">            beginning of the depletion step.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        mats : dict of str to Materialflow</span>
-<span class="sd">            Dictionary that contains `Materialflow` objects.</span>
-
-<span class="sd">            ``key``</span>
-<span class="sd">                Name of burnable material.</span>
-<span class="sd">            ``value``</span>
-<span class="sd">                `Materialflow` object holding composition and properties.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span></div>
-
-<div class="viewcode-block" id="Depcode.run_depcode"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.run_depcode">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">run_depcode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs depletion code as a subprocess with the given parameters.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        cores : int</span>
-<span class="sd">            Number of cores to use for depletion code run.</span>
-<span class="sd">        nodes : int</span>
-<span class="sd">            Number of nodes to use for depletion code run.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-
-<div class="viewcode-block" id="Depcode.switch_to_next_geometry"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.switch_to_next_geometry">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">switch_to_next_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Changes the geometry used in the depletion code simulation to the</span>
-<span class="sd">        next geometry file in ``geo_files``</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-
-<div class="viewcode-block" id="Depcode.write_depcode_input"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.write_depcode_input">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">write_depcode_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Writes prepared data into depletion code input file(s).</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        reactor : Reactor</span>
-<span class="sd">            Contains information about power load curve and cumulative</span>
-<span class="sd">            depletion time for the integration test.</span>
-<span class="sd">        dep_step : int</span>
-<span class="sd">            Current depletion time step.</span>
-<span class="sd">        restart : bool</span>
-<span class="sd">            Is the current simulation restarted?</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-
-<div class="viewcode-block" id="Depcode.write_mat_file"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.Depcode.write_mat_file">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">write_mat_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_dict</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Writes the iteration input file containing the burnable materials</span>
-<span class="sd">        composition used in depletion runs and updated after each depletion</span>
-<span class="sd">        step.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        dep_dict : dict of str to Materialflow</span>
-<span class="sd">            Dictionary that contains `Materialflow` objects.</span>
-
-<span class="sd">            ``key``</span>
-<span class="sd">                Name of burnable material.</span>
-<span class="sd">            ``value``</span>
-<span class="sd">                `Materialflow` object holding composition and properties.</span>
-<span class="sd">        dep_end_time : float</span>
-<span class="sd">            Current time at the end of the depletion step (d).</span>
-
-<span class="sd">        &quot;&quot;&quot;</span></div></div>
-
-
-<div class="viewcode-block" id="DepcodeOpenMC"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC">[docs]</a><span class="k">class</span> <span class="nc">DepcodeOpenMC</span><span class="p">(</span><span class="n">Depcode</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class contains information about input, output, geometry, and</span>
-<span class="sd">    template files for running OpenMC depletion simulations.</span>
-<span class="sd">    Also contains neutrons population, active, and inactive cycles.</span>
-<span class="sd">    Contains methods to read template and output files,</span>
-<span class="sd">    write new input files for OpenMC.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    param : dict of str to type</span>
-<span class="sd">        Holds depletion step parameter information. Parameter names are keys</span>
-<span class="sd">        and parameter values are values.</span>
-<span class="sd">    sim_info : dict of str to type</span>
-<span class="sd">        Holds simulation settings information. Setting names are keys</span>
-<span class="sd">        and setting values are values.</span>
-<span class="sd">    iter_inputfile : dict of str to str</span>
-<span class="sd">        Paths to OpenMC input files for OpenMC rerunning.</span>
-<span class="sd">    iter_matfile : str</span>
-<span class="sd">        Path to iterative, rewritable material file for OpenMC</span>
-<span class="sd">        rerunning. This file is modified during the simulation.</span>
-
-
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="DepcodeOpenMC.__init__"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">exec_path</span><span class="o">=</span><span class="s2">&quot;openmc_deplete.py&quot;</span><span class="p">,</span>
-                 <span class="n">template_input_file_path</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="s2">&quot;./geometry.xml&quot;</span><span class="p">,</span>
-                                           <span class="s2">&quot;settings&quot;</span><span class="p">:</span> <span class="s2">&quot;./settings.xml&quot;</span><span class="p">,</span>
-                                           <span class="s2">&quot;chain_file&quot;</span><span class="p">:</span> <span class="s2">&quot;./chain_simple.xml&quot;</span><span class="p">},</span>
-                 <span class="n">geo_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">npop</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-                 <span class="n">active_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-                 <span class="n">inactive_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the DepcodeOpenMC object.</span>
-
-<span class="sd">           Parameters</span>
-<span class="sd">           ----------</span>
-<span class="sd">           exec_path : str</span>
-<span class="sd">               Path to OpenMC depletion script.</span>
-<span class="sd">           template_input_file_path : dict of str to str</span>
-<span class="sd">               Path to user input files (``.xml`` file for geometry,</span>
-<span class="sd">               material, and settings) for OpenMC. File type as strings</span>
-<span class="sd">               are keys (e.g. &#39;geometry&#39;, &#39;settings&#39;, &#39;material&#39;), and</span>
-<span class="sd">               file path as strings are values.</span>
-<span class="sd">           geo_files : str or list, optional</span>
-<span class="sd">               Path to file that contains the reactor geometry.</span>
-<span class="sd">               List of `str` if reactivity control by</span>
-<span class="sd">               switching geometry is `On` or just `str` otherwise.</span>
-<span class="sd">           npop : int, optional</span>
-<span class="sd">               Size of neutron population per cycle for Monte Carlo.</span>
-<span class="sd">           active_cycles : int, optional</span>
-<span class="sd">               Number of active cycles.</span>
-<span class="sd">           inactive_cycles : int, optional</span>
-<span class="sd">               Number of inactive cycles.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;openmc&quot;</span><span class="p">,</span>
-                         <span class="n">exec_path</span><span class="p">,</span>
-                         <span class="n">template_input_file_path</span><span class="p">,</span>
-                         <span class="n">geo_files</span><span class="p">,</span>
-                         <span class="n">npop</span><span class="p">,</span>
-                         <span class="n">active_cycles</span><span class="p">,</span>
-                         <span class="n">inactive_cycles</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="s1">&#39;./geometry.xml&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;settings&#39;</span><span class="p">:</span> <span class="s1">&#39;./settings.xml&#39;</span><span class="p">},</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">=</span> <span class="s1">&#39;./materials.xml&#39;</span></div>
-
-<div class="viewcode-block" id="DepcodeOpenMC.read_depcode_info"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.read_depcode_info">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Parses initial OpenMC simulation info from the OpenMC output files</span>
-<span class="sd">        and stores it in the `Depcode` object&#39;s ``sim_info`` attribute.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-
-<div class="viewcode-block" id="DepcodeOpenMC.read_depcode_step_param"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.read_depcode_step_param">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_step_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Parses data from OpenMC depletion output for each step and stores</span>
-<span class="sd">        it in `Depcode` object&#39;s ``param`` attributes.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-
-<div class="viewcode-block" id="DepcodeOpenMC.read_dep_comp"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.read_dep_comp">[docs]</a>    <span class="k">def</span> <span class="nf">read_dep_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Reads the depleted material data from the OpenMC depletion</span>
-<span class="sd">        simulation and returns a dictionary with a `Materialflow` object for</span>
-<span class="sd">        each burnable material.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        read_at_end : bool, optional</span>
-<span class="sd">            Controls at which moment in the depletion step to read the data.</span>
-<span class="sd">            If `True`, the function reads data at the end of the</span>
-<span class="sd">            depletion step. Otherwise, the function reads data at the</span>
-<span class="sd">            beginning of the depletion step.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        mats : dict of str to Materialflow</span>
-<span class="sd">            Dictionary that contains `Materialflow` objects.</span>
-
-<span class="sd">            ``key``</span>
-<span class="sd">                Name of burnable material.</span>
-<span class="sd">            ``value``</span>
-<span class="sd">                `Materialflow` object holding composition and properties.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span></div>
-
-<div class="viewcode-block" id="DepcodeOpenMC.run_depcode"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.run_depcode">[docs]</a>    <span class="k">def</span> <span class="nf">run_depcode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs OpenMC depletion simulation as a subprocess with the given</span>
-<span class="sd">        parameters.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        cores : int</span>
-<span class="sd">            Number of cores to use for depletion code run.</span>
-<span class="sd">        nodes : int</span>
-<span class="sd">            Number of nodes to use for depletion code run.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># need to add flow control for plots option</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s1">&#39;mpiexec&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;-n&#39;</span><span class="p">,</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span>
-            <span class="s1">&#39;python&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;./deplete_openmc.py&#39;</span>
-            <span class="s1">&#39;-mat&#39;</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">,</span>
-            <span class="s1">&#39;-geo&#39;</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">],</span>
-            <span class="s1">&#39;-set&#39;</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">],</span>
-            <span class="s1">&#39;-tal&#39;</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;tallies&#39;</span><span class="p">],</span>
-            <span class="s1">&#39;-dep&#39;</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;depletion_settings&#39;</span><span class="p">])</span>
-
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
-        <span class="c1"># TODO: Need to figure out how to adapt this to openmc</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
-                <span class="n">args</span><span class="p">,</span>
-                <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> RUN FAILED</span><span class="se">\n</span><span class="s1"> see error message above&#39;</span>
-                               <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished OpenMC Run&#39;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="DepcodeOpenMC.switch_to_next_geometry"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.switch_to_next_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">switch_to_next_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Switches the geometry file for the OpenMC depletion simulation to</span>
-<span class="sd">        the next geometry file in `geo_files`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">mats</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span>
-        <span class="n">next_geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
-            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
-            <span class="n">materials</span><span class="o">=</span><span class="n">mats</span><span class="p">)</span>
-        <span class="n">next_geometry</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">])</span>
-        <span class="k">del</span> <span class="n">mats</span><span class="p">,</span> <span class="n">next_geometry</span></div>
-
-<div class="viewcode-block" id="DepcodeOpenMC.write_depcode_input"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.write_depcode_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_depcode_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Writes prepared data into OpenMC input file(s).</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        reactor : Reactor</span>
-<span class="sd">            Contains information about power load curve and cumulative</span>
-<span class="sd">            depletion time for the integration test.</span>
-<span class="sd">        dep_step : int</span>
-<span class="sd">            Current depletion time step.</span>
-<span class="sd">        restart : bool</span>
-<span class="sd">            Is the current simulation restarted?</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="n">dep_step</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">restart</span><span class="p">:</span>
-            <span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;materials&#39;</span><span class="p">])</span>
-            <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">materials</span><span class="o">=</span><span class="n">materials</span><span class="p">)</span>
-            <span class="n">settings</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Settings</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">])</span>
-            <span class="n">settings</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">npop</span>
-            <span class="n">settings</span><span class="o">.</span><span class="n">inactive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span>
-            <span class="n">settings</span><span class="o">.</span><span class="n">batches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span>
-            <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">],</span> <span class="n">materials</span><span class="o">=</span><span class="n">materials</span><span class="p">)</span>
-            <span class="n">settings</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Settings</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">])</span>
-
-        <span class="n">materials</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span>
-        <span class="n">geometry</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">])</span>
-        <span class="n">settings</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_depletion_settings</span><span class="p">(</span><span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_saltproc_openmc_tallies</span><span class="p">(</span><span class="n">materials</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span>
-        <span class="k">del</span> <span class="n">materials</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">settings</span></div>
-
-<div class="viewcode-block" id="DepcodeOpenMC.write_depletion_settings"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.write_depletion_settings">[docs]</a>    <span class="k">def</span> <span class="nf">write_depletion_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">current_depstep_idx</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Write the depeletion settings for the ``openmc.deplete``</span>
-<span class="sd">        module.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        reactor : Reactor</span>
-<span class="sd">            Contains information about power load curve and cumulative</span>
-<span class="sd">            depletion time for the integration test.</span>
-<span class="sd">        current_depstep_idx : int</span>
-<span class="sd">            Current depletion step.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">depletion_settings</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">current_depstep_power</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">power_levels</span><span class="p">[</span><span class="n">current_depstep_idx</span><span class="p">]</span>
-
-        <span class="c1"># Get current depletion step length</span>
-        <span class="k">if</span> <span class="n">current_depstep_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">current_depstep</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">current_depstep</span> <span class="o">=</span> \
-                <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="n">current_depstep_idx</span><span class="p">]</span> <span class="o">-</span> \
-                <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="n">current_depstep_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-
-        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">])</span>
-        <span class="n">depletion_settings</span><span class="p">[</span><span class="s1">&#39;directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_path</span>
-        <span class="n">depletion_settings</span><span class="p">[</span><span class="s1">&#39;timesteps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">current_depstep</span><span class="p">]</span>
-
-        <span class="n">operator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">operator_kwargs</span><span class="p">[</span><span class="s1">&#39;chain_file&#39;</span><span class="p">]</span> <span class="o">=</span> \
-                <span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;chain_file&#39;</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="s2">&quot;No chain file defined. Please provide </span><span class="se">\</span>
-<span class="s2">            a chain file in your saltproc input file&quot;</span><span class="p">)</span>
-
-        <span class="n">integrator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">integrator_kwargs</span><span class="p">[</span><span class="s1">&#39;power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_depstep_power</span>
-        <span class="n">integrator_kwargs</span><span class="p">[</span><span class="s1">&#39;timestep_units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;d&#39;</span>  <span class="c1"># days</span>
-
-        <span class="n">depletion_settings</span><span class="p">[</span><span class="s1">&#39;operator_kwargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">operator_kwargs</span>
-        <span class="n">depletion_settings</span><span class="p">[</span><span class="s1">&#39;integrator_kwargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">integrator_kwargs</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;depletion_settings&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s1">&#39;depletion_settings.json&#39;</span><span class="p">)</span>
-        <span class="n">json_dep_settings</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">depletion_settings</span><span class="p">)</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;depletion_settings&#39;</span><span class="p">],</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">json_dep_settings</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="DepcodeOpenMC.write_mat_file"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.write_mat_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_mat_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_dict</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Writes the iteration input file containing the burnable materials</span>
-<span class="sd">        composition used in OpenMC depletion runs and updated after each</span>
-<span class="sd">        depletion step.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        dep_dict : dict of str to Materialflow</span>
-<span class="sd">            Dictionary that contains `Materialflow` objects.</span>
-
-<span class="sd">            ``key``</span>
-<span class="sd">                Name of burnable material.</span>
-<span class="sd">            ``value``</span>
-<span class="sd">                `Materialflow` object holding composition and properties.</span>
-<span class="sd">        dep_end_time : float</span>
-<span class="sd">            Current time at the end of the depletion step (d).</span>
-
-<span class="sd">        &quot;&quot;&quot;</span></div>
-
-<div class="viewcode-block" id="DepcodeOpenMC.write_saltproc_openmc_tallies"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeOpenMC.write_saltproc_openmc_tallies">[docs]</a>    <span class="k">def</span> <span class="nf">write_saltproc_openmc_tallies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">materials</span><span class="p">,</span> <span class="n">geometry</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Write tallies for calculating burnup and delayed neutron</span>
-<span class="sd">        parameters.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        materials : `openmc.Materials` object</span>
-<span class="sd">            The materials for the depletion simulation</span>
-<span class="sd">        geometry : `openmc.Geometry` object</span>
-<span class="sd">            The geometry for the depletion simulation</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">tallies</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tallies</span><span class="p">()</span>
-
-        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;delayed-fission-neutrons&#39;</span><span class="p">)</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">openmc</span><span class="o">.</span><span class="n">DelayedGroupFilter</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])]</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;delayed-nu-fission&#39;</span><span class="p">]</span>
-        <span class="n">tallies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tally</span><span class="p">)</span>
-
-        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;total-fission-neutrons&#39;</span><span class="p">)</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">openmc</span><span class="o">.</span><span class="n">UniverseFilter</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">root_universe</span><span class="p">)]</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nu-fission&#39;</span><span class="p">]</span>
-        <span class="n">tallies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tally</span><span class="p">)</span>
-
-        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;precursor-decay-constants&#39;</span><span class="p">)</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">openmc</span><span class="o">.</span><span class="n">DelayedGroupFilter</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])]</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;decay-rate&#39;</span><span class="p">]</span>
-        <span class="n">tallies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tally</span><span class="p">)</span>
-
-        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;fission-energy&#39;</span><span class="p">)</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">openmc</span><span class="o">.</span><span class="n">UniverseFilter</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">root_universe</span><span class="p">)]</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;fission-q-recoverable&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;fission-q-prompt&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;kappa-fission&#39;</span><span class="p">]</span>
-        <span class="n">tallies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tally</span><span class="p">)</span>
-
-        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;normalization-factor&#39;</span><span class="p">)</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">openmc</span><span class="o">.</span><span class="n">UniverseFilter</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">root_universe</span><span class="p">)]</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;heating&#39;</span><span class="p">]</span>
-        <span class="n">tallies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tally</span><span class="p">)</span>
-
-        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;tallies&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s1">&#39;tallies.xml&#39;</span><span class="p">)</span>
-        <span class="n">tallies</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">[</span><span class="s1">&#39;tallies&#39;</span><span class="p">])</span>
-        <span class="k">del</span> <span class="n">tallies</span></div></div>
-
-
-<div class="viewcode-block" id="DepcodeSerpent"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent">[docs]</a><span class="k">class</span> <span class="nc">DepcodeSerpent</span><span class="p">(</span><span class="n">Depcode</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode">[docs]</a><span class="k">class</span> <span class="nc">SerpentDepcode</span><span class="p">(</span><span class="n">Depcode</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class contains information about input, output, geometry, and</span>
 <span class="sd">    template files for running Serpent2 depletion simulations.</span>
 <span class="sd">    Also contains neutrons population, active, and inactive cycles.</span>
@@ -583,14 +109,14 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="DepcodeSerpent.__init__"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="SerpentDepcode.__init__"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">exec_path</span><span class="o">=</span><span class="s2">&quot;sss2&quot;</span><span class="p">,</span>
                  <span class="n">template_input_file_path</span><span class="o">=</span><span class="s2">&quot;reactor.serpent&quot;</span><span class="p">,</span>
                  <span class="n">geo_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">npop</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
                  <span class="n">active_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                  <span class="n">inactive_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the DepcodeSerpent object.</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the SerpentDepcode object.</span>
 
 <span class="sd">           Parameters</span>
 <span class="sd">           ----------</span>
@@ -620,7 +146,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="s1">&#39;./serpent_iter_input.serpent&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">=</span> <span class="s1">&#39;./serpent_iter_mat.ini&#39;</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.change_sim_par"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.change_sim_par">[docs]</a>    <span class="k">def</span> <span class="nf">change_sim_par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_data</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.change_sim_par"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.change_sim_par">[docs]</a>    <span class="k">def</span> <span class="nf">change_sim_par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Finds simulation parameters (neutron population, cycles) in the</span>
 <span class="sd">        Serpent2 template file and change them to the parameters from the</span>
 <span class="sd">        SaltProc input file.</span>
@@ -654,7 +180,7 @@
                                            <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">sim_param</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">args</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">template_data</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.create_iter_matfile"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.create_iter_matfile">[docs]</a>    <span class="k">def</span> <span class="nf">create_iter_matfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_data</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.create_iter_matfile"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.create_iter_matfile">[docs]</a>    <span class="k">def</span> <span class="nf">create_iter_matfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Finds ``include`` line with path to material file, copies content of</span>
 <span class="sd">        this file to iteration material file, changes path in ``include`` line</span>
 <span class="sd">        to newly created iteration material file.</span>
@@ -697,7 +223,7 @@
         <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">abs_src_matfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">src_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">template_data</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.get_nuc_name"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.get_nuc_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_nuc_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.get_nuc_name"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.get_nuc_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_nuc_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns nuclide name in human-readable notation: chemical symbol</span>
 <span class="sd">        (one or two characters), dash, and the atomic weight. Lastly, if the</span>
 <span class="sd">        nuclide is in metastable state, the letter `m` is concatenated with</span>
@@ -744,7 +270,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">convert_nuclide_name_serpent_to_zam</span><span class="p">(</span><span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">nuc_name</span><span class="p">,</span> <span class="n">nuc_zzaaam</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.create_nuclide_name_map_zam_to_serpent"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.create_nuclide_name_map_zam_to_serpent">[docs]</a>    <span class="k">def</span> <span class="nf">create_nuclide_name_map_zam_to_serpent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.create_nuclide_name_map_zam_to_serpent"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.create_nuclide_name_map_zam_to_serpent">[docs]</a>    <span class="k">def</span> <span class="nf">create_nuclide_name_map_zam_to_serpent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Create a map that accepts nuclide names in `zzaaam` format and</span>
 <span class="sd">        returns the Serpent2 nuclide code format. Uses Serpent2 `*.out` file</span>
 <span class="sd">        with list of all nuclides in simulation.</span>
@@ -781,7 +307,7 @@
                 <span class="n">map_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">zzaaam</span><span class="p">:</span> <span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iso_map</span> <span class="o">=</span> <span class="n">map_dict</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.insert_path_to_geometry"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.insert_path_to_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">insert_path_to_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_data</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.insert_path_to_geometry"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.insert_path_to_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">insert_path_to_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Inserts ``include &lt;first_geometry_file&gt;`` line on the 6th line of</span>
 <span class="sd">        Serpent2 input file.</span>
 
@@ -801,7 +327,7 @@
                              <span class="s1">&#39;include </span><span class="se">\&quot;</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\&quot;\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">template_data</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.read_dep_comp"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_dep_comp">[docs]</a>    <span class="k">def</span> <span class="nf">read_dep_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.read_dep_comp"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_dep_comp">[docs]</a>    <span class="k">def</span> <span class="nf">read_dep_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reads the Serpent2 `*_dep.m` file and returns a dictionary with</span>
 <span class="sd">        a `Materialflow` object for each burnable material.</span>
 
@@ -853,9 +379,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">create_nuclide_name_map_zam_to_serpent</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">mats</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.read_depcode_info"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_depcode_info">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.read_depcode_info"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_depcode_info">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Parses initial simulation info data from Serpent2 output and stores</span>
-<span class="sd">        it in the `DepcodeSerpent` object&#39;s ``sim_info`` attributes.</span>
+<span class="sd">        it in the `SerpentDepcode` object&#39;s ``sim_info`` attributes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s2">&quot;_res.m&quot;</span><span class="p">)</span>
         <span class="n">depcode_name</span><span class="p">,</span> <span class="n">depcode_ver</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;VERSION&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
@@ -874,9 +400,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;BURN_DAYS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;BURN_DAYS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.read_depcode_step_param"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_depcode_step_param">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_step_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.read_depcode_step_param"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_depcode_step_param">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_step_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Parses data from Serpent2 output for each step and stores it in</span>
-<span class="sd">        `DepcodeSerpent` object&#39;s ``param`` attributes.</span>
+<span class="sd">        `SerpentDepcode` object&#39;s ``param`` attributes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s2">&quot;_res.m&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IMP_KEFF&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -893,7 +419,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;fission_mass_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;INI_FMASS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;fission_mass_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TOT_FMASS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.read_plaintext_file"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.read_plaintext_file">[docs]</a>    <span class="k">def</span> <span class="nf">read_plaintext_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.read_plaintext_file"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_plaintext_file">[docs]</a>    <span class="k">def</span> <span class="nf">read_plaintext_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reads the content of a plaintext file for use by other methods.</span>
 
 <span class="sd">        Parameters</span>
@@ -912,7 +438,7 @@
             <span class="n">template_data</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">template_data</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.replace_burnup_parameters"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.replace_burnup_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">replace_burnup_parameters</span><span class="p">(</span>
+<div class="viewcode-block" id="SerpentDepcode.replace_burnup_parameters"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.replace_burnup_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">replace_burnup_parameters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">template_data</span><span class="p">,</span>
         <span class="n">reactor</span><span class="p">,</span>
@@ -958,7 +484,7 @@
                               <span class="n">current_depstep</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">template_data</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.run_depcode"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.run_depcode">[docs]</a>    <span class="k">def</span> <span class="nf">run_depcode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.run_depcode"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.run_depcode">[docs]</a>    <span class="k">def</span> <span class="nf">run_depcode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Runs Serpent2 as a subprocess with the given parameters.</span>
 
 <span class="sd">        Parameters</span>
@@ -1001,7 +527,7 @@
                                <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished Serpent2 Run&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.convert_nuclide_name_serpent_to_zam"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.convert_nuclide_name_serpent_to_zam">[docs]</a>    <span class="k">def</span> <span class="nf">convert_nuclide_name_serpent_to_zam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.convert_nuclide_name_serpent_to_zam"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.convert_nuclide_name_serpent_to_zam">[docs]</a>    <span class="k">def</span> <span class="nf">convert_nuclide_name_serpent_to_zam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks Serpent2-specific meta stable-flag for zzaaam. For instance,</span>
 <span class="sd">        47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented</span>
 <span class="sd">        with `aaa` started with ``3``.</span>
@@ -1029,7 +555,7 @@
             <span class="n">zzaaam</span> <span class="o">=</span> <span class="n">nuc_code</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">zzaaam</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.switch_to_next_geometry"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.switch_to_next_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">switch_to_next_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.switch_to_next_geometry"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.switch_to_next_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">switch_to_next_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Inserts line with path to next Serpent geometry file at the</span>
 <span class="sd">        beginning of the Serpent iteration input file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1054,7 +580,7 @@
         <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.write_depcode_input"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.write_depcode_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_depcode_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.write_depcode_input"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.write_depcode_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_depcode_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Writes prepared data into the Serpent2 input file.</span>
 
 <span class="sd">        Parameters</span>
@@ -1083,7 +609,7 @@
             <span class="n">out_file</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">out_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DepcodeSerpent.write_mat_file"><a class="viewcode-back" href="../../src/saltproc.depcode.html#saltproc.depcode.DepcodeSerpent.write_mat_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_mat_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_dict</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
+<div class="viewcode-block" id="SerpentDepcode.write_mat_file"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.write_mat_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_mat_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_dict</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Writes the iteration input file containing the burnable materials</span>
 <span class="sd">        composition used in Serpent2 runs and updated after each depletion</span>
 <span class="sd">        step.</span>
@@ -1156,7 +682,7 @@
     </dl>
     <dl>
       <dt>Branches</dt>
-      <dd><a href="depcode.html">master</a></dd>
+      <dd><a href="serpent_depcode.html">master</a></dd>
     </dl>
   </div>
 </div><script>
