@@ -10,7 +10,7 @@ import gc
 import networkx as nx
 import pydotplus
 
-from saltproc import DepcodeSerpent, DepcodeOpenMC, Simulation, Reactor
+from saltproc import SerpentDepcode, OpenMCDepcode, Simulation, Reactor
 from saltproc import Process, Sparger, Separator, Materialflow
 
 
@@ -240,9 +240,9 @@ def _create_depcode_object(depcode_input):
     """Helper function for `run()` """
     codename = depcode_input['codename']
     if codename == 'serpent':
-        depcode = DepcodeSerpent
+        depcode = SerpentDepcode
     elif codename == 'openmc':
-        depcode = DepcodeOpenMC
+        depcode = OpenMCDepcode
     else:
         raise ValueError(
             f'{depcode_input["codename"]} is not a supported depletion code')

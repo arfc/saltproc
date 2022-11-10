@@ -8,7 +8,7 @@ import pytest
 
 from pyne import serpent
 from saltproc import app
-from saltproc import DepcodeSerpent, Simulation, Reactor
+from saltproc import SerpentDepcode, Simulation, Reactor
 
 
 @pytest.fixture
@@ -46,7 +46,7 @@ def test_integration_2step_saltproc_no_reproc_heavy(setup):
     test_fuel_mdens = test_result['MAT_fuel_MDENS'][:, -1]
 
     test_mdens_error = np.array(ref_fuel_mdens - test_fuel_mdens)
-    np.testing.assert_array_equal(test_mdens_error, ref_mdens_error)
+    np.testing.assert_array_almost_equal(test_mdens_error, ref_mdens_error)
     # Cleaning after testing
     out_file_list = glob.glob(cwd + '/_test*')
     for file in out_file_list:

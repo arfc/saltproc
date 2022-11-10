@@ -17,7 +17,7 @@ def parse_arguments():
     tallies : str
         Path to openmc tallies `.xml` file
     depletion_settings : str
-        Path to the DepcodeOpenMC depletion_settings file
+        Path to the OpenMCDepcode depletion_settings file
 
     """
     parser = argparse.ArgumentParser()
