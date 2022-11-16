@@ -93,7 +93,7 @@ def shared_elem_geometry(elem_type,
     Parameters
     ----------
     elem_type : 'core', 'cr'
-        Indicates the type of element. 'core' inidcates for Zones IA and IIA.
+        Indicates the type of element. 'core' inidcates for Zones IB and IIA.
         'cr' indicates control rod.
     gr_sq_d : float
         Half-width of graphite square element in cm.
@@ -143,7 +143,7 @@ def shared_elem_geometry(elem_type,
     rib_lb_t = -lb_t
 
     if elem_type == 'core':
-        # Graphite element ribs for zones I-A and II-A
+        # Graphite element ribs for zones I-B and II-A
         ul = openmc.ZCylinder(-l1, l2, r_rib, name='rib_ul')
         br = openmc.ZCylinder(l1, -l2, r_rib, name='rib_br')
         lb = openmc.ZCylinder(-l2, -l1, r_rib, name='rib_lb')
@@ -284,7 +284,7 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top):
                                         5.62102,
                                         2.2225,
                                         'gr_round_4')
-    l = ce.zoneIA(gr_sq_neg,
+    l = ce.zoneIB(gr_sq_neg,
                   gr_extra_regions,
                   inter_elem_channel,
                   gr_round_4,
@@ -512,15 +512,15 @@ plots.append(plot_geometry('serpent-plot4',
                            pixels=(2000, 2000),
                            width=(686.816, 612.14),
                            basis='yz'))
-plots.append(plot_geometry('detail-zoneIA-IIA-lower1',
+plots.append(plot_geometry('detail-zoneIB-IIA-lower1',
                            origin=(215, 0., 10.0),
                            pixels=(1000, 1000),
                            width=(40, 40)))
-plots.append(plot_geometry('detail-zoneIA-main',
+plots.append(plot_geometry('detail-zoneIB-main',
                            origin=(215, 0., 23.0),
                            pixels=(1000, 1000),
                            width=(40, 40)))
-plots.append(plot_geometry('detail-zoneIA-upper1',
+plots.append(plot_geometry('detail-zoneIB-upper1',
                            origin=(215, 0., 420),
                            pixels=(1000, 1000),
                            width=(40, 40)))
@@ -532,7 +532,7 @@ plots.append(plot_geometry('detail-zoneIIA-upper2',
                            origin=(215, 0., 437),
                            pixels=(1000, 1000),
                            width=(40, 40)))
-plots.append(plot_geometry('detail-zoneIA-upper2',
+plots.append(plot_geometry('detail-zoneIB-upper2',
                            origin=(215, 0., 439),
                            pixels=(1000, 1000),
                            width=(40, 40)))
@@ -544,17 +544,17 @@ plots.append(plot_geometry('detail-zoneIIA-upper4',
                            origin=(215, 0., 442),
                            pixels=(1000, 1000),
                            width=(40, 40)))
-plots.append(plot_geometry('detail-zoneIA-upper3',
+plots.append(plot_geometry('detail-zoneIB-upper3',
                            origin=(215, 0., 448),
                            pixels=(1000, 1000),
                            width=(40, 40)))
-plots.append(plot_geometry('full-zoneIA-IIA-lower1',
+plots.append(plot_geometry('full-zoneIB-IIA-lower1',
                            origin=(0., 0., 10.0),
                            width=(522.232, 522.232)))
-plots.append(plot_geometry('full-zoneIA-main',
+plots.append(plot_geometry('full-zoneIB-main',
                            origin=(0., 0., 23.0),
                            width=(522.232, 522.232)))
-plots.append(plot_geometry('full-zoneIA-upper1',
+plots.append(plot_geometry('full-zoneIB-upper1',
                            origin=(0., 0., 420),
                            width=(522.232, 522.232)))
 plots.append(plot_geometry('full-zoneIIA-upper',
@@ -563,7 +563,7 @@ plots.append(plot_geometry('full-zoneIIA-upper',
 plots.append(plot_geometry('full-zoneIIA-upper2',
                            origin=(0., 0., 437),
                            width=(522.232, 522.232)))
-plots.append(plot_geometry('full-zoneIA-upper2',
+plots.append(plot_geometry('full-zoneIB-upper2',
                            origin=(0., 0., 439),
                            width=(522.232, 522.232)))
 plots.append(plot_geometry('full-zoneIIA-upper3',
@@ -572,7 +572,7 @@ plots.append(plot_geometry('full-zoneIIA-upper3',
 plots.append(plot_geometry('full-zoneIIA-upper4',
                            origin=(0., 0., 442),
                            width=(522.232, 522.232)))
-plots.append(plot_geometry('full-zoneIA-upper3',
+plots.append(plot_geometry('full-zoneIB-upper3',
                            origin=(0., 0., 448),
                            width=(522.232, 522.232)))
 plots.append(plot_geometry('detail-core-xz-upper',

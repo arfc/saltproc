@@ -2,7 +2,7 @@ import openmc
 import numpy as np
 
 def _bound_zone_cells(cells_tuples, levels):
-    """Helper function that moves Zone IA and Zone IIA cells to the
+    """Helper function that moves Zone IB and Zone IIA cells to the
     appropriate height."""
     cell_list = []
     n_levels = len(cells_tuples)
@@ -26,14 +26,14 @@ def _bound_zone_cells(cells_tuples, levels):
             cell_list.append(cell)
     return cell_list
 
-def zoneIA(gr_sq_neg,
+def zoneIB(gr_sq_neg,
            gr_extra_regions,
            inter_elem_channel,
            gr_round_4,
            moder,
            fuel,
            hast):
-    """Create universe for Zone IA element. Based on specification in
+    """Create universe for Zone IB element. Based on specification in
     Robertson, 1971 Fig 3.4 (p. 17)
 
     Parameters
@@ -58,74 +58,74 @@ def zoneIA(gr_sq_neg,
 
     Returns
     -------
-    ia : openmc.Universe
-        Universe for Zone IA element.
+    ib : openmc.Universe
+        Universe for Zone IB element.
     """
     elem_levels = [22.86, 419.10, 438.15, 445.135]
     level_bounds = []
     for level in elem_levels:
         level_bounds.append(openmc.ZPlane(z0=level))
-    s1 = openmc.ZCylinder(r=4.953, name='ia_gr_round_1')
-    s2 = openmc.ZCylinder(r=1.71069, name='ia_fuel_hole')
+    s1 = openmc.ZCylinder(r=4.953, name='ib_gr_round_1')
+    s2 = openmc.ZCylinder(r=1.71069, name='ib_fuel_hole')
 
     h = 12.66
     theta = np.arctan(4.953 / h)
     r2 = (1 / np.cos(theta))**2 - 1
     s3 = openmc.ZCone(z0=h + elem_levels[2], r2=r2, name='cone_i')
 
-    c1 = openmc.Cell(fill=fuel, region=(-s2), name='ia_fuel_inner_1')
-    c2 = openmc.Cell(fill=moder, region=(+s2 & -s1), name='ia_moderator_1')
-    c3 = openmc.Cell(fill=fuel, region=(+s1), name='ia_fuel_outer_1')
-    ia1 = (c1, c2, c3)
+    c1 = openmc.Cell(fill=fuel, region=(-s2), name='ib_fuel_inner_1')
+    c2 = openmc.Cell(fill=moder, region=(+s2 & -s1), name='ib_moderator_1')
+    c3 = openmc.Cell(fill=fuel, region=(+s1), name='ib_fuel_outer_1')
+    ib1 = (c1, c2, c3)
 
     # I-A  main (lower 2)
     c4 = c1.clone(clone_materials=False)
-    c4.name = 'ia_fuel_inner_main'
+    c4.name = 'ib_fuel_inner_main'
 
     c5 = openmc.Cell(fill=moder, region=(+s2 &
                                          gr_sq_neg &
                                          inter_elem_channel),
-                     name='ia_moderator_main')
+                     name='ib_moderator_main')
     c6 = openmc.Cell(fill=fuel, region=(~gr_sq_neg & inter_elem_channel),
-                     name='ia_fuel_outer_main')
-    iam = [c4, c5, c6]
+                     name='ib_fuel_outer_main')
+    ibm = [c4, c5, c6]
 
     for (reg, name) in gr_extra_regions:
-            iam.append(openmc.Cell(fill=moder, region=reg,
-                                   name=f'ia_moderator_main_{name}'))
+            ibm.append(openmc.Cell(fill=moder, region=reg,
+                                   name=f'ib_moderator_main_{name}'))
 
 
     # I-A 2 (upper 1)
     c7 = c1.clone(clone_materials=False)
     c8 = c2.clone(clone_materials=False)
     c9 = c3.clone(clone_materials=False)
-    c7.name = 'ia_fuel_inner_2'
-    c8.name = 'ia_moderator_2'
-    c9.name = 'ia_fuel_outer_2'
+    c7.name = 'ib_fuel_inner_2'
+    c8.name = 'ib_moderator_2'
+    c9.name = 'ib_fuel_outer_2'
 
-    ia2 = (c7, c8, c9)
+    ib2 = (c7, c8, c9)
 
     # I-A 3 (upper 2)
     c10 = c1.clone(clone_materials=False)
-    c10.name = 'ia_fuel_inner_3'
-    c11 = openmc.Cell(fill=moder, region=(+s2 & -s3), name='ia_moderator_3')
-    c12 = openmc.Cell(fill=fuel, region=(+s3), name='ia_fuel_outer_3')
-    ia3 = (c10, c11, c12)
+    c10.name = 'ib_fuel_inner_3'
+    c11 = openmc.Cell(fill=moder, region=(+s2 & -s3), name='ib_moderator_3')
+    c12 = openmc.Cell(fill=fuel, region=(+s3), name='ib_fuel_outer_3')
+    ib3 = (c10, c11, c12)
 
     # I-A 4 (upper 3)
     c13 = openmc.Cell(fill=hast, region=(-s2),
-                      name='ia_hast')
+                      name='ib_hast')
     c14 = openmc.Cell(fill=moder, region=(+s2 & -gr_round_4),
-                      name='ia_moderator_4')
+                      name='ib_moderator_4')
     c15 = openmc.Cell(fill=fuel, region=(+gr_round_4),
-                      name='ia_fuel_outer_4')
-    ia4 = (c13, c14, c15)
+                      name='ib_fuel_outer_4')
+    ib4 = (c13, c14, c15)
 
-    elem_cells = [ia1, iam, ia2, ia3, ia4]
+    elem_cells = [ib1, ibm, ib2, ib3, ib4]
     # universe_id=1
-    ia = openmc.Universe(name='zone_ia')
-    ia.add_cells(_bound_zone_cells(elem_cells, level_bounds))
-    return ia
+    ib = openmc.Universe(name='zone_ib')
+    ib.add_cells(_bound_zone_cells(elem_cells, level_bounds))
+    return ib
 
 def zoneIIA(gr_sq_neg,
             gr_extra_regions,
