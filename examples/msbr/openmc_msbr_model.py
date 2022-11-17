@@ -58,15 +58,15 @@ def parse_arguments():
     args = parser.parse_args()
     return bool(args.deplete)
 
-def shared_elem_geometry(elem_type,
-                         gr_sq_d,
-                         gr_sq_r,
-                         r_rib,
-                         l1,
-                         l2,
-                         l3,
-                         r_es,
-                         es_name):
+def shared_elem_geometry(elem_type='core',
+                         gr_sq_d=4.4953,
+                         gr_sq_r=0.46,
+                         r_rib=0.66802,
+                         l1=4.28498,
+                         l2=4.53898,
+                         l3=5.62102,
+                         r_es=2.2225,
+                         es_name='gr_round_4'):
     """Creates surfaces and regions for lattice elements.
 
     Parameters
@@ -197,16 +197,15 @@ def cr_lattice(cr_boundary, core_base, core_top):
     (gr_sq_neg,
      gr_extra_regions,
      inter_elem_channel,
-     fuel_hole) = shared_elem_geometry('cr',
-                                       7.23645,
-                                       0.99,
-                                       0.8,
-                                       5.8801,
-                                       6.505,
-                                       8.03646,
-                                       5.08,
-                                       'cr_fuel_hole')
-
+     fuel_hole) = shared_elem_geometry(elem_type='cr',
+                                       gr_sq_d=7.23645,
+                                       gr_sq_r=0.99,
+                                       r_rib=0.8,
+                                       l1=5.8801,
+                                       l2=6.505,
+                                       l3=8.03646,
+                                       r_es=5.08,
+                                       es_name='cr_fuel_hole')
     f = cr.control_rod(gr_sq_neg,
                        gr_extra_regions,
                        inter_elem_channel,
@@ -254,15 +253,8 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top):
     (gr_sq_neg,
      gr_extra_regions,
      inter_elem_channel,
-     gr_round_4) = shared_elem_geometry('core',
-                                        4.953,
-                                        0.46,
-                                        0.66802,
-                                        4.28498,
-                                        4.53898,
-                                        5.62102,
-                                        2.2225,
-                                        'gr_round_4')
+     gr_round_4) = shared_elem_geometry()
+
     l = ce.zoneIB(gr_sq_neg,
                   gr_extra_regions,
                   inter_elem_channel,
@@ -270,18 +262,11 @@ def main_lattice(zone_i_boundary, cr_boundary, core_base, core_top):
                   moder,
                   fuel,
                   hast)
+
     (gr_sq_neg,
      gr_extra_regions,
      inter_elem_channel,
-     gr_round_4) = shared_elem_geometry('core',
-                                        4.953,
-                                        0.46,
-                                        0.66802,
-                                        4.28498,
-                                        4.53898,
-                                        5.62102,
-                                        2.2225,
-                                        'gr_round_4')
+     gr_round_4) = shared_elem_geometry()
 
     z = ce.zoneIIA(gr_sq_neg,
                    gr_extra_regions,
