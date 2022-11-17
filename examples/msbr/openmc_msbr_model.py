@@ -11,48 +11,27 @@ import root_geometry as rg
 # Materials
 
 fuel = openmc.Material(name='fuel')
-fuel.set_density('g/cm3', density=3.3332642)
-fuel.add_components({'Li': {'percent': 0.3585,
-                            'enrichment': 95.995,
-                            'enrichment_target': 'Li7',
-                            'percent_type': 'ao'},
-                     'F19': 0.5635666666666667,
-                     'Be9': 0.05333333333333333,
-                     'Th232': 0.024,
-                     'U233': 0.0006},
-                    percent_type='ao')
+fuel.set_density('g/cm3', density=3.35)
+fuel.add_components({'Li7': 0.0787474673879085,
+                     'Be9': 0.0225566879138321,
+                     'F19': 0.454003012179284,
+                     'Th232': 0.435579130482336,
+                     'U233': 0.00911370203663893},
+                    percent_type='wo')
 fuel.depletable = True
 fuel.volume = 48710000.0
 
 moder = openmc.Material(name='graphite')
-moder.set_density('g/cm3', density=1.843)
+moder.set_density('g/cm3', density=1.84)
 moder.add_nuclide('C0', 1.000, percent_type='wo')
 moder.add_s_alpha_beta('c_Graphite')
 
 hast = openmc.Material(name='hastelloyN')
 hast.set_density('g/cm3', density=8.671)
-#hast.add_components({'Al27': 0.003,
-#                     'Ni': 0.677,
-#                     'W': 0.250,
-#                     'Cr': 0.070},
-#                    percent_type='wo')
-hast.add_components({'Ni': 0.73709,
-                     'Mo': 0.12,
-                     'Cr': 0.07,
-                     'Fe': 0.03,
-                     'C': 0.0006,
-                     'Mn': 0.0035,
-                     'Si': 0.001,
-                     'W': 0.001,
-                     'Al': 0.001,
-                     'Ti': 0.0125, #avg
-                     'Cu': 0.001,
-                     'Co': 0.002,
-                     'P': 0.00015,
-                     'S': 0.00015,
-                     'B': 0.000010,
-                     'Hf': 0.01,
-                     'Nb': 0.01},
+hast.add_components({'Al27': 0.003,
+                     'Ni': 0.677,
+                     'W': 0.250,
+                     'Cr': 0.070},
                     percent_type='wo')
 
 mat = openmc.Materials(materials=[fuel, moder, hast])
