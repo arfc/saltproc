@@ -198,7 +198,7 @@ def cr_lattice(cr_boundary, core_base, core_top):
      gr_extra_regions,
      inter_elem_channel,
      fuel_hole) = shared_elem_geometry(elem_type='cr',
-                                       gr_sq_d=7.23645,
+                                       gr_sq_d=7.23646,
                                        gr_sq_r=0.99,
                                        r_rib=0.8,
                                        l1=5.8801,
@@ -455,10 +455,10 @@ settings.temperature = {'default': 900,
                         'range': (800, 1000)}
 
 ll, ur = geo.root_universe.bounding_box
-msbr_volume_calc = openmc.VolumeCalculation([fuel, moder], 100000000, ll, ur)
-msbr_volume_calc.set_trigger(1e-03, 'rel_err')
+msbr_volume_calc = openmc.VolumeCalculation([fuel, moder], 1000000000, ll, ur)
+#msbr_volume_calc.set_trigger(1e-03, 'rel_err')
 settings.volume_calculations = [msbr_volume_calc]
-#settings.run_mode = 'volume'
+settings.run_mode = 'volume'
 settings.export_to_xml()
 
 ## Slice plots
