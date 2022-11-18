@@ -59,7 +59,7 @@ def parse_arguments():
     return bool(args.deplete)
 
 def shared_elem_geometry(elem_type='core',
-                         gr_sq_d=4.4953,
+                         gr_sq_d=4.953,
                          gr_sq_r=0.46,
                          r_rib=0.66802,
                          l1=4.28498,
@@ -453,6 +453,12 @@ settings.inactive = 25
 settings.temperature = {'default': 900,
                         'method': 'interpolation',
                         'range': (800, 1000)}
+
+ll, ur = geo.root_universe.bounding_box
+msbr_volume_calc = openmc.VolumeCalculation([fuel, moder], 100000000, ll, ur)
+msbr_volume_calc.set_trigger(1e-03, 'rel_err')
+settings.volume_calculations = [msbr_volume_calc]
+#settings.run_mode = 'volume'
 settings.export_to_xml()
 
 ## Slice plots
