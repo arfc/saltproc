@@ -78,7 +78,7 @@ def runsim_no_reproc(simulation, reactor, nsteps):
     for dep_step in range(nsteps):
         print("\nStep #%i has been started" % (dep_step + 1))
         if dep_step == 0:  # First step
-            simulation.sim_depcode.write_depcode_input(
+            simulation.sim_depcode.write_runtime_input(
                 reactor,
                 dep_step,
                 False)

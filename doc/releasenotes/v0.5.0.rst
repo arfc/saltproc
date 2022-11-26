@@ -121,7 +121,7 @@ Python API Changes
     - ``read_dep_comp()`` → ``read_depleted_materials()``
     - ``run_depcode()`` → ``run_depletion_step()``
     - ``write_mat_file()`` → ``update_depletable_materials()``
-    - ``write_depcode_input()`` →  ``write_depletion_step_input()``
+    - ``write_depcode_input()`` →  ``write_runtime_input()``
     - ``iter_inputfile``  →  ``runtime_inputfile``
     - ``iter_matfile``  →  ``runtime_matfile``
 
@@ -142,7 +142,7 @@ Python API Changes
     - ``change_sim_par()`` →  ``apply_neutron_settings()``
     - ``create_iter_matfile()`` → ``create_runtime_matfile()``
     - ``replace_burnup_parameters()`` → ``set_power_load()``
-    - ``write_depcode_input()`` →  ``write_depletion_step_input()``
+    - ``write_depcode_input()`` →  ``write_runtime_input()``
     - ``iter_inputfile``  →  ``runtime_inputfile``
     - ``iter_matfile``  →  ``runtime_matfile``
 
@@ -153,7 +153,7 @@ Python API Changes
     - ``write_depcode_input()``
     - ``write_depletion_settings()``
     - ``write_saltproc_openmc_tallies()``
-    - ``write_depcode_input()`` →  ``write_depletion_step_input()``
+    - ``write_depcode_input()`` →  ``write_runtime_input()``
     - ``iter_inputfile``  →  ``runtime_inputfile``
     - ``iter_matfile``  →  ``runtime_matfile``
 

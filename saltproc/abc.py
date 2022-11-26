@@ -124,7 +124,7 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def write_depletion_step_input(self, reactor, dep_step, restart):
+    def write_runtime_input(self, reactor, dep_step, restart):
         """Write input file(s) for running depletion step
 
         Parameters

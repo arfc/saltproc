@@ -22,7 +22,7 @@ def msr(scope='module'):
     return reactor
 
 
-def test_write_depletion_step_input(openmc_depcode, msr):
+def test_write_runtime_input(openmc_depcode, msr):
     # OpenMC
     input_materials = openmc.Materials.from_xml(
         openmc_depcode.template_input_file_path['materials'])
@@ -35,9 +35,9 @@ def test_write_depletion_step_input(openmc_depcode, msr):
     input_surfaces = input_geometry.get_all_surfaces()
     input_universes = input_geometry.get_all_universes()
 
-    openmc_depcode.write_depletion_step_input(msr,
-                                              0,
-                                              False)
+    openmc_depcode.write_runtime_input(msr,
+                                       0,
+                                       False)
     # Load in the runtime_ objects
     runtime_materials = openmc.Materials.from_xml(openmc_depcode.runtime_matfile)
     runtime_geometry = openmc.Geometry.from_xml(

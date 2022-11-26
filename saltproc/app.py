@@ -40,7 +40,7 @@ def run():
     # Start sequence
     for dep_step in range(len(msr.dep_step_length_cumulative)):
         print("\n\n\nStep #%i has been started" % (dep_step + 1))
-        simulation.sim_depcode.write_depcode_input(msr,
+        simulation.sim_depcode.write_runtime_input(msr,
                                                    dep_step,
                                                    simulation.restart_flag)
         depcode.run_depletion_step(cores, nodes)

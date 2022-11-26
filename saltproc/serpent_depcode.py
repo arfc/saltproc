@@ -481,8 +481,8 @@ class SerpentDepcode(Depcode):
         with open(self.runtime_inputfile, 'w') as f:
             f.writelines(new_lines)
 
-    def write_depletion_step_input(self, reactor, dep_step, restart):
-        """Write Serpent2 input file for running depletion step
+    def write_runtime_input(self, reactor, dep_step, restart):
+        """Write Serpent2 runtime input file for running depletion step
 
         Parameters
         ----------
