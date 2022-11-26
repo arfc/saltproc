@@ -462,11 +462,10 @@ class SerpentDepcode(Depcode):
         beginning of the Serpent iteration input file.
         """
         geo_line_n = 5
-        f = open(self.iter_inputfile, 'r')
-        data = f.readlines()
-        f.close()
+        with open(self.iter_inputfile, 'r') as f:
+            lines = f.readlines()
 
-        current_geo_file = data[geo_line_n].split('\"')[1]
+        current_geo_file = lines[geo_line_n].split('\"')[1]
         current_geo_idx = self.geo_files.index(current_geo_file)
         try:
             new_geo_file = self.geo_files[current_geo_idx + 1]
@@ -474,13 +473,13 @@ class SerpentDepcode(Depcode):
             print('No more geometry files available \
                   and the system went subcritical \n\n')
             print('Aborting simulation')
-            return
-        new_data = [d.replace(current_geo_file, new_geo_file) for d in data]
+
+        new_lines = \
+            [line.replace(current_geo_file, new_geo_file) for line in lines]
         print('Switching to next geometry file: ', new_geo_file)
 
-        f = open(self.iter_inputfile, 'w')
-        f.writelines(new_data)
-        f.close()
+        with open(self.iter_inputfile, 'w') as f:
+            f.writelines(new_lines)
 
     def write_depcode_input(self, reactor, dep_step, restart):
         """Writes prepared data into the Serpent2 input file.
