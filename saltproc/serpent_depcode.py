@@ -1,3 +1,4 @@
+from pathlib import Path
 import subprocess
 import os
 import shutil
@@ -89,59 +90,55 @@ class SerpentDepcode(Depcode):
             neutron_settings = \
                 [line for line in file_lines if line.startswith("set pop")]
             if len(neutron_settings) > 1:
-                raise(IOError('Template file'
-                              f'{self.template_input_file_path} contains'))
-                              'multuple lines with neutron settings'
+                raise IOError('Template file '
+                              f'{self.template_input_file_path} contains '
+                              'multuple lines with neutron settings')
             elif len(neutron_settings) < 1:
-                raise(IOError('Template file'
-                              f'{self.template_input_file_path} does not'
-                              'contain neutron settings.'))
+                raise IOError('Template file '
+                              f'{self.template_input_file_path} does not '
+                              'contain neutron settings.')
             args = 'set pop %i %i %i\n' % (self.npop, self.active_cycles,
                                            self.inactive_cycles)
         return [line.replace(neutron_settings[0], args) for line in file_lines]
 
-    def create_iter_matfile(self, template_data):
-        """Finds ``include`` line with path to material file, copies content of
-        this file to iteration material file, changes path in ``include`` line
-        to newly created iteration material file.
+    def create_runtime_matfile(self, file_lines):
+        """Creates the runtime material file tracking burnable materials
+        ans inserts the path to this file in the Serpent2 runtime input file
 
         Parameters
         ----------
-        template_data : list
-            List of strings parsed from user's template file.
+        file_lines : list of str
+            Serpent2 runtime input file.
 
         Returns
         -------
-        input_data : list
-            List of strings containing modified user template file.
+        file_lines : list of str
+            Serpent2 runtime input file with updated material file path.
 
         """
-        data_dir = os.path.dirname(self.template_input_file_path)
-        include_str = [s for s in template_data if s.startswith("include ")]
+        runtime_dir = Path(self.template_input_file_path).parents[0]
+        include_str = [line for line in file_lines if line.startswith("include ")]
         if not include_str:
-            print('ERROR: Template file %s has no <include "material_file">'
-                  ' statements ' % (self.template_input_file_path))
-            return
+            raise IOError('Template file '
+                          f'{self.template_input_file_path} has no <include '
+                          '"material_file"> statements')
         src_file = include_str[0].split()[1][1:-1]
-        if not os.path.isabs(src_file):
-            abs_src_matfile = os.path.normpath(data_dir) + '/' + src_file
+        if not Path(src_file).is_absolute():
+            abs_src_matfile = (runtime_dir / src_file)
         else:
-            abs_src_matfile = src_file
-            if 'mat ' not in open(abs_src_matfile).read():
-                print('ERROR: Template file %s has not include file with'
-                      ' materials description or <include "material_file">'
-                      ' statement is not appears'
-                      ' as first <include> statement\n'
-                      % (self.template_input_file_path))
-                return
+            abs_src_matfile = Path(src_file)
+            with open(abs_src_matfile) as f:
+                if 'mat ' not in f.read():
+                    raise IOError('Template file '
+                                  f'{self.template_input_file_path} includes '
+                                  'no file with materials description')
         # Create data directory
         try:
-            os.mkdir(os.path.dirname(self.iter_matfile))
-        except FileExistsError:
-            pass
+            Path.mkdir(Path(self.iter_matfile).parents[0], exist_ok=True)
+
         # Create file with path for SaltProc rewritable iterative material file
         shutil.copy2(abs_src_matfile, self.iter_matfile)
-        return [s.replace(src_file, self.iter_matfile) for s in template_data]
+        return [line.replace(src_file, self.iter_matfile) for line in file_lines]
 
     def convert_nuclide_code_to_name(self, nuc_code):
         """Converts Serpent2 nuclide code to symbolic nuclide name.
@@ -508,7 +505,7 @@ class SerpentDepcode(Depcode):
             data = self.read_plaintext_file(self.template_input_file_path)
             data = self.insert_path_to_geometry(data)
             data = self.apply_neutron_settings(data)
-            data = self.create_iter_matfile(data)
+            data = self.create_runtime_matfile(data)
         else:
             data = self.read_plaintext_file(self.iter_inputfile)
         data = self.replace_burnup_parameters(data, reactor, dep_step)

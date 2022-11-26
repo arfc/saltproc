@@ -37,8 +37,8 @@ def test_iter_input_from_template(serpent_depcode, msr):
     file_data = serpent_depcode.insert_path_to_geometry(file_data)
     assert file_data[5].split('/')[-1] == 'tap_geometry_base.ini"\n'
 
-    # create_iter_matfile
-    file_data = serpent_depcode.create_iter_matfile(file_data)
+    # create_runtime_matfile
+    file_data = serpent_depcode.create_runtime_matfile(file_data)
     assert file_data[0].split()[-1] == '\"' + \
         serpent_depcode.iter_matfile + '\"'
     remove(serpent_depcode.iter_matfile)
