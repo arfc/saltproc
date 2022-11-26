@@ -27,7 +27,7 @@ def test_iter_input_from_template(serpent_depcode, msr):
     file_data = serpent_depcode.read_plaintext_file(file)
 
     # change_sim_par
-    file_data = serpent_depcode.change_sim_par(file_data)
+    file_data = serpent_depcode.apply_neutron_settings(file_data)
     assert file_data[18] == 'set pop %i %i %i\n' % (
         serpent_depcode.npop,
         serpent_depcode.active_cycles,

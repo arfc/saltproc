@@ -69,39 +69,36 @@ class SerpentDepcode(Depcode):
         self.iter_inputfile = './serpent_iter_input.serpent'
         self.iter_matfile = './serpent_iter_mat.ini'
 
-    def change_sim_par(self, template_data):
-        """Finds simulation parameters (neutron population, cycles) in the
-        Serpent2 template file and change them to the parameters from the
-        SaltProc input file.
+    def apply_neutron_settings(self, file_lines):
+        """Apply neutron settings (no. of neutrons per cycle, no. of active and
+        inactive cycles) from the SaltProc input file to the runtime Serpent2
+        input file.
 
         Parameters
         ----------
-        template_data : list
-            List of strings parsed from user's Serpent2 template file.
+        file_lines : list of str
+            Serpent2 runtime input file.
 
         Returns
         -------
-        input_data : list
-            List of strings containing Serpent2 input file with new
-            simulation parameters.
+        file_lines : list of str
+            Serpent2 runtime input file with updated neutron settings.
 
         """
         if self.npop and self.active_cycles and self.inactive_cycles:
-            sim_param = [s for s in template_data if s.startswith("set pop")]
-            if len(sim_param) > 1:
-                print('ERROR: Template file %s contains multiple lines with '
-                      'simulation parameters:\n'
-                      % (self.template_input_file_path), sim_param)
-                return
-            elif len(sim_param) < 1:
-                print(
-                    'ERROR: Template file %s does not contain line with '
-                    'simulation parameters.' %
-                    (self.template_input_file_path))
-                return
+            neutron_settings = \
+                [line for line in file_lines if line.startswith("set pop")]
+            if len(neutron_settings) > 1:
+                raise(IOError('Template file'
+                              f'{self.template_input_file_path} contains'))
+                              'multuple lines with neutron settings'
+            elif len(neutron_settings) < 1:
+                raise(IOError('Template file'
+                              f'{self.template_input_file_path} does not'
+                              'contain neutron settings.'))
             args = 'set pop %i %i %i\n' % (self.npop, self.active_cycles,
                                            self.inactive_cycles)
-        return [s.replace(sim_param[0], args) for s in template_data]
+        return [line.replace(neutron_settings[0], args) for line in file_lines]
 
     def create_iter_matfile(self, template_data):
         """Finds ``include`` line with path to material file, copies content of
@@ -356,14 +353,14 @@ class SerpentDepcode(Depcode):
 
         Returns
         -------
-        file_data : list
-            List of strings containing file lines.
+        file_lines : list of str
+            File lines.
 
         """
-        template_data = []
+        file_lines
         with open(file_path, 'r') as file:
-            template_data = file.readlines()
-        return template_data
+            file_lines = file.readlines()
+        return file_lines
 
     def replace_burnup_parameters(
         self,
@@ -510,7 +507,7 @@ class SerpentDepcode(Depcode):
         if dep_step == 0 and not restart:
             data = self.read_plaintext_file(self.template_input_file_path)
             data = self.insert_path_to_geometry(data)
-            data = self.change_sim_par(data)
+            data = self.apply_neutron_settings(data)
             data = self.create_iter_matfile(data)
         else:
             data = self.read_plaintext_file(self.iter_inputfile)
