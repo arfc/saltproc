@@ -223,25 +223,24 @@ class SerpentDepcode(Depcode):
                     nuc_code_map.update({zzaaam: line[2]})
         return nuc_code_map
 
-    def insert_path_to_geometry(self, template_data):
+    def insert_path_to_geometry(self, lines):
         """Inserts ``include <first_geometry_file>`` line on the 6th line of
         Serpent2 input file.
 
         Parameters
         ----------
-        template_data : list
-            List of strings parsed from user's template file.
+        lines : list of str
+            Serpent2 runtime input file.
 
         Returns
         -------
-        template_data : list
-            List of strings containing modified path to geometry
-            in user's template file.
+        lines : list of str
+            Serpent 2 runtime input file containing modified path to geometry
 
         """
-        template_data.insert(5,  # Inserts on 6th line
+        lines.insert(5,  # Inserts on 6th line
                              'include \"' + str(self.geo_files[0]) + '\"\n')
-        return template_data
+        return lines
 
     def read_depleted_materials(self, read_at_end=False):
         """Reads depleted materials from Serpent2's `*_dep.m`
