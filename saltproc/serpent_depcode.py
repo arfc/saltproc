@@ -133,8 +133,7 @@ class SerpentDepcode(Depcode):
                                   f'{self.template_input_file_path} includes '
                                   'no file with materials description')
         # Create data directory
-        try:
-            Path.mkdir(Path(self.iter_matfile).parents[0], exist_ok=True)
+        Path.mkdir(Path(self.iter_matfile).parents[0], exist_ok=True)
 
         # Create file with path for SaltProc rewritable iterative material file
         shutil.copy2(abs_src_matfile, self.iter_matfile)
@@ -354,25 +353,23 @@ class SerpentDepcode(Depcode):
             File lines.
 
         """
-        file_lines
+        file_lines = []
         with open(file_path, 'r') as file:
             file_lines = file.readlines()
         return file_lines
 
-    def replace_burnup_parameters(
-        self,
-        template_data,
-        reactor,
-            current_depstep_idx):
-        """Adds or replaces the ``set power P dep daystep DEPSTEP`` line in
-        the Serpent2 input file. This line defines depletion history and power
-        levels with respect to the depletion step in the single run and
-        activates depletion calculation mode.
+    def set_power_load(self,
+                       file_lines,
+                       reactor,
+                       current_depstep_idx):
+        """Add power load attributes in a :class:`Reactor` object to the
+        ``set power P dep daystep DEPSTEP`` line in the Serpent2  runtime input
+        file.
 
         Parameters
         ----------
-        template_data : list
-            List of strings parsed from user template file.
+        file_lines : list of str
+            Serpent2 runtime input file.
         reactor : Reactor
             Contains information about power load curve and cumulative
             depletion time for the integration test.
@@ -381,8 +378,8 @@ class SerpentDepcode(Depcode):
 
         Returns
         -------
-        template_data : list
-            List of strings containing modified in this function template file.
+        file_lines : list of str
+            Serpent2 runtime input file with power load specification.
 
         """
 
@@ -394,16 +391,15 @@ class SerpentDepcode(Depcode):
             current_depstep = \
                 reactor.dep_step_length_cumulative[current_depstep_idx] - \
                 reactor.dep_step_length_cumulative[current_depstep_idx - 1]
-        for line in template_data:
+        for line in file_lines:
             if line.startswith('set    power   '):
-                line_idx = template_data.index(line)
-                del template_data[line_idx]
+                line_idx = file_lines.index(line)
+                del file_lines[line_idx]
 
-        template_data.insert(line_idx,  # Insert on 9th line
-                             'set    power   %5.9E   dep daystep   %7.5E\n' %
-                             (current_depstep_power,
-                              current_depstep))
-        return template_data
+        file_lines.insert(line_idx,  # Insert on 9th line
+                          'set    power   %5.9E   dep daystep   %7.5E\n' %
+                          (current_depstep_power, current_depstep))
+        return file_lines
 
     def run_depletion_step(self, cores, nodes):
         """Runs a depletion step in Serpent2 as a subprocess with the given
@@ -508,7 +504,7 @@ class SerpentDepcode(Depcode):
             data = self.create_runtime_matfile(data)
         else:
             data = self.read_plaintext_file(self.iter_inputfile)
-        data = self.replace_burnup_parameters(data, reactor, dep_step)
+        data = self.set_power_load(data, reactor, dep_step)
 
         if data:
             out_file = open(self.iter_inputfile, 'w')

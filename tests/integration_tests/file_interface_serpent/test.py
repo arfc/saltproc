@@ -43,14 +43,12 @@ def test_iter_input_from_template(serpent_depcode, msr):
         serpent_depcode.iter_matfile + '\"'
     remove(serpent_depcode.iter_matfile)
 
-    # replace_burnup_parameters
+    # set_power_load
     time = msr.dep_step_length_cumulative.copy()
     time.insert(0, 0.0)
     depsteps = np.diff(time)
     for idx in range(len(msr.power_levels)):
-        file_data = serpent_depcode.replace_burnup_parameters(file_data,
-                                                              msr,
-                                                              idx)
+        file_data = serpent_depcode.set_power_load(file_data, msr, idx)
 
         assert file_data[8].split()[4] == 'daystep'
         assert file_data[8].split()[2] == str("%5.9E" % msr.power_levels[idx])
