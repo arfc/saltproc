@@ -22,7 +22,7 @@ def msr(scope='module'):
     return reactor
 
 
-def test_iter_input_from_template(serpent_depcode, msr):
+def test_runtime_input_from_template(serpent_depcode, msr):
     file = serpent_depcode.template_input_file_path
     file_data = serpent_depcode.read_plaintext_file(file)
 
@@ -40,8 +40,8 @@ def test_iter_input_from_template(serpent_depcode, msr):
     # create_runtime_matfile
     file_data = serpent_depcode.create_runtime_matfile(file_data)
     assert file_data[0].split()[-1] == '\"' + \
-        serpent_depcode.iter_matfile + '\"'
-    remove(serpent_depcode.iter_matfile)
+        serpent_depcode.runtime_matfile + '\"'
+    remove(serpent_depcode.runtime_matfile)
 
     # set_power_load
     time = msr.dep_step_length_cumulative.copy()
@@ -55,12 +55,12 @@ def test_iter_input_from_template(serpent_depcode, msr):
         assert file_data[8].split()[5] == str("%7.5E" % depsteps[idx])
 
 
-def test_write_iter_files(serpent_depcode, msr):
+def test_write_runtime_files(serpent_depcode, msr):
     mats = serpent_depcode.read_depleted_materials(True)
 
     # update_depletable_materials
     serpent_depcode.update_depletable_materials(mats, 12.0)
-    file = serpent_depcode.iter_matfile
+    file = serpent_depcode.runtime_matfile
     file_data = serpent_depcode.read_plaintext_file(file)
     assert file_data[0] == '% Material compositions (after 12.000000 days)\n'
     if 'fuel' in file_data[3]:
@@ -72,16 +72,16 @@ def test_write_iter_files(serpent_depcode, msr):
     elif 'ctrlPois' in file_data[3]:
         assert file_data[3].split()[-1] == '1.11635E+04'
         assert file_data[4] == '            1001.09c  -1.21000137902945E-35\n'
-    remove(serpent_depcode.iter_matfile)
+    remove(serpent_depcode.runtime_matfile)
 
     # write_depletion_step_input
     serpent_depcode.write_depletion_step_input(msr,
                                               0,
                                               False)
 
-    file = serpent_depcode.iter_inputfile
+    file = serpent_depcode.runtime_inputfile
     file_data = serpent_depcode.read_plaintext_file(file)
-    assert file_data[0] == 'include "./serpent_iter_mat.ini"\n'
+    assert file_data[0] == 'include "./serpent_runtime_mat.ini"\n'
     assert file_data[8].split()[2] == '1.250000000E+09'
     assert file_data[8].split()[4] == 'daystep'
     assert file_data[8].split()[-1] == '1.11111E+02'
@@ -94,4 +94,4 @@ def test_write_iter_files(serpent_depcode, msr):
     file_data = serpent_depcode.read_plaintext_file(file)
     assert file_data[5].split('/')[-1] == '406.inp"\n'
 
-    remove(serpent_depcode.iter_inputfile)
+    remove(serpent_depcode.runtime_inputfile)

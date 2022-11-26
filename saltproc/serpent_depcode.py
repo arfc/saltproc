@@ -25,11 +25,12 @@ class SerpentDepcode(Depcode):
     step_metadata : dict of str to type
         Holds Serpent2 depletion step metadata. Metadata labels are keys
         and metadata values are values.
-    iter_inputfile : str
-        Path to Serpent2 input file for Serpent2 rerunning.
-    iter_matfile : str
-        Path to iterative, rewritable material file for Serpent2
-        rerunning. This file is modified during the simulation.
+    runtime_inputfile : str
+        Path to Serpent2 input file used to run depletion step. Contains neutron
+        settings and non-burnable materials.
+    runtime_matfile : str
+        Path to Serpent2 material file containing burnable materials used to
+        run depletion step, and modified after fuel reprocessing.
 
     """
 
@@ -67,8 +68,8 @@ class SerpentDepcode(Depcode):
                          npop=npop,
                          active_cycles=active_cycles,
                          inactive_cycles=inactive_cycles)
-        self.iter_inputfile = './serpent_iter_input.serpent'
-        self.iter_matfile = './serpent_iter_mat.ini'
+        self.runtime_inputfile = './serpent_runtime_input.serpent'
+        self.runtime_matfile = './serpent_runtime_mat.ini'
 
     def apply_neutron_settings(self, file_lines):
         """Apply neutron settings (no. of neutrons per cycle, no. of active and
@@ -133,11 +134,11 @@ class SerpentDepcode(Depcode):
                                   f'{self.template_input_file_path} includes '
                                   'no file with materials description')
         # Create data directory
-        Path.mkdir(Path(self.iter_matfile).parents[0], exist_ok=True)
+        Path.mkdir(Path(self.runtime_matfile).parents[0], exist_ok=True)
 
         # Create file with path for SaltProc rewritable iterative material file
-        shutil.copy2(abs_src_matfile, self.iter_matfile)
-        return [line.replace(src_file, self.iter_matfile) for line in file_lines]
+        shutil.copy2(abs_src_matfile, self.runtime_matfile)
+        return [line.replace(src_file, self.runtime_matfile) for line in file_lines]
 
     def convert_nuclide_code_to_name(self, nuc_code):
         """Converts Serpent2 nuclide code to symbolic nuclide name.
@@ -201,7 +202,7 @@ class SerpentDepcode(Depcode):
         """
         nuc_code_map = {}
         # Construct path to the *.out File
-        out_file = os.path.join('%s.out' % self.iter_inputfile)
+        out_file = os.path.join('%s.out' % self.runtime_inputfile)
         with open(out_file, 'r') as f:
             file_lines = f.read().split('\n')
             # Stop-line
@@ -270,7 +271,7 @@ class SerpentDepcode(Depcode):
         else:
             moment = 0
 
-        results_file = os.path.join('%s_dep.m' % self.iter_inputfile)
+        results_file = os.path.join('%s_dep.m' % self.runtime_inputfile)
         results = serpent.parse_dep(results_file, make_mats=False)
         self.days = results['DAYS'][moment]
 
@@ -297,7 +298,7 @@ class SerpentDepcode(Depcode):
         """Reads Serpent2 depletion step metadata and stores it in the
         :class:`SerpentDepcode` object's :attr:`step_metadata` attribute.
         """
-        res = serpent.parse_res(self.iter_inputfile + "_res.m")
+        res = serpent.parse_res(self.runtime_inputfile + "_res.m")
         depcode_name, depcode_ver = res['VERSION'][0].decode('utf-8').split()
         self.step_metadata['depcode_name'] = depcode_name
         self.step_metadata['depcode_version'] = depcode_ver
@@ -321,7 +322,7 @@ class SerpentDepcode(Depcode):
         in :class:`SerpentDepcode` object's :attr:`neutronics_parameters`
         attribute.
         """
-        res = serpent.parse_res(self.iter_inputfile + "_res.m")
+        res = serpent.parse_res(self.runtime_inputfile + "_res.m")
         self.neutronics_parameters['keff_bds'] = res['IMP_KEFF'][0]
         self.neutronics_parameters['keff_eds'] = res['IMP_KEFF'][1]
         self.neutronics_parameters['breeding_ratio'] = \
@@ -413,7 +414,7 @@ class SerpentDepcode(Depcode):
 
         """
 
-        args = (self.exec_path, '-omp', str(cores), self.iter_inputfile)
+        args = (self.exec_path, '-omp', str(cores), self.runtime_inputfile)
         print('Running %s' % (self.codename))
         try:
             subprocess.check_output(
@@ -461,7 +462,7 @@ class SerpentDepcode(Depcode):
         beginning of the Serpent iteration input file.
         """
         geo_line_n = 5
-        with open(self.iter_inputfile, 'r') as f:
+        with open(self.runtime_inputfile, 'r') as f:
             lines = f.readlines()
 
         current_geo_file = lines[geo_line_n].split('\"')[1]
@@ -477,7 +478,7 @@ class SerpentDepcode(Depcode):
             [line.replace(current_geo_file, new_geo_file) for line in lines]
         print('Switching to next geometry file: ', new_geo_file)
 
-        with open(self.iter_inputfile, 'w') as f:
+        with open(self.runtime_inputfile, 'w') as f:
             f.writelines(new_lines)
 
     def write_depletion_step_input(self, reactor, dep_step, restart):
@@ -501,10 +502,10 @@ class SerpentDepcode(Depcode):
             lines = self.apply_neutron_settings(lines)
             lines = self.create_runtime_matfile(lines)
         else:
-            lines = self.read_plaintext_file(self.iter_inputfile)
+            lines = self.read_plaintext_file(self.runtime_inputfile)
         lines = self.set_power_load(lines, reactor, dep_step)
 
-        with open(self.iter_inputfile, 'w') as out_file
+        with open(self.runtime_inputfile, 'w') as out_file:
             out_file.writelines(lines)
 
     def update_depletable_materials(self, mats, dep_end_time):
@@ -524,7 +525,7 @@ class SerpentDepcode(Depcode):
 
         """
 
-        with open(self.iter_matfile, 'w') as f:
+        with open(self.runtime_matfile, 'w') as f:
             f.write('%% Material compositions (after %f days)\n\n'
                     % dep_end_time)
             nuc_code_map = self.map_nuclide_code_zam_to_serpent()

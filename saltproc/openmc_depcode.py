@@ -26,13 +26,12 @@ class OpenMCDepcode(Depcode):
     step_metadata : dict of str to type
         Holds OpenMC depletion step metadata. Metadata labels are keys
         and metadata values are values.
-    iter_inputfile : dict of str to str
-        Paths to OpenMC input files for OpenMC rerunning.
-    iter_matfile : str
-        Path to iterative, rewritable material file for OpenMC
-        rerunning. This file is modified during the simulation.
-
-
+    runtime_inputfile : dict of str to str
+        Paths to OpenMC input files used to run depletion step. Contains neutron
+        settings and geometry.
+    runtime_matfile : str
+        Path to OpenMC material file containing materials used to
+        run depletion step, and modified after fuel reprocessing.
 
     """
 
@@ -75,9 +74,9 @@ class OpenMCDepcode(Depcode):
                          npop,
                          active_cycles,
                          inactive_cycles)
-        self.iter_inputfile = {'geometry': './geometry.xml',
+        self.runtime_inputfile = {'geometry': './geometry.xml',
                                'settings': './settings.xml'},
-        self.iter_matfile = './materials.xml'
+        self.runtime_matfile = './materials.xml'
 
     def read_step_metadata(self):
         """Reads OpenMC's depletion step metadata and stores it in the
@@ -133,15 +132,15 @@ class OpenMCDepcode(Depcode):
             'python',
             './deplete_openmc.py'
             '-mat',
-            self.iter_matfile,
+            self.runtime_matfile,
             '-geo',
-            self.iter_inputfile['geometry'],
+            self.runtime_inputfile['geometry'],
             '-set',
-            self.iter_inputfile['settings'],
+            self.runtime_inputfile['settings'],
             '-tal',
-            self.iter_inputfile['tallies'],
+            self.runtime_inputfile['tallies'],
             '-dep',
-            self.iter_inputfile['depletion_settings'])
+            self.runtime_inputfile['depletion_settings'])
 
         print('Running %s' % (self.codename))
         # TODO: Need to figure out how to adapt this to openmc
@@ -160,11 +159,11 @@ class OpenMCDepcode(Depcode):
         """Switches the geometry file for the OpenMC depletion simulation to
         the next geometry file in `geo_files`.
         """
-        mats = openmc.Materials.from_xml(self.iter_matfile)
+        mats = openmc.Materials.from_xml(self.runtime_matfile)
         next_geometry = openmc.Geometry.from_xml(
             path=self.geo_files.pop(0),
             materials=mats)
-        next_geometry.export_to_xml(path=self.iter_inputfile['geometry'])
+        next_geometry.export_to_xml(path=self.runtime_inputfile['geometry'])
         del mats, next_geometry
 
     def write_depletion_step_input(self, reactor, dep_step, restart):
@@ -192,15 +191,15 @@ class OpenMCDepcode(Depcode):
             settings.inactive = self.inactive_cycles
             settings.batches = self.active_cycles + self.inactive_cycles
         else:
-            materials = openmc.Materials.from_xml(self.iter_matfile)
+            materials = openmc.Materials.from_xml(self.runtime_matfile)
             geometry = openmc.Geometry.from_xml(
-                self.iter_inputfile['geometry'], materials=materials)
+                self.runtime_inputfile['geometry'], materials=materials)
             settings = openmc.Settings.from_xml(
-                self.iter_inputfile['settings'])
+                self.runtime_inputfile['settings'])
 
-        materials.export_to_xml(self.iter_matfile)
-        geometry.export_to_xml(self.iter_inputfile['geometry'])
-        settings.export_to_xml(self.iter_inputfile['settings'])
+        materials.export_to_xml(self.runtime_matfile)
+        geometry.export_to_xml(self.runtime_inputfile['geometry'])
+        settings.export_to_xml(self.runtime_inputfile['settings'])
         self.write_depletion_settings(reactor, dep_step)
         self.write_saltproc_openmc_tallies(materials, geometry)
         del materials, geometry, settings
@@ -229,7 +228,7 @@ class OpenMCDepcode(Depcode):
                 reactor.dep_step_length_cumulative[current_depstep_idx] - \
                 reactor.dep_step_length_cumulative[current_depstep_idx - 1]
 
-        out_path = os.path.dirname(self.iter_inputfile['settings'])
+        out_path = os.path.dirname(self.runtime_inputfile['settings'])
         depletion_settings['directory'] = out_path
         depletion_settings['timesteps'] = [current_depstep]
 
@@ -249,10 +248,10 @@ class OpenMCDepcode(Depcode):
         depletion_settings['operator_kwargs'] = operator_kwargs
         depletion_settings['integrator_kwargs'] = integrator_kwargs
 
-        self.iter_inputfile['depletion_settings'] = \
+        self.runtime_inputfile['depletion_settings'] = \
             os.path.join(out_path, 'depletion_settings.json')
         json_dep_settings = json.JSONEncoder().encode(depletion_settings)
-        with open(self.iter_inputfile['depletion_settings'], 'w') as f:
+        with open(self.runtime_inputfile['depletion_settings'], 'w') as f:
             f.writelines(json_dep_settings)
 
     def update_depletable_materials(self, mats, dep_end_time):
@@ -315,10 +314,10 @@ class OpenMCDepcode(Depcode):
         tally.scores = ['heating']
         tallies.append(tally)
 
-        out_path = os.path.dirname(self.iter_inputfile['settings'])
-        self.iter_inputfile['tallies'] = \
+        out_path = os.path.dirname(self.runtime_inputfile['settings'])
+        self.runtime_inputfile['tallies'] = \
             os.path.join(out_path, 'tallies.xml')
-        tallies.export_to_xml(self.iter_inputfile['tallies'])
+        tallies.export_to_xml(self.runtime_inputfile['tallies'])
         del tallies
 
 

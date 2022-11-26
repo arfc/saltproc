@@ -28,7 +28,7 @@ def serpent_depcode(cwd):
     saltproc_input = (cwd / 'serpent_data' / 'tap_input.json').as_posix()
     _, _, _, object_input = read_main_input(saltproc_input)
     depcode = _create_depcode_object(object_input[0])
-    depcode.iter_inputfile = (cwd / 'serpent_data' / 'tap_reference').as_posix()
+    depcode.runtime_inputfile = (cwd / 'serpent_data' / 'tap_reference').as_posix()
 
     return depcode
 
@@ -43,17 +43,17 @@ def openmc_depcode(cwd):
     # Openmc initlialization
     openmc_input_path = (cwd / 'openmc_data')
 
-    openmc_iter_inputfiles = {
+    openmc_runtime_inputfiles = {
         "geometry": "geometry.xml",
         "settings": "settings.xml",
     }
 
-    for key in openmc_iter_inputfiles:
-        openmc_iter_inputfiles[key] = \
-            (openmc_input_path / openmc_iter_inputfiles[key]).as_posix()
+    for key in openmc_runtime_inputfiles:
+        openmc_runtime_inputfiles[key] = \
+            (openmc_input_path / openmc_runtime_inputfiles[key]).as_posix()
 
-    depcode.iter_inputfile = openmc_iter_inputfiles
-    depcode.iter_matfile = (openmc_input_path / 'materials.xml').as_posix()
+    depcode.runtime_inputfile = openmc_runtime_inputfiles
+    depcode.runtime_matfile = (openmc_input_path / 'materials.xml').as_posix()
 
     return depcode
 

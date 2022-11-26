@@ -83,8 +83,8 @@ class Simulation():
         if not self.restart_flag:
             try:
                 os.remove(self.db_path)
-                os.remove(self.sim_depcode.iter_matfile)
-                os.remove(self.sim_depcode.iter_inputfile)
+                os.remove(self.sim_depcode.runtime_matfile)
+                os.remove(self.sim_depcode.runtime_inputfile)
                 print("Previous run output files were deleted.")
             except OSError as e:
                 pass

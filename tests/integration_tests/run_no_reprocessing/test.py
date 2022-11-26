@@ -21,8 +21,8 @@ def setup():
 
     depcode = app._create_depcode_object(object_input[0])
     sss_file = cwd + '/_test'
-    depcode.iter_inputfile = sss_file
-    depcode.iter_matfile = cwd + '/_test_mat'
+    depcode.runtime_inputfile = sss_file
+    depcode.runtime_matfile = cwd + '/_test_mat'
 
     simulation = app._create_simulation_object(object_input[1], depcode, 1, 1)
 

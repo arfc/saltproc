@@ -38,34 +38,34 @@ def test_write_depletion_step_input(openmc_depcode, msr):
     openmc_depcode.write_depletion_step_input(msr,
                                               0,
                                               False)
-    # Load in the iter_ objects
-    iter_materials = openmc.Materials.from_xml(openmc_depcode.iter_matfile)
-    iter_geometry = openmc.Geometry.from_xml(
-        openmc_depcode.iter_inputfile['geometry'],
-        materials=iter_materials)
-    iter_settings = openmc.Settings.from_xml(
-        openmc_depcode.iter_inputfile['settings'])
+    # Load in the runtime_ objects
+    runtime_materials = openmc.Materials.from_xml(openmc_depcode.runtime_matfile)
+    runtime_geometry = openmc.Geometry.from_xml(
+        openmc_depcode.runtime_inputfile['geometry'],
+        materials=runtime_materials)
+    runtime_settings = openmc.Settings.from_xml(
+        openmc_depcode.runtime_inputfile['settings'])
 
-    iter_cells = iter_geometry.get_all_cells()
-    iter_lattices = iter_geometry.get_all_lattices()
-    iter_surfaces = iter_geometry.get_all_surfaces()
-    iter_universes = iter_geometry.get_all_universes()
+    runtime_cells = runtime_geometry.get_all_cells()
+    runtime_lattices = runtime_geometry.get_all_lattices()
+    runtime_surfaces = runtime_geometry.get_all_surfaces()
+    runtime_universes = runtime_geometry.get_all_universes()
 
     # an easier approach may just be to compare the
     # file contents themselves
-    assertion_dict = {'mat': (input_materials, iter_materials),
-                      'cells': (input_cells, iter_cells),
-                      'lattices': (input_lattices, iter_lattices),
-                      'surfs': (input_surfaces, iter_surfaces),
-                      'univs': (input_universes, iter_universes)}
+    assertion_dict = {'mat': (input_materials, runtime_materials),
+                      'cells': (input_cells, runtime_cells),
+                      'lattices': (input_lattices, runtime_lattices),
+                      'surfs': (input_surfaces, runtime_surfaces),
+                      'univs': (input_universes, runtime_universes)}
 
     _check_openmc_iterables_equal(assertion_dict)
-    assert iter_settings.inactive == openmc_depcode.inactive_cycles
-    assert iter_settings.batches == openmc_depcode.active_cycles + \
+    assert runtime_settings.inactive == openmc_depcode.inactive_cycles
+    assert runtime_settings.batches == openmc_depcode.active_cycles + \
         openmc_depcode.inactive_cycles
-    assert iter_settings.particles == openmc_depcode.npop
+    assert runtime_settings.particles == openmc_depcode.npop
 
-    del iter_materials, iter_geometry
+    del runtime_materials, runtime_geometry
     del input_materials, input_geometry
 
 
@@ -74,10 +74,10 @@ def test_write_depletion_settings(openmc_depcode, msr):
     Unit test for `Depcodeopenmc_depcode.write_depletion_settings`
     """
     openmc_depcode.write_depletion_settings(msr, 0)
-    with open(openmc_depcode.iter_inputfile['depletion_settings']) as f:
+    with open(openmc_depcode.runtime_inputfile['depletion_settings']) as f:
         j = json.load(f)
         assert j['directory'] == Path(
-            openmc_depcode.iter_inputfile['settings']).parents[0].as_posix()
+            openmc_depcode.runtime_inputfile['settings']).parents[0].as_posix()
         assert j['timesteps'][0] == msr.dep_step_length_cumulative[0]
         assert j['operator_kwargs']['chain_file'] == \
             openmc_depcode.template_input_file_path['chain_file']
@@ -96,7 +96,7 @@ def test_write_saltproc_openmc_tallies(openmc_depcode):
         openmc_depcode.geo_files[0], mat)
     openmc_depcode.write_saltproc_openmc_tallies(mat, geo)
     del mat, geo
-    tallies = openmc.Tallies.from_xml(openmc_depcode.iter_inputfile['tallies'])
+    tallies = openmc.Tallies.from_xml(openmc_depcode.runtime_inputfile['tallies'])
 
     # now write asserts statements based on the openmc_depcode.Tallies API and
     # what we expect our tallies to be
@@ -140,7 +140,7 @@ def test_switch_to_next_geometry(openmc_depcode):
 
     openmc_depcode.switch_to_next_geometry()
     switched_geometry = openmc.Geometry.from_xml(
-        openmc_depcode.iter_inputfile['geometry'], mat)
+        openmc_depcode.runtime_inputfile['geometry'], mat)
 
     switched_cells = switched_geometry.get_all_cells()
     switched_lattices = switched_geometry.get_all_lattices()

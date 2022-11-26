@@ -15,11 +15,11 @@ class Depcode(ABC):
     step_metadata : dict of str to type
         Holds depletion code depletion step metadata. Metadata labels are keys
         and metadata values are values.
-    iter_inputfile : str
-        Path to depletion code input file for depletion code rerunning.
-    iter_matfile : str
-        Path to iterative, rewritable material file for depletion code
-        rerunning. This file is modified during  the simulation.
+    runtime_inputfile : str
+        Path to input file used to run depletion step.
+    runtime_matfile : str
+        Path to material file containing burnable materials used to
+        run depletion step.
 
     """
 
@@ -65,8 +65,8 @@ class Depcode(ABC):
         self.inactive_cycles = inactive_cycles
         self.neutronics_parameters = {}
         self.step_metadata = {}
-        self.iter_inputfile = './iter_input'
-        self.iter_matfile = './iter_mat'
+        self.runtime_inputfile = './runtime_input'
+        self.runtime_matfile = './runtime_mat'
 
     @abstractmethod
     def read_step_metadata(self):
