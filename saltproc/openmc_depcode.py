@@ -167,8 +167,8 @@ class OpenMCDepcode(Depcode):
         next_geometry.export_to_xml(path=self.iter_inputfile['geometry'])
         del mats, next_geometry
 
-    def write_depcode_input(self, reactor, dep_step, restart):
-        """ Writes prepared data into OpenMC input file(s).
+    def write_depletion_step_input(self, reactor, dep_step, restart):
+        """Write OpenMC input files for running depletion step.
 
         Parameters
         ----------

@@ -74,10 +74,10 @@ def test_write_iter_files(serpent_depcode, msr):
         assert file_data[4] == '            1001.09c  -1.21000137902945E-35\n'
     remove(serpent_depcode.iter_matfile)
 
-    # write_depcode_input
-    serpent_depcode.write_depcode_input(msr,
-                                        0,
-                                        False)
+    # write_depletion_step_input
+    serpent_depcode.write_depletion_step_input(msr,
+                                              0,
+                                              False)
 
     file = serpent_depcode.iter_inputfile
     file_data = serpent_depcode.read_plaintext_file(file)

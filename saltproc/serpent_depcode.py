@@ -480,8 +480,8 @@ class SerpentDepcode(Depcode):
         with open(self.iter_inputfile, 'w') as f:
             f.writelines(new_lines)
 
-    def write_depcode_input(self, reactor, dep_step, restart):
-        """Writes prepared data into the Serpent2 input file.
+    def write_depletion_step_input(self, reactor, dep_step, restart):
+        """Write Serpent2 input file for running depletion step
 
         Parameters
         ----------
@@ -496,18 +496,16 @@ class SerpentDepcode(Depcode):
         """
 
         if dep_step == 0 and not restart:
-            data = self.read_plaintext_file(self.template_input_file_path)
-            data = self.insert_path_to_geometry(data)
-            data = self.apply_neutron_settings(data)
-            data = self.create_runtime_matfile(data)
+            lines = self.read_plaintext_file(self.template_input_file_path)
+            lines = self.insert_path_to_geometry(lines)
+            lines = self.apply_neutron_settings(lines)
+            lines = self.create_runtime_matfile(lines)
         else:
-            data = self.read_plaintext_file(self.iter_inputfile)
-        data = self.set_power_load(data, reactor, dep_step)
+            lines = self.read_plaintext_file(self.iter_inputfile)
+        lines = self.set_power_load(lines, reactor, dep_step)
 
-        if data:
-            out_file = open(self.iter_inputfile, 'w')
-            out_file.writelines(data)
-            out_file.close()
+        with open(self.iter_inputfile, 'w') as out_file
+            out_file.writelines(lines)
 
     def update_depletable_materials(self, mats, dep_end_time):
         """Update material file with reprocessed material compositions.
