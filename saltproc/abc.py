@@ -53,8 +53,8 @@ class Depcode(ABC):
         self.geo_files = geo_files
         self.neutronics_parameters = {}
         self.step_metadata = {}
-        self.runtime_inputfile = './runtime_input'
-        self.runtime_matfile = './runtime_mat'
+        self.runtime_inputfile = None
+        self.runtime_matfile = None
 
     @abstractmethod
     def read_step_metadata(self):

@@ -65,9 +65,9 @@ class OpenMCDepcode(Depcode):
                          exec_path,
                          template_input_file_path,
                          geo_files)
-        self.runtime_inputfile = {'geometry': './geometry.xml',
-                               'settings': './settings.xml'},
-        self.runtime_matfile = './materials.xml'
+        self.runtime_inputfile = {'geometry': 'geometry.xml',
+                                  'settings': 'settings.xml'},
+        self.runtime_matfile = 'materials.xml'
 
     def read_step_metadata(self):
         """Reads OpenMC's depletion step metadata and stores it in the

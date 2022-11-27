@@ -56,8 +56,8 @@ class SerpentDepcode(Depcode):
                          exec_path,
                          template_input_file_path,
                          geo_files)
-        self.runtime_inputfile = './serpent_runtime_input.serpent'
-        self.runtime_matfile = './serpent_runtime_mat.ini'
+        self.runtime_inputfile = 'serpent_runtime_input.serpent'
+        self.runtime_matfile = 'serpent_runtime_mat.ini'
 
     def create_runtime_matfile(self, file_lines):
         """Creates the runtime material file tracking burnable materials
