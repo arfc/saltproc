@@ -113,7 +113,8 @@ Python API Changes
   - ``Depcode``
 
     - ``template_inputfile_path`` → ``template_input_file_path``
-    - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
+    - Removed default values for `geo_files`
+    - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
     - ``read_depcode_info()`` → ``read_step_metadata()``
     - ``sim_info`` → ``step_metadata``
     - ``read_depcode_step_param()`` → ``read_neutronics_parameters()``
@@ -128,7 +129,8 @@ Python API Changes
   - ``DepcodeSerpent`` → ``SerpentDepcode``
 
     - ``template_inputfile_path`` → ``template_input_file_path``
-    - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
+    - Removed default values for `exec_path`, `template_input_file_path`, `geo_files`
+    - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
     - ``read_depcode_info()`` → ``read_depletion_step_metadata()``
     - ``sim_info`` → ``step_metadata``
     - ``read_depcode_step_param()`` → ``read_neutronics_parameters()``
@@ -150,12 +152,9 @@ Python API Changes
   - ``OpenMCDepcode`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
     - ``run_depletion_step()``
     - ``switch_to_next_geometry()``
-    - ``write_depcode_input()``
+    - ``write_runtime_input()``
     - ``write_depletion_settings()``
     - ``write_saltproc_openmc_tallies()``
-    - ``write_depcode_input()`` →  ``write_runtime_input()``
-    - ``iter_inputfile``  →  ``runtime_inputfile``
-    - ``iter_matfile``  →  ``runtime_matfile``
 
 
   - ``app.py``

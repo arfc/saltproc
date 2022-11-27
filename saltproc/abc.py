@@ -27,7 +27,7 @@ class Depcode(ABC):
                  codename,
                  exec_path,
                  template_input_file_path,
-                 geo_files=None,
+                 geo_files,
                  npop=50,
                  active_cycles=20,
                  inactive_cycles=20):

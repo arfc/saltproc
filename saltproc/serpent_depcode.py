@@ -35,9 +35,9 @@ class SerpentDepcode(Depcode):
     """
 
     def __init__(self,
-                 exec_path="sss2",
-                 template_input_file_path="reactor.serpent",
-                 geo_files=None,
+                 exec_path,
+                 template_input_file_path,
+                 geo_files,
                  npop=50,
                  active_cycles=20,
                  inactive_cycles=20):

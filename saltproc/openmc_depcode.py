@@ -36,11 +36,9 @@ class OpenMCDepcode(Depcode):
     """
 
     def __init__(self,
-                 exec_path="openmc_deplete.py",
-                 template_input_file_path={"geometry": "./geometry.xml",
-                                           "settings": "./settings.xml",
-                                           "chain_file": "./chain_simple.xml"},
-                 geo_files=None,
+                 exec_path,
+                 template_input_file_path,
+                 geo_files,
                  npop=50,
                  active_cycles=20,
                  inactive_cycles=20):
@@ -67,6 +65,11 @@ class OpenMCDepcode(Depcode):
                Number of inactive cycles.
 
         """
+
+        # if using the default depletion file, make sure we have the right path
+        if exec_path == "openmc_deplete.py":
+            exec_path = (Path(__file__).parents[0] / exec_path)
+
         super().__init__("openmc",
                          exec_path,
                          template_input_file_path,
