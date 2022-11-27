@@ -112,6 +112,7 @@ Python API Changes
 
   - ``Depcode``
 
+    - Remove `npop`, `active_cycles`, `inactive_cycles` parameters.
     - ``template_inputfile_path`` → ``template_input_file_path``
     - Removed default values for `geo_files`
     - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
@@ -128,6 +129,7 @@ Python API Changes
 
   - ``DepcodeSerpent`` → ``SerpentDepcode``
 
+    - Remove `npop`, `active_cycles`, `inactive_cycles` parameters.
     - ``template_inputfile_path`` → ``template_input_file_path``
     - Removed default values for `exec_path`, `template_input_file_path`, `geo_files`
     - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters

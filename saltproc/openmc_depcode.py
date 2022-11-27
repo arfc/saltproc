@@ -38,10 +38,7 @@ class OpenMCDepcode(Depcode):
     def __init__(self,
                  exec_path,
                  template_input_file_path,
-                 geo_files,
-                 npop=50,
-                 active_cycles=20,
-                 inactive_cycles=20):
+                 geo_files):
         """Initializes the OpenMCDepcode object.
 
            Parameters
@@ -57,12 +54,6 @@ class OpenMCDepcode(Depcode):
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
-           npop : int, optional
-               Size of neutron population per cycle for Monte Carlo.
-           active_cycles : int, optional
-               Number of active cycles.
-           inactive_cycles : int, optional
-               Number of inactive cycles.
 
         """
 
@@ -73,10 +64,7 @@ class OpenMCDepcode(Depcode):
         super().__init__("openmc",
                          exec_path,
                          template_input_file_path,
-                         geo_files,
-                         npop,
-                         active_cycles,
-                         inactive_cycles)
+                         geo_files)
         self.runtime_inputfile = {'geometry': './geometry.xml',
                                'settings': './settings.xml'},
         self.runtime_matfile = './materials.xml'
@@ -190,9 +178,6 @@ class OpenMCDepcode(Depcode):
                 self.geo_files[0], materials=materials)
             settings = openmc.Settings.from_xml(
                 self.template_input_file_path['settings'])
-            settings.particles = self.npop
-            settings.inactive = self.inactive_cycles
-            settings.batches = self.active_cycles + self.inactive_cycles
         else:
             materials = openmc.Materials.from_xml(self.runtime_matfile)
             geometry = openmc.Geometry.from_xml(

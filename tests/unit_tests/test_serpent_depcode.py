@@ -31,7 +31,7 @@ def test_read_plaintext_file(serpent_depcode):
     template_str = serpent_depcode.read_plaintext_file(
         serpent_depcode.template_input_file_path)
     assert template_str[6] == '%therm zrh_h 900 hzr05.32t hzr06.32t\n'
-    assert template_str[18] == 'set pop 30 20 10\n'
+    assert template_str[18] == 'set pop 50 20 20\n'
     assert template_str[22] == 'set bumode  2\n'
     assert template_str[23] == 'set pcc     1\n'
 

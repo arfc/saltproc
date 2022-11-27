@@ -249,10 +249,7 @@ def _create_depcode_object(depcode_input):
 
     depcode = depcode(depcode_input['exec_path'],
                       depcode_input['template_input_file_path'],
-                      geo_files=depcode_input['geo_file_paths'],
-                      npop=depcode_input['npop'],
-                      active_cycles=depcode_input['active_cycles'],
-                      inactive_cycles=depcode_input['inactive_cycles'])
+                      geo_files=depcode_input['geo_file_paths'])
 
     return depcode
 

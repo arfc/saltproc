@@ -37,10 +37,7 @@ class SerpentDepcode(Depcode):
     def __init__(self,
                  exec_path,
                  template_input_file_path,
-                 geo_files,
-                 npop=50,
-                 active_cycles=20,
-                 inactive_cycles=20):
+                 geo_files):
         """Initializes the SerpentDepcode object.
 
            Parameters
@@ -53,54 +50,14 @@ class SerpentDepcode(Depcode):
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
-           npop : int, optional
-               Size of neutron population per cycle for Monte Carlo.
-           active_cycles : int, optional
-               Number of active cycles.
-           inactive_cycles : int, optional
-               Number of inactive cycles.
 
         """
         super().__init__("serpent",
                          exec_path,
                          template_input_file_path,
-                         geo_files=geo_files,
-                         npop=npop,
-                         active_cycles=active_cycles,
-                         inactive_cycles=inactive_cycles)
+                         geo_files)
         self.runtime_inputfile = './serpent_runtime_input.serpent'
         self.runtime_matfile = './serpent_runtime_mat.ini'
-
-    def apply_neutron_settings(self, file_lines):
-        """Apply neutron settings (no. of neutrons per cycle, no. of active and
-        inactive cycles) from the SaltProc input file to the runtime Serpent2
-        input file.
-
-        Parameters
-        ----------
-        file_lines : list of str
-            Serpent2 runtime input file.
-
-        Returns
-        -------
-        file_lines : list of str
-            Serpent2 runtime input file with updated neutron settings.
-
-        """
-        if self.npop and self.active_cycles and self.inactive_cycles:
-            neutron_settings = \
-                [line for line in file_lines if line.startswith("set pop")]
-            if len(neutron_settings) > 1:
-                raise IOError('Template file '
-                              f'{self.template_input_file_path} contains '
-                              'multuple lines with neutron settings')
-            elif len(neutron_settings) < 1:
-                raise IOError('Template file '
-                              f'{self.template_input_file_path} does not '
-                              'contain neutron settings.')
-            args = 'set pop %i %i %i\n' % (self.npop, self.active_cycles,
-                                           self.inactive_cycles)
-        return [line.replace(neutron_settings[0], args) for line in file_lines]
 
     def create_runtime_matfile(self, file_lines):
         """Creates the runtime material file tracking burnable materials
@@ -499,7 +456,6 @@ class SerpentDepcode(Depcode):
         if dep_step == 0 and not restart:
             lines = self.read_plaintext_file(self.template_input_file_path)
             lines = self.insert_path_to_geometry(lines)
-            lines = self.apply_neutron_settings(lines)
             lines = self.create_runtime_matfile(lines)
         else:
             lines = self.read_plaintext_file(self.runtime_inputfile)

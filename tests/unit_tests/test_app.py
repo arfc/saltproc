@@ -21,9 +21,6 @@ def test_read_main_input(cwd, codename, ext):
     assert input_path == data_path
 
     assert depcode_input['codename'] == codename
-    assert depcode_input['npop'] == 50
-    assert depcode_input['active_cycles'] == 20
-    assert depcode_input['inactive_cycles'] == 20
     assert depcode_input['geo_file_paths'][0] == \
         (data_path / ('tap_geometry_base' + ext)).as_posix()
 

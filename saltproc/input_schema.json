@@ -36,18 +36,6 @@
                     "type": "string" },
                 "template_input_file_path": {
                     "description": "Path(s) to user's template depletion code input file(s) with reactor model"},
-                "npop": {
-                    "description": "Number of neutrons per generation",
-                    "type": "number",
-                    "minimum": 0},
-                "active_cycles": {
-                    "description": "number of active generations",
-                    "type": "number",
-                    "minimum": 0},
-                "inactive_cycles": {
-                    "description": "Number of inactive generations",
-                    "type": "number",
-                    "minimum": 0},
                 "geo_file_paths": {
                     "description": "Path(s) to geometry file(s) to switch to in depletion code runs",
                     "type": "array",

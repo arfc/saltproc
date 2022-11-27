@@ -27,10 +27,7 @@ class Depcode(ABC):
                  codename,
                  exec_path,
                  template_input_file_path,
-                 geo_files,
-                 npop=50,
-                 active_cycles=20,
-                 inactive_cycles=20):
+                 geo_files):
         """Initializes the Depcode object.
 
            Parameters
@@ -48,21 +45,12 @@ class Depcode(ABC):
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
-           npop : int, optional
-               Size of neutron population per cycle for Monte Carlo.
-           active_cycles : int, optional
-               Number of active cycles.
-           inactive_cycles : int, optional
-               Number of inactive cycles.
 
         """
         self.codename = codename
         self.exec_path = exec_path
         self.template_input_file_path = template_input_file_path
         self.geo_files = geo_files
-        self.npop = npop
-        self.active_cycles = active_cycles
-        self.inactive_cycles = inactive_cycles
         self.neutronics_parameters = {}
         self.step_metadata = {}
         self.runtime_inputfile = './runtime_input'
