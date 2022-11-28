@@ -42,7 +42,7 @@ class SerpentDepcode(Depcode):
                  output_path,
                  exec_path,
                  template_input_file_path,
-                 geo_files):
+                 geo_file_paths):
         """Initializes a SerpentDepcode object.
 
            Parameters
@@ -53,7 +53,7 @@ class SerpentDepcode(Depcode):
                Path to Serpent2 executable.
            template_input_file_path : str
                Path to user input file for Serpent2
-           geo_files : str or list, optional
+           geo_file_paths : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
@@ -63,7 +63,7 @@ class SerpentDepcode(Depcode):
                          output_path,
                          exec_path,
                          template_input_file_path,
-                         geo_files)
+                         geo_file_paths)
         self.runtime_inputfile = \
                          (output_path / 'runtime_input.serpent').resolve().as_posix()
         self.runtime_matfile = (output_path / 'runtime_mat.ini').resolve().as_posix()
@@ -231,7 +231,7 @@ class SerpentDepcode(Depcode):
 
         """
         lines.insert(5,  # Inserts on 6th line
-                             'include \"' + str(self.geo_files[0]) + '\"\n')
+                             'include \"' + str(self.geo_file_paths[0]) + '\"\n')
         return lines
 
     def read_depleted_materials(self, read_at_end=False):
@@ -462,9 +462,9 @@ class SerpentDepcode(Depcode):
             lines = f.readlines()
 
         current_geo_file = lines[geo_line_n].split('\"')[1]
-        current_geo_idx = self.geo_files.index(current_geo_file)
+        current_geo_idx = self.geo_file_paths.index(current_geo_file)
         try:
-            new_geo_file = self.geo_files[current_geo_idx + 1]
+            new_geo_file = self.geo_file_paths[current_geo_idx + 1]
         except IndexError:
             print('No more geometry files available \
                   and the system went subcritical \n\n')

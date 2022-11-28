@@ -3,6 +3,7 @@ import os
 import shutil
 import re
 import json
+from pathlib import Path
 
 from pyne import nucname as pyname
 from pyne import serpent
@@ -46,7 +47,7 @@ class OpenMCDepcode(Depcode):
                  output_path,
                  exec_path,
                  template_input_file_path,
-                 geo_files):
+                 geo_file_paths):
         """Initializes a OpenMCDepcode object.
 
            Parameters
@@ -60,7 +61,7 @@ class OpenMCDepcode(Depcode):
                material, and settings) for OpenMC. File type as strings
                are keys (e.g. 'geometry', 'settings', 'material'), and
                file path as strings are values.
-           geo_files : str or list, optional
+           geo_file_paths : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
@@ -69,13 +70,15 @@ class OpenMCDepcode(Depcode):
 
         # if using the default depletion file, make sure we have the right path
         if exec_path == "openmc_deplete.py":
-            exec_path = (Path(__file__).parents[0] / exec_path)
+            exec_path = (Path(__file__).parents[0] / exec_path).resolve()
+        else:
+            exec_path == (Path(template_input_file_path['settings'].parents[0]) / exec_path).resolve()
 
         super().__init__("openmc",
                          output_path,
                          exec_path,
                          template_input_file_path,
-                         geo_files)
+                         geo_file_paths)
         self.runtime_inputfile = \
             {'geometry': (output_path / 'geometry.xml').resolve().as_posix(),
              'settings': (output_path / 'settings.xml').resolve().as_posix()}
@@ -160,11 +163,11 @@ class OpenMCDepcode(Depcode):
 
     def switch_to_next_geometry(self):
         """Switches the geometry file for the OpenMC depletion simulation to
-        the next geometry file in `geo_files`.
+        the next geometry file in `geo_file_paths`.
         """
         mats = openmc.Materials.from_xml(self.runtime_matfile)
         next_geometry = openmc.Geometry.from_xml(
-            path=self.geo_files.pop(0),
+            path=self.geo_file_paths.pop(0),
             materials=mats)
         next_geometry.export_to_xml(path=self.runtime_inputfile['geometry'])
         del mats, next_geometry
@@ -187,7 +190,7 @@ class OpenMCDepcode(Depcode):
             materials = openmc.Materials.from_xml(
                 self.template_input_file_path['materials'])
             geometry = openmc.Geometry.from_xml(
-                self.geo_files[0], materials=materials)
+                self.geo_file_paths[0], materials=materials)
             settings = openmc.Settings.from_xml(
                 self.template_input_file_path['settings'])
             self.npop = settings.particles
@@ -229,20 +232,24 @@ class OpenMCDepcode(Depcode):
         self.depletion_settings['directory'] = self.output_path.as_posix()
         self.depletion_settings['timesteps'] = [step_length]
 
-        operator_kwargs = depletion_settings['operator_kwargs']
-        input_path = Path(self.template_input_file_path).parents[0]
-        if not(operator_kwargs['fission_q'] is None):
-            operator_kwargs['fission_q'] = \
-                (input_path / operator_kwargs['fission_q']).resolve().as_posix()
+        operator_kwargs = {}
+        input_path = Path(self.template_input_file_path['materials']).parents[0]
+        try:
+            if not(operator_kwargs['fission_q'] is None):
+                operator_kwargs['fission_q'] = \
+                    (input_path / operator_kwargs['fission_q']).resolve().as_posix()
+        except KeyError:
+            pass
+        operator_kwargs['chain_file'] = self.chain_file_path
 
         self.depletion_settings['operator_kwargs'].update(operator_kwargs)
 
-        integrator_kwargs = self.depletion_settings['integrator_kwargs']
+        integrator_kwargs = {}
         integrator_kwargs['power'] = current_power
-        integrator_kwargs['timestep_unitss'] = reactor.time_units  # days
+        integrator_kwargs['timestep_units'] = reactor.timestep_units
         self.depletion_settings['integrator_kwargs'].update(integrator_kwargs)
 
-        with open(self.output_path / 'depletion_settings.json') as f:
+        with open(self.output_path / 'depletion_settings.json', 'w') as f:
             depletion_settings_json = json.dumps(self.depletion_settings, indent=4)
             f.write(depletion_settings_json)
 

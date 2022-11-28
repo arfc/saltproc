@@ -31,7 +31,7 @@ def test_read_main_input(cwd, codename, ext):
     np.testing.assert_equal(
         reactor_input['power_levels'], [
             1.250E+9, 1.250E+9])
-    np.testing.assert_equal(reactor_input['dep_step_length_cumulative'],
+    np.testing.assert_equal(reactor_input['depletion_timesteps'],
                             [5, 10])
 
 

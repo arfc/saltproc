@@ -17,9 +17,10 @@
         "output_path": {
             "description": "Path output data storing folder",
             "type": "string",
-            "pattern": "^(.\\/)*(.*)$"
+            "pattern": "^(.\\/)*(.*)$",
+            "default": "saltproc_results"
         },
-        "n_depletion_timesteps": {
+        "n_depletion_steps": {
             "description": "Number of steps for constant power and depletion interval case",
             "type": "number"
         },
@@ -67,6 +68,7 @@
                             "exec_path": {
                                 "description": "Path to OpenMC depletion script",
                                 "type": "string",
+                                "enum": ["openmc_deplete.py"],
                                 "default": "openmc_deplete.py"},
                             "template_input_file_path": {
                                 "description": "Paths to OpenMC template input files",
@@ -231,7 +233,8 @@
                                                     }
                                                 }
                                             }
-                                        ]
+                                        ],
+                                        "default": {}
                                     },
                                     "output": {
                                         "description": "Capture OpenMC output from standard out",
@@ -250,15 +253,17 @@
                                                 "type": "number",
                                                 "minimum": 1}
                                         },
-                                        "default": null
+                                        "default": {}
                                     }
-                                }
+                                },
+                                "default": {}
                             }
                         }
                     }
                 }
             ],
-            "required": ["codename", "exec_path", "template_input_file_path", "geo_file_paths"]
+            "default": {},
+            "required": ["codename", "exec_path", "template_input_file_path", "geo_file_paths", "chain_file_path", "depletion_settings"]
         },
         "simulation": {
             "description": "Simulation class input parameters",
@@ -315,6 +320,7 @@
                     "enum": ["s", "sec", "min", "minute", "h", "hr", "hour", "d", "day", "a", "year", "MWd/kg", "mwd/kg", "MWD/KG", "MWD/kg", "MWd/KG"]
                     }
             },
+            "default": {},
             "required": ["volume", "mass_flowrate", "power_levels", "depletion_steps", "timestep_type", "timestep_units"]
         }
     },

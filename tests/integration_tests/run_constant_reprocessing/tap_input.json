@@ -2,7 +2,7 @@
    "proc_input_file": "tap_processes.json",
    "dot_input_file": "../../tap_paths.dot",
    "output_path": ".",
-   "n_depletion_timesteps": 2,
+   "n_depletion_steps": 2,
    "depcode": {
        "codename": "serpent",
        "template_input_file_path": "tap_template.ini",

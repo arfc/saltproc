@@ -6,6 +6,7 @@ import argparse
 import numpy as np
 import json
 import jsonschema
+from jsonschema import Draft202012Validator, validators
 import gc
 import networkx as nx
 import pydotplus
@@ -152,10 +153,12 @@ def read_main_input(main_inp_file):
     input_schema = (Path(__file__).parents[0] / 'input_schema.json')
     with open(main_inp_file) as f:
         j = json.load(f)
+        DefaultValidatingValidator = extend_with_default(Draft202012Validator)
         with open(input_schema) as s:
             v = json.load(s)
             try:
-                jsonschema.validate(instance=j, schema=v)
+                DefaultValidatingValidator(v).validate(j)
+                #jsonschema.validate(instance=j, schema=v)
             except jsonschema.exceptions.ValidationError:
                 print("Your input file is improperly structured.\
                       Please see saltproc/tests/test.json for an example.")
@@ -217,6 +220,20 @@ def read_main_input(main_inp_file):
         return input_path, process_file, dot_file, (
             depcode_input, simulation_input, reactor_input)
 
+def extend_with_default(validator_class):
+    validate_properties = validator_class.VALIDATORS["properties"]
+    def set_defaults(validator, properties, instance, schema):
+        for property, subschema in properties.items():
+            if "default" in subschema:
+                instance.setdefault(property, subschema["default"])
+        for error in validate_properties(
+            validator, properties, instance, schema,
+        ):
+            yield error
+    return validators.extend(
+        validator_class, {"properties" : set_defaults},
+    )
+
 
 def _print_simulation_input_info(simulation_input, depcode_input):
     """Helper function for `run()` """
@@ -234,21 +251,28 @@ def _print_simulation_input_info(simulation_input, depcode_input):
 
 def _create_depcode_object(depcode_input):
     """Helper function for `run()` """
-    codename = depcode_input['codename']
+    codename = depcode_input.pop('codename')
     if codename == 'serpent':
         depcode = SerpentDepcode
     elif codename == 'openmc':
         depcode = OpenMCDepcode
-        chain_file_path = depcode_input.pop('chain_file')
+        chain_file_path = depcode_input.pop('chain_file_path')
         depletion_settings = depcode_input.pop('depletion_settings')
     else:
         raise ValueError(
             f'{depcode_input["codename"]} is not a supported depletion code')
 
-    depcode = depcode(*depcode_input)
+    depcode = depcode(**depcode_input)
+    #depcode = depcode(
+    #    depcode_input['output_path'],
+    #    depcode_input['exec_path'],
+    #    depcode_input['template_input_file_path'],
+    #    depcode_input['geo_file_paths'])
     if codename == 'openmc':
-        depcode.chain_file = chain_file
+        depcode.chain_file_path = chain_file_path
         depcode.depletion_settings = depletion_settings
+
+    depcode_input['codename'] = codename
 
     return depcode
 
@@ -305,12 +329,14 @@ def _process_main_input_reactor_params(reactor_input, n_depletion_steps):
         # Make `power_levels` and `depletion_timesteps`
         # lists of length `n_depletion_steps`
         else:
-            step = int(n_depletion_steps)
-            deptot = float(depletion_timesteps[0]) * step
-            depletion_timesteps = \
-                np.linspace(float(depletion_timesteps[0]),
-                            deptot,
-                            num=step)
+            step_length = float(depletion_timesteps[0])
+            if reactor_input['timestep_type'] == 'stepwise':
+                depletion_timesteps = [step_length] * n_depletion_steps
+            else:
+                depletion_timesteps = \
+                    np.linspace(step_length,
+                                n_depletion_steps*step_length,
+                                n_depletion_steps)
             power_levels = float(power_levels[0]) * \
                 np.ones_like(depletion_timesteps)
             reactor_input['depletion_timesteps'] = \

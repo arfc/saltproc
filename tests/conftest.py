@@ -41,19 +41,19 @@ def openmc_depcode(cwd):
     depcode = _create_depcode_object(object_input[0])
 
     # Openmc initlialization
-    openmc_input_path = (cwd / 'openmc_data')
+    #openmc_input_path = (cwd / 'openmc_data')
 
-    openmc_runtime_inputfiles = {
-        "geometry": "geometry.xml",
-        "settings": "settings.xml",
-    }
+    #openmc_runtime_inputfiles = {
+    #    "geometry": "geometry.xml",
+    #    "settings": "settings.xml",
+    #}
 
-    for key in openmc_runtime_inputfiles:
-        openmc_runtime_inputfiles[key] = \
-            (openmc_input_path / openmc_runtime_inputfiles[key]).as_posix()
+    #for key in openmc_runtime_inputfiles:
+    #    openmc_runtime_inputfiles[key] = \
+    #        (openmc_input_path / openmc_runtime_inputfiles[key]).as_posix()
 
-    depcode.runtime_inputfile = openmc_runtime_inputfiles
-    depcode.runtime_matfile = (openmc_input_path / 'materials.xml').as_posix()
+    #depcode.runtime_inputfile = openmc_runtime_inputfiles
+    #depcode.runtime_matfile = (openmc_input_path / 'materials.xml').as_posix()
 
     return depcode
 

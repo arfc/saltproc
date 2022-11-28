@@ -18,7 +18,9 @@ def geometry_switch(scope='module'):
 def msr(scope='module'):
     reactor = Reactor(volume=1.0,
                       power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
-                      dep_step_length_cumulative=[111.111, 2101.9, 3987.5])
+                      depletion_timesteps=[111.111, 2101.9, 3987.5],
+                      timestep_type='cumulative',
+                      timestep_units='d')
     return reactor
 
 
@@ -39,7 +41,7 @@ def test_runtime_input_from_template(serpent_depcode, msr):
     remove(serpent_depcode.runtime_matfile)
 
     # set_power_load
-    time = msr.dep_step_length_cumulative.copy()
+    time = msr.depletion_timesteps.copy()
     time.insert(0, 0.0)
     depsteps = np.diff(time)
     for idx in range(len(msr.power_levels)):
@@ -83,7 +85,7 @@ def test_write_runtime_files(serpent_depcode, msr):
     assert file_data[20] == 'set pop 50 20 20\n'
 
     # switch_to_next_geometry
-    serpent_depcode.geo_files += ['../../examples/406.inp',
+    serpent_depcode.geo_file_paths += ['../../examples/406.inp',
                                   '../../examples/988.inp']
     serpent_depcode.switch_to_next_geometry()
     file_data = serpent_depcode.read_plaintext_file(file)

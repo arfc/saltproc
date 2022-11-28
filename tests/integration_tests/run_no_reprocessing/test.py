@@ -26,7 +26,7 @@ def setup():
 
     simulation = app._create_simulation_object(object_input[1], depcode, 1, 1)
 
-    reactor = app._create_reactor_object(object_input[2])
+    reactor = app._create_reactor_object(object_input[2], object_input[0]['codename'])
 
     return cwd, simulation, reactor, sss_file
 

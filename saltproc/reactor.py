@@ -7,7 +7,7 @@ class Reactor ():
                  volume=1.0,
                  mass_flowrate=0.0,
                  power_levels=[0.0],
-                 depletion_steps=[1],
+                 depletion_timesteps=[1],
                  timestep_type='stepwise',
                  timestep_units='d'):
         """Initializes the class.
@@ -33,4 +33,4 @@ class Reactor ():
         self.mass_flowrate = mass_flowrate
         self.power_levels = power_levels
         self.depletion_timesteps = depletion_timesteps
-        self.dep_step_units = dep_step_units
+        self.timestep_units = timestep_units
