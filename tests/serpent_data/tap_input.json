@@ -2,7 +2,7 @@
    "proc_input_file": "../tap_processes.json",
    "dot_input_file": "../tap_paths.dot",
    "output_path": "../temp_data",
-   "num_depsteps": 2,
+   "n_depletion_timesteps": 2,
    "depcode": {
        "codename": "serpent",
        "exec_path": "sss2",
@@ -19,6 +19,7 @@
        "volume": 1.0,
        "mass_flowrate": 9.92E+6,
        "power_levels": [ 1.250E+9 ],
-       "dep_step_length_cumulative": [ 5 ]
+       "depletion_timesteps": [ 5 ],
+       "timestep_units": "d"
    }
 }

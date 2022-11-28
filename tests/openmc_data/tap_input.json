@@ -2,16 +2,20 @@
    "proc_input_file": "../tap_processes.json",
    "dot_input_file": "../tap_paths.dot",
    "output_path": "../temp_data",
-   "num_depsteps": 2,
+   "n_depletion_timesteps": 2,
    "depcode": {
        "codename": "openmc",
        "exec_path": "openmc",
        "template_input_file_path": {
            "materials": "tap_materials.xml",
-           "settings": "tap_settings.xml",
-           "chain_file": "tap_chain.xml"
+           "settings": "tap_settings.xml"
        },
-       "geo_file_paths": ["tap_geometry_base.xml"]
+       "geo_file_paths": ["tap_geometry_base.xml"],
+       "depletion_settings": {
+           "times_kwargs": {
+               "chain_file": "main.tmp"
+           }
+       }
    },
    "simulation": {
        "sim_name": "tap_test_simulation_openmc",
@@ -23,6 +27,7 @@
        "volume": 1.0,
        "mass_flowrate": 9.92E+6,
        "power_levels": [ 1.250E+9 ],
-       "dep_step_length_cumulative": [ 5 ]
+       "depletion_timesteps": [ 5 ],
+       "timestep_units": "d"
    }
 }

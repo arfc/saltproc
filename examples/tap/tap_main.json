@@ -2,7 +2,7 @@
    "proc_input_file": "tap_objects.json",
    "dot_input_file": "tap.dot",
    "output_path": "data",
-   "num_depsteps": 3,
+   "n_depletion_timesteps": 3,
    "depcode": {
        "codename": "serpent",
        "template_input_file_path": "tap.serpent",
@@ -34,6 +34,7 @@
        "volume": 1.0,
        "mass_flowrate": 9920000,
        "power_levels": [ 1250000000 ],
-       "dep_step_length_cumulative": [ 2 ]
+       "depletion_timesteps": [ 2 ],
+       "timestep_units": "d"
    }
 }

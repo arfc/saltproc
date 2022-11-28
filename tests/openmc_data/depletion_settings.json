@@ -1,1 +1,0 @@
-{"directory": "/home/ooblack/projects/saltproc/tests/openmc_data", "timesteps": [111.111], "operator_kwargs": {"chain_file": "/home/ooblack/projects/saltproc/tests/openmc_data/tap_chain.xml"}, "integrator_kwargs": {"power": 1250000000.0, "timestep_units": "d"}}

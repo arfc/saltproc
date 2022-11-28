@@ -7,7 +7,9 @@ class Reactor ():
                  volume=1.0,
                  mass_flowrate=0.0,
                  power_levels=[0.0],
-                 dep_step_length_cumulative=[1]):
+                 depletion_steps=[1],
+                 timestep_type='stepwise',
+                 timestep_units='d'):
         """Initializes the class.
 
         Parameters
@@ -18,12 +20,17 @@ class Reactor ():
             Total mass flowrate through reactor core (g/s).
         power_levels : array [:math:`N_{steps}` x1]
             Normalized power level for each depletion step (W).
-        dep_step_length_cumulative : array [:math:`N_{steps}` x1]
-            Cumulative depletion time (d).
+        depletion_timesteps : array [:math:`N_{steps}` x1]
+            Array of timesteps.
+        timestep_type: str
+            'cumulative', 'stepwise'.
+        timestep_units : str
+            Timestep units
 
         """
         # initialize all object attributes
         self.volume = volume
         self.mass_flowrate = mass_flowrate
         self.power_levels = power_levels
-        self.dep_step_length_cumulative = dep_step_length_cumulative
+        self.depletion_timesteps = depletion_timesteps
+        self.dep_step_units = dep_step_units

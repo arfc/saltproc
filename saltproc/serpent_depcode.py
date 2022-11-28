@@ -11,11 +11,8 @@ from saltproc import Materialflow
 from saltproc.abc import Depcode
 
 class SerpentDepcode(Depcode):
-    """Class contains information about input, output, geometry, and
-    template files for running Serpent2 depletion simulations.
-    Also contains neutrons population, active, and inactive cycles.
-    Contains methods to read template and output files,
-    write new input files for Serpent2.
+    """Interface to run depletion steps in Serpent, as well as obtaining
+    depletion step results.
 
     Attributes
     -----------
@@ -46,7 +43,7 @@ class SerpentDepcode(Depcode):
                  exec_path,
                  template_input_file_path,
                  geo_files):
-        """Initializes the SerpentDepcode object.
+        """Initializes a SerpentDepcode object.
 
            Parameters
            ----------
@@ -355,10 +352,8 @@ class SerpentDepcode(Depcode):
     def set_power_load(self,
                        file_lines,
                        reactor,
-                       current_depstep_idx):
-        """Add power load attributes in a :class:`Reactor` object to the
-        ``set power P dep daystep DEPSTEP`` line in the Serpent2  runtime input
-        file.
+                       step_idx):
+        """Set the power for the current depletion step
 
         Parameters
         ----------
@@ -367,7 +362,7 @@ class SerpentDepcode(Depcode):
         reactor : Reactor
             Contains information about power load curve and cumulative
             depletion time for the integration test.
-        current_depstep_idx : int
+        step_idx : int
             Current depletion step.
 
         Returns
@@ -378,21 +373,28 @@ class SerpentDepcode(Depcode):
         """
 
         line_idx = 8  # burnup setting line index by default
-        current_depstep_power = reactor.power_levels[current_depstep_idx]
-        if current_depstep_idx == 0:
-            current_depstep = reactor.dep_step_length_cumulative[0]
-        else:
-            current_depstep = \
-                reactor.dep_step_length_cumulative[current_depstep_idx] - \
-                reactor.dep_step_length_cumulative[current_depstep_idx - 1]
+        current_power = reactor.power_levels[step_idx]
+
+        step_length = reactor.depletion_timesteps[step_idx]
+
         for line in file_lines:
             if line.startswith('set    power   '):
                 line_idx = file_lines.index(line)
                 del file_lines[line_idx]
 
+        if reactor.timestep_unitss == 'MWd/kg':
+            step_type = 'bu'
+        else:
+            step_type = 'day'
+
+        if reactor.step_type == 'cumulative':
+            step_type += 'tot'
+        else:
+            step_type += 'step'
+
         file_lines.insert(line_idx,  # Insert on 9th line
-                          'set    power   %5.9E   dep daystep   %7.5E\n' %
-                          (current_depstep_power, current_depstep))
+                          f'set    power   %5.9E   dep %s   %7.5E\n' %
+                          (current_power, step_type, step_length))
         return file_lines
 
     def run_depletion_step(self, cores, nodes):

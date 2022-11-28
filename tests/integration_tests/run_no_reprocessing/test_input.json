@@ -2,7 +2,7 @@
    "proc_input_file": "processes.json",
    "dot_input_file": "paths.dot",
    "output_path": ".",
-   "num_depsteps": 2,
+   "n_depletion_timesteps": 2,
    "depcode": {
        "codename": "serpent",
        "template_input_file_path": "test_input.ini",
@@ -18,6 +18,7 @@
        "volume": 1.0,
        "mass_flowrate": 0.0,
        "power_levels": [ 1.250E+9 ],
-       "dep_step_length_cumulative": [ 3 ]
+       "depletion_timesteps": [ 3 ],
+       "timestep_units": "d"
    }
 }

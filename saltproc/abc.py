@@ -36,7 +36,7 @@ class Depcode(ABC):
                  exec_path,
                  template_input_file_path,
                  geo_files):
-        """Initializes the Depcode object.
+        """Initializes a Depcode object.
 
            Parameters
            ----------
