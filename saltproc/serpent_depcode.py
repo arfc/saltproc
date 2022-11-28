@@ -127,9 +127,38 @@ class SerpentDepcode(Depcode):
         # Create data directory
         Path.mkdir(Path(self.runtime_matfile).parents[0], exist_ok=True)
 
-        # Create file with path for SaltProc rewritable iterative material file
+        # Get material cards
+        file_lines = read_plaintext_file(abs_src_matfile)
+        self.get_material_data(file_lines)
+
+         # Create file with path for SaltProc rewritable iterative material file
         shutil.copy2(abs_src_matfile, self.runtime_matfile)
         return [line.replace(src_file, self.runtime_matfile) for line in file_lines]
+
+    def get_material_data(self, file_lines):
+        # Get data for matfile
+        mat_cards = \
+            [line.split() for line in file_lines if line.startswith("mat ")]
+        mat_idx = [file_lines.index(card) for card in mat_cards]
+
+        # Get library IDs
+        #mat_extensions = []
+        #nuclide_regex = "^\\s*[^%]*\\s*([0-9]{4,}|[A-Z]{1}[a-z]{0,1}-[0-9]{1,3})\\.[0-9]{2}c"
+        #for i, idx in enumerate(mat_idx):
+        #    j = 0
+        #    while(not(nuclide_match)):
+        #        j += 1
+        #        nuclide_match = re.match(nuclide_regex, file_lines[mat_idx+i])
+        #        if(j == len(file_lines) or j == mat_idx[i+1]):
+        #            ## warning about decay only nucs
+        #            break
+        #    mat_extensions.append(nuclide_match.group(0).split('.')[1])
+
+        # Get volume indices
+        card_volume_idx = [card.index('vol') for card in mat_cards]
+        mat_names = [card.split()[1] for card in mat_cards]
+        mat_data = (mat_cards, card_volume_idx)#, mat_extensions)
+        self.material_metadata = dict(zip(mat_names, mat_data))
 
     def convert_nuclide_code_to_name(self, nuc_code):
         """Converts Serpent2 nuclide code to symbolic nuclide name.
@@ -521,12 +550,16 @@ class SerpentDepcode(Depcode):
                     % dep_end_time)
             nuc_code_map = self.map_nuclide_code_zam_to_serpent()
             for name, mat in mats.items():
-                f.write('mat  %s  %5.9E burn 1 fix %3s %4i vol %7.5E\n' %
-                        (name,
-                         -mat.density,
-                         '09c',
-                         mat.temp,
-                         mat.vol))
+                mat_card, card_volume_idx = self.material_metadata[name]
+                mat_card[1] = str(-mat.density)
+                mat_card[card_volume_idx + 1] = "%7.5E" % mat.vol
+                f.write(" ".join(mat_card))
+                #f.write('mat  %s  %5.9E burn 1 fix %3s %4i vol %7.5E\n' %
+                #        (name,
+                #         -mat.density,
+                #         self.material_library_id[name],
+                #         mat.temp,
+                #         mat.vol))
                 for nuc_code, mass_fraction in mat.comp.items():
                     zam_code = pyname.zzaaam(nuc_code)
                     f.write('           %9s  %7.14E\n' %
