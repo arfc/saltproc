@@ -129,16 +129,16 @@ class OpenMCDepcode(Depcode):
             '-n',
             str(nodes),
             'python',
-            './deplete_openmc.py'
-            '-mat',
+            self.exec_path
+            '--materials',
             self.runtime_matfile,
-            '-geo',
+            '--geometry',
             self.runtime_inputfile['geometry'],
-            '-set',
+            '--settings',
             self.runtime_inputfile['settings'],
-            '-tal',
+            '--tallies',
             self.runtime_inputfile['tallies'],
-            '-dep',
+            '--depletion_settings',
             self.runtime_inputfile['depletion_settings'])
 
         print('Running %s' % (self.codename))
