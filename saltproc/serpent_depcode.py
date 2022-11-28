@@ -128,7 +128,7 @@ class SerpentDepcode(Depcode):
         Path.mkdir(Path(self.runtime_matfile).parents[0], exist_ok=True)
 
         # Get material cards
-        file_lines = read_plaintext_file(abs_src_matfile)
+        file_lines = self.read_plaintext_file(abs_src_matfile)
         self.get_material_data(file_lines)
 
          # Create file with path for SaltProc rewritable iterative material file
