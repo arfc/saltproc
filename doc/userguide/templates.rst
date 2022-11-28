@@ -14,6 +14,7 @@ A valid Serpent 2 template input file must have at least the following:
 
   - Non-burnable materials instantiated directly in the file
   - Burnable materials linked via the ```include`` card.`_
+  - The burnable materials should all use the ``fix`` option in the ```mat`` card`_.
   - Neutron particle parameters set via the ```set pop`` card`_.
   - Spontaneous fission yielf sublibray via the ```set sfylib`` card`_
 
@@ -48,10 +49,23 @@ So a minimal example assuming the without the use of environment variables would
    set pop 1000 40 10
 
 
+And the material file containing burnable materials would look like:
+
+.. code-block:: cfg 
+
+   mat uo2 -10.0 vol 0.554 burn 1 fix 82c 900
+       8016.82c  1.0
+       92234.82c 0.0004
+       92235.82c 0.043
+       92238.82c 0.9564
+       92236.82c 0.0002
+
+
 Users looking further cutomize the depletion step should read  Serpent 2's
 `input syntax manual`_, in particular the ```set bumode`` card`_ and the
 ```set pcc`` card`_.
 
+.. _``mat`` card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#mat
 .. _``set acelib`` card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_acelib
 .. _``set declib`` card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_declib
 .. _``set sfylib`` card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_sfylib
