@@ -11,11 +11,8 @@ from saltproc import Materialflow
 from saltproc.abc import Depcode
 
 class SerpentDepcode(Depcode):
-    """Class contains information about input, output, geometry, and
-    template files for running Serpent2 depletion simulations.
-    Also contains neutrons population, active, and inactive cycles.
-    Contains methods to read template and output files,
-    write new input files for Serpent2.
+    """Interface for running depletion steps in Serpent, as well as obtaining
+    depletion step results.
 
     Attributes
     -----------
@@ -46,7 +43,7 @@ class SerpentDepcode(Depcode):
                  exec_path,
                  template_input_file_path,
                  geo_files):
-        """Initializes the SerpentDepcode object.
+        """Initialize a SerpentDepcode object.
 
            Parameters
            ----------

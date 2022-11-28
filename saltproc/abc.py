@@ -1,11 +1,7 @@
 from abc import ABC, abstractmethod
 
 class Depcode(ABC):
-    """Abstract class for interfacing with monte-carlo particle transport
-    codes. Contains information about input, output, geometry, and template
-    files for running depletion simulations. Also contains neutron
-    population, active, and inactive cycles. Contains methods to read template
-    and output files, and write new input files for the depletion code.
+    """Abstract interface for running depletion steps.
 
     Attributes
     -----------
@@ -36,7 +32,7 @@ class Depcode(ABC):
                  exec_path,
                  template_input_file_path,
                  geo_files):
-        """Initializes the Depcode object.
+        """Initialize a Depcode object.
 
            Parameters
            ----------

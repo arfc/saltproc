@@ -12,11 +12,8 @@ from saltproc import Materialflow
 from saltproc.abc import Depcode
 
 class OpenMCDepcode(Depcode):
-    """Class contains information about input, output, geometry, and
-    template files for running OpenMC depletion simulations.
-    Also contains neutrons population, active, and inactive cycles.
-    Contains methods to read template and output files,
-    write new input files for OpenMC.
+    """Interface for running depletion steps in OpenMC, as well as obtaining
+    depletion step results.
 
     Attributes
     ----------
@@ -46,7 +43,7 @@ class OpenMCDepcode(Depcode):
                  exec_path,
                  template_input_file_path,
                  geo_files):
-        """Initializes the OpenMCDepcode object.
+        """Initialize a OpenMCDepcode object.
 
            Parameters
            ----------
