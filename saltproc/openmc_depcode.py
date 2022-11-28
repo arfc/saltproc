@@ -129,7 +129,7 @@ class OpenMCDepcode(Depcode):
             '-n',
             str(nodes),
             'python',
-            self.exec_path
+            self.exec_path,
             '--materials',
             self.runtime_matfile,
             '--geometry',
