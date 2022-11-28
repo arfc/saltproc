@@ -26,14 +26,6 @@ def run():
         object_input[1], depcode, cores, nodes)
     msr = _create_reactor_object(object_input[2])
 
-    #if isinstance(depcode.runtime_inputfile, str):
-    #    depcode.runtime_inputfile = (input_path /
-    #                              depcode.runtime_inputfile).resolve().as_posix()
-    #else:
-    #    raise ValueError("not implemented")
-    #depcode.runtime_matfile = (
-    #    input_path /
-    #    depcode.runtime_matfile).resolve().as_posix()
     # Check: Restarting previous simulation or starting new?
     simulation.check_restart()
     # Run sequence
