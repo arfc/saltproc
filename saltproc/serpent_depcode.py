@@ -352,7 +352,7 @@ class SerpentDepcode(Depcode):
     def set_power_load(self,
                        file_lines,
                        reactor,
-                       current_depstep_idx):
+                       step_idx):
         """Add power load attributes in a :class:`Reactor` object to the
         ``set power P dep daystep DEPSTEP`` line in the Serpent2  runtime input
         file.
@@ -364,7 +364,7 @@ class SerpentDepcode(Depcode):
         reactor : Reactor
             Contains information about power load curve and cumulative
             depletion time for the integration test.
-        current_depstep_idx : int
+        step_idx : int
             Current depletion step.
 
         Returns
@@ -375,13 +375,13 @@ class SerpentDepcode(Depcode):
         """
 
         line_idx = 8  # burnup setting line index by default
-        current_depstep_power = reactor.power_levels[current_depstep_idx]
-        if current_depstep_idx == 0:
-            current_depstep = reactor.dep_step_length_cumulative[0]
+        current_power = reactor.power_levels[step_idx]
+        if step_idx == 0:
+            step_length = reactor.dep_step_length_cumulative[0]
         else:
-            current_depstep = \
-                reactor.dep_step_length_cumulative[current_depstep_idx] - \
-                reactor.dep_step_length_cumulative[current_depstep_idx - 1]
+            step_length = \
+                reactor.dep_step_length_cumulative[step_idx] - \
+                reactor.dep_step_length_cumulative[step_idx - 1]
         for line in file_lines:
             if line.startswith('set    power   '):
                 line_idx = file_lines.index(line)
@@ -389,7 +389,7 @@ class SerpentDepcode(Depcode):
 
         file_lines.insert(line_idx,  # Insert on 9th line
                           'set    power   %5.9E   dep daystep   %7.5E\n' %
-                          (current_depstep_power, current_depstep))
+                          (current_power, step_length))
         return file_lines
 
     def run_depletion_step(self, cores, nodes):
