@@ -26,14 +26,14 @@ def run():
         object_input[1], depcode, cores, nodes)
     msr = _create_reactor_object(object_input[2])
 
-    if isinstance(depcode.runtime_inputfile, str):
-        depcode.runtime_inputfile = (input_path /
-                                  depcode.runtime_inputfile).resolve().as_posix()
-    else:
-        raise ValueError("not implemented")
-    depcode.runtime_matfile = (
-        input_path /
-        depcode.runtime_matfile).resolve().as_posix()
+    #if isinstance(depcode.runtime_inputfile, str):
+    #    depcode.runtime_inputfile = (input_path /
+    #                              depcode.runtime_inputfile).resolve().as_posix()
+    #else:
+    #    raise ValueError("not implemented")
+    #depcode.runtime_matfile = (
+    #    input_path /
+    #    depcode.runtime_matfile).resolve().as_posix()
     # Check: Restarting previous simulation or starting new?
     simulation.check_restart()
     # Run sequence
@@ -203,6 +203,7 @@ def read_main_input(main_inp_file):
                 f'{depcode_input["codename"]} '
                 'is not a supported depletion code')
 
+        depcode_input['output_path'] = output_path
         geo_list = depcode_input['geo_file_paths']
 
         # Global geometry file paths
@@ -247,7 +248,8 @@ def _create_depcode_object(depcode_input):
         raise ValueError(
             f'{depcode_input["codename"]} is not a supported depletion code')
 
-    depcode = depcode(depcode_input['exec_path'],
+    depcode = depcode(depcode_input['output_path'],
+                      depcode_input['exec_path'],
                       depcode_input['template_input_file_path'],
                       geo_files=depcode_input['geo_file_paths'])
 

@@ -5,11 +5,7 @@
    "num_depsteps": 2,
    "depcode": {
        "codename": "serpent",
-       "exec_path": "sss2",
        "template_input_file_path": "test_input.ini",
-       "npop": 100,
-       "active_cycles": 20,
-       "inactive_cycles": 5,
        "geo_file_paths": ["../../serpent_data/tap_geometry_base.ini"]
    },
    "simulation": {

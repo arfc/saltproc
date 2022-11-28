@@ -20,11 +20,19 @@ class Depcode(ABC):
     runtime_matfile : str
         Path to material file containing burnable materials used to
         run depletion step.
+    npop : int
+        Size of neutron population per cycle
+    active_cycles : int
+        Number of active cycles.
+    inactive_cycles : int
+        Number of inactive cycles.
+
 
     """
 
     def __init__(self,
                  codename,
+                 output_path,
                  exec_path,
                  template_input_file_path,
                  geo_files):
@@ -32,6 +40,8 @@ class Depcode(ABC):
 
            Parameters
            ----------
+           output_path : str
+               Path to results storage directory.
            codename : str
                Name of depletion code.
            exec_path : str
@@ -48,6 +58,7 @@ class Depcode(ABC):
 
         """
         self.codename = codename
+        self.output_path = output_path
         self.exec_path = exec_path
         self.template_input_file_path = template_input_file_path
         self.geo_files = geo_files

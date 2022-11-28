@@ -26,12 +26,7 @@ def test_runtime_input_from_template(serpent_depcode, msr):
     file = serpent_depcode.template_input_file_path
     file_data = serpent_depcode.read_plaintext_file(file)
 
-    # change_sim_par
-    file_data = serpent_depcode.apply_neutron_settings(file_data)
-    assert file_data[18] == 'set pop %i %i %i\n' % (
-        serpent_depcode.npop,
-        serpent_depcode.active_cycles,
-        serpent_depcode.inactive_cycles)
+    serpent_depcode.get_neutron_settings(file_data)
 
     # insert_path_to_geometry
     file_data = serpent_depcode.insert_path_to_geometry(file_data)
@@ -81,7 +76,7 @@ def test_write_runtime_files(serpent_depcode, msr):
 
     file = serpent_depcode.runtime_inputfile
     file_data = serpent_depcode.read_plaintext_file(file)
-    assert file_data[0] == 'include "./serpent_runtime_mat.ini"\n'
+    assert file_data[0] == f'include "{serpent_depcode.runtime_matfile}"\n'
     assert file_data[8].split()[2] == '1.250000000E+09'
     assert file_data[8].split()[4] == 'daystep'
     assert file_data[8].split()[-1] == '1.11111E+02'

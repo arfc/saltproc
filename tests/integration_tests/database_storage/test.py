@@ -269,6 +269,10 @@ def test_store_run_init_info(simulation):
 
     # read data
     simulation.sim_depcode.read_step_metadata()
+
+    file = simulation.sim_depcode.template_input_file_path
+    file_lines = simulation.sim_depcode.read_plaintext_file(file)
+    simulation.sim_depcode.get_neutron_settings(file_lines)
     init_info = simulation.sim_depcode.step_metadata
 
     # we want to keep the old path for other sims, but for this

@@ -32,10 +32,17 @@ class OpenMCDepcode(Depcode):
     runtime_matfile : str
         Path to OpenMC material file containing materials used to
         run depletion step, and modified after fuel reprocessing.
+    npop : int
+        Size of neutron population per cycle
+    active_cycles : int
+        Number of active cycles.
+    inactive_cycles : int
+        Number of inactive cycles.
 
     """
 
     def __init__(self,
+                 output_path,
                  exec_path,
                  template_input_file_path,
                  geo_files):
@@ -43,6 +50,8 @@ class OpenMCDepcode(Depcode):
 
            Parameters
            ----------
+           output_path : str
+               Path to results storage directory.
            exec_path : str
                Path to OpenMC depletion script.
            template_input_file_path : dict of str to str
@@ -62,12 +71,14 @@ class OpenMCDepcode(Depcode):
             exec_path = (Path(__file__).parents[0] / exec_path)
 
         super().__init__("openmc",
+                         output_path,
                          exec_path,
                          template_input_file_path,
                          geo_files)
-        self.runtime_inputfile = {'geometry': 'geometry.xml',
-                                  'settings': 'settings.xml'},
-        self.runtime_matfile = 'materials.xml'
+        self.runtime_inputfile = \
+            {'geometry': (output_path / 'geometry.xml').resolve().as_posix(),
+             'settings': (output_path / 'settings.xml').resolve().as_posix()}
+        self.runtime_matfile = (output_path / 'materials.xml').resolve().as_posix()
 
     def read_step_metadata(self):
         """Reads OpenMC's depletion step metadata and stores it in the
@@ -178,6 +189,10 @@ class OpenMCDepcode(Depcode):
                 self.geo_files[0], materials=materials)
             settings = openmc.Settings.from_xml(
                 self.template_input_file_path['settings'])
+            self.npop = settings.particles
+            self.inactive_cycles = settings.inactive
+            self.active_cycles = settings.batches - self.inactive_cycles
+
         else:
             materials = openmc.Materials.from_xml(self.runtime_matfile)
             geometry = openmc.Geometry.from_xml(

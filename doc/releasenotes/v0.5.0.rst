@@ -112,10 +112,11 @@ Python API Changes
 
   - ``Depcode``
 
-    - Remove `npop`, `active_cycles`, `inactive_cycles` parameters.
+    - Add `output_path` parameter.
     - ``template_inputfile_path`` → ``template_input_file_path``
     - Removed default values for `geo_files`
     - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
+    - Changed `npop`, `active_cycles`, `inactive_cycles` to be attributes instead of
     - ``read_depcode_info()`` → ``read_step_metadata()``
     - ``sim_info`` → ``step_metadata``
     - ``read_depcode_step_param()`` → ``read_neutronics_parameters()``
@@ -129,10 +130,11 @@ Python API Changes
 
   - ``DepcodeSerpent`` → ``SerpentDepcode``
 
-    - Remove `npop`, `active_cycles`, `inactive_cycles` parameters.
+    - Add `output_path` parameter.
     - ``template_inputfile_path`` → ``template_input_file_path``
     - Removed default values for `exec_path`, `template_input_file_path`, `geo_files`
     - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
+    - Changed `npop`, `active_cycles`, `inactive_cycles` to be attributes instead of
     - ``read_depcode_info()`` → ``read_depletion_step_metadata()``
     - ``sim_info`` → ``step_metadata``
     - ``read_depcode_step_param()`` → ``read_neutronics_parameters()``
@@ -143,7 +145,8 @@ Python API Changes
     - ``write_mat_file()`` → ``update_depletable_materials()``
     - ``get_nuc_name()`` →  ``convert_nuclide_code_to_name()``
     - ``convert_nuclide_name_serpent_to_zam()`` → ``convert_nuclide_code_to_zam()`` 
-    - ``change_sim_par()`` →  ``apply_neutron_settings()``
+    - ``change_sim_par()`` →  (deleted)
+    -  (new function) →  ``get_neutron_settings()``
     - ``create_iter_matfile()`` → ``create_runtime_matfile()``
     - ``replace_burnup_parameters()`` → ``set_power_load()``
     - ``write_depcode_input()`` →  ``write_runtime_input()``
