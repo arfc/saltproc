@@ -5,6 +5,7 @@
    "num_depsteps": 12,
    "depcode": {
        "codename": "serpent",
+       "exec_path": "sss2",
        "template_input_file_path": "msbr.serpent",
        "geo_file_paths": ["geometry/msbr_full.ini"]
    },

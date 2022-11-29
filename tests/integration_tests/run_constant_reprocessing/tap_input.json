@@ -5,6 +5,7 @@
    "num_depsteps": 2,
    "depcode": {
        "codename": "serpent",
+       "exec_path": "sss2",
        "template_input_file_path": "tap_template.ini",
        "geo_file_paths": ["tap_geometry_base.ini"]
    },
