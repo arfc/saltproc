@@ -108,6 +108,20 @@ class SerpentDepcode(Depcode):
             Serpent2 runtime input file with updated material file path.
 
         """
+        src_file, abs_src_matfile = self.get_burnable_materials_file(file_lines)
+
+        # Create data directory
+        Path.mkdir(Path(self.runtime_matfile).parents[0], exist_ok=True)
+
+        # Get material cards
+        flines = self.read_plaintext_file(abs_src_matfile)
+        self.get_material_data(flines)
+
+         # Create file with path for SaltProc rewritable iterative material file
+        shutil.copy2(abs_src_matfile, self.runtime_matfile)
+        return [line.replace(src_file, self.runtime_matfile) for line in file_lines]
+
+    def get_burnable_materials_file(self, file_lines):
         runtime_dir = Path(self.template_input_file_path).parents[0]
         include_str = [line for line in file_lines if line.startswith("include ")]
         if not include_str:
@@ -124,22 +138,16 @@ class SerpentDepcode(Depcode):
                     raise IOError('Template file '
                                   f'{self.template_input_file_path} includes '
                                   'no file with materials description')
-        # Create data directory
-        Path.mkdir(Path(self.runtime_matfile).parents[0], exist_ok=True)
-
-        # Get material cards
-        file_lines = self.read_plaintext_file(abs_src_matfile)
-        self.get_material_data(file_lines)
-
-         # Create file with path for SaltProc rewritable iterative material file
-        shutil.copy2(abs_src_matfile, self.runtime_matfile)
-        return [line.replace(src_file, self.runtime_matfile) for line in file_lines]
+        return src_file, abs_src_matfile
 
     def get_material_data(self, file_lines):
         # Get data for matfile
         mat_cards = \
-            [line.split() for line in file_lines if line.startswith("mat ")]
+            [line for line in file_lines if line.startswith("mat ")]
         mat_idx = [file_lines.index(card) for card in mat_cards]
+        mat_cards = \
+            [line.split() for line in file_lines if line.startswith("mat ")]
+
 
         # Get library IDs
         #mat_extensions = []
@@ -156,8 +164,8 @@ class SerpentDepcode(Depcode):
 
         # Get volume indices
         card_volume_idx = [card.index('vol') for card in mat_cards]
-        mat_names = [card.split()[1] for card in mat_cards]
-        mat_data = (mat_cards, card_volume_idx)#, mat_extensions)
+        mat_names = [card[1] for card in mat_cards]
+        mat_data = zip(mat_cards, card_volume_idx)#, mat_extensions)
         self.material_metadata = dict(zip(mat_names, mat_data))
 
     def convert_nuclide_code_to_name(self, nuc_code):
@@ -549,6 +557,11 @@ class SerpentDepcode(Depcode):
             f.write('%% Material compositions (after %f days)\n\n'
                     % dep_end_time)
             nuc_code_map = self.map_nuclide_code_zam_to_serpent()
+            if not(hasattr(self, 'material_metadata')):
+                lines = self.read_plaintext_file(self.template_input_file_path)
+                _, abs_src_matfile = self.get_burnable_materials_file(lines)
+                file_lines = self.read_plaintext_file(abs_src_matfile)
+                self.get_material_data(file_lines)
             for name, mat in mats.items():
                 mat_card, card_volume_idx = self.material_metadata[name]
                 mat_card[1] = str(-mat.density)
