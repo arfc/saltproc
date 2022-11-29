@@ -109,17 +109,17 @@ class SerpentDepcode(Depcode):
 
         """
         runtime_dir = Path(self.template_input_file_path).parents[0]
-        include_str = [line for line in file_lines if line.startswith("include ")]
-        if not include_str:
+        include_card = [line for line in file_lines if line.startswith("include ")]
+        if not include_card:
             raise IOError('Template file '
                           f'{self.template_input_file_path} has no <include '
                           '"material_file"> statements')
-        src_file = include_str[0].split()[1][1:-1]
-        if not Path(src_file).is_absolute():
-            abs_src_matfile = (runtime_dir / src_file)
+        burnable_materials_path = include_card[0].split()[1][1:-1]
+        if not Path(burnable_materials_path).is_absolute():
+            absolute_path = (runtime_dir / burnable_materials_path)
         else:
-            abs_src_matfile = Path(src_file)
-            with open(abs_src_matfile) as f:
+            absolute_path = Path(burnable_materials_path)
+            with open(absolute_path) as f:
                 if 'mat ' not in f.read():
                     raise IOError('Template file '
                                   f'{self.template_input_file_path} includes '
@@ -128,8 +128,8 @@ class SerpentDepcode(Depcode):
         Path.mkdir(Path(self.runtime_matfile).parents[0], exist_ok=True)
 
         # Create file with path for SaltProc rewritable iterative material file
-        shutil.copy2(abs_src_matfile, self.runtime_matfile)
-        return [line.replace(src_file, self.runtime_matfile) for line in file_lines]
+        shutil.copy2(absolute_path, self.runtime_matfile)
+        return [line.replace(burnable_materials_path, self.runtime_matfile) for line in file_lines]
 
     def convert_nuclide_code_to_name(self, nuc_code):
         """Converts Serpent2 nuclide code to symbolic nuclide name.
