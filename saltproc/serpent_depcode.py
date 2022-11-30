@@ -382,12 +382,12 @@ class SerpentDepcode(Depcode):
                 line_idx = file_lines.index(line)
                 del file_lines[line_idx]
 
-        if reactor.timestep_unitss == 'MWd/kg':
+        if reactor.timestep_units == 'MWd/kg':
             step_type = 'bu'
         else:
             step_type = 'day'
 
-        if reactor.step_type == 'cumulative':
+        if reactor.timestep_type == 'cumulative':
             step_type += 'tot'
         else:
             step_type += 'step'

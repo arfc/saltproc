@@ -34,3 +34,4 @@ class Reactor ():
         self.power_levels = power_levels
         self.depletion_timesteps = depletion_timesteps
         self.timestep_units = timestep_units
+        self.timestep_type = timestep_type
