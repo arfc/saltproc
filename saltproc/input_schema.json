@@ -27,38 +27,18 @@
         "depcode": {
             "description": "Depcode class input parameters",
             "type": "object",
-            "properties": {
-                "codename": {
-                    "description": "Name of depletion code",
-                    "type": "string",
-                    "enum": ["serpent", "openmc"]},
-                "exec_path": {
-                    "description": "Path to depletion code executable",
-                    "type": "string" },
-                "template_input_file_path": {
-                    "description": "Path(s) to user's template depletion code input file(s) with reactor model"},
-                "geo_file_paths": {
-                    "description": "Path(s) to geometry file(s) to switch to in depletion code runs",
-                    "type": "array",
-                    "items": { "type": "string"},
-                    "minItems": 1,
-                    "uniqueItems": true}
-            },
+            "default": {},
             "allOf": [
                 {
                     "if": {"properties": { "codename": { "const": "serpent" }}},
                     "then": {
                         "properties": {
                             "exec_path": {
-                                "description": "Path to Serpent executable",
-                                "type": "string",
                                 "default": "sss2"},
                             "template_input_file_path": {
-                                "description": "Path to Serpent template inputfile",
-                                "type": "string",
                                 "pattern": "^(.\\/)*(.*)$"}
                         }
-                    }
+                    }        
                 },
                 {
                     "if": {
@@ -67,12 +47,12 @@
                         "properties": {
                             "exec_path": {
                                 "description": "Path to OpenMC depletion script",
-                                "type": "string",
-                                "enum": ["openmc_deplete.py"],
+                                "const": "openmc_deplete.py",
                                 "default": "openmc_deplete.py"},
                             "template_input_file_path": {
                                 "description": "Paths to OpenMC template input files",
                                 "type": "object",
+                                "required": ["settings", "materials"],
                                 "properties": {
                                     "settings": {
                                         "description": "OpenMC settings file",
@@ -84,16 +64,11 @@
                                         "type": "string",
                                         "pattern": "^(.\\/)*(.*)\\.xml$",
                                         "default": "materials.xml"}
-                                },
-                                "required": ["settings", "materials"]
+                                }
                             },
                             "geo_file_paths": {
-                                "description": "Path(s) to geometry file(s) to switch to in OpenMC code runs",
-                                "type": "array",
                                 "items": { "type": "string",
                                            "pattern": "^(.\\/)*(.*)\\.xml$"},
-                                "minItems": 1,
-                                "uniqueItems": true,
                                 "default": ["geometry.xml"]},
                             "chain_file_path": {
                                 "description": "Path to depletion chain file",
@@ -102,6 +77,7 @@
                             "depletion_settings" : {
                                 "description": "OpenMC depletion settings",
                                 "type": "object",
+                                "default": {},
                                 "properties": {
                                     "method": {
                                         "description": "Integration method used for depletion",
@@ -115,51 +91,6 @@
                                     "operator_kwargs": {
                                         "description": "Keyword arguments passed to the depletion operator initalizer",
                                         "type": "object",
-                                        "properties": {
-                                            "diff_burnable_mats": {
-                                                "description": "Whether to differentiate burnable materials with multiple instances.",
-                                                "type": "boolean",
-                                                "defualt": false},
-                                            "normalization_mode": {
-                                                "description": "Indicate how tally resutls should be normalized",
-                                                "type": "string",
-                                                "enum": ["energy-deposition", "fission-q", "source-rate"],
-                                                "default": "fission-q"},
-                                            "fission_q": {
-                                                "description": "Path to fission Q values",
-                                                "type": "string",
-                                                "default": null},
-                                            "dilute_initial": {
-                                                "description": "Initial atom density to add for nuclides that are zero in initial condition.",
-                                                "type": "number",
-                                                "minimum": 0,
-                                                "default": 1000},
-                                            "fission_yield_mode": {
-                                                "description": "Determine what fission energy helper is used",
-                                                "type": "string",
-                                                "enum": ["constant", "cutoff", "average"],
-                                                "default": "constant"},
-                                            "fission_yield_opts": {
-                                                "description": "Arguments for the fission yield helper",
-                                                "type": "object",
-                                                "defualt": null},
-                                            "reaction_rate_mode": {
-                                                "description": "Indicate how one-group reaction rates should be calculated",
-                                                "type": "string",
-                                                "enum": ["direct", "flux"],
-                                                "default": "direct"},
-                                            "reaction_rate_opts": {
-                                                "type": "object",
-                                                "default": null},
-                                            "reduce_chain": {
-                                                "description": "Whether or not to reduce the depletion chain.",
-                                                "type": "boolean",
-                                                "default": false},
-                                            "reduce_chain_level": {
-                                                "description": "Depth of serach while reducing depletion chain",
-                                                "type": "number",
-                                                "default": null}
-                                        },
                                         "allOf": [
                                             {
                                                 "if": {"properties": { "fission_yield_mode": { "const": "constant" }}},
@@ -171,8 +102,7 @@
                                                                 "energy": {
                                                                     "description": "Energy of fission yield libraries [MeV]",
                                                                     "type": "number"}
-                                                            },
-                                                            "default": null
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -191,10 +121,9 @@
                                                                     "description": "Energy of yield data corresponding to thermal yields",
                                                                     "type": "number"},
                                                                 "fast_energy": {
-                                                                        "description": "Energy of yield data corresponding to fast yields",
-                                                                        "type": "number"}
-                                                            },
-                                                            "default": null
+                                                                    "description": "Energy of yield data corresponding to fast yields",
+                                                                    "type": "number"}
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -227,13 +156,53 @@
                                                                         "type": "string",
                                                                         "minItems": 1}
                                                                 }
-                                                            },
-                                                            "default": null
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                         ],
+                                        "properties": {
+                                            "diff_burnable_mats": {
+                                                "description": "Whether to differentiate burnable materials with multiple instances.",
+                                                "type": "boolean",
+                                                "defualt": false},
+                                            "normalization_mode": {
+                                                "description": "Indicate how tally resutls should be normalized",
+                                                "type": "string",
+                                                "enum": ["energy-deposition", "fission-q", "source-rate"],
+                                                "default": "fission-q"},
+                                            "fission_q": {
+                                                "description": "Path to fission Q values",
+                                                "default": null},
+                                            "dilute_initial": {
+                                                "description": "Initial atom density to add for nuclides that are zero in initial condition.",
+                                                "type": "number",
+                                                "minimum": 0,
+                                                "default": 1000},
+                                            "fission_yield_mode": {
+                                                "description": "Determine what fission energy helper is used",
+                                                "type": "string",
+                                                "enum": ["constant", "cutoff", "average"],
+                                                "default": "constant"},
+                                            "fission_yield_opts": {
+                                                "description": "Arguments for the fission yield helper",
+                                                "defualt": null},
+                                            "reaction_rate_mode": {
+                                                "description": "Indicate how one-group reaction rates should be calculated",
+                                                "type": "string",
+                                                "enum": ["direct", "flux"],
+                                                "default": "direct"},
+                                            "reaction_rate_opts": {
+                                                "default": null},
+                                            "reduce_chain": {
+                                                "description": "Whether or not to reduce the depletion chain.",
+                                                "type": "boolean",
+                                                "default": false},
+                                            "reduce_chain_level": {
+                                                "description": "Depth of serach while reducing depletion chain",
+                                                "default": null}
+                                        },
                                         "default": {}
                                     },
                                     "output": {
@@ -255,15 +224,30 @@
                                         },
                                         "default": {}
                                     }
-                                },
-                                "default": {}
+                                }
                             }
                         }
                     }
                 }
             ],
-            "default": {},
-            "required": ["codename", "exec_path", "template_input_file_path", "geo_file_paths", "chain_file_path", "depletion_settings"]
+            "properties": {
+                "codename": {
+                    "description": "Name of depletion code",
+                    "type": "string",
+                    "enum": ["serpent", "openmc"]},
+                "exec_path": {
+                    "description": "Path to depletion code executable",
+                    "type": "string"},
+                "template_input_file_path": {
+                    "description": "Path(s) to user's template depletion code input file(s) with reactor model"},
+                "geo_file_paths": {
+                    "description": "Path(s) to geometry file(s) to switch to in depletion code runs",
+                    "type": "array",
+                    "items": { "type": "string"},
+                    "minItems": 1,
+                    "uniqueItems": true}
+            },
+            "required": ["codename", "template_input_file_path", "geo_file_paths"]
         },
         "simulation": {
             "description": "Simulation class input parameters",
@@ -278,12 +262,15 @@
                     "pattern": "^(.*)\\.h5$"},
                 "restart_flag": {
                     "description": "Restart simulation from the step when it stopped?",
-                    "type": "boolean"},
+                    "type": "boolean",
+                    "default": false},
                 "adjust_geo": {
                     "description": "switch to another geometry when keff drops below 1?",
-                    "type": "boolean"}
+                    "type": "boolean",
+                    "default": false}
             },
-            "required": ["sim_name", "db_name", "restart_flag", "adjust_geo"]
+            "default": {},
+            "required": ["sim_name", "db_name"]
         },
         "reactor": {
             "description": "Reactor class input parameters",
@@ -321,7 +308,7 @@
                     }
             },
             "default": {},
-            "required": ["volume", "mass_flowrate", "power_levels", "depletion_steps", "timestep_type", "timestep_units"]
+            "required": ["volume", "mass_flowrate", "power_levels", "depletion_timesteps", "timestep_units"]
         }
     },
     "required": ["proc_input_file", "dot_input_file", "output_path", "depcode", "simulation", "reactor"]
