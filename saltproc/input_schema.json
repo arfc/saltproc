@@ -41,7 +41,7 @@
                     "type": "array",
                     "items": { "type": "string"},
                     "minItems": 1,
-                    "uniqueItems": true
+                    "uniqueItems": false
                 }
             },
             "allOf": [
@@ -100,7 +100,6 @@
                                 "items": { "type": "string",
                                            "pattern": "^(.\\/)*(.*)\\.xml$"},
                                 "minItems": 1,
-                                "uniqueItems": true,
                                 "default": ["geometry.xml"]
                             }
                         }
