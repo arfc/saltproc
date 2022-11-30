@@ -19,7 +19,7 @@ def msr(scope='module'):
     reactor = Reactor(volume=1.0,
                       power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
                       depletion_timesteps=[111.111, 2101.9, 3987.5],
-                      timestep_type='cumulative',
+                      timestep_type='stepwise',
                       timestep_units='d')
     return reactor
 
