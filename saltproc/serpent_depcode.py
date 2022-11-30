@@ -65,8 +65,8 @@ class SerpentDepcode(Depcode):
                          template_input_file_path,
                          geo_files)
         self.runtime_inputfile = \
-                         (output_path / 'runtime_input.serpent').resolve().as_posix()
-        self.runtime_matfile = (output_path / 'runtime_mat.ini').resolve().as_posix()
+                         str((output_path / 'runtime_input.serpent').resolve())
+        self.runtime_matfile = str((output_path / 'runtime_mat.ini').resolve())
 
     def get_neutron_settings(self, file_lines):
         """Get neutron settings (no. of neutrons per cycle, no. of active and
