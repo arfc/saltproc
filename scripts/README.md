@@ -3,7 +3,7 @@ This directory contains various scripts to help you set-up and analyze results
 of your SaltProc simulations.
 
 ### `xsdata`
-The scripts in this directory downloads and processes cross sections data for
+The scripts in this directory download and processe cross section data for
 use in Serpent and OpenMC
 
 #### `process_jeff312.bash`
