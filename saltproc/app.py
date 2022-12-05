@@ -231,14 +231,15 @@ def _print_simulation_input_info(simulation_input, depcode_input):
 
 def _create_depcode_object(depcode_input):
     """Helper function for `run()` """
-    codename = depcode_input['codename']
+    codename = depcode_input['codename'].lower()
     if codename == 'serpent':
         depcode = SerpentDepcode
     elif codename == 'openmc':
         depcode = OpenMCDepcode
     else:
         raise ValueError(
-            f'{depcode_input["codename"]} is not a supported depletion code')
+            f'{codename} is not a supported depletion code.'
+            'Accepts: "serpent" or "openmc".')
 
     depcode = depcode(depcode_input['output_path'],
                       depcode_input['exec_path'],
