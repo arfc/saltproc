@@ -116,7 +116,7 @@ Python API Changes
     - ``template_inputfile_path`` → ``template_input_file_path``
     - Removed default values for `geo_files`
     - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
-    - Changed `npop`, `active_cycles`, `inactive_cycles` to be attributes instead of
+    - Changed `npop`, `active_cycles`, `inactive_cycles` to be attributes instead of parameters
     - ``read_depcode_info()`` → ``read_step_metadata()``
     - ``sim_info`` → ``step_metadata``
     - ``read_depcode_step_param()`` → ``read_neutronics_parameters()``
@@ -134,7 +134,7 @@ Python API Changes
     - ``template_inputfile_path`` → ``template_input_file_path``
     - Removed default values for `exec_path`, `template_input_file_path`, `geo_files`
     - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
-    - Changed `npop`, `active_cycles`, `inactive_cycles` to be attributes instead of
+    - Changed `npop`, `active_cycles`, `inactive_cycles` to be attributes instead of parameters
     - ``read_depcode_info()`` → ``read_depletion_step_metadata()``
     - ``sim_info`` → ``step_metadata``
     - ``read_depcode_step_param()`` → ``read_neutronics_parameters()``
