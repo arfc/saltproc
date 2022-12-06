@@ -7,9 +7,6 @@
        "codename": "serpent",
        "exec_path": "sss2",
        "template_input_file_path": "tap_template.ini",
-       "npop": 50,
-       "active_cycles": 20,
-       "inactive_cycles": 20,
        "geo_file_paths": ["tap_geometry_base.ini"]
    },
    "simulation": {

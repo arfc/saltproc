@@ -1,40 +1,43 @@
 from abc import ABC, abstractmethod
 
 class Depcode(ABC):
-    """Abstract class for interfacing with monte-carlo particle transport
-    codes. Contains information about input, output, geometry, and template
-    files for running depletion simulations. Also contains neutron
-    population, active, and inactive cycles. Contains methods to read template
-    and output files, and write new input files for the depletion code.
+    """Abstract interface for running depletion steps.
 
     Attributes
     -----------
-    param : dict of str to type
-        Holds depletion step parameter information. Parameter names are keys
+    neutronics_parameters : dict of str to type
+        Holds depletion step neutronics parameters. Parameter names are keys
         and parameter values are values.
-    sim_info : dict of str to type
-        Holds simulation settings information. Setting names are keys
-        and setting values are values.
-    iter_inputfile : str
-        Path to depletion code input file for depletion code rerunning.
-    iter_matfile : str
-        Path to iterative, rewritable material file for depletion code
-        rerunning. This file is modified during  the simulation.
+    step_metadata : dict of str to type
+        Holds depletion code depletion step metadata. Metadata labels are keys
+        and metadata values are values.
+    runtime_inputfile : str
+        Path to input file used to run depletion step.
+    runtime_matfile : str
+        Path to material file containing burnable materials used to
+        run depletion step.
+    npop : int
+        Size of neutron population per cycle
+    active_cycles : int
+        Number of active cycles.
+    inactive_cycles : int
+        Number of inactive cycles.
+
 
     """
 
     def __init__(self,
                  codename,
+                 output_path,
                  exec_path,
                  template_input_file_path,
-                 geo_files=None,
-                 npop=50,
-                 active_cycles=20,
-                 inactive_cycles=20):
-        """Initializes the Depcode object.
+                 geo_files):
+        """Initialize a Depcode object.
 
            Parameters
            ----------
+           output_path : str
+               Path to results storage directory.
            codename : str
                Name of depletion code.
            exec_path : str
@@ -48,67 +51,58 @@ class Depcode(ABC):
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
-           npop : int, optional
-               Size of neutron population per cycle for Monte Carlo.
-           active_cycles : int, optional
-               Number of active cycles.
-           inactive_cycles : int, optional
-               Number of inactive cycles.
 
         """
         self.codename = codename
+        self.output_path = output_path
         self.exec_path = exec_path
         self.template_input_file_path = template_input_file_path
         self.geo_files = geo_files
-        self.npop = npop
-        self.active_cycles = active_cycles
-        self.inactive_cycles = inactive_cycles
-        self.param = {}
-        self.sim_info = {}
-        self.iter_inputfile = './iter_input'
-        self.iter_matfile = './iter_mat'
+        self.neutronics_parameters = {}
+        self.step_metadata = {}
+        self.runtime_inputfile = None
+        self.runtime_matfile = None
 
     @abstractmethod
-    def read_depcode_info(self):
-        """Parses initial depletion code info data from depletion code
-        output and stores it in the `Depcode` object's ``sim_info`` attribute.
+    def read_step_metadata(self):
+        """Reads depletion code's depletion step metadata and stores it in the
+        :class:`Depcode` object's :attr:`step_metadata` attribute.
         """
 
     @abstractmethod
-    def read_depcode_step_param(self):
-        """Parses data from depletion code output for each step and stores
-        it in `Depcode` object's ``param`` attributes.
+    def read_neutronics_parameters(self):
+        """Reads depletion code's depletion step neutronics parameters and
+        stores them in :class:`Depcode` object's
+        :attr:`neutronics_parameters` attribute.
         """
 
     @abstractmethod
-    def read_dep_comp(self, read_at_end=False):
-        """Reads the depleted material data from the depcode simulation
-        and returns a dictionary with a `Materialflow` object for each
-        burnable material.
+    def read_depleted_materials(self, read_at_end=False):
+        """Reads depleted materials from the depletion step results
+        and returns a dictionary containing them.
 
         Parameters
         ----------
         read_at_end : bool, optional
-            Controls at which moment in the depletion step to read the data.
             If `True`, the function reads data at the end of the
             depletion step. Otherwise, the function reads data at the
             beginning of the depletion step.
 
         Returns
         -------
-        mats : dict of str to Materialflow
-            Dictionary that contains `Materialflow` objects.
+        depleted_materials : dict of str to Materialflow
+            Dictionary containing depleted materials.
 
             ``key``
                 Name of burnable material.
             ``value``
-                `Materialflow` object holding composition and properties.
+                :class:`Materialflow` object holding material composition and properties.
 
         """
 
     @abstractmethod
-    def run_depcode(self, cores, nodes):
-        """Runs depletion code as a subprocess with the given parameters.
+    def run_depletion_step(self, cores, nodes):
+        """Runs a depletion step as a subprocess with the given parameters.
 
         Parameters
         ----------
@@ -125,8 +119,8 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def write_depcode_input(self, reactor, dep_step, restart):
-        """ Writes prepared data into depletion code input file(s).
+    def write_runtime_input(self, reactor, dep_step, restart):
+        """Write input file(s) for running depletion step
 
         Parameters
         ----------
@@ -140,20 +134,18 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def write_mat_file(self, dep_dict, dep_end_time):
-        """Writes the iteration input file containing the burnable materials
-        composition used in depletion runs and updated after each depletion
-        step.
+    def update_depletable_materials(self, mats, dep_end_time):
+        """Update material file with reprocessed material compositions.
 
         Parameters
         ----------
-        dep_dict : dict of str to Materialflow
-            Dictionary that contains `Materialflow` objects.
+        mats : dict of str to Materialflow
+            Dictionary containing reprocessed material compositions.
 
             ``key``
                 Name of burnable material.
             ``value``
-                `Materialflow` object holding composition and properties.
+                :class:`Materialflow` object holding composition and properties.
         dep_end_time : float
             Current time at the end of the depletion step (d).
 

@@ -11,9 +11,6 @@
            "settings": "tap_settings.xml",
            "chain_file": "tap_chain.xml"
        },
-       "npop": 50,
-       "active_cycles": 20,
-       "inactive_cycles": 20,
        "geo_file_paths": ["tap_geometry_base.xml"]
    },
    "simulation": {

@@ -22,47 +22,40 @@ def msr(scope='module'):
     return reactor
 
 
-def test_iter_input_from_template(serpent_depcode, msr):
+def test_runtime_input_from_template(serpent_depcode, msr):
     file = serpent_depcode.template_input_file_path
     file_data = serpent_depcode.read_plaintext_file(file)
 
-    # change_sim_par
-    file_data = serpent_depcode.change_sim_par(file_data)
-    assert file_data[18] == 'set pop %i %i %i\n' % (
-        serpent_depcode.npop,
-        serpent_depcode.active_cycles,
-        serpent_depcode.inactive_cycles)
+    serpent_depcode.get_neutron_settings(file_data)
 
     # insert_path_to_geometry
     file_data = serpent_depcode.insert_path_to_geometry(file_data)
     assert file_data[5].split('/')[-1] == 'tap_geometry_base.ini"\n'
 
-    # create_iter_matfile
-    file_data = serpent_depcode.create_iter_matfile(file_data)
+    # create_runtime_matfile
+    file_data = serpent_depcode.create_runtime_matfile(file_data)
     assert file_data[0].split()[-1] == '\"' + \
-        serpent_depcode.iter_matfile + '\"'
-    remove(serpent_depcode.iter_matfile)
+        serpent_depcode.runtime_matfile + '\"'
+    remove(serpent_depcode.runtime_matfile)
 
-    # replace_burnup_parameters
+    # set_power_load
     time = msr.dep_step_length_cumulative.copy()
     time.insert(0, 0.0)
     depsteps = np.diff(time)
     for idx in range(len(msr.power_levels)):
-        file_data = serpent_depcode.replace_burnup_parameters(file_data,
-                                                              msr,
-                                                              idx)
+        file_data = serpent_depcode.set_power_load(file_data, msr, idx)
 
         assert file_data[8].split()[4] == 'daystep'
         assert file_data[8].split()[2] == str("%5.9E" % msr.power_levels[idx])
         assert file_data[8].split()[5] == str("%7.5E" % depsteps[idx])
 
 
-def test_write_iter_files(serpent_depcode, msr):
-    mats = serpent_depcode.read_dep_comp(True)
+def test_write_runtime_files(serpent_depcode, msr):
+    mats = serpent_depcode.read_depleted_materials(True)
 
-    # write_mat_file
-    serpent_depcode.write_mat_file(mats, 12.0)
-    file = serpent_depcode.iter_matfile
+    # update_depletable_materials
+    serpent_depcode.update_depletable_materials(mats, 12.0)
+    file = serpent_depcode.runtime_matfile
     file_data = serpent_depcode.read_plaintext_file(file)
     assert file_data[0] == '% Material compositions (after 12.000000 days)\n'
     if 'fuel' in file_data[3]:
@@ -74,16 +67,16 @@ def test_write_iter_files(serpent_depcode, msr):
     elif 'ctrlPois' in file_data[3]:
         assert file_data[3].split()[-1] == '1.11635E+04'
         assert file_data[4] == '            1001.09c  -1.21000137902945E-35\n'
-    remove(serpent_depcode.iter_matfile)
+    remove(serpent_depcode.runtime_matfile)
 
-    # write_depcode_input
-    serpent_depcode.write_depcode_input(msr,
+    # write_runtime_input
+    serpent_depcode.write_runtime_input(msr,
                                         0,
                                         False)
 
-    file = serpent_depcode.iter_inputfile
+    file = serpent_depcode.runtime_inputfile
     file_data = serpent_depcode.read_plaintext_file(file)
-    assert file_data[0] == 'include "./serpent_iter_mat.ini"\n'
+    assert file_data[0] == f'include "{serpent_depcode.runtime_matfile}"\n'
     assert file_data[8].split()[2] == '1.250000000E+09'
     assert file_data[8].split()[4] == 'daystep'
     assert file_data[8].split()[-1] == '1.11111E+02'
@@ -96,4 +89,4 @@ def test_write_iter_files(serpent_depcode, msr):
     file_data = serpent_depcode.read_plaintext_file(file)
     assert file_data[5].split('/')[-1] == '406.inp"\n'
 
-    remove(serpent_depcode.iter_inputfile)
+    remove(serpent_depcode.runtime_inputfile)

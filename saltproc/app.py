@@ -26,33 +26,25 @@ def run():
         object_input[1], depcode, cores, nodes)
     msr = _create_reactor_object(object_input[2])
 
-    if isinstance(depcode.iter_inputfile, str):
-        depcode.iter_inputfile = (input_path /
-                                  depcode.iter_inputfile).resolve().as_posix()
-    else:
-        raise ValueError("not implemented")
-    depcode.iter_matfile = (
-        input_path /
-        depcode.iter_matfile).resolve().as_posix()
     # Check: Restarting previous simulation or starting new?
     simulation.check_restart()
     # Run sequence
     # Start sequence
     for dep_step in range(len(msr.dep_step_length_cumulative)):
         print("\n\n\nStep #%i has been started" % (dep_step + 1))
-        simulation.sim_depcode.write_depcode_input(msr,
+        simulation.sim_depcode.write_runtime_input(msr,
                                                    dep_step,
                                                    simulation.restart_flag)
-        depcode.run_depcode(cores, nodes)
+        depcode.run_depletion_step(cores, nodes)
         if dep_step == 0 and simulation.restart_flag is False:  # First step
             # Read general simulation data which never changes
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dep_step)
-            mats = depcode.read_dep_comp(False)
+            mats = depcode.read_depleted_materials(False)
             simulation.store_mat_data(mats, dep_step - 1, False)
         # Finish of First step
         # Main sequence
-        mats = depcode.read_dep_comp(True)
+        mats = depcode.read_depleted_materials(True)
         simulation.store_mat_data(mats, dep_step, False)
         simulation.store_run_step_info()
         # Reprocessing here
@@ -84,7 +76,7 @@ def run():
         print("Removed mass [g]:", extracted_mass)
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_and_feed_streams, dep_step)
-        depcode.write_mat_file(mats, simulation.burn_time)
+        depcode.update_depletable_materials(mats, simulation.burn_time)
         del mats, waste_streams, waste_and_feed_streams, extracted_mass
         gc.collect()
         # Switch to another geometry?
@@ -144,7 +136,7 @@ def read_main_input(main_inp_file):
 
     Returns
     -------
-    input_path : PosixPath
+    input_path : Path
         Path to main input file
     process_file : str
         Path to the `.json` file describing the fuel reprocessing components.
@@ -172,11 +164,11 @@ def read_main_input(main_inp_file):
         input_path = (Path.cwd() / Path(f.name).parents[0])
 
         # Saltproc settings
-        process_file = (input_path /
-                              j['proc_input_file']).resolve().as_posix()
-        dot_file = (
+        process_file = str((input_path /
+                              j['proc_input_file']).resolve())
+        dot_file = str((
             input_path /
-            j['dot_input_file']).resolve().as_posix()
+            j['dot_input_file']).resolve())
         output_path = j['output_path']
         num_depsteps = j['num_depsteps']
 
@@ -190,30 +182,31 @@ def read_main_input(main_inp_file):
         reactor_input = j['reactor']
 
         if depcode_input['codename'] == 'serpent':
-            depcode_input['template_input_file_path'] = (
+            depcode_input['template_input_file_path'] = str((
                 input_path /
-                depcode_input['template_input_file_path']).resolve().as_posix()
+                depcode_input['template_input_file_path']).resolve())
         elif depcode_input['codename'] == 'openmc':
             for key in depcode_input['template_input_file_path']:
                 value = depcode_input['template_input_file_path'][key]
-                depcode_input['template_input_file_path'][key] = (
-                    input_path / value).resolve().as_posix()
+                depcode_input['template_input_file_path'][key] = str((
+                    input_path / value).resolve())
         else:
             raise ValueError(
                 f'{depcode_input["codename"]} '
                 'is not a supported depletion code')
 
+        depcode_input['output_path'] = output_path
         geo_list = depcode_input['geo_file_paths']
 
         # Global geometry file paths
         geo_file_paths = []
         for g in geo_list:
-            geo_file_paths += [(input_path / g).resolve().as_posix()]
+            geo_file_paths += [str((input_path / g).resolve())]
         depcode_input['geo_file_paths'] = geo_file_paths
 
         # Global output file paths
         db_name = (output_path / simulation_input['db_name'])
-        simulation_input['db_name'] = db_name.resolve().as_posix()
+        simulation_input['db_name'] = str(db_name.resolve())
 
         reactor_input = _process_main_input_reactor_params(
             reactor_input, num_depsteps)
@@ -238,21 +231,20 @@ def _print_simulation_input_info(simulation_input, depcode_input):
 
 def _create_depcode_object(depcode_input):
     """Helper function for `run()` """
-    codename = depcode_input['codename']
+    codename = depcode_input['codename'].lower()
     if codename == 'serpent':
         depcode = SerpentDepcode
     elif codename == 'openmc':
         depcode = OpenMCDepcode
     else:
         raise ValueError(
-            f'{depcode_input["codename"]} is not a supported depletion code')
+            f'{codename} is not a supported depletion code.'
+            'Accepts: "serpent" or "openmc".')
 
-    depcode = depcode(depcode_input['exec_path'],
+    depcode = depcode(depcode_input['output_path'],
+                      depcode_input['exec_path'],
                       depcode_input['template_input_file_path'],
-                      geo_files=depcode_input['geo_file_paths'],
-                      npop=depcode_input['npop'],
-                      active_cycles=depcode_input['active_cycles'],
-                      inactive_cycles=depcode_input['inactive_cycles'])
+                      geo_files=depcode_input['geo_file_paths'])
 
     return depcode
 
@@ -520,7 +512,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
     process_file : str
         Path to the `.json` file describing the fuel reprocessing components.
 
-        Returns
+    Returns
     -------
     waste_streams : dict of str to dict
         Superset of the input parameter `waste_streams`. Dictionary has

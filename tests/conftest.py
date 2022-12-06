@@ -25,10 +25,10 @@ def path_test_file(cwd):
 @pytest.fixture(scope='session')
 def serpent_depcode(cwd):
     """SerpentDepcode object for unit tests"""
-    saltproc_input = (cwd / 'serpent_data' / 'tap_input.json').as_posix()
+    saltproc_input = str(cwd / 'serpent_data' / 'tap_input.json')
     _, _, _, object_input = read_main_input(saltproc_input)
     depcode = _create_depcode_object(object_input[0])
-    depcode.iter_inputfile = (cwd / 'serpent_data' / 'tap_reference').as_posix()
+    depcode.runtime_inputfile = str(cwd / 'serpent_data' / 'tap_reference')
 
     return depcode
 
@@ -36,24 +36,24 @@ def serpent_depcode(cwd):
 @pytest.fixture(scope='session')
 def openmc_depcode(cwd):
     """OpenMCDepcode object for unit tests"""
-    saltproc_input = (cwd / 'openmc_data' / 'tap_input.json').as_posix()
+    saltproc_input = str(cwd / 'openmc_data' / 'tap_input.json')
     _, _, _, object_input = read_main_input(saltproc_input)
     depcode = _create_depcode_object(object_input[0])
 
     # Openmc initlialization
     openmc_input_path = (cwd / 'openmc_data')
 
-    openmc_iter_inputfiles = {
+    openmc_runtime_inputfiles = {
         "geometry": "geometry.xml",
         "settings": "settings.xml",
     }
 
-    for key in openmc_iter_inputfiles:
-        openmc_iter_inputfiles[key] = \
-            (openmc_input_path / openmc_iter_inputfiles[key]).as_posix()
+    for key in openmc_runtime_inputfiles:
+        openmc_runtime_inputfiles[key] = \
+            str(openmc_input_path / openmc_runtime_inputfiles[key])
 
-    depcode.iter_inputfile = openmc_iter_inputfiles
-    depcode.iter_matfile = (openmc_input_path / 'materials.xml').as_posix()
+    depcode.runtime_inputfile = openmc_runtime_inputfiles
+    depcode.runtime_matfile = str(openmc_input_path / 'materials.xml')
 
     return depcode
 
@@ -66,8 +66,8 @@ def simulation(cwd, serpent_depcode):
         sim_depcode=serpent_depcode,
         core_number=1,
         node_number=1,
-        db_path=(
+        db_path=str(
             cwd /
             'serpent_data' /
-            'tap_reference_db.h5').as_posix())
+            'tap_reference_db.h5'))
     return simulation

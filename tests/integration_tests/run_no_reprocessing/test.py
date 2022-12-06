@@ -13,7 +13,7 @@ from saltproc import SerpentDepcode, Simulation, Reactor
 
 @pytest.fixture
 def setup():
-    cwd = Path(__file__).parents[0].resolve().as_posix()
+    cwd = str(Path(__file__).parents[0].resolve())
     main_input = cwd + '/test_input.json'
 
     input_path, process_input_file, path_input_file, object_input = \
@@ -21,8 +21,8 @@ def setup():
 
     depcode = app._create_depcode_object(object_input[0])
     sss_file = cwd + '/_test'
-    depcode.iter_inputfile = sss_file
-    depcode.iter_matfile = cwd + '/_test_mat'
+    depcode.runtime_inputfile = sss_file
+    depcode.runtime_matfile = cwd + '/_test_mat'
 
     simulation = app._create_simulation_object(object_input[1], depcode, 1, 1)
 
@@ -78,29 +78,29 @@ def runsim_no_reproc(simulation, reactor, nsteps):
     for dep_step in range(nsteps):
         print("\nStep #%i has been started" % (dep_step + 1))
         if dep_step == 0:  # First step
-            simulation.sim_depcode.write_depcode_input(
+            simulation.sim_depcode.write_runtime_input(
                 reactor,
                 dep_step,
                 False)
-            simulation.sim_depcode.run_depcode(
+            simulation.sim_depcode.run_depletion_step(
                 simulation.core_number,
                 simulation.node_number)
             # Read general simulation data which never changes
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dep_step)
-            mats = simulation.sim_depcode.read_dep_comp(
+            mats = simulation.sim_depcode.read_depleted_materials(
                 False)
             simulation.store_mat_data(mats, dep_step, False)
         # Finish of First step
         # Main sequence
         else:
-            simulation.sim_depcode.run_depcode(
+            simulation.sim_depcode.run_depletion_step(
                 simulation.core_number,
                 simulation.node_number)
-        mats = simulation.sim_depcode.read_dep_comp(
+        mats = simulation.sim_depcode.read_depleted_materials(
             True)
         simulation.store_mat_data(mats, dep_step, False)
         simulation.store_run_step_info()
-        simulation.sim_depcode.write_mat_file(
+        simulation.sim_depcode.update_depletable_materials(
             mats,
             simulation.burn_time)

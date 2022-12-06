@@ -2,13 +2,13 @@
 
 
 def test_get_mass(serpent_depcode):
-    mats = serpent_depcode.read_dep_comp(True)
+    mats = serpent_depcode.read_depleted_materials(True)
     assert mats['fuel'].get_mass() == 112683343.50000001
     assert mats['ctrlPois'].get_mass() == 65563.2355
 
 
 def test_scale_matflow(serpent_depcode):
-    mats = serpent_depcode.read_dep_comp(True)
+    mats = serpent_depcode.read_depleted_materials(True)
     scale_factor = 0.7
     scaled_matflow = mats['fuel'].scale_matflow(scale_factor)
     assert scaled_matflow[922350000] == scale_factor * 3499538.3359278883
@@ -18,7 +18,7 @@ def test_scale_matflow(serpent_depcode):
 
 
 def test_copy_pymat_attrs(serpent_depcode):
-    mats = serpent_depcode.read_dep_comp(True)
+    mats = serpent_depcode.read_depleted_materials(True)
     target_mat = mats['fuel']
     target_mat.copy_pymat_attrs(mats['ctrlPois'])
     assert target_mat.density == 5.873

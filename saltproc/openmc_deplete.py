@@ -21,50 +21,49 @@ def parse_arguments():
 
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-mat',
+    parser.add_argument('--materials',
                         type=str,
                         default=1,
                         help='path to openmc material \
                         material xml file')
-    parser.add_argument('-geo',
+    parser.add_argument('--geometry',
                         type=str,
                         default=1,
                         help='path to openmc geometry \
                         xml file')
-    parser.add_argument('-set',
+    parser.add_argument('--settings',
                         type=str,
                         default=None,
                         help='path to openmc settings \
                         xml file')
-    parser.add_argument('-tal',
+    parser.add_argument('--tallies',
                         type=str,
                         default=None,
                         help='path to openmc tallies \
                         xml file')
-    parser.add_argument('-dep',
+    parser.add_argument('--depletion_settings',
                         type=str,
                         default=None,
                         help='path to saltproc depletion \
                         settings  json file')
     args = parser.parse_args()
-    return str(args.mat), str(args.geo), str(args.set), \
-        str(args.dep), str(args.tal)
+    return str(args.materials), str(args.geometry), str(args.settings), \
+        str(args.tallies), str(args.depletion_settings)
 
 
 args = parse_arguments()
 
 # Initalize OpenMC objects
-materials = openmc.Materials.from_xml(path=args.mat)
-geometry = openmc.Geometry.from_xml(path=args.geo, materials=materials)
-settings = openmc.Settings.from_xml(args.set)
-tallies = openmc.Tallies.from_xml(args.tal)
+materials = openmc.Materials.from_xml(path=args.materials)
+geometry = openmc.Geometry.from_xml(path=args.geometry, materials=materials)
+settings = openmc.Settings.from_xml(args.settings)
+tallies = openmc.Tallies.from_xml(args.tallies)
 model = openmc.model.Model(materials=materials,
                            geometry=geometry,
                            settings=settings,
                            tallies=tallies)
 
-depletion_settings = {}
-with open(args.dep) as f:
+with open(args.depletion_settings) as f:
     depletion_settings = json.load(f)
 
 model.deplete(depletion_settings['timesteps'],

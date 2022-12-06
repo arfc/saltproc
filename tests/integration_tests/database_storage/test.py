@@ -12,7 +12,7 @@ from saltproc.app import reprocess_materials, refill_materials
 def db_file(simulation):
     cwd = Path.cwd()
     db_file = (cwd / (simulation.sim_depcode.codename + '_test.h5'))
-    return db_file.resolve().as_posix()
+    return str(db_file.resolve())
 
 
 def test_store_after_reprocessing(
@@ -34,7 +34,7 @@ def test_store_after_reprocessing(
 
     """
     # read data
-    mats = simulation.sim_depcode.read_dep_comp(
+    mats = simulation.sim_depcode.read_depleted_materials(
         True)
     waste_streams, extracted_mass = reprocess_materials(
         mats, proc_test_file, path_test_file)
@@ -139,9 +139,9 @@ def test_store_mat_data(simulation):
     explicity in value and implicitly in type.
     """
     # read data
-    mats_before = simulation.sim_depcode.read_dep_comp(
+    mats_before = simulation.sim_depcode.read_depleted_materials(
         False)
-    mats_after = simulation.sim_depcode.read_dep_comp(
+    mats_after = simulation.sim_depcode.read_depleted_materials(
         True)
 
     fuel_before = mats_before['fuel']
@@ -268,8 +268,12 @@ def test_store_run_init_info(simulation):
     """
 
     # read data
-    simulation.sim_depcode.read_depcode_info()
-    init_info = simulation.sim_depcode.sim_info
+    simulation.sim_depcode.read_step_metadata()
+
+    file = simulation.sim_depcode.template_input_file_path
+    file_lines = simulation.sim_depcode.read_plaintext_file(file)
+    simulation.sim_depcode.get_neutron_settings(file_lines)
+    init_info = simulation.sim_depcode.step_metadata
 
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
@@ -305,6 +309,8 @@ def test_store_run_init_info(simulation):
         assert tinit_info[10] == init_info['MPI_tasks']
         assert tinit_info[11] == init_info['memory_optimization_mode']
         assert tinit_info[12] == init_info['depletion_timestep']
+        assert tinit_info[13] == init_info['execution_time']
+        assert tinit_info[14] == init_info['memory_usage']
     except AssertionError:
         db.close()
         os.remove(db_file)
@@ -340,8 +346,8 @@ def test_store_run_step_info(simulation):
     explicity in value and implicitly in type.
     """
     # read data
-    simulation.sim_depcode.read_depcode_step_param()
-    step_info = simulation.sim_depcode.param
+    simulation.sim_depcode.read_neutronics_parameters()
+    step_info = simulation.sim_depcode.neutronics_parameters
 
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db
@@ -376,9 +382,7 @@ def test_store_run_step_info(simulation):
                               step_info['keff_bds'].astype('float32'))
         assert np.array_equal(tstep_info[7],
                               step_info['keff_eds'].astype('float32'))
-        assert tstep_info[8] == step_info['memory_usage'].astype('float32')
-        assert tstep_info[9] == step_info['power_level'].astype('float32')
-        assert tstep_info[10] == step_info['execution_time'].astype('float32')
+        assert tstep_info[8] == step_info['power_level'].astype('float32')
     except AssertionError:
         db.close()
         os.remove(db_file)
