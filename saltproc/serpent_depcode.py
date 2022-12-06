@@ -65,8 +65,8 @@ class SerpentDepcode(Depcode):
                          template_input_file_path,
                          geo_files)
         self.runtime_inputfile = \
-                         (output_path / 'runtime_input.serpent').resolve().as_posix()
-        self.runtime_matfile = (output_path / 'runtime_mat.ini').resolve().as_posix()
+                         str((output_path / 'runtime_input.serpent').resolve())
+        self.runtime_matfile = str((output_path / 'runtime_mat.ini').resolve())
 
     def get_neutron_settings(self, file_lines):
         """Get neutron settings (no. of neutrons per cycle, no. of active and
@@ -95,7 +95,7 @@ class SerpentDepcode(Depcode):
 
     def create_runtime_matfile(self, file_lines):
         """Creates the runtime material file tracking burnable materials
-        ans inserts the path to this file in the Serpent2 runtime input file
+        and inserts the path to this file in the Serpent2 runtime input file
 
         Parameters
         ----------
@@ -108,37 +108,37 @@ class SerpentDepcode(Depcode):
             Serpent2 runtime input file with updated material file path.
 
         """
-        src_file, abs_src_matfile = self.get_burnable_materials_file(file_lines)
+        burnable_materials_path, absolute_path = self.get_burnable_materials_file(file_lines)
 
         # Create data directory
         Path.mkdir(Path(self.runtime_matfile).parents[0], exist_ok=True)
 
         # Get material cards
-        flines = self.read_plaintext_file(abs_src_matfile)
+        flines = self.read_plaintext_file(absolute_path)
         self.get_material_data(flines)
 
          # Create file with path for SaltProc rewritable iterative material file
-        shutil.copy2(abs_src_matfile, self.runtime_matfile)
-        return [line.replace(src_file, self.runtime_matfile) for line in file_lines]
+        shutil.copy2(absolute_path, self.runtime_matfile)
+        return [line.replace(burnable_materials_path, self.runtime_matfile) for line in file_lines]
 
     def get_burnable_materials_file(self, file_lines):
         runtime_dir = Path(self.template_input_file_path).parents[0]
-        include_str = [line for line in file_lines if line.startswith("include ")]
-        if not include_str:
+        include_card = [line for line in file_lines if line.startswith("include ")]
+        if not include_card:
             raise IOError('Template file '
                           f'{self.template_input_file_path} has no <include '
                           '"material_file"> statements')
-        src_file = include_str[0].split()[1][1:-1]
-        if not Path(src_file).is_absolute():
-            abs_src_matfile = (runtime_dir / src_file)
+        burnable_materials_path = include_card[0].split()[1][1:-1]
+        if not Path(burnable_materials_path).is_absolute():
+            absolute_path = (runtime_dir / burnable_materials_path)
         else:
-            abs_src_matfile = Path(src_file)
-            with open(abs_src_matfile) as f:
+            absolute_path = Path(burnable_materials_path)
+            with open(absolute_path) as f:
                 if 'mat ' not in f.read():
                     raise IOError('Template file '
                                   f'{self.template_input_file_path} includes '
                                   'no file with materials description')
-        return src_file, abs_src_matfile
+        return burnable_materials_path, absolute_path.resolve()
 
     def get_material_data(self, file_lines):
         # Get data for matfile
@@ -147,20 +147,6 @@ class SerpentDepcode(Depcode):
         mat_idx = [file_lines.index(card) for card in mat_cards]
         mat_cards = \
             [line.split() for line in file_lines if line.startswith("mat ")]
-
-
-        # Get library IDs
-        #mat_extensions = []
-        #nuclide_regex = "^\\s*[^%]*\\s*([0-9]{4,}|[A-Z]{1}[a-z]{0,1}-[0-9]{1,3})\\.[0-9]{2}c"
-        #for i, idx in enumerate(mat_idx):
-        #    j = 0
-        #    while(not(nuclide_match)):
-        #        j += 1
-        #        nuclide_match = re.match(nuclide_regex, file_lines[mat_idx+i])
-        #        if(j == len(file_lines) or j == mat_idx[i+1]):
-        #            ## warning about decay only nucs
-        #            break
-        #    mat_extensions.append(nuclide_match.group(0).split('.')[1])
 
         # Get volume indices
         card_volume_idx = [card.index('vol') for card in mat_cards]

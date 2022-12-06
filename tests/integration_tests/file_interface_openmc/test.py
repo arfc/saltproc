@@ -76,8 +76,8 @@ def test_write_depletion_settings(openmc_depcode, msr):
     openmc_depcode.write_depletion_settings(msr, 0)
     with open(openmc_depcode.runtime_inputfile['depletion_settings']) as f:
         j = json.load(f)
-        assert j['directory'] == Path(
-            openmc_depcode.runtime_inputfile['settings']).parents[0].as_posix()
+        assert j['directory'] == str(Path(
+            openmc_depcode.runtime_inputfile['settings']).parents[0])
         assert j['timesteps'][0] == msr.dep_step_length_cumulative[0]
         assert j['operator_kwargs']['chain_file'] == \
             openmc_depcode.template_input_file_path['chain_file']

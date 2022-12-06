@@ -1,13 +1,16 @@
 {
    "proc_input_file": "msbr_objects.json",
    "dot_input_file": "msbr.dot",
-   "output_path": "data",
+   "output_path": "./data",
    "num_depsteps": 12,
    "depcode": {
        "codename": "serpent",
        "exec_path": "sss2",
-       "template_input_file_path": "msbr.serpent",
-       "geo_file_paths": ["geometry/msbr_full.ini"]
+       "template_input_file_path": "./msbr_endfb71.serpent",
+       "npop": 50,
+       "active_cycles": 20,
+       "inactive_cycles": 20,
+       "geo_file_paths": ["./geometry/msbr_full.ini"]
    },
    "simulation": {
        "sim_name": "msbr_example_simulation",

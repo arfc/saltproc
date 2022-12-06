@@ -12,7 +12,7 @@ from saltproc.app import reprocess_materials, refill_materials
 def db_file(simulation):
     cwd = Path.cwd()
     db_file = (cwd / (simulation.sim_depcode.codename + '_test.h5'))
-    return db_file.resolve().as_posix()
+    return str(db_file.resolve())
 
 
 def test_store_after_reprocessing(
