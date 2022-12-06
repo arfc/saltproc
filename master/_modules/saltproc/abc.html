@@ -78,40 +78,43 @@
 <span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 
 <div class="viewcode-block" id="Depcode"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode">[docs]</a><span class="k">class</span> <span class="nc">Depcode</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Abstract class for interfacing with monte-carlo particle transport</span>
-<span class="sd">    codes. Contains information about input, output, geometry, and template</span>
-<span class="sd">    files for running depletion simulations. Also contains neutron</span>
-<span class="sd">    population, active, and inactive cycles. Contains methods to read template</span>
-<span class="sd">    and output files, and write new input files for the depletion code.</span>
+    <span class="sd">&quot;&quot;&quot;Abstract interface for running depletion steps.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    -----------</span>
-<span class="sd">    param : dict of str to type</span>
-<span class="sd">        Holds depletion step parameter information. Parameter names are keys</span>
+<span class="sd">    neutronics_parameters : dict of str to type</span>
+<span class="sd">        Holds depletion step neutronics parameters. Parameter names are keys</span>
 <span class="sd">        and parameter values are values.</span>
-<span class="sd">    sim_info : dict of str to type</span>
-<span class="sd">        Holds simulation settings information. Setting names are keys</span>
-<span class="sd">        and setting values are values.</span>
-<span class="sd">    iter_inputfile : str</span>
-<span class="sd">        Path to depletion code input file for depletion code rerunning.</span>
-<span class="sd">    iter_matfile : str</span>
-<span class="sd">        Path to iterative, rewritable material file for depletion code</span>
-<span class="sd">        rerunning. This file is modified during  the simulation.</span>
+<span class="sd">    step_metadata : dict of str to type</span>
+<span class="sd">        Holds depletion code depletion step metadata. Metadata labels are keys</span>
+<span class="sd">        and metadata values are values.</span>
+<span class="sd">    runtime_inputfile : str</span>
+<span class="sd">        Path to input file used to run depletion step.</span>
+<span class="sd">    runtime_matfile : str</span>
+<span class="sd">        Path to material file containing burnable materials used to</span>
+<span class="sd">        run depletion step.</span>
+<span class="sd">    npop : int</span>
+<span class="sd">        Size of neutron population per cycle</span>
+<span class="sd">    active_cycles : int</span>
+<span class="sd">        Number of active cycles.</span>
+<span class="sd">    inactive_cycles : int</span>
+<span class="sd">        Number of inactive cycles.</span>
+
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Depcode.__init__"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">codename</span><span class="p">,</span>
+                 <span class="n">output_path</span><span class="p">,</span>
                  <span class="n">exec_path</span><span class="p">,</span>
                  <span class="n">template_input_file_path</span><span class="p">,</span>
-                 <span class="n">geo_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">npop</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-                 <span class="n">active_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-                 <span class="n">inactive_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the Depcode object.</span>
+                 <span class="n">geo_files</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a Depcode object.</span>
 
 <span class="sd">           Parameters</span>
 <span class="sd">           ----------</span>
+<span class="sd">           output_path : str</span>
+<span class="sd">               Path to results storage directory.</span>
 <span class="sd">           codename : str</span>
 <span class="sd">               Name of depletion code.</span>
 <span class="sd">           exec_path : str</span>
@@ -125,67 +128,58 @@
 <span class="sd">               Path to file that contains the reactor geometry.</span>
 <span class="sd">               List of `str` if reactivity control by</span>
 <span class="sd">               switching geometry is `On` or just `str` otherwise.</span>
-<span class="sd">           npop : int, optional</span>
-<span class="sd">               Size of neutron population per cycle for Monte Carlo.</span>
-<span class="sd">           active_cycles : int, optional</span>
-<span class="sd">               Number of active cycles.</span>
-<span class="sd">           inactive_cycles : int, optional</span>
-<span class="sd">               Number of inactive cycles.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">codename</span> <span class="o">=</span> <span class="n">codename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">output_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span> <span class="o">=</span> <span class="n">exec_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span> <span class="o">=</span> <span class="n">template_input_file_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span> <span class="o">=</span> <span class="n">geo_files</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">npop</span> <span class="o">=</span> <span class="n">npop</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span> <span class="o">=</span> <span class="n">active_cycles</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span> <span class="o">=</span> <span class="n">inactive_cycles</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="s1">&#39;./iter_input&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">=</span> <span class="s1">&#39;./iter_mat&#39;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Depcode.read_depcode_info"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.read_depcode_info">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">read_depcode_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Parses initial depletion code info data from depletion code</span>
-<span class="sd">        output and stores it in the `Depcode` object&#39;s ``sim_info`` attribute.</span>
+<div class="viewcode-block" id="Depcode.read_step_metadata"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.read_step_metadata">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">read_step_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads depletion code&#39;s depletion step metadata and stores it in the</span>
+<span class="sd">        :class:`Depcode` object&#39;s :attr:`step_metadata` attribute.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="Depcode.read_depcode_step_param"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.read_depcode_step_param">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">read_depcode_step_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Parses data from depletion code output for each step and stores</span>
-<span class="sd">        it in `Depcode` object&#39;s ``param`` attributes.</span>
+<div class="viewcode-block" id="Depcode.read_neutronics_parameters"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.read_neutronics_parameters">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">read_neutronics_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads depletion code&#39;s depletion step neutronics parameters and</span>
+<span class="sd">        stores them in :class:`Depcode` object&#39;s</span>
+<span class="sd">        :attr:`neutronics_parameters` attribute.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="Depcode.read_dep_comp"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.read_dep_comp">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">read_dep_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Reads the depleted material data from the depcode simulation</span>
-<span class="sd">        and returns a dictionary with a `Materialflow` object for each</span>
-<span class="sd">        burnable material.</span>
+<div class="viewcode-block" id="Depcode.read_depleted_materials"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.read_depleted_materials">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">read_depleted_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads depleted materials from the depletion step results</span>
+<span class="sd">        and returns a dictionary containing them.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        read_at_end : bool, optional</span>
-<span class="sd">            Controls at which moment in the depletion step to read the data.</span>
 <span class="sd">            If `True`, the function reads data at the end of the</span>
 <span class="sd">            depletion step. Otherwise, the function reads data at the</span>
 <span class="sd">            beginning of the depletion step.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        mats : dict of str to Materialflow</span>
-<span class="sd">            Dictionary that contains `Materialflow` objects.</span>
+<span class="sd">        depleted_materials : dict of str to Materialflow</span>
+<span class="sd">            Dictionary containing depleted materials.</span>
 
 <span class="sd">            ``key``</span>
 <span class="sd">                Name of burnable material.</span>
 <span class="sd">            ``value``</span>
-<span class="sd">                `Materialflow` object holding composition and properties.</span>
+<span class="sd">                :class:`Materialflow` object holding material composition and properties.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="Depcode.run_depcode"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.run_depcode">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">run_depcode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs depletion code as a subprocess with the given parameters.</span>
+<div class="viewcode-block" id="Depcode.run_depletion_step"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.run_depletion_step">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">run_depletion_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs a depletion step as a subprocess with the given parameters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -201,9 +195,9 @@
 <span class="sd">        next geometry file in ``geo_files``</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="Depcode.write_depcode_input"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.write_depcode_input">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">write_depcode_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Writes prepared data into depletion code input file(s).</span>
+<div class="viewcode-block" id="Depcode.write_runtime_input"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.write_runtime_input">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">write_runtime_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write input file(s) for running depletion step</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -216,21 +210,19 @@
 <span class="sd">            Is the current simulation restarted?</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="Depcode.write_mat_file"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.write_mat_file">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">write_mat_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_dict</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Writes the iteration input file containing the burnable materials</span>
-<span class="sd">        composition used in depletion runs and updated after each depletion</span>
-<span class="sd">        step.</span>
+<div class="viewcode-block" id="Depcode.update_depletable_materials"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.update_depletable_materials">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">update_depletable_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mats</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update material file with reprocessed material compositions.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dep_dict : dict of str to Materialflow</span>
-<span class="sd">            Dictionary that contains `Materialflow` objects.</span>
+<span class="sd">        mats : dict of str to Materialflow</span>
+<span class="sd">            Dictionary containing reprocessed material compositions.</span>
 
 <span class="sd">            ``key``</span>
 <span class="sd">                Name of burnable material.</span>
 <span class="sd">            ``value``</span>
-<span class="sd">                `Materialflow` object holding composition and properties.</span>
+<span class="sd">                :class:`Materialflow` object holding composition and properties.</span>
 <span class="sd">        dep_end_time : float</span>
 <span class="sd">            Current time at the end of the depletion step (d).</span>
 

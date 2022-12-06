@@ -108,26 +108,59 @@ Python API Changes
    longer be initialized by the user during object creation.
 
 
-- New/changed classes and methods:
+- New/changed classes, methods, and attributes:
 
   - ``Depcode``
 
+    - Add `output_path` parameter.
     - ``template_inputfile_path`` → ``template_input_file_path``
-    - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
+    - Removed default values for `geo_files`
+    - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
+    - Changed `npop`, `active_cycles`, `inactive_cycles` to be attributes instead of parameters
+    - ``read_depcode_info()`` → ``read_step_metadata()``
+    - ``sim_info`` → ``step_metadata``
+    - ``read_depcode_step_param()`` → ``read_neutronics_parameters()``
+    - ``param`` → ``neutronics_parameters``
+    - ``read_dep_comp()`` → ``read_depleted_materials()``
+    - ``run_depcode()`` → ``run_depletion_step()``
+    - ``write_mat_file()`` → ``update_depletable_materials()``
+    - ``write_depcode_input()`` →  ``write_runtime_input()``
+    - ``iter_inputfile``  →  ``runtime_inputfile``
+    - ``iter_matfile``  →  ``runtime_matfile``
 
   - ``DepcodeSerpent`` → ``SerpentDepcode``
 
+    - Add `output_path` parameter.
     - ``template_inputfile_path`` → ``template_input_file_path``
-    - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
+    - Removed default values for `exec_path`, `template_input_file_path`, `geo_files`
+    - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
+    - Changed `npop`, `active_cycles`, `inactive_cycles` to be attributes instead of parameters
+    - ``read_depcode_info()`` → ``read_depletion_step_metadata()``
+    - ``sim_info`` → ``step_metadata``
+    - ``read_depcode_step_param()`` → ``read_neutronics_parameters()``
+    - ``param`` → ``neutronics_parameters``
+    - ``read_dep_comp()`` → ``read_depleted_materials()``
+    - ``create_nuclide_name_map_zam_to_serpent()`` → ``map_nuclide_code_zam_to_serpent()``
+    - ``run_depcode()`` → ``run_depletion_step()``
+    - ``write_mat_file()`` → ``update_depletable_materials()``
+    - ``get_nuc_name()`` →  ``convert_nuclide_code_to_name()``
+    - ``convert_nuclide_name_serpent_to_zam()`` → ``convert_nuclide_code_to_zam()`` 
+    - ``change_sim_par()`` →  (deleted)
+    -  (new function) →  ``get_neutron_settings()``
+    - ``create_iter_matfile()`` → ``create_runtime_matfile()``
+    - ``replace_burnup_parameters()`` → ``set_power_load()``
+    - ``write_depcode_input()`` →  ``write_runtime_input()``
+    - ``iter_inputfile``  →  ``runtime_inputfile``
+    - ``iter_matfile``  →  ``runtime_matfile``
 
 
   - ``OpenMCDepcode`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
-
-    - ``run_depcode()``
+    - ``run_depletion_step()``
     - ``switch_to_next_geometry()``
-    - ``write_depcode_input()``
+    - ``write_runtime_input()``
     - ``write_depletion_settings()``
     - ``write_saltproc_openmc_tallies()``
+
 
   - ``app.py``
 

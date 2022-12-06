@@ -160,8 +160,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">restart_flag</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_path</span><span class="p">)</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Previous run output files were deleted.&quot;</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">pass</span></div>
@@ -210,7 +210,7 @@
                 <span class="c1"># Read isotopes from Materialflow</span>
                 <span class="k">for</span> <span class="n">nuc</span><span class="p">,</span> <span class="n">wt_frac</span> <span class="ow">in</span> <span class="n">waste_dict</span><span class="p">[</span><span class="n">mn</span><span class="p">][</span><span class="n">proc</span><span class="p">]</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="c1"># Dictonary in format {isotope_name : index(int)}</span>
-                    <span class="n">iso_idx</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">get_nuc_name</span><span class="p">(</span><span class="n">nuc</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">coun</span>
+                    <span class="n">iso_idx</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">convert_nuclide_code_to_name</span><span class="p">(</span><span class="n">nuc</span><span class="p">)]</span> <span class="o">=</span> <span class="n">coun</span>
                     <span class="c1"># Convert wt% to absolute [user units]</span>
                     <span class="n">iso_wt_frac</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wt_frac</span> <span class="o">*</span> <span class="n">waste_dict</span><span class="p">[</span><span class="n">mn</span><span class="p">][</span><span class="n">proc</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
                     <span class="n">coun</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -307,7 +307,7 @@
             <span class="c1"># Read isotopes from Materialflow for material</span>
             <span class="k">for</span> <span class="n">nuc_code</span><span class="p">,</span> <span class="n">wt_frac</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="c1"># Dictonary in format {isotope_name : index(int)}</span>
-                <span class="n">iso_idx</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">get_nuc_name</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">coun</span>
+                <span class="n">iso_idx</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">convert_nuclide_code_to_name</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)]</span> <span class="o">=</span> <span class="n">coun</span>
                 <span class="c1"># Convert wt% to absolute [user units]</span>
                 <span class="n">iso_wt_frac</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wt_frac</span> <span class="o">*</span> <span class="n">mats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
                 <span class="n">coun</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -367,19 +367,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Read info from depcode _res.m File</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_depcode_step_param</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_neutronics_parameters</span><span class="p">()</span>
         <span class="c1"># Initialize beta groups number</span>
-        <span class="n">b_g</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;beta_eff&#39;</span><span class="p">])</span>
+        <span class="n">b_g</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;beta_eff&#39;</span><span class="p">])</span>
         <span class="c1"># numpy array row storage for run info</span>
 
         <span class="k">class</span> <span class="nc">Step_info</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">IsDescription</span><span class="p">):</span>
             <span class="n">keff_bds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">((</span><span class="mi">2</span><span class="p">,))</span>
             <span class="n">keff_eds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">((</span><span class="mi">2</span><span class="p">,))</span>
             <span class="n">breeding_ratio</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">((</span><span class="mi">2</span><span class="p">,))</span>
-            <span class="n">step_execution_time</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">()</span>
             <span class="n">cumulative_time_at_eds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">()</span>
             <span class="n">power_level</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">()</span>
-            <span class="n">memory_usage</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">()</span>
             <span class="n">beta_eff_eds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">((</span><span class="n">b_g</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
             <span class="n">delayed_neutrons_lambda_eds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">((</span><span class="n">b_g</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
             <span class="n">fission_mass_bds</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">()</span>
@@ -403,28 +401,24 @@
                 <span class="s2">&quot;Simulation parameters after each timestep&quot;</span><span class="p">)</span>
             <span class="c1"># Intializing burn_time array at the first depletion step</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">burn_time</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">burn_time</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;burn_days&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">burn_time</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;burn_days&#39;</span><span class="p">]</span>
         <span class="c1"># Define row of table as step_info</span>
         <span class="n">step_info</span> <span class="o">=</span> <span class="n">step_info_table</span><span class="o">.</span><span class="n">row</span>
         <span class="c1"># Define all values in the row</span>
 
-        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span>
-        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">]</span>
-        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;breeding_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">]</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;breeding_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span>
             <span class="s1">&#39;breeding_ratio&#39;</span><span class="p">]</span>
-        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;step_execution_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
-            <span class="s1">&#39;execution_time&#39;</span><span class="p">]</span>
         <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;cumulative_time_at_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">burn_time</span>
-        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;power_level&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;power_level&#39;</span><span class="p">]</span>
-        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;memory_usage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
-            <span class="s1">&#39;memory_usage&#39;</span><span class="p">]</span>
-        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;beta_eff_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;power_level&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;power_level&#39;</span><span class="p">]</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;beta_eff_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span>
             <span class="s1">&#39;beta_eff&#39;</span><span class="p">]</span>
-        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;delayed_neutrons_lambda_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;delayed_neutrons_lambda_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span>
             <span class="s1">&#39;delayed_neutrons_lambda&#39;</span><span class="p">]</span>
-        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;fission_mass_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;fission_mass_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span>
             <span class="s1">&#39;fission_mass_bds&#39;</span><span class="p">]</span>
-        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;fission_mass_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">param</span><span class="p">[</span>
+        <span class="n">step_info</span><span class="p">[</span><span class="s1">&#39;fission_mass_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span>
             <span class="s1">&#39;fission_mass_eds&#39;</span><span class="p">]</span>
 
         <span class="c1"># Inject the Record value into the table</span>
@@ -444,7 +438,7 @@
         <span class="c1"># numpy arraw row storage for run info</span>
         <span class="c1"># delete and make this datatype specific</span>
         <span class="c1"># to Depcode subclasses</span>
-        <span class="n">sim_info_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([</span>
+        <span class="n">step_metadata_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([</span>
             <span class="p">(</span><span class="s1">&#39;neutron_population&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;active_cycles&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;inactive_cycles&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
@@ -457,27 +451,32 @@
             <span class="p">(</span><span class="s1">&#39;OMP_threads&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;MPI_tasks&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;memory_optimization_mode&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+            <span class="p">(</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;execution_time&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;memory_usage&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
         <span class="p">])</span>
         <span class="c1"># Read info from depcode _res.m File</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_depcode_info</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">read_step_metadata</span><span class="p">()</span>
         <span class="c1"># Store information about material properties in new array row</span>
-        <span class="n">sim_info_row</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">step_metadata_row</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">npop</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">active_cycles</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">inactive_cycles</span><span class="p">,</span>  <span class="c1"># delete the below</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depcode_name&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depcode_version&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depcode_input_filename&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depcode_working_dir&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;xs_data_path&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;OMP_threads&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;MPI_tasks&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;memory_optimization_mode&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;depcode_name&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;depcode_version&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;depcode_input_filename&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;depcode_working_dir&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;xs_data_path&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;OMP_threads&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;MPI_tasks&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;memory_optimization_mode&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;execution_time&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;memory_usage&#39;</span><span class="p">]</span>
+
         <span class="p">)</span>
-        <span class="n">sim_info_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sim_info_row</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">sim_info_dtype</span><span class="p">)</span>
+        <span class="n">step_metadata_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">step_metadata_row</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">step_metadata_dtype</span><span class="p">)</span>
 
         <span class="c1"># Open or restore db and append datat to it</span>
         <span class="n">db</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span>
@@ -485,14 +484,14 @@
             <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
             <span class="n">filters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compression_params</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">sim_info_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;initial_depcode_siminfo&#39;</span><span class="p">)</span>
+            <span class="n">step_metadata_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;initial_depcode_siminfo&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="n">sim_info_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
+            <span class="n">step_metadata_table</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
                 <span class="n">db</span><span class="o">.</span><span class="n">root</span><span class="p">,</span>
                 <span class="s1">&#39;initial_depcode_siminfo&#39;</span><span class="p">,</span>
-                <span class="n">sim_info_array</span><span class="p">,</span>
+                <span class="n">step_metadata_array</span><span class="p">,</span>
                 <span class="s2">&quot;Initial depletion code simulation parameters&quot;</span><span class="p">)</span>
-        <span class="n">sim_info_table</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">step_metadata_table</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Simulation.read_k_eds_delta"><a class="viewcode-back" href="../../src/saltproc.simulation.html#saltproc.simulation.Simulation.read_k_eds_delta">[docs]</a>    <span class="k">def</span> <span class="nf">read_k_eds_delta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_timestep</span><span class="p">):</span>

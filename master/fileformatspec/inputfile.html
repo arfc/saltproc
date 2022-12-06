@@ -145,7 +145,7 @@
 <td colspan="5"><p><em>string</em></p></td>
 </tr>
 <tr class="row-even"><td><p>pattern</p></td>
-<td colspan="5"><p>^\.\/(.*)$</p></td>
+<td colspan="5"><p>^(.\/)*(.*)$</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="2"><ul class="simple">
 <li><p>num_depsteps</p></li>
@@ -156,7 +156,7 @@
 <tr class="row-even"><td><p>type</p></td>
 <td colspan="5"><p><em>number</em></p></td>
 </tr>
-<tr class="row-odd"><td rowspan="47"><ul class="simple">
+<tr class="row-odd"><td rowspan="49"><ul class="simple">
 <li><p><strong>depcode</strong></p></li>
 </ul>
 </td>
@@ -194,74 +194,50 @@
 </td>
 <td colspan="5"><p>Path(s) to user’s template depletion code input file(s) with reactor model</p></td>
 </tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
-<li><p><strong>npop</strong></p></li>
-</ul>
-</td>
-<td colspan="5"><p>Number of neutrons per generation</p></td>
-</tr>
-<tr class="row-odd"><td><p>type</p></td>
-<td colspan="4"><p><em>number</em></p></td>
-</tr>
-<tr class="row-even"><td><p>minimum</p></td>
-<td colspan="4"><p>0</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
-<li><p><strong>active_cycles</strong></p></li>
-</ul>
-</td>
-<td colspan="5"><p>number of active generations</p></td>
-</tr>
-<tr class="row-even"><td><p>type</p></td>
-<td colspan="4"><p><em>number</em></p></td>
-</tr>
-<tr class="row-odd"><td><p>minimum</p></td>
-<td colspan="4"><p>0</p></td>
-</tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
-<li><p><strong>inactive_cycles</strong></p></li>
-</ul>
-</td>
-<td colspan="5"><p>Number of inactive generations</p></td>
-</tr>
-<tr class="row-odd"><td><p>type</p></td>
-<td colspan="4"><p><em>number</em></p></td>
-</tr>
-<tr class="row-even"><td><p>minimum</p></td>
-<td colspan="4"><p>0</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<tr class="row-even"><td rowspan="5"><ul class="simple">
 <li><p><strong>geo_file_paths</strong></p></li>
 </ul>
 </td>
 <td colspan="5"><p>Path(s) to geometry file(s) to switch to in depletion code runs</p></td>
 </tr>
-<tr class="row-even"><td><p>type</p></td>
+<tr class="row-odd"><td><p>type</p></td>
 <td colspan="4"><p><em>array</em></p></td>
 </tr>
-<tr class="row-odd"><td><p>items</p></td>
+<tr class="row-even"><td><p>items</p></td>
 <td><p>type</p></td>
 <td colspan="3"><p><em>string</em></p></td>
 </tr>
-<tr class="row-even"><td><p>minItems</p></td>
+<tr class="row-odd"><td><p>minItems</p></td>
 <td colspan="4"><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><p>uniqueItems</p></td>
+<tr class="row-even"><td><p>uniqueItems</p></td>
 <td colspan="4"><p>False</p></td>
 </tr>
-<tr class="row-even"><td rowspan="24"><p>allOf</p></td>
+<tr class="row-odd"><td rowspan="35"><p>allOf</p></td>
 <td rowspan="2"><p>if</p></td>
 <td colspan="4"><p>properties</p></td>
 </tr>
-<tr class="row-odd"><td><ul class="simple">
+<tr class="row-even"><td><ul class="simple">
 <li><p>codename</p></li>
 </ul>
 </td>
 <td><p>const</p></td>
 <td colspan="2"><p>serpent</p></td>
 </tr>
-<tr class="row-even"><td rowspan="4"><p>then</p></td>
+<tr class="row-odd"><td rowspan="7"><p>then</p></td>
 <td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>exec_path</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Path to Serpent executable</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"><p>sss2</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>template_input_file_path</p></li>
@@ -273,7 +249,7 @@
 <td colspan="2"><p><em>string</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>pattern</p></td>
-<td colspan="2"><p>^\.\/(.*)$</p></td>
+<td colspan="2"><p>^(.\/)*(.*)$</p></td>
 </tr>
 <tr class="row-even"><td rowspan="2"><p>if</p></td>
 <td colspan="4"><p>properties</p></td>
@@ -285,33 +261,48 @@
 <td><p>const</p></td>
 <td colspan="2"><p>openmc</p></td>
 </tr>
-<tr class="row-even"><td rowspan="16"><p>then</p></td>
+<tr class="row-even"><td rowspan="24"><p>then</p></td>
 <td colspan="4"><p>properties</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="15"><ul class="simple">
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>exec_path</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Path to OpenMC depletion script</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>openmc_deplete.py</p></td>
+</tr>
+<tr class="row-even"><td rowspan="14"><ul class="simple">
 <li><p>template_input_file_path</p></li>
 </ul>
 </td>
 <td colspan="3"><p>Paths to OpenMC template input files</p></td>
 </tr>
-<tr class="row-even"><td><p>type</p></td>
+<tr class="row-odd"><td><p>type</p></td>
 <td colspan="2"><p><em>object</em></p></td>
 </tr>
-<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
 </tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
 <li><p><strong>settings</strong></p></li>
 </ul>
 </td>
 <td colspan="2"><p>OpenMC settings file</p></td>
 </tr>
-<tr class="row-odd"><td><p>type</p></td>
+<tr class="row-even"><td><p>type</p></td>
 <td><p><em>string</em></p></td>
 </tr>
-<tr class="row-even"><td><p>pattern</p></td>
-<td><p>^\.\/(.*)\.xml$</p></td>
+<tr class="row-odd"><td><p>pattern</p></td>
+<td><p>^(.\/)*(.*)\.xml$</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<tr class="row-even"><td><p>default</p></td>
+<td><p>settings.xml</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
 <li><p><strong>materials</strong></p></li>
 </ul>
 </td>
@@ -321,19 +312,10 @@
 <td><p><em>string</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>pattern</p></td>
-<td><p>^\.\/(.*)\.xml$</p></td>
+<td><p>^(.\/)*(.*)\.xml$</p></td>
 </tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
-<li><p>plots</p></li>
-</ul>
-</td>
-<td colspan="2"><p>OpenMC plots file (optional)</p></td>
-</tr>
-<tr class="row-odd"><td><p>type</p></td>
-<td><p><em>string</em></p></td>
-</tr>
-<tr class="row-even"><td><p>pattern</p></td>
-<td><p>^\.\/(.*)\.xml$</p></td>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>materials.xml</p></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p><strong>chain_file</strong></p></li>
@@ -345,7 +327,29 @@
 <td><p><em>string</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>pattern</p></td>
-<td><p>^\.\/(.*)\.xml$</p></td>
+<td><p>^(.\/)*(.*)\.xml$</p></td>
+</tr>
+<tr class="row-even"><td rowspan="6"><ul class="simple">
+<li><p>geo_file_paths</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Path(s) to geometry file(s) to switch to in OpenMC code runs</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>array</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"><p>geometry.xml</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><p>items</p></td>
+<td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>pattern</p></td>
+<td><p>^(.\/)*(.*)\.xml$</p></td>
+</tr>
+<tr class="row-odd"><td><p>minItems</p></td>
+<td colspan="2"><p>1</p></td>
 </tr>
 <tr class="row-even"><td rowspan="12"><ul class="simple">
 <li><p><strong>simulation</strong></p></li>

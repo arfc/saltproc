@@ -79,18 +79,15 @@
 <span id="saltproc-openmc-depcode-module"></span><h1>saltproc.openmc_depcode module<a class="headerlink" href="#module-saltproc.openmc_depcode" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">saltproc.openmc_depcode.</span></span><span class="sig-name descname"><span class="pre">OpenMCDepcode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exec_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'openmc_deplete.py'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'chain_file':</span> <span class="pre">'./chain_simple.xml',</span> <span class="pre">'geometry':</span> <span class="pre">'./geometry.xml',</span> <span class="pre">'settings':</span> <span class="pre">'./settings.xml'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">saltproc.openmc_depcode.</span></span><span class="sig-name descname"><span class="pre">OpenMCDepcode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_files</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="saltproc.abc.html#saltproc.abc.Depcode" title="saltproc.abc.Depcode"><code class="xref py py-class docutils literal notranslate"><span class="pre">Depcode</span></code></a></p>
-<p>Class contains information about input, output, geometry, and
-template files for running OpenMC depletion simulations.
-Also contains neutrons population, active, and inactive cycles.
-Contains methods to read template and output files,
-write new input files for OpenMC.</p>
+<p>Interface for running depletion steps in OpenMC, as well as obtaining
+depletion step results.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.param">
-<span class="sig-name descname"><span class="pre">param</span></span><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.param" title="Permalink to this definition">¶</a></dt>
-<dd><p>Holds depletion step parameter information. Parameter names are keys
-and parameter values are values.</p>
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.neutronics_parameters">
+<span class="sig-name descname"><span class="pre">neutronics_parameters</span></span><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.neutronics_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Holds OpenMC depletion step neutronics parameters. Parameter names are
+keys and parameter values are values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>dict of str to type</p>
@@ -99,10 +96,10 @@ and parameter values are values.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.sim_info">
-<span class="sig-name descname"><span class="pre">sim_info</span></span><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.sim_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Holds simulation settings information. Setting names are keys
-and setting values are values.</p>
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.step_metadata">
+<span class="sig-name descname"><span class="pre">step_metadata</span></span><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.step_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Holds OpenMC depletion step metadata. Metadata labels are keys
+and metadata values are values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>dict of str to type</p>
@@ -111,9 +108,10 @@ and setting values are values.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.iter_inputfile">
-<span class="sig-name descname"><span class="pre">iter_inputfile</span></span><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.iter_inputfile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Paths to OpenMC input files for OpenMC rerunning.</p>
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.runtime_inputfile">
+<span class="sig-name descname"><span class="pre">runtime_inputfile</span></span><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.runtime_inputfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Paths to OpenMC input files used to run depletion step. Contains neutron
+settings and geometry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>dict of str to str</p>
@@ -122,10 +120,10 @@ and setting values are values.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.iter_matfile">
-<span class="sig-name descname"><span class="pre">iter_matfile</span></span><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.iter_matfile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Path to iterative, rewritable material file for OpenMC
-rerunning. This file is modified during the simulation.</p>
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.runtime_matfile">
+<span class="sig-name descname"><span class="pre">runtime_matfile</span></span><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.runtime_matfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to OpenMC material file containing materials used to
+run depletion step, and modified after fuel reprocessing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
@@ -133,13 +131,47 @@ rerunning. This file is modified during the simulation.</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.npop">
+<span class="sig-name descname"><span class="pre">npop</span></span><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.npop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Size of neutron population per cycle</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.active_cycles">
+<span class="sig-name descname"><span class="pre">active_cycles</span></span><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.active_cycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of active cycles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.inactive_cycles">
+<span class="sig-name descname"><span class="pre">inactive_cycles</span></span><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.inactive_cycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of inactive cycles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exec_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'openmc_deplete.py'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'chain_file':</span> <span class="pre">'./chain_simple.xml',</span> <span class="pre">'geometry':</span> <span class="pre">'./geometry.xml',</span> <span class="pre">'settings':</span> <span class="pre">'./settings.xml'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes the OpenMCDepcode object.</p>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_files</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a OpenMCDepcode object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>output_path</strong> (<em>str</em>) – Path to results storage directory.</p></li>
 <li><p><strong>exec_path</strong> (<em>str</em>) – Path to OpenMC depletion script.</p></li>
 <li><p><strong>template_input_file_path</strong> (<em>dict</em><em> of </em><em>str to str</em>) – Path to user input files (<code class="docutils literal notranslate"><span class="pre">.xml</span></code> file for geometry,
 material, and settings) for OpenMC. File type as strings
@@ -148,33 +180,29 @@ file path as strings are values.</p></li>
 <li><p><strong>geo_files</strong> (<em>str</em><em> or </em><em>list</em><em>, </em><em>optional</em>) – Path to file that contains the reactor geometry.
 List of <cite>str</cite> if reactivity control by
 switching geometry is <cite>On</cite> or just <cite>str</cite> otherwise.</p></li>
-<li><p><strong>npop</strong> (<em>int</em><em>, </em><em>optional</em>) – Size of neutron population per cycle for Monte Carlo.</p></li>
-<li><p><strong>active_cycles</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of active cycles.</p></li>
-<li><p><strong>inactive_cycles</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inactive cycles.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.read_dep_comp">
-<span class="sig-name descname"><span class="pre">read_dep_comp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_at_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.read_dep_comp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.read_dep_comp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads the depleted material data from the OpenMC depletion
-simulation and returns a dictionary with a <cite>Materialflow</cite> object for
-each burnable material.</p>
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.read_depleted_materials">
+<span class="sig-name descname"><span class="pre">read_depleted_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_at_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.read_depleted_materials"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.read_depleted_materials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads depleted materials from OpenMC’s <cite>depletion_results.h5</cite> file
+and returns a dictionary with a <code class="xref py py-class docutils literal notranslate"><span class="pre">Materialflow</span></code> object for each
+depleted material.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>read_at_end</strong> (<em>bool</em><em>, </em><em>optional</em>) – Controls at which moment in the depletion step to read the data.
-If <cite>True</cite>, the function reads data at the end of the
+<dd class="field-odd"><p><strong>read_at_end</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <cite>True</cite>, the function reads data at the end of the
 depletion step. Otherwise, the function reads data at the
 beginning of the depletion step.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p><strong>mats</strong> – Dictionary that contains <cite>Materialflow</cite> objects.</p>
+<dd class="field-even"><p><p><strong>depleted_materials</strong> – Dictionary containing depleted materials.</p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object holding composition and properties.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Materialflow</span></code> object holding composition and properties.</p>
 </dd>
 </dl>
 </p>
@@ -186,23 +214,24 @@ beginning of the depletion step.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.read_depcode_info">
-<span class="sig-name descname"><span class="pre">read_depcode_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.read_depcode_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.read_depcode_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses initial OpenMC simulation info from the OpenMC output files
-and stores it in the <cite>Depcode</cite> object’s <code class="docutils literal notranslate"><span class="pre">sim_info</span></code> attribute.</p>
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.read_neutronics_parameters">
+<span class="sig-name descname"><span class="pre">read_neutronics_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.read_neutronics_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.read_neutronics_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads OpenMC depletion step neutronics parameters and stores them
+in <a class="reference internal" href="#saltproc.openmc_depcode.OpenMCDepcode" title="saltproc.openmc_depcode.OpenMCDepcode"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenMCDepcode</span></code></a> object’s <a class="reference internal" href="#saltproc.openmc_depcode.OpenMCDepcode.neutronics_parameters" title="saltproc.openmc_depcode.OpenMCDepcode.neutronics_parameters"><code class="xref py py-attr docutils literal notranslate"><span class="pre">neutronics_parameters</span></code></a>
+attribute.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.read_depcode_step_param">
-<span class="sig-name descname"><span class="pre">read_depcode_step_param</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.read_depcode_step_param"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.read_depcode_step_param" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses data from OpenMC depletion output for each step and stores
-it in <cite>Depcode</cite> object’s <code class="docutils literal notranslate"><span class="pre">param</span></code> attributes.</p>
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.read_step_metadata">
+<span class="sig-name descname"><span class="pre">read_step_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.read_step_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.read_step_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads OpenMC’s depletion step metadata and stores it in the
+<a class="reference internal" href="#saltproc.openmc_depcode.OpenMCDepcode" title="saltproc.openmc_depcode.OpenMCDepcode"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenMCDepcode</span></code></a> object’s <a class="reference internal" href="#saltproc.openmc_depcode.OpenMCDepcode.step_metadata" title="saltproc.openmc_depcode.OpenMCDepcode.step_metadata"><code class="xref py py-attr docutils literal notranslate"><span class="pre">step_metadata</span></code></a> attribute.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.run_depcode">
-<span class="sig-name descname"><span class="pre">run_depcode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.run_depcode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.run_depcode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs OpenMC depletion simulation as a subprocess with the given
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.run_depletion_step">
+<span class="sig-name descname"><span class="pre">run_depletion_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.run_depletion_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.run_depletion_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a depletion step in OpenMC as a subprocess with the given
 parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -222,16 +251,21 @@ the next geometry file in <cite>geo_files</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.write_depcode_input">
-<span class="sig-name descname"><span class="pre">write_depcode_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dep_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.write_depcode_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.write_depcode_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes prepared data into OpenMC input file(s).</p>
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.update_depletable_materials">
+<span class="sig-name descname"><span class="pre">update_depletable_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dep_end_time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.update_depletable_materials"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.update_depletable_materials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates material file with reprocessed material compositions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>reactor</strong> (<a class="reference internal" href="saltproc.reactor.html#saltproc.reactor.Reactor" title="saltproc.reactor.Reactor"><em>Reactor</em></a>) – Contains information about power load curve and cumulative
-depletion time for the integration test.</p></li>
-<li><p><strong>dep_step</strong> (<em>int</em>) – Current depletion time step.</p></li>
-<li><p><strong>restart</strong> (<em>bool</em>) – Is the current simulation restarted?</p></li>
+<li><p><strong>mats</strong> (<em>dict</em><em> of </em><em>str to Materialflow</em>) – <p>Dictionary containing reprocessed material compositions</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Materialflow</span></code> object holding composition and properties.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>dep_end_time</strong> (<em>float</em>) – Current time at the end of the depletion step (d).</p></li>
 </ul>
 </dd>
 </dl>
@@ -239,38 +273,30 @@ depletion time for the integration test.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.write_depletion_settings">
-<span class="sig-name descname"><span class="pre">write_depletion_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_depstep_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.write_depletion_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.write_depletion_settings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write the depeletion settings for the <code class="docutils literal notranslate"><span class="pre">openmc.deplete</span></code>
-module.</p>
+<span class="sig-name descname"><span class="pre">write_depletion_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.write_depletion_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.write_depletion_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the depeletion settings for the OpenMC depletion step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>reactor</strong> (<a class="reference internal" href="saltproc.reactor.html#saltproc.reactor.Reactor" title="saltproc.reactor.Reactor"><em>Reactor</em></a>) – Contains information about power load curve and cumulative
 depletion time for the integration test.</p></li>
-<li><p><strong>current_depstep_idx</strong> (<em>int</em>) – Current depletion step.</p></li>
+<li><p><strong>step_idx</strong> (<em>int</em>) – Current depletion step.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.write_mat_file">
-<span class="sig-name descname"><span class="pre">write_mat_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dep_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dep_end_time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.write_mat_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.write_mat_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes the iteration input file containing the burnable materials
-composition used in OpenMC depletion runs and updated after each
-depletion step.</p>
+<dt class="sig sig-object py" id="saltproc.openmc_depcode.OpenMCDepcode.write_runtime_input">
+<span class="sig-name descname"><span class="pre">write_runtime_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depletion_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/openmc_depcode.html#OpenMCDepcode.write_runtime_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.openmc_depcode.OpenMCDepcode.write_runtime_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write OpenMC runtime input files for running depletion step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dep_dict</strong> (<em>dict</em><em> of </em><em>str to Materialflow</em>) – <p>Dictionary that contains <cite>Materialflow</cite> objects.</p>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><cite>Materialflow</cite> object holding composition and properties.</p>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>dep_end_time</strong> (<em>float</em>) – Current time at the end of the depletion step (d).</p></li>
+<li><p><strong>reactor</strong> (<a class="reference internal" href="saltproc.reactor.html#saltproc.reactor.Reactor" title="saltproc.reactor.Reactor"><em>Reactor</em></a>) – Contains information about power load curve and cumulative
+depletion time for the integration test.</p></li>
+<li><p><strong>depletion_step</strong> (<em>int</em>) – Current depletion time step.</p></li>
+<li><p><strong>restart</strong> (<em>bool</em>) – Is the current simulation restarted?</p></li>
 </ul>
 </dd>
 </dl>

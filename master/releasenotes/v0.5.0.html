@@ -162,29 +162,59 @@ they remain part of the <code class="docutils literal notranslate"><span class="
 longer be initialized by the user during object creation.</p>
 </div>
 <ul class="simple">
-<li><p>New/changed classes and methods:</p>
+<li><p>New/changed classes, methods, and attributes:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">Depcode</span></code></p>
 <ul>
+<li><p>Add <cite>output_path</cite> parameter.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">template_inputfile_path</span></code> → <code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code></p></li>
-<li><p>Changed <cite>iter_inputfile</cite> and <cite>iter_matfile</cite> to be attributes instead of parameters</p></li>
+<li><p>Removed default values for <cite>geo_files</cite></p></li>
+<li><p>Changed <cite>iter_inputfile</cite>, <cite>iter_matfile</cite> to be attributes instead of parameters</p></li>
+<li><p>Changed <cite>npop</cite>, <cite>active_cycles</cite>, <cite>inactive_cycles</cite> to be attributes instead of parameters</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_depcode_info()</span></code> → <code class="docutils literal notranslate"><span class="pre">read_step_metadata()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sim_info</span></code> → <code class="docutils literal notranslate"><span class="pre">step_metadata</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_depcode_step_param()</span></code> → <code class="docutils literal notranslate"><span class="pre">read_neutronics_parameters()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">param</span></code> → <code class="docutils literal notranslate"><span class="pre">neutronics_parameters</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_dep_comp()</span></code> → <code class="docutils literal notranslate"><span class="pre">read_depleted_materials()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_depcode()</span></code> → <code class="docutils literal notranslate"><span class="pre">run_depletion_step()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_mat_file()</span></code> → <code class="docutils literal notranslate"><span class="pre">update_depletable_materials()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_depcode_input()</span></code> →  <code class="docutils literal notranslate"><span class="pre">write_runtime_input()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iter_inputfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_inputfile</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iter_matfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_matfile</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent</span></code> → <code class="docutils literal notranslate"><span class="pre">SerpentDepcode</span></code></p>
 <ul>
+<li><p>Add <cite>output_path</cite> parameter.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">template_inputfile_path</span></code> → <code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code></p></li>
-<li><p>Changed <cite>iter_inputfile</cite> and <cite>iter_matfile</cite> to be attributes instead of parameters</p></li>
+<li><p>Removed default values for <cite>exec_path</cite>, <cite>template_input_file_path</cite>, <cite>geo_files</cite></p></li>
+<li><p>Changed <cite>iter_inputfile</cite>, <cite>iter_matfile</cite> to be attributes instead of parameters</p></li>
+<li><p>Changed <cite>npop</cite>, <cite>active_cycles</cite>, <cite>inactive_cycles</cite> to be attributes instead of parameters</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_depcode_info()</span></code> → <code class="docutils literal notranslate"><span class="pre">read_depletion_step_metadata()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sim_info</span></code> → <code class="docutils literal notranslate"><span class="pre">step_metadata</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_depcode_step_param()</span></code> → <code class="docutils literal notranslate"><span class="pre">read_neutronics_parameters()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">param</span></code> → <code class="docutils literal notranslate"><span class="pre">neutronics_parameters</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_dep_comp()</span></code> → <code class="docutils literal notranslate"><span class="pre">read_depleted_materials()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_nuclide_name_map_zam_to_serpent()</span></code> → <code class="docutils literal notranslate"><span class="pre">map_nuclide_code_zam_to_serpent()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_depcode()</span></code> → <code class="docutils literal notranslate"><span class="pre">run_depletion_step()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_mat_file()</span></code> → <code class="docutils literal notranslate"><span class="pre">update_depletable_materials()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_nuc_name()</span></code> →  <code class="docutils literal notranslate"><span class="pre">convert_nuclide_code_to_name()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">convert_nuclide_name_serpent_to_zam()</span></code> → <code class="docutils literal notranslate"><span class="pre">convert_nuclide_code_to_zam()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">change_sim_par()</span></code> →  (deleted)</p></li>
+<li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">get_neutron_settings()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_iter_matfile()</span></code> → <code class="docutils literal notranslate"><span class="pre">create_runtime_matfile()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">replace_burnup_parameters()</span></code> → <code class="docutils literal notranslate"><span class="pre">set_power_load()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_depcode_input()</span></code> →  <code class="docutils literal notranslate"><span class="pre">write_runtime_input()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iter_inputfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_inputfile</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iter_matfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_matfile</span></code></p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">OpenMCDepcode</span></code> is a <code class="docutils literal notranslate"><span class="pre">Depcode</span></code> subclass that interfaces with <code class="docutils literal notranslate"><span class="pre">openmc</span></code>. This class implements the following functions</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">run_depcode()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">switch_to_next_geometry()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">write_depcode_input()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">write_depletion_settings()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">write_saltproc_openmc_tallies()</span></code></p></li>
-</ul>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OpenMCDepcode</span></code> is a <code class="docutils literal notranslate"><span class="pre">Depcode</span></code> subclass that interfaces with <code class="docutils literal notranslate"><span class="pre">openmc</span></code>. This class implements the following functions
+- <code class="docutils literal notranslate"><span class="pre">run_depletion_step()</span></code>
+- <code class="docutils literal notranslate"><span class="pre">switch_to_next_geometry()</span></code>
+- <code class="docutils literal notranslate"><span class="pre">write_runtime_input()</span></code>
+- <code class="docutils literal notranslate"><span class="pre">write_depletion_settings()</span></code>
+- <code class="docutils literal notranslate"><span class="pre">write_saltproc_openmc_tallies()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">app.py</span></code></p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">reprocessing()</span></code> → <code class="docutils literal notranslate"><span class="pre">reprocess_materials()</span></code></p></li>

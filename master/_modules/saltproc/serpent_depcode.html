@@ -75,7 +75,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for saltproc.serpent_depcode</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">subprocess</span>
+<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -87,39 +88,44 @@
 <span class="kn">from</span> <span class="nn">saltproc.abc</span> <span class="kn">import</span> <span class="n">Depcode</span>
 
 <div class="viewcode-block" id="SerpentDepcode"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode">[docs]</a><span class="k">class</span> <span class="nc">SerpentDepcode</span><span class="p">(</span><span class="n">Depcode</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class contains information about input, output, geometry, and</span>
-<span class="sd">    template files for running Serpent2 depletion simulations.</span>
-<span class="sd">    Also contains neutrons population, active, and inactive cycles.</span>
-<span class="sd">    Contains methods to read template and output files,</span>
-<span class="sd">    write new input files for Serpent2.</span>
+    <span class="sd">&quot;&quot;&quot;Interface for running depletion steps in Serpent, as well as obtaining</span>
+<span class="sd">    depletion step results.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    -----------</span>
-<span class="sd">    param : dict of str to type</span>
-<span class="sd">        Holds Serpent depletion step parameter information. Parameter names are</span>
+<span class="sd">    neutronics_parameters : dict of str to type</span>
+<span class="sd">        Holds Serpent2 depletion step neutronics parameters. Parameter names are</span>
 <span class="sd">        keys and parameter values are values.</span>
-<span class="sd">    sim_info : dict of str to type</span>
-<span class="sd">        Holds Serpent simulation settings information. Setting names are keys</span>
-<span class="sd">        and setting values are values.</span>
-<span class="sd">    iter_inputfile : str</span>
-<span class="sd">        Path to Serpent2 input file for Serpent2 rerunning.</span>
-<span class="sd">    iter_matfile : str</span>
-<span class="sd">        Path to iterative, rewritable material file for Serpent2</span>
-<span class="sd">        rerunning. This file is modified during the simulation.</span>
+<span class="sd">    step_metadata : dict of str to type</span>
+<span class="sd">        Holds Serpent2 depletion step metadata. Metadata labels are keys</span>
+<span class="sd">        and metadata values are values.</span>
+<span class="sd">    runtime_inputfile : str</span>
+<span class="sd">        Path to Serpent2 input file used to run depletion step. Contains neutron</span>
+<span class="sd">        settings and non-burnable materials.</span>
+<span class="sd">    runtime_matfile : str</span>
+<span class="sd">        Path to Serpent2 material file containing burnable materials used to</span>
+<span class="sd">        run depletion step, and modified after fuel reprocessing.</span>
+<span class="sd">    npop : int</span>
+<span class="sd">        Size of neutron population per cycle</span>
+<span class="sd">    active_cycles : int</span>
+<span class="sd">        Number of active cycles.</span>
+<span class="sd">    inactive_cycles : int</span>
+<span class="sd">        Number of inactive cycles.</span>
+
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SerpentDepcode.__init__"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">exec_path</span><span class="o">=</span><span class="s2">&quot;sss2&quot;</span><span class="p">,</span>
-                 <span class="n">template_input_file_path</span><span class="o">=</span><span class="s2">&quot;reactor.serpent&quot;</span><span class="p">,</span>
-                 <span class="n">geo_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">npop</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-                 <span class="n">active_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-                 <span class="n">inactive_cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the SerpentDepcode object.</span>
+                 <span class="n">output_path</span><span class="p">,</span>
+                 <span class="n">exec_path</span><span class="p">,</span>
+                 <span class="n">template_input_file_path</span><span class="p">,</span>
+                 <span class="n">geo_files</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a SerpentDepcode object.</span>
 
 <span class="sd">           Parameters</span>
 <span class="sd">           ----------</span>
+<span class="sd">           output_path : str</span>
+<span class="sd">               Path to results storage directory.</span>
 <span class="sd">           exec_path : str</span>
 <span class="sd">               Path to Serpent2 executable.</span>
 <span class="sd">           template_input_file_path : str</span>
@@ -128,118 +134,94 @@
 <span class="sd">               Path to file that contains the reactor geometry.</span>
 <span class="sd">               List of `str` if reactivity control by</span>
 <span class="sd">               switching geometry is `On` or just `str` otherwise.</span>
-<span class="sd">           npop : int, optional</span>
-<span class="sd">               Size of neutron population per cycle for Monte Carlo.</span>
-<span class="sd">           active_cycles : int, optional</span>
-<span class="sd">               Number of active cycles.</span>
-<span class="sd">           inactive_cycles : int, optional</span>
-<span class="sd">               Number of inactive cycles.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;serpent&quot;</span><span class="p">,</span>
+                         <span class="n">output_path</span><span class="p">,</span>
                          <span class="n">exec_path</span><span class="p">,</span>
                          <span class="n">template_input_file_path</span><span class="p">,</span>
-                         <span class="n">geo_files</span><span class="o">=</span><span class="n">geo_files</span><span class="p">,</span>
-                         <span class="n">npop</span><span class="o">=</span><span class="n">npop</span><span class="p">,</span>
-                         <span class="n">active_cycles</span><span class="o">=</span><span class="n">active_cycles</span><span class="p">,</span>
-                         <span class="n">inactive_cycles</span><span class="o">=</span><span class="n">inactive_cycles</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">=</span> <span class="s1">&#39;./serpent_iter_input.serpent&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span> <span class="o">=</span> <span class="s1">&#39;./serpent_iter_mat.ini&#39;</span></div>
+                         <span class="n">geo_files</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span> <span class="o">=</span> \
+                         <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;runtime_input.serpent&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span> <span class="o">=</span> <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;runtime_mat.ini&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="SerpentDepcode.change_sim_par"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.change_sim_par">[docs]</a>    <span class="k">def</span> <span class="nf">change_sim_par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Finds simulation parameters (neutron population, cycles) in the</span>
-<span class="sd">        Serpent2 template file and change them to the parameters from the</span>
-<span class="sd">        SaltProc input file.</span>
+<div class="viewcode-block" id="SerpentDepcode.get_neutron_settings"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.get_neutron_settings">[docs]</a>    <span class="k">def</span> <span class="nf">get_neutron_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_lines</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get neutron settings (no. of neutrons per cycle, no. of active and</span>
+<span class="sd">        inactive cycles) from the Serpent2 input file</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        template_data : list</span>
-<span class="sd">            List of strings parsed from user&#39;s Serpent2 template file.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        input_data : list</span>
-<span class="sd">            List of strings containing Serpent2 input file with new</span>
-<span class="sd">            simulation parameters.</span>
+<span class="sd">        file_lines : list of str</span>
+<span class="sd">            Serpent2 runtime input file.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">npop</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span><span class="p">:</span>
-            <span class="n">sim_param</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">template_data</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;set pop&quot;</span><span class="p">)]</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sim_param</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Template file </span><span class="si">%s</span><span class="s1"> contains multiple lines with &#39;</span>
-                      <span class="s1">&#39;simulation parameters:</span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">),</span> <span class="n">sim_param</span><span class="p">)</span>
-                <span class="k">return</span>
-            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sim_param</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="s1">&#39;ERROR: Template file </span><span class="si">%s</span><span class="s1"> does not contain line with &#39;</span>
-                    <span class="s1">&#39;simulation parameters.&#39;</span> <span class="o">%</span>
-                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">))</span>
-                <span class="k">return</span>
-            <span class="n">args</span> <span class="o">=</span> <span class="s1">&#39;set pop </span><span class="si">%i</span><span class="s1"> </span><span class="si">%i</span><span class="s1"> </span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">npop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span><span class="p">,</span>
-                                           <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">sim_param</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">args</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">template_data</span><span class="p">]</span></div>
+        <span class="n">neutron_settings</span> <span class="o">=</span> \
+            <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_lines</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;set pop&quot;</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">neutron_settings</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;Template file &#39;</span>
+                          <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="si">}</span><span class="s1"> contains &#39;</span>
+                          <span class="s1">&#39;multuple lines with neutron settings&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">neutron_settings</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;Template file &#39;</span>
+                          <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="si">}</span><span class="s1"> does not &#39;</span>
+                          <span class="s1">&#39;contain neutron settings.&#39;</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">npop</span><span class="p">,</span> <span class="n">active_cycles</span><span class="p">,</span> <span class="n">inactive_cycles</span> <span class="o">=</span> <span class="n">neutron_settings</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">npop</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">npop</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">active_cycles</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">inactive_cycles</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SerpentDepcode.create_iter_matfile"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.create_iter_matfile">[docs]</a>    <span class="k">def</span> <span class="nf">create_iter_matfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Finds ``include`` line with path to material file, copies content of</span>
-<span class="sd">        this file to iteration material file, changes path in ``include`` line</span>
-<span class="sd">        to newly created iteration material file.</span>
+<div class="viewcode-block" id="SerpentDepcode.create_runtime_matfile"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.create_runtime_matfile">[docs]</a>    <span class="k">def</span> <span class="nf">create_runtime_matfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_lines</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the runtime material file tracking burnable materials</span>
+<span class="sd">        ans inserts the path to this file in the Serpent2 runtime input file</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        template_data : list</span>
-<span class="sd">            List of strings parsed from user&#39;s template file.</span>
+<span class="sd">        file_lines : list of str</span>
+<span class="sd">            Serpent2 runtime input file.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        input_data : list</span>
-<span class="sd">            List of strings containing modified user template file.</span>
+<span class="sd">        file_lines : list of str</span>
+<span class="sd">            Serpent2 runtime input file with updated material file path.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">)</span>
-        <span class="n">include_str</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">template_data</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;include &quot;</span><span class="p">)]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_str</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Template file </span><span class="si">%s</span><span class="s1"> has no &lt;include &quot;material_file&quot;&gt;&#39;</span>
-                  <span class="s1">&#39; statements &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">))</span>
-            <span class="k">return</span>
-        <span class="n">src_file</span> <span class="o">=</span> <span class="n">include_str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">src_file</span><span class="p">):</span>
-            <span class="n">abs_src_matfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">src_file</span>
+        <span class="n">runtime_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">include_card</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_lines</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;include &quot;</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_card</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;Template file &#39;</span>
+                          <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="si">}</span><span class="s1"> has no &lt;include &#39;</span>
+                          <span class="s1">&#39;&quot;material_file&quot;&gt; statements&#39;</span><span class="p">)</span>
+        <span class="n">burnable_materials_path</span> <span class="o">=</span> <span class="n">include_card</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">burnable_materials_path</span><span class="p">)</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+            <span class="n">absolute_path</span> <span class="o">=</span> <span class="p">(</span><span class="n">runtime_dir</span> <span class="o">/</span> <span class="n">burnable_materials_path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">abs_src_matfile</span> <span class="o">=</span> <span class="n">src_file</span>
-            <span class="k">if</span> <span class="s1">&#39;mat &#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">abs_src_matfile</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Template file </span><span class="si">%s</span><span class="s1"> has not include file with&#39;</span>
-                      <span class="s1">&#39; materials description or &lt;include &quot;material_file&quot;&gt;&#39;</span>
-                      <span class="s1">&#39; statement is not appears&#39;</span>
-                      <span class="s1">&#39; as first &lt;include&gt; statement</span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">))</span>
-                <span class="k">return</span>
+            <span class="n">absolute_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">burnable_materials_path</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;mat &#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;Template file &#39;</span>
+                                  <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="si">}</span><span class="s1"> includes &#39;</span>
+                                  <span class="s1">&#39;no file with materials description&#39;</span><span class="p">)</span>
         <span class="c1"># Create data directory</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">))</span>
-        <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="c1"># Create file with path for SaltProc rewritable iterative material file</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">abs_src_matfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">src_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">template_data</span><span class="p">]</span></div>
+        <span class="n">Path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SerpentDepcode.get_nuc_name"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.get_nuc_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_nuc_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns nuclide name in human-readable notation: chemical symbol</span>
-<span class="sd">        (one or two characters), dash, and the atomic weight. Lastly, if the</span>
-<span class="sd">        nuclide is in metastable state, the letter `m` is concatenated with</span>
-<span class="sd">        number of excited state. For example, `Am-242m1`.</span>
+        <span class="c1"># Create file with path for SaltProc rewritable iterative material file</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">burnable_materials_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_lines</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SerpentDepcode.convert_nuclide_code_to_name"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.convert_nuclide_code_to_name">[docs]</a>    <span class="k">def</span> <span class="nf">convert_nuclide_code_to_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts Serpent2 nuclide code to symbolic nuclide name.</span>
+<span class="sd">        If nuclide is in a metastable state, the nuclide name is concatenated</span>
+<span class="sd">        with the letter `m` and the state index.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        nuc_code : str</span>
-<span class="sd">            Name of nuclide in Serpent2 form. For instance, `Am-242m`.</span>
+<span class="sd">            Nuclide code in Serpent2 format (`47310.09c`)</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        nuc_name : str</span>
-<span class="sd">            Name of nuclide in human-readable notation (`Am-242m1`).</span>
-<span class="sd">        nuc_zzaaam : str</span>
-<span class="sd">            Name of nuclide in `zzaaam` form (`952421`).</span>
+<span class="sd">            Symbolic nuclide name (`Am242m1`).</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -248,7 +230,6 @@
             <span class="n">zz</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">znum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
             <span class="n">aa</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">anum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
             <span class="n">aa_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span>
-            <span class="c1"># at_mass = pydata.atomic_mass(nuc_code_id)</span>
             <span class="k">if</span> <span class="n">aa</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">zz</span> <span class="o">&gt;</span> <span class="mi">76</span><span class="p">:</span>
                     <span class="n">aa_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">aa</span> <span class="o">-</span> <span class="mi">100</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;m1&#39;</span>
@@ -266,88 +247,90 @@
                 <span class="n">nuc_name</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">name</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;m&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta_flag</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">nuc_name</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">name</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
-        <span class="n">nuc_zzaaam</span> <span class="o">=</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">convert_nuclide_name_serpent_to_zam</span><span class="p">(</span><span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">nuc_name</span><span class="p">,</span> <span class="n">nuc_zzaaam</span></div>
 
-<div class="viewcode-block" id="SerpentDepcode.create_nuclide_name_map_zam_to_serpent"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.create_nuclide_name_map_zam_to_serpent">[docs]</a>    <span class="k">def</span> <span class="nf">create_nuclide_name_map_zam_to_serpent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Create a map that accepts nuclide names in `zzaaam` format and</span>
-<span class="sd">        returns the Serpent2 nuclide code format. Uses Serpent2 `*.out` file</span>
-<span class="sd">        with list of all nuclides in simulation.</span>
+        <span class="k">return</span> <span class="n">nuc_name</span></div>
+
+<div class="viewcode-block" id="SerpentDepcode.map_nuclide_code_zam_to_serpent"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.map_nuclide_code_zam_to_serpent">[docs]</a>    <span class="k">def</span> <span class="nf">map_nuclide_code_zam_to_serpent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a dictionary mapping nuclide codes in `zzaaam` format</span>
+<span class="sd">        to Serpent2&#39;s nuclide code format.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        nuclide_map : dict of str to str</span>
-<span class="sd">            Contains mapping for nuclide names from `zzaaam` to Serpent2</span>
-<span class="sd">            format imported from Serpent2 ouput file:</span>
+<span class="sd">        nuc_code_map : dict of str to str</span>
+<span class="sd">            Maps `zzaaam` nuclide codes to Serpent2</span>
+<span class="sd">            nuclide codes.</span>
 
 <span class="sd">            ``key``</span>
-<span class="sd">                The key is nuclide name in `zzaaam` format. For example,</span>
+<span class="sd">                Nuclide code in `zzaaam` format. For example,</span>
 <span class="sd">                `922350` or `982510`.</span>
 <span class="sd">            ``value``</span>
-<span class="sd">                Serpent2-oriented name. For instance, 92235.09c for transport</span>
-<span class="sd">                isotope or 982510 for decay only isotope).</span>
+<span class="sd">                Nuclide code in Serpent2 format. For instance, 92235.09c for a</span>
+<span class="sd">                nuclide with cross section data or 982510 for a decay-only nuclide.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">map_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">nuc_code_map</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c1"># Construct path to the *.out File</span>
-        <span class="n">out_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.out&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
-        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
-        <span class="n">str_list</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="c1"># Stop-line</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="s1">&#39; --- Table  2: Reaction and decay data: &#39;</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">str_list</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                <span class="k">break</span>
-            <span class="k">if</span> <span class="s1">&#39;c  TRA&#39;</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="s1">&#39;c  DEC&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                <span class="n">iname</span><span class="p">,</span> <span class="n">zzaaam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nuc_name</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-                <span class="n">map_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">zzaaam</span><span class="p">:</span> <span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iso_map</span> <span class="o">=</span> <span class="n">map_dict</span></div>
+        <span class="n">out_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.out&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">file_lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="c1"># Stop-line</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="s1">&#39; --- Table  2: Reaction and decay data: &#39;</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_lines</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="s1">&#39;c  TRA&#39;</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="s1">&#39;c  DEC&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="n">nuc_code</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">):</span>
+                        <span class="n">nuc_code</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zzzaaa_to_id</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nuc_code</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
 
-<div class="viewcode-block" id="SerpentDepcode.insert_path_to_geometry"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.insert_path_to_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">insert_path_to_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_data</span><span class="p">):</span>
+                    <span class="n">zzaaam</span> <span class="o">=</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">convert_nuclide_code_to_zam</span><span class="p">(</span><span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">))</span>
+
+                    <span class="n">nuc_code_map</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">zzaaam</span><span class="p">:</span> <span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]})</span>
+        <span class="k">return</span> <span class="n">nuc_code_map</span></div>
+
+<div class="viewcode-block" id="SerpentDepcode.insert_path_to_geometry"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.insert_path_to_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">insert_path_to_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Inserts ``include &lt;first_geometry_file&gt;`` line on the 6th line of</span>
 <span class="sd">        Serpent2 input file.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        template_data : list</span>
-<span class="sd">            List of strings parsed from user&#39;s template file.</span>
+<span class="sd">        lines : list of str</span>
+<span class="sd">            Serpent2 runtime input file.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        template_data : list</span>
-<span class="sd">            List of strings containing modified path to geometry</span>
-<span class="sd">            in user&#39;s template file.</span>
+<span class="sd">        lines : list of str</span>
+<span class="sd">            Serpent 2 runtime input file containing modified path to geometry</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">template_data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span>  <span class="c1"># Inserts on 6th line</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span>  <span class="c1"># Inserts on 6th line</span>
                              <span class="s1">&#39;include </span><span class="se">\&quot;</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\&quot;\n</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">template_data</span></div>
+        <span class="k">return</span> <span class="n">lines</span></div>
 
-<div class="viewcode-block" id="SerpentDepcode.read_dep_comp"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_dep_comp">[docs]</a>    <span class="k">def</span> <span class="nf">read_dep_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Reads the Serpent2 `*_dep.m` file and returns a dictionary with</span>
-<span class="sd">        a `Materialflow` object for each burnable material.</span>
+<div class="viewcode-block" id="SerpentDepcode.read_depleted_materials"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_depleted_materials">[docs]</a>    <span class="k">def</span> <span class="nf">read_depleted_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads depleted materials from Serpent2&#39;s `*_dep.m`</span>
+<span class="sd">        file and returns a dictionary containing them.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        read_at_end : bool, optional</span>
-<span class="sd">            Controls at which moment in the depletion step to read the data.</span>
 <span class="sd">            If `True`, the function reads data at the end of the</span>
 <span class="sd">            depletion step. Otherwise, the function reads data at the</span>
 <span class="sd">            beginning of the depletion step.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        mats : dict of str to Materialflow</span>
-<span class="sd">            Dictionary that contains `Materialflow` objects.</span>
+<span class="sd">        depleted_materials : dict of str to Materialflow</span>
+<span class="sd">            Dictionary containing depleted materials.</span>
 
 <span class="sd">            ``key``</span>
 <span class="sd">                Name of burnable material.</span>
 <span class="sd">            ``value``</span>
-<span class="sd">                `Materialflow` object holding composition and properties.</span>
+<span class="sd">                :class:`Materialflow` object holding material composition and properties.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Determine moment in depletion step to read data from</span>
@@ -356,68 +339,73 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">moment</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="n">dep_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_dep.m&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
-        <span class="n">dep</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_dep</span><span class="p">(</span><span class="n">dep_file</span><span class="p">,</span> <span class="n">make_mats</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">days</span> <span class="o">=</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;DAYS&#39;</span><span class="p">][</span><span class="n">moment</span><span class="p">]</span>
-        <span class="c1"># Read materials names from the file</span>
-        <span class="n">mat_name</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">mats</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dep</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;MAT_(.+?)_VOLUME&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
-                <span class="n">mat_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-        <span class="n">zai</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;ZAI&#39;</span><span class="p">][:</span><span class="o">-</span><span class="mi">2</span><span class="p">]))</span>  <span class="c1"># zzaaam codes of isotopes</span>
+        <span class="n">results_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_dep.m&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_dep</span><span class="p">(</span><span class="n">results_file</span><span class="p">,</span> <span class="n">make_mats</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">days</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;DAYS&#39;</span><span class="p">][</span><span class="n">moment</span><span class="p">]</span>
 
-        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mat_name</span><span class="p">:</span>
-            <span class="n">volume</span> <span class="o">=</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;MAT_&#39;</span> <span class="o">+</span> <span class="n">m</span> <span class="o">+</span> <span class="s1">&#39;_VOLUME&#39;</span><span class="p">][</span><span class="n">moment</span><span class="p">]</span>
-            <span class="n">nucvec</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">zai</span><span class="p">,</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;MAT_&#39;</span> <span class="o">+</span> <span class="n">m</span> <span class="o">+</span> <span class="s1">&#39;_MDENS&#39;</span><span class="p">][:,</span> <span class="n">moment</span><span class="p">]))</span>
-            <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">Materialflow</span><span class="p">(</span><span class="n">nucvec</span><span class="p">)</span>
-            <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;MAT_&#39;</span> <span class="o">+</span> <span class="n">m</span> <span class="o">+</span> <span class="s1">&#39;_MDENS&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">moment</span><span class="p">]</span>
-            <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">density</span> <span class="o">*</span> <span class="n">volume</span>
-            <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="n">volume</span>
-            <span class="n">mats</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">burnup</span> <span class="o">=</span> <span class="n">dep</span><span class="p">[</span><span class="s1">&#39;MAT_&#39;</span> <span class="o">+</span> <span class="n">m</span> <span class="o">+</span> <span class="s1">&#39;_BURNUP&#39;</span><span class="p">][</span><span class="n">moment</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_nuclide_name_map_zam_to_serpent</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">mats</span></div>
+        <span class="c1"># Get material names</span>
+        <span class="n">mat_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">depleted_materials</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">name_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;MAT_(.+?)_VOLUME&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name_match</span><span class="p">:</span>
+                <span class="n">mat_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">zai</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;ZAI&#39;</span><span class="p">][:</span><span class="o">-</span><span class="mi">2</span><span class="p">]))</span>  <span class="c1"># zzaaam codes of isotopes</span>
 
-<div class="viewcode-block" id="SerpentDepcode.read_depcode_info"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_depcode_info">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Parses initial simulation info data from Serpent2 output and stores</span>
-<span class="sd">        it in the `SerpentDepcode` object&#39;s ``sim_info`` attributes.</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">mat_names</span><span class="p">:</span>
+            <span class="n">volume</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;MAT_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_VOLUME&#39;</span><span class="p">][</span><span class="n">moment</span><span class="p">]</span>
+            <span class="n">nucvec</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">zai</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;MAT_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_MDENS&#39;</span><span class="p">][:,</span> <span class="n">moment</span><span class="p">]))</span>
+            <span class="n">depleted_materials</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Materialflow</span><span class="p">(</span><span class="n">nucvec</span><span class="p">)</span>
+            <span class="n">depleted_materials</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;MAT_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_MDENS&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">moment</span><span class="p">]</span>
+            <span class="n">depleted_materials</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">depleted_materials</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">density</span> <span class="o">*</span> <span class="n">volume</span>
+            <span class="n">depleted_materials</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="n">volume</span>
+            <span class="n">depleted_materials</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">burnup</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;MAT_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_BURNUP&#39;</span><span class="p">][</span><span class="n">moment</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">depleted_materials</span></div>
+
+<div class="viewcode-block" id="SerpentDepcode.read_step_metadata"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_step_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">read_step_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads Serpent2 depletion step metadata and stores it in the</span>
+<span class="sd">        :class:`SerpentDepcode` object&#39;s :attr:`step_metadata` attribute.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s2">&quot;_res.m&quot;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span> <span class="o">+</span> <span class="s2">&quot;_res.m&quot;</span><span class="p">)</span>
         <span class="n">depcode_name</span><span class="p">,</span> <span class="n">depcode_ver</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;VERSION&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depcode_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depcode_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depcode_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depcode_ver</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TITLE&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depcode_input_filename&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;depcode_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depcode_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;depcode_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depcode_ver</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TITLE&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;depcode_input_filename&#39;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="n">res</span><span class="p">[</span><span class="s1">&#39;INPUT_FILE_NAME&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depcode_working_dir&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;depcode_working_dir&#39;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="n">res</span><span class="p">[</span><span class="s1">&#39;WORKING_DIRECTORY&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;xs_data_path&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;xs_data_path&#39;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="n">res</span><span class="p">[</span><span class="s1">&#39;XS_DATA_FILE_PATH&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;OMP_threads&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;OMP_THREADS&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;MPI_tasks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;MPI_TASKS&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;memory_optimization_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;OPTIMIZATION_MODE&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;BURN_DAYS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sim_info</span><span class="p">[</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;BURN_DAYS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;OMP_threads&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;OMP_THREADS&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;MPI_tasks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;MPI_TASKS&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;memory_optimization_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;OPTIMIZATION_MODE&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;depletion_timestep&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;BURN_DAYS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;execution_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;RUNNING_TIME&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;memory_usage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;MEMSIZE&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="SerpentDepcode.read_depcode_step_param"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_depcode_step_param">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_step_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Parses data from Serpent2 output for each step and stores it in</span>
-<span class="sd">        `SerpentDepcode` object&#39;s ``param`` attributes.</span>
+
+<div class="viewcode-block" id="SerpentDepcode.read_neutronics_parameters"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_neutronics_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">read_neutronics_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads Serpent2 depletion step neutronics parameters and stores them</span>
+<span class="sd">        in :class:`SerpentDepcode` object&#39;s :attr:`neutronics_parameters`</span>
+<span class="sd">        attribute.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span> <span class="o">+</span> <span class="s2">&quot;_res.m&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IMP_KEFF&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IMP_KEFF&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;breeding_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;CONVERSION_RATIO&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;execution_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;RUNNING_TIME&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;burn_days&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;BURN_DAYS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;power_level&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TOT_POWER&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;memory_usage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;MEMSIZE&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">serpent</span><span class="o">.</span><span class="n">parse_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span> <span class="o">+</span> <span class="s2">&quot;_res.m&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IMP_KEFF&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IMP_KEFF&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;breeding_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">res</span><span class="p">[</span><span class="s1">&#39;CONVERSION_RATIO&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;burn_days&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;BURN_DAYS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;power_level&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TOT_POWER&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">b_l</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">.5</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;FWD_ANA_BETA_ZERO&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;beta_eff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;FWD_ANA_BETA_ZERO&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">b_l</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;delayed_neutrons_lambda&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;beta_eff&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">res</span><span class="p">[</span><span class="s1">&#39;FWD_ANA_BETA_ZERO&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">b_l</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;delayed_neutrons_lambda&#39;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="n">res</span><span class="p">[</span><span class="s1">&#39;FWD_ANA_LAMBDA&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">b_l</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;fission_mass_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;INI_FMASS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">&#39;fission_mass_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TOT_FMASS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;fission_mass_bds&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">res</span><span class="p">[</span><span class="s1">&#39;INI_FMASS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;fission_mass_eds&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TOT_FMASS&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="SerpentDepcode.read_plaintext_file"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_plaintext_file">[docs]</a>    <span class="k">def</span> <span class="nf">read_plaintext_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reads the content of a plaintext file for use by other methods.</span>
@@ -429,63 +417,61 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        file_data : list</span>
-<span class="sd">            List of strings containing file lines.</span>
+<span class="sd">        file_lines : list of str</span>
+<span class="sd">            File lines.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">template_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">file_lines</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-            <span class="n">template_data</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">template_data</span></div>
+            <span class="n">file_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">file_lines</span></div>
 
-<div class="viewcode-block" id="SerpentDepcode.replace_burnup_parameters"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.replace_burnup_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">replace_burnup_parameters</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">template_data</span><span class="p">,</span>
-        <span class="n">reactor</span><span class="p">,</span>
-            <span class="n">current_depstep_idx</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Adds or replaces the ``set power P dep daystep DEPSTEP`` line in</span>
-<span class="sd">        the Serpent2 input file. This line defines depletion history and power</span>
-<span class="sd">        levels with respect to the depletion step in the single run and</span>
-<span class="sd">        activates depletion calculation mode.</span>
+<div class="viewcode-block" id="SerpentDepcode.set_power_load"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.set_power_load">[docs]</a>    <span class="k">def</span> <span class="nf">set_power_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                       <span class="n">file_lines</span><span class="p">,</span>
+                       <span class="n">reactor</span><span class="p">,</span>
+                       <span class="n">step_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add power load attributes in a :class:`Reactor` object to the</span>
+<span class="sd">        ``set power P dep daystep DEPSTEP`` line in the Serpent2  runtime input</span>
+<span class="sd">        file.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        template_data : list</span>
-<span class="sd">            List of strings parsed from user template file.</span>
+<span class="sd">        file_lines : list of str</span>
+<span class="sd">            Serpent2 runtime input file.</span>
 <span class="sd">        reactor : Reactor</span>
 <span class="sd">            Contains information about power load curve and cumulative</span>
 <span class="sd">            depletion time for the integration test.</span>
-<span class="sd">        current_depstep_idx : int</span>
+<span class="sd">        step_idx : int</span>
 <span class="sd">            Current depletion step.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        template_data : list</span>
-<span class="sd">            List of strings containing modified in this function template file.</span>
+<span class="sd">        file_lines : list of str</span>
+<span class="sd">            Serpent2 runtime input file with power load specification.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">line_idx</span> <span class="o">=</span> <span class="mi">8</span>  <span class="c1"># burnup setting line index by default</span>
-        <span class="n">current_depstep_power</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">power_levels</span><span class="p">[</span><span class="n">current_depstep_idx</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">current_depstep_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">current_depstep</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">current_power</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">power_levels</span><span class="p">[</span><span class="n">step_idx</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">step_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">step_length</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">current_depstep</span> <span class="o">=</span> \
-                <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="n">current_depstep_idx</span><span class="p">]</span> <span class="o">-</span> \
-                <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="n">current_depstep_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">template_data</span><span class="p">:</span>
+            <span class="n">step_length</span> <span class="o">=</span> \
+                <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="n">step_idx</span><span class="p">]</span> <span class="o">-</span> \
+                <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="n">step_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_lines</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;set    power   &#39;</span><span class="p">):</span>
-                <span class="n">line_idx</span> <span class="o">=</span> <span class="n">template_data</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                <span class="k">del</span> <span class="n">template_data</span><span class="p">[</span><span class="n">line_idx</span><span class="p">]</span>
+                <span class="n">line_idx</span> <span class="o">=</span> <span class="n">file_lines</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">del</span> <span class="n">file_lines</span><span class="p">[</span><span class="n">line_idx</span><span class="p">]</span>
 
-        <span class="n">template_data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">line_idx</span><span class="p">,</span>  <span class="c1"># Insert on 9th line</span>
-                             <span class="s1">&#39;set    power   </span><span class="si">%5.9E</span><span class="s1">   dep daystep   </span><span class="si">%7.5E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
-                             <span class="p">(</span><span class="n">current_depstep_power</span><span class="p">,</span>
-                              <span class="n">current_depstep</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">template_data</span></div>
+        <span class="n">file_lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">line_idx</span><span class="p">,</span>  <span class="c1"># Insert on 9th line</span>
+                          <span class="s1">&#39;set    power   </span><span class="si">%5.9E</span><span class="s1">   dep daystep   </span><span class="si">%7.5E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="n">current_power</span><span class="p">,</span> <span class="n">step_length</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">file_lines</span></div>
 
-<div class="viewcode-block" id="SerpentDepcode.run_depcode"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.run_depcode">[docs]</a>    <span class="k">def</span> <span class="nf">run_depcode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs Serpent2 as a subprocess with the given parameters.</span>
+<div class="viewcode-block" id="SerpentDepcode.run_depletion_step"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.run_depletion_step">[docs]</a>    <span class="k">def</span> <span class="nf">run_depletion_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs a depletion step in Serpent2 as a subprocess with the given</span>
+<span class="sd">        parameters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -496,25 +482,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/projects/sciteam/bahg/&#39;</span><span class="p">):</span>  <span class="c1"># check if BW</span>
-            <span class="n">args</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s1">&#39;aprun&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;-n&#39;</span><span class="p">,</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span>
-                <span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span>
-                <span class="s1">&#39;-omp&#39;</span><span class="p">,</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/apps/exp_ctl/&#39;</span><span class="p">):</span>  <span class="c1"># check if Falcon</span>
-            <span class="n">args</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s1">&#39;mpiexec&#39;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">,</span>
-                <span class="s1">&#39;-omp&#39;</span><span class="p">,</span>
-                <span class="nb">str</span><span class="p">(</span><span class="mi">18</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span> <span class="s1">&#39;-omp&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span> <span class="s1">&#39;-omp&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
@@ -527,22 +495,24 @@
                                <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished Serpent2 Run&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SerpentDepcode.convert_nuclide_name_serpent_to_zam"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.convert_nuclide_name_serpent_to_zam">[docs]</a>    <span class="k">def</span> <span class="nf">convert_nuclide_name_serpent_to_zam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Checks Serpent2-specific meta stable-flag for zzaaam. For instance,</span>
+<div class="viewcode-block" id="SerpentDepcode.convert_nuclide_code_to_zam"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.convert_nuclide_code_to_zam">[docs]</a>    <span class="k">def</span> <span class="nf">convert_nuclide_code_to_zam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts nuclide code from Serpent2 format to zam format.</span>
+<span class="sd">        Checks Serpent2-specific meta stable-flag for zzaaam. For instance,</span>
 <span class="sd">        47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented</span>
 <span class="sd">        with `aaa` started with ``3``.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        nuc_code : str</span>
-<span class="sd">            Name of nuclide in Serpent2 form. For instance, `47310`.</span>
+<span class="sd">        nuc_code : int</span>
+<span class="sd">            Nuclide code in Serpent2 format (`47310`).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        nuc_zzaam : int</span>
-<span class="sd">            Name of nuclide in `zzaaam` form (`471101`).</span>
+<span class="sd">            Nuclide code in in `zzaaam` form (`471101`).</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">zz</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">znum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
         <span class="n">aa</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">anum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">aa</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
@@ -560,11 +530,10 @@
 <span class="sd">        beginning of the Serpent iteration input file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">geo_line_n</span> <span class="o">=</span> <span class="mi">5</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
-        <span class="n">current_geo_file</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">geo_line_n</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">current_geo_file</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">geo_line_n</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">current_geo_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">current_geo_file</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">new_geo_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="p">[</span><span class="n">current_geo_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
@@ -572,16 +541,16 @@
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No more geometry files available </span><span class="se">\</span>
 <span class="s1">                  and the system went subcritical </span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Aborting simulation&#39;</span><span class="p">)</span>
-            <span class="k">return</span>
-        <span class="n">new_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">current_geo_file</span><span class="p">,</span> <span class="n">new_geo_file</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+
+        <span class="n">new_lines</span> <span class="o">=</span> \
+            <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">current_geo_file</span><span class="p">,</span> <span class="n">new_geo_file</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Switching to next geometry file: &#39;</span><span class="p">,</span> <span class="n">new_geo_file</span><span class="p">)</span>
 
-        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">new_lines</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SerpentDepcode.write_depcode_input"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.write_depcode_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_depcode_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Writes prepared data into the Serpent2 input file.</span>
+<div class="viewcode-block" id="SerpentDepcode.write_runtime_input"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.write_runtime_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_runtime_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write Serpent2 runtime input file for running depletion step</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -596,55 +565,50 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">dep_step</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">restart</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">)</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insert_path_to_geometry</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_sim_par</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_iter_matfile</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">)</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insert_path_to_geometry</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_runtime_matfile</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_neutron_settings</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace_burnup_parameters</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">)</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_power_load</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">out_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_inputfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
-            <span class="n">out_file</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">out_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_file</span><span class="p">:</span>
+            <span class="n">out_file</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SerpentDepcode.write_mat_file"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.write_mat_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_mat_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dep_dict</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Writes the iteration input file containing the burnable materials</span>
-<span class="sd">        composition used in Serpent2 runs and updated after each depletion</span>
-<span class="sd">        step.</span>
+<div class="viewcode-block" id="SerpentDepcode.update_depletable_materials"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.update_depletable_materials">[docs]</a>    <span class="k">def</span> <span class="nf">update_depletable_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mats</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update material file with reprocessed material compositions.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dep_dict : dict of str to Materialflow</span>
-<span class="sd">            Dictionary that contains `Materialflow` objects.</span>
+<span class="sd">        mats : dict of str to Materialflow</span>
+<span class="sd">            Dictionary containing reprocessed material compositions</span>
 
 <span class="sd">            ``key``</span>
 <span class="sd">                Name of burnable material.</span>
 <span class="sd">            ``value``</span>
-<span class="sd">                `Materialflow` object holding composition and properties.</span>
+<span class="sd">                :class:`Materialflow` object holding composition and properties.</span>
 <span class="sd">        dep_end_time : float</span>
 <span class="sd">            Current time at the end of the depletion step (d).</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">matf</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_matfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
-        <span class="n">matf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%%</span><span class="s1"> Material compositions (after </span><span class="si">%f</span><span class="s1"> days)</span><span class="se">\n\n</span><span class="s1">&#39;</span>
-                   <span class="o">%</span> <span class="n">dep_end_time</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dep_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">matf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;mat  </span><span class="si">%s</span><span class="s1">  </span><span class="si">%5.9E</span><span class="s1"> burn 1 fix </span><span class="si">%3s</span><span class="s1"> </span><span class="si">%4i</span><span class="s1"> vol </span><span class="si">%7.5E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
-                       <span class="p">(</span><span class="n">key</span><span class="p">,</span>
-                        <span class="o">-</span><span class="n">dep_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
-                        <span class="s1">&#39;09c&#39;</span><span class="p">,</span>
-                        <span class="n">dep_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span>
-                        <span class="n">dep_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">nuc_code</span><span class="p">,</span> <span class="n">wt_frac</span> <span class="ow">in</span> <span class="n">dep_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="c1"># Transforms iso name from zas to zzaaam and then to SERPENT</span>
-                <span class="n">iso_name_serpent</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
-                <span class="n">matf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;           </span><span class="si">%9s</span><span class="s1">  </span><span class="si">%7.14E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
-                           <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iso_map</span><span class="p">[</span><span class="n">iso_name_serpent</span><span class="p">],</span>
-                            <span class="o">-</span><span class="n">wt_frac</span><span class="p">))</span>
-        <span class="n">matf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%%</span><span class="s1"> Material compositions (after </span><span class="si">%f</span><span class="s1"> days)</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+                    <span class="o">%</span> <span class="n">dep_end_time</span><span class="p">)</span>
+            <span class="n">nuc_code_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_nuclide_code_zam_to_serpent</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">mats</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;mat  </span><span class="si">%s</span><span class="s1">  </span><span class="si">%5.9E</span><span class="s1"> burn 1 fix </span><span class="si">%3s</span><span class="s1"> </span><span class="si">%4i</span><span class="s1"> vol </span><span class="si">%7.5E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="n">name</span><span class="p">,</span>
+                         <span class="o">-</span><span class="n">mat</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
+                         <span class="s1">&#39;09c&#39;</span><span class="p">,</span>
+                         <span class="n">mat</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span>
+                         <span class="n">mat</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">nuc_code</span><span class="p">,</span> <span class="n">mass_fraction</span> <span class="ow">in</span> <span class="n">mat</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">zam_code</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;           </span><span class="si">%9s</span><span class="s1">  </span><span class="si">%7.14E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="n">nuc_code_map</span><span class="p">[</span><span class="n">zam_code</span><span class="p">],</span>
+                             <span class="o">-</span><span class="n">mass_fraction</span><span class="p">))</span></div></div>
 </pre></div>
 
            </div>

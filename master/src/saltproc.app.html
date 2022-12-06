@@ -213,7 +213,7 @@ material feeds.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>input_path</strong> (<em>PosixPath</em>) – Path to main input file</p></li>
+<li><p><strong>input_path</strong> (<em>Path</em>) – Path to main input file</p></li>
 <li><p><strong>process_file</strong> (<em>str</em>) – Path to the <cite>.json</cite> file describing the fuel reprocessing components.</p></li>
 <li><p><strong>dot_file</strong> (<em>str</em>) – Path to the <cite>.dot</cite> describing the fuel reprocessing paths.</p></li>
 <li><p><strong>object_inputs</strong> (<em>3-tuple of dict</em>) – tuple containing the inputs for constructing the
@@ -251,14 +251,16 @@ waste streams.</p>
 </dd>
 </dl>
 </p></li>
-<li><p><strong>process_file</strong> (<em>str</em>) – <p>Path to the <cite>.json</cite> file describing the fuel reprocessing components.</p>
-<p>Returns</p>
-</p></li>
-<li><p><strong>-------</strong> – </p></li>
-<li><p><strong>waste_streams</strong> – Superset of the input parameter <cite>waste_streams</cite>. Dictionary has
-keys for feed streams that map to <a href="#id1"><span class="problematic" id="id2">:classs:`Materialflow`</span></a> objects
-representing those material feed streams.</p></li>
+<li><p><strong>process_file</strong> (<em>str</em>) – Path to the <cite>.json</cite> file describing the fuel reprocessing components.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>waste_streams</strong> – Superset of the input parameter <cite>waste_streams</cite>. Dictionary has
+keys for feed streams that map to <a href="#id1"><span class="problematic" id="id2">:classs:`Materialflow`</span></a> objects
+representing those material feed streams.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str to dict</p>
 </dd>
 </dl>
 </dd></dl>

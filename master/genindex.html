@@ -88,12 +88,14 @@
  | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
 </div>
@@ -146,6 +148,16 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.active_cycles">active_cycles (saltproc.abc.Depcode attribute)</a>
+
+      <ul>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.active_cycles">(saltproc.openmc_depcode.OpenMCDepcode attribute)</a>
+</li>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.active_cycles">(saltproc.serpent_depcode.SerpentDepcode attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/saltproc.sparger.html#saltproc.sparger.Sparger.area">area (saltproc.sparger.Sparger attribute)</a>
 </li>
   </ul></td>
@@ -168,23 +180,21 @@
         <li><a href="src/saltproc.sparger.html#saltproc.sparger.Sparger.calculate_removal_efficiency">(saltproc.sparger.Sparger method)</a>
 </li>
       </ul></li>
-      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.change_sim_par">change_sim_par() (saltproc.serpent_depcode.SerpentDepcode method)</a>
+      <li><a href="src/saltproc.process.html#saltproc.process.Process.check_mass_conservation">check_mass_conservation() (saltproc.process.Process method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/saltproc.process.html#saltproc.process.Process.check_mass_conservation">check_mass_conservation() (saltproc.process.Process method)</a>
-</li>
       <li><a href="src/saltproc.simulation.html#saltproc.simulation.Simulation.check_restart">check_restart() (saltproc.simulation.Simulation method)</a>
 </li>
       <li><a href="src/saltproc.simulation.html#saltproc.simulation.Simulation.check_switch_geo_trigger">check_switch_geo_trigger() (saltproc.simulation.Simulation method)</a>
 </li>
-      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.convert_nuclide_name_serpent_to_zam">convert_nuclide_name_serpent_to_zam() (saltproc.serpent_depcode.SerpentDepcode method)</a>
+      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.convert_nuclide_code_to_name">convert_nuclide_code_to_name() (saltproc.serpent_depcode.SerpentDepcode method)</a>
+</li>
+      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.convert_nuclide_code_to_zam">convert_nuclide_code_to_zam() (saltproc.serpent_depcode.SerpentDepcode method)</a>
 </li>
       <li><a href="src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.copy_pymat_attrs">copy_pymat_attrs() (saltproc.materialflow.Materialflow method)</a>
 </li>
-      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.create_iter_matfile">create_iter_matfile() (saltproc.serpent_depcode.SerpentDepcode method)</a>
-</li>
-      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.create_nuclide_name_map_zam_to_serpent">create_nuclide_name_map_zam_to_serpent() (saltproc.serpent_depcode.SerpentDepcode method)</a>
+      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.create_runtime_matfile">create_runtime_matfile() (saltproc.serpent_depcode.SerpentDepcode method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -256,7 +266,7 @@
 </li>
       <li><a href="src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.get_mass">get_mass() (saltproc.materialflow.Materialflow method)</a>
 </li>
-      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.get_nuc_name">get_nuc_name() (saltproc.serpent_depcode.SerpentDepcode method)</a>
+      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.get_neutron_settings">get_neutron_settings() (saltproc.serpent_depcode.SerpentDepcode method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -272,26 +282,18 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.insert_path_to_geometry">insert_path_to_geometry() (saltproc.serpent_depcode.SerpentDepcode method)</a>
-</li>
-      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.iter_inputfile">iter_inputfile (saltproc.abc.Depcode attribute)</a>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.inactive_cycles">inactive_cycles (saltproc.abc.Depcode attribute)</a>
 
       <ul>
-        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.iter_inputfile">(saltproc.openmc_depcode.OpenMCDepcode attribute)</a>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.inactive_cycles">(saltproc.openmc_depcode.OpenMCDepcode attribute)</a>
 </li>
-        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.iter_inputfile">(saltproc.serpent_depcode.SerpentDepcode attribute)</a>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.inactive_cycles">(saltproc.serpent_depcode.SerpentDepcode attribute)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.iter_matfile">iter_matfile (saltproc.abc.Depcode attribute)</a>
-
-      <ul>
-        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.iter_matfile">(saltproc.openmc_depcode.OpenMCDepcode attribute)</a>
+      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.insert_path_to_geometry">insert_path_to_geometry() (saltproc.serpent_depcode.SerpentDepcode method)</a>
 </li>
-        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.iter_matfile">(saltproc.serpent_depcode.SerpentDepcode attribute)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -314,6 +316,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.map_nuclide_code_zam_to_serpent">map_nuclide_code_zam_to_serpent() (saltproc.serpent_depcode.SerpentDepcode method)</a>
+</li>
       <li><a href="src/saltproc.materialflow.html#saltproc.materialflow.Materialflow">Materialflow (class in saltproc.materialflow)</a>
 </li>
       <li>
@@ -348,6 +352,30 @@
   </ul></td>
 </tr></table>
 
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.neutronics_parameters">neutronics_parameters (saltproc.abc.Depcode attribute)</a>
+
+      <ul>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.neutronics_parameters">(saltproc.openmc_depcode.OpenMCDepcode attribute)</a>
+</li>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.neutronics_parameters">(saltproc.serpent_depcode.SerpentDepcode attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.npop">npop (saltproc.abc.Depcode attribute)</a>
+
+      <ul>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.npop">(saltproc.openmc_depcode.OpenMCDepcode attribute)</a>
+</li>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.npop">(saltproc.serpent_depcode.SerpentDepcode attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -359,20 +387,12 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.param">param (saltproc.abc.Depcode attribute)</a>
-
-      <ul>
-        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.param">(saltproc.openmc_depcode.OpenMCDepcode attribute)</a>
-</li>
-        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.param">(saltproc.serpent_depcode.SerpentDepcode attribute)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/saltproc.app.html#saltproc.app.parse_arguments">parse_arguments() (in module saltproc.app)</a>
 </li>
       <li><a href="src/saltproc.materialflow.html#saltproc.materialflow.Materialflow.print_attr">print_attr() (saltproc.materialflow.Materialflow method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/saltproc.process.html#saltproc.process.Process">Process (class in saltproc.process)</a>
 </li>
       <li><a href="src/saltproc.process.html#saltproc.process.Process.process_material">process_material() (saltproc.process.Process method)</a>
@@ -405,52 +425,66 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/saltproc.reactor.html#saltproc.reactor.Reactor">Reactor (class in saltproc.reactor)</a>
 </li>
-      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.read_dep_comp">read_dep_comp() (saltproc.abc.Depcode method)</a>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.read_depleted_materials">read_depleted_materials() (saltproc.abc.Depcode method)</a>
 
       <ul>
-        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.read_dep_comp">(saltproc.openmc_depcode.OpenMCDepcode method)</a>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.read_depleted_materials">(saltproc.openmc_depcode.OpenMCDepcode method)</a>
 </li>
-        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_dep_comp">(saltproc.serpent_depcode.SerpentDepcode method)</a>
-</li>
-      </ul></li>
-      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.read_depcode_info">read_depcode_info() (saltproc.abc.Depcode method)</a>
-
-      <ul>
-        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.read_depcode_info">(saltproc.openmc_depcode.OpenMCDepcode method)</a>
-</li>
-        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_depcode_info">(saltproc.serpent_depcode.SerpentDepcode method)</a>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_depleted_materials">(saltproc.serpent_depcode.SerpentDepcode method)</a>
 </li>
       </ul></li>
-      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.read_depcode_step_param">read_depcode_step_param() (saltproc.abc.Depcode method)</a>
-
-      <ul>
-        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.read_depcode_step_param">(saltproc.openmc_depcode.OpenMCDepcode method)</a>
-</li>
-        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_depcode_step_param">(saltproc.serpent_depcode.SerpentDepcode method)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/saltproc.simulation.html#saltproc.simulation.Simulation.read_k_eds_delta">read_k_eds_delta() (saltproc.simulation.Simulation method)</a>
 </li>
       <li><a href="src/saltproc.app.html#saltproc.app.read_main_input">read_main_input() (in module saltproc.app)</a>
 </li>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.read_neutronics_parameters">read_neutronics_parameters() (saltproc.abc.Depcode method)</a>
+
+      <ul>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.read_neutronics_parameters">(saltproc.openmc_depcode.OpenMCDepcode method)</a>
+</li>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_neutronics_parameters">(saltproc.serpent_depcode.SerpentDepcode method)</a>
+</li>
+      </ul></li>
       <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_plaintext_file">read_plaintext_file() (saltproc.serpent_depcode.SerpentDepcode method)</a>
 </li>
-      <li><a href="src/saltproc.app.html#saltproc.app.refill_materials">refill_materials() (in module saltproc.app)</a>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.read_step_metadata">read_step_metadata() (saltproc.abc.Depcode method)</a>
+
+      <ul>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.read_step_metadata">(saltproc.openmc_depcode.OpenMCDepcode method)</a>
 </li>
-      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.replace_burnup_parameters">replace_burnup_parameters() (saltproc.serpent_depcode.SerpentDepcode method)</a>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_step_metadata">(saltproc.serpent_depcode.SerpentDepcode method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/saltproc.app.html#saltproc.app.refill_materials">refill_materials() (in module saltproc.app)</a>
 </li>
       <li><a href="src/saltproc.app.html#saltproc.app.reprocess_materials">reprocess_materials() (in module saltproc.app)</a>
 </li>
       <li><a href="src/saltproc.app.html#saltproc.app.run">run() (in module saltproc.app)</a>
 </li>
-      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.run_depcode">run_depcode() (saltproc.abc.Depcode method)</a>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.run_depletion_step">run_depletion_step() (saltproc.abc.Depcode method)</a>
 
       <ul>
-        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.run_depcode">(saltproc.openmc_depcode.OpenMCDepcode method)</a>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.run_depletion_step">(saltproc.openmc_depcode.OpenMCDepcode method)</a>
 </li>
-        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.run_depcode">(saltproc.serpent_depcode.SerpentDepcode method)</a>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.run_depletion_step">(saltproc.serpent_depcode.SerpentDepcode method)</a>
+</li>
+      </ul></li>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.runtime_inputfile">runtime_inputfile (saltproc.abc.Depcode attribute)</a>
+
+      <ul>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.runtime_inputfile">(saltproc.openmc_depcode.OpenMCDepcode attribute)</a>
+</li>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.runtime_inputfile">(saltproc.serpent_depcode.SerpentDepcode attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.runtime_matfile">runtime_matfile (saltproc.abc.Depcode attribute)</a>
+
+      <ul>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.runtime_matfile">(saltproc.openmc_depcode.OpenMCDepcode attribute)</a>
+</li>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.runtime_matfile">(saltproc.serpent_depcode.SerpentDepcode attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -551,20 +585,22 @@
 </li>
       <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode">SerpentDepcode (class in saltproc.serpent_depcode)</a>
 </li>
+      <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.set_power_load">set_power_load() (saltproc.serpent_depcode.SerpentDepcode method)</a>
+</li>
       <li><a href="src/saltproc.sparger.html#id7">sherwood() (saltproc.sparger.Sparger method)</a>, <a href="src/saltproc.sparger.html#saltproc.sparger.Sparger.sherwood">[1]</a>
 </li>
-      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.sim_info">sim_info (saltproc.abc.Depcode attribute)</a>
-
-      <ul>
-        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.sim_info">(saltproc.openmc_depcode.OpenMCDepcode attribute)</a>
-</li>
-        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.sim_info">(saltproc.serpent_depcode.SerpentDepcode attribute)</a>
-</li>
-      </ul></li>
       <li><a href="src/saltproc.simulation.html#saltproc.simulation.Simulation">Simulation (class in saltproc.simulation)</a>
 </li>
       <li><a href="src/saltproc.sparger.html#saltproc.sparger.Sparger">Sparger (class in saltproc.sparger)</a>
 </li>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.step_metadata">step_metadata (saltproc.abc.Depcode attribute)</a>
+
+      <ul>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.step_metadata">(saltproc.openmc_depcode.OpenMCDepcode attribute)</a>
+</li>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.step_metadata">(saltproc.serpent_depcode.SerpentDepcode attribute)</a>
+</li>
+      </ul></li>
       <li><a href="src/saltproc.simulation.html#saltproc.simulation.Simulation.store_after_repr">store_after_repr() (saltproc.simulation.Simulation method)</a>
 </li>
       <li><a href="src/saltproc.simulation.html#saltproc.simulation.Simulation.store_mat_data">store_mat_data() (saltproc.simulation.Simulation method)</a>
@@ -600,29 +636,35 @@
   </ul></td>
 </tr></table>
 
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.update_depletable_materials">update_depletable_materials() (saltproc.abc.Depcode method)</a>
+
+      <ul>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.update_depletable_materials">(saltproc.openmc_depcode.OpenMCDepcode method)</a>
+</li>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.update_depletable_materials">(saltproc.serpent_depcode.SerpentDepcode method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.write_depcode_input">write_depcode_input() (saltproc.abc.Depcode method)</a>
-
-      <ul>
-        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.write_depcode_input">(saltproc.openmc_depcode.OpenMCDepcode method)</a>
-</li>
-        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.write_depcode_input">(saltproc.serpent_depcode.SerpentDepcode method)</a>
-</li>
-      </ul></li>
       <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.write_depletion_settings">write_depletion_settings() (saltproc.openmc_depcode.OpenMCDepcode method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.write_mat_file">write_mat_file() (saltproc.abc.Depcode method)</a>
+      <li><a href="src/saltproc.abc.html#saltproc.abc.Depcode.write_runtime_input">write_runtime_input() (saltproc.abc.Depcode method)</a>
 
       <ul>
-        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.write_mat_file">(saltproc.openmc_depcode.OpenMCDepcode method)</a>
+        <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.write_runtime_input">(saltproc.openmc_depcode.OpenMCDepcode method)</a>
 </li>
-        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.write_mat_file">(saltproc.serpent_depcode.SerpentDepcode method)</a>
+        <li><a href="src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.write_runtime_input">(saltproc.serpent_depcode.SerpentDepcode method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.write_saltproc_openmc_tallies">write_saltproc_openmc_tallies() (saltproc.openmc_depcode.OpenMCDepcode method)</a>
 </li>
   </ul></td>
