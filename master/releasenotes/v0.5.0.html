@@ -119,6 +119,7 @@ the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</
 <h2>New Features<a class="headerlink" href="#new-features" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">openmc</span></code> support via <cite>DepcodeOpenMC</cite></p></li>
+<li><p>OpenMC compatible MSBR model.</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
@@ -135,6 +136,9 @@ the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</
 </ul>
 </li>
 <li><p>A new script, <code class="docutils literal notranslate"><span class="pre">scripts/ci/openmc-xs.bash</span></code>, that downloads the OpenMC HDF5 cross section library.</p></li>
+<li><p>A new script, <code class="docutils literal notranslate"><span class="pre">download_endfb71.bash</span></code>, that downloads the ENDF/B 7.1 cross section library – including thermal scattering, decay, and fission yield data – in ACE format.</p></li>
+<li><p>A new script, <code class="docutils literal notranslate"><span class="pre">process_endfb71_to_openmc.bash</span></code>, that converts the library created by <code class="docutils literal notranslate"><span class="pre">download_endfb71.bash</span></code> into an OpenMC-usable HDF5 format. Requires OpenMC to be installed from source to use.</p></li>
+<li><p>A new script <code class="docutils literal notranslate"><span class="pre">openmc_msbr_model.py</span></code>, that creates an OpenMC-usable MSBR model based on the Serpent MSBR model.</p></li>
 </ul>
 </section>
 <section id="python-api-changes">
