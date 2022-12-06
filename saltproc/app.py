@@ -137,7 +137,7 @@ def read_main_input(main_inp_file):
 
     Returns
     -------
-    input_path : PosixPath
+    input_path : Path
         Path to main input file
     process_file : str
         Path to the `.json` file describing the fuel reprocessing components.
@@ -168,11 +168,11 @@ def read_main_input(main_inp_file):
         input_path = (Path.cwd() / Path(f.name).parents[0])
 
         # Saltproc settings
-        process_file = (input_path /
-                              j['proc_input_file']).resolve().as_posix()
-        dot_file = (
+        process_file = str((input_path /
+                              j['proc_input_file']).resolve())
+        dot_file = str((
             input_path /
-            j['dot_input_file']).resolve().as_posix()
+            j['dot_input_file']).resolve())
         output_path = j['output_path']
         n_depletion_steps = j['n_depletion_steps']
 
@@ -186,17 +186,17 @@ def read_main_input(main_inp_file):
         reactor_input = j['reactor']
 
         if depcode_input['codename'] == 'serpent':
-            depcode_input['template_input_file_path'] = (
+            depcode_input['template_input_file_path'] = str((
                 input_path /
-                depcode_input['template_input_file_path']).resolve().as_posix()
+                depcode_input['template_input_file_path']).resolve())
         elif depcode_input['codename'] == 'openmc':
             for key in depcode_input['template_input_file_path']:
                 value = depcode_input['template_input_file_path'][key]
-                depcode_input['template_input_file_path'][key] = (
-                    input_path / value).resolve().as_posix()
+                depcode_input['template_input_file_path'][key] = str((
+                    input_path / value).resolve())
             depcode_input['chain_file_path'] = \
-                (input_path /
-                 depcode_input['chain_file_path']).resolve().as_posix()
+                str((input_path /
+                 depcode_input['chain_file_path']).resolve())
         else:
             raise ValueError(
                 f'{depcode_input["codename"]} '
@@ -208,12 +208,12 @@ def read_main_input(main_inp_file):
         # Global geometry file paths
         geo_file_paths = []
         for g in geo_list:
-            geo_file_paths += [(input_path / g).resolve().as_posix()]
+            geo_file_paths += [str((input_path / g).resolve())]
         depcode_input['geo_file_paths'] = geo_file_paths
 
         # Global output file paths
         db_name = (output_path / simulation_input['db_name'])
-        simulation_input['db_name'] = db_name.resolve().as_posix()
+        simulation_input['db_name'] = str(db_name.resolve())
 
         reactor_input = _process_main_input_reactor_params(
             reactor_input, n_depletion_steps)
@@ -237,7 +237,7 @@ def _print_simulation_input_info(simulation_input, depcode_input):
 
 def _create_depcode_object(depcode_input):
     """Helper function for `run()` """
-    codename = depcode_input.pop('codename')
+    codename = depcode_input.pop('codename').lower()
     if codename == 'serpent':
         depcode = SerpentDepcode
     elif codename == 'openmc':
@@ -246,14 +246,10 @@ def _create_depcode_object(depcode_input):
         depletion_settings = depcode_input.pop('depletion_settings')
     else:
         raise ValueError(
-            f'{depcode_input["codename"]} is not a supported depletion code')
+            f'{codename} is not a supported depletion code.'
+            'Accepts: "serpent" or "openmc".')
 
     depcode = depcode(**depcode_input)
-    #depcode = depcode(
-    #    depcode_input['output_path'],
-    #    depcode_input['exec_path'],
-    #    depcode_input['template_input_file_path'],
-    #    depcode_input['geo_file_paths'])
     if codename == 'openmc':
         depcode.chain_file_path = chain_file_path
         depcode.depletion_settings = depletion_settings
@@ -285,7 +281,7 @@ def _create_reactor_object(reactor_input, codename):
         reactor_input['depletion_timesteps'] = depletion_timesteps[0] + ts
 
     timestep_units = reactor_input['time_unit']
-    if not(timestep_units in ('d', 'day')) and time_units.lower() != 'mWd/kg' and codename == 'serpent':
+    if not(timestep_units in ('d', 'day')) and time_units.lower() != 'mwd/kg' and codename == 'serpent':
         if timestep_units in ('s', 'sec'):
             reactor_input['depletion_timesteps'] /= 60 * 60 * 24
         elif timestep_units in ('min', 'minute'):

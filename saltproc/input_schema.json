@@ -28,6 +28,24 @@
             "description": "Depcode class input parameters",
             "type": "object",
             "default": {},
+            "properties": {
+                "codename": {
+                    "description": "Name of depletion code",
+                    "type": "string",
+                    "enum": ["serpent", "openmc"]},
+                "exec_path": {
+                    "description": "Path to depletion code executable",
+                    "type": "string"},
+                "template_input_file_path": {
+                    "description": "Path(s) to user's template depletion code input file(s) with reactor model"},
+                "geo_file_paths": {
+                    "description": "Path(s) to geometry file(s) to switch to in depletion code runs",
+                    "type": "array",
+                    "items": { "type": "string"},
+                    "minItems": 1,
+                    "uniqueItems": true}
+            },
+            "required": ["codename", "template_input_file_path", "geo_file_paths"],
             "allOf": [
                 {
                     "if": {"properties": { "codename": { "const": "serpent" }}},
@@ -229,25 +247,7 @@
                         }
                     }
                 }
-            ],
-            "properties": {
-                "codename": {
-                    "description": "Name of depletion code",
-                    "type": "string",
-                    "enum": ["serpent", "openmc"]},
-                "exec_path": {
-                    "description": "Path to depletion code executable",
-                    "type": "string"},
-                "template_input_file_path": {
-                    "description": "Path(s) to user's template depletion code input file(s) with reactor model"},
-                "geo_file_paths": {
-                    "description": "Path(s) to geometry file(s) to switch to in depletion code runs",
-                    "type": "array",
-                    "items": { "type": "string"},
-                    "minItems": 1,
-                    "uniqueItems": true}
-            },
-            "required": ["codename", "template_input_file_path", "geo_file_paths"]
+            ]
         },
         "simulation": {
             "description": "Simulation class input parameters",

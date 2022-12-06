@@ -5,6 +5,7 @@
    "n_depletion_steps": 2,
    "depcode": {
        "codename": "serpent",
+       "exec_path": "sss2",
        "template_input_file_path": "test_input.ini",
        "geo_file_paths": ["../../serpent_data/tap_geometry_base.ini"]
    },

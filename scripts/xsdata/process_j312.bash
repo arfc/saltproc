@@ -15,6 +15,7 @@ SLUG="ACEs_"
 EXT="K.zip"
 SLUG1="STL_ACEs.zip"
 TEMPS=(900)
+BRC=$HOME/.bashrc
 
 #Uncomment for a good range of temperatures (will take a long time)
 #TEMPS=(500 600 800 900 1000 1200 1500)
@@ -151,7 +152,7 @@ do
     fi
 
     # Run the xsdirconvert script
-    perl $XSDIR/xsdirconvert.pl $DATDIR/sss_jeff312.xsdir > $DATADIR/sss_jeff312.xsdata
+    perl $XSDIR/xsdirconvert.pl $DATADIR/sss_jeff312.xsdir > $DATADIR/sss_jeff312.xsdata
  
     # Add seprpent variables to PATH (to be created)
     echo "export SERPENT_DATA="$DATADIR"" >> $BRC

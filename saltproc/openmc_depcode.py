@@ -48,7 +48,7 @@ class OpenMCDepcode(Depcode):
                  exec_path,
                  template_input_file_path,
                  geo_file_paths):
-        """Initializes a OpenMCDepcode object.
+        """Initialize a OpenMCDepcode object.
 
            Parameters
            ----------
@@ -80,9 +80,9 @@ class OpenMCDepcode(Depcode):
                          template_input_file_path,
                          geo_file_paths)
         self.runtime_inputfile = \
-            {'geometry': (output_path / 'geometry.xml').resolve().as_posix(),
-             'settings': (output_path / 'settings.xml').resolve().as_posix()}
-        self.runtime_matfile = (output_path / 'materials.xml').resolve().as_posix()
+            {'geometry': str((output_path / 'geometry.xml').resolve()),
+             'settings': str((output_path / 'settings.xml').resolve())}
+        self.runtime_matfile = str((output_path / 'materials.xml').resolve())
 
     def read_step_metadata(self):
         """Reads OpenMC's depletion step metadata and stores it in the
@@ -146,7 +146,7 @@ class OpenMCDepcode(Depcode):
             '--tallites',
             self.runtime_inputfile['tallies'],
             '--directory',
-            self.output_path.as_posix())
+            str(self.output_path))
 
         print('Running %s' % (self.codename))
         # TODO: Need to figure out how to adapt this to openmc
@@ -229,7 +229,7 @@ class OpenMCDepcode(Depcode):
         # Get current depletion step length
         step_length = reactor.depletion_timesteps[step_idx]
 
-        self.depletion_settings['directory'] = self.output_path.as_posix()
+        self.depletion_settings['directory'] = str(self.output_path)
         self.depletion_settings['timesteps'] = [step_length]
 
         operator_kwargs = {}

@@ -10,7 +10,7 @@ import subprocess
 
 @pytest.fixture
 def setup(scope='module'):
-    cwd = Path(__file__).parents[0].resolve().as_posix()
+    cwd = str(Path(__file__).parents[0].resolve())
     test_db = cwd + '/test_db.h5'
     ref_db = cwd + '/tap_reference_db.h5'
     tol = 1e-9

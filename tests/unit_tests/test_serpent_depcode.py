@@ -27,6 +27,15 @@ def test_convert_nuclide_code_to_zam(serpent_depcode):
     assert serpent_depcode.convert_nuclide_code_to_zam(48315) == 481151
 
 
+def test_get_neutron_settings(serpent_depcode):
+    template_str = serpent_depcode.read_plaintext_file(
+        serpent_depcode.template_input_file_path)
+    serpent_depcode.get_neutron_settings(template_str)
+    assert serpent_depcode.npop == 50
+    assert serpent_depcode.active_cycles == 20
+    assert serpent_depcode.inactive_cycles == 20
+
+
 def test_read_plaintext_file(serpent_depcode):
     template_str = serpent_depcode.read_plaintext_file(
         serpent_depcode.template_input_file_path)
