@@ -34,9 +34,6 @@ class SerpentDepcode(Depcode):
         Number of active cycles.
     inactive_cycles : int
         Number of inactive cycles.
-    burnable_material_card_data : dict of str to tuple
-        Dictionary containing burnable material cards
-        and the index of the `vol` option.
 
     """
 
@@ -135,11 +132,11 @@ class SerpentDepcode(Depcode):
             absolute_path = (runtime_dir / burnable_materials_path)
         else:
             absolute_path = Path(burnable_materials_path)
-            with open(absolute_path) as f:
-                if 'mat ' not in f.read():
-                    raise IOError('Template file '
-                                  f'{self.template_input_file_path} includes '
-                                  'no file with materials description')
+        with open(absolute_path) as f:
+            if 'mat ' not in f.read():
+                raise IOError('Template file '
+                              f'{self.template_input_file_path} includes '
+                              'no file with materials description')
         return burnable_materials_path, absolute_path.resolve()
 
     def _get_burnable_material_card_data(self, file_lines):
@@ -149,11 +146,11 @@ class SerpentDepcode(Depcode):
 
         for card in mat_cards:
             if 'fix' not in card:
-                raise IOError(f'"mat" card for burnable material "{card[1]}'
-                              'does not have a "fix" option. Burnable materials'
-                              'in SaltProc must include the "fix" option. See'
-                              'the serpent wiki for more information: '
-                              'https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#mat')
+                raise IOError(f'"mat" card for burnable material "{card[1]}"'
+                              ' does not have a "fix" option. Burnable materials'
+                              ' in SaltProc must include the "fix" option. See'
+                              ' the serpent wiki for more information:'
+                              ' https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#mat')
         # Get volume indices
         card_volume_idx = [(card.index('vol') + 1) for card in mat_cards]
         mat_names = [card[1] for card in mat_cards]
