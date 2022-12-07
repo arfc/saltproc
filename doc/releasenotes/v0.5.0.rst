@@ -156,7 +156,7 @@ Python API Changes
     - ``change_sim_par()`` →  (deleted)
     - (new function) →  ``get_neutron_settings()``
     - (new function) →  ``get_burnable_materials_file()`` 
-    - (new function) →  ``get_material_data()``
+    - (new function) →  ``get_burnable_material_card_data()``
 
 
   - ``OpenMCDepcode`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
