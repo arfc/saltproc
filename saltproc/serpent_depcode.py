@@ -387,10 +387,10 @@ class SerpentDepcode(Depcode):
         else:
             step_type = 'day'
 
-        if reactor.timestep_type == 'cumulative':
-            step_type += 'tot'
-        else:
-            step_type += 'step'
+        #if reactor.timestep_type == 'cumulative':
+        #    step_type += 'tot'
+        #else:
+        step_type += 'step'
 
         file_lines.insert(line_idx,  # Insert on 9th line
                           f'set    power   %5.9E   dep %s   %7.5E\n' %

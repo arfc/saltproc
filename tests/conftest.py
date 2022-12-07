@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest
 
-from saltproc.app import read_main_input, _create_depcode_object
+from saltproc.app import read_main_input, _create_depcode_object, _create_reactor_object
 from saltproc import Simulation
 
 
@@ -34,6 +34,15 @@ def serpent_depcode(cwd):
 
 
 @pytest.fixture(scope='session')
+def serpent_reactor(cwd):
+    saltproc_input = str(cwd / 'serpent_data' / 'tap_input.json')
+    _, _, _, object_input = read_main_input(saltproc_input)
+    reactor = _create_reactor_object(object_input[2])
+
+    return reactor
+
+
+@pytest.fixture(scope='session')
 def openmc_depcode(cwd):
     """OpenMCDepcode object for unit tests"""
     saltproc_input = str(cwd / 'openmc_data' / 'tap_input.json')
@@ -41,6 +50,15 @@ def openmc_depcode(cwd):
     depcode = _create_depcode_object(object_input[0])
 
     return depcode
+
+
+@pytest.fixture(scope='session')
+def openmc_reactor(cwd):
+    openmc_input = str(cwd / 'openmc_data' / 'tap_input.json')
+    _, _, _, object_input = read_main_input(openmc_input)
+    reactor = _create_reactor_object(object_input[2])
+
+    return reactor
 
 
 @pytest.fixture(scope='session')

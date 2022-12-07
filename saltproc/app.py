@@ -25,7 +25,7 @@ def run():
     depcode = _create_depcode_object(object_input[0])
     simulation = _create_simulation_object(
         object_input[1], depcode, cores, nodes)
-    msr = _create_reactor_object(object_input[2], object_input[0]['codename'])
+    msr = _create_reactor_object(object_input[2])
 
     # Check: Restarting previous simulation or starting new?
     simulation.check_restart()
@@ -216,7 +216,7 @@ def read_main_input(main_inp_file):
         simulation_input['db_name'] = str(db_name.resolve())
 
         reactor_input = _process_main_input_reactor_params(
-            reactor_input, n_depletion_steps)
+            reactor_input, n_depletion_steps, depcode_input['codename'])
 
         return input_path, process_file, dot_file, (
             depcode_input, simulation_input, reactor_input)
@@ -272,32 +272,13 @@ def _create_simulation_object(simulation_input, depcode, cores, nodes):
     return simulation
 
 
-def _create_reactor_object(reactor_input, codename):
+def _create_reactor_object(reactor_input):
     """Helper function for `run()` """
-    timesteps = reactor_input['depletion_timesteps']
-    timestep_type = reactor_input['timestep_type']
-    if timestep_type == 'cumulative' and codename == 'openmc':
-        ts = list(np.diff(depletion_timesteps))
-        reactor_input['depletion_timesteps'] = depletion_timesteps[0] + ts
-
-    timestep_units = reactor_input['time_unit']
-    if not(timestep_units in ('d', 'day')) and time_units.lower() != 'mwd/kg' and codename == 'serpent':
-        if timestep_units in ('s', 'sec'):
-            reactor_input['depletion_timesteps'] /= 60 * 60 * 24
-        elif timestep_units in ('min', 'minute'):
-            reactor_input['depletion_timesteps'] /= 60 * 24
-        elif timestep_units in ('h', 'hr', 'hour'):
-            reactor_input['depletion_timesteps'] /= 24
-        elif timestep_units in ('a', 'year'):
-            reactor_input['depletion_timesteps'] *= 365.25
-        else:
-            raise IOError(f'Unrecognized time unit: {timestep_units}')
-
     msr = Reactor(**reactor_input)
     return msr
 
 
-def _process_main_input_reactor_params(reactor_input, n_depletion_steps):
+def _process_main_input_reactor_params(reactor_input, n_depletion_steps, codename):
     """
     Process SaltProc reactor class input parameters based on the value and
     data type of the `n_depletion_steps` parameter, and throw errors if the input
@@ -312,23 +293,43 @@ def _process_main_input_reactor_params(reactor_input, n_depletion_steps):
         # lists of length `n_depletion_steps`
         else:
             step_length = float(depletion_timesteps[0])
-            if reactor_input['timestep_type'] == 'stepwise':
-                depletion_timesteps = [step_length] * n_depletion_steps
-            else:
-                depletion_timesteps = \
-                    np.linspace(step_length,
-                                n_depletion_steps*step_length,
-                                n_depletion_steps)
+            #if reactor_input['timestep_type'] == 'stepwise':
+            #    depletion_timesteps = [step_length] * n_depletion_steps
+            depletion_timesteps = [step_length] * n_depletion_steps
+            #else:
+            #    depletion_timesteps = \
+            #        np.linspace(step_length,
+            #                    n_depletion_steps*step_length,
+            #                    n_depletion_steps)
+            reactor_input['depletion_timesteps'] = depletion_timesteps
             power_levels = float(power_levels[0]) * \
                 np.ones_like(depletion_timesteps)
-            reactor_input['depletion_timesteps'] = \
-                depletion_timesteps
             reactor_input['power_levels'] = power_levels
     elif n_depletion_steps is None and isinstance(depletion_timesteps,
                                              (np.ndarray, list)):
         if len(depletion_timesteps) != len(power_levels):
             raise ValueError(
                 'Depletion step list and power list shape mismatch')
+    else:
+        timesteps = reactor_input['depletion_timesteps']
+        timestep_type = reactor_input['timestep_type']
+        if timestep_type == 'cumulative':
+            ts = list(np.diff(depletion_timesteps))
+            reactor_input['depletion_timesteps'] = depletion_timesteps[0] + ts
+
+        timestep_units = reactor_input['time_unit']
+        if not(timestep_units in ('d', 'day')) and time_units.lower() != 'mwd/kg' and codename == 'serpent':
+            if timestep_units in ('s', 'sec'):
+                reactor_input['depletion_timesteps'] /= 60 * 60 * 24
+            elif timestep_units in ('min', 'minute'):
+                reactor_input['depletion_timesteps'] /= 60 * 24
+            elif timestep_units in ('h', 'hr', 'hour'):
+                reactor_input['depletion_timesteps'] /= 24
+            elif timestep_units in ('a', 'year'):
+                reactor_input['depletion_timesteps'] *= 365.25
+            else:
+                raise IOError(f'Unrecognized time unit: {timestep_units}')
+
 
     return reactor_input
 
