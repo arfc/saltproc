@@ -23,6 +23,28 @@ def test_read_main_input(cwd, codename, ext):
     assert depcode_input['codename'] == codename
     assert depcode_input['geo_file_paths'][0] == \
         str(data_path / ('tap_geometry_base' + ext))
+    if codename == 'openmc':
+        assert depcode_input['template_input_file_path'] == \
+            {'materials': str((input_path / 'tap_materials.xml').resolve()),
+             'settings': str((input_path / 'tap_settings.xml').resolve())}
+        assert depcode_input['chain_file_path'] == \
+            str((input_path / 'test_chain.xml').resolve())
+        assert depcode_input['depletion_settings'] == \
+            {'method': 'predictor',
+             'final_step': True,
+             'operator_kwargs': {'normalization_mode': 'fission-q',
+                                 'fission_q': None,
+                                 'dilute_initial': 1000,
+                                 'fission_yield_mode': 'constant',
+                                 'reaction_rate_mode': 'direct',
+                                 'reaction_rate_opts': None,
+                                 'reduce_chain': False,
+                                 'reduce_chain_level': None},
+             'output': True,
+             'integrator_kwargs': {}}
+    elif codename == 'serpent':
+        assert depcode_input['template_input_file_path'] == \
+            str((input_path / 'tap_template.ini').resolve())
 
     assert simulation_input['db_name'] == \
         str((data_path / '../temp_data/db_saltproc.h5').resolve())
@@ -32,8 +54,10 @@ def test_read_main_input(cwd, codename, ext):
         reactor_input['power_levels'], [
             1.250E+9, 1.250E+9])
     np.testing.assert_equal(reactor_input['depletion_timesteps'],
-                            [5, 10])
+                            [5, 5])
 
+    assert reactor_input['timestep_units'] == 'd'
+    assert reactor_input['timestep_type'] == 'stepwise'
 
 def test_get_extraction_processes(proc_test_file):
     procs = get_extraction_processes(proc_test_file)
