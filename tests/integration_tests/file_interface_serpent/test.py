@@ -38,7 +38,7 @@ def test_runtime_input_from_template(serpent_depcode, msr):
         serpent_depcode.runtime_matfile + '\"'
 
     # get_burnable_material_card_data
-    burnable_material_card_data = {'fuel':
+    _burnable_material_card_data = {'fuel':
                                    (['mat',
                                      'fuel',
                                      '-4.960200000E+00',
@@ -76,11 +76,11 @@ def test_runtime_input_from_template(serpent_depcode, msr):
 
 
     for ref_key, test_key in \
-    zip(serpent_depcode.burnable_material_card_data.keys(),
-     burnable_material_card_data.keys()):
+    zip(serpent_depcode._burnable_material_card_data.keys(),
+     _burnable_material_card_data.keys()):
         assert ref_key == test_key
-        ref_data = serpent_depcode.burnable_material_card_data[ref_key]
-        test_data = burnable_material_card_data[test_key]
+        ref_data = serpent_depcode._burnable_material_card_data[ref_key]
+        test_data = _burnable_material_card_data[test_key]
         np.testing.assert_array_equal(np.array(ref_data, dtype=object),
                                       np.array(test_data, dtype=object))
 

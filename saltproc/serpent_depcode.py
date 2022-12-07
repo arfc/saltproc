@@ -110,20 +110,20 @@ class SerpentDepcode(Depcode):
             Serpent2 runtime input file with updated material file path.
 
         """
-        burnable_materials_path, absolute_path = self.get_burnable_materials_file(file_lines)
+        burnable_materials_path, absolute_path = self._get_burnable_materials_file(file_lines)
 
         # Create data directory
         Path.mkdir(Path(self.runtime_matfile).parents[0], exist_ok=True)
 
         # Get material cards
         flines = self.read_plaintext_file(absolute_path)
-        self.get_burnable_material_card_data(flines)
+        self._get_burnable_material_card_data(flines)
 
          # Create file with path for SaltProc rewritable iterative material file
         shutil.copy2(absolute_path, self.runtime_matfile)
         return [line.replace(burnable_materials_path, self.runtime_matfile) for line in file_lines]
 
-    def get_burnable_materials_file(self, file_lines):
+    def _get_burnable_materials_file(self, file_lines):
         runtime_dir = Path(self.template_input_file_path).parents[0]
         include_card = [line for line in file_lines if line.startswith("include ")]
         if not include_card:
@@ -142,7 +142,7 @@ class SerpentDepcode(Depcode):
                                   'no file with materials description')
         return burnable_materials_path, absolute_path.resolve()
 
-    def get_burnable_material_card_data(self, file_lines):
+    def _get_burnable_material_card_data(self, file_lines):
         # Get data for matfile
         mat_cards = \
             [line.split() for line in file_lines if line.startswith("mat ")]
@@ -158,7 +158,7 @@ class SerpentDepcode(Depcode):
         card_volume_idx = [(card.index('vol') + 1) for card in mat_cards]
         mat_names = [card[1] for card in mat_cards]
         mat_data = zip(mat_cards, card_volume_idx)#, mat_extensions)
-        self.burnable_material_card_data = dict(zip(mat_names, mat_data))
+        self._burnable_material_card_data = dict(zip(mat_names, mat_data))
 
     def convert_nuclide_code_to_name(self, nuc_code):
         """Converts Serpent2 nuclide code to symbolic nuclide name.
@@ -549,13 +549,13 @@ class SerpentDepcode(Depcode):
             f.write('%% Material compositions (after %f days)\n\n'
                     % dep_end_time)
             nuc_code_map = self.map_nuclide_code_zam_to_serpent()
-            if not(hasattr(self, 'burnable_material_card_data')):
+            if not(hasattr(self, '_burnable_material_card_data')):
                 lines = self.read_plaintext_file(self.template_input_file_path)
                 _, abs_src_matfile = self.get_burnable_materials_file(lines)
                 file_lines = self.read_plaintext_file(abs_src_matfile)
-                self.get_burnable_material_card_data(file_lines)
+                self._get_burnable_material_card_data(file_lines)
             for name, mat in mats.items():
-                mat_card, card_volume_idx = self.burnable_material_card_data[name]
+                mat_card, card_volume_idx = self._burnable_material_card_data[name]
                 mat_card[2] = str(-mat.density)
                 mat_card[card_volume_idx] = "%7.5E" % mat.vol
                 f.write(" ".join(mat_card))
