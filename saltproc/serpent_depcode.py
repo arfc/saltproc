@@ -34,7 +34,9 @@ class SerpentDepcode(Depcode):
         Number of active cycles.
     inactive_cycles : int
         Number of inactive cycles.
-
+    burnable_material_card_data : dict of str to tuple
+        Dictionary containing burnable material cards
+        and the index of the `vol` option.
 
     """
 
@@ -547,9 +549,10 @@ class SerpentDepcode(Depcode):
                 self.get_burnable_material_card_data(file_lines)
             for name, mat in mats.items():
                 mat_card, card_volume_idx = self.burnable_material_card_data[name]
-                mat_card[1] = str(-mat.density)
+                mat_card[2] = str(-mat.density)
                 mat_card[card_volume_idx] = "%7.5E" % mat.vol
                 f.write(" ".join(mat_card))
+                f.write("\n")
                 for nuc_code, mass_fraction in mat.comp.items():
                     zam_code = pyname.zzaaam(nuc_code)
                     f.write('           %9s  %7.14E\n' %
