@@ -36,6 +36,54 @@ def test_runtime_input_from_template(serpent_depcode, msr):
     file_data = serpent_depcode.create_runtime_matfile(file_data)
     assert file_data[0].split()[-1] == '\"' + \
         serpent_depcode.runtime_matfile + '\"'
+
+    # get_burnable_material_card_data
+    burnable_material_card_data = {'fuel':
+                                   (['mat',
+                                     'fuel',
+                                     '-4.960200000E+00',
+                                     'rgb',
+                                     '253',
+                                     '231',
+                                     '37',
+                                     'burn',
+                                     '1',
+                                     'fix',
+                                     '09c',
+                                     '900',
+                                     'vol',
+                                     '4.435305E+7',
+                                     '%',
+                                     'just',
+                                     'core',
+                                     'volume',
+                                     '2.27175E+07'], 13),
+                                   'ctrlPois':
+                                   (['mat',
+                                     'ctrlPois',
+                                     '-2.52',
+                                     'burn',
+                                     '1',
+                                     'fix',
+                                     '09c',
+                                     '900',
+                                     'rgb',
+                                     '255',
+                                     '128',
+                                     '0',
+                                     'vol',
+                                     '1.11635E+04'], 13)}
+
+
+    for ref_key, test_key in \
+    zip(serpent_depcode.burnable_material_card_data.keys(),
+     burnable_material_card_data.keys()):
+        assert ref_key == test_key
+        ref_data = serpent_depcode.burnable_material_card_data[ref_key]
+        test_data = burnable_material_card_data[test_key]
+        np.testing.assert_array_equal(np.array(ref_data, dtype=object),
+                                      np.array(test_data, dtype=object))
+
     remove(serpent_depcode.runtime_matfile)
 
     # set_power_load
