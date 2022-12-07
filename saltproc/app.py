@@ -185,6 +185,7 @@ def read_main_input(main_inp_file):
         simulation_input = j['simulation']
         reactor_input = j['reactor']
 
+        depcode_input['codename'] = depcode_input['codename'].lower()
         if depcode_input['codename'] == 'serpent':
             depcode_input['template_input_file_path'] = str((
                 input_path /
@@ -199,8 +200,8 @@ def read_main_input(main_inp_file):
                  depcode_input['chain_file_path']).resolve())
         else:
             raise ValueError(
-                f'{depcode_input["codename"]} '
-                'is not a supported depletion code')
+                f'{codename} is not a supported depletion code.'
+                Accepts: "serpent" or "openmc".)
 
         depcode_input['output_path'] = output_path
         geo_list = depcode_input['geo_file_paths']
@@ -237,7 +238,7 @@ def _print_simulation_input_info(simulation_input, depcode_input):
 
 def _create_depcode_object(depcode_input):
     """Helper function for `run()` """
-    codename = depcode_input.pop('codename').lower()
+    codename = depcode_input.pop('codename')
     if codename == 'serpent':
         depcode = SerpentDepcode
     elif codename == 'openmc':
