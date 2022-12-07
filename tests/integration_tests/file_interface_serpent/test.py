@@ -14,16 +14,6 @@ def geometry_switch(scope='module'):
     return (path / 'serpent_data' / 'tap_geometry_switch.ini')
 
 
-#@pytest.fixture
-#def msr(scope='module'):
-#    reactor = Reactor(volume=1.0,
-#                      power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
-#                      depletion_timesteps=[111.111, 2101.9, 3987.5],
-#                      timestep_type='stepwise',
-#                      timestep_units='d')
-#    return reactor
-
-
 def test_runtime_input_from_template(serpent_depcode, serpent_reactor):
     file = serpent_depcode.template_input_file_path
     file_data = serpent_depcode.read_plaintext_file(file)
@@ -41,9 +31,6 @@ def test_runtime_input_from_template(serpent_depcode, serpent_reactor):
     remove(serpent_depcode.runtime_matfile)
 
     # set_power_load
-    #time = msr.depletion_timesteps.copy()
-    #time.insert(0, 0.0)
-    #depsteps = np.diff(time)
     for idx in range(len(serpent_reactor.power_levels)):
         file_data = serpent_depcode.set_power_load(file_data, serpent_reactor, idx)
 
