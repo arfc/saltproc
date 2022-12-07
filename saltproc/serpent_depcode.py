@@ -147,6 +147,13 @@ class SerpentDepcode(Depcode):
         mat_cards = \
             [line.split() for line in file_lines if line.startswith("mat ")]
 
+        for card in mat_cards:
+            if 'fix' not in card:
+                raise IOError(f'"mat" card for burnable material "{card[1]}'
+                              'does not have a "fix" option. Burnable materials'
+                              'in SaltProc must include the "fix" option. See'
+                              'the serpent wiki for more information: '
+                              'https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#mat')
         # Get volume indices
         card_volume_idx = [(card.index('vol') + 1) for card in mat_cards]
         mat_names = [card[1] for card in mat_cards]
