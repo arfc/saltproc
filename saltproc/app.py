@@ -201,7 +201,7 @@ def read_main_input(main_inp_file):
         else:
             raise ValueError(
                 f'{codename} is not a supported depletion code.'
-                Accepts: "serpent" or "openmc".)
+                'Accepts: "serpent" or "openmc".')
 
         depcode_input['output_path'] = output_path
         geo_list = depcode_input['geo_file_paths']
@@ -285,55 +285,49 @@ def _process_main_input_reactor_params(reactor_input, n_depletion_steps, codenam
     data type of the `n_depletion_steps` parameter, and throw errors if the input
     parameters are incorrect.
     """
+
     depletion_timesteps = reactor_input['depletion_timesteps']
     power_levels = reactor_input['power_levels']
-    if n_depletion_steps is not None and len(depletion_timesteps) == 1:
+
+    if n_depletion_steps is not None:
         if n_depletion_steps < 0.0 or not int:
-            raise ValueError('Depletion step interval cannot be negative')
-        # Make `power_levels` and `depletion_timesteps`
-        # lists of length `n_depletion_steps`
+            raise ValueError('There must be a positive integer number'
+                             ' of depletion steps. Provided'
+                             f' n_depletion_steps: {n_depletion_steps}')
         else:
-            step_length = float(depletion_timesteps[0])
-            #if reactor_input['timestep_type'] == 'stepwise':
-            #    depletion_timesteps = [step_length] * n_depletion_steps
-            depletion_timesteps = [step_length] * n_depletion_steps
-            #else:
-            #    depletion_timesteps = \
-            #        np.linspace(step_length,
-            #                    n_depletion_steps*step_length,
-            #                    n_depletion_steps)
-            reactor_input['depletion_timesteps'] = depletion_timesteps
-            power_levels = float(power_levels[0]) * \
-                np.ones_like(depletion_timesteps)
-            reactor_input['power_levels'] = power_levels
-    elif n_depletion_steps is None and isinstance(depletion_timesteps,
-                                             (np.ndarray, list)):
-        if len(depletion_timesteps) != len(power_levels):
-            raise ValueError(
-                'Depletion step list and power list shape mismatch')
-    else:
-        timesteps = reactor_input['depletion_timesteps']
-        timestep_type = reactor_input['timestep_type']
-        if timestep_type == 'cumulative':
-            ts = list(np.diff(depletion_timesteps))
-            reactor_input['depletion_timesteps'] = depletion_timesteps[0] + ts
+            if len(depletion_timesteps) == 1:
+                depletion_timesteps = depletion_timesteps * n_depletion_steps
+            if len(power_levels) == 1:
+                power_levels = power_levels * n_depletion_steps
 
-        timestep_units = reactor_input['time_unit']
-        if not(timestep_units in ('d', 'day')) and time_units.lower() != 'mwd/kg' and codename == 'serpent':
-            if timestep_units in ('s', 'sec'):
-                reactor_input['depletion_timesteps'] /= 60 * 60 * 24
-            elif timestep_units in ('min', 'minute'):
-                reactor_input['depletion_timesteps'] /= 60 * 24
-            elif timestep_units in ('h', 'hr', 'hour'):
-                reactor_input['depletion_timesteps'] /= 24
-            elif timestep_units in ('a', 'year'):
-                reactor_input['depletion_timesteps'] *= 365.25
-            else:
-                raise IOError(f'Unrecognized time unit: {timestep_units}')
+    if len(depletion_timesteps) != len(power_levels):
+        raise ValueError('depletion_timesteps and power_levels length mismatch:'
+                         f' depletion_timesteps has {len(depletion_timesteps)}'
+                         f' entries and power_levels has {len(power_levels)}'
+                         ' entries.')
 
+    if reactor_input['timestep_type'] == 'cumulative':
+        ts = list(np.diff(depletion_timesteps))
+        depletion_timesteps = depletion_timesteps[0] + ts
+
+    timestep_units = reactor_input['timestep_units']
+    # serpent base timestep units are days or mwd/kg
+    if not(timestep_units in ('d', 'day')) and time_units.lower() != 'mwd/kg' and codename == 'serpent':
+        if timestep_units in ('s', 'sec'):
+            depletion_timesteps /= 60 * 60 * 24
+        elif timestep_units in ('min', 'minute'):
+            depletion_timesteps /= 60 * 24
+        elif timestep_units in ('h', 'hr', 'hour'):
+            depletion_timesteps /= 24
+        elif timestep_units in ('a', 'year'):
+            depletion_timesteps *= 365.25
+        else:
+            raise IOError(f'Unrecognized time unit: {timestep_units}')
+
+    reactor_input['depletion_timesteps'] = depletion_timesteps
+    reactor_input['power_levels'] = power_levels
 
     return reactor_input
-
 
 def reprocess_materials(mats, process_file, dot_file):
     """Applies extraction reprocessing scheme to burnable materials.
