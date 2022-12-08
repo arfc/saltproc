@@ -79,7 +79,7 @@ def test_write_depletion_settings(openmc_depcode, msr):
     with open(openmc_depcode.output_path / 'depletion_settings.json') as f:
         j = json.load(f)
         assert Path(j['directory']).resolve() == Path(
-            openmc_depcode.runtime_inputfile['settings']).parents[0]
+            openmc_depcode.output_path)
         assert j['timesteps'][0] == msr.depletion_timesteps[0]
         assert j['operator_kwargs']['chain_file'] == \
             openmc_depcode.chain_file_path

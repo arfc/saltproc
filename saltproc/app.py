@@ -180,6 +180,10 @@ def read_main_input(main_inp_file):
         output_path = (input_path / output_path)
         j['output_path'] = output_path.resolve()
 
+        # Create output directoy if it doesn't exist
+        if not Path(j['output_path']).exists():
+            Path(j['output_path']).mkdir(parents=True)
+
         # Class settings
         depcode_input = j['depcode']
         simulation_input = j['simulation']

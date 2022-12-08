@@ -18,7 +18,7 @@
             "description": "Path output data storing folder",
             "type": "string",
             "pattern": "^(.\\/)*(.*)$",
-            "default": "saltproc_results"
+            "default": "saltproc_runtime"
         },
         "n_depletion_steps": {
             "description": "Number of steps for constant power and depletion interval case",
@@ -259,6 +259,7 @@
                 "db_name": {
                     "description": "Output HDF5 database file name",
                     "type": "string",
+                    "default": "saltproc_results.h5",
                     "pattern": "^(.*)\\.h5$"},
                 "restart_flag": {
                     "description": "Restart simulation from the step when it stopped?",

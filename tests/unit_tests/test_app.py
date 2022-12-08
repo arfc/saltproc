@@ -47,7 +47,7 @@ def test_read_main_input(cwd, codename, ext):
             str((input_path / 'tap_template.ini').resolve())
 
     assert simulation_input['db_name'] == \
-        str((data_path / '../temp_data/db_saltproc.h5').resolve())
+        str((data_path / f'../{codename}_data/saltproc_runtime/saltproc_results.h5').resolve())
     assert simulation_input['restart_flag'] is False
 
     np.testing.assert_equal(
