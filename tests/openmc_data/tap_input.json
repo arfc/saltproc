@@ -1,7 +1,6 @@
 {
    "proc_input_file": "../tap_processes.json",
    "dot_input_file": "../tap_paths.dot",
-   "output_path": "../temp_data",
    "n_depletion_steps": 2,
    "depcode": {
        "codename": "openmc",
@@ -13,10 +12,7 @@
        "chain_file_path": "test_chain.xml"
    },
    "simulation": {
-       "sim_name": "tap_test_simulation_openmc",
-       "db_name": "db_saltproc.h5",
-       "restart_flag": false,
-       "adjust_geo": false
+       "sim_name": "tap_test_simulation_openmc"
    },
    "reactor": {
        "volume": 1.0,
