@@ -97,6 +97,7 @@ Python API Changes
 
 - Input file format changes:
 
+  - Added default values for certain input parameters
   - Added depletion settings for OpenMC
   - ``num_depsteps`` → ``n_depletion_steps``
   - ``depcode['template_inputfile_path']`` → ``depcode['template_input_file_path']``
