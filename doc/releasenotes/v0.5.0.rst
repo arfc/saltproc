@@ -54,6 +54,7 @@ New Features
   Describe any new features to the code.
 
 - ``openmc`` support via `DepcodeOpenMC`
+- OpenMC compatible MSBR model.
 
 
 
@@ -81,7 +82,9 @@ Script Changes
   - Add ``SERPENT_DATA`` and ``SERPENT_ACELIB`` variables to ``.bashrc``
 
 - A new script, ``scripts/ci/openmc-xs.bash``, that downloads the OpenMC HDF5 cross section library.
-
+- A new script, ``download_endfb71.bash``, that downloads the ENDF/B 7.1 cross section library -- including thermal scattering, decay, and fission yield data -- in ACE format.
+- A new script, ``process_endfb71_to_openmc.bash``, that converts the library created by ``download_endfb71.bash`` into an OpenMC-usable HDF5 format. Requires OpenMC to be installed from source to use.
+- A new script ``openmc_msbr_model.py``, that creates an OpenMC-usable MSBR model based on the Serpent MSBR model.
 
 
 Python API Changes
@@ -90,6 +93,7 @@ Python API Changes
 ..
   Describe any changes to the API
 
+- The test suite has been overhauled and moved to the `tests/` directory. The test suite is no longer part of the `saltproc` package.
 
 - Input file format changes:
 
@@ -107,26 +111,59 @@ Python API Changes
    longer be initialized by the user during object creation.
 
 
-- New/changed classes and methods:
+- New/changed classes, methods, and attributes:
 
   - ``Depcode``
 
+    - Add `output_path` parameter.
     - ``template_inputfile_path`` → ``template_input_file_path``
-    - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
+    - Removed default values for `geo_files`
+    - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
+    - Changed `npop`, `active_cycles`, `inactive_cycles` to be attributes instead of parameters
+    - ``read_depcode_info()`` → ``read_step_metadata()``
+    - ``sim_info`` → ``step_metadata``
+    - ``read_depcode_step_param()`` → ``read_neutronics_parameters()``
+    - ``param`` → ``neutronics_parameters``
+    - ``read_dep_comp()`` → ``read_depleted_materials()``
+    - ``run_depcode()`` → ``run_depletion_step()``
+    - ``write_mat_file()`` → ``update_depletable_materials()``
+    - ``write_depcode_input()`` →  ``write_runtime_input()``
+    - ``iter_inputfile``  →  ``runtime_inputfile``
+    - ``iter_matfile``  →  ``runtime_matfile``
 
-  - ``DepcodeSerpent``
+  - ``DepcodeSerpent`` → ``SerpentDepcode``
 
+    - Add `output_path` parameter.
     - ``template_inputfile_path`` → ``template_input_file_path``
-    - Changed `iter_inputfile` and `iter_matfile` to be attributes instead of parameters
+    - Removed default values for `exec_path`, `template_input_file_path`, `geo_files`
+    - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
+    - Changed `npop`, `active_cycles`, `inactive_cycles` to be attributes instead of parameters
+    - ``read_depcode_info()`` → ``read_depletion_step_metadata()``
+    - ``sim_info`` → ``step_metadata``
+    - ``read_depcode_step_param()`` → ``read_neutronics_parameters()``
+    - ``param`` → ``neutronics_parameters``
+    - ``read_dep_comp()`` → ``read_depleted_materials()``
+    - ``create_nuclide_name_map_zam_to_serpent()`` → ``map_nuclide_code_zam_to_serpent()``
+    - ``run_depcode()`` → ``run_depletion_step()``
+    - ``write_mat_file()`` → ``update_depletable_materials()``
+    - ``get_nuc_name()`` →  ``convert_nuclide_code_to_name()``
+    - ``convert_nuclide_name_serpent_to_zam()`` → ``convert_nuclide_code_to_zam()`` 
+    - ``change_sim_par()`` →  (deleted)
+    -  (new function) →  ``get_neutron_settings()``
+    - ``create_iter_matfile()`` → ``create_runtime_matfile()``
+    - ``replace_burnup_parameters()`` → ``set_power_load()``
+    - ``write_depcode_input()`` →  ``write_runtime_input()``
+    - ``iter_inputfile``  →  ``runtime_inputfile``
+    - ``iter_matfile``  →  ``runtime_matfile``
 
 
-  - ``DepcodeOpenmc`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
-
-    - ``run_depcode()``
+  - ``OpenMCDepcode`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
+    - ``run_depletion_step()``
     - ``switch_to_next_geometry()``
-    - ``write_depcode_input()``
+    - ``write_runtime_input()``
     - ``write_depletion_settings()``
     - ``write_saltproc_openmc_tallies()``
+
 
   - ``app.py``
 

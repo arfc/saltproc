@@ -1,117 +1,50 @@
-from saltproc import DepcodeSerpent
-from saltproc import DepcodeOpenMC
-from saltproc import Simulation
-from saltproc import Materialflow
-from saltproc import Process
-from saltproc import Reactor
-from saltproc import Sparger
-from saltproc import Separator
-# from depcode import Depcode
-# from simulation import Simulation
-# from materialflow import Materialflow
-import os
-import copy
+from pathlib import Path
+from copy import deepcopy
+from collections import OrderedDict
+
+import argparse
+import numpy as np
 import json
 import jsonschema
-from collections import OrderedDict
 import gc
 import networkx as nx
 import pydotplus
-import argparse
-import numpy as np
+
+from saltproc import SerpentDepcode, OpenMCDepcode, Simulation, Reactor
+from saltproc import Process, Sparger, Separator, Materialflow
 
 
 def run():
-    """ Inititializes main run.
-    """
-    # Parse arguments from command-lines
-    nodes, cores, sp_input = parse_arguments()
-    # Read main input file
-    read_main_input(sp_input)
-    if depcode_inp['codename'] == 'serpent':
-        template_file_path = \
-            os.path.abspath(depcode_inp['template_input_file_path'])
-    elif depcode_inp['codename'] == 'openmc':
-        template_file_path = \
-            os.path.dirname(
-                os.path.abspath(
-                    depcode_inp['template_input_file_path']['materials']))
-    iter_file_path = os.path.abspath(output_path)
-    # Print out input information
-    print('Initiating Saltproc:\n'
-          '\tRestart = ' +
-          str(simulation_inp['restart_flag']) +
-          '\n'
-          '\tTemplate File Path(s)  = ' +
-          template_file_path +
-          '\n'
-          '\tDepletion Step File Path     = ' +
-          iter_file_path +
-          '\n'
-          '\tOutput HDF5 database Path = ' +
-          os.path.abspath(simulation_inp['db_name']) +
-          '\n')
+    """ Inititializes main run"""
+    nodes, cores, saltproc_input = parse_arguments()
+    input_path, process_file, dot_file, object_input = \
+        read_main_input(saltproc_input)
+    _print_simulation_input_info(object_input[1], object_input[0])
     # Intializing objects
-    if depcode_inp['codename'] == 'serpent':
-        iter_inputfile = os.path.join(
-            output_path, 'serpent_iter_input.serpent')
-        iter_matfile = os.path.join(
-            output_path, 'serpent_iter_matfile.ini')
-        depcode = DepcodeSerpent()
-    elif depcode_inp['codename'] == 'openmc':
-        iter_inputfile = {}
-        for key in depcode_inp['template_input_file_path']:
-            iter_inputfile[key] = \
-                os.path.join(output_path, key + '.xml')
+    depcode = _create_depcode_object(object_input[0])
+    simulation = _create_simulation_object(
+        object_input[1], depcode, cores, nodes)
+    msr = _create_reactor_object(object_input[2])
 
-        iter_matfile = os.path.join(output_path, 'materals.xml')
-        depcode = DepcodeOpenMC()
-    else:
-        raise ValueError(
-            f'{depcode_inp["codename"]} is not a supported depletion code')
-
-    depcode.template_input_file_path = depcode_inp['template_input_file_path']
-    depcode.geo_files = depcode_inp['geo_file_paths']
-    depcode.npop = depcode_inp['npop']
-    depcode.active_cycles = depcode_inp['active_cycles']
-    depcode.inactive_cycles = depcode_inp['inactive_cycles']
-
-    depcode.iter_inputfile = iter_inputfile
-    depcode.iter_matfile = iter_matfile
-
-    simulation = Simulation(
-        sim_name='Super test',
-        sim_depcode=depcode,
-        core_number=cores,
-        node_number=nodes,
-        restart_flag=simulation_inp['restart_flag'],
-        adjust_geo=simulation_inp['adjust_geo'],
-        db_path=simulation_inp['db_name'])
-
-    msr = Reactor(
-        volume=reactor_inp['volume'],
-        mass_flowrate=reactor_inp['mass_flowrate'],
-        power_levels=reactor_inp['power_levels'],
-        dep_step_length_cumulative=reactor_inp['dep_step_length_cumulative'])
     # Check: Restarting previous simulation or starting new?
     simulation.check_restart()
     # Run sequence
     # Start sequence
     for dep_step in range(len(msr.dep_step_length_cumulative)):
         print("\n\n\nStep #%i has been started" % (dep_step + 1))
-        simulation.sim_depcode.write_depcode_input(msr,
+        simulation.sim_depcode.write_runtime_input(msr,
                                                    dep_step,
                                                    simulation.restart_flag)
-        depcode.run_depcode(cores, nodes)
+        depcode.run_depletion_step(cores, nodes)
         if dep_step == 0 and simulation.restart_flag is False:  # First step
             # Read general simulation data which never changes
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dep_step)
-            mats = depcode.read_dep_comp(False)
+            mats = depcode.read_depleted_materials(False)
             simulation.store_mat_data(mats, dep_step - 1, False)
         # Finish of First step
         # Main sequence
-        mats = depcode.read_dep_comp(True)
+        mats = depcode.read_depleted_materials(True)
         simulation.store_mat_data(mats, dep_step, False)
         simulation.store_run_step_info()
         # Reprocessing here
@@ -121,7 +54,9 @@ def run():
         # print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
         #       (mats['ctrlPois'].mass,
         #        mats['ctrlPois'].vol))
-        waste_streams, extracted_mass = reprocess_materials(mats)
+        waste_streams, extracted_mass = reprocess_materials(mats,
+                                                            process_file,
+                                                            dot_file)
         print("\nMass and volume of fuel after reproc: %f g, %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
@@ -130,7 +65,8 @@ def run():
         #        mats['ctrlPois'].vol))
         waste_and_feed_streams = refill_materials(mats,
                                                   extracted_mass,
-                                                  waste_streams)
+                                                  waste_streams,
+                                                  process_file)
         print("\nMass and volume of fuel after REFILL: %f g, %f cm3" %
               (mats['fuel'].mass,
                mats['fuel'].vol))
@@ -140,7 +76,7 @@ def run():
         print("Removed mass [g]:", extracted_mass)
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_and_feed_streams, dep_step)
-        depcode.write_mat_file(mats, simulation.burn_time)
+        depcode.update_depletable_materials(mats, simulation.burn_time)
         del mats, waste_streams, waste_and_feed_streams, extracted_mass
         gc.collect()
         # Switch to another geometry?
@@ -153,6 +89,7 @@ def run():
         msr.mass_flowrate,
               msr.power_levels,
               msr.dep_step_length_cumulative)'''
+
 
 def parse_arguments():
     """Parses arguments from command line.
@@ -188,6 +125,7 @@ def parse_arguments():
     args = parser.parse_args()
     return int(args.n), int(args.d), str(args.i)
 
+
 def read_main_input(main_inp_file):
     """Reads main SaltProc input file (json format).
 
@@ -195,10 +133,23 @@ def read_main_input(main_inp_file):
     ----------
     main_inp_file : str
         Path to SaltProc main input file and name of this file.
+
+    Returns
+    -------
+    input_path : Path
+        Path to main input file
+    process_file : str
+        Path to the `.json` file describing the fuel reprocessing components.
+    dot_file : str
+        Path to the `.dot` describing the fuel reprocessing paths.
+    object_inputs : 3-tuple of dict
+        tuple containing the inputs for constructing the
+        :class:`~saltproc.Depcode`, :class:`~saltproc.Simulation`, and
+        :class:`~saltproc.Reactor` objects.
+
     """
 
-    input_schema = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                './input_schema.json')
+    input_schema = (Path(__file__).parents[0] / 'input_schema.json')
     with open(main_inp_file) as f:
         j = json.load(f)
         with open(input_schema) as s:
@@ -206,84 +157,156 @@ def read_main_input(main_inp_file):
             try:
                 jsonschema.validate(instance=j, schema=v)
             except jsonschema.exceptions.ValidationError:
-                print("Your input file improperly structured.\
+                print("Your input file is improperly structured.\
                       Please see saltproc/tests/test.json for an example.")
 
         # Global input path
-        path_prefix = os.getcwd()
-        input_path = os.path.join(path_prefix, os.path.dirname(f.name))
+        input_path = (Path.cwd() / Path(f.name).parents[0])
 
         # Saltproc settings
-        global spc_inp_file, dot_inp_file, output_path, num_depsteps
-        spc_inp_file = os.path.join(
-            os.path.dirname(f.name),
-            j['proc_input_file'])
-        dot_inp_file = os.path.join(
-            os.path.dirname(f.name),
-            j['dot_input_file'])
+        process_file = str((input_path /
+                              j['proc_input_file']).resolve())
+        dot_file = str((
+            input_path /
+            j['dot_input_file']).resolve())
         output_path = j['output_path']
         num_depsteps = j['num_depsteps']
 
         # Global output path
-        output_path = os.path.join(input_path, output_path)
-        j['output_path'] = output_path
+        output_path = (input_path / output_path)
+        j['output_path'] = output_path.resolve()
 
         # Class settings
-        global depcode_inp, simulation_inp, reactor_inp
-        depcode_inp = j['depcode']
-        simulation_inp = j['simulation']
-        reactor_inp = j['reactor']
+        depcode_input = j['depcode']
+        simulation_input = j['simulation']
+        reactor_input = j['reactor']
 
-        if depcode_inp['codename'] == 'serpent':
-            depcode_inp['template_input_file_path'] = os.path.join(
-                input_path, depcode_inp['template_input_file_path'])
-        elif depcode_inp['codename'] == 'openmc':
-            for key in depcode_inp['template_input_file_path']:
-                value = depcode_inp['template_input_file_path'][key]
-                depcode_inp['template_input_file_path'][key] = \
-                    os.path.join(input_path, value)
+        if depcode_input['codename'] == 'serpent':
+            depcode_input['template_input_file_path'] = str((
+                input_path /
+                depcode_input['template_input_file_path']).resolve())
+        elif depcode_input['codename'] == 'openmc':
+            for key in depcode_input['template_input_file_path']:
+                value = depcode_input['template_input_file_path'][key]
+                depcode_input['template_input_file_path'][key] = str((
+                    input_path / value).resolve())
         else:
             raise ValueError(
-                f'{depcode_inp["codename"]} is not a supported depletion code')
+                f'{depcode_input["codename"]} '
+                'is not a supported depletion code')
 
-        geo_list = depcode_inp['geo_file_paths']
+        depcode_input['output_path'] = output_path
+        geo_list = depcode_input['geo_file_paths']
 
         # Global geometry file paths
         geo_file_paths = []
         for g in geo_list:
-            geo_file_paths += [os.path.join(input_path, g)]
-        depcode_inp['geo_file_paths'] = geo_file_paths
+            geo_file_paths += [str((input_path / g).resolve())]
+        depcode_input['geo_file_paths'] = geo_file_paths
 
         # Global output file paths
-        db_name = os.path.join(
-            output_path, simulation_inp['db_name'])
-        simulation_inp['db_name'] = db_name
+        db_name = (output_path / simulation_input['db_name'])
+        simulation_input['db_name'] = str(db_name.resolve())
 
-        dep_step_length_cumulative = reactor_inp['dep_step_length_cumulative']
-        power_levels = reactor_inp['power_levels']
-        if num_depsteps is not None and len(dep_step_length_cumulative) == 1:
-            if num_depsteps < 0.0 or not int:
-                raise ValueError('Depletion step interval cannot be negative')
-            else:
-                step = int(num_depsteps)
-                deptot = float(dep_step_length_cumulative[0]) * step
-                dep_step_length_cumulative = \
-                    np.linspace(float(dep_step_length_cumulative[0]),
-                                deptot,
-                                num=step)
-                power_levels = float(power_levels[0]) * \
-                    np.ones_like(dep_step_length_cumulative)
-                reactor_inp['dep_step_length_cumulative'] = \
-                    dep_step_length_cumulative
-                reactor_inp['power_levels'] = power_levels
-        elif num_depsteps is None and isinstance(dep_step_length_cumulative,
-                                                 (np.ndarray, list)):
-            if len(dep_step_length_cumulative) != len(power_levels):
-                raise ValueError(
-                    'Depletion step list and power list shape mismatch')
+        reactor_input = _process_main_input_reactor_params(
+            reactor_input, num_depsteps)
+
+        return input_path, process_file, dot_file, (
+            depcode_input, simulation_input, reactor_input)
 
 
-def reprocess_materials(mats):
+def _print_simulation_input_info(simulation_input, depcode_input):
+    """Helper function for `run()` """
+    print('Initiating Saltproc:\n'
+          '\tRestart = ' +
+          str(simulation_input['restart_flag']) +
+          '\n'
+          '\tTemplate File Path  = ' +
+          depcode_input['template_input_file_path'] +
+          '\n'
+          '\tOutput HDF5 database Path = ' +
+          simulation_input['db_name'] +
+          '\n')
+
+
+def _create_depcode_object(depcode_input):
+    """Helper function for `run()` """
+    codename = depcode_input['codename'].lower()
+    if codename == 'serpent':
+        depcode = SerpentDepcode
+    elif codename == 'openmc':
+        depcode = OpenMCDepcode
+    else:
+        raise ValueError(
+            f'{codename} is not a supported depletion code.'
+            'Accepts: "serpent" or "openmc".')
+
+    depcode = depcode(depcode_input['output_path'],
+                      depcode_input['exec_path'],
+                      depcode_input['template_input_file_path'],
+                      geo_files=depcode_input['geo_file_paths'])
+
+    return depcode
+
+
+def _create_simulation_object(simulation_input, depcode, cores, nodes):
+    """Helper function for `run()` """
+    simulation = Simulation(
+        sim_name='Super test',
+        sim_depcode=depcode,
+        core_number=cores,
+        node_number=nodes,
+        restart_flag=simulation_input['restart_flag'],
+        adjust_geo=simulation_input['adjust_geo'],
+        db_path=simulation_input['db_name'])
+    return simulation
+
+
+def _create_reactor_object(reactor_input):
+    """Helper function for `run()` """
+    msr = Reactor(
+        volume=reactor_input['volume'],
+        mass_flowrate=reactor_input['mass_flowrate'],
+        power_levels=reactor_input['power_levels'],
+        dep_step_length_cumulative=reactor_input['dep_step_length_cumulative'])
+    return msr
+
+
+def _process_main_input_reactor_params(reactor_input, num_depsteps):
+    """
+    Process SaltProc reactor class input parameters based on the value and
+    data type of the `num_depsteps` parameter, and throw errors if the input
+    parameters are incorrect.
+    """
+    dep_step_length_cumulative = reactor_input['dep_step_length_cumulative']
+    power_levels = reactor_input['power_levels']
+    if num_depsteps is not None and len(dep_step_length_cumulative) == 1:
+        if num_depsteps < 0.0 or not int:
+            raise ValueError('Depletion step interval cannot be negative')
+        # Make `power_levels` and `dep_step_length_cumulative`
+        # lists of length `num_depsteps`
+        else:
+            step = int(num_depsteps)
+            deptot = float(dep_step_length_cumulative[0]) * step
+            dep_step_length_cumulative = \
+                np.linspace(float(dep_step_length_cumulative[0]),
+                            deptot,
+                            num=step)
+            power_levels = float(power_levels[0]) * \
+                np.ones_like(dep_step_length_cumulative)
+            reactor_input['dep_step_length_cumulative'] = \
+                dep_step_length_cumulative
+            reactor_input['power_levels'] = power_levels
+    elif num_depsteps is None and isinstance(dep_step_length_cumulative,
+                                             (np.ndarray, list)):
+        if len(dep_step_length_cumulative) != len(power_levels):
+            raise ValueError(
+                'Depletion step list and power list shape mismatch')
+
+    return reactor_input
+
+
+def reprocess_materials(mats, process_file, dot_file):
     """Applies extraction reprocessing scheme to burnable materials.
 
     Parameters
@@ -292,6 +315,10 @@ def reprocess_materials(mats):
         Dictionary that contains :class:`saltproc.materialflow.Materialflow`
         objects with burnable material data right after irradiation in the
         core.
+    process_file : str
+        Path to the `.json` file describing the fuel reprocessing components.
+    dot_file : str
+        Path to the `.dot` describing the fuel reprocessing paths.
 
     Returns
     -------
@@ -314,9 +341,9 @@ def reprocess_materials(mats):
     waste_streams = OrderedDict()
     thru_flows = OrderedDict()
 
-    extraction_processes = get_extraction_processes()
+    extraction_processes = get_extraction_processes(process_file)
     material_for_extraction, extraction_process_paths = \
-        get_extraction_process_paths(dot_inp_file)
+        get_extraction_process_paths(dot_file)
 
     # iterate over materials
     for mat_name, processes in extraction_processes.items():
@@ -383,13 +410,18 @@ def reprocess_materials(mats):
     return waste_streams, extracted_mass
 
 
-def get_extraction_processes():
+def get_extraction_processes(process_file):
     """Parses ``extraction_processes`` objects from the `.json` file describing
     processing system objects.
 
     ``extraction_processes`` objects describe components that would perform
     fuel processing in a real reactor, such as a gas sparger or a nickel
     filter.
+
+    Parameters
+    ----------
+    process_file : str
+        Path to the `.json` file describing the fuel reprocessing components.
 
     Returns
     -------
@@ -404,7 +436,7 @@ def get_extraction_processes():
 
     """
     extraction_processes = OrderedDict()
-    with open(spc_inp_file) as f:
+    with open(process_file) as f:
         j = json.load(f)
         for mat_name, procs in j.items():
             extraction_processes[mat_name] = OrderedDict()
@@ -432,7 +464,7 @@ def get_extraction_process_paths(dot_file):
     Parameters
     ----------
     dot_file : str
-        Path to `.dot` file with reprocessing system structure.
+        Path to the `.dot` describing the fuel reprocessing paths.
 
     Returns
     -------
@@ -456,7 +488,7 @@ def get_extraction_process_paths(dot_file):
     return mat_name, extraction_process_paths
 
 
-def refill_materials(mats, extracted_mass, waste_streams):
+def refill_materials(mats, extracted_mass, waste_streams, process_file):
     """Makes up material loss in removal processes by adding fresh fuel.
 
     Parameters
@@ -465,19 +497,20 @@ def refill_materials(mats, extracted_mass, waste_streams):
         Dicitionary mapping material names to
         :class:`saltproc.materialflow.Materialflow` objects that have already
         been reprocessed by `reprocess_materials`.
-
     extracted_mass : dict of str to float
         Dictionary mapping material names to the mass in [g] of that material
         removed via reprocessing.
     waste_streams : dict of str to dict
         Dictionary mapping material names to waste streams from reprocessing
 
-        ``key``
+         ``key``
             Material name.
         ``value``
             Dictionary mapping waste stream names to
             :class:`saltproc.materialflow.Materialflow` objects representing
             waste streams.
+    process_file : str
+        Path to the `.json` file describing the fuel reprocessing components.
 
     Returns
     -------
@@ -488,7 +521,7 @@ def refill_materials(mats, extracted_mass, waste_streams):
 
     """
     print('Fuel before refilling: ^^^', mats['fuel'].print_attr())
-    feeds = get_feeds()
+    feeds = get_feeds(process_file)
     refill_mats = OrderedDict()
     # Get feed group for each material
     for mat, mat_feeds in feeds.items():
@@ -506,17 +539,23 @@ def refill_materials(mats, extracted_mass, waste_streams):
     return waste_streams
 
 
-def get_feeds():
+def get_feeds(process_file):
     """Parses ``feed`` objects from `.json` file describing processing system
     objects.
 
     ``feed`` objects describe material flows that replace nuclides needed to
     keep the reactor operating that were removed during reprocessing.
 
+    Parameters
+    ----------
+    process_file : str
+        Path to the `.json` file describing the fuel reprocessing components.
+
     Returns
     -------
     feeds : dict of str to dict
         Dictionary that maps material names to material flows
+
         ``key``
             Name of burnable material.
         ``value``
@@ -526,7 +565,7 @@ def get_feeds():
 
     """
     feeds = OrderedDict()
-    with open(spc_inp_file) as f:
+    with open(process_file) as f:
         j = json.load(f)
         for mat in j:
             feeds[mat] = OrderedDict()

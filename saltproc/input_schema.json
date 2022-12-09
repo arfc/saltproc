@@ -17,7 +17,7 @@
         "output_path": {
             "description": "Path output data storing folder",
             "type": "string",
-            "pattern": "^\\.\\/(.*)$"
+            "pattern": "^(.\\/)*(.*)$"
         },
         "num_depsteps": {
             "description": "Number of steps for constant power and depletion interval case",
@@ -36,18 +36,6 @@
                     "type": "string" },
                 "template_input_file_path": {
                     "description": "Path(s) to user's template depletion code input file(s) with reactor model"},
-                "npop": {
-                    "description": "Number of neutrons per generation",
-                    "type": "number",
-                    "minimum": 0},
-                "active_cycles": {
-                    "description": "number of active generations",
-                    "type": "number",
-                    "minimum": 0},
-                "inactive_cycles": {
-                    "description": "Number of inactive generations",
-                    "type": "number",
-                    "minimum": 0},
                 "geo_file_paths": {
                     "description": "Path(s) to geometry file(s) to switch to in depletion code runs",
                     "type": "array",
@@ -63,10 +51,14 @@
                     },
                     "then": {
                         "properties": {
+                            "exec_path": {
+                                "description": "Path to Serpent executable",
+                                "type": "string",
+                                "default": "sss2"},
                             "template_input_file_path": {
                                 "description": "Path to Serpent template inputfile",
                                 "type": "string",
-                                "pattern": "^\\.\\/(.*)$"}
+                                "pattern": "^(.\\/)*(.*)$"}
                         }
                     }
                 },
@@ -76,6 +68,10 @@
                     },
                     "then": {
                         "properties": {
+                            "exec_path": {
+                                "description": "Path to OpenMC depletion script",
+                                "type": "string",
+                                "default": "openmc_deplete.py"},
                             "template_input_file_path": {
                                 "description": "Paths to OpenMC template input files",
                                 "type": "object",
@@ -83,26 +79,28 @@
                                     "settings": {
                                         "description": "OpenMC settings file",
                                         "type": "string",
-                                        "pattern": "^\\.\\/(.*)\\.xml$"},
-                                    "geometry": {
-                                        "description": "OpenMC geometry file",
-                                        "type": "string",
-                                        "pattern": "^\\.\\/(.*)\\.xml$"},
+                                        "pattern": "^(.\\/)*(.*)\\.xml$",
+                                        "default": "settings.xml"},
                                     "materials": {
                                         "description": "OpenMC materials file",
                                         "type": "string",
-                                        "pattern": "^\\.\\/(.*)\\.xml$"},
-                                    "plots": {
-                                        "description": "OpenMC plots file (optional)",
-                                        "type": "string",
-                                        "pattern": "^\\.\\/(.*)\\.xml$"},
+                                        "pattern": "^(.\\/)*(.*)\\.xml$",
+                                        "default": "materials.xml"},
                                     "chain_file": {
                                         "description": "OpenMC depletion chain file",
                                         "type": "string",
-                                        "pattern": "^\\.\\/(.*)\\.xml$"}
+                                        "pattern": "^(.\\/)*(.*)\\.xml$"}
                                 },
 
-                                "required": ["settings", "geometry", "materials", "chain_file"]
+                                "required": ["settings", "materials", "chain_file"]
+                            },
+                            "geo_file_paths": {
+                                "description": "Path(s) to geometry file(s) to switch to in OpenMC code runs",
+                                "type": "array",
+                                "items": { "type": "string",
+                                           "pattern": "^(.\\/)*(.*)\\.xml$"},
+                                "minItems": 1,
+                                "default": ["geometry.xml"]
                             }
                         }
                     }

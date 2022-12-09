@@ -22,6 +22,7 @@ SaltProc has the following dependencies:
 .. _NetworkX: http://networkx.github.io
 .. _PyDotPlus: https://pydotplus.readthedocs.io/
 .. _pytest: https://docs.pytest.org
+.. _pytest documentation: https://docs.pytest.org/en/latest/how-to/usage.html
 .. _sphinx: https://www.sphinx-doc.org
 .. _sphinx-rtd-theme: https://sphinx-rtd-theme.readthedocs.io
 .. _matplotlib: http://matplotlib.org
@@ -94,7 +95,7 @@ The unit tests check that the individual functions and classes of the ``saltproc
 module return the correct type of variables and correct values, where applicable. 
 The regression tests run a full SaltProc simulation and check the final result
 with a precalculated result. 
-The ``DepcodeSerpent`` integration tests require the `JEFF 3.1.2 cross section library`_ as well
+The ``SerpentDepcode`` integration tests require the `JEFF 3.1.2 cross section library`_ as well
 as neutron induces and spontaneous fission product yield data from JEFF 3.3. 
 The publicly available versions of JEFF 3.1.2 cannot be used with Serpent right
 out of the box due to `Serpent's notation for isomeric states`_. The scripts in
@@ -103,7 +104,7 @@ We recommend using them for your convenience.
 See the `README`_ for more information.
 
 ..
-  The ``DepcodeOpenmc`` integration tests require...
+  The ``OpenMCDepcode`` integration tests require...
 
 .. _Serpent's notation for isomeric states: https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries
 .. _JEFF 3.1.2 cross section library: https://www.oecd-nea.org/dbforms/data/eva/evatapes/jeff_31/JEFF312/
@@ -113,11 +114,19 @@ To run the tests, execute:
 
 .. code-block:: bash
 
-   pytest saltproc/
+   pytest test/
 
-from the root directory of SaltProc. If you just want to run the unit tests, execute
+from the root directory of SaltProc. If you want to just the unit tests,
+execute:
 
 .. code-block:: bash
 
-   pytest --ignore saltproc/tests/integration_tests saltproc/
+   pytest tests/unit_tests
 
+Similarly, for just the integration tests, execute:
+
+.. code-block:: bash
+
+   pytest tests/integration_tests
+
+For more precise control, please refer to the `pytest documentation`_.
