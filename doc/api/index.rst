@@ -10,8 +10,8 @@ Depeletion code interfaces
    :template: myclass.rst
 
    saltproc.Depcode
-   saltproc.DepcodeSerpent
-   saltproc.DepcodeOpenMC
+   saltproc.SerpentDepcode
+   saltproc.OpenMCDepcode
 
 Reprocessing
 ------------
@@ -32,9 +32,8 @@ Running the simulation
 .. autosummary::
    :toctree: generated
    :nosignatures:
-   :template: myclass.rst
 
-    saltproc.app
+   app
 
 Results
 -------

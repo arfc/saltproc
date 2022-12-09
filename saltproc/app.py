@@ -341,9 +341,9 @@ def reprocess_materials(mats, process_file, dot_file):
     waste_streams = OrderedDict()
     thru_flows = OrderedDict()
 
-    extraction_processes = get_extraction_processes(process_file)
+    extraction_processes = _get_extraction_processes(process_file)
     material_for_extraction, extraction_process_paths = \
-        get_extraction_process_paths(dot_file)
+        _get_extraction_process_paths(dot_file)
 
     # iterate over materials
     for mat_name, processes in extraction_processes.items():
@@ -410,7 +410,7 @@ def reprocess_materials(mats, process_file, dot_file):
     return waste_streams, extracted_mass
 
 
-def get_extraction_processes(process_file):
+def _get_extraction_processes(process_file):
     """Parses ``extraction_processes`` objects from the `.json` file describing
     processing system objects.
 
@@ -457,7 +457,7 @@ def get_extraction_processes(process_file):
         return extraction_processes
 
 
-def get_extraction_process_paths(dot_file):
+def _get_extraction_process_paths(dot_file):
     """Reads directed graph that describes fuel reprocessing system structure
     from a `*.dot` file.
 
@@ -521,7 +521,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
 
     """
     print('Fuel before refilling: ^^^', mats['fuel'].print_attr())
-    feeds = get_feeds(process_file)
+    feeds = _get_feeds(process_file)
     refill_mats = OrderedDict()
     # Get feed group for each material
     for mat, mat_feeds in feeds.items():
@@ -539,7 +539,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
     return waste_streams
 
 
-def get_feeds(process_file):
+def _get_feeds(process_file):
     """Parses ``feed`` objects from `.json` file describing processing system
     objects.
 
