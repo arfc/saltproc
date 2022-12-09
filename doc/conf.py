@@ -68,7 +68,6 @@ smv_prefer_remote_refs = True
 extensions = [
     'sphinxcontrib.apidoc',
     'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
@@ -84,7 +83,8 @@ extensions = [
 # apidoc settings
 apidoc_module_dir = '../saltproc/'
 apidoc_output_dir = 'api/'
-apidoc_excluded_paths = []
+apidoc_excluded_paths = ['openmc_deplete.py',
+                         'version.py']
 apidoc_separate_modules = True
 
 # Napoleon settings
