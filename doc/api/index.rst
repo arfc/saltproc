@@ -1,6 +1,52 @@
 SaltProc API
 =============
 
+Depeletion code interfaces
+--------------------------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+   :template: myclass.rst
+
+   saltproc.Depcode
+   saltproc.DepcodeSerpent
+   saltproc.DepcodeOpenMC
+
+Reprocessing
+------------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+   :template: myclass.rst
+
+   saltproc.Materialflow
+   saltproc.Process
+   saltproc.Sparger
+   saltproc.Separator
+
+Running the simulation
+----------------------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+   :template: myclass.rst
+
+    saltproc.app
+
+Results
+-------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+   :template: myclass.rst
+
+   saltproc.Simulation
+
+
 This is automatically generated API documentation from SaltProc source files.
 
 Click the  "modules" (:ref:`modindex`) link to browse the modules.

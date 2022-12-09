@@ -69,9 +69,11 @@ extensions = [
     'sphinxcontrib.apidoc',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
+    'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
+    'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
@@ -106,6 +108,11 @@ templates_path = ['_templates']
 #
 # source_suffix = ['.rst', '.md']
 source_suffix = '.rst'
+
+
+#####
+autosummary_generate = True
+
 
 # The master toctree document.
 master_doc = 'index'
