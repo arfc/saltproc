@@ -12,9 +12,8 @@ Serpent 2 Template Files
 ------------------------
 A valid Serpent 2 template input file must have at least the following:
 
-  - Non-burnable materials instantiated directly in the file
-  - Burnable materials linked via the ```include`` card.`_
-  - The burnable materials should all use the ``fix`` option in the ```mat`` card`_.
+  - Burnable materials linked via the ```include`` card.`_ The burnable material cards **must** include the `fix` option.
+  - Non-burnable materials instantiated directly in the file **OR** via an ```include`` card.`_ *after* the burnable materials.
   - Neutron particle parameters set via the ```set pop`` card`_.
   - Spontaneous fission yielf sublibray via the ```set sfylib`` card`_
 
