@@ -33,11 +33,12 @@ Documentation
    overview
    installation
    examples
-   theoryguide/index
-   devguide/index
-   src/index
    releasenotes/index
-   fileformatspec/index
+   methods/index
+   userguide/index
+   devguide/index
+   api/index
+   io_formats/index
    How to cite <https://github.com/arfc/saltproc/blob/master/CITATION.md>
 
 Indices and tables

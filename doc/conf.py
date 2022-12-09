@@ -81,7 +81,7 @@ extensions = [
 
 # apidoc settings
 apidoc_module_dir = '../saltproc/'
-apidoc_output_dir = 'src/'
+apidoc_output_dir = 'api/'
 apidoc_excluded_paths = []
 apidoc_separate_modules = True
 
