@@ -516,7 +516,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
     -------
     waste_streams : dict of str to dict
         Superset of the input parameter `waste_streams`. Dictionary has
-        keys for feed streams that map to :classs:`Materialflow` objects
+        keys for feed streams that map to :class:`Materialflow` objects
         representing those material feed streams.
 
     """

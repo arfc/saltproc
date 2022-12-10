@@ -8,10 +8,10 @@ Functions
 
 .. autosummary::
    :toctree: generated
-   :nosignatutes:
+   :nosignatures:
    :template: myfunction.rst
 
-   run
-   read_main_input
-   reprocess_materials
-   refill_materials
+   app.run
+   app.read_main_input
+   app.reprocess_materials
+   app.refill_materials
