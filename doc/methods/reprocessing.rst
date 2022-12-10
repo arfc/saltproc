@@ -1,6 +1,6 @@
 .. _methods_reprocessing:
 
-Batch-wise Reprocessing
-=======================
+Reprocessing Methods
+====================
 
 Coming soon!

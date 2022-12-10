@@ -1,15 +1,28 @@
+.. _saltproc_overview:
+
 Overview
 =========
 
-SaltProc couples directly with a variety of Monte Carlo neutron transport codes with depletion capabilities and enables sophisticated, multi-component online fuel reprocessing system
-modeling. SaltProc is the first open-source tool for liquid-fueled MSR
-depletion simulation with the following capabilities:
+SaltProc couples directly with a variety of neutron transport codes with
+depletion capabilities and enables sophisticated, multi-component online fuel
+reprocessing system modeling. SaltProc is the first open-source tool for
+liquid-fueled depletion simulations with the following capabilities:
 
 - neutron poison removal with user-defined efficiency,
 - make-up mass loss by fresh fuel injection,
 - reactivity control by adjusting fuel feed rate or reactor geometry (i.e. control rod depth),
 - can model any reactor design,
 - potentially, can couple with any depletion tool (i.e., MCNP, SCALE, OpenMC).
+
+.. _supported_codes:
+
+Currently supported transport solvers:
+
+- `Serpent2`_
+- `OpenMC`_
+
+.. _Serpent2: http://montecarlo.vtt.fi
+.. _OpenMC: https://openmc.org/
 
 
 How SaltProc works
