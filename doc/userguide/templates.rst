@@ -12,18 +12,18 @@ Serpent 2 Template Files
 ------------------------
 A valid Serpent 2 template input file must have at least the following:
 
-  - Burnable materials linked via the ```include`` card.`_ The burnable material cards **must** include the `fix` option.
-  - Non-burnable materials instantiated directly in the file **OR** via an ```include`` card.`_ *after* the burnable materials.
-  - Neutron particle parameters set via the ```set pop`` card`_.
-  - Spontaneous fission yielf sublibray via the ```set sfylib`` card`_
+  - Burnable materials linked via the `include card`_ The burnable material cards **must** include the ``fix`` option.
+  - Non-burnable materials instantiated directly in the file **OR** via an `include card`_ *after* the burnable materials.
+  - Neutron particle parameters set via the `set pop card`_.
+  - Spontaneous fission yielf sublibray via the `set sfylib card`_
 
 Template input files should also have the following (they are not neccesary if
 the user has used the appropriate environment variables to specify them. See
 the links for each card for more details):
 
-  - The cross section data directory file via the ```set acelib`` card`_.
-  - Decay sublibraries set via the ```set declib`` card`_.
-  - Delayed fission yield sublibrary via the ```set nfylib`` card`_.
+  - The cross section data directory file via the `set acelib card`_.
+  - Decay sublibraries set via the `set declib card`_.
+  - Delayed fission yield sublibrary via the `set nfylib card`_.
 
 
 So a minimal example assuming the without the use of environment variables would look like:
@@ -61,18 +61,18 @@ And the material file containing burnable materials would look like:
 
 
 Users looking further cutomize the depletion step should read  Serpent 2's
-`input syntax manual`_, in particular the ```set bumode`` card`_ and the
-```set pcc`` card`_.
+`input syntax manual`_, in particular the `set bumode card`_ and the
+`set pcc card`_.
 
-.. _``mat`` card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#mat
-.. _``set acelib`` card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_acelib
-.. _``set declib`` card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_declib
-.. _``set sfylib`` card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_sfylib
-.. _``set nfylib`` card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_nfylib
-.. _``include`` card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#include
-.. _``set bumode`` card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_bumode
-.. _``set pcc`` card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_pcc
-.. _input syntax manual: https://serpent.vtt.fi/mediawiki/index.php/Installing_and_running_Serpent#Setting_up_the_data_libraries
+.. _mat card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#mat
+.. _set acelib card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_acelib
+.. _set declib card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_declib
+.. _set sfylib card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_sfylib
+.. _set nfylib card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_nfylib
+.. _include card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#include
+.. _set bumode card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_bumode
+.. _set pcc card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_pcc
+.. _set pop card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_pop
 
 
 OpenMC Template Files
@@ -82,4 +82,4 @@ template files that will work with SaltProc. See the `OpenMC docpages`_ for more
 info.
 
 
-.. _input syntax manual: https://docs.openmc.org/..
+.. _OpenMC docpages: https://docs.openmc.org/
