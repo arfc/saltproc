@@ -1,3 +1,5 @@
+.. _io_formats_input:
+
 ===================
 SaltProc Input File
 ===================
