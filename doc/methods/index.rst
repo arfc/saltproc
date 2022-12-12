@@ -16,3 +16,4 @@ about the SaltProc's program flow, design, mathematical background, and more.
 
    coupling
    reprocessing
+   geometry_switching
