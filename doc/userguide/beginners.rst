@@ -1,4 +1,4 @@
-.. _usersguide_beginners:
+.. _userguide_beginners:
 
 A Beginner's Guide to SaltProc
 ==============================

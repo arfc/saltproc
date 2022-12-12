@@ -1,4 +1,4 @@
-.. _usersguide_scripts:
+.. _userguide_scripts:
 
 Executables and Scripts
 =======================

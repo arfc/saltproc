@@ -1,4 +1,4 @@
-.. _usersguide:
+.. _userguide:
 
 ============
 User's Guide
@@ -15,6 +15,8 @@ Welcome to the SaltProc User guide.
 
    beginners
    basics
+   input
+   processing_system
    templates
    scripts
    troubleshooting

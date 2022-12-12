@@ -1,4 +1,4 @@
-.. _usersguide_templates:
+.. _userguide_templates:
 
 Template and Runtime Files
 ==========================
@@ -7,6 +7,8 @@ As described in :ref:`methods_coupling`, SaltProc uses file-based coupling to
 iterface with depletion solvers. A user provides the template input file(s),
 and SaltProc makes a temporary copy used for running depletion steps that it
 can modify and update as needed.
+
+.. _userguide_templates_serpent:
 
 Serpent 2 Template Files
 ------------------------
@@ -73,6 +75,7 @@ Users looking further cutomize the depletion step should read  Serpent 2's
 .. _set bumode card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_bumode
 .. _set pcc card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_pcc
 .. _set pop card: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#set_pop
+.. _input syntax manual: https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual
 
 
 OpenMC Template Files

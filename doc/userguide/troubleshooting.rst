@@ -1,4 +1,4 @@
-.. _usersguide_troubleshooting:
+.. _userguide_troubleshooting:
 
 Troubleshooting
 ===============
