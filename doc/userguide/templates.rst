@@ -3,7 +3,7 @@
 Template and Runtime Files
 ==========================
 
-As described in (coupling section), SaltProc uses file-based coupling to
+As described in :ref:`methods_coupling`, SaltProc uses file-based coupling to
 iterface with depletion solvers. A user provides the template input file(s),
 and SaltProc makes a temporary copy used for running depletion steps that it
 can modify and update as needed.
