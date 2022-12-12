@@ -15,7 +15,6 @@
 import os
 import sys
 import sphinx_rtd_theme
-sys.path.append(os.path.abspath('../'))
 sys.path.append(os.path.abspath('../saltproc'))
 # autopep8 will make a stink about this but
 # we need to have saltproc on ouy syspath
@@ -66,13 +65,12 @@ smv_prefer_remote_refs = True
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinxcontrib.apidoc',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
+    #'sphinx.ext.doctest',
+    #'sphinx.ext.todo',
+    #'sphinx.ext.coverage',
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
@@ -81,24 +79,25 @@ extensions = [
     'sphinx-jsonschema']
 
 # apidoc settings
-apidoc_module_dir = '../saltproc/'
-apidoc_output_dir = 'api/'
-apidoc_excluded_paths = ['openmc_deplete.py',
-                         'version.py']
-apidoc_separate_modules = True
+#apidoc_module_dir = '../saltproc/'
+#apidoc_output_dir = 'api/'
+#apidoc_excluded_paths = ['openmc_deplete.py',
+#                         'version.py']
+#apidoc_separate_modules = True
 
 # Napoleon settings
-napoleon_google_docstring = False
-napoleon_numpy_docstring = True
-napoleon_include_init_with_doc = True
-napoleon_include_private_with_doc = True
-napoleon_include_special_with_doc = True
-napoleon_use_admonition_for_examples = True
-napoleon_use_admonition_for_notes = True
-napoleon_use_admonition_for_references = True
-napoleon_use_ivar = False
-napoleon_use_param = True
-napoleon_use_rtype = True
+##napoleon_google_docstring = False
+##napoleon_numpy_docstring = True
+##napoleon_include_init_with_doc = True
+##napoleon_include_private_with_doc = True
+##napoleon_include_special_with_doc = True
+##napoleon_use_admonition_for_examples = True
+##napoleon_use_admonition_for_notes = True
+##napoleon_use_admonition_for_references = True
+napoleon_use_ivar = True
+##napoleon_use_param = True
+##napoleon_use_rtype = True
+##add_module_names = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -130,7 +129,8 @@ master_doc = 'index'
 exclude_patterns = ['_build']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+##pygments_style = 'sphinx'
+pygments_style = 'tango'
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
 # keep_warnings = False
