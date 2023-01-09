@@ -112,7 +112,6 @@
 <span class="sd">    inactive_cycles : int</span>
 <span class="sd">        Number of inactive cycles.</span>
 
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SerpentDepcode.__init__"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -172,7 +171,7 @@
 
 <div class="viewcode-block" id="SerpentDepcode.create_runtime_matfile"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.create_runtime_matfile">[docs]</a>    <span class="k">def</span> <span class="nf">create_runtime_matfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_lines</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Creates the runtime material file tracking burnable materials</span>
-<span class="sd">        ans inserts the path to this file in the Serpent2 runtime input file</span>
+<span class="sd">        and inserts the path to this file in the Serpent2 runtime input file</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -185,6 +184,20 @@
 <span class="sd">            Serpent2 runtime input file with updated material file path.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">burnable_materials_path</span><span class="p">,</span> <span class="n">absolute_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_burnable_materials_file</span><span class="p">(</span><span class="n">file_lines</span><span class="p">)</span>
+
+        <span class="c1"># Create data directory</span>
+        <span class="n">Path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Get material cards</span>
+        <span class="n">flines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_burnable_material_card_data</span><span class="p">(</span><span class="n">flines</span><span class="p">)</span>
+
+         <span class="c1"># Create file with path for SaltProc rewritable iterative material file</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">burnable_materials_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_lines</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_burnable_materials_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_lines</span><span class="p">):</span>
         <span class="n">runtime_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">include_card</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_lines</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;include &quot;</span><span class="p">)]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">include_card</span><span class="p">:</span>
@@ -196,17 +209,30 @@
             <span class="n">absolute_path</span> <span class="o">=</span> <span class="p">(</span><span class="n">runtime_dir</span> <span class="o">/</span> <span class="n">burnable_materials_path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">absolute_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">burnable_materials_path</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s1">&#39;mat &#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
-                    <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;Template file &#39;</span>
-                                  <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="si">}</span><span class="s1"> includes &#39;</span>
-                                  <span class="s1">&#39;no file with materials description&#39;</span><span class="p">)</span>
-        <span class="c1"># Create data directory</span>
-        <span class="n">Path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;mat &#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;Template file &#39;</span>
+                              <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="si">}</span><span class="s1"> includes &#39;</span>
+                              <span class="s1">&#39;no file with materials description&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">burnable_materials_path</span><span class="p">,</span> <span class="n">absolute_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
-        <span class="c1"># Create file with path for SaltProc rewritable iterative material file</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">burnable_materials_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_lines</span><span class="p">]</span></div>
+    <span class="k">def</span> <span class="nf">_get_burnable_material_card_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_lines</span><span class="p">):</span>
+        <span class="c1"># Get data for matfile</span>
+        <span class="n">mat_cards</span> <span class="o">=</span> \
+            <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_lines</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;mat &quot;</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">card</span> <span class="ow">in</span> <span class="n">mat_cards</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;fix&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">card</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;mat&quot; card for burnable material &quot;</span><span class="si">{</span><span class="n">card</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+                              <span class="s1">&#39; does not have a &quot;fix&quot; option. Burnable materials&#39;</span>
+                              <span class="s1">&#39; in SaltProc must include the &quot;fix&quot; option. See&#39;</span>
+                              <span class="s1">&#39; the serpent wiki for more information:&#39;</span>
+                              <span class="s1">&#39; https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#mat&#39;</span><span class="p">)</span>
+        <span class="c1"># Get volume indices</span>
+        <span class="n">card_volume_idx</span> <span class="o">=</span> <span class="p">[(</span><span class="n">card</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;vol&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">card</span> <span class="ow">in</span> <span class="n">mat_cards</span><span class="p">]</span>
+        <span class="n">mat_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">card</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">card</span> <span class="ow">in</span> <span class="n">mat_cards</span><span class="p">]</span>
+        <span class="n">mat_data</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">mat_cards</span><span class="p">,</span> <span class="n">card_volume_idx</span><span class="p">)</span><span class="c1">#, mat_extensions)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_burnable_material_card_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">mat_names</span><span class="p">,</span> <span class="n">mat_data</span><span class="p">))</span>
 
 <div class="viewcode-block" id="SerpentDepcode.convert_nuclide_code_to_name"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.convert_nuclide_code_to_name">[docs]</a>    <span class="k">def</span> <span class="nf">convert_nuclide_code_to_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Converts Serpent2 nuclide code to symbolic nuclide name.</span>
@@ -597,13 +623,17 @@
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%%</span><span class="s1"> Material compositions (after </span><span class="si">%f</span><span class="s1"> days)</span><span class="se">\n\n</span><span class="s1">&#39;</span>
                     <span class="o">%</span> <span class="n">dep_end_time</span><span class="p">)</span>
             <span class="n">nuc_code_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_nuclide_code_zam_to_serpent</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_burnable_material_card_data&#39;</span><span class="p">)):</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">)</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">abs_src_matfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_burnable_materials_file</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+                <span class="n">file_lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="n">abs_src_matfile</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_burnable_material_card_data</span><span class="p">(</span><span class="n">file_lines</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">mats</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;mat  </span><span class="si">%s</span><span class="s1">  </span><span class="si">%5.9E</span><span class="s1"> burn 1 fix </span><span class="si">%3s</span><span class="s1"> </span><span class="si">%4i</span><span class="s1"> vol </span><span class="si">%7.5E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
-                        <span class="p">(</span><span class="n">name</span><span class="p">,</span>
-                         <span class="o">-</span><span class="n">mat</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
-                         <span class="s1">&#39;09c&#39;</span><span class="p">,</span>
-                         <span class="n">mat</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span>
-                         <span class="n">mat</span><span class="o">.</span><span class="n">vol</span><span class="p">))</span>
+                <span class="n">mat_card</span><span class="p">,</span> <span class="n">card_volume_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_burnable_material_card_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                <span class="n">mat_card</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="o">-</span><span class="n">mat</span><span class="o">.</span><span class="n">density</span><span class="p">)</span>
+                <span class="n">mat_card</span><span class="p">[</span><span class="n">card_volume_idx</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%7.5E</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mat</span><span class="o">.</span><span class="n">vol</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mat_card</span><span class="p">))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">nuc_code</span><span class="p">,</span> <span class="n">mass_fraction</span> <span class="ow">in</span> <span class="n">mat</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="n">zam_code</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;           </span><span class="si">%9s</span><span class="s1">  </span><span class="si">%7.14E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>

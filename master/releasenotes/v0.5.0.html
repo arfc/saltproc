@@ -204,13 +204,15 @@ longer be initialized by the user during object creation.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">write_mat_file()</span></code> → <code class="docutils literal notranslate"><span class="pre">update_depletable_materials()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">get_nuc_name()</span></code> →  <code class="docutils literal notranslate"><span class="pre">convert_nuclide_code_to_name()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">convert_nuclide_name_serpent_to_zam()</span></code> → <code class="docutils literal notranslate"><span class="pre">convert_nuclide_code_to_zam()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">change_sim_par()</span></code> →  (deleted)</p></li>
-<li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">get_neutron_settings()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">create_iter_matfile()</span></code> → <code class="docutils literal notranslate"><span class="pre">create_runtime_matfile()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">replace_burnup_parameters()</span></code> → <code class="docutils literal notranslate"><span class="pre">set_power_load()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">write_depcode_input()</span></code> →  <code class="docutils literal notranslate"><span class="pre">write_runtime_input()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">iter_inputfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_inputfile</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">iter_matfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_matfile</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">change_sim_par()</span></code> →  (deleted)</p></li>
+<li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">get_neutron_settings()</span></code></p></li>
+<li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">_get_burnable_materials_file()</span></code></p></li>
+<li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">_get_burnable_material_card_data()</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">OpenMCDepcode</span></code> is a <code class="docutils literal notranslate"><span class="pre">Depcode</span></code> subclass that interfaces with <code class="docutils literal notranslate"><span class="pre">openmc</span></code>. This class implements the following functions
