@@ -1,6 +1,8 @@
 """Test SerpentDepcode functions"""
 import pytest
 import numpy as np
+import tempfile
+from pathlib import Path
 
 from saltproc import SerpentDepcode
 
@@ -34,6 +36,37 @@ def test_get_neutron_settings(serpent_depcode):
     assert serpent_depcode.npop == 50
     assert serpent_depcode.active_cycles == 20
     assert serpent_depcode.inactive_cycles == 20
+
+def test_get_burnable_materials_file(serpent_depcode):
+    err1 = (f'Template file {serpent_depcode.template_input_file_path}'
+            ' has no <include "material_file"> statements')
+
+    with pytest.raises(IOError, match=err1):
+        lines_no_include = ['this line does not start with include']
+        serpent_depcode._get_burnable_materials_file(lines_no_include)
+
+    with tempfile.NamedTemporaryFile(mode='w+') as tf:
+        tf.write('some junk')
+        old_template = serpent_depcode.template_input_file_path
+        serpent_depcode.template_input_file_path = tf.name
+
+        err2 = (f'Template file {serpent_depcode.template_input_file_path}'
+                ' includes no file with materials description')
+        with pytest.raises(IOError, match=err2):
+            lines_bad_matfile = [f'include "{tf.name}"']
+            serpent_depcode._get_burnable_materials_file(lines_bad_matfile)
+        serpent_depcode.template_input_file_path = old_template
+
+def test_get_burnable_material_card_data(serpent_depcode):
+    bad_mat_cards = ['mat fuel -9.2 burn 1 fix 09c',
+                     'mat blanket -9.1 burn 1']
+
+    err = ('"mat" card for burnable material "blanket" does not have a "fix"'
+           ' option. Burnable materials in SaltProc must include the "fix"'
+           ' option. See the serpent wiki for more information:'
+           ' https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#mat')
+    with pytest.raises(IOError, match=err):
+        serpent_depcode._get_burnable_material_card_data(bad_mat_cards)
 
 
 def test_read_plaintext_file(serpent_depcode):
