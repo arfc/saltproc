@@ -148,13 +148,15 @@ Python API Changes
     - ``write_mat_file()`` → ``update_depletable_materials()``
     - ``get_nuc_name()`` →  ``convert_nuclide_code_to_name()``
     - ``convert_nuclide_name_serpent_to_zam()`` → ``convert_nuclide_code_to_zam()`` 
-    - ``change_sim_par()`` →  (deleted)
-    -  (new function) →  ``get_neutron_settings()``
     - ``create_iter_matfile()`` → ``create_runtime_matfile()``
     - ``replace_burnup_parameters()`` → ``set_power_load()``
     - ``write_depcode_input()`` →  ``write_runtime_input()``
     - ``iter_inputfile``  →  ``runtime_inputfile``
     - ``iter_matfile``  →  ``runtime_matfile``
+    - ``change_sim_par()`` →  (deleted)
+    - (new function) →  ``get_neutron_settings()``
+    - (new function) →  ``_get_burnable_materials_file()`` 
+    - (new function) →  ``_get_burnable_material_card_data()``
 
 
   - ``OpenMCDepcode`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
