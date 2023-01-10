@@ -131,7 +131,7 @@
                                                     "properties": {
                                                         "fission_yield_opts": {
                                                             "type": "object",
-                                                            "proterties": {
+                                                            "properties": {
                                                                 "cutoff": {
                                                                     "description": "Cutoff energy in eV",
                                                                     "type": "number"},
@@ -184,7 +184,7 @@
                                             "diff_burnable_mats": {
                                                 "description": "Whether to differentiate burnable materials with multiple instances.",
                                                 "type": "boolean",
-                                                "defualt": false},
+                                                "default": false},
                                             "normalization_mode": {
                                                 "description": "Indicate how tally resutls should be normalized",
                                                 "type": "string",
@@ -205,7 +205,7 @@
                                                 "default": "constant"},
                                             "fission_yield_opts": {
                                                 "description": "Arguments for the fission yield helper",
-                                                "defualt": null},
+                                                "default": null},
                                             "reaction_rate_mode": {
                                                 "description": "Indicate how one-group reaction rates should be calculated",
                                                 "type": "string",
