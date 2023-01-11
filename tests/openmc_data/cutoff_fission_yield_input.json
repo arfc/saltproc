@@ -1,0 +1,33 @@
+{
+   "proc_input_file": "../tap_processes.json",
+   "dot_input_file": "../tap_paths.dot",
+   "n_depletion_steps": 2,
+   "depcode": {
+       "codename": "openmc",
+       "template_input_file_path": {
+           "materials": "tap_materials.xml",
+           "settings": "tap_settings.xml"
+       },
+       "geo_file_paths": ["tap_geometry_base.xml"],
+       "chain_file_path": "test_chain.xml",
+       "depletion_settings": {
+           "operator_kwargs": {
+               "fission_yield_mode": "cutoff",
+               "fission_yield_opts": {
+                   "cutoff": 112.0,
+                   "thermal_energy": 0.0253,
+                   "fast_energy": 500000.0}
+           }          
+       }
+   },
+   "simulation": {
+       "sim_name": "tap_test_simulation_openmc"
+   },
+   "reactor": {
+       "volume": 1.0,
+       "mass_flowrate": 9.92E+6,
+       "power_levels": [ 1.250E+9 ],
+       "depletion_timesteps": [ 5 ],
+       "timestep_units": "d"
+   }
+}
