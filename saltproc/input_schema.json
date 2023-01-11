@@ -292,7 +292,7 @@
                     "minItems": 1,
                     "uniqueItems": false},
                 "depletion_timesteps": {
-                    "description": "Depletion step length(s)",
+                    "description": "Depletion timestep size or list of timestep sizes",
                     "type": "array",
                     "items": { "type": "number", "minimum": 0},
                     "minItems": 1,
@@ -305,7 +305,7 @@
                 "timestep_units": {
                     "description": "Timestep unit",
                     "type": "string",
-                    "enum": ["s", "sec", "min", "minute", "h", "hr", "hour", "d", "day", "a", "year", "MWd/kg", "mwd/kg", "MWD/KG", "MWD/kg", "MWd/KG"]
+                    "enum": ["s", "sec", "min", "minute", "h", "hr", "hour", "d", "day", "a", "yr", "year", "MWd/kg", "mwd/kg", "MWD/KG", "MWD/kg", "MWd/KG"]
                     }
             },
             "default": {},

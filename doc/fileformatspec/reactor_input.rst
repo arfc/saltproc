@@ -67,7 +67,7 @@ Required properties: ``volume``, ``mass_flowrate``, ``power_levels``,
 -----------------------
 
   :description:
-    Depletion step length(s)
+    Depletion timestep size or list of timestep sizes
 
   :type:
     ``array``
@@ -115,4 +115,4 @@ Required properties: ``volume``, ``mass_flowrate``, ``power_levels``,
     ``string``
 
   :enum:
-    ``s``, ``sec``, ``min``, ``minute``, ``h``, ``hr``, ``hour``, ``d``, ``day``, ``a``, ``year``, ``MWd/kg``, ``mwd/kg``, ``MWD/KG``, ``MWD/kg``, ``MWd/KG``
+    ``s``, ``sec``, ``min``, ``minute``, ``h``, ``hr``, ``hour``, ``d``, ``day``, ``a``, ``year``,  ``yr``, ``MWd/kg``, ``mwd/kg``, ``MWD/KG``, ``MWD/kg``, ``MWd/KG``

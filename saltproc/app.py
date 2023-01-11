@@ -15,6 +15,9 @@ from saltproc import Process, Sparger, Separator, Materialflow
 from ._schema_default import DefaultValidatingValidator
 
 
+_codename_map = {'serpent': SerpentDepcode,
+                 'openmc': OpenMCDepcode}
+
 def run():
     """ Inititializes main run"""
     nodes, cores, saltproc_input = parse_arguments()
@@ -152,42 +155,40 @@ def read_main_input(main_inp_file):
 
     input_schema = (Path(__file__).parents[0] / 'input_schema.json')
     with open(main_inp_file) as f:
-        obj = json.load(f)
+        input_parameters = json.load(f)
         with open(input_schema) as s:
             schema = json.load(s)
             try:
-                DefaultValidatingValidator(schema).validate(obj)
+                DefaultValidatingValidator(schema).validate(input_parameters)
                 #jsonschema.validate(instance=j, schema=v)
             except jsonschema.exceptions.ValidationError:
                 print("Your input file is improperly structured.\
                       Please see saltproc/tests/test.json for an example.")
 
-        j = obj
-        print(j['reactor']['timestep_type'])
         # Global input path
         input_path = (Path.cwd() / Path(f.name).parents[0])
 
         # Saltproc settings
         process_file = str((input_path /
-                              j['proc_input_file']).resolve())
+                              input_parameters['proc_input_file']).resolve())
         dot_file = str((
             input_path /
-            j['dot_input_file']).resolve())
-        output_path = j['output_path']
-        n_depletion_steps = j['n_depletion_steps']
+            input_parameters['dot_input_file']).resolve())
+        output_path = input_parameters['output_path']
+        n_depletion_steps = input_parameters['n_depletion_steps']
 
         # Global output path
         output_path = (input_path / output_path)
-        j['output_path'] = output_path.resolve()
+        input_parameters['output_path'] = output_path.resolve()
 
         # Create output directoy if it doesn't exist
-        if not Path(j['output_path']).exists():
-            Path(j['output_path']).mkdir(parents=True)
+        if not Path(input_parameters['output_path']).exists():
+            Path(input_parameters['output_path']).mkdir(parents=True)
 
         # Class settings
-        depcode_input = j['depcode']
-        simulation_input = j['simulation']
-        reactor_input = j['reactor']
+        depcode_input = input_parameters['depcode']
+        simulation_input = input_parameters['simulation']
+        reactor_input = input_parameters['reactor']
 
         depcode_input['codename'] = depcode_input['codename'].lower()
         if depcode_input['codename'] == 'serpent':
@@ -243,18 +244,14 @@ def _print_simulation_input_info(simulation_input, depcode_input):
 def _create_depcode_object(depcode_input):
     """Helper function for `run()` """
     codename = depcode_input.pop('codename')
-    if codename == 'serpent':
-        depcode = SerpentDepcode
-    elif codename == 'openmc':
-        depcode = OpenMCDepcode
-        chain_file_path = depcode_input.pop('chain_file_path')
+    depcode = _codename_map[codename]
+
+    if codename == 'openmc':
         depletion_settings = depcode_input.pop('depletion_settings')
-    else:
-        raise ValueError(
-            f'{codename} is not a supported depletion code.'
-            'Accepts: "serpent" or "openmc".')
+        chain_file_path = depcode_input.pop('chain_file_path')
 
     depcode = depcode(**depcode_input)
+
     if codename == 'openmc':
         depcode.chain_file_path = chain_file_path
         depcode.depletion_settings = depletion_settings
@@ -298,11 +295,10 @@ def _process_main_input_reactor_params(reactor_input, n_depletion_steps, codenam
             raise ValueError('There must be a positive integer number'
                              ' of depletion steps. Provided'
                              f' n_depletion_steps: {n_depletion_steps}')
-        else:
-            if len(depletion_timesteps) == 1:
-                depletion_timesteps = depletion_timesteps * n_depletion_steps
-            if len(power_levels) == 1:
-                power_levels = power_levels * n_depletion_steps
+        if len(depletion_timesteps) == 1:
+            depletion_timesteps = depletion_timesteps * n_depletion_steps
+        if len(power_levels) == 1:
+            power_levels = power_levels * n_depletion_steps
 
     if len(depletion_timesteps) != len(power_levels):
         raise ValueError('depletion_timesteps and power_levels length mismatch:'
@@ -323,7 +319,7 @@ def _process_main_input_reactor_params(reactor_input, n_depletion_steps, codenam
             depletion_timesteps /= 60 * 24
         elif timestep_units in ('h', 'hr', 'hour'):
             depletion_timesteps /= 24
-        elif timestep_units in ('a', 'year'):
+        elif timestep_units in ('a', 'year', 'yr'):
             depletion_timesteps *= 365.25
         else:
             raise IOError(f'Unrecognized time unit: {timestep_units}')

@@ -37,7 +37,7 @@ class OpenMCDepcode(Depcode):
     inactive_cycles : int
         Number of inactive cycles.
     depletion_settings : dict
-        ...
+        Keyword arguments to pass to :func:`openmc.model.deplete()`.
     chain_file_path : str
         Path to depletion chain file
 
@@ -143,7 +143,7 @@ class OpenMCDepcode(Depcode):
             self.runtime_inputfile['geometry'],
             '--settings',
             self.runtime_inputfile['settings'],
-            '--tallites',
+            '--tallies',
             self.runtime_inputfile['tallies'],
             '--directory',
             str(self.output_path))
