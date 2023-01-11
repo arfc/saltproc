@@ -3,7 +3,6 @@
     "$id": "https://github.com/arfc/saltproc",
     "title": "SaltProc input file schema",
     "type": "object",
-    "unevaluatedProperties": false,
     "properties": {
         "proc_input_file": {
             "description": "File containing processing system objects",
