@@ -36,10 +36,6 @@ class OpenMCDepcode(Depcode):
         Number of active cycles.
     inactive_cycles : int
         Number of inactive cycles.
-    depletion_settings : dict
-        Keyword arguments to pass to :func:`openmc.model.deplete()`.
-    chain_file_path : str
-        Path to depletion chain file
 
     """
 
@@ -47,7 +43,10 @@ class OpenMCDepcode(Depcode):
                  output_path,
                  exec_path,
                  template_input_file_path,
-                 geo_file_paths):
+                 geo_file_paths,
+                 depletion_settings,
+                 chain_file_path
+                 ):
         """Initialize a OpenMCDepcode object.
 
            Parameters
@@ -65,6 +64,10 @@ class OpenMCDepcode(Depcode):
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
+            depletion_settings : dict
+                Keyword arguments to pass to :func:`openmc.model.deplete()`.
+            chain_file_path : str
+                Path to depletion chain file
 
         """
 
@@ -73,6 +76,9 @@ class OpenMCDepcode(Depcode):
             exec_path = (Path(__file__).parents[0] / exec_path).resolve()
         else:
             exec_path == (Path(template_input_file_path['settings'].parents[0]) / exec_path).resolve()
+
+        self.depletion_settings = depletion_settings
+        self.chain_file_path = chain_file_path
 
         super().__init__("openmc",
                          output_path,

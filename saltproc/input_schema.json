@@ -271,7 +271,7 @@
                     "default": false}
             },
             "default": {},
-            "required": ["sim_name", "db_name"]
+            "required": ["sim_name"]
         },
         "reactor": {
             "description": "Reactor class input parameters",

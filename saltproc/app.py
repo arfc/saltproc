@@ -160,7 +160,6 @@ def read_main_input(main_inp_file):
             schema = json.load(s)
             try:
                 DefaultValidatingValidator(schema).validate(input_parameters)
-                #jsonschema.validate(instance=j, schema=v)
             except jsonschema.exceptions.ValidationError:
                 print("Your input file is improperly structured.\
                       Please see saltproc/tests/test.json for an example.")
@@ -205,8 +204,8 @@ def read_main_input(main_inp_file):
                  depcode_input['chain_file_path']).resolve())
         else:
             raise ValueError(
-                f'{codename} is not a supported depletion code.'
-                'Accepts: "serpent" or "openmc".')
+                f'{depcode_input["codename"]} is not a supported depletion'
+                ' code. Accepts: "serpent" or "openmc".')
 
         depcode_input['output_path'] = output_path
         geo_list = depcode_input['geo_file_paths']
@@ -245,17 +244,7 @@ def _create_depcode_object(depcode_input):
     """Helper function for `run()` """
     codename = depcode_input.pop('codename')
     depcode = _codename_map[codename]
-
-    if codename == 'openmc':
-        depletion_settings = depcode_input.pop('depletion_settings')
-        chain_file_path = depcode_input.pop('chain_file_path')
-
     depcode = depcode(**depcode_input)
-
-    if codename == 'openmc':
-        depcode.chain_file_path = chain_file_path
-        depcode.depletion_settings = depletion_settings
-
     depcode_input['codename'] = codename
 
     return depcode
@@ -280,11 +269,13 @@ def _create_reactor_object(reactor_input):
     return msr
 
 
-def _process_main_input_reactor_params(reactor_input, n_depletion_steps, codename):
+def _process_main_input_reactor_params(reactor_input,
+                                       n_depletion_steps,
+                                       codename):
     """
     Process SaltProc reactor class input parameters based on the value and
-    data type of the `n_depletion_steps` parameter, and throw errors if the input
-    parameters are incorrect.
+    data type of the `n_depletion_steps` parameter as well as the depletion code
+    being used, and throw errors if the input parameters are incorrect.
     """
 
     depletion_timesteps = reactor_input['depletion_timesteps']
