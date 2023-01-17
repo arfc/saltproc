@@ -62,7 +62,6 @@ model = openmc.model.Model(materials=materials,
                            settings=settings,
                            tallies=tallies)
 
-depletion_settings = {}
 with open(f'{args.directory}/depletion_settings.json') as f:
     depletion_settings = json.load(f)
 

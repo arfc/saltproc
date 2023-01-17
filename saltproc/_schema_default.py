@@ -18,4 +18,4 @@ def extend_with_default(validator_class):
     )
 
 
-DefaultValidatingValidator = extend_with_default(Draft202012Validator)
+DefaultFillingValidator = extend_with_default(Draft202012Validator)

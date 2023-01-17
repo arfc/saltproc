@@ -4,6 +4,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 from saltproc.app import read_main_input, get_extraction_processes
+from saltproc.app import (_validate_depletion_timesteps_power_levels,
+                          _convert_cumulative_to_stepwise,
+                          _scale_depletion_timesteps)
+from saltproc.app import (SECOND_UNITS, MINUTE_UNITS, HOUR_UNITS, DAY_UNITS,
+                          YEAR_UNITS)
 from saltproc.app import get_feeds, get_extraction_process_paths
 
 expected_depletion_settings = {'method': 'predictor',
@@ -62,6 +67,73 @@ def test_read_main_input(cwd, codename, ext):
 
     assert reactor_input['timestep_units'] == 'd'
     assert reactor_input['timestep_type'] == 'stepwise'
+
+
+def test_convert_cumulative_to_stepwise():
+    timesteps = _convert_cumulative_to_stepwise([2, 4, 6])
+    np.testing.assert_equal(timesteps, [2, 2, 2])
+
+
+@pytest.mark.parametrize("n_depletion_steps, depletion_timesteps, power_levels, throws_error", [
+    (3, [1], [1], False),
+    (3, [1], [1, 1, 1], False),
+    (3, [1, 1, 1], [1], False),
+    (3, [1], [1, 1], True),
+    (3, [1, 1], [1, 1], False),
+    (None, [1, 1, 1], [1, 1, 1], False),
+    (None, [1], [1, 1, 1], True),
+    (None, [1, 1, 1], [1], True)])
+def test_validate_depletion_timesteps_power_levels(n_depletion_steps,
+                                                   depletion_timesteps,
+                                                   power_levels,
+                                                   throws_error):
+    if throws_error:
+        with pytest.raises(ValueError):
+            _validate_depletion_timesteps_power_levels(n_depletion_steps,
+                                                       depletion_timesteps,
+                                                       power_levels)
+    else:
+        depletion_steps, power_levels = \
+            _validate_depletion_timesteps_power_levels(n_depletion_steps,
+                                                       depletion_timesteps,
+                                                       power_levels)
+        assert (len(depletion_steps) == 2 or len(depletion_steps) == 3)
+
+
+@pytest.mark.parametrize("expected_depletion_timesteps, timestep_units", [
+    ([1/86400], SECOND_UNITS),
+    ([1/1440], MINUTE_UNITS),
+    ([1/24], HOUR_UNITS),
+    ([1.], DAY_UNITS),
+    ([365.25], YEAR_UNITS)
+])
+def test_scale_depletion_timesteps(expected_depletion_timesteps,
+                                   timestep_units):
+    expected_depletion_timesteps = np.array(expected_depletion_timesteps)
+    base_timestep = np.array([1.])
+    for unit in timestep_units:
+        input_timestep = base_timestep.copy()
+        scaled_timesteps = \
+            _scale_depletion_timesteps(unit, input_timestep, 'serpent')
+        np.testing.assert_equal(scaled_timesteps, expected_depletion_timesteps)
+        input_timestep = base_timestep.copy()
+        scaled_timesteps = \
+            _scale_depletion_timesteps(unit, input_timestep, 'openmc')
+        np.testing.assert_equal(scaled_timesteps, base_timestep)
+    input_timestep = base_timestep.copy()
+    scaled_timesteps = \
+        _scale_depletion_timesteps('MWD/KG', input_timestep, 'serpent')
+    np.testing.assert_equal(scaled_timesteps, base_timestep)
+    input_timestep = base_timestep.copy()
+    scaled_timesteps = \
+        _scale_depletion_timesteps('MWD/KG', input_timestep, 'openmc')
+    np.testing.assert_equal(scaled_timesteps, base_timestep)
+
+    bad_unit = 'months'
+    with pytest.raises(IOError,
+                       match=f'Unrecognized time unit: {bad_unit}'):
+        _scale_depletion_timesteps(bad_unit, [1], 'serpent')
+
 
 @pytest.mark.parametrize("filename", [
     "constant_fission_yield",
