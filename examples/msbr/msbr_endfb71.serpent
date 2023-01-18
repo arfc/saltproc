@@ -58,7 +58,7 @@ set sfylib "endfb71.sfy"
 
 % --- Neutron population and criticality cycles:
 
-set pop 10000 125 25 1.0 1 %500 400 60 1.0 1  %30000 400 100 1.0 1
+set pop 300 400 10
 set gcu -1
 %set usym 0 3 2 0.0 0.0 0 90
 
