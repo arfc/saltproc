@@ -54,6 +54,7 @@ def test_read_main_input(cwd, codename, ext):
     elif codename == 'serpent':
         assert depcode_input['template_input_file_path'] == \
             str((input_path / 'tap_template.ini').resolve())
+        assert depcode_input['zaid_convention'] == 'serpent'
 
     assert simulation_input['db_name'] == \
         str((data_path / f'../{codename}_data/saltproc_runtime/saltproc_results.h5').resolve())

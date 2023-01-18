@@ -5,7 +5,8 @@
    "depcode": {
        "codename": "serpent",
        "template_input_file_path": "tap_template.ini",
-       "geo_file_paths": ["tap_geometry_base.ini"]
+       "geo_file_paths": ["tap_geometry_base.ini"],
+       "zaid_convention": "serpent"
    },
    "simulation": {
        "sim_name": "tap_constant_reprocessing"
