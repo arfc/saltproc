@@ -66,6 +66,9 @@ class SerpentDepcode(Depcode):
                'mcnp' - ZA = Z*1000 + A + (300 + 100*m). where m is the mth
                isomeric state (e.g. 47510 for Ag-110m)
 
+               'nndc' - Identical to 'mcnp', except Am242m1 is 95242 and Am242
+               is 95642
+
         """
         super().__init__("serpent",
                          output_path,
@@ -185,11 +188,15 @@ class SerpentDepcode(Depcode):
         """
 
         if '.' in str(nuc_code):
-            ### catch it here
             nuc_code = int(nuc_code.split('.')[0])
             if self.zaid_convention == 'serpent':
                 nuc_code = pyname.zzzaaa_to_id(nuc_code)
-            if self.zaid_convention == 'mcnp':
+            if self.zaid_convention in ('mcnp', 'nndc'):
+                if self.zaid_convention == 'mcnp' and nuc_code in (95242, 95642):
+                    if nuc_code == 95242:
+                        nuc_code = 95642
+                    else:
+                        nuc_code = 95242
                 nuc_code = pyname.mcnp_to_id(nuc_code)
 
             zz = pyname.znum(nuc_code)
@@ -203,13 +210,12 @@ class SerpentDepcode(Depcode):
                         aa_str = str(aa - 200) + 'm1'
                 elif aa == 0:
                     aa_str = 'nat'
-            if self.zaid_convention == 'mcnp':
-                mm = snum(nuc_code)
+            if self.zaid_convention in ('mcnp', 'nndc'):
+                mm = pyname.snum(nuc_code)
                 if mm != 0:
                     aa_str = str(aa) + f'm{mm}'
 
             nuc_name = pyname.zz_name[zz] + aa_str
-        ## what about here??
         else:
             meta_flag = pyname.snum(nuc_code)
             if meta_flag:
@@ -254,11 +260,18 @@ class SerpentDepcode(Depcode):
                     nuc_code = line[2]
                     if '.' in str(nuc_code):
                         nuc_code = int(nuc_code.split('.')[0])
+                        # In MCNP format the ground state of Am-242 is 95242,
+                        # but PyNE seems to disagree
                         if self.zaid_convention == 'serpent':
                             nuc_code = pyname.zzzaaa_to_id(nuc_code)
                             zzaaam = \
                                 self.convert_nuclide_code_to_zam(pyname.zzaaam(nuc_code))
-                        if self.zaid_convention == 'mcnp':
+                        if self.zaid_convention == 'nndc' or self.zaid_convention == 'mcnp':
+                            if self.zaid_convention == 'mcnp' and nuc_code in (95242, 95642):
+                                if nuc_code == 95242:
+                                    nuc_code = 95642
+                                else:
+                                    nuc_code = 95242
                             nuc_code = pyname.mcnp_to_id(nuc_code)
                             zzaaam = pyname.zzaaam(nuc_code)
                     else:

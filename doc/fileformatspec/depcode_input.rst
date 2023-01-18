@@ -99,7 +99,8 @@ Serpent-specific properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   :description:
-    ZAID naming convention for nuclide codes. 'serpent': The third digit in ZA for nuclides in isomeric states is 3 (e.g. 47310 for for Ag-110m). 'mcnp': ZA = Z*1000 + A + (300 + 100*m). where m is the mth isomeric state (e.g. 47510 for Ag-110m)
+    ZAID naming convention for nuclide codes. 'serpent': The third digit in ZA for nuclides in isomeric states is 3 (e.g. 47310 for for Ag-110m). 'mcnp': ZA = Z*1000 + A + (300 + 100*m). where m is the mth isomeric state (e.g. 47510 for Ag-110m). 'nndc': Identical to 'mcnp', except Am242m1 is 95242 and Am242 is 95642
+
 
   :type:
     ``string``
