@@ -170,6 +170,7 @@ Python API Changes
     - (new function) →  ``get_neutron_settings()``
     - (new function) →  ``_get_burnable_materials_file()`` 
     - (new function) →  ``_get_burnable_material_card_data()``
+    - (new parameter) →  ``zaid_convention``
 
 
   - ``OpenMCDepcode`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
