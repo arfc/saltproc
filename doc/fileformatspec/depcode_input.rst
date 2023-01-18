@@ -95,6 +95,22 @@ Serpent-specific properties
   :pattern: 
     ``^(.\\/)*(.*)$``
                   
+``zaid_convention``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  :description:
+    ZAID naming convention for nuclide codes. 'serpent': The third digit in ZA for nuclides in isomeric states is 3 (e.g. 47310 for for Ag-110m). 'mcnp': ZA = Z*1000 + A + (300 + 100*m). where m is the mth isomeric state (e.g. 47510 for Ag-110m)
+
+  :type:
+    ``string``
+  :enum:
+    "serpent", "mcn"
+  :default:
+    "mcnp"
+
+  :pattern: 
+    ``^(.\\/)*(.*)$``
+ 
 
 .. _openmc_specific_properties:
 

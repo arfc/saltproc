@@ -64,6 +64,8 @@ Bug Fixes
 ..
   Describe any bug fixes.
 
+- `Fix bug where Serpent2 material temperatures are hardcoded to 900K in the JEFF 3.1.2 library format. <https://github.com/arfc/saltproc/pull/178>`
+- `Fix bug where using MCNP-style ZAID codes results in an error in various SerpentDepcode functions <https://github.com/arfc/saltproc/issues/187>`
 
 
 
@@ -98,6 +100,7 @@ Python API Changes
 - Input file format changes:
 
   - Added default values for certain input parameters
+  - Adds a ``zaid_convention`` input parameter
   - Added depletion settings for OpenMC
   - ``num_depsteps`` → ``n_depletion_steps``
   - ``depcode['template_inputfile_path']`` → ``depcode['template_input_file_path']``
