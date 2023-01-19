@@ -1,4 +1,5 @@
 """Test Simulation functions"""
+from pathlib import Path
 
 
 def test_check_switch_geo_trigger(simulation):
@@ -21,4 +22,7 @@ def test_check_switch_geo_trigger(simulation):
 
 
 def test_read_k_eds_delta(simulation):
+    old_db_path = simulation.db_path
+    simulation.db_path = str(Path(simulation.db_path).parents[1] / 'tap_reference_db.h5')
     assert simulation.read_k_eds_delta(7) is False
+    simulation.db_path = old_db_path

@@ -41,7 +41,7 @@ class SerpentDepcode(Depcode):
                  output_path,
                  exec_path,
                  template_input_file_path,
-                 geo_files):
+                 geo_file_paths):
         """Initialize a SerpentDepcode object.
 
            Parameters
@@ -52,7 +52,7 @@ class SerpentDepcode(Depcode):
                Path to Serpent2 executable.
            template_input_file_path : str
                Path to user input file for Serpent2
-           geo_files : str or list, optional
+           geo_file_paths : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
@@ -62,7 +62,7 @@ class SerpentDepcode(Depcode):
                          output_path,
                          exec_path,
                          template_input_file_path,
-                         geo_files)
+                         geo_file_paths)
         self.runtime_inputfile = \
                          str((output_path / 'runtime_input.serpent').resolve())
         self.runtime_matfile = str((output_path / 'runtime_mat.ini').resolve())
@@ -257,7 +257,7 @@ class SerpentDepcode(Depcode):
 
         """
         lines.insert(5,  # Inserts on 6th line
-                             'include \"' + str(self.geo_files[0]) + '\"\n')
+                             'include \"' + str(self.geo_file_paths[0]) + '\"\n')
         return lines
 
     def read_depleted_materials(self, read_at_end=False):
@@ -379,9 +379,7 @@ class SerpentDepcode(Depcode):
                        file_lines,
                        reactor,
                        step_idx):
-        """Add power load attributes in a :class:`Reactor` object to the
-        ``set power P dep daystep DEPSTEP`` line in the Serpent2  runtime input
-        file.
+        """Set the power for the current depletion step
 
         Parameters
         ----------
@@ -402,20 +400,24 @@ class SerpentDepcode(Depcode):
 
         line_idx = 8  # burnup setting line index by default
         current_power = reactor.power_levels[step_idx]
-        if step_idx == 0:
-            step_length = reactor.dep_step_length_cumulative[0]
-        else:
-            step_length = \
-                reactor.dep_step_length_cumulative[step_idx] - \
-                reactor.dep_step_length_cumulative[step_idx - 1]
+
+        step_length = reactor.depletion_timesteps[step_idx]
+
         for line in file_lines:
             if line.startswith('set    power   '):
                 line_idx = file_lines.index(line)
                 del file_lines[line_idx]
 
-        file_lines.insert(line_idx,  # Insert on 9th line
-                          'set    power   %5.9E   dep daystep   %7.5E\n' %
-                          (current_power, step_length))
+        if reactor.timestep_units == 'MWd/kg':
+            step_type = 'bu'
+        else:
+            step_type = 'day'
+
+        step_type += 'step'
+
+        file_lines.insert(line_idx,
+                          f'set    power   %5.9E   dep %s   %7.5E\n' %
+                          (current_power, step_type, step_length))
         return file_lines
 
     def run_depletion_step(self, cores, nodes):
@@ -483,9 +485,9 @@ class SerpentDepcode(Depcode):
             lines = f.readlines()
 
         current_geo_file = lines[geo_line_n].split('\"')[1]
-        current_geo_idx = self.geo_files.index(current_geo_file)
+        current_geo_idx = self.geo_file_paths.index(current_geo_file)
         try:
-            new_geo_file = self.geo_files[current_geo_idx + 1]
+            new_geo_file = self.geo_file_paths[current_geo_idx + 1]
         except IndexError:
             print('No more geometry files available \
                   and the system went subcritical \n\n')

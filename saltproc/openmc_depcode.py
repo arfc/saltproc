@@ -3,6 +3,7 @@ import os
 import shutil
 import re
 import json
+from pathlib import Path
 
 from pyne import nucname as pyname
 from pyne import serpent
@@ -42,7 +43,10 @@ class OpenMCDepcode(Depcode):
                  output_path,
                  exec_path,
                  template_input_file_path,
-                 geo_files):
+                 geo_file_paths,
+                 depletion_settings,
+                 chain_file_path
+                 ):
         """Initialize a OpenMCDepcode object.
 
            Parameters
@@ -56,22 +60,31 @@ class OpenMCDepcode(Depcode):
                material, and settings) for OpenMC. File type as strings
                are keys (e.g. 'geometry', 'settings', 'material'), and
                file path as strings are values.
-           geo_files : str or list, optional
+           geo_file_paths : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
+            depletion_settings : dict
+                Keyword arguments to pass to :func:`openmc.model.deplete()`.
+            chain_file_path : str
+                Path to depletion chain file
 
         """
 
         # if using the default depletion file, make sure we have the right path
         if exec_path == "openmc_deplete.py":
-            exec_path = (Path(__file__).parents[0] / exec_path)
+            exec_path = (Path(__file__).parents[0] / exec_path).resolve()
+        else:
+            exec_path == (Path(template_input_file_path['settings'].parents[0]) / exec_path).resolve()
+
+        self.depletion_settings = depletion_settings
+        self.chain_file_path = chain_file_path
 
         super().__init__("openmc",
                          output_path,
                          exec_path,
                          template_input_file_path,
-                         geo_files)
+                         geo_file_paths)
         self.runtime_inputfile = \
             {'geometry': str((output_path / 'geometry.xml').resolve()),
              'settings': str((output_path / 'settings.xml').resolve())}
@@ -138,8 +151,8 @@ class OpenMCDepcode(Depcode):
             self.runtime_inputfile['settings'],
             '--tallies',
             self.runtime_inputfile['tallies'],
-            '--depletion_settings',
-            self.runtime_inputfile['depletion_settings'])
+            '--directory',
+            str(self.output_path))
 
         print('Running %s' % (self.codename))
         # TODO: Need to figure out how to adapt this to openmc
@@ -156,11 +169,11 @@ class OpenMCDepcode(Depcode):
 
     def switch_to_next_geometry(self):
         """Switches the geometry file for the OpenMC depletion simulation to
-        the next geometry file in `geo_files`.
+        the next geometry file in `geo_file_paths`.
         """
         mats = openmc.Materials.from_xml(self.runtime_matfile)
         next_geometry = openmc.Geometry.from_xml(
-            path=self.geo_files.pop(0),
+            path=self.geo_file_paths.pop(0),
             materials=mats)
         next_geometry.export_to_xml(path=self.runtime_inputfile['geometry'])
         del mats, next_geometry
@@ -183,7 +196,7 @@ class OpenMCDepcode(Depcode):
             materials = openmc.Materials.from_xml(
                 self.template_input_file_path['materials'])
             geometry = openmc.Geometry.from_xml(
-                self.geo_files[0], materials=materials)
+                self.geo_file_paths[0], materials=materials)
             settings = openmc.Settings.from_xml(
                 self.template_input_file_path['settings'])
             self.npop = settings.particles
@@ -205,7 +218,8 @@ class OpenMCDepcode(Depcode):
         del materials, geometry, settings
 
     def write_depletion_settings(self, reactor, step_idx):
-        """Write the depeletion settings for the OpenMC depletion step.
+        """Write the depeletion settings for the ``openmc.deplete``
+        module.
 
         Parameters
         ----------
@@ -216,42 +230,34 @@ class OpenMCDepcode(Depcode):
             Current depletion step.
 
         """
-        depletion_settings = {}
         current_power = reactor.power_levels[step_idx]
 
         # Get current depletion step length
-        if step_idx == 0:
-            step_length = reactor.dep_step_length_cumulative[0]
-        else:
-            step_length = \
-                reactor.dep_step_length_cumulative[step_idx] - \
-                reactor.dep_step_length_cumulative[step_idx - 1]
+        step_length = reactor.depletion_timesteps[step_idx]
 
-        out_path = os.path.dirname(self.runtime_inputfile['settings'])
-        depletion_settings['directory'] = out_path
-        depletion_settings['timesteps'] = [step_length]
+        self.depletion_settings['directory'] = str(self.output_path)
+        self.depletion_settings['timesteps'] = [step_length]
 
         operator_kwargs = {}
-
+        input_path = Path(self.template_input_file_path['materials']).parents[0]
         try:
-            operator_kwargs['chain_file'] = \
-                self.template_input_file_path['chain_file']
+            if not(operator_kwargs['fission_q'] is None):
+                operator_kwargs['fission_q'] = \
+                    (input_path / operator_kwargs['fission_q']).resolve().as_posix()
         except KeyError:
-            raise SyntaxError("No chain file defined. Please provide \
-            a chain file in your saltproc input file")
+            pass
+        operator_kwargs['chain_file'] = self.chain_file_path
+
+        self.depletion_settings['operator_kwargs'].update(operator_kwargs)
 
         integrator_kwargs = {}
         integrator_kwargs['power'] = current_power
-        integrator_kwargs['timestep_units'] = 'd'  # days
+        integrator_kwargs['timestep_units'] = reactor.timestep_units
+        self.depletion_settings['integrator_kwargs'].update(integrator_kwargs)
 
-        depletion_settings['operator_kwargs'] = operator_kwargs
-        depletion_settings['integrator_kwargs'] = integrator_kwargs
-
-        self.runtime_inputfile['depletion_settings'] = \
-            os.path.join(out_path, 'depletion_settings.json')
-        json_dep_settings = json.JSONEncoder().encode(depletion_settings)
-        with open(self.runtime_inputfile['depletion_settings'], 'w') as f:
-            f.writelines(json_dep_settings)
+        with open(self.output_path / 'depletion_settings.json', 'w') as f:
+            depletion_settings_json = json.dumps(self.depletion_settings, indent=4)
+            f.write(depletion_settings_json)
 
     def update_depletable_materials(self, mats, dep_end_time):
         """Updates material file with reprocessed material compositions.

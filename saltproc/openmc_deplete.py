@@ -1,6 +1,8 @@
+import argparse
+import json
+
 import openmc
 import openmc.deplete as od
-import argparse
 
 
 def parse_arguments():
@@ -16,6 +18,8 @@ def parse_arguments():
         Path to openmc settings `.xml` file
     tallies : str
         Path to openmc tallies `.xml` file
+    dirctory : str
+        Directory to write the XML files to.
     depletion_settings : str
         Path to the OpenMCDepcode depletion_settings file
 
@@ -24,31 +28,26 @@ def parse_arguments():
     parser.add_argument('--materials',
                         type=str,
                         default=1,
-                        help='path to openmc material \
-                        material xml file')
+                        help='path to openmc material material xml file')
     parser.add_argument('--geometry',
                         type=str,
                         default=1,
-                        help='path to openmc geometry \
-                        xml file')
+                        help='path to openmc geometry xml file')
     parser.add_argument('--settings',
                         type=str,
                         default=None,
-                        help='path to openmc settings \
-                        xml file')
+                        help='path to openmc settings xml file')
     parser.add_argument('--tallies',
                         type=str,
                         default=None,
-                        help='path to openmc tallies \
-                        xml file')
-    parser.add_argument('--depletion_settings',
-                        type=str,
+                        help='path to openmc tallies xml file')
+    parser.add_argument('--directory',
+                        type='str',
                         default=None,
-                        help='path to saltproc depletion \
-                        settings  json file')
+                        help='path to output directory')
     args = parser.parse_args()
     return str(args.materials), str(args.geometry), str(args.settings), \
-        str(args.tallies), str(args.depletion_settings)
+        str(args.tallies), str(args.directory)
 
 
 args = parse_arguments()
@@ -63,12 +62,17 @@ model = openmc.model.Model(materials=materials,
                            settings=settings,
                            tallies=tallies)
 
-with open(args.depletion_settings) as f:
+with open(f'{args.directory}/depletion_settings.json') as f:
     depletion_settings = json.load(f)
 
-model.deplete(depletion_settings['timesteps'],
-              directory=depletion_settings['directory'],
-              operator_kwargs=depletion_settings['operator_kwargs'],
-              **depletion_settings['integrator_kwargs'])
+timesteps = depletion_settings.pop('timesteps')
+fission_q = depletion_settings['operator_kwargs']['fission_q']
+if not(fission_q is None):
+    with open(fission_q, 'r') as f:
+        fission_q = json.load(f)
+
+    depletion_settings['operator_kwargs']['fission_q'] = fission_q
+
+model.deplete(timesteps, **depletion_settings)
 
 del materials, geometry, settings, tallies, model

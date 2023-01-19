@@ -9,7 +9,16 @@
            "settings": "tap_settings.xml"
        },
        "geo_file_paths": ["tap_geometry_base.xml"],
-       "chain_file_path": "test_chain.xml"
+       "chain_file_path": "test_chain.xml",
+       "depletion_settings": {
+           "operator_kwargs": {
+               "fission_yield_mode": "cutoff",
+               "fission_yield_opts": {
+                   "cutoff": 112.0,
+                   "thermal_energy": 0.0253,
+                   "fast_energy": 500000.0}
+           }          
+       }
    },
    "simulation": {
        "sim_name": "tap_test_simulation_openmc"

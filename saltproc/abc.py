@@ -31,7 +31,7 @@ class Depcode(ABC):
                  output_path,
                  exec_path,
                  template_input_file_path,
-                 geo_files):
+                 geo_file_paths):
         """Initialize a Depcode object.
 
            Parameters
@@ -47,7 +47,7 @@ class Depcode(ABC):
                the input type (e.g. material, geometry, settings, etc.) as a
                string are keys, and the path to the input file are values.
                Type depends on depletion code in use.
-           geo_files : str or list, optional
+           geo_file_paths : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
@@ -57,7 +57,7 @@ class Depcode(ABC):
         self.output_path = output_path
         self.exec_path = exec_path
         self.template_input_file_path = template_input_file_path
-        self.geo_files = geo_files
+        self.geo_file_paths = geo_file_paths
         self.neutronics_parameters = {}
         self.step_metadata = {}
         self.runtime_inputfile = None
@@ -115,7 +115,7 @@ class Depcode(ABC):
     @abstractmethod
     def switch_to_next_geometry(self):
         """Changes the geometry used in the depletion code simulation to the
-        next geometry file in ``geo_files``
+        next geometry file in ``geo_file_paths``
         """
 
     @abstractmethod
