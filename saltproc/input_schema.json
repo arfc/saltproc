@@ -24,6 +24,12 @@
             "description": "Number of steps for constant power and depletion interval case",
             "type": "number"
         },
+        "mpi_args": {
+            "description": "Arguments for running simulations on supercomputers using ``mpiexec`` or similar programs.",
+            "type": "array",
+            "items": { "type": "string"},
+            "default": null
+        },
         "depcode": {
             "description": "Depcode class input parameters",
             "type": "object",
