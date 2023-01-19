@@ -79,7 +79,7 @@
 <span id="saltproc-abc-module"></span><h1>saltproc.abc module<a class="headerlink" href="#module-saltproc.abc" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="saltproc.abc.Depcode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">saltproc.abc.</span></span><span class="sig-name descname"><span class="pre">Depcode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">codename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_files</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/abc.html#Depcode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.abc.Depcode" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">saltproc.abc.</span></span><span class="sig-name descname"><span class="pre">Depcode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">codename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_file_paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/abc.html#Depcode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.abc.Depcode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Abstract interface for running depletion steps.</p>
 <dl class="py attribute">
@@ -164,7 +164,7 @@ run depletion step.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="saltproc.abc.Depcode.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">codename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_files</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/abc.html#Depcode.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.abc.Depcode.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">codename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_file_paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/abc.html#Depcode.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.abc.Depcode.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a Depcode object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -176,7 +176,7 @@ run depletion step.</p>
 the input type (e.g. material, geometry, settings, etc.) as a
 string are keys, and the path to the input file are values.
 Type depends on depletion code in use.</p></li>
-<li><p><strong>geo_files</strong> (<em>str</em><em> or </em><em>list</em><em>, </em><em>optional</em>) – Path to file that contains the reactor geometry.
+<li><p><strong>geo_file_paths</strong> (<em>str</em><em> or </em><em>list</em><em>, </em><em>optional</em>) – Path to file that contains the reactor geometry.
 List of <cite>str</cite> if reactivity control by
 switching geometry is <cite>On</cite> or just <cite>str</cite> otherwise.</p></li>
 </ul>
@@ -244,7 +244,7 @@ stores them in <a class="reference internal" href="#saltproc.abc.Depcode" title=
 <dt class="sig sig-object py" id="saltproc.abc.Depcode.switch_to_next_geometry">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">switch_to_next_geometry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/abc.html#Depcode.switch_to_next_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.abc.Depcode.switch_to_next_geometry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Changes the geometry used in the depletion code simulation to the
-next geometry file in <code class="docutils literal notranslate"><span class="pre">geo_files</span></code></p>
+next geometry file in <code class="docutils literal notranslate"><span class="pre">geo_file_paths</span></code></p>
 </dd></dl>
 
 <dl class="py method">

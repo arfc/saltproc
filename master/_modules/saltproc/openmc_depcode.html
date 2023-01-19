@@ -80,6 +80,7 @@
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">nucname</span> <span class="k">as</span> <span class="n">pyname</span>
 <span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">serpent</span>
@@ -119,7 +120,10 @@
                  <span class="n">output_path</span><span class="p">,</span>
                  <span class="n">exec_path</span><span class="p">,</span>
                  <span class="n">template_input_file_path</span><span class="p">,</span>
-                 <span class="n">geo_files</span><span class="p">):</span>
+                 <span class="n">geo_file_paths</span><span class="p">,</span>
+                 <span class="n">depletion_settings</span><span class="p">,</span>
+                 <span class="n">chain_file_path</span>
+                 <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize a OpenMCDepcode object.</span>
 
 <span class="sd">           Parameters</span>
@@ -133,22 +137,31 @@
 <span class="sd">               material, and settings) for OpenMC. File type as strings</span>
 <span class="sd">               are keys (e.g. &#39;geometry&#39;, &#39;settings&#39;, &#39;material&#39;), and</span>
 <span class="sd">               file path as strings are values.</span>
-<span class="sd">           geo_files : str or list, optional</span>
+<span class="sd">           geo_file_paths : str or list, optional</span>
 <span class="sd">               Path to file that contains the reactor geometry.</span>
 <span class="sd">               List of `str` if reactivity control by</span>
 <span class="sd">               switching geometry is `On` or just `str` otherwise.</span>
+<span class="sd">            depletion_settings : dict</span>
+<span class="sd">                Keyword arguments to pass to :func:`openmc.model.deplete()`.</span>
+<span class="sd">            chain_file_path : str</span>
+<span class="sd">                Path to depletion chain file</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># if using the default depletion file, make sure we have the right path</span>
         <span class="k">if</span> <span class="n">exec_path</span> <span class="o">==</span> <span class="s2">&quot;openmc_deplete.py&quot;</span><span class="p">:</span>
-            <span class="n">exec_path</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">exec_path</span><span class="p">)</span>
+            <span class="n">exec_path</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">exec_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">exec_path</span> <span class="o">==</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">exec_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">depletion_settings</span> <span class="o">=</span> <span class="n">depletion_settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chain_file_path</span> <span class="o">=</span> <span class="n">chain_file_path</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;openmc&quot;</span><span class="p">,</span>
                          <span class="n">output_path</span><span class="p">,</span>
                          <span class="n">exec_path</span><span class="p">,</span>
                          <span class="n">template_input_file_path</span><span class="p">,</span>
-                         <span class="n">geo_files</span><span class="p">)</span>
+                         <span class="n">geo_file_paths</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span> <span class="o">=</span> \
             <span class="p">{</span><span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;geometry.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()),</span>
              <span class="s1">&#39;settings&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;settings.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())}</span>
@@ -215,8 +228,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">],</span>
             <span class="s1">&#39;--tallies&#39;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;tallies&#39;</span><span class="p">],</span>
-            <span class="s1">&#39;--depletion_settings&#39;</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;depletion_settings&#39;</span><span class="p">])</span>
+            <span class="s1">&#39;--directory&#39;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">))</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
         <span class="c1"># TODO: Need to figure out how to adapt this to openmc</span>
@@ -233,11 +246,11 @@
 
 <div class="viewcode-block" id="OpenMCDepcode.switch_to_next_geometry"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.switch_to_next_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">switch_to_next_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Switches the geometry file for the OpenMC depletion simulation to</span>
-<span class="sd">        the next geometry file in `geo_files`.</span>
+<span class="sd">        the next geometry file in `geo_file_paths`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mats</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span>
         <span class="n">next_geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
-            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geo_file_paths</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
             <span class="n">materials</span><span class="o">=</span><span class="n">mats</span><span class="p">)</span>
         <span class="n">next_geometry</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">])</span>
         <span class="k">del</span> <span class="n">mats</span><span class="p">,</span> <span class="n">next_geometry</span></div>
@@ -260,7 +273,7 @@
             <span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;materials&#39;</span><span class="p">])</span>
             <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">materials</span><span class="o">=</span><span class="n">materials</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">geo_file_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">materials</span><span class="o">=</span><span class="n">materials</span><span class="p">)</span>
             <span class="n">settings</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Settings</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">npop</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">particles</span>
@@ -282,7 +295,8 @@
         <span class="k">del</span> <span class="n">materials</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">settings</span></div>
 
 <div class="viewcode-block" id="OpenMCDepcode.write_depletion_settings"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.write_depletion_settings">[docs]</a>    <span class="k">def</span> <span class="nf">write_depletion_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Write the depeletion settings for the OpenMC depletion step.</span>
+        <span class="sd">&quot;&quot;&quot;Write the depeletion settings for the ``openmc.deplete``</span>
+<span class="sd">        module.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -293,42 +307,34 @@
 <span class="sd">            Current depletion step.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">depletion_settings</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">current_power</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">power_levels</span><span class="p">[</span><span class="n">step_idx</span><span class="p">]</span>
 
         <span class="c1"># Get current depletion step length</span>
-        <span class="k">if</span> <span class="n">step_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">step_length</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">step_length</span> <span class="o">=</span> \
-                <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="n">step_idx</span><span class="p">]</span> <span class="o">-</span> \
-                <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="n">step_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">step_length</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">depletion_timesteps</span><span class="p">[</span><span class="n">step_idx</span><span class="p">]</span>
 
-        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">])</span>
-        <span class="n">depletion_settings</span><span class="p">[</span><span class="s1">&#39;directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_path</span>
-        <span class="n">depletion_settings</span><span class="p">[</span><span class="s1">&#39;timesteps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">step_length</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depletion_settings</span><span class="p">[</span><span class="s1">&#39;directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depletion_settings</span><span class="p">[</span><span class="s1">&#39;timesteps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">step_length</span><span class="p">]</span>
 
         <span class="n">operator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
-
+        <span class="n">input_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;materials&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">operator_kwargs</span><span class="p">[</span><span class="s1">&#39;chain_file&#39;</span><span class="p">]</span> <span class="o">=</span> \
-                <span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;chain_file&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">operator_kwargs</span><span class="p">[</span><span class="s1">&#39;fission_q&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">operator_kwargs</span><span class="p">[</span><span class="s1">&#39;fission_q&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="p">(</span><span class="n">input_path</span> <span class="o">/</span> <span class="n">operator_kwargs</span><span class="p">[</span><span class="s1">&#39;fission_q&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="s2">&quot;No chain file defined. Please provide </span><span class="se">\</span>
-<span class="s2">            a chain file in your saltproc input file&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+        <span class="n">operator_kwargs</span><span class="p">[</span><span class="s1">&#39;chain_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain_file_path</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">depletion_settings</span><span class="p">[</span><span class="s1">&#39;operator_kwargs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">operator_kwargs</span><span class="p">)</span>
 
         <span class="n">integrator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">integrator_kwargs</span><span class="p">[</span><span class="s1">&#39;power&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_power</span>
-        <span class="n">integrator_kwargs</span><span class="p">[</span><span class="s1">&#39;timestep_units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;d&#39;</span>  <span class="c1"># days</span>
+        <span class="n">integrator_kwargs</span><span class="p">[</span><span class="s1">&#39;timestep_units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">timestep_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depletion_settings</span><span class="p">[</span><span class="s1">&#39;integrator_kwargs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">integrator_kwargs</span><span class="p">)</span>
 
-        <span class="n">depletion_settings</span><span class="p">[</span><span class="s1">&#39;operator_kwargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">operator_kwargs</span>
-        <span class="n">depletion_settings</span><span class="p">[</span><span class="s1">&#39;integrator_kwargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">integrator_kwargs</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;depletion_settings&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s1">&#39;depletion_settings.json&#39;</span><span class="p">)</span>
-        <span class="n">json_dep_settings</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">depletion_settings</span><span class="p">)</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;depletion_settings&#39;</span><span class="p">],</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">json_dep_settings</span><span class="p">)</span></div>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;depletion_settings.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">depletion_settings_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depletion_settings</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">depletion_settings_json</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OpenMCDepcode.update_depletable_materials"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.update_depletable_materials">[docs]</a>    <span class="k">def</span> <span class="nf">update_depletable_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mats</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Updates material file with reprocessed material compositions.</span>

@@ -118,7 +118,7 @@
                  <span class="n">output_path</span><span class="p">,</span>
                  <span class="n">exec_path</span><span class="p">,</span>
                  <span class="n">template_input_file_path</span><span class="p">,</span>
-                 <span class="n">geo_files</span><span class="p">):</span>
+                 <span class="n">geo_file_paths</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize a SerpentDepcode object.</span>
 
 <span class="sd">           Parameters</span>
@@ -129,7 +129,7 @@
 <span class="sd">               Path to Serpent2 executable.</span>
 <span class="sd">           template_input_file_path : str</span>
 <span class="sd">               Path to user input file for Serpent2</span>
-<span class="sd">           geo_files : str or list, optional</span>
+<span class="sd">           geo_file_paths : str or list, optional</span>
 <span class="sd">               Path to file that contains the reactor geometry.</span>
 <span class="sd">               List of `str` if reactivity control by</span>
 <span class="sd">               switching geometry is `On` or just `str` otherwise.</span>
@@ -139,7 +139,7 @@
                          <span class="n">output_path</span><span class="p">,</span>
                          <span class="n">exec_path</span><span class="p">,</span>
                          <span class="n">template_input_file_path</span><span class="p">,</span>
-                         <span class="n">geo_files</span><span class="p">)</span>
+                         <span class="n">geo_file_paths</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span> <span class="o">=</span> \
                          <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;runtime_input.serpent&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span> <span class="o">=</span> <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;runtime_mat.ini&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span></div>
@@ -334,7 +334,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span>  <span class="c1"># Inserts on 6th line</span>
-                             <span class="s1">&#39;include </span><span class="se">\&quot;</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\&quot;\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                             <span class="s1">&#39;include </span><span class="se">\&quot;</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geo_file_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\&quot;\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">lines</span></div>
 
 <div class="viewcode-block" id="SerpentDepcode.read_depleted_materials"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.read_depleted_materials">[docs]</a>    <span class="k">def</span> <span class="nf">read_depleted_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -456,9 +456,7 @@
                        <span class="n">file_lines</span><span class="p">,</span>
                        <span class="n">reactor</span><span class="p">,</span>
                        <span class="n">step_idx</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add power load attributes in a :class:`Reactor` object to the</span>
-<span class="sd">        ``set power P dep daystep DEPSTEP`` line in the Serpent2  runtime input</span>
-<span class="sd">        file.</span>
+        <span class="sd">&quot;&quot;&quot;Set the power for the current depletion step</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -479,20 +477,24 @@
 
         <span class="n">line_idx</span> <span class="o">=</span> <span class="mi">8</span>  <span class="c1"># burnup setting line index by default</span>
         <span class="n">current_power</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">power_levels</span><span class="p">[</span><span class="n">step_idx</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">step_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">step_length</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">step_length</span> <span class="o">=</span> \
-                <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="n">step_idx</span><span class="p">]</span> <span class="o">-</span> \
-                <span class="n">reactor</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="n">step_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">step_length</span> <span class="o">=</span> <span class="n">reactor</span><span class="o">.</span><span class="n">depletion_timesteps</span><span class="p">[</span><span class="n">step_idx</span><span class="p">]</span>
+
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_lines</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;set    power   &#39;</span><span class="p">):</span>
                 <span class="n">line_idx</span> <span class="o">=</span> <span class="n">file_lines</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                 <span class="k">del</span> <span class="n">file_lines</span><span class="p">[</span><span class="n">line_idx</span><span class="p">]</span>
 
-        <span class="n">file_lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">line_idx</span><span class="p">,</span>  <span class="c1"># Insert on 9th line</span>
-                          <span class="s1">&#39;set    power   </span><span class="si">%5.9E</span><span class="s1">   dep daystep   </span><span class="si">%7.5E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
-                          <span class="p">(</span><span class="n">current_power</span><span class="p">,</span> <span class="n">step_length</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">reactor</span><span class="o">.</span><span class="n">timestep_units</span> <span class="o">==</span> <span class="s1">&#39;MWd/kg&#39;</span><span class="p">:</span>
+            <span class="n">step_type</span> <span class="o">=</span> <span class="s1">&#39;bu&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">step_type</span> <span class="o">=</span> <span class="s1">&#39;day&#39;</span>
+
+        <span class="n">step_type</span> <span class="o">+=</span> <span class="s1">&#39;step&#39;</span>
+
+        <span class="n">file_lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">line_idx</span><span class="p">,</span>
+                          <span class="sa">f</span><span class="s1">&#39;set    power   %5.9E   dep %s   %7.5E</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="n">current_power</span><span class="p">,</span> <span class="n">step_type</span><span class="p">,</span> <span class="n">step_length</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">file_lines</span></div>
 
 <div class="viewcode-block" id="SerpentDepcode.run_depletion_step"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.run_depletion_step">[docs]</a>    <span class="k">def</span> <span class="nf">run_depletion_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
@@ -560,9 +562,9 @@
             <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
         <span class="n">current_geo_file</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">geo_line_n</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">current_geo_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">current_geo_file</span><span class="p">)</span>
+        <span class="n">current_geo_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo_file_paths</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">current_geo_file</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">new_geo_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span><span class="p">[</span><span class="n">current_geo_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">new_geo_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo_file_paths</span><span class="p">[</span><span class="n">current_geo_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No more geometry files available </span><span class="se">\</span>
 <span class="s1">                  and the system went subcritical </span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>

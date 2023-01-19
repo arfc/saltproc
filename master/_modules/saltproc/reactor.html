@@ -84,7 +84,9 @@
                  <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
                  <span class="n">mass_flowrate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
                  <span class="n">power_levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
-                 <span class="n">dep_step_length_cumulative</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                 <span class="n">depletion_timesteps</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                 <span class="n">timestep_type</span><span class="o">=</span><span class="s1">&#39;stepwise&#39;</span><span class="p">,</span>
+                 <span class="n">timestep_units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the class.</span>
 
 <span class="sd">        Parameters</span>
@@ -95,15 +97,21 @@
 <span class="sd">            Total mass flowrate through reactor core (g/s).</span>
 <span class="sd">        power_levels : array [:math:`N_{steps}` x1]</span>
 <span class="sd">            Normalized power level for each depletion step (W).</span>
-<span class="sd">        dep_step_length_cumulative : array [:math:`N_{steps}` x1]</span>
-<span class="sd">            Cumulative depletion time (d).</span>
+<span class="sd">        depletion_timesteps : array [:math:`N_{steps}` x1]</span>
+<span class="sd">            Array of timesteps.</span>
+<span class="sd">        timestep_type: str</span>
+<span class="sd">            &#39;cumulative&#39;, &#39;stepwise&#39;.</span>
+<span class="sd">        timestep_units : str</span>
+<span class="sd">            Timestep units</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># initialize all object attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">volume</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mass_flowrate</span> <span class="o">=</span> <span class="n">mass_flowrate</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">power_levels</span> <span class="o">=</span> <span class="n">power_levels</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span> <span class="o">=</span> <span class="n">dep_step_length_cumulative</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depletion_timesteps</span> <span class="o">=</span> <span class="n">depletion_timesteps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestep_units</span> <span class="o">=</span> <span class="n">timestep_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestep_type</span> <span class="o">=</span> <span class="n">timestep_type</span></div></div>
 </pre></div>
 
            </div>

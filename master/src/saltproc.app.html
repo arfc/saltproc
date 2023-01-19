@@ -103,10 +103,24 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="saltproc.app._process_main_input_reactor_params">
-<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">_process_main_input_reactor_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactor_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_depsteps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#_process_main_input_reactor_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app._process_main_input_reactor_params" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">_process_main_input_reactor_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactor_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_depletion_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#_process_main_input_reactor_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app._process_main_input_reactor_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process SaltProc reactor class input parameters based on the value and
-data type of the <cite>num_depsteps</cite> parameter, and throw errors if the input
-parameters are incorrect.</p>
+data type of the <cite>n_depletion_steps</cite> parameter as well as the depletion code
+being used, and throw errors if the input parameters are incorrect.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="saltproc.app._scale_depletion_timesteps">
+<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">_scale_depletion_timesteps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depletion_timesteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#_scale_depletion_timesteps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app._scale_depletion_timesteps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale <cite>depletion_timesteps</cite> to the correct value based on <cite>timestep_units</cite></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="saltproc.app._validate_depletion_timesteps_power_levels">
+<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">_validate_depletion_timesteps_power_levels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_depletion_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depletion_timesteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">power_levels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#_validate_depletion_timesteps_power_levels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app._validate_depletion_timesteps_power_levels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure that the number of depletion timesteps and power levels match
+<cite>n_depletion_steps</cite> if it is given. Otherwise, compare the lengths of
+<cite>depletion_timesteps</cite> and <cite>power_levels</cite></p>
 </dd></dl>
 
 <dl class="py function">

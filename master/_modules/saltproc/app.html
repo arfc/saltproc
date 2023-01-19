@@ -90,6 +90,18 @@
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">SerpentDepcode</span><span class="p">,</span> <span class="n">OpenMCDepcode</span><span class="p">,</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">Reactor</span>
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Sparger</span><span class="p">,</span> <span class="n">Separator</span><span class="p">,</span> <span class="n">Materialflow</span>
 
+<span class="c1"># Validator that fills defualt values of JSON schema before validating</span>
+<span class="kn">from</span> <span class="nn">saltproc._schema_default</span> <span class="kn">import</span> <span class="n">DefaultFillingValidator</span>
+
+
+<span class="n">CODENAME_MAP</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;serpent&#39;</span><span class="p">:</span> <span class="n">SerpentDepcode</span><span class="p">,</span>
+                 <span class="s1">&#39;openmc&#39;</span><span class="p">:</span> <span class="n">OpenMCDepcode</span><span class="p">}</span>
+
+<span class="n">SECOND_UNITS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;sec&#39;</span><span class="p">)</span>
+<span class="n">MINUTE_UNITS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;minute&#39;</span><span class="p">)</span>
+<span class="n">HOUR_UNITS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;hr&#39;</span><span class="p">,</span> <span class="s1">&#39;hour&#39;</span><span class="p">)</span>
+<span class="n">DAY_UNITS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;day&#39;</span><span class="p">)</span>
+<span class="n">YEAR_UNITS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;yr&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="run"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot; Inititializes main run&quot;&quot;&quot;</span>
@@ -107,22 +119,22 @@
     <span class="n">simulation</span><span class="o">.</span><span class="n">check_restart</span><span class="p">()</span>
     <span class="c1"># Run sequence</span>
     <span class="c1"># Start sequence</span>
-    <span class="k">for</span> <span class="n">dep_step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msr</span><span class="o">.</span><span class="n">dep_step_length_cumulative</span><span class="p">)):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">Step #</span><span class="si">%i</span><span class="s2"> has been started&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dep_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">step_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msr</span><span class="o">.</span><span class="n">depletion_timesteps</span><span class="p">)):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">Step #</span><span class="si">%i</span><span class="s2"> has been started&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">step_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">simulation</span><span class="o">.</span><span class="n">sim_depcode</span><span class="o">.</span><span class="n">write_runtime_input</span><span class="p">(</span><span class="n">msr</span><span class="p">,</span>
-                                                   <span class="n">dep_step</span><span class="p">,</span>
+                                                   <span class="n">step_idx</span><span class="p">,</span>
                                                    <span class="n">simulation</span><span class="o">.</span><span class="n">restart_flag</span><span class="p">)</span>
         <span class="n">depcode</span><span class="o">.</span><span class="n">run_depletion_step</span><span class="p">(</span><span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">dep_step</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">simulation</span><span class="o">.</span><span class="n">restart_flag</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>  <span class="c1"># First step</span>
+        <span class="k">if</span> <span class="n">step_idx</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">simulation</span><span class="o">.</span><span class="n">restart_flag</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>  <span class="c1"># First step</span>
             <span class="c1"># Read general simulation data which never changes</span>
             <span class="n">simulation</span><span class="o">.</span><span class="n">store_run_init_info</span><span class="p">()</span>
-            <span class="c1"># Parse and store data for initial state (beginning of dep_step)</span>
+            <span class="c1"># Parse and store data for initial state (beginning of step_idx)</span>
             <span class="n">mats</span> <span class="o">=</span> <span class="n">depcode</span><span class="o">.</span><span class="n">read_depleted_materials</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">simulation</span><span class="o">.</span><span class="n">store_mat_data</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">dep_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">simulation</span><span class="o">.</span><span class="n">store_mat_data</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">step_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="c1"># Finish of First step</span>
         <span class="c1"># Main sequence</span>
         <span class="n">mats</span> <span class="o">=</span> <span class="n">depcode</span><span class="o">.</span><span class="n">read_depleted_materials</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">simulation</span><span class="o">.</span><span class="n">store_mat_data</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">store_mat_data</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="n">simulation</span><span class="o">.</span><span class="n">store_run_step_info</span><span class="p">()</span>
         <span class="c1"># Reprocessing here</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Mass and volume of fuel before reproc: </span><span class="si">%f</span><span class="s2"> g, </span><span class="si">%f</span><span class="s2"> cm3&quot;</span> <span class="o">%</span>
@@ -152,12 +164,12 @@
         <span class="c1">#        mats[&#39;ctrlPois&#39;].vol))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Removed mass [g]:&quot;</span><span class="p">,</span> <span class="n">extracted_mass</span><span class="p">)</span>
         <span class="c1"># Store in DB after reprocessing and refill (right before next depl)</span>
-        <span class="n">simulation</span><span class="o">.</span><span class="n">store_after_repr</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">waste_and_feed_streams</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">)</span>
+        <span class="n">simulation</span><span class="o">.</span><span class="n">store_after_repr</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">waste_and_feed_streams</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">)</span>
         <span class="n">depcode</span><span class="o">.</span><span class="n">update_depletable_materials</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">simulation</span><span class="o">.</span><span class="n">burn_time</span><span class="p">)</span>
         <span class="k">del</span> <span class="n">mats</span><span class="p">,</span> <span class="n">waste_streams</span><span class="p">,</span> <span class="n">waste_and_feed_streams</span><span class="p">,</span> <span class="n">extracted_mass</span>
         <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
         <span class="c1"># Switch to another geometry?</span>
-        <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">adjust_geo</span> <span class="ow">and</span> <span class="n">simulation</span><span class="o">.</span><span class="n">read_k_eds_delta</span><span class="p">(</span><span class="n">dep_step</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">simulation</span><span class="o">.</span><span class="n">adjust_geo</span> <span class="ow">and</span> <span class="n">simulation</span><span class="o">.</span><span class="n">read_k_eds_delta</span><span class="p">(</span><span class="n">step_idx</span><span class="p">):</span>
             <span class="n">depcode</span><span class="o">.</span><span class="n">switch_to_next_geometry</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Time at the end of current depletion step: </span><span class="si">%f</span><span class="s2">d&quot;</span> <span class="o">%</span>
               <span class="n">simulation</span><span class="o">.</span><span class="n">burn_time</span><span class="p">)</span>
@@ -165,7 +177,7 @@
         <span class="sd">&#39;&#39;&#39;print(&quot;Reactor object data.\n&quot;,</span>
 <span class="sd">        msr.mass_flowrate,</span>
 <span class="sd">              msr.power_levels,</span>
-<span class="sd">              msr.dep_step_length_cumulative)&#39;&#39;&#39;</span></div>
+<span class="sd">              msr.depletion_timesteps)&#39;&#39;&#39;</span></div>
 
 
 <div class="viewcode-block" id="parse_arguments"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.parse_arguments">[docs]</a><span class="k">def</span> <span class="nf">parse_arguments</span><span class="p">():</span>
@@ -228,11 +240,11 @@
 
     <span class="n">input_schema</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="s1">&#39;input_schema.json&#39;</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">main_inp_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">input_parameters</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_schema</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="n">schema</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">jsonschema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">j</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">DefaultFillingValidator</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">input_parameters</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Your input file is improperly structured.</span><span class="se">\</span>
 <span class="s2">                      Please see saltproc/tests/test.json for an example.&quot;</span><span class="p">)</span>
@@ -242,36 +254,44 @@
 
         <span class="c1"># Saltproc settings</span>
         <span class="n">process_file</span> <span class="o">=</span> <span class="nb">str</span><span class="p">((</span><span class="n">input_path</span> <span class="o">/</span>
-                              <span class="n">j</span><span class="p">[</span><span class="s1">&#39;proc_input_file&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
+                              <span class="n">input_parameters</span><span class="p">[</span><span class="s1">&#39;proc_input_file&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
         <span class="n">dot_file</span> <span class="o">=</span> <span class="nb">str</span><span class="p">((</span>
             <span class="n">input_path</span> <span class="o">/</span>
-            <span class="n">j</span><span class="p">[</span><span class="s1">&#39;dot_input_file&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
-        <span class="n">output_path</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">]</span>
-        <span class="n">num_depsteps</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;num_depsteps&#39;</span><span class="p">]</span>
+            <span class="n">input_parameters</span><span class="p">[</span><span class="s1">&#39;dot_input_file&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">input_parameters</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">]</span>
+        <span class="n">n_depletion_steps</span> <span class="o">=</span> <span class="n">input_parameters</span><span class="p">[</span><span class="s1">&#39;n_depletion_steps&#39;</span><span class="p">]</span>
 
         <span class="c1"># Global output path</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_path</span> <span class="o">/</span> <span class="n">output_path</span><span class="p">)</span>
-        <span class="n">j</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="n">input_parameters</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+        <span class="c1"># Create output directoy if it doesn&#39;t exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">input_parameters</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">input_parameters</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Class settings</span>
-        <span class="n">depcode_input</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;depcode&#39;</span><span class="p">]</span>
-        <span class="n">simulation_input</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;simulation&#39;</span><span class="p">]</span>
-        <span class="n">reactor_input</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;reactor&#39;</span><span class="p">]</span>
+        <span class="n">depcode_input</span> <span class="o">=</span> <span class="n">input_parameters</span><span class="p">[</span><span class="s1">&#39;depcode&#39;</span><span class="p">]</span>
+        <span class="n">simulation_input</span> <span class="o">=</span> <span class="n">input_parameters</span><span class="p">[</span><span class="s1">&#39;simulation&#39;</span><span class="p">]</span>
+        <span class="n">reactor_input</span> <span class="o">=</span> <span class="n">input_parameters</span><span class="p">[</span><span class="s1">&#39;reactor&#39;</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;serpent&#39;</span><span class="p">:</span>
+        <span class="n">codename</span> <span class="o">=</span> <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">codename</span> <span class="o">==</span> <span class="s1">&#39;serpent&#39;</span><span class="p">:</span>
             <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">((</span>
                 <span class="n">input_path</span> <span class="o">/</span>
                 <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
-        <span class="k">elif</span> <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;openmc&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">codename</span> <span class="o">==</span> <span class="s1">&#39;openmc&#39;</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">]:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
                 <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">((</span>
                     <span class="n">input_path</span> <span class="o">/</span> <span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
+            <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;chain_file_path&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="nb">str</span><span class="p">((</span><span class="n">input_path</span> <span class="o">/</span>
+                 <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;chain_file_path&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">depcode_input</span><span class="p">[</span><span class="s2">&quot;codename&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> &#39;</span>
-                <span class="s1">&#39;is not a supported depletion code&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">codename</span><span class="si">}</span><span class="s1"> is not a supported depletion code.&#39;</span>
+                             <span class="s1">&#39; Accepts: &quot;serpent&quot; or &quot;openmc&quot;.&#39;</span><span class="p">)</span>
 
+        <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">codename</span>
         <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_path</span>
         <span class="n">geo_list</span> <span class="o">=</span> <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;geo_file_paths&#39;</span><span class="p">]</span>
 
@@ -286,11 +306,10 @@
         <span class="n">simulation_input</span><span class="p">[</span><span class="s1">&#39;db_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">db_name</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
 
         <span class="n">reactor_input</span> <span class="o">=</span> <span class="n">_process_main_input_reactor_params</span><span class="p">(</span>
-            <span class="n">reactor_input</span><span class="p">,</span> <span class="n">num_depsteps</span><span class="p">)</span>
+            <span class="n">reactor_input</span><span class="p">,</span> <span class="n">n_depletion_steps</span><span class="p">,</span> <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">input_path</span><span class="p">,</span> <span class="n">process_file</span><span class="p">,</span> <span class="n">dot_file</span><span class="p">,</span> <span class="p">(</span>
             <span class="n">depcode_input</span><span class="p">,</span> <span class="n">simulation_input</span><span class="p">,</span> <span class="n">reactor_input</span><span class="p">)</span></div>
-
 
 <div class="viewcode-block" id="_print_simulation_input_info"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app._print_simulation_input_info">[docs]</a><span class="k">def</span> <span class="nf">_print_simulation_input_info</span><span class="p">(</span><span class="n">simulation_input</span><span class="p">,</span> <span class="n">depcode_input</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Helper function for `run()` &quot;&quot;&quot;</span>
@@ -308,20 +327,10 @@
 
 <div class="viewcode-block" id="_create_depcode_object"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app._create_depcode_object">[docs]</a><span class="k">def</span> <span class="nf">_create_depcode_object</span><span class="p">(</span><span class="n">depcode_input</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Helper function for `run()` &quot;&quot;&quot;</span>
-    <span class="n">codename</span> <span class="o">=</span> <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">codename</span> <span class="o">==</span> <span class="s1">&#39;serpent&#39;</span><span class="p">:</span>
-        <span class="n">depcode</span> <span class="o">=</span> <span class="n">SerpentDepcode</span>
-    <span class="k">elif</span> <span class="n">codename</span> <span class="o">==</span> <span class="s1">&#39;openmc&#39;</span><span class="p">:</span>
-        <span class="n">depcode</span> <span class="o">=</span> <span class="n">OpenMCDepcode</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">codename</span><span class="si">}</span><span class="s1"> is not a supported depletion code.&#39;</span>
-            <span class="s1">&#39;Accepts: &quot;serpent&quot; or &quot;openmc&quot;.&#39;</span><span class="p">)</span>
-
-    <span class="n">depcode</span> <span class="o">=</span> <span class="n">depcode</span><span class="p">(</span><span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">],</span>
-                      <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;exec_path&#39;</span><span class="p">],</span>
-                      <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;template_input_file_path&#39;</span><span class="p">],</span>
-                      <span class="n">geo_files</span><span class="o">=</span><span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;geo_file_paths&#39;</span><span class="p">])</span>
+    <span class="n">codename</span> <span class="o">=</span> <span class="n">depcode_input</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;codename&#39;</span><span class="p">)</span>
+    <span class="n">depcode</span> <span class="o">=</span> <span class="n">CODENAME_MAP</span><span class="p">[</span><span class="n">codename</span><span class="p">]</span>
+    <span class="n">depcode</span> <span class="o">=</span> <span class="n">depcode</span><span class="p">(</span><span class="o">**</span><span class="n">depcode_input</span><span class="p">)</span>
+    <span class="n">depcode_input</span><span class="p">[</span><span class="s1">&#39;codename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">codename</span>
 
     <span class="k">return</span> <span class="n">depcode</span></div>
 
@@ -341,46 +350,87 @@
 
 <div class="viewcode-block" id="_create_reactor_object"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app._create_reactor_object">[docs]</a><span class="k">def</span> <span class="nf">_create_reactor_object</span><span class="p">(</span><span class="n">reactor_input</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Helper function for `run()` &quot;&quot;&quot;</span>
-    <span class="n">msr</span> <span class="o">=</span> <span class="n">Reactor</span><span class="p">(</span>
-        <span class="n">volume</span><span class="o">=</span><span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;volume&#39;</span><span class="p">],</span>
-        <span class="n">mass_flowrate</span><span class="o">=</span><span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;mass_flowrate&#39;</span><span class="p">],</span>
-        <span class="n">power_levels</span><span class="o">=</span><span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;power_levels&#39;</span><span class="p">],</span>
-        <span class="n">dep_step_length_cumulative</span><span class="o">=</span><span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;dep_step_length_cumulative&#39;</span><span class="p">])</span>
+    <span class="n">msr</span> <span class="o">=</span> <span class="n">Reactor</span><span class="p">(</span><span class="o">**</span><span class="n">reactor_input</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">msr</span></div>
 
 
-<div class="viewcode-block" id="_process_main_input_reactor_params"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app._process_main_input_reactor_params">[docs]</a><span class="k">def</span> <span class="nf">_process_main_input_reactor_params</span><span class="p">(</span><span class="n">reactor_input</span><span class="p">,</span> <span class="n">num_depsteps</span><span class="p">):</span>
+<div class="viewcode-block" id="_process_main_input_reactor_params"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app._process_main_input_reactor_params">[docs]</a><span class="k">def</span> <span class="nf">_process_main_input_reactor_params</span><span class="p">(</span><span class="n">reactor_input</span><span class="p">,</span>
+                                       <span class="n">n_depletion_steps</span><span class="p">,</span>
+                                       <span class="n">codename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Process SaltProc reactor class input parameters based on the value and</span>
-<span class="sd">    data type of the `num_depsteps` parameter, and throw errors if the input</span>
-<span class="sd">    parameters are incorrect.</span>
+<span class="sd">    data type of the `n_depletion_steps` parameter as well as the depletion code</span>
+<span class="sd">    being used, and throw errors if the input parameters are incorrect.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dep_step_length_cumulative</span> <span class="o">=</span> <span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;dep_step_length_cumulative&#39;</span><span class="p">]</span>
-    <span class="n">power_levels</span> <span class="o">=</span> <span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;power_levels&#39;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">num_depsteps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dep_step_length_cumulative</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">num_depsteps</span> <span class="o">&lt;</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">int</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Depletion step interval cannot be negative&#39;</span><span class="p">)</span>
-        <span class="c1"># Make `power_levels` and `dep_step_length_cumulative`</span>
-        <span class="c1"># lists of length `num_depsteps`</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_depsteps</span><span class="p">)</span>
-            <span class="n">deptot</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">step</span>
-            <span class="n">dep_step_length_cumulative</span> <span class="o">=</span> \
-                <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">dep_step_length_cumulative</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-                            <span class="n">deptot</span><span class="p">,</span>
-                            <span class="n">num</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
-            <span class="n">power_levels</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">power_levels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> \
-                <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">dep_step_length_cumulative</span><span class="p">)</span>
-            <span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;dep_step_length_cumulative&#39;</span><span class="p">]</span> <span class="o">=</span> \
-                <span class="n">dep_step_length_cumulative</span>
-            <span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;power_levels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">power_levels</span>
-    <span class="k">elif</span> <span class="n">num_depsteps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dep_step_length_cumulative</span><span class="p">,</span>
-                                             <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dep_step_length_cumulative</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">power_levels</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;Depletion step list and power list shape mismatch&#39;</span><span class="p">)</span>
+
+    <span class="n">depletion_timesteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;depletion_timesteps&#39;</span><span class="p">])</span>
+    <span class="n">power_levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;power_levels&#39;</span><span class="p">])</span>
+    <span class="n">depletion_timesteps</span><span class="p">,</span> <span class="n">power_levels</span> <span class="o">=</span> \
+        <span class="n">_validate_depletion_timesteps_power_levels</span><span class="p">(</span><span class="n">n_depletion_steps</span><span class="p">,</span>
+                                                   <span class="n">depletion_timesteps</span><span class="p">,</span>
+                                                   <span class="n">power_levels</span><span class="p">)</span>
+
+
+    <span class="k">if</span> <span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;timestep_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;cumulative&#39;</span><span class="p">:</span>
+        <span class="n">depletion_timesteps</span> <span class="o">=</span> <span class="n">_convert_cumulative_to_stepwise</span><span class="p">(</span><span class="n">depletion_timesteps</span><span class="p">)</span>
+
+    <span class="n">timestep_units</span> <span class="o">=</span> <span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;timestep_units&#39;</span><span class="p">]</span>
+    <span class="n">depletion_timesteps</span> <span class="o">=</span> <span class="n">_scale_depletion_timesteps</span><span class="p">(</span><span class="n">timestep_units</span><span class="p">,</span>
+                                                     <span class="n">depletion_timesteps</span><span class="p">,</span>
+                                                     <span class="n">codename</span><span class="p">)</span>
+
+    <span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;depletion_timesteps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">depletion_timesteps</span><span class="p">)</span>
+    <span class="n">reactor_input</span><span class="p">[</span><span class="s1">&#39;power_levels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">power_levels</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">reactor_input</span></div>
+
+
+<div class="viewcode-block" id="_validate_depletion_timesteps_power_levels"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app._validate_depletion_timesteps_power_levels">[docs]</a><span class="k">def</span> <span class="nf">_validate_depletion_timesteps_power_levels</span><span class="p">(</span><span class="n">n_depletion_steps</span><span class="p">,</span>
+                                               <span class="n">depletion_timesteps</span><span class="p">,</span>
+                                               <span class="n">power_levels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ensure that the number of depletion timesteps and power levels match</span>
+<span class="sd">    `n_depletion_steps` if it is given. Otherwise, compare the lengths of</span>
+<span class="sd">    `depletion_timesteps` and `power_levels`&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n_depletion_steps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n_depletion_steps</span> <span class="o">&lt;</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;There must be a positive integer number&#39;</span>
+                             <span class="s1">&#39; of depletion steps. Provided&#39;</span>
+                             <span class="sa">f</span><span class="s1">&#39; n_depletion_steps: </span><span class="si">{</span><span class="n">n_depletion_steps</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">depletion_timesteps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">depletion_timesteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">depletion_timesteps</span><span class="p">,</span> <span class="n">n_depletion_steps</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">power_levels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">power_levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">power_levels</span><span class="p">,</span> <span class="n">n_depletion_steps</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">depletion_timesteps</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">power_levels</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;depletion_timesteps and power_levels length mismatch:&#39;</span>
+                         <span class="sa">f</span><span class="s1">&#39; depletion_timesteps has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">depletion_timesteps</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+                         <span class="sa">f</span><span class="s1">&#39; entries and power_levels has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">power_levels</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39; entries.&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">depletion_timesteps</span><span class="p">,</span> <span class="n">power_levels</span></div>
+
+
+<span class="k">def</span> <span class="nf">_convert_cumulative_to_stepwise</span><span class="p">(</span><span class="n">depletion_timesteps</span><span class="p">):</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">depletion_timesteps</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="n">depletion_timesteps</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">ts</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="_scale_depletion_timesteps"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app._scale_depletion_timesteps">[docs]</a><span class="k">def</span> <span class="nf">_scale_depletion_timesteps</span><span class="p">(</span><span class="n">timestep_units</span><span class="p">,</span> <span class="n">depletion_timesteps</span><span class="p">,</span> <span class="n">codename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Scale `depletion_timesteps` to the correct value based on `timestep_units`&quot;&quot;&quot;</span>
+    <span class="c1"># serpent base timestep units are days or mwd/kg</span>
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">timestep_units</span> <span class="ow">in</span> <span class="n">DAY_UNITS</span><span class="p">)</span> <span class="ow">and</span> <span class="n">timestep_units</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;mwd/kg&#39;</span> <span class="ow">and</span> <span class="n">codename</span> <span class="o">==</span> <span class="s1">&#39;serpent&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">timestep_units</span> <span class="ow">in</span> <span class="n">SECOND_UNITS</span><span class="p">:</span>
+            <span class="n">depletion_timesteps</span> <span class="o">/=</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">24</span>
+        <span class="k">elif</span> <span class="n">timestep_units</span> <span class="ow">in</span> <span class="n">MINUTE_UNITS</span><span class="p">:</span>
+            <span class="n">depletion_timesteps</span> <span class="o">/=</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">24</span>
+        <span class="k">elif</span> <span class="n">timestep_units</span> <span class="ow">in</span> <span class="n">HOUR_UNITS</span><span class="p">:</span>
+            <span class="n">depletion_timesteps</span> <span class="o">/=</span> <span class="mi">24</span>
+        <span class="k">elif</span> <span class="n">timestep_units</span> <span class="ow">in</span> <span class="n">YEAR_UNITS</span><span class="p">:</span>
+            <span class="n">depletion_timesteps</span> <span class="o">*=</span> <span class="mf">365.25</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unrecognized time unit: </span><span class="si">{</span><span class="n">timestep_units</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">depletion_timesteps</span></div>
 
 
 <div class="viewcode-block" id="reprocess_materials"><a class="viewcode-back" href="../../src/saltproc.app.html#saltproc.app.reprocess_materials">[docs]</a><span class="k">def</span> <span class="nf">reprocess_materials</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">process_file</span><span class="p">,</span> <span class="n">dot_file</span><span class="p">):</span>

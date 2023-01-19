@@ -108,7 +108,7 @@
                  <span class="n">output_path</span><span class="p">,</span>
                  <span class="n">exec_path</span><span class="p">,</span>
                  <span class="n">template_input_file_path</span><span class="p">,</span>
-                 <span class="n">geo_files</span><span class="p">):</span>
+                 <span class="n">geo_file_paths</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize a Depcode object.</span>
 
 <span class="sd">           Parameters</span>
@@ -124,7 +124,7 @@
 <span class="sd">               the input type (e.g. material, geometry, settings, etc.) as a</span>
 <span class="sd">               string are keys, and the path to the input file are values.</span>
 <span class="sd">               Type depends on depletion code in use.</span>
-<span class="sd">           geo_files : str or list, optional</span>
+<span class="sd">           geo_file_paths : str or list, optional</span>
 <span class="sd">               Path to file that contains the reactor geometry.</span>
 <span class="sd">               List of `str` if reactivity control by</span>
 <span class="sd">               switching geometry is `On` or just `str` otherwise.</span>
@@ -134,7 +134,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">output_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span> <span class="o">=</span> <span class="n">exec_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span> <span class="o">=</span> <span class="n">template_input_file_path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">geo_files</span> <span class="o">=</span> <span class="n">geo_files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geo_file_paths</span> <span class="o">=</span> <span class="n">geo_file_paths</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span> <span class="o">=</span> <span class="kc">None</span>
@@ -192,7 +192,7 @@
 <div class="viewcode-block" id="Depcode.switch_to_next_geometry"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.switch_to_next_geometry">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">switch_to_next_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Changes the geometry used in the depletion code simulation to the</span>
-<span class="sd">        next geometry file in ``geo_files``</span>
+<span class="sd">        next geometry file in ``geo_file_paths``</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="Depcode.write_runtime_input"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.write_runtime_input">[docs]</a>    <span class="nd">@abstractmethod</span>

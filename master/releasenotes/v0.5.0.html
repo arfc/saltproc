@@ -147,6 +147,9 @@ the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</
 <li><p>The test suite has been overhauled and moved to the <cite>tests/</cite> directory. The test suite is no longer part of the <cite>saltproc</cite> package.</p></li>
 <li><p>Input file format changes:</p>
 <ul>
+<li><p>Added default values for certain input parameters</p></li>
+<li><p>Added depletion settings for OpenMC</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_depsteps</span></code> → <code class="docutils literal notranslate"><span class="pre">n_depletion_steps</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">depcode['template_inputfile_path']</span></code> → <code class="docutils literal notranslate"><span class="pre">depcode['template_input_file_path']</span></code></p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">depcode['template_input_file_path']</span></code> input variable now has the following depletion-code-depentent types:</p>
 <ul>
@@ -156,14 +159,20 @@ the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">depcode['iter_inputfile']</span></code> → (removed)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">depcode['iter_matfile']</span></code> → (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depcode['npop']</span></code> → (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depcode['active_cycles']</span></code> → (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depcode['inactive_cycles']</span></code> → (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reactor['dep_step_length_cumulative']</span></code> → <code class="docutils literal notranslate"><span class="pre">depletion_timesteps</span></code></p></li>
+<li><p>(new)  → <code class="docutils literal notranslate"><span class="pre">reactor['timestep_type']</span></code></p></li>
+<li><p>(new)  → <code class="docutils literal notranslate"><span class="pre">reactor['timestep_units']</span></code></p></li>
 </ul>
 </li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>While the <code class="docutils literal notranslate"><span class="pre">iter_inputfile</span></code> and <code class="docutils literal notranslate"><span class="pre">iter_matfile</span></code> variables have been removed from the saltproc input file,
-they remain part of the <code class="docutils literal notranslate"><span class="pre">DepcodeSerpent</span></code> class as attributes. Their use is unchanged, save for the fact they can no
-longer be initialized by the user during object creation.</p>
+<p>Variables that have been removed from the saltproc input file
+remain part of the <code class="docutils literal notranslate"><span class="pre">Depcode</span></code> classes as attributes. Their use is unchanged, save for the fact they can no
+longer be initialized by the user from the SaltProc input file.</p>
 </div>
 <ul class="simple">
 <li><p>New/changed classes, methods, and attributes:</p>
@@ -185,6 +194,7 @@ longer be initialized by the user during object creation.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">write_depcode_input()</span></code> →  <code class="docutils literal notranslate"><span class="pre">write_runtime_input()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">iter_inputfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_inputfile</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">iter_matfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_matfile</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geo_files</span></code>  → <code class="docutils literal notranslate"><span class="pre">geo_file_paths</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent</span></code> → <code class="docutils literal notranslate"><span class="pre">SerpentDepcode</span></code></p>
@@ -209,6 +219,7 @@ longer be initialized by the user during object creation.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">write_depcode_input()</span></code> →  <code class="docutils literal notranslate"><span class="pre">write_runtime_input()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">iter_inputfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_inputfile</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">iter_matfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_matfile</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geo_files</span></code>  → <code class="docutils literal notranslate"><span class="pre">geo_file_paths</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">change_sim_par()</span></code> →  (deleted)</p></li>
 <li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">get_neutron_settings()</span></code></p></li>
 <li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">_get_burnable_materials_file()</span></code></p></li>
@@ -233,6 +244,13 @@ longer be initialized by the user during object creation.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">Process</span></code></p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reactor</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">dep_step_length_cumulative</span></code> → <code class="docutils literal notranslate"><span class="pre">depletion_timesteps</span></code></p></li>
+<li><p>(new) → <code class="docutils literal notranslate"><span class="pre">timestep_units</span></code></p></li>
+<li><p>(new) → <code class="docutils literal notranslate"><span class="pre">timestep_type</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Sparger</span></code></p>
