@@ -119,7 +119,7 @@ def parse_arguments():
 
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument(['-s', '--threads',
+    parser.add_argument(['-s', '--threads'],
                         type=int,
                         default=None,
                         help='Number of threads to use for shared-memory \
