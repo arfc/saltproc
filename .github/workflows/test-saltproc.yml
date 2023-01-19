@@ -81,6 +81,7 @@ jobs:
         with: 
           repository: openmc-dev/openmc
           path: openmc
+          submodules: recursive
 
       - name: Build OpenMC from source if no cache is found
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
