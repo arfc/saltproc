@@ -125,7 +125,7 @@ class OpenMCDepcode(Depcode):
 
         """
 
-    def run_depletion_step(self, mpi_args, threads):
+    def run_depletion_step(self, mpi_args=None, threads=None):
         """Runs a depletion step in OpenMC as a subprocess
 
         mpi_args : list of str

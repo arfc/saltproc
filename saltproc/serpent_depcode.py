@@ -420,7 +420,7 @@ class SerpentDepcode(Depcode):
                           (current_power, step_type, step_length))
         return file_lines
 
-    def run_depletion_step(self, mpi_args, threads):
+    def run_depletion_step(self, mpi_args=None, threads=None):
         """Runs a depletion step in Serpent2 as a subprocess.
 
 i       Parameters

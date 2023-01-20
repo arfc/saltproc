@@ -5,8 +5,8 @@ from collections import OrderedDict
 
 import argparse
 import numpy as np
-import json
-import jsonschema
+import traceback
+import json, jsonschema
 import gc
 import networkx as nx
 import pydotplus
@@ -36,7 +36,7 @@ def run():
     # Intializing objects
     depcode = _create_depcode_object(object_input[0])
     simulation = _create_simulation_object(
-        object_input[1], depcode, cores, nodes)
+        object_input[1], depcode)
     msr = _create_reactor_object(object_input[2])
 
     # Check: Restarting previous simulation or starting new?
@@ -119,7 +119,7 @@ def parse_arguments():
 
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument(['-s', '--threads'],
+    parser.add_argument('-s', '--threads',
                         type=int,
                         default=None,
                         help='Number of threads to use for shared-memory \
@@ -129,7 +129,7 @@ def parse_arguments():
                         default=None,
                         help='path and name of SaltProc main input file')
     args = parser.parse_args()
-    return int(args.s), str(args.i)
+    return args.threads, args.i
 
 
 def read_main_input(main_inp_file):
@@ -166,8 +166,13 @@ def read_main_input(main_inp_file):
             try:
                 DefaultFillingValidator(schema).validate(input_parameters)
             except jsonschema.exceptions.ValidationError:
-                print("Your input file is improperly structured.\
-                      Please see saltproc/tests/test.json for an example.")
+                print("Your input file is improperly structured: \n")
+                traceback.print_exc()
+            except jsonschema.exceptions.SchemaError:
+                traceback.print_exc()
+            except:
+                print("Something went wrong during schema validation.")
+                traceback.print_exc()
 
         # Global input path
         input_path = (Path.cwd() / Path(f.name).parents[0])
@@ -256,13 +261,11 @@ def _create_depcode_object(depcode_input):
     return depcode
 
 
-def _create_simulation_object(simulation_input, depcode, cores, nodes):
+def _create_simulation_object(simulation_input, depcode):
     """Helper function for `run()` """
     simulation = Simulation(
         sim_name='Super test',
         sim_depcode=depcode,
-        core_number=cores,
-        node_number=nodes,
         restart_flag=simulation_input['restart_flag'],
         adjust_geo=simulation_input['adjust_geo'],
         db_path=simulation_input['db_name'])

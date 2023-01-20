@@ -26,8 +26,8 @@
         },
         "mpi_args": {
             "description": "Arguments for running simulations on supercomputers using ``mpiexec`` or similar programs.",
-            "type": "array",
-            "items": { "type": "string"},
+            "type": ["array", "null"],
+            "items": { "type": ["string", "integer"]},
             "default": null
         },
         "depcode": {
@@ -198,6 +198,7 @@
                                                 "default": "fission-q"},
                                             "fission_q": {
                                                 "description": "Path to fission Q values",
+                                                "type": ["string", "null"],
                                                 "default": null},
                                             "dilute_initial": {
                                                 "description": "Initial atom density to add for nuclides that are zero in initial condition.",
@@ -211,6 +212,7 @@
                                                 "default": "constant"},
                                             "fission_yield_opts": {
                                                 "description": "Arguments for the fission yield helper",
+                                                "type": ["object", "null"],
                                                 "default": null},
                                             "reaction_rate_mode": {
                                                 "description": "Indicate how one-group reaction rates should be calculated",
@@ -218,6 +220,7 @@
                                                 "enum": ["direct", "flux"],
                                                 "default": "direct"},
                                             "reaction_rate_opts": {
+                                                "type": ["object", "null"],
                                                 "default": null},
                                             "reduce_chain": {
                                                 "description": "Whether or not to reduce the depletion chain.",
@@ -225,6 +228,7 @@
                                                 "default": false},
                                             "reduce_chain_level": {
                                                 "description": "Depth of serach while reducing depletion chain",
+                                                "type": ["integer", "null"],
                                                 "default": null}
                                         },
                                         "default": {}
@@ -258,6 +262,7 @@
         "simulation": {
             "description": "Simulation class input parameters",
             "type": "object",
+            "default": {},
             "properties": {
                 "sim_name": {
                     "description": "Name of simulation",
@@ -276,12 +281,12 @@
                     "type": "boolean",
                     "default": false}
             },
-            "default": {},
-            "required": ["sim_name"]
+            "required": ["sim_name", "db_name"]
         },
         "reactor": {
             "description": "Reactor class input parameters",
             "type": "object",
+            "default": {},
             "properties": {
                 "volume": {
                     "description": "reactor core volume [cm^3]",
@@ -314,9 +319,8 @@
                     "enum": ["s", "sec", "min", "minute", "h", "hr", "hour", "d", "day", "a", "yr", "year", "MWd/kg", "mwd/kg", "MWD/KG", "MWD/kg", "MWd/KG"]
                     }
             },
-            "default": {},
             "required": ["volume", "mass_flowrate", "power_levels", "depletion_timesteps", "timestep_units"]
         }
     },
-    "required": ["proc_input_file", "dot_input_file", "output_path", "depcode", "simulation", "reactor"]
+    "required": ["proc_input_file", "dot_input_file", "output_path", "mpi_args", "depcode", "simulation", "reactor"]
 }
