@@ -198,6 +198,11 @@ Python API Changes
     - (new) → ``timestep_units``
     - (new) → ``timestep_type``
 
+  - ``Simulation``
+
+    -  ``core_number`` →  (removed)
+    -  ``node_number`` →  (removed)
+
   - ``Sparger``
 
     - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency``

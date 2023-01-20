@@ -79,12 +79,12 @@ Required properties are as follows: ``proc_input_file``, ``dot_input_file``, ``o
     or similar programs
 
   :type:
-    ``array``
+    ``array``, ``null``
 
   :items:
 
     :type:
-      ``string``
+      ``string``, ``integer``
 
   :default:
     ``null``
