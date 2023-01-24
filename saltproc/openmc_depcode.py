@@ -152,7 +152,6 @@ class OpenMCDepcode(Depcode):
             args = mpi_args + args
 
         print('Running %s' % (self.codename))
-        # TODO: Need to figure out how to adapt this to openmc
         try:
             subprocess.check_output(
                 args,

@@ -27,7 +27,7 @@ def serpent_runtime(cwd, tmpdir_factory):
     """SaltProc objects for Serpent unit tests"""
     saltproc_input = str(cwd / 'serpent_data' / 'tap_input.json')
     depcode_input, simulation_input, reactor_input = \
-        read_main_input(saltproc_input)[4]
+        read_main_input(saltproc_input)[-1]
     depcode = _create_depcode_object(depcode_input)
     depcode.runtime_inputfile = str(cwd / 'serpent_data' / 'tap_reference')
     output_dir = str(depcode.output_path).split('/')[-1]
@@ -65,7 +65,7 @@ def openmc_runtime(cwd, tmpdir_factory):
     """SaltProc objects for OpenMC unit tests"""
     saltproc_input = str(cwd / 'openmc_data' / 'tap_input.json')
     depcode_input, simulation_input, reactor_input = \
-        read_main_input(saltproc_input)[4]
+        read_main_input(saltproc_input)[-1]
     depcode = _create_depcode_object(depcode_input)
     output_dir = str(depcode.output_path).split('/')[-1]
     depcode.output_path = tmpdir_factory.mktemp(f'openmc_{output_dir}')

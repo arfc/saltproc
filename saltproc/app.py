@@ -112,7 +112,7 @@ def parse_arguments():
 
     Returns
     -------
-    d : int
+    s : int
         Number of threads to use for shared-memory parallelism.
     i : str
         Path and name of main SaltProc input file (json format).
@@ -127,7 +127,7 @@ def parse_arguments():
     parser.add_argument('-i',      # main input file
                         type=str,
                         default=None,
-                        help='path and name of SaltProc main input file')
+                        help='Path and name of SaltProc main input file')
     args = parser.parse_args()
     return args.threads, args.i
 
