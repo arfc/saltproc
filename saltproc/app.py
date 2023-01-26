@@ -13,6 +13,18 @@ import pydotplus
 from saltproc import SerpentDepcode, OpenMCDepcode, Simulation, Reactor
 from saltproc import Process, Sparger, Separator, Materialflow
 
+# Validator that fills defualt values of JSON schema before validating
+from saltproc._schema_default import DefaultFillingValidator
+
+
+CODENAME_MAP = {'serpent': SerpentDepcode,
+                 'openmc': OpenMCDepcode}
+
+SECOND_UNITS = ('s', 'sec')
+MINUTE_UNITS = ('min', 'minute')
+HOUR_UNITS = ('h', 'hr', 'hour')
+DAY_UNITS = ('d', 'day')
+YEAR_UNITS = ('a', 'year', 'yr')
 
 def run():
     """ Inititializes main run"""
@@ -30,22 +42,22 @@ def run():
     simulation.check_restart()
     # Run sequence
     # Start sequence
-    for dep_step in range(len(msr.dep_step_length_cumulative)):
-        print("\n\n\nStep #%i has been started" % (dep_step + 1))
+    for step_idx in range(len(msr.depletion_timesteps)):
+        print("\n\n\nStep #%i has been started" % (step_idx + 1))
         simulation.sim_depcode.write_runtime_input(msr,
-                                                   dep_step,
+                                                   step_idx,
                                                    simulation.restart_flag)
         depcode.run_depletion_step(cores, nodes)
-        if dep_step == 0 and simulation.restart_flag is False:  # First step
+        if step_idx == 0 and simulation.restart_flag is False:  # First step
             # Read general simulation data which never changes
             simulation.store_run_init_info()
-            # Parse and store data for initial state (beginning of dep_step)
+            # Parse and store data for initial state (beginning of step_idx)
             mats = depcode.read_depleted_materials(False)
-            simulation.store_mat_data(mats, dep_step - 1, False)
+            simulation.store_mat_data(mats, step_idx - 1, False)
         # Finish of First step
         # Main sequence
         mats = depcode.read_depleted_materials(True)
-        simulation.store_mat_data(mats, dep_step, False)
+        simulation.store_mat_data(mats, step_idx, False)
         simulation.store_run_step_info()
         # Reprocessing here
         print("\nMass and volume of fuel before reproc: %f g, %f cm3" %
@@ -75,12 +87,12 @@ def run():
         #        mats['ctrlPois'].vol))
         print("Removed mass [g]:", extracted_mass)
         # Store in DB after reprocessing and refill (right before next depl)
-        simulation.store_after_repr(mats, waste_and_feed_streams, dep_step)
+        simulation.store_after_repr(mats, waste_and_feed_streams, step_idx)
         depcode.update_depletable_materials(mats, simulation.burn_time)
         del mats, waste_streams, waste_and_feed_streams, extracted_mass
         gc.collect()
         # Switch to another geometry?
-        if simulation.adjust_geo and simulation.read_k_eds_delta(dep_step):
+        if simulation.adjust_geo and simulation.read_k_eds_delta(step_idx):
             depcode.switch_to_next_geometry()
         print("\nTime at the end of current depletion step: %fd" %
               simulation.burn_time)
@@ -88,7 +100,7 @@ def run():
         '''print("Reactor object data.\n",
         msr.mass_flowrate,
               msr.power_levels,
-              msr.dep_step_length_cumulative)'''
+              msr.depletion_timesteps)'''
 
 
 def parse_arguments():
@@ -151,11 +163,11 @@ def read_main_input(main_inp_file):
 
     input_schema = (Path(__file__).parents[0] / 'input_schema.json')
     with open(main_inp_file) as f:
-        j = json.load(f)
+        input_parameters = json.load(f)
         with open(input_schema) as s:
-            v = json.load(s)
+            schema = json.load(s)
             try:
-                jsonschema.validate(instance=j, schema=v)
+                DefaultFillingValidator(schema).validate(input_parameters)
             except jsonschema.exceptions.ValidationError:
                 print("Your input file is improperly structured.\
                       Please see saltproc/tests/test.json for an example.")
@@ -165,36 +177,44 @@ def read_main_input(main_inp_file):
 
         # Saltproc settings
         process_file = str((input_path /
-                              j['proc_input_file']).resolve())
+                              input_parameters['proc_input_file']).resolve())
         dot_file = str((
             input_path /
-            j['dot_input_file']).resolve())
-        output_path = j['output_path']
-        num_depsteps = j['num_depsteps']
+            input_parameters['dot_input_file']).resolve())
+        output_path = input_parameters['output_path']
+        n_depletion_steps = input_parameters['n_depletion_steps']
 
         # Global output path
         output_path = (input_path / output_path)
-        j['output_path'] = output_path.resolve()
+        input_parameters['output_path'] = output_path.resolve()
+
+        # Create output directoy if it doesn't exist
+        if not Path(input_parameters['output_path']).exists():
+            Path(input_parameters['output_path']).mkdir(parents=True)
 
         # Class settings
-        depcode_input = j['depcode']
-        simulation_input = j['simulation']
-        reactor_input = j['reactor']
+        depcode_input = input_parameters['depcode']
+        simulation_input = input_parameters['simulation']
+        reactor_input = input_parameters['reactor']
 
-        if depcode_input['codename'] == 'serpent':
+        codename = depcode_input['codename'].lower()
+        if codename == 'serpent':
             depcode_input['template_input_file_path'] = str((
                 input_path /
                 depcode_input['template_input_file_path']).resolve())
-        elif depcode_input['codename'] == 'openmc':
+        elif codename == 'openmc':
             for key in depcode_input['template_input_file_path']:
                 value = depcode_input['template_input_file_path'][key]
                 depcode_input['template_input_file_path'][key] = str((
                     input_path / value).resolve())
+            depcode_input['chain_file_path'] = \
+                str((input_path /
+                 depcode_input['chain_file_path']).resolve())
         else:
-            raise ValueError(
-                f'{depcode_input["codename"]} '
-                'is not a supported depletion code')
+            raise ValueError(f'{codename} is not a supported depletion code.'
+                             ' Accepts: "serpent" or "openmc".')
 
+        depcode_input['codename'] = codename
         depcode_input['output_path'] = output_path
         geo_list = depcode_input['geo_file_paths']
 
@@ -209,11 +229,10 @@ def read_main_input(main_inp_file):
         simulation_input['db_name'] = str(db_name.resolve())
 
         reactor_input = _process_main_input_reactor_params(
-            reactor_input, num_depsteps)
+            reactor_input, n_depletion_steps, depcode_input['codename'])
 
         return input_path, process_file, dot_file, (
             depcode_input, simulation_input, reactor_input)
-
 
 def _print_simulation_input_info(simulation_input, depcode_input):
     """Helper function for `run()` """
@@ -231,20 +250,10 @@ def _print_simulation_input_info(simulation_input, depcode_input):
 
 def _create_depcode_object(depcode_input):
     """Helper function for `run()` """
-    codename = depcode_input['codename'].lower()
-    if codename == 'serpent':
-        depcode = SerpentDepcode
-    elif codename == 'openmc':
-        depcode = OpenMCDepcode
-    else:
-        raise ValueError(
-            f'{codename} is not a supported depletion code.'
-            'Accepts: "serpent" or "openmc".')
-
-    depcode = depcode(depcode_input['output_path'],
-                      depcode_input['exec_path'],
-                      depcode_input['template_input_file_path'],
-                      geo_files=depcode_input['geo_file_paths'])
+    codename = depcode_input.pop('codename')
+    depcode = CODENAME_MAP[codename]
+    depcode = depcode(**depcode_input)
+    depcode_input['codename'] = codename
 
     return depcode
 
@@ -264,46 +273,87 @@ def _create_simulation_object(simulation_input, depcode, cores, nodes):
 
 def _create_reactor_object(reactor_input):
     """Helper function for `run()` """
-    msr = Reactor(
-        volume=reactor_input['volume'],
-        mass_flowrate=reactor_input['mass_flowrate'],
-        power_levels=reactor_input['power_levels'],
-        dep_step_length_cumulative=reactor_input['dep_step_length_cumulative'])
+    msr = Reactor(**reactor_input)
     return msr
 
 
-def _process_main_input_reactor_params(reactor_input, num_depsteps):
+def _process_main_input_reactor_params(reactor_input,
+                                       n_depletion_steps,
+                                       codename):
     """
     Process SaltProc reactor class input parameters based on the value and
-    data type of the `num_depsteps` parameter, and throw errors if the input
-    parameters are incorrect.
+    data type of the `n_depletion_steps` parameter as well as the depletion code
+    being used, and throw errors if the input parameters are incorrect.
     """
-    dep_step_length_cumulative = reactor_input['dep_step_length_cumulative']
-    power_levels = reactor_input['power_levels']
-    if num_depsteps is not None and len(dep_step_length_cumulative) == 1:
-        if num_depsteps < 0.0 or not int:
-            raise ValueError('Depletion step interval cannot be negative')
-        # Make `power_levels` and `dep_step_length_cumulative`
-        # lists of length `num_depsteps`
-        else:
-            step = int(num_depsteps)
-            deptot = float(dep_step_length_cumulative[0]) * step
-            dep_step_length_cumulative = \
-                np.linspace(float(dep_step_length_cumulative[0]),
-                            deptot,
-                            num=step)
-            power_levels = float(power_levels[0]) * \
-                np.ones_like(dep_step_length_cumulative)
-            reactor_input['dep_step_length_cumulative'] = \
-                dep_step_length_cumulative
-            reactor_input['power_levels'] = power_levels
-    elif num_depsteps is None and isinstance(dep_step_length_cumulative,
-                                             (np.ndarray, list)):
-        if len(dep_step_length_cumulative) != len(power_levels):
-            raise ValueError(
-                'Depletion step list and power list shape mismatch')
+
+    depletion_timesteps = np.array(reactor_input['depletion_timesteps'])
+    power_levels = np.array(reactor_input['power_levels'])
+    depletion_timesteps, power_levels = \
+        _validate_depletion_timesteps_power_levels(n_depletion_steps,
+                                                   depletion_timesteps,
+                                                   power_levels)
+
+
+    if reactor_input['timestep_type'] == 'cumulative':
+        depletion_timesteps = _convert_cumulative_to_stepwise(depletion_timesteps)
+
+    timestep_units = reactor_input['timestep_units']
+    depletion_timesteps = _scale_depletion_timesteps(timestep_units,
+                                                     depletion_timesteps,
+                                                     codename)
+
+    reactor_input['depletion_timesteps'] = list(depletion_timesteps)
+    reactor_input['power_levels'] = list(power_levels)
 
     return reactor_input
+
+
+def _validate_depletion_timesteps_power_levels(n_depletion_steps,
+                                               depletion_timesteps,
+                                               power_levels):
+    """Ensure that the number of depletion timesteps and power levels match
+    `n_depletion_steps` if it is given. Otherwise, compare the lengths of
+    `depletion_timesteps` and `power_levels`"""
+    if n_depletion_steps is not None:
+        if n_depletion_steps < 0.0 or not int:
+            raise ValueError('There must be a positive integer number'
+                             ' of depletion steps. Provided'
+                             f' n_depletion_steps: {n_depletion_steps}')
+        if len(depletion_timesteps) == 1:
+            depletion_timesteps = np.repeat(depletion_timesteps, n_depletion_steps)
+        if len(power_levels) == 1:
+            power_levels = np.repeat(power_levels, n_depletion_steps)
+
+    if len(depletion_timesteps) != len(power_levels):
+        raise ValueError('depletion_timesteps and power_levels length mismatch:'
+                         f' depletion_timesteps has {len(depletion_timesteps)}'
+                         f' entries and power_levels has {len(power_levels)}'
+                         ' entries.')
+    else:
+        return depletion_timesteps, power_levels
+
+
+def _convert_cumulative_to_stepwise(depletion_timesteps):
+    ts = np.diff(depletion_timesteps)
+    return np.concatenate(([depletion_timesteps[0]], ts))
+
+
+def _scale_depletion_timesteps(timestep_units, depletion_timesteps, codename):
+    """Scale `depletion_timesteps` to the correct value based on `timestep_units`"""
+    # serpent base timestep units are days or mwd/kg
+    if not(timestep_units in DAY_UNITS) and timestep_units.lower() != 'mwd/kg' and codename == 'serpent':
+        if timestep_units in SECOND_UNITS:
+            depletion_timesteps /= 60 * 60 * 24
+        elif timestep_units in MINUTE_UNITS:
+            depletion_timesteps /= 60 * 24
+        elif timestep_units in HOUR_UNITS:
+            depletion_timesteps /= 24
+        elif timestep_units in YEAR_UNITS:
+            depletion_timesteps *= 365.25
+        else:
+            raise IOError(f'Unrecognized time unit: {timestep_units}')
+
+    return depletion_timesteps
 
 
 def reprocess_materials(mats, process_file, dot_file):

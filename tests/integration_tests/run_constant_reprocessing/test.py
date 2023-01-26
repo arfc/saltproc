@@ -1,5 +1,6 @@
 """Run SaltProc with reprocessing"""
 from pathlib import Path
+import shutil
 
 import numpy as np
 import pytest
@@ -11,7 +12,7 @@ import subprocess
 @pytest.fixture
 def setup(scope='module'):
     cwd = str(Path(__file__).parents[0].resolve())
-    test_db = cwd + '/test_db.h5'
+    test_db = cwd + '/saltproc_runtime/saltproc_results.h5'
     ref_db = cwd + '/tap_reference_db.h5'
     tol = 1e-9
 
@@ -27,6 +28,8 @@ def test_integration_2step_constant_ideal_removal_heavy(setup):
         cwd + '/tap_input.json'])
     np.testing.assert_equal(read_keff(test_db), read_keff(ref_db))
     assert_db_almost_equal(test_db, ref_db, tol)
+
+    shutil.rmtree(cwd + '/saltproc_runtime')
 
 def read_keff(file):
     db = tb.open_file(file, mode='r')

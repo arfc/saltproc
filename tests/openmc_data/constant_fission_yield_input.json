@@ -9,7 +9,13 @@
            "settings": "tap_settings.xml"
        },
        "geo_file_paths": ["tap_geometry_base.xml"],
-       "chain_file_path": "test_chain.xml"
+       "chain_file_path": "test_chain.xml",
+       "depletion_settings": {
+           "operator_kwargs": {
+               "fission_yield_mode": "constant",
+               "fission_yield_opts": {"energy": 0.0253}
+           }          
+       }
    },
    "simulation": {
        "sim_name": "tap_test_simulation_openmc"

@@ -1,11 +1,9 @@
 {
    "proc_input_file": "tap_objects.json",
    "dot_input_file": "tap.dot",
-   "output_path": "data",
-   "num_depsteps": 3,
+   "n_depletion_steps": 3,
    "depcode": {
        "codename": "serpent",
-       "exec_path": "sss2",
        "template_input_file_path": "tap.serpent",
        "geo_file_paths": [
            "geometry/347_base.ini",
@@ -26,15 +24,14 @@
        ]
    },
    "simulation": {
-       "sim_name": "test_simulation",
-       "db_name": "db_saltproc.h5",
-       "restart_flag": false,
+       "sim_name": "tap_example_simulation",
        "adjust_geo": true
    },
    "reactor": {
        "volume": 1.0,
        "mass_flowrate": 9920000,
        "power_levels": [ 1250000000 ],
-       "dep_step_length_cumulative": [ 2 ]
+       "depletion_timesteps": [ 2 ],
+       "timestep_units": "d"
    }
 }

@@ -35,14 +35,13 @@ class SerpentDepcode(Depcode):
     inactive_cycles : int
         Number of inactive cycles.
 
-
     """
 
     def __init__(self,
                  output_path,
                  exec_path,
                  template_input_file_path,
-                 geo_files):
+                 geo_file_paths):
         """Initialize a SerpentDepcode object.
 
            Parameters
@@ -53,7 +52,7 @@ class SerpentDepcode(Depcode):
                Path to Serpent2 executable.
            template_input_file_path : str
                Path to user input file for Serpent2
-           geo_files : str or list, optional
+           geo_file_paths : str or list, optional
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
@@ -63,7 +62,7 @@ class SerpentDepcode(Depcode):
                          output_path,
                          exec_path,
                          template_input_file_path,
-                         geo_files)
+                         geo_file_paths)
         self.runtime_inputfile = \
                          str((output_path / 'runtime_input.serpent').resolve())
         self.runtime_matfile = str((output_path / 'runtime_mat.ini').resolve())
@@ -95,7 +94,7 @@ class SerpentDepcode(Depcode):
 
     def create_runtime_matfile(self, file_lines):
         """Creates the runtime material file tracking burnable materials
-        ans inserts the path to this file in the Serpent2 runtime input file
+        and inserts the path to this file in the Serpent2 runtime input file
 
         Parameters
         ----------
@@ -108,6 +107,20 @@ class SerpentDepcode(Depcode):
             Serpent2 runtime input file with updated material file path.
 
         """
+        burnable_materials_path, absolute_path = self._get_burnable_materials_file(file_lines)
+
+        # Create data directory
+        Path.mkdir(Path(self.runtime_matfile).parents[0], exist_ok=True)
+
+        # Get material cards
+        flines = self.read_plaintext_file(absolute_path)
+        self._get_burnable_material_card_data(flines)
+
+         # Create file with path for SaltProc rewritable iterative material file
+        shutil.copy2(absolute_path, self.runtime_matfile)
+        return [line.replace(burnable_materials_path, self.runtime_matfile) for line in file_lines]
+
+    def _get_burnable_materials_file(self, file_lines):
         runtime_dir = Path(self.template_input_file_path).parents[0]
         include_card = [line for line in file_lines if line.startswith("include ")]
         if not include_card:
@@ -119,17 +132,30 @@ class SerpentDepcode(Depcode):
             absolute_path = (runtime_dir / burnable_materials_path)
         else:
             absolute_path = Path(burnable_materials_path)
-            with open(absolute_path) as f:
-                if 'mat ' not in f.read():
-                    raise IOError('Template file '
-                                  f'{self.template_input_file_path} includes '
-                                  'no file with materials description')
-        # Create data directory
-        Path.mkdir(Path(self.runtime_matfile).parents[0], exist_ok=True)
+        with open(absolute_path) as f:
+            if 'mat ' not in f.read():
+                raise IOError('Template file '
+                              f'{self.template_input_file_path} includes '
+                              'no file with materials description')
+        return burnable_materials_path, absolute_path.resolve()
 
-        # Create file with path for SaltProc rewritable iterative material file
-        shutil.copy2(absolute_path, self.runtime_matfile)
-        return [line.replace(burnable_materials_path, self.runtime_matfile) for line in file_lines]
+    def _get_burnable_material_card_data(self, file_lines):
+        # Get data for matfile
+        mat_cards = \
+            [line.split() for line in file_lines if line.startswith("mat ")]
+
+        for card in mat_cards:
+            if 'fix' not in card:
+                raise IOError(f'"mat" card for burnable material "{card[1]}"'
+                              ' does not have a "fix" option. Burnable materials'
+                              ' in SaltProc must include the "fix" option. See'
+                              ' the serpent wiki for more information:'
+                              ' https://serpent.vtt.fi/mediawiki/index.php/Input_syntax_manual#mat')
+        # Get volume indices
+        card_volume_idx = [(card.index('vol') + 1) for card in mat_cards]
+        mat_names = [card[1] for card in mat_cards]
+        mat_data = zip(mat_cards, card_volume_idx)#, mat_extensions)
+        self._burnable_material_card_data = dict(zip(mat_names, mat_data))
 
     def convert_nuclide_code_to_name(self, nuc_code):
         """Converts Serpent2 nuclide code to symbolic nuclide name.
@@ -231,7 +257,7 @@ class SerpentDepcode(Depcode):
 
         """
         lines.insert(5,  # Inserts on 6th line
-                             'include \"' + str(self.geo_files[0]) + '\"\n')
+                             'include \"' + str(self.geo_file_paths[0]) + '\"\n')
         return lines
 
     def read_depleted_materials(self, read_at_end=False):
@@ -353,9 +379,7 @@ class SerpentDepcode(Depcode):
                        file_lines,
                        reactor,
                        step_idx):
-        """Add power load attributes in a :class:`Reactor` object to the
-        ``set power P dep daystep DEPSTEP`` line in the Serpent2  runtime input
-        file.
+        """Set the power for the current depletion step
 
         Parameters
         ----------
@@ -376,20 +400,24 @@ class SerpentDepcode(Depcode):
 
         line_idx = 8  # burnup setting line index by default
         current_power = reactor.power_levels[step_idx]
-        if step_idx == 0:
-            step_length = reactor.dep_step_length_cumulative[0]
-        else:
-            step_length = \
-                reactor.dep_step_length_cumulative[step_idx] - \
-                reactor.dep_step_length_cumulative[step_idx - 1]
+
+        step_length = reactor.depletion_timesteps[step_idx]
+
         for line in file_lines:
             if line.startswith('set    power   '):
                 line_idx = file_lines.index(line)
                 del file_lines[line_idx]
 
-        file_lines.insert(line_idx,  # Insert on 9th line
-                          'set    power   %5.9E   dep daystep   %7.5E\n' %
-                          (current_power, step_length))
+        if reactor.timestep_units == 'MWd/kg':
+            step_type = 'bu'
+        else:
+            step_type = 'day'
+
+        step_type += 'step'
+
+        file_lines.insert(line_idx,
+                          f'set    power   %5.9E   dep %s   %7.5E\n' %
+                          (current_power, step_type, step_length))
         return file_lines
 
     def run_depletion_step(self, cores, nodes):
@@ -457,9 +485,9 @@ class SerpentDepcode(Depcode):
             lines = f.readlines()
 
         current_geo_file = lines[geo_line_n].split('\"')[1]
-        current_geo_idx = self.geo_files.index(current_geo_file)
+        current_geo_idx = self.geo_file_paths.index(current_geo_file)
         try:
-            new_geo_file = self.geo_files[current_geo_idx + 1]
+            new_geo_file = self.geo_file_paths[current_geo_idx + 1]
         except IndexError:
             print('No more geometry files available \
                   and the system went subcritical \n\n')
@@ -520,13 +548,17 @@ class SerpentDepcode(Depcode):
             f.write('%% Material compositions (after %f days)\n\n'
                     % dep_end_time)
             nuc_code_map = self.map_nuclide_code_zam_to_serpent()
+            if not(hasattr(self, '_burnable_material_card_data')):
+                lines = self.read_plaintext_file(self.template_input_file_path)
+                _, abs_src_matfile = self.get_burnable_materials_file(lines)
+                file_lines = self.read_plaintext_file(abs_src_matfile)
+                self._get_burnable_material_card_data(file_lines)
             for name, mat in mats.items():
-                f.write('mat  %s  %5.9E burn 1 fix %3s %4i vol %7.5E\n' %
-                        (name,
-                         -mat.density,
-                         '09c',
-                         mat.temp,
-                         mat.vol))
+                mat_card, card_volume_idx = self._burnable_material_card_data[name]
+                mat_card[2] = str(-mat.density)
+                mat_card[card_volume_idx] = "%7.5E" % mat.vol
+                f.write(" ".join(mat_card))
+                f.write("\n")
                 for nuc_code, mass_fraction in mat.comp.items():
                     zam_code = pyname.zzaaam(nuc_code)
                     f.write('           %9s  %7.14E\n' %

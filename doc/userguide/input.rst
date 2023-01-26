@@ -11,7 +11,7 @@ The SaltProc input file passes three categories of information to the program:
 
 In the following sections, we will create an example SaltProc input file, and
 explain the purpose for each input variable. For a more detailed breakdown of
-the inputs, check the :ref:`io_formats_input` page.
+the inputs, check the :ref:`io_formats_input_files` page.
 
 Creating a JSON file
 --------------------

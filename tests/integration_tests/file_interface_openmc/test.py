@@ -18,7 +18,9 @@ def geometry_switch(scope='module'):
 def msr(scope='module'):
     reactor = Reactor(volume=1.0,
                       power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
-                      dep_step_length_cumulative=[111.111, 2101.9, 3987.5])
+                      depletion_timesteps=[111.111, 2101.9, 3987.5],
+                      timestep_type='cumulative',
+                      timestep_units='d')
     return reactor
 
 
@@ -27,7 +29,7 @@ def test_write_runtime_input(openmc_depcode, msr):
     input_materials = openmc.Materials.from_xml(
         openmc_depcode.template_input_file_path['materials'])
     input_geometry = openmc.Geometry.from_xml(
-        openmc_depcode.geo_files[0],
+        openmc_depcode.geo_file_paths[0],
         materials=input_materials)
 
     input_cells = input_geometry.get_all_cells()
@@ -74,13 +76,13 @@ def test_write_depletion_settings(openmc_depcode, msr):
     Unit test for `Depcodeopenmc_depcode.write_depletion_settings`
     """
     openmc_depcode.write_depletion_settings(msr, 0)
-    with open(openmc_depcode.runtime_inputfile['depletion_settings']) as f:
+    with open(openmc_depcode.output_path / 'depletion_settings.json') as f:
         j = json.load(f)
-        assert j['directory'] == str(Path(
-            openmc_depcode.runtime_inputfile['settings']).parents[0])
-        assert j['timesteps'][0] == msr.dep_step_length_cumulative[0]
+        assert Path(j['directory']).resolve() == Path(
+            openmc_depcode.output_path)
+        assert j['timesteps'][0] == msr.depletion_timesteps[0]
         assert j['operator_kwargs']['chain_file'] == \
-            openmc_depcode.template_input_file_path['chain_file']
+            openmc_depcode.chain_file_path
         assert j['integrator_kwargs']['power'] == msr.power_levels[0]
         assert j['integrator_kwargs']['timestep_units'] == 'd'
 
@@ -93,7 +95,7 @@ def test_write_saltproc_openmc_tallies(openmc_depcode):
     mat = openmc.Materials.from_xml(
         openmc_depcode.template_input_file_path['materials'])
     geo = openmc.Geometry.from_xml(
-        openmc_depcode.geo_files[0], mat)
+        openmc_depcode.geo_file_paths[0], mat)
     openmc_depcode.write_saltproc_openmc_tallies(mat, geo)
     del mat, geo
     tallies = openmc.Tallies.from_xml(openmc_depcode.runtime_inputfile['tallies'])
@@ -131,7 +133,7 @@ def test_switch_to_next_geometry(openmc_depcode):
     mat = openmc.Materials.from_xml(
         openmc_depcode.template_input_file_path['materials'])
     expected_geometry = openmc.Geometry.from_xml(
-        openmc_depcode.geo_files[0], mat)
+        openmc_depcode.geo_file_paths[0], mat)
     expected_cells = expected_geometry.get_all_cells()
     expected_lattices = expected_geometry.get_all_lattices()
     expected_surfaces = expected_geometry.get_all_surfaces()

@@ -9,7 +9,16 @@
            "settings": "tap_settings.xml"
        },
        "geo_file_paths": ["tap_geometry_base.xml"],
-       "chain_file_path": "test_chain.xml"
+       "chain_file_path": "test_chain.xml",
+       "depletion_settings": {
+           "operator_kwargs": {
+               "reaction_rate_mode": "flux",
+               "reaction_rate_opts": {
+                   "energies": [0.0253, 500000.0],
+                   "reactions": ["(n,gamma)"],
+                   "nuclides": ["U235", "Pu239"]}
+           }
+       }
    },
    "simulation": {
        "sim_name": "tap_test_simulation_openmc"
