@@ -420,20 +420,29 @@ class SerpentDepcode(Depcode):
                           (current_power, step_type, step_length))
         return file_lines
 
-    def run_depletion_step(self, cores, nodes):
-        """Runs a depletion step in Serpent2 as a subprocess with the given
-        parameters.
+    def run_depletion_step(self, mpi_args=None, threads=None):
+        """Runs a depletion step in Serpent2 as a subprocess.
 
-        Parameters
+i       Parameters
         ----------
-        cores: int
-            Number of cores to use for Serpent2 run (`-omp` flag in Serpent2).
-        nodes: int
-            Number of nodes to use for Serpent2 run (`-mpi` flag in Serpent2).
+        mpi_args : list of str
+            Arguments for running simulations on supercomputers using
+            ``mpiexec`` or similar programs.
+        threads : int
+            Threads to use for shared-memory parallelism
 
         """
 
-        args = (self.exec_path, '-omp', str(cores), self.runtime_inputfile)
+        args = [self.exec_path]
+
+        if mpi_args is not None:
+            args = mpi_args + args
+
+        if threads is not None:
+            args = args + ['-omp', str(threads)]
+
+        args = args + [self.runtime_inputfile]
+
         print('Running %s' % (self.codename))
         try:
             subprocess.check_output(

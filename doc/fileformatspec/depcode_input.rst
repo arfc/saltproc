@@ -340,6 +340,9 @@ OpenMC-specific properties
   :description:
     Path to fission Q values
 
+  :type:
+    ``string``, ``null``
+
   :default:
     ``null``
 
@@ -383,6 +386,9 @@ OpenMC-specific properties
   :description:
     Arguments for the fission yield helper
 
+  :type:
+    ``object``, ``null``
+
   :default:
     ``null``. See :ref:`openmc_constant_fission_yield_opts_properties`
     and :ref:`openmc_cutoff_fission_yield_opts_properties` for object
@@ -409,6 +415,9 @@ OpenMC-specific properties
 ``reaction_rate_opts``
 ~~~~~~~~~~~~~~~~~~~~~~
 
+  :type:
+    ``object``, ``null``
+
   :default:
     ``null``. See :ref:`openmc_flux_reaction_rate_opts_properties` for
     object properties when ``reaction_rate_mode`` is ``flux``.
@@ -432,6 +441,9 @@ OpenMC-specific properties
 
   :description:
     Depth of serach while reducing depletion chain
+
+  :type:
+    ``integer``, ``null``
 
   :default:
     ``null``

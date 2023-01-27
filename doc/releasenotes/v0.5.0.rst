@@ -97,6 +97,9 @@ Python API Changes
 
 - Input file format changes:
 
+  - Removed the ``-n`` command line argument in favor of the new ``mpi_args`` input parameter
+  - Chaged the ``-d`` command line argument to ``-s``/``--threads``.
+  - (new)  → ``mpi_args``
   - Added default values for certain input parameters
   - Added depletion settings for OpenMC
   - ``num_depsteps`` → ``n_depletion_steps``
@@ -194,6 +197,11 @@ Python API Changes
     - ``dep_step_length_cumulative`` → ``depletion_timesteps``
     - (new) → ``timestep_units``
     - (new) → ``timestep_type``
+
+  - ``Simulation``
+
+    -  ``core_number`` →  (removed)
+    -  ``node_number`` →  (removed)
 
   - ``Sparger``
 
