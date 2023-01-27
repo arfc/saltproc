@@ -178,15 +178,17 @@
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="Depcode.run_depletion_step"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.run_depletion_step">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">run_depletion_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">run_depletion_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_args</span><span class="p">,</span> <span class="n">threads</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Runs a depletion step as a subprocess with the given parameters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        cores : int</span>
-<span class="sd">            Number of cores to use for depletion code run.</span>
-<span class="sd">        nodes : int</span>
-<span class="sd">            Number of nodes to use for depletion code run.</span>
+<span class="sd">        mpi_args : list of str</span>
+<span class="sd">            Arguments for running simulations on supercomputers using</span>
+<span class="sd">            ``mpiexec`` or similar programs.</span>
+<span class="sd">        threads : int</span>
+<span class="sd">            Threads to use for shared-memory parallelism</span>
+
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="Depcode.switch_to_next_geometry"><a class="viewcode-back" href="../../src/saltproc.abc.html#saltproc.abc.Depcode.switch_to_next_geometry">[docs]</a>    <span class="nd">@abstractmethod</span>

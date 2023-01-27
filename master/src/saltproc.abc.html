@@ -228,13 +228,14 @@ stores them in <a class="reference internal" href="#saltproc.abc.Depcode" title=
 
 <dl class="py method">
 <dt class="sig sig-object py" id="saltproc.abc.Depcode.run_depletion_step">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_depletion_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/abc.html#Depcode.run_depletion_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.abc.Depcode.run_depletion_step" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_depletion_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mpi_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threads</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/abc.html#Depcode.run_depletion_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.abc.Depcode.run_depletion_step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs a depletion step as a subprocess with the given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cores</strong> (<em>int</em>) – Number of cores to use for depletion code run.</p></li>
-<li><p><strong>nodes</strong> (<em>int</em>) – Number of nodes to use for depletion code run.</p></li>
+<li><p><strong>mpi_args</strong> (<em>list</em><em> of </em><em>str</em>) – Arguments for running simulations on supercomputers using
+<code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> or similar programs.</p></li>
+<li><p><strong>threads</strong> (<em>int</em>) – Threads to use for shared-memory parallelism</p></li>
 </ul>
 </dd>
 </dl>

@@ -355,15 +355,16 @@ attribute.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="saltproc.serpent_depcode.SerpentDepcode.run_depletion_step">
-<span class="sig-name descname"><span class="pre">run_depletion_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/serpent_depcode.html#SerpentDepcode.run_depletion_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.serpent_depcode.SerpentDepcode.run_depletion_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs a depletion step in Serpent2 as a subprocess with the given
-parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>cores</strong> (<em>int</em>) – Number of cores to use for Serpent2 run (<cite>-omp</cite> flag in Serpent2).</p></li>
-<li><p><strong>nodes</strong> (<em>int</em>) – Number of nodes to use for Serpent2 run (<cite>-mpi</cite> flag in Serpent2).</p></li>
-</ul>
+<span class="sig-name descname"><span class="pre">run_depletion_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mpi_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/serpent_depcode.html#SerpentDepcode.run_depletion_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.serpent_depcode.SerpentDepcode.run_depletion_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a depletion step in Serpent2 as a subprocess.</p>
+<dl class="simple">
+<dt>i       Parameters</dt><dd><dl class="simple">
+<dt>mpi_args<span class="classifier">list of str</span></dt><dd><p>Arguments for running simulations on supercomputers using
+<code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> or similar programs.</p>
+</dd>
+<dt>threads<span class="classifier">int</span></dt><dd><p>Threads to use for shared-memory parallelism</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>

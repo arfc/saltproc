@@ -497,20 +497,29 @@
                           <span class="p">(</span><span class="n">current_power</span><span class="p">,</span> <span class="n">step_type</span><span class="p">,</span> <span class="n">step_length</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">file_lines</span></div>
 
-<div class="viewcode-block" id="SerpentDepcode.run_depletion_step"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.run_depletion_step">[docs]</a>    <span class="k">def</span> <span class="nf">run_depletion_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs a depletion step in Serpent2 as a subprocess with the given</span>
-<span class="sd">        parameters.</span>
+<div class="viewcode-block" id="SerpentDepcode.run_depletion_step"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.run_depletion_step">[docs]</a>    <span class="k">def</span> <span class="nf">run_depletion_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs a depletion step in Serpent2 as a subprocess.</span>
 
-<span class="sd">        Parameters</span>
+<span class="sd">i       Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        cores: int</span>
-<span class="sd">            Number of cores to use for Serpent2 run (`-omp` flag in Serpent2).</span>
-<span class="sd">        nodes: int</span>
-<span class="sd">            Number of nodes to use for Serpent2 run (`-mpi` flag in Serpent2).</span>
+<span class="sd">        mpi_args : list of str</span>
+<span class="sd">            Arguments for running simulations on supercomputers using</span>
+<span class="sd">            ``mpiexec`` or similar programs.</span>
+<span class="sd">        threads : int</span>
+<span class="sd">            Threads to use for shared-memory parallelism</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span> <span class="s1">&#39;-omp&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cores</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">mpi_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">mpi_args</span> <span class="o">+</span> <span class="n">args</span>
+
+        <span class="k">if</span> <span class="n">threads</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">args</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;-omp&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">threads</span><span class="p">)]</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">]</span>
+
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>

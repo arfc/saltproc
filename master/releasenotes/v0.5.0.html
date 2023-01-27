@@ -147,6 +147,9 @@ the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</
 <li><p>The test suite has been overhauled and moved to the <cite>tests/</cite> directory. The test suite is no longer part of the <cite>saltproc</cite> package.</p></li>
 <li><p>Input file format changes:</p>
 <ul>
+<li><p>Removed the <code class="docutils literal notranslate"><span class="pre">-n</span></code> command line argument in favor of the new <code class="docutils literal notranslate"><span class="pre">mpi_args</span></code> input parameter</p></li>
+<li><p>Chaged the <code class="docutils literal notranslate"><span class="pre">-d</span></code> command line argument to <code class="docutils literal notranslate"><span class="pre">-s</span></code>/<code class="docutils literal notranslate"><span class="pre">--threads</span></code>.</p></li>
+<li><p>(new)  → <code class="docutils literal notranslate"><span class="pre">mpi_args</span></code></p></li>
 <li><p>Added default values for certain input parameters</p></li>
 <li><p>Added depletion settings for OpenMC</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_depsteps</span></code> → <code class="docutils literal notranslate"><span class="pre">n_depletion_steps</span></code></p></li>
@@ -251,6 +254,12 @@ longer be initialized by the user from the SaltProc input file.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">dep_step_length_cumulative</span></code> → <code class="docutils literal notranslate"><span class="pre">depletion_timesteps</span></code></p></li>
 <li><p>(new) → <code class="docutils literal notranslate"><span class="pre">timestep_units</span></code></p></li>
 <li><p>(new) → <code class="docutils literal notranslate"><span class="pre">timestep_type</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Simulation</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">core_number</span></code> →  (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">node_number</span></code> →  (removed)</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Sparger</span></code></p>

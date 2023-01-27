@@ -91,7 +91,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="saltproc.app._create_simulation_object">
-<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">_create_simulation_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depcode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#_create_simulation_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app._create_simulation_object" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">saltproc.app.</span></span><span class="sig-name descname"><span class="pre">_create_simulation_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depcode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/saltproc/app.html#_create_simulation_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.app._create_simulation_object" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function for <cite>run()</cite></p>
 </dd></dl>
 
@@ -208,8 +208,7 @@ material feeds.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><strong>n</strong> (<em>int</em>) – Number of nodes for use in depletion code simulation.</p></li>
-<li><p><strong>d</strong> (<em>int</em>) – Number of cores for use in depletion code simulation.</p></li>
+<li><p><strong>s</strong> (<em>int</em>) – Number of threads to use for shared-memory parallelism.</p></li>
 <li><p><strong>i</strong> (<em>str</em>) – Path and name of main SaltProc input file (json format).</p></li>
 </ul>
 </p>
@@ -230,6 +229,8 @@ material feeds.</p>
 <li><p><strong>input_path</strong> (<em>Path</em>) – Path to main input file</p></li>
 <li><p><strong>process_file</strong> (<em>str</em>) – Path to the <cite>.json</cite> file describing the fuel reprocessing components.</p></li>
 <li><p><strong>dot_file</strong> (<em>str</em>) – Path to the <cite>.dot</cite> describing the fuel reprocessing paths.</p></li>
+<li><p><strong>mpi_args</strong> (<em>list of str</em>) – Arguments for running simulations on supercomputers using mpiexec or
+similar programs.</p></li>
 <li><p><strong>object_inputs</strong> (<em>3-tuple of dict</em>) – tuple containing the inputs for constructing the
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Depcode</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Simulation</span></code>, and
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Reactor</span></code> objects.</p></li>

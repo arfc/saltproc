@@ -95,8 +95,6 @@
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">sim_name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
             <span class="n">sim_depcode</span><span class="o">=</span><span class="s2">&quot;depcode&quot;</span><span class="p">,</span>
-            <span class="n">core_number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="n">node_number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">db_path</span><span class="o">=</span><span class="s2">&quot;db_saltproc.h5&quot;</span><span class="p">,</span>
             <span class="n">restart_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">adjust_geo</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -114,12 +112,6 @@
 <span class="sd">            specific information identify the simulation.</span>
 <span class="sd">        sim_depcode : `Depcode` object</span>
 <span class="sd">            An instance of one of the `Depcode` child classes</span>
-<span class="sd">        cores : int</span>
-<span class="sd">            Number of cores to use for depletion code run (`-omp` flag in</span>
-<span class="sd">            Serpent).</span>
-<span class="sd">        nodes : int</span>
-<span class="sd">            Number of nodes to use for depletion code run (`-mpi` flag in</span>
-<span class="sd">            Serpent).</span>
 <span class="sd">        db_path : str</span>
 <span class="sd">            Path of HDF5 database that stores simulation information and</span>
 <span class="sd">            data.</span>
@@ -140,8 +132,6 @@
         <span class="c1"># initialize all object attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_name</span> <span class="o">=</span> <span class="n">sim_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_depcode</span> <span class="o">=</span> <span class="n">sim_depcode</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">core_number</span> <span class="o">=</span> <span class="n">core_number</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">node_number</span> <span class="o">=</span> <span class="n">node_number</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">restart_flag</span> <span class="o">=</span> <span class="n">restart_flag</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adjust_geo</span> <span class="o">=</span> <span class="n">adjust_geo</span>

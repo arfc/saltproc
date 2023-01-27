@@ -56,6 +56,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#dot-input-file"><code class="docutils literal notranslate"><span class="pre">dot_input_file</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#output-path"><code class="docutils literal notranslate"><span class="pre">output_path</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#n-depletion-steps"><code class="docutils literal notranslate"><span class="pre">n_depletion_steps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mpi-args"><code class="docutils literal notranslate"><span class="pre">mpi_args</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#depcode"><code class="docutils literal notranslate"><span class="pre">depcode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#simulation"><code class="docutils literal notranslate"><span class="pre">simulation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#reactor"><code class="docutils literal notranslate"><span class="pre">reactor</span></code></a></li>
@@ -163,6 +164,30 @@ datatype of the schema is a JSON <code class="docutils literal notranslate"><spa
 </dd>
 <dt class="field-even">type</dt>
 <dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">number</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="mpi-args">
+<span id="mpi-args-property"></span><h2><code class="docutils literal notranslate"><span class="pre">mpi_args</span></code><a class="headerlink" href="#mpi-args" title="Permalink to this heading">¶</a></h2>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Arguments for running simulations on supercomputers using <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code>
+or similar programs</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">array</span></code>, <code class="docutils literal notranslate"><span class="pre">null</span></code></p>
+</dd>
+<dt class="field-odd">items</dt>
+<dd class="field-odd"><dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">string</span></code>, <code class="docutils literal notranslate"><span class="pre">integer</span></code></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">default</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">null</span></code></p>
 </dd>
 </dl>
 </div></blockquote>
