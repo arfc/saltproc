@@ -8,10 +8,9 @@ reactors.
 How to run SaltProc:
 
 cd /path/to/saltproc
-python saltproc -n 4 -d 1 -i examples/tap/tap_main.json
+python saltproc -s 2 -i examples/tap/tap_main.json
 ```
--n          number of cluster nodes to use in Serpent
--d          number of threads to use in Serpent
+-s          number of threads to use for shared-memory paralleism (optional)
 -i          path and name of SaltProc main input file
 ```
 

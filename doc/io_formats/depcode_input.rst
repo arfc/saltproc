@@ -95,6 +95,22 @@ Serpent-specific properties
   :pattern: 
     ``^(.\\/)*(.*)$``
                   
+``zaid_convention``
+~~~~~~~~~~~~~~~~~~~
+
+  :description:
+    ZAID naming convention for nuclide codes. 'serpent': The third digit in ZA for nuclides in isomeric states is 3 (e.g. 47310 for for Ag-110m). 'mcnp': ZA = Z*1000 + A + (300 + 100*m). where m is the mth isomeric state (e.g. 47510 for Ag-110m). 'nndc': Identical to 'mcnp', except Am242m1 is 95242 and Am242 is 95642
+
+
+  :type:
+    ``string``
+
+  :enum:
+    "serpent", "mcnp", "nndc"
+
+  :default:
+    "mcnp"
+ 
 
 .. _openmc_specific_properties:
 
@@ -340,6 +356,9 @@ OpenMC-specific properties
   :description:
     Path to fission Q values
 
+  :type:
+    ``string``, ``null``
+
   :default:
     ``null``
 
@@ -383,6 +402,9 @@ OpenMC-specific properties
   :description:
     Arguments for the fission yield helper
 
+  :type:
+    ``object``, ``null``
+
   :default:
     ``null``. See :ref:`openmc_constant_fission_yield_opts_properties`
     and :ref:`openmc_cutoff_fission_yield_opts_properties` for object
@@ -409,6 +431,9 @@ OpenMC-specific properties
 ``reaction_rate_opts``
 ~~~~~~~~~~~~~~~~~~~~~~
 
+  :type:
+    ``object``, ``null``
+
   :default:
     ``null``. See :ref:`openmc_flux_reaction_rate_opts_properties` for
     object properties when ``reaction_rate_mode`` is ``flux``.
@@ -432,6 +457,9 @@ OpenMC-specific properties
 
   :description:
     Depth of serach while reducing depletion chain
+
+  :type:
+    ``integer``, ``null``
 
   :default:
     ``null``

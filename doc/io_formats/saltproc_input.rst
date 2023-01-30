@@ -69,6 +69,27 @@ Required properties are as follows: ``proc_input_file``, ``dot_input_file``, ``o
     ``number``
 
 
+.. _mpi_args_property:
+
+``mpi_args``
+---------------------
+
+  :description:
+    Arguments for running simulations on supercomputers using ``mpiexec``
+    or similar programs
+
+  :type:
+    ``array``, ``null``
+
+  :items:
+
+    :type:
+      ``string``, ``integer``
+
+  :default:
+    ``null``
+
+
 .. _depcode_property:
 
 ``depcode``

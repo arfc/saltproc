@@ -15,12 +15,12 @@ def setup():
     cwd = str(Path(__file__).parents[0].resolve())
     saltproc_input = cwd + '/test_input.json'
 
-    input_path, process_input_file, path_input_file, object_input = \
+    input_path, process_input_file, path_input_file, mpi_args, object_input = \
         app.read_main_input(saltproc_input)
 
     depcode = app._create_depcode_object(object_input[0])
 
-    simulation = app._create_simulation_object(object_input[1], depcode, 1, 1)
+    simulation = app._create_simulation_object(object_input[1], depcode)
 
     reactor = app._create_reactor_object(object_input[2])
 
@@ -73,9 +73,7 @@ def runsim_no_reproc(simulation, reactor, nsteps):
                 reactor,
                 dep_step,
                 False)
-            simulation.sim_depcode.run_depletion_step(
-                simulation.core_number,
-                simulation.node_number)
+            simulation.sim_depcode.run_depletion_step()
             # Read general simulation data which never changes
             simulation.store_run_init_info()
             # Parse and store data for initial state (beginning of dep_step)
@@ -85,9 +83,7 @@ def runsim_no_reproc(simulation, reactor, nsteps):
         # Finish of First step
         # Main sequence
         else:
-            simulation.sim_depcode.run_depletion_step(
-                simulation.core_number,
-                simulation.node_number)
+            simulation.sim_depcode.run_depletion_step()
         mats = simulation.sim_depcode.read_depleted_materials(
             True)
         simulation.store_mat_data(mats, dep_step, False)

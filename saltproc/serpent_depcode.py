@@ -41,7 +41,8 @@ class SerpentDepcode(Depcode):
                  output_path,
                  exec_path,
                  template_input_file_path,
-                 geo_file_paths):
+                 geo_file_paths,
+                 zaid_convention):
         """Initialize a SerpentDepcode object.
 
            Parameters
@@ -52,10 +53,21 @@ class SerpentDepcode(Depcode):
                Path to Serpent2 executable.
            template_input_file_path : str
                Path to user input file for Serpent2
-           geo_file_paths : str or list, optional
+           geo_file_paths : str or list
                Path to file that contains the reactor geometry.
                List of `str` if reactivity control by
                switching geometry is `On` or just `str` otherwise.
+           zaid_convention : str
+               ZAID naming convention for nuclide codes.
+
+               'serpent' - The third digit in ZA for nuclides in isomeric states
+               is 3 (e.g. 47310 for for Ag-110m).
+
+               'mcnp' - ZA = Z*1000 + A + (300 + 100*m). where m is the mth
+               isomeric state (e.g. 47510 for Ag-110m)
+
+               'nndc' - Identical to 'mcnp', except Am242m1 is 95242 and Am242
+               is 95642
 
         """
         super().__init__("serpent",
@@ -66,6 +78,7 @@ class SerpentDepcode(Depcode):
         self.runtime_inputfile = \
                          str((output_path / 'runtime_input.serpent').resolve())
         self.runtime_matfile = str((output_path / 'runtime_mat.ini').resolve())
+        self.zaid_convention = zaid_convention
 
     def get_neutron_settings(self, file_lines):
         """Get neutron settings (no. of neutrons per cycle, no. of active and
@@ -175,20 +188,33 @@ class SerpentDepcode(Depcode):
         """
 
         if '.' in str(nuc_code):
-            nuc_code = pyname.zzzaaa_to_id(int(nuc_code.split('.')[0]))
+            nuc_code = int(nuc_code.split('.')[0])
+            if self.zaid_convention == 'serpent':
+                nuc_code = pyname.zzzaaa_to_id(nuc_code)
+            if self.zaid_convention in ('mcnp', 'nndc'):
+                if self.zaid_convention == 'mcnp' and nuc_code in (95242, 95642):
+                    if nuc_code == 95242:
+                        nuc_code = 95642
+                    else:
+                        nuc_code = 95242
+                nuc_code = pyname.mcnp_to_id(nuc_code)
+
             zz = pyname.znum(nuc_code)
             aa = pyname.anum(nuc_code)
             aa_str = str(aa)
-            if aa > 300:
-                if zz > 76:
-                    aa_str = str(aa - 100) + 'm1'
-                    aa = aa - 100
-                else:
-                    aa_str = str(aa - 200) + 'm1'
-                    aa = aa - 200
-                nuc_zzaaam = str(zz) + str(aa) + '1'
-            elif aa == 0:
-                aa_str = 'nat'
+            if self.zaid_convention == 'serpent':
+                if aa > 300:
+                    if zz > 76:
+                        aa_str = str(aa - 100) + 'm1'
+                    else:
+                        aa_str = str(aa - 200) + 'm1'
+                elif aa == 0:
+                    aa_str = 'nat'
+            if self.zaid_convention in ('mcnp', 'nndc'):
+                mm = pyname.snum(nuc_code)
+                if mm != 0:
+                    aa_str = str(aa) + f'm{mm}'
+
             nuc_name = pyname.zz_name[zz] + aa_str
         else:
             meta_flag = pyname.snum(nuc_code)
@@ -233,10 +259,23 @@ class SerpentDepcode(Depcode):
                     line = line.split()
                     nuc_code = line[2]
                     if '.' in str(nuc_code):
-                        nuc_code = pyname.zzzaaa_to_id(int(nuc_code.split('.')[0]))
-
-                    zzaaam = \
-                        self.convert_nuclide_code_to_zam(pyname.zzaaam(nuc_code))
+                        nuc_code = int(nuc_code.split('.')[0])
+                        # In MCNP format the ground state of Am-242 is 95242,
+                        # but PyNE seems to disagree
+                        if self.zaid_convention == 'serpent':
+                            nuc_code = pyname.zzzaaa_to_id(nuc_code)
+                            zzaaam = \
+                                self.convert_nuclide_code_to_zam(pyname.zzaaam(nuc_code))
+                        if self.zaid_convention == 'nndc' or self.zaid_convention == 'mcnp':
+                            if self.zaid_convention == 'mcnp' and nuc_code in (95242, 95642):
+                                if nuc_code == 95242:
+                                    nuc_code = 95642
+                                else:
+                                    nuc_code = 95242
+                            nuc_code = pyname.mcnp_to_id(nuc_code)
+                            zzaaam = pyname.zzaaam(nuc_code)
+                    else:
+                        zzaaam = int(nuc_code)
 
                     nuc_code_map.update({zzaaam: line[2]})
         return nuc_code_map
@@ -420,31 +459,40 @@ class SerpentDepcode(Depcode):
                           (current_power, step_type, step_length))
         return file_lines
 
-    def run_depletion_step(self, cores, nodes):
-        """Runs a depletion step in Serpent2 as a subprocess with the given
-        parameters.
+    def run_depletion_step(self, mpi_args=None, threads=None):
+        """Runs a depletion step in Serpent2 as a subprocess.
 
-        Parameters
+i       Parameters
         ----------
-        cores: int
-            Number of cores to use for Serpent2 run (`-omp` flag in Serpent2).
-        nodes: int
-            Number of nodes to use for Serpent2 run (`-mpi` flag in Serpent2).
+        mpi_args : list of str
+            Arguments for running simulations on supercomputers using
+            ``mpiexec`` or similar programs.
+        threads : int
+            Threads to use for shared-memory parallelism
 
         """
 
-        args = (self.exec_path, '-omp', str(cores), self.runtime_inputfile)
+        args = [self.exec_path]
+
+        if mpi_args is not None:
+            args = mpi_args + args
+
+        if threads is not None:
+            args = args + ['-omp', str(threads)]
+
+        args = args + [self.runtime_inputfile]
+
         print('Running %s' % (self.codename))
         try:
-            subprocess.check_output(
+            subprocess.run(
                 args,
                 cwd=os.path.split(self.template_input_file_path)[0],
-                stderr=subprocess.STDOUT)
+                capture_output=True)
+            print('Finished Serpent2 Run')
         except subprocess.CalledProcessError as error:
             print(error.output.decode("utf-8"))
             raise RuntimeError('\n %s RUN FAILED\n see error message above'
                                % (self.codename))
-        print('Finished Serpent2 Run')
 
     def convert_nuclide_code_to_zam(self, nuc_code):
         """Converts nuclide code from Serpent2 format to zam format.

@@ -18,8 +18,6 @@ class Simulation():
             self,
             sim_name="default",
             sim_depcode="depcode",
-            core_number=1,
-            node_number=1,
             db_path="db_saltproc.h5",
             restart_flag=True,
             adjust_geo=False,
@@ -37,12 +35,6 @@ class Simulation():
             specific information identify the simulation.
         sim_depcode : `Depcode` object
             An instance of one of the `Depcode` child classes
-        cores : int
-            Number of cores to use for depletion code run (`-omp` flag in
-            Serpent).
-        nodes : int
-            Number of nodes to use for depletion code run (`-mpi` flag in
-            Serpent).
         db_path : str
             Path of HDF5 database that stores simulation information and
             data.
@@ -63,8 +55,6 @@ class Simulation():
         # initialize all object attributes
         self.sim_name = sim_name
         self.sim_depcode = sim_depcode
-        self.core_number = core_number
-        self.node_number = node_number
         self.db_path = db_path
         self.restart_flag = restart_flag
         self.adjust_geo = adjust_geo

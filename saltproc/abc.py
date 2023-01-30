@@ -101,15 +101,17 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def run_depletion_step(self, cores, nodes):
+    def run_depletion_step(self, mpi_args, threads):
         """Runs a depletion step as a subprocess with the given parameters.
 
         Parameters
         ----------
-        cores : int
-            Number of cores to use for depletion code run.
-        nodes : int
-            Number of nodes to use for depletion code run.
+        mpi_args : list of str
+            Arguments for running simulations on supercomputers using
+            ``mpiexec`` or similar programs.
+        threads : int
+            Threads to use for shared-memory parallelism
+
         """
 
     @abstractmethod

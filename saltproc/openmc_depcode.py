@@ -125,37 +125,33 @@ class OpenMCDepcode(Depcode):
 
         """
 
-    def run_depletion_step(self, cores, nodes):
-        """Runs a depletion step in OpenMC as a subprocess with the given
-        parameters.
+    def run_depletion_step(self, mpi_args=None, threads=None):
+        """Runs a depletion step in OpenMC as a subprocess
 
-        Parameters
-        ----------
-        cores : int
-            Number of cores to use for depletion code run.
-        nodes : int
-            Number of nodes to use for depletion code run.
+        mpi_args : list of str
+            Arguments for running simulations on supercomputers using
+            ``mpiexec`` or similar programs.
+        threads : int
+            Threads to use for shared-memory parallelism
+
         """
         # need to add flow control for plots option
-        args = (
-            'mpiexec',
-            '-n',
-            str(nodes),
-            'python',
-            self.exec_path,
-            '--materials',
-            self.runtime_matfile,
-            '--geometry',
-            self.runtime_inputfile['geometry'],
-            '--settings',
-            self.runtime_inputfile['settings'],
-            '--tallies',
-            self.runtime_inputfile['tallies'],
-            '--directory',
-            str(self.output_path))
+        args = ['python',
+                self.exec_path,
+                '--materials',
+                self.runtime_matfile,
+                '--geometry',
+                self.runtime_inputfile['geometry'],
+                '--settings',
+                self.runtime_inputfile['settings'],
+                '--tallies',
+                self.runtime_inputfile['tallies'],
+                '--directory',
+                str(self.output_path)]
+        if mpi_args is not None:
+            args = mpi_args + args
 
         print('Running %s' % (self.codename))
-        # TODO: Need to figure out how to adapt this to openmc
         try:
             subprocess.check_output(
                 args,

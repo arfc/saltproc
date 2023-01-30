@@ -64,6 +64,8 @@ Bug Fixes
 ..
   Describe any bug fixes.
 
+- `Fix bug where Serpent2 material temperatures are hardcoded to 900K in the JEFF 3.1.2 library format. <https://github.com/arfc/saltproc/pull/178>`
+- `Fix bug where using MCNP-style ZAID codes results in an error in various SerpentDepcode functions <https://github.com/arfc/saltproc/issues/187>`
 
 
 
@@ -97,7 +99,11 @@ Python API Changes
 
 - Input file format changes:
 
+  - Removed the ``-n`` command line argument in favor of the new ``mpi_args`` input parameter
+  - Chaged the ``-d`` command line argument to ``-s``/``--threads``.
+  - (new)  → ``mpi_args``
   - Added default values for certain input parameters
+  - Adds a ``zaid_convention`` input parameter
   - Added depletion settings for OpenMC
   - ``num_depsteps`` → ``n_depletion_steps``
   - ``depcode['template_inputfile_path']`` → ``depcode['template_input_file_path']``
@@ -167,6 +173,7 @@ Python API Changes
     - (new function) →  ``get_neutron_settings()``
     - (new function) →  ``_get_burnable_materials_file()`` 
     - (new function) →  ``_get_burnable_material_card_data()``
+    - (new parameter) →  ``zaid_convention``
 
 
   - ``OpenMCDepcode`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
@@ -194,6 +201,11 @@ Python API Changes
     - ``dep_step_length_cumulative`` → ``depletion_timesteps``
     - (new) → ``timestep_units``
     - (new) → ``timestep_type``
+
+  - ``Simulation``
+
+    -  ``core_number`` →  (removed)
+    -  ``node_number`` →  (removed)
 
   - ``Sparger``
 

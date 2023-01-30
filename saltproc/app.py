@@ -1,11 +1,12 @@
 from pathlib import Path
 from copy import deepcopy
+
 from collections import OrderedDict
 
 import argparse
 import numpy as np
-import json
-import jsonschema
+import traceback
+import json, jsonschema
 import gc
 import networkx as nx
 import pydotplus
@@ -28,14 +29,14 @@ YEAR_UNITS = ('a', 'year', 'yr')
 
 def run():
     """ Inititializes main run"""
-    nodes, cores, saltproc_input = parse_arguments()
-    input_path, process_file, dot_file, object_input = \
+    threads, saltproc_input = parse_arguments()
+    input_path, process_file, dot_file, mpi_args, object_input = \
         read_main_input(saltproc_input)
     _print_simulation_input_info(object_input[1], object_input[0])
     # Intializing objects
     depcode = _create_depcode_object(object_input[0])
     simulation = _create_simulation_object(
-        object_input[1], depcode, cores, nodes)
+        object_input[1], depcode)
     msr = _create_reactor_object(object_input[2])
 
     # Check: Restarting previous simulation or starting new?
@@ -47,7 +48,7 @@ def run():
         simulation.sim_depcode.write_runtime_input(msr,
                                                    step_idx,
                                                    simulation.restart_flag)
-        depcode.run_depletion_step(cores, nodes)
+        depcode.run_depletion_step(mpi_args, threads)
         if step_idx == 0 and simulation.restart_flag is False:  # First step
             # Read general simulation data which never changes
             simulation.store_run_init_info()
@@ -111,31 +112,24 @@ def parse_arguments():
 
     Returns
     -------
-    n: int
-        Number of nodes for use in depletion code simulation.
-    d: int
-        Number of cores for use in depletion code simulation.
-    i: str
+    s : int
+        Number of threads to use for shared-memory parallelism.
+    i : str
         Path and name of main SaltProc input file (json format).
 
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-n',      # Number of nodes to use
+    parser.add_argument('-s', '--threads',
                         type=int,
-                        default=1,
-                        help='number of cluster nodes to use in \
-                        depletion code simulation')
-    parser.add_argument('-d',      # Number of cores to use
-                        type=int,
-                        default=1,
-                        help='number of threads to use in \
-                        depletion code simulation')
+                        default=None,
+                        help='Number of threads to use for shared-memory \
+                        parallelism.')
     parser.add_argument('-i',      # main input file
                         type=str,
                         default=None,
-                        help='path and name of SaltProc main input file')
+                        help='Path and name of SaltProc main input file')
     args = parser.parse_args()
-    return int(args.n), int(args.d), str(args.i)
+    return args.threads, args.i
 
 
 def read_main_input(main_inp_file):
@@ -154,6 +148,9 @@ def read_main_input(main_inp_file):
         Path to the `.json` file describing the fuel reprocessing components.
     dot_file : str
         Path to the `.dot` describing the fuel reprocessing paths.
+    mpi_args : list of str
+        Arguments for running simulations on supercomputers using mpiexec or
+        similar programs.
     object_inputs : 3-tuple of dict
         tuple containing the inputs for constructing the
         :class:`~saltproc.Depcode`, :class:`~saltproc.Simulation`, and
@@ -169,8 +166,13 @@ def read_main_input(main_inp_file):
             try:
                 DefaultFillingValidator(schema).validate(input_parameters)
             except jsonschema.exceptions.ValidationError:
-                print("Your input file is improperly structured.\
-                      Please see saltproc/tests/test.json for an example.")
+                print("Your input file is improperly structured: \n")
+                traceback.print_exc()
+            except jsonschema.exceptions.SchemaError:
+                traceback.print_exc()
+            except:
+                print("Something went wrong during schema validation.")
+                traceback.print_exc()
 
         # Global input path
         input_path = (Path.cwd() / Path(f.name).parents[0])
@@ -183,6 +185,7 @@ def read_main_input(main_inp_file):
             input_parameters['dot_input_file']).resolve())
         output_path = input_parameters['output_path']
         n_depletion_steps = input_parameters['n_depletion_steps']
+        mpi_args = input_parameters['mpi_args']
 
         # Global output path
         output_path = (input_path / output_path)
@@ -231,7 +234,7 @@ def read_main_input(main_inp_file):
         reactor_input = _process_main_input_reactor_params(
             reactor_input, n_depletion_steps, depcode_input['codename'])
 
-        return input_path, process_file, dot_file, (
+        return input_path, process_file, dot_file, mpi_args, (
             depcode_input, simulation_input, reactor_input)
 
 def _print_simulation_input_info(simulation_input, depcode_input):
@@ -258,13 +261,11 @@ def _create_depcode_object(depcode_input):
     return depcode
 
 
-def _create_simulation_object(simulation_input, depcode, cores, nodes):
+def _create_simulation_object(simulation_input, depcode):
     """Helper function for `run()` """
     simulation = Simulation(
         sim_name='Super test',
         sim_depcode=depcode,
-        core_number=cores,
-        node_number=nodes,
         restart_flag=simulation_input['restart_flag'],
         adjust_geo=simulation_input['adjust_geo'],
         db_path=simulation_input['db_name'])

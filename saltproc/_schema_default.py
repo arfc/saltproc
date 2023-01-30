@@ -13,8 +13,9 @@ def extend_with_default(validator_class):
         ):
             yield error
 
+
     return validators.extend(
-        validator_class, {"properties" : set_defaults},
+        validator_class, {"properties" : set_defaults}
     )
 
 
