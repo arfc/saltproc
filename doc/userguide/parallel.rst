@@ -3,7 +3,7 @@
 Running in Parallel
 ===================
 
-If you have installed your :ref:`supported depletion code <supported_codes`
+If you have installed your :ref:`supported depletion code <supported_codes>`
 with support for shared or distributed memory parallelism (typically via OpenMP
 or MPI, respectively) support, then you can take advantage of that parallelism
 in SaltProc as well. 
@@ -19,7 +19,7 @@ this argument currently does not affect how OpenMC uses shared-memory
 parallelsim, as there is no way to specify the number of threads used
 in depletion. The default behavior is to use all available threads.
 User's should read more about this
-`here <https://docs.openmc.org/en/stable/usersguide/parallel.html#shared-memory-parallelism-openmp>`.
+`here <https://docs.openmc.org/en/stable/usersguide/parallel.html#shared-memory-parallelism-openmp>`_.
 
 .. _parallel_distributed:
 

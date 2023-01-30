@@ -27,8 +27,8 @@ much like a dictionary in Python. The entire JSON files needs to be wrapped with
 
 Base paremters
 -------------------
-There are two required base parameters: ``proc_input_file``, a path to the file
-that defines processes, and ``dot_input_file``, a path to the file that defines
+There are two required base parameters: :ref:`proc_input_file_property`, a path to the file
+that defines processes, and :ref:`dot_input_file_property`, a path to the file that defines
 the process graph. We will learn how to create these files in the next chapter,
 but for now we just need to specify a path. We recommend storing all the input
 files in the same directory, but this is not requried.
@@ -47,10 +47,11 @@ Transport code parameters
 -------------------------
 As explained in :ref:`methods_coupling`, SaltProc uses template files provided
 by the user to create runtime files that are used as inputs to the transport
-code for each depletion step. The ``depcode`` setting in the SaltProc input file
-store paths to these templtae files, as well as other settings. The only two
-input parameters that have the same format for different transport codes are
-``codename`` and ``geo_file_paths``. ``codename`` is a string that indicates the
+code for each depletion step. The :ref:`depcode_property` setting in the
+SaltProc input file store paths to these template files, as well as other
+settings. The only two input parameters that have the same format for
+different transport codes are :ref:`codename_property` and
+:ref:`geo_file_paths_property`. ``codename`` is a string that indicates the
 transport code you are using. Accepted values are lowercased versions of the
 supported transport code (e.g. "serpent", "openmc"). ``geo_file_paths`` is a
 list of paths to geometry files [#f1]_. At least one path to a geometry file must
@@ -96,12 +97,13 @@ OpenMC depletion settings should advise the `deplete module API`_ as well as the
 `user guide section on depletion`_ to familiarize themselves with the various
 options, then look at the section on...
 
-The ``depcode`` paramter for OpenMC also has the ``template_input_file_path``
-parameter, except it is an object that in turn requires two file paths:
+The ``depcode`` paramter for OpenMC also has the
+:ref:`openmc_template_input_file_path_property` parameter, except it is an
+object that in turn requires two file paths:
 ``materials`` for the materials file, and ``settings`` for the settings file.
-There is an additonal required parameter, ``chain_file_path`` which is a path to
-an OpenMC depletion chain file. Suppose we prepend ``template_`` to the names of
-our OpenMC input files:
+There is an additonal required parameter, :ref:`openmc_chain_file_path_property`
+which is a path to an OpenMC depletion chain file. Suppose we prepend
+``template_`` to the names of our OpenMC input files:
 
 .. code-block:: json
 
@@ -124,7 +126,7 @@ our OpenMC input files:
 .. _user guide section on depletion: https://docs.openmc.org/en/stable/usersguide/depletion.html
 
 
-Simultaion parameters
+Simulation parameters
 ---------------------
 SaltProc allows some degree of control over how the simulation behaves. These are not relevant...
 
@@ -133,9 +135,11 @@ Depletion step parameters
 In general, depletion parameters other than the defualts (e.g. timestepper
 method, solver used for the Bateman equations, normalization, etc.) should be
 set in the template input file when possible. The rationale for this is that
-these settings have more to do with the internal depletion calculations of the transport code than they do with SaltProc execution. The obvious  exception to this is the delpletion step settings. 
+these settings have more to do with the internal depletion calculations of the
+transport code than they do with SaltProc execution. The obvious exception to
+this is the delpletion step settings. 
 
-SaltProc has three 
+SaltProc has three...
 
 
 

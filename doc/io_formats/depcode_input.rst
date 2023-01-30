@@ -95,6 +95,9 @@ Serpent-specific properties
   :pattern: 
     ``^(.\\/)*(.*)$``
                   
+
+.. _zaid_convention_property:
+
 ``zaid_convention``
 ~~~~~~~~~~~~~~~~~~~
 
