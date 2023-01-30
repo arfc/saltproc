@@ -21,7 +21,8 @@
            "geometry/1338.ini",
            "geometry/1498.ini",
            "geometry/1668_all.ini"
-       ]
+       ],
+       "zaid_convention": "serpent"
    },
    "simulation": {
        "sim_name": "tap_example_simulation",

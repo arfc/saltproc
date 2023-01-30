@@ -5,7 +5,8 @@
    "depcode": {
        "codename": "serpent",
        "template_input_file_path": "msbr.serpent",
-       "geo_file_paths": ["geometry/msbr_full.ini"]
+       "geo_file_paths": ["geometry/msbr_full.ini"],
+       "zaid_convention": "serpent"
    },
    "simulation": {
        "sim_name": "msbr_kl_100_simulation"
