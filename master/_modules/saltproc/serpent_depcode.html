@@ -118,7 +118,8 @@
                  <span class="n">output_path</span><span class="p">,</span>
                  <span class="n">exec_path</span><span class="p">,</span>
                  <span class="n">template_input_file_path</span><span class="p">,</span>
-                 <span class="n">geo_file_paths</span><span class="p">):</span>
+                 <span class="n">geo_file_paths</span><span class="p">,</span>
+                 <span class="n">zaid_convention</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize a SerpentDepcode object.</span>
 
 <span class="sd">           Parameters</span>
@@ -129,10 +130,21 @@
 <span class="sd">               Path to Serpent2 executable.</span>
 <span class="sd">           template_input_file_path : str</span>
 <span class="sd">               Path to user input file for Serpent2</span>
-<span class="sd">           geo_file_paths : str or list, optional</span>
+<span class="sd">           geo_file_paths : str or list</span>
 <span class="sd">               Path to file that contains the reactor geometry.</span>
 <span class="sd">               List of `str` if reactivity control by</span>
 <span class="sd">               switching geometry is `On` or just `str` otherwise.</span>
+<span class="sd">           zaid_convention : str</span>
+<span class="sd">               ZAID naming convention for nuclide codes.</span>
+
+<span class="sd">               &#39;serpent&#39; - The third digit in ZA for nuclides in isomeric states</span>
+<span class="sd">               is 3 (e.g. 47310 for for Ag-110m).</span>
+
+<span class="sd">               &#39;mcnp&#39; - ZA = Z*1000 + A + (300 + 100*m). where m is the mth</span>
+<span class="sd">               isomeric state (e.g. 47510 for Ag-110m)</span>
+
+<span class="sd">               &#39;nndc&#39; - Identical to &#39;mcnp&#39;, except Am242m1 is 95242 and Am242</span>
+<span class="sd">               is 95642</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;serpent&quot;</span><span class="p">,</span>
@@ -142,7 +154,8 @@
                          <span class="n">geo_file_paths</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span> <span class="o">=</span> \
                          <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;runtime_input.serpent&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span> <span class="o">=</span> <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;runtime_mat.ini&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span> <span class="o">=</span> <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;runtime_mat.ini&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zaid_convention</span> <span class="o">=</span> <span class="n">zaid_convention</span></div>
 
 <div class="viewcode-block" id="SerpentDepcode.get_neutron_settings"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.get_neutron_settings">[docs]</a>    <span class="k">def</span> <span class="nf">get_neutron_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_lines</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get neutron settings (no. of neutrons per cycle, no. of active and</span>
@@ -252,20 +265,33 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">):</span>
-            <span class="n">nuc_code</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zzzaaa_to_id</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nuc_code</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">nuc_code</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nuc_code</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zaid_convention</span> <span class="o">==</span> <span class="s1">&#39;serpent&#39;</span><span class="p">:</span>
+                <span class="n">nuc_code</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zzzaaa_to_id</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zaid_convention</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;mcnp&#39;</span><span class="p">,</span> <span class="s1">&#39;nndc&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zaid_convention</span> <span class="o">==</span> <span class="s1">&#39;mcnp&#39;</span> <span class="ow">and</span> <span class="n">nuc_code</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">95242</span><span class="p">,</span> <span class="mi">95642</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">nuc_code</span> <span class="o">==</span> <span class="mi">95242</span><span class="p">:</span>
+                        <span class="n">nuc_code</span> <span class="o">=</span> <span class="mi">95642</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">nuc_code</span> <span class="o">=</span> <span class="mi">95242</span>
+                <span class="n">nuc_code</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">mcnp_to_id</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+
             <span class="n">zz</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">znum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
             <span class="n">aa</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">anum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
             <span class="n">aa_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">aa</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">zz</span> <span class="o">&gt;</span> <span class="mi">76</span><span class="p">:</span>
-                    <span class="n">aa_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">aa</span> <span class="o">-</span> <span class="mi">100</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;m1&#39;</span>
-                    <span class="n">aa</span> <span class="o">=</span> <span class="n">aa</span> <span class="o">-</span> <span class="mi">100</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">aa_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">aa</span> <span class="o">-</span> <span class="mi">200</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;m1&#39;</span>
-                    <span class="n">aa</span> <span class="o">=</span> <span class="n">aa</span> <span class="o">-</span> <span class="mi">200</span>
-                <span class="n">nuc_zzaaam</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">zz</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;1&#39;</span>
-            <span class="k">elif</span> <span class="n">aa</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">aa_str</span> <span class="o">=</span> <span class="s1">&#39;nat&#39;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zaid_convention</span> <span class="o">==</span> <span class="s1">&#39;serpent&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">aa</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">zz</span> <span class="o">&gt;</span> <span class="mi">76</span><span class="p">:</span>
+                        <span class="n">aa_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">aa</span> <span class="o">-</span> <span class="mi">100</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;m1&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">aa_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">aa</span> <span class="o">-</span> <span class="mi">200</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;m1&#39;</span>
+                <span class="k">elif</span> <span class="n">aa</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">aa_str</span> <span class="o">=</span> <span class="s1">&#39;nat&#39;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zaid_convention</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;mcnp&#39;</span><span class="p">,</span> <span class="s1">&#39;nndc&#39;</span><span class="p">):</span>
+                <span class="n">mm</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">snum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">mm</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">aa_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;m</span><span class="si">{</span><span class="n">mm</span><span class="si">}</span><span class="s1">&#39;</span>
+
             <span class="n">nuc_name</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zz_name</span><span class="p">[</span><span class="n">zz</span><span class="p">]</span> <span class="o">+</span> <span class="n">aa_str</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">meta_flag</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">snum</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
@@ -310,10 +336,23 @@
                     <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
                     <span class="n">nuc_code</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
                     <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">):</span>
-                        <span class="n">nuc_code</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zzzaaa_to_id</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nuc_code</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
-
-                    <span class="n">zzaaam</span> <span class="o">=</span> \
-                        <span class="bp">self</span><span class="o">.</span><span class="n">convert_nuclide_code_to_zam</span><span class="p">(</span><span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">))</span>
+                        <span class="n">nuc_code</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nuc_code</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="c1"># In MCNP format the ground state of Am-242 is 95242,</span>
+                        <span class="c1"># but PyNE seems to disagree</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zaid_convention</span> <span class="o">==</span> <span class="s1">&#39;serpent&#39;</span><span class="p">:</span>
+                            <span class="n">nuc_code</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zzzaaa_to_id</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+                            <span class="n">zzaaam</span> <span class="o">=</span> \
+                                <span class="bp">self</span><span class="o">.</span><span class="n">convert_nuclide_code_to_zam</span><span class="p">(</span><span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zaid_convention</span> <span class="o">==</span> <span class="s1">&#39;nndc&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">zaid_convention</span> <span class="o">==</span> <span class="s1">&#39;mcnp&#39;</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zaid_convention</span> <span class="o">==</span> <span class="s1">&#39;mcnp&#39;</span> <span class="ow">and</span> <span class="n">nuc_code</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">95242</span><span class="p">,</span> <span class="mi">95642</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="n">nuc_code</span> <span class="o">==</span> <span class="mi">95242</span><span class="p">:</span>
+                                    <span class="n">nuc_code</span> <span class="o">=</span> <span class="mi">95642</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">nuc_code</span> <span class="o">=</span> <span class="mi">95242</span>
+                            <span class="n">nuc_code</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">mcnp_to_id</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+                            <span class="n">zzaaam</span> <span class="o">=</span> <span class="n">pyname</span><span class="o">.</span><span class="n">zzaaam</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">zzaaam</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nuc_code</span><span class="p">)</span>
 
                     <span class="n">nuc_code_map</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">zzaaam</span><span class="p">:</span> <span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]})</span>
         <span class="k">return</span> <span class="n">nuc_code_map</span></div>
@@ -522,15 +561,15 @@
 
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
                 <span class="n">args</span><span class="p">,</span>
                 <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+                <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished Serpent2 Run&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> RUN FAILED</span><span class="se">\n</span><span class="s1"> see error message above&#39;</span>
-                               <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished Serpent2 Run&#39;</span><span class="p">)</span></div>
+                               <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="SerpentDepcode.convert_nuclide_code_to_zam"><a class="viewcode-back" href="../../src/saltproc.serpent_depcode.html#saltproc.serpent_depcode.SerpentDepcode.convert_nuclide_code_to_zam">[docs]</a>    <span class="k">def</span> <span class="nf">convert_nuclide_code_to_zam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Converts nuclide code from Serpent2 format to zam format.</span>

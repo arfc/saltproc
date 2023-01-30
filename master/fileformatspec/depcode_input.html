@@ -197,6 +197,25 @@ properties. They do not replace them, but there can be new ones.</p>
 </dl>
 </div></blockquote>
 </section>
+<section id="zaid-convention">
+<h3><code class="docutils literal notranslate"><span class="pre">zaid_convention</span></code><a class="headerlink" href="#zaid-convention" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>ZAID naming convention for nuclide codes. ‘serpent’: The third digit in ZA for nuclides in isomeric states is 3 (e.g. 47310 for for Ag-110m). ‘mcnp’: ZA = Z*1000 + A + (300 + 100*m). where m is the mth isomeric state (e.g. 47510 for Ag-110m). ‘nndc’: Identical to ‘mcnp’, except Am242m1 is 95242 and Am242 is 95642</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-odd">enum</dt>
+<dd class="field-odd"><p>“serpent”, “mcnp”, “nndc”</p>
+</dd>
+<dt class="field-even">default</dt>
+<dd class="field-even"><p>“mcnp”</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
 </section>
 <section id="openmc-specific-properties">
 <span id="id4"></span><h2>OpenMC-specific properties<a class="headerlink" href="#openmc-specific-properties" title="Permalink to this heading">¶</a></h2>

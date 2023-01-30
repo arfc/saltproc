@@ -124,6 +124,10 @@ the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</
 </section>
 <section id="bug-fixes">
 <h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><cite>Fix bug where Serpent2 material temperatures are hardcoded to 900K in the JEFF 3.1.2 library format. &lt;https://github.com/arfc/saltproc/pull/178&gt;</cite></p></li>
+<li><p><cite>Fix bug where using MCNP-style ZAID codes results in an error in various SerpentDepcode functions &lt;https://github.com/arfc/saltproc/issues/187&gt;</cite></p></li>
+</ul>
 </section>
 <section id="script-changes">
 <h2>Script Changes<a class="headerlink" href="#script-changes" title="Permalink to this heading">¶</a></h2>
@@ -151,6 +155,7 @@ the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</
 <li><p>Chaged the <code class="docutils literal notranslate"><span class="pre">-d</span></code> command line argument to <code class="docutils literal notranslate"><span class="pre">-s</span></code>/<code class="docutils literal notranslate"><span class="pre">--threads</span></code>.</p></li>
 <li><p>(new)  → <code class="docutils literal notranslate"><span class="pre">mpi_args</span></code></p></li>
 <li><p>Added default values for certain input parameters</p></li>
+<li><p>Adds a <code class="docutils literal notranslate"><span class="pre">zaid_convention</span></code> input parameter</p></li>
 <li><p>Added depletion settings for OpenMC</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_depsteps</span></code> → <code class="docutils literal notranslate"><span class="pre">n_depletion_steps</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">depcode['template_inputfile_path']</span></code> → <code class="docutils literal notranslate"><span class="pre">depcode['template_input_file_path']</span></code></p></li>
@@ -227,6 +232,7 @@ longer be initialized by the user from the SaltProc input file.</p>
 <li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">get_neutron_settings()</span></code></p></li>
 <li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">_get_burnable_materials_file()</span></code></p></li>
 <li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">_get_burnable_material_card_data()</span></code></p></li>
+<li><p>(new parameter) →  <code class="docutils literal notranslate"><span class="pre">zaid_convention</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">OpenMCDepcode</span></code> is a <code class="docutils literal notranslate"><span class="pre">Depcode</span></code> subclass that interfaces with <code class="docutils literal notranslate"><span class="pre">openmc</span></code>. This class implements the following functions
