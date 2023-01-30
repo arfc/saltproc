@@ -61,9 +61,13 @@ code.
 
 Serpent2
 ~~~~~~~~
-The only additional parameter needed for Serpent2 coupling is
-``template_input_file_path``, which is a path to a template input file. We
-describe the structure of this file in :ref:`userguide_templates_serpent`. Let's
+Only two additional parameters are needed for Serpent2 coupling. The first is 
+:ref:`serpent_template_input_file_path_property`, which is a path to a template
+input file. We describe the structure of this file in :ref:`userguide_templates_serpent`.
+The second is :ref:`zaid_convention_property`, which is a string that tells SaltProc what
+convention to use for the ZAIDs of metastable isotopes. By default, SaltProc
+uses the ``mcnp`` convention. 
+Let's
 assume that we name our template input file `template.serpent`:
 
 .. code-block:: json

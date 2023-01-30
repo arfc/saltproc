@@ -20,4 +20,5 @@ Welcome to the SaltProc User guide.
    templates
    scripts
    troubleshooting
+   parallel
 
