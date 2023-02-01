@@ -1,11 +1,11 @@
+"""Test OpenMC file interface"""
 import json
+from os import remove
 from pathlib import Path
 
 import numpy as np
 import pytest
 import openmc
-
-from saltproc import Reactor
 
 
 @pytest.fixture
@@ -14,17 +14,7 @@ def geometry_switch(scope='module'):
     return (path / 'openmc_data' / 'geometry_switch.xml')
 
 
-@pytest.fixture
-def msr(scope='module'):
-    reactor = Reactor(volume=1.0,
-                      power_levels=[1.250E+09, 1.250E+09, 5.550E+09],
-                      depletion_timesteps=[111.111, 2101.9, 3987.5],
-                      timestep_type='cumulative',
-                      timestep_units='d')
-    return reactor
-
-
-def test_write_runtime_input(openmc_depcode, msr):
+def test_write_runtime_input(openmc_depcode, openmc_reactor):
     # OpenMC
     input_materials = openmc.Materials.from_xml(
         openmc_depcode.template_input_file_path['materials'])
@@ -37,7 +27,7 @@ def test_write_runtime_input(openmc_depcode, msr):
     input_surfaces = input_geometry.get_all_surfaces()
     input_universes = input_geometry.get_all_universes()
 
-    openmc_depcode.write_runtime_input(msr,
+    openmc_depcode.write_runtime_input(openmc_reactor,
                                        0,
                                        False)
     # Load in the runtime_ objects
@@ -71,19 +61,19 @@ def test_write_runtime_input(openmc_depcode, msr):
     del input_materials, input_geometry
 
 
-def test_write_depletion_settings(openmc_depcode, msr):
+def test_write_depletion_settings(openmc_depcode, openmc_reactor):
     """
     Unit test for `Depcodeopenmc_depcode.write_depletion_settings`
     """
-    openmc_depcode.write_depletion_settings(msr, 0)
+    openmc_depcode.write_depletion_settings(openmc_reactor, 0)
     with open(openmc_depcode.output_path / 'depletion_settings.json') as f:
         j = json.load(f)
         assert Path(j['directory']).resolve() == Path(
             openmc_depcode.output_path)
-        assert j['timesteps'][0] == msr.depletion_timesteps[0]
+        assert j['timesteps'][0] == openmc_reactor.depletion_timesteps[0]
         assert j['operator_kwargs']['chain_file'] == \
             openmc_depcode.chain_file_path
-        assert j['integrator_kwargs']['power'] == msr.power_levels[0]
+        assert j['integrator_kwargs']['power'] == openmc_reactor.power_levels[0]
         assert j['integrator_kwargs']['timestep_units'] == 'd'
 
 
@@ -297,3 +287,30 @@ def _check_none_or_iterable_of_ndarray_equal(object1, object2):
             _check_none_or_iterable_of_ndarray_equal(subobject1, subobject2)
     else:
         assert object1 == object2
+
+def test_write_runtime_files(openmc_depcode, openmc_reactor):
+    ref_mats = openmc_depcode.read_depleted_materials(True)
+
+    # update_depletable_materials
+    openmc_depcode.update_depletable_materials(mats, 12.0)
+    file = openmc_depcode.runtime_matfile
+    test_mats = openmc.Materials.from_xml(openmc_depcode.runtime_matfile)
+
+    # compare material objects
+    ...
+
+    remove(openmc_depcode.runtime_matfile)
+
+    # write_runtime_input
+    openmc_depcode.write_runtime_input(openmc_reactor,
+                                        0,
+                                        False)
+
+    settings_file = openmc_depcode.runtime_inputfile['settings']
+    geometry_file = openmc_depcode.runtime_inputfile['geometry']
+
+    # compare settings and geometry files
+    ...
+
+    # switch_to_next_geometry
+    ...

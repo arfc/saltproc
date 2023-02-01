@@ -2,6 +2,7 @@
    "proc_input_file": "../tap_processes.json",
    "dot_input_file": "../tap_paths.dot",
    "n_depletion_steps": 2,
+   "output_path": "saltproc_runtime_ref",
    "depcode": {
        "codename": "openmc",
        "template_input_file_path": {

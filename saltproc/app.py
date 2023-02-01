@@ -27,6 +27,11 @@ HOUR_UNITS = ('h', 'hr', 'hour')
 DAY_UNITS = ('d', 'day')
 YEAR_UNITS = ('a', 'year', 'yr')
 
+_SECONDS_PER_DAY = 60 * 60 * 24
+_MINUTES_PER_DAY = 60 * 24
+_HOURS_PER_DAY = 24
+_DAYS_PER_YEAR = 365.25
+
 def run():
     """ Inititializes main run"""
     threads, saltproc_input = parse_arguments()
@@ -303,8 +308,8 @@ def _process_main_input_reactor_params(reactor_input,
                                                      depletion_timesteps,
                                                      codename)
 
-    reactor_input['depletion_timesteps'] = list(depletion_timesteps)
-    reactor_input['power_levels'] = list(power_levels)
+    reactor_input['depletion_timesteps'] = depletion_timesteps.tolist()
+    reactor_input['power_levels'] = power_levels.tolist()
 
     return reactor_input
 
@@ -344,13 +349,13 @@ def _scale_depletion_timesteps(timestep_units, depletion_timesteps, codename):
     # serpent base timestep units are days or mwd/kg
     if not(timestep_units in DAY_UNITS) and timestep_units.lower() != 'mwd/kg' and codename == 'serpent':
         if timestep_units in SECOND_UNITS:
-            depletion_timesteps /= 60 * 60 * 24
+            depletion_timesteps /= _SECONDS_PER_DAY
         elif timestep_units in MINUTE_UNITS:
-            depletion_timesteps /= 60 * 24
+            depletion_timesteps /= _MINUTES_PER_DAY
         elif timestep_units in HOUR_UNITS:
-            depletion_timesteps /= 24
+            depletion_timesteps /= _HOURS_PER_DAY
         elif timestep_units in YEAR_UNITS:
-            depletion_timesteps *= 365.25
+            depletion_timesteps *= _DAYS_PER_YEAR
         else:
             raise IOError(f'Unrecognized time unit: {timestep_units}')
 

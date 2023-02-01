@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <materials>
-  <material id="2" name="zrh" temperature="900.0">
+  <material id="2" temperature="900.0">
     <density units="g/cm3" value="5.66" />
     <nuclide name="Zr90" wo="0.49793" />
     <nuclide name="Zr91" wo="0.1098" />
@@ -12,7 +12,7 @@
     <sab name="c_H_in_ZrH" />
     <sab name="c_Zr_in_ZrH" />
   </material>
-  <material id="4" name="sic" temperature="900.0">
+  <material id="4" temperature="900.0">
     <density units="g/cm3" value="3.21" />
     <nuclide name="Si28" wo="0.64365" />
     <nuclide name="Si29" wo="0.033866" />
@@ -20,12 +20,11 @@
     <nuclide name="C13" wo="0.003590270855113418" />
     <nuclide name="C12" wo="0.2957697291448866" />
   </material>
-  <material id="6" name="hast" temperature="900.0">
+  <material id="6" temperature="900.0">
     <density units="g/cm3" value="10.0" />
     <nuclide name="Ni58" wo="4.28245176" />
     <nuclide name="Ni60" wo="1.649584" />
-    <nuclide name="Ni61" wo="0.07171284" />
-    <nuclide name="Ni62" wo="0.22866331" />
+    <nuclide name="Ni61" wo="0.22866331" />
     <nuclide name="Ni64" wo="0.058251" />
     <nuclide name="Cr50" wo="0.0269477" />
     <nuclide name="Cr52" wo="0.51965938" />
@@ -49,12 +48,12 @@
     <nuclide name="V51" wo="0.04419141169134901" />
     <nuclide name="V50" wo="0.00010858830865098677" />
   </material>
-  <material id="8" name="air" temperature="900.0">
+  <material id="8" temperature="900.0">
     <density units="g/cm3" value="0.001225" />
     <nuclide ao="0.21" name="O16" />
     <nuclide ao="0.79" name="N14" />
   </material>
-  <material depletable="true" id="10" name="fuel" volume="44353050.0">
+  <material depletable="true" id="10" volume="44353050.0">
     <density units="g/cm3" value="4.9602" />
     <nuclide name="H1" wo="0.0" />
     <nuclide name="H2" wo="0.0" />
@@ -647,7 +646,7 @@
     <nuclide name="Ag108" wo="0.0" />
     <nuclide name="Ag109" wo="0.0" />
     <nuclide name="Ag110" wo="0.0" />
-    <nuclide name="Ag110_m1" wo="0.0" />
+    <nuclide name="Ag110m" wo="0.0" />
     <nuclide name="Ag111" wo="0.0" />
     <nuclide name="Ag112" wo="0.0" />
     <nuclide name="Ag113" wo="0.0" />
@@ -676,7 +675,7 @@
     <nuclide name="Cd113" wo="0.0" />
     <nuclide name="Cd114" wo="0.0" />
     <nuclide name="Cd115" wo="0.0" />
-    <nuclide name="Cd115_m1" wo="0.0" />
+    <nuclide name="Cd115m" wo="0.0" />
     <nuclide name="Cd116" wo="0.0" />
     <nuclide name="Cd117" wo="0.0" />
     <nuclide name="Cd118" wo="0.0" />
@@ -775,10 +774,10 @@
     <nuclide name="Te125" wo="0.0" />
     <nuclide name="Te126" wo="0.0" />
     <nuclide name="Te127" wo="0.0" />
-    <nuclide name="Te127_m1" wo="0.0" />
+    <nuclide name="Te127m" wo="0.0" />
     <nuclide name="Te128" wo="0.0" />
     <nuclide name="Te129" wo="0.0" />
-    <nuclide name="Te129_m1" wo="0.0" />
+    <nuclide name="Te129m" wo="0.0" />
     <nuclide name="Te130" wo="0.0" />
     <nuclide name="Te131" wo="0.0" />
     <nuclide name="Te132" wo="0.0" />
@@ -961,7 +960,7 @@
     <nuclide name="Pm146" wo="0.0" />
     <nuclide name="Pm147" wo="0.0" />
     <nuclide name="Pm148" wo="0.0" />
-    <nuclide name="Pm148_m1" wo="0.0" />
+    <nuclide name="Pm148m" wo="0.0" />
     <nuclide name="Pm149" wo="0.0" />
     <nuclide name="Pm150" wo="0.0" />
     <nuclide name="Pm151" wo="0.0" />
@@ -1342,10 +1341,10 @@
     <nuclide name="Am240" wo="0.0" />
     <nuclide name="Am241" wo="0.0" />
     <nuclide name="Am242" wo="0.0" />
-    <nuclide name="Am242_m1" wo="0.0" />
+    <nuclide name="Am242m" wo="0.0" />
     <nuclide name="Am243" wo="0.0" />
     <nuclide name="Am244" wo="0.0" />
-    <nuclide name="Am244_m1" wo="0.0" />
+    <nuclide name="Am244m" wo="0.0" />
     <nuclide name="Am245" wo="0.0" />
     <nuclide name="Am246" wo="0.0" />
     <nuclide name="Cm238" wo="0.0" />
@@ -1960,7 +1959,7 @@
     <nuclide name="Ag108" wo="0.0" />
     <nuclide name="Ag109" wo="0.0" />
     <nuclide name="Ag110" wo="0.0" />
-    <nuclide name="Ag110_m1" wo="0.0" />
+    <nuclide name="Ag110m" wo="0.0" />
     <nuclide name="Ag111" wo="0.0" />
     <nuclide name="Ag112" wo="0.0" />
     <nuclide name="Ag113" wo="0.0" />
@@ -1989,7 +1988,7 @@
     <nuclide name="Cd113" wo="0.0" />
     <nuclide name="Cd114" wo="0.0" />
     <nuclide name="Cd115" wo="0.0" />
-    <nuclide name="Cd115_m1" wo="0.0" />
+    <nuclide name="Cd115m" wo="0.0" />
     <nuclide name="Cd116" wo="0.0" />
     <nuclide name="Cd117" wo="0.0" />
     <nuclide name="Cd118" wo="0.0" />
@@ -2088,10 +2087,10 @@
     <nuclide name="Te125" wo="0.0" />
     <nuclide name="Te126" wo="0.0" />
     <nuclide name="Te127" wo="0.0" />
-    <nuclide name="Te127_m1" wo="0.0" />
+    <nuclide name="Te127m" wo="0.0" />
     <nuclide name="Te128" wo="0.0" />
     <nuclide name="Te129" wo="0.0" />
-    <nuclide name="Te129_m1" wo="0.0" />
+    <nuclide name="Te129m" wo="0.0" />
     <nuclide name="Te130" wo="0.0" />
     <nuclide name="Te131" wo="0.0" />
     <nuclide name="Te132" wo="0.0" />
@@ -2274,7 +2273,7 @@
     <nuclide name="Pm146" wo="0.0" />
     <nuclide name="Pm147" wo="0.0" />
     <nuclide name="Pm148" wo="0.0" />
-    <nuclide name="Pm148_m1" wo="0.0" />
+    <nuclide name="Pm148m" wo="0.0" />
     <nuclide name="Pm149" wo="0.0" />
     <nuclide name="Pm150" wo="0.0" />
     <nuclide name="Pm151" wo="0.0" />
@@ -2655,10 +2654,10 @@
     <nuclide name="Am240" wo="0.0" />
     <nuclide name="Am241" wo="0.0" />
     <nuclide name="Am242" wo="0.0" />
-    <nuclide name="Am242_m1" wo="0.0" />
+    <nuclide name="Am242m" wo="0.0" />
     <nuclide name="Am243" wo="0.0" />
     <nuclide name="Am244" wo="0.0" />
-    <nuclide name="Am244_m1" wo="0.0" />
+    <nuclide name="Am244m" wo="0.0" />
     <nuclide name="Am245" wo="0.0" />
     <nuclide name="Am246" wo="0.0" />
     <nuclide name="Cm238" wo="0.0" />

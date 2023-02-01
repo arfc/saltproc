@@ -4,6 +4,7 @@ import shutil
 import re
 import json
 from pathlib import Path
+import numpy as np
 
 from pyne import nucname as pyname
 from pyne import serpent
@@ -11,6 +12,9 @@ import openmc
 
 from saltproc import Materialflow
 from saltproc.abc import Depcode
+from openmc.deplete.abc import _SECONDS_PER_DAY
+from openmc.deplete import Results
+from openmc.data import atomic_mass
 
 class OpenMCDepcode(Depcode):
     """Interface for running depletion steps in OpenMC, as well as obtaining
@@ -90,6 +94,27 @@ class OpenMCDepcode(Depcode):
              'settings': str((output_path / 'settings.xml').resolve())}
         self.runtime_matfile = str((output_path / 'materials.xml').resolve())
 
+        self._check_for_material_names(self.runtime_matfile)
+
+    def _check_for_material_names(self, filename):
+        """Checks that all materials in the material file
+        have a name.
+
+        Parameters
+        ----------
+        filename : str
+           Path to a materials.xml file
+
+        """
+
+        materials = openmc.Materials.from_xml(filename)
+
+        material_id_to_name = {}
+        for material in materials:
+            if material.name == '':
+                raise ValueError(f"Material {material.id} has no name.")
+
+
     def read_step_metadata(self):
         """Reads OpenMC's depletion step metadata and stores it in the
         :class:`OpenMCDepcode` object's :attr:`step_metadata` attribute.
@@ -124,6 +149,103 @@ class OpenMCDepcode(Depcode):
                 :class:`Materialflow` object holding composition and properties.
 
         """
+        # Determine moment in depletion step to read data from
+        if read_at_end:
+            moment = 1
+        else:
+            moment = 0
+
+        results_file = Path(self.output_path / 'depletion_results.h5')
+        depleted_materials = {}
+        results = Results(results_file)
+        #self.days = results['DAYS'][moment]
+        depleted_openmc_materials = results.export_to_materials(moment)
+        if read_at_end:
+            starting_openmc_materials = results.export_to_materials(0)
+        else:
+            # placeholder for starting materials
+            starting_openmc_materials = np.zeros(len(depleted_openmc_materials))
+
+        openmc_materials = zip(starting_openmc_materials, depleted_openmc_materials)
+
+        depleted_materials = {}
+        for starting_material, depleted_material in openmc_materials:
+            nucvec = self.create_mass_percents_dictionary(depleted_material)
+            name = depleted_material.name
+            depleted_materials[name] = Materialflow(nucvec)
+            depleted_materials[name].mass = depleted_material.get_mass()
+            depleted_materials[name].vol = depleted_material.volume
+            depleted_materials[name].density = material.get_mass() / material.volume
+
+            if read_at_end:
+                starting_heavy_metal_mass = starting_material.fissionable_mass
+                depleted_heavy_metal_mass = depleted_material.fissionable_mass
+                power = resuts[1].source_rate
+                days = np.diff(results[1].time)[0] / _SECONDS_PER_DAY
+                burnup = power * days / (starting_heavy_metal_mass - depleted_heavy_metal_mass)
+            else:
+                burnup = 0
+            depleted_materials[name].burnup = burnup
+        return depleted_materials
+
+    def _create_mass_percents_dictionary(self, mat):
+        """Creates a dicitonary with nuclide codes
+        in zzaaam formate as keys, and material composition
+        in mass percent as values
+
+        Parameters
+        ----------
+        mat : openmc.Material
+            A material
+
+        Returns
+        -------
+            mass_dict : dict of int to float
+        """
+        at_percents = []
+        nucs = []
+        at_mass = []
+        for nuc, pt, tp in mat.nuclides:
+            nucs.append(nuc)
+            at_percents.append(pt)
+            at_mass.append(atomic_mass(nuc))
+
+        at_percents = np.array(at_percents)
+        at_mass = np.array(at_mass)
+
+        mass_percents = at_percents*at_mass / np.dot(at_percents, at_mass)
+        zai = list(map(openmc.data.zam, nucs))
+        zam = list(map(self._z_a_m_to_zam, zai))
+
+        return dict(zip(zam, mass_percents))
+
+    def _z_a_m_to_zam(self,z_a_m_tuple):
+        """Helper function for :func:`_create_mass_percents_dictionary`.
+        Converts an OpenMC (Z,A,M) tuple into a zzaaam nuclide code
+
+        Parameters
+        ----------
+        z_a_m_tuple : 3-tuple of int
+            (z, a, m)
+
+        Returns
+        -------
+            zam : int
+            Nuclide code in zzaaam format
+
+        """
+        z, a, m = z_a_m_tuple
+        zam = 1000 * z
+        zam += a
+        if m > 0 and (z != 95 and a != 242):
+            zam += 300 + 100 * m
+        elif z == 95 and a == 242:
+            if m == 0:
+              zam = 95642
+            else:
+              zam = 95242
+        return zam
+
 
     def run_depletion_step(self, mpi_args=None, threads=None):
         """Runs a depletion step in OpenMC as a subprocess
