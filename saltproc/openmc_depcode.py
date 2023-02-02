@@ -114,17 +114,89 @@ class OpenMCDepcode(Depcode):
             if material.name == '':
                 raise ValueError(f"Material {material.id} has no name.")
 
-
     def read_step_metadata(self):
         """Reads OpenMC's depletion step metadata and stores it in the
         :class:`OpenMCDepcode` object's :attr:`step_metadata` attribute.
         """
+        sp0 = openmc.StatePoint(self.output_path / 'openmc_simulation_n0.h5')
+        sp1 = openmc.StatePoint(self.output_path / 'openmc_simulation_n1.h5')
+        res = Results(self.output_path / 'depletion_results.h5')
+
+        depcode_name, depcode_ver = 'OpenMC', ".".join(list(map(str,sp0.version))).decode('utf-8')
+        exectution time = sp0.runtime['simulation'] + sp1.runtime['simulation'] + res[0].proc_time + res[1].proc_time
+        sp0.close()
+        sp1.close()
+
+        self.step_metadata['depcode_name'] = depcode_name
+        self.step_metadata['depcode_version'] = depcode_ver
+        self.step_metadata['title'] = ''
+        self.step_metadata['depcode_input_filename'] = ''
+        self.step_metadata['depcode_working_dir'] = str(self.output_path.parents[0]).decode('utf-8')
+        self.step_metadata['xs_data_path'] = self._find_xs_path()
+        self.step_metadata['OMP_threads'] = -1
+        self.step_metadata['MPI_tasks'] = -1
+        self.step_metadata['memory_optimization_mode'] = 'n/a'
+        self.step_metadata['depletion_timestep'] = res[1].time[0]
+        self.step_metadata['execution_time'] = execution_time
+        self.step_metadata['memory_usage'] = -1
+
+    def _find_xs_path(self):
+        try:
+            xs_path = os.environ['OPENMC_CROSS_SECTIONS']
+        except KeyError:
+            xs_path = openmc.Materials.from_xml(self.runtime_matfile).cross_sections
+        return xs_path
 
     def read_neutronics_parameters(self):
         """Reads OpenMC depletion step neutronics parameters and stores them
         in :class:`OpenMCDepcode` object's :attr:`neutronics_parameters`
         attribute.
         """
+        sp0 = openmc.StatePoint(self.output_path / 'openmc_simulation_n0.h5')
+        sp1 = openmc.StatePoint(self.output_path / 'openmc_simulation_n1.h5')
+        res = Results(self.output_path / 'depletion_results.h5')
+
+        self.neutronics_parameters['keff_bds'] = res[0].k[0]
+        self.neutronics_parameters['keff_eds'] = res[1].k[0]
+        self.neutronics_parameters['breeding_ratio'] = self._calculate_breeding_raio(sp0, sp1, res)
+        self.neutronics_parameters['burn_days'] = res[1].time[0]
+        self.neutronics_parameters['power_level'] = res[1].source_rate
+        self.neutronics_parameters['beta_eff'] = self._calculate_beta_eff(sp0, sp1, res)
+        self.neutronics_parameters['delayed_neutrons_lambda'] = self._calculate_delayed_lambda(sp0, sp1, res)
+        init_fission_mass, final_fission_mass = self._calculate_fission_masses(res)
+        self.neutronics_parameters['fission_mass_bds'] = init_fission_mass
+        self.neutronics_parameters['fission_mass_eds'] = final_fission_mass
+        del sp0, sp1
+
+    def _calculate_breeding_ratio(self, sp0, sp1, res):
+        """FIssile material produces / fissile material destroyed"""
+        mats = res.export_to_materials(1)
+        for mat in mats:
+            if mat.depletable:
+                nucs = mat.get_nuclides()
+                reaction_nucs = [nuc for nuc in nucs if nuc in res[1].index_nuc.keys()]
+                fissionable_nucs = [nuc for nuc in reaction_nucs if res.get_reation_rate(mat, nuc, 'fission') != 0]
+                fission_reaction_rates = np.sum([res.get_reaction_rate(mat, nuc, '(n,gamma)') for nuc in fissionable_nucs])
+
+                sp1.get_tallies(name='', scores=['absorption'], nuclides=fissionable_nucs)
+
+    def _calculate_beta_eff(self, sp0, sp1, res):
+
+    def _calculte_delayed_lambda(self, sp0, sp1, res):
+
+    def _calculate_fission_masses(self, res):
+        init_fission_mass = 0
+        final_fission_mass = 0
+        init_mats = res.export_to_materials(0)
+        final_mats = res.export_to_materials(1)
+        for init_mat, final_mat in zip(init_mats, final_mats):
+            if init_mat.depletable:
+                init_fission_mass += init_mat.fissionable_mass
+            if final_mat.depletable:
+                final_fission_mass += final_mat.fissionable_mass
+
+        del init_mat, final_mat, init_mats, final_mats
+        return init_fission_mass, final_fission_mass
 
     def read_depleted_materials(self, read_at_end=False):
         """Reads depleted materials from OpenMC's `depletion_results.h5` file
@@ -432,6 +504,9 @@ class OpenMCDepcode(Depcode):
             The geometry for the depletion simulation
 
         """
+
+        # NEED TO GET THE CODE FROM openmc.deplete TO GET ALL NUCLIDES THAT WILL BE DEPLETED FOR OUR DEPLETION SIMULATION
+        # SO WE CAN ASSIGN NUCLIDES TO TALLIES FOR CALCULATING OTHER QUANTITIES
         tallies = openmc.Tallies()
 
         tally = openmc.Tally(name='delayed-fission-neutrons')
@@ -466,6 +541,3 @@ class OpenMCDepcode(Depcode):
         self.runtime_inputfile['tallies'] = \
             os.path.join(out_path, 'tallies.xml')
         tallies.export_to_xml(self.runtime_inputfile['tallies'])
-        del tallies
-
-
