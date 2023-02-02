@@ -395,25 +395,6 @@ class SerpentDepcode(Depcode):
         self.neutronics_parameters['fission_mass_eds'] = \
             res['TOT_FMASS'][1]
 
-    def read_plaintext_file(self, file_path):
-        """Reads the content of a plaintext file for use by other methods.
-
-        Parameters
-        ----------
-        file_path : str
-            Path to file.
-
-        Returns
-        -------
-        file_lines : list of str
-            File lines.
-
-        """
-        file_lines = []
-        with open(file_path, 'r') as file:
-            file_lines = file.readlines()
-        return file_lines
-
     def set_power_load(self,
                        file_lines,
                        reactor,

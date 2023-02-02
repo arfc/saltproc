@@ -94,7 +94,7 @@ class OpenMCDepcode(Depcode):
              'settings': str((output_path / 'settings.xml').resolve())}
         self.runtime_matfile = str((output_path / 'materials.xml').resolve())
 
-        self._check_for_material_names(self.runtime_matfile)
+        self._check_for_material_names(self.template_input_file_path['materials'])
 
     def _check_for_material_names(self, filename):
         """Checks that all materials in the material file
@@ -186,6 +186,7 @@ class OpenMCDepcode(Depcode):
             else:
                 burnup = 0
             depleted_materials[name].burnup = burnup
+        del openmc_materials, depleted_openmc_materials, starting_openmc_materials
         return depleted_materials
 
     def _create_mass_percents_dictionary(self, mat):
@@ -311,10 +312,11 @@ class OpenMCDepcode(Depcode):
         """
 
         if depletion_step == 0 and not restart:
+            geo_file = self.geo_file_paths.pop(0)
             materials = openmc.Materials.from_xml(
                 self.template_input_file_path['materials'])
             geometry = openmc.Geometry.from_xml(
-                self.geo_file_paths[0], materials=materials)
+                geo_file, materials=materials)
             settings = openmc.Settings.from_xml(
                 self.template_input_file_path['settings'])
             self.npop = settings.particles
@@ -393,6 +395,29 @@ class OpenMCDepcode(Depcode):
             Current time at the end of the depletion step (d).
 
         """
+        runtime_materials = openmc.Materials.from_xml(self.runtime_matfile)
+
+        for material in runtime_materials:
+            # depletable materials only
+            if material.name in mats.keys():
+                components = {}
+                for nuc_code, mass_fraction in mats[material.name].comp.items():
+                    nuc_name = pyname.name(nuc_code)
+                    # Convert nuclide names from PyNE format to OpenMC format
+                    if nuc_name[-1] == 'M':
+                        nuc_name = nuc_name[:-1] + '_m1'
+                    components[nuc_name] = mass_fraction
+
+                material.set_density(mats[material.name].density)
+                material.volume = mats[material.name].vol
+                for element in material.get_elements():
+                    material.remove_element(element)
+                material.add_components(components, percent_type='wo')
+
+        runtime_materials.export_to_xml(path=self.runtime_materials)
+        del runtime_materials
+        del material
+
 
     def write_saltproc_openmc_tallies(self, materials, geometry):
         """

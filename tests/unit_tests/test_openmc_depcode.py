@@ -50,7 +50,7 @@ def test_read_depleted_materials(openmc_depcode):
 
 
 def test_check_for_material_names(cwd, openmc_depcode):
-   matfile = openmc_depcode.runtime_matfile
+   matfile = openmc_depcode.template_input_file_path['materials']
    nameless_matfile = str(cwd / 'openmc_data' / 'tap_materials_nameless.xml')
    # should pass
    openmc_depcode._check_for_material_names(matfile)

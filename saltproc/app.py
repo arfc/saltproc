@@ -65,6 +65,11 @@ def run():
         mats = depcode.read_depleted_materials(True)
         simulation.store_mat_data(mats, step_idx, False)
         simulation.store_run_step_info()
+
+        # Preserve depletion and statepoint results files if using OpenMC
+        if depcode.codename == 'openmc':
+            _preserve_h5_files(depcode, step_idx)
+
         # Reprocessing here
         print("\nMass and volume of fuel before reproc: %f g, %f cm3" %
               (mats['fuel'].mass,
@@ -361,6 +366,25 @@ def _scale_depletion_timesteps(timestep_units, depletion_timesteps, codename):
 
     return depletion_timesteps
 
+def _preserve_h5_files(depcode, step_idx):
+    """Move depletion_results.h5, summary.h5, and statepoint file from
+    OpenMC simulation to unique a directory
+
+    Parameters
+    ----------
+    depcode : saltproc.OpenMCDepcode
+
+    step_idx : int
+
+    """
+    results_path = depcode.output_path / f'step_{step_idx}_data'
+    results_path.mkdir()
+    fnames = ('depletion_results.h5', 'openmc_simulation_n0.h5', 'summary.h5')
+
+    full_path = lambda x : depcode.output_path / x
+    data_paths = list(map(full_path, data_fnames))
+    for data_path, fname in zip(data_paths, fnames):
+        data_path.rename(results_path / fname)
 
 def reprocess_materials(mats, process_file, dot_file):
     """Applies extraction reprocessing scheme to burnable materials.

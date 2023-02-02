@@ -45,7 +45,7 @@ def test_read_main_input(cwd, codename, ext):
     assert depcode_input['codename'] == codename
     assert depcode_input['geo_file_paths'][0] == \
         str(data_path / ('tap_geometry_base' + ext))
-    assert depcode_input['output_path'] == cwd / f'{codename}_data/saltproc_runtime'
+    assert depcode_input['output_path'] == cwd / (f'{codename}_data/saltproc_runtime')
     if codename == 'openmc':
         assert depcode_input['template_input_file_path'] == \
             {'materials': str((input_path / 'tap_materials.xml').resolve()),

@@ -15,50 +15,62 @@ def geometry_switch(scope='module'):
 
 
 def test_write_runtime_input(openmc_depcode, openmc_reactor):
-    # OpenMC
-    input_materials = openmc.Materials.from_xml(
-        openmc_depcode.template_input_file_path['materials'])
-    input_geometry = openmc.Geometry.from_xml(
-        openmc_depcode.geo_file_paths[0],
-        materials=input_materials)
+    initial_geometry_file = openmc_depcode.geo_file_paths[0]
 
-    input_cells = input_geometry.get_all_cells()
-    input_lattices = input_geometry.get_all_lattices()
-    input_surfaces = input_geometry.get_all_surfaces()
-    input_universes = input_geometry.get_all_universes()
+    # compare settings, geometry, and material files
+    settings_file = openmc_depcode.template_input_file_path['settings']
+    geometry_file = openmc_depcode.geo_file_paths[0]
+    materials_file = openmc_depcode.template_input_file_path['materials']
+    ref_files = (settings_file, geometry_file, materials_file)
 
+    # write_runtime_input
     openmc_depcode.write_runtime_input(openmc_reactor,
-                                       0,
-                                       False)
-    # Load in the runtime_ objects
-    runtime_materials = openmc.Materials.from_xml(openmc_depcode.runtime_matfile)
-    runtime_geometry = openmc.Geometry.from_xml(
-        openmc_depcode.runtime_inputfile['geometry'],
-        materials=runtime_materials)
-    runtime_settings = openmc.Settings.from_xml(
-        openmc_depcode.runtime_inputfile['settings'])
+                                        0,
+                                        False)
 
-    runtime_cells = runtime_geometry.get_all_cells()
-    runtime_lattices = runtime_geometry.get_all_lattices()
-    runtime_surfaces = runtime_geometry.get_all_surfaces()
-    runtime_universes = runtime_geometry.get_all_universes()
+    settings_file = openmc_depcode.runtime_inputfile['settings']
+    geometry_file = openmc_depcode.runtime_inputfile['geometry']
+    material_file = openmc_depcode.runtime_matfile
+    test_files = (settings_file, geometry_file, materials_file)
 
-    # an easier approach may just be to compare the
-    # file contents themselves
-    assertion_dict = {'mat': (input_materials, runtime_materials),
-                      'cells': (input_cells, runtime_cells),
-                      'lattices': (input_lattices, runtime_lattices),
-                      'surfs': (input_surfaces, runtime_surfaces),
-                      'univs': (input_universes, runtime_universes)}
+    for ref_file, test_file in zip(ref_files, test_files):
+        ref_filelines = openmc_depcode.read_plaintext_file(ref_file)
+        test_filelines = openmc_depcode.read_plaintext_file(test_file)
+        for i in range(len(ref_filelines)):
+            assert ref_filelines[i] == test_filelines[i]
 
-    _check_openmc_iterables_equal(assertion_dict)
-    assert runtime_settings.inactive == openmc_depcode.inactive_cycles
-    assert runtime_settings.batches == openmc_depcode.active_cycles + \
-        openmc_depcode.inactive_cycles
-    assert runtime_settings.particles == openmc_depcode.npop
+    openmc_depcode.geo_file_paths *= 2
+    openmc_depcode.geo_file_paths[0] = initial_geometry_file
 
-    del runtime_materials, runtime_geometry
-    del input_materials, input_geometry
+
+def test_update_depletable_materials(openmc_depcode, openmc_reactor):
+    initial_geometry_file = openmc_depcode.geo_file_paths[0]
+    # write_runtime_input
+    openmc_depcode.write_runtime_input(openmc_reactor,
+                                        0,
+                                        False)
+    # update_depletable_materials
+    old_output_path = openmc_depcode.output_path
+
+    # switch output_path to where read_depleted_materials will pick up the correct database
+    openmc_depcode.output_path = Path(openmc_depcode.runtime_matfile).parents[1]
+    ref_materials = openmc_depcode.read_depleted_materials(True)
+    openmc_depcode.output_path = old_output_path
+
+    openmc_depcode.update_depletable_materials(ref_materials, 12.0)
+    test_mats = openmc.Materials.from_xml(openmc_depcode.runtime_matfile)
+
+    # compare material objects
+    for material in test_mats:
+        if material.name in ref_mats.keys():
+            ref_material = ref_mats[material.name]
+            test_material = openmc_depcode._create_mass_percents_dictionary(material)
+            for key in test_material.keys():
+                np.testing.assert_almost_equal(ref_material[key], test_material[key], decimal=5)
+
+    remove(openmc_depcode.runtime_matfile)
+    openmc_depcode.geo_file_paths *= 2
+    openmc_depcode.geo_file_paths[0] = initial_geometry_file
 
 
 def test_write_depletion_settings(openmc_depcode, openmc_reactor):
@@ -118,199 +130,23 @@ def test_write_saltproc_openmc_tallies(openmc_depcode):
     assert tal4.scores[0] == 'heating'
 
 
-def test_switch_to_next_geometry(openmc_depcode):
-    # OpenMC
-    mat = openmc.Materials.from_xml(
-        openmc_depcode.template_input_file_path['materials'])
-    expected_geometry = openmc.Geometry.from_xml(
-        openmc_depcode.geo_file_paths[0], mat)
-    expected_cells = expected_geometry.get_all_cells()
-    expected_lattices = expected_geometry.get_all_lattices()
-    expected_surfaces = expected_geometry.get_all_surfaces()
-    expected_universes = expected_geometry.get_all_universes()
-    del expected_geometry
-
-    openmc_depcode.switch_to_next_geometry()
-    switched_geometry = openmc.Geometry.from_xml(
-        openmc_depcode.runtime_inputfile['geometry'], mat)
-
-    switched_cells = switched_geometry.get_all_cells()
-    switched_lattices = switched_geometry.get_all_lattices()
-    switched_surfaces = switched_geometry.get_all_surfaces()
-    switched_universes = switched_geometry.get_all_universes()
-    del switched_geometry
-
-    assertion_dict = {'cells': (expected_cells, switched_cells),
-                      'lattices': (expected_lattices, switched_lattices),
-                      'surfs': (expected_surfaces, switched_surfaces),
-                      'univs': (expected_universes, switched_universes)}
-
-    _check_openmc_iterables_equal(assertion_dict)
-
-    del mat
-
-
-def _check_openmc_iterables_equal(iterable_dict):
-    """
-    Helper function to check equality iterables contained in a dictionary.
-
-    Parameters:
-    iterable_dict : dict of str to 2-tuple
-        Dictionary containing tuples of iterables to compare
-    """
-    for object_type in iterable_dict:
-        object1_iterable, object2_iterable = iterable_dict[object_type]
-        assert len(object1_iterable) == len(object2_iterable)
-        iterable = _get_iterable_for_object(object1_iterable)
-        if issubclass(type(object1_iterable), np.ndarray):
-            object1_iterable = object1_iterable.flatten()
-            object2_iterable = object2_iterable.flatten()
-        for ref in iterable:
-            object1 = object2_iterable[ref]
-            object2 = object1_iterable[ref]
-            _check_openmc_objects_equal(object1, object2)
-
-
-def _get_iterable_for_object(iterable_object):
-    # helper function to DRY
-    iterable_type = type(iterable_object)
-    if issubclass(
-            iterable_type,
-            list) or issubclass(
-            iterable_type,
-            tuple) or issubclass(
-                iterable_type,
-            np.ndarray):
-        if issubclass(iterable_type, np.ndarray):
-            iterable_object = iterable_object.flatten()
-        iterable = range(0, len(iterable_object))
-    elif issubclass(iterable_type, dict):
-        iterable = iterable_object
-    else:
-        raise ValueError(
-            f"Iterable of type {type(iterable_object)} is unsupported")
-    return iterable
-
-
-def _check_openmc_objects_equal(object1, object2):
-    """
-    Helper function for the unit tests to determine equality of
-    various OpenMC objects
-
-    Parameters
-    ----------
-    object1 : openmc_depcode.Surface, \
-    openmc_depcode.Universe, \
-    openmc_depcode.Cell, \
-    openmc_depcode.Material, \
-    openmc_depcode.Lattice
-        First openmc object to compare
-    object2 :  openmc_depcode.Surface, \
-    openmc_depcode.Universe, \
-    openmc_depcode.Cell, \
-    openmc_depcode.Material, \
-    openmc_depcode.Lattice
-        Second openmc object to compare
-
-    """
-    try:
-        object_type = type(object1)
-        assert isinstance(object2, object_type)
-        assert object1.id == object2.id
-        assert object1.name == object2.name
-        if object_type == openmc.Material:
-            assert object1.density == object2.density
-            assert object1.nuclides == object2.nuclides
-            assert object1.temperature == object2.temperature
-            assert object1.volume == object2.volume
-            assert object1._sab == object2._sab
-
-        elif object_type == openmc.Cell:
-            assert object1.fill_type == object2.fill_type
-            _check_none_or_openmc_object_equal(object1.fill, object2.fill)
-            assert object1.region == object2.region
-            _check_none_or_iterable_of_ndarray_equal(
-                object1.rotation, object2.rotation)
-            _check_none_or_iterable_of_ndarray_equal(
-                object1.rotation_matrix, object2.rotation_matrix)
-            _check_none_or_iterable_of_ndarray_equal(
-                object1.translation, object2.translation)
-            assert object1.volume == object2.volume
-            # assert object1.atoms == object2.atoms
-
-        elif issubclass(object_type, openmc.Lattice):
-            assert object1.shape == object2.shape
-            assert object1.lower_left == object2.lower_left
-            assert object1.pitch == object2.pitch
-            _check_none_or_openmc_object_equal(object1.outer, object2.outer)
-            _check_openmc_iterables_equal(
-                {'univ': (object1.universes, object2.universes)})
-
-        elif issubclass(object_type, openmc.Surface):
-            assert object1.boundary_type == object2.boundary_type
-            _check_none_or_iterable_of_ndarray_equal(
-                object1.coefficients, object2.coefficients)
-            assert object1.type == object2.type
-
-        elif object_type == openmc.Universe:
-            _check_openmc_iterables_equal(
-                {'cells': (object1.cells, object2.cells)})
-            assert object1.volume == object2.volume
-            _check_none_or_iterable_of_ndarray_equal(
-                object1.bounding_box, object2.bounding_box)
-        else:
-            raise ValueError(
-                f"Object of type {object_type} is not an openmc object.")
-
-    except AssertionError:
-        raise AssertionError(
-            f"objects of type {object_type} with ids {object1.id} and \
-            {object2.id} not equal")
-
-
-def _check_none_or_openmc_object_equal(object1, object2):
-    if object1 is None:
-        assert object2 is None
-    else:
-        _check_openmc_objects_equal(object1, object2)
-
-
-def _check_none_or_iterable_of_ndarray_equal(object1, object2):
-    # helper function to DRY
-    if issubclass(type(object1), np.ndarray):
-        assert (object1 == object2).all()
-    elif issubclass(type(object1), tuple) or issubclass(type(object1), list):
-        iterable = _get_iterable_for_object(object1)
-        for ref in iterable:
-            subobject1 = object1[ref]
-            subobject2 = object2[ref]
-            _check_none_or_iterable_of_ndarray_equal(subobject1, subobject2)
-    else:
-        assert object1 == object2
-
-def test_write_runtime_files(openmc_depcode, openmc_reactor):
-    ref_mats = openmc_depcode.read_depleted_materials(True)
-
-    # update_depletable_materials
-    openmc_depcode.update_depletable_materials(mats, 12.0)
-    file = openmc_depcode.runtime_matfile
-    test_mats = openmc.Materials.from_xml(openmc_depcode.runtime_matfile)
-
-    # compare material objects
-    ...
-
-    remove(openmc_depcode.runtime_matfile)
+def test_switch_to_next_geometry(openmc_depcode, openmc_reactor):
+    initial_geometry_file = openmc_depcode.geo_file_paths[0]
+    ref_geometry_file = openmc_depcode.geo_file_paths[1]
 
     # write_runtime_input
     openmc_depcode.write_runtime_input(openmc_reactor,
                                         0,
                                         False)
 
-    settings_file = openmc_depcode.runtime_inputfile['settings']
-    geometry_file = openmc_depcode.runtime_inputfile['geometry']
+    openmc_depcode.switch_to_next_geometry()
+    test_geometry_file = openmc_depcode.runtime_inputfile['geometry']
 
-    # compare settings and geometry files
-    ...
 
-    # switch_to_next_geometry
-    ...
+
+    ref_filelines = openmc_depcode.read_plaintext_file(ref_geometry_file)
+    test_filelines = openmc_depcode.read_plaintext_file(test_geometry_file)
+    for i in range(len(ref_filelines)):
+        assert ref_filelines[i] == test_filelines[i]
+
+    openmc_depcode.geo_file_paths = [initial_geometry_file, ref_geometry_file]
