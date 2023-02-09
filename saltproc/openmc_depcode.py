@@ -1,11 +1,11 @@
 import subprocess
 import os
-import shutil
 import re
 import json
 from pathlib import Path
 import numpy as np
 
+from uncertainties import unumpy
 from pyne import nucname as pyname
 from pyne import serpent
 import openmc
@@ -13,8 +13,13 @@ import openmc
 from saltproc import Materialflow
 from saltproc.abc import Depcode
 from openmc.deplete.abc import _SECONDS_PER_DAY
-from openmc.deplete import Results
-from openmc.data import atomic_mass
+from openmc.deplete import Results, Chain, MicroXS
+from openmc.mgxs import Beta, DecayRate, EnergyGroups
+from openmc.data import atomic_mass, DataLibrary, JOULE_PER_EV
+
+
+_FISSILE_NUCLIDES = ['U233', 'U235', 'Pu239', 'Pu241']
+_FERTILE_NUCLIDES = ['Th232', 'U234', 'U238', 'Pu238', 'Pu240']
 
 class OpenMCDepcode(Depcode):
     """Interface for running depletion steps in OpenMC, as well as obtaining
@@ -96,6 +101,11 @@ class OpenMCDepcode(Depcode):
 
         self._check_for_material_names(self.template_input_file_path['materials'])
 
+        self._OUTPUTFILE_NAMES = ('depletion_results.h5', 'openmc_simulation_n0.h5',
+                                 'openmc_simulation_n1.h5', 'summary.h5',
+                                 'tallies.out')
+        self._INPUTFILE_NAMES = ('materials.xml', 'geometry.xml', 'tallies.xml')
+
     def _check_for_material_names(self, filename):
         """Checks that all materials in the material file
         have a name.
@@ -122,8 +132,8 @@ class OpenMCDepcode(Depcode):
         sp1 = openmc.StatePoint(self.output_path / 'openmc_simulation_n1.h5')
         res = Results(self.output_path / 'depletion_results.h5')
 
-        depcode_name, depcode_ver = 'OpenMC', ".".join(list(map(str,sp0.version))).decode('utf-8')
-        exectution time = sp0.runtime['simulation'] + sp1.runtime['simulation'] + res[0].proc_time + res[1].proc_time
+        depcode_name, depcode_ver = 'OpenMC', ".".join(list(map(str,sp0.version)))
+        execution_time = sp0.runtime['simulation'] + sp1.runtime['simulation'] + res[0].proc_time + res[1].proc_time
         sp0.close()
         sp1.close()
 
@@ -131,11 +141,11 @@ class OpenMCDepcode(Depcode):
         self.step_metadata['depcode_version'] = depcode_ver
         self.step_metadata['title'] = ''
         self.step_metadata['depcode_input_filename'] = ''
-        self.step_metadata['depcode_working_dir'] = str(self.output_path.parents[0]).decode('utf-8')
+        self.step_metadata['depcode_working_dir'] = str(self.output_path.parents[0])
         self.step_metadata['xs_data_path'] = self._find_xs_path()
         self.step_metadata['OMP_threads'] = -1
         self.step_metadata['MPI_tasks'] = -1
-        self.step_metadata['memory_optimization_mode'] = 'n/a'
+        self.step_metadata['memory_optimization_mode'] = -1
         self.step_metadata['depletion_timestep'] = res[1].time[0]
         self.step_metadata['execution_time'] = execution_time
         self.step_metadata['memory_usage'] = -1
@@ -158,33 +168,55 @@ class OpenMCDepcode(Depcode):
 
         self.neutronics_parameters['keff_bds'] = res[0].k[0]
         self.neutronics_parameters['keff_eds'] = res[1].k[0]
-        self.neutronics_parameters['breeding_ratio'] = self._calculate_breeding_raio(sp0, sp1, res)
-        self.neutronics_parameters['burn_days'] = res[1].time[0]
+        self.neutronics_parameters['breeding_ratio'] = self._calculate_breeding_ratio(sp1)
+        self.neutronics_parameters['burn_days'] = res[1].time[0] / _SECONDS_PER_DAY
         self.neutronics_parameters['power_level'] = res[1].source_rate
-        self.neutronics_parameters['beta_eff'] = self._calculate_beta_eff(sp0, sp1, res)
-        self.neutronics_parameters['delayed_neutrons_lambda'] = self._calculate_delayed_lambda(sp0, sp1, res)
+        self.neutronics_parameters['beta_eff'] = self._calculate_delayed_quantity(sp1, self._beta)
+        self.neutronics_parameters['delayed_neutrons_lambda'] = \
+            self._calculate_delayed_quantity(sp1, self._delayed_lambda)
         init_fission_mass, final_fission_mass = self._calculate_fission_masses(res)
         self.neutronics_parameters['fission_mass_bds'] = init_fission_mass
         self.neutronics_parameters['fission_mass_eds'] = final_fission_mass
         del sp0, sp1
 
-    def _calculate_breeding_ratio(self, sp0, sp1, res):
-        """FIssile material produces / fissile material destroyed"""
-        mats = res.export_to_materials(1)
-        for mat in mats:
-            if mat.depletable:
-                nucs = mat.get_nuclides()
-                reaction_nucs = [nuc for nuc in nucs if nuc in res[1].index_nuc.keys()]
-                fissionable_nucs = [nuc for nuc in reaction_nucs if res.get_reation_rate(mat, nuc, 'fission') != 0]
-                fission_reaction_rates = np.sum([res.get_reaction_rate(mat, nuc, '(n,gamma)') for nuc in fissionable_nucs])
+    def _calculate_breeding_ratio(self, sp1):
+        """Fissile material produces / fissile material destroyed"""
 
-                sp1.get_tallies(name='', scores=['absorption'], nuclides=fissionable_nucs)
+        breeding_ratio_tally = sp1.get_tally(name='breeding_ratio_tally')
+        frame = breeding_ratio_tally.get_pandas_dataframe().set_index('score')
+        n_gamma_frame = frame.loc['(n,gamma)'].set_index('nuclide')
+        absorption_frame = frame.loc['absorption'].set_index('nuclide')
 
-    def _calculate_beta_eff(self, sp0, sp1, res):
+        n_gamma_vals = self._get_values_with_uncertainties(n_gamma_frame)
+        absorption_vals = self._get_values_with_uncertainties(absorption_frame)
 
-    def _calculte_delayed_lambda(self, sp0, sp1, res):
+        n_gamma_series = dict(zip(n_gamma_frame.index, n_gamma_vals))
+        absorption_series = dict(zip(absorption_frame.index, absorption_vals))
+
+        fissionable_production_rate = np.sum([n_gamma_series[nuc] for nuc in self._fertile_nucs])
+        fissionable_destruction_rate = np.sum([absorption_series[nuc] for nuc in self._fissile_nucs])
+
+        breeding_ratio = fissionable_production_rate / fissionable_destruction_rate
+
+        return np.array([breeding_ratio.n, breeding_ratio.s])
+
+    def _calculate_delayed_quantity(self, sp1, mgxs):
+        # group-wise delayed quantity
+        mgxs.load_from_statepoint(sp1)
+        frame = mgxs.get_pandas_dataframe()
+        vals = self._get_values_with_uncertainties(frame)
+        tot = vals.sum()
+        vals = [[v.n, v.s] for v in vals]
+        tot = np.array([[tot.n, tot.s]])
+
+        return np.concatenate([tot, vals])
+
+    def _get_values_with_uncertainties(self, frame):
+        vals = np.array(list(zip(frame['mean'], frame['std. dev.'])))
+        return unumpy.uarray(frame['mean'], frame['std. dev.'])
 
     def _calculate_fission_masses(self, res):
+        """Calculate the fission mass [kg] before and after material depletion"""
         init_fission_mass = 0
         final_fission_mass = 0
         init_mats = res.export_to_materials(0)
@@ -194,6 +226,10 @@ class OpenMCDepcode(Depcode):
                 init_fission_mass += init_mat.fissionable_mass
             if final_mat.depletable:
                 final_fission_mass += final_mat.fissionable_mass
+
+        # Convert g to kg
+        init_fission_mass *= 1e-3
+        final_fission_mass *= 1e-3
 
         del init_mat, final_mat, init_mats, final_mats
         return init_fission_mass, final_fission_mass
@@ -242,22 +278,25 @@ class OpenMCDepcode(Depcode):
 
         depleted_materials = {}
         for starting_material, depleted_material in openmc_materials:
-            nucvec = self.create_mass_percents_dictionary(depleted_material)
-            name = depleted_material.name
-            depleted_materials[name] = Materialflow(nucvec)
-            depleted_materials[name].mass = depleted_material.get_mass()
-            depleted_materials[name].vol = depleted_material.volume
-            depleted_materials[name].density = material.get_mass() / material.volume
+            if depleted_material.depletable:
+                volume = depleted_material.volume
+                nucvec = self._create_mass_percents_dictionary(depleted_material)
+                name = depleted_material.name
+                depleted_materials[name] = Materialflow(nucvec)
+                depleted_materials[name].density = depleted_material.get_mass_density()
+                depleted_materials[name].mass = depleted_materials[name].density * volume
+                depleted_materials[name].vol = volume
 
-            if read_at_end:
-                starting_heavy_metal_mass = starting_material.fissionable_mass
-                depleted_heavy_metal_mass = depleted_material.fissionable_mass
-                power = resuts[1].source_rate
-                days = np.diff(results[1].time)[0] / _SECONDS_PER_DAY
-                burnup = power * days / (starting_heavy_metal_mass - depleted_heavy_metal_mass)
-            else:
-                burnup = 0
-            depleted_materials[name].burnup = burnup
+                if read_at_end:
+                    sp0 = openmc.StatePoint(self.output_path / 'openmc_simulation_n0.h5')
+                    heavy_metal_mass = starting_material.fissionable_mass * 1e-3
+                    #power = self._get_power_from_tallies(sp0, results[1].source_rate) * 1e-6
+                    power = results[1].source_rate * 1e-6
+                    days = results[1].time[1] / _SECONDS_PER_DAY
+                    burnup = power * days / heavy_metal_mass
+                else:
+                    burnup = 0
+                depleted_materials[name].burnup = burnup
         del openmc_materials, depleted_openmc_materials, starting_openmc_materials
         return depleted_materials
 
@@ -287,38 +326,54 @@ class OpenMCDepcode(Depcode):
         at_mass = np.array(at_mass)
 
         mass_percents = at_percents*at_mass / np.dot(at_percents, at_mass)
-        zai = list(map(openmc.data.zam, nucs))
-        zam = list(map(self._z_a_m_to_zam, zai))
+        pyne_nucs = list(map(self._convert_nucname_to_pyne, nucs))
 
-        return dict(zip(zam, mass_percents))
+        return dict(zip(pyne_nucs, mass_percents))
 
-    def _z_a_m_to_zam(self,z_a_m_tuple):
+    def _convert_nucname_to_pyne(self, nucname):
         """Helper function for :func:`_create_mass_percents_dictionary`.
-        Converts an OpenMC (Z,A,M) tuple into a zzaaam nuclide code
+        Converts an OpenMC-formatted nuclide name into a PyNE-formatted
+        nuclide name.
 
         Parameters
         ----------
-        z_a_m_tuple : 3-tuple of int
-            (z, a, m)
+        nucname : str
 
         Returns
         -------
-            zam : int
-            Nuclide code in zzaaam format
+        pyne_nucname : str
 
         """
-        z, a, m = z_a_m_tuple
-        zam = 1000 * z
-        zam += a
-        if m > 0 and (z != 95 and a != 242):
-            zam += 300 + 100 * m
-        elif z == 95 and a == 242:
-            if m == 0:
-              zam = 95642
-            else:
-              zam = 95242
-        return zam
+        if nucname[-3:-1] == '_m':
+            nucname = nucname.split('_')[0]
+            nucname += 'M'
+        return nucname
 
+    def _get_power_from_tallies(self, sp, P):
+        # CLEANUP: import constants from openmc
+        fission_energy = sp.get_tally(name='fission_energy').mean.flatten()[0] # eV / src
+        heating = sp.get_tally(name='heating').mean.flatten()[0] # eV / src
+        Hp = JOULE_PER_EV * heating # J / src
+        f = P / Hp # src / s
+        power = fission_energy * f * JOULE_PER_EV # J / s
+        return power
+
+    def convert_nuclide_code_to_name(self, nuc):
+        nucname = pyname.name(nuc)
+        if nucname[-1] == 'M':
+            nucname = nucname[:-1]
+            nucname += '_m1'
+        return nucname
+
+    def _convert_name_to_nuccode(self, nucname):
+        nucname = self._convert_nucname_to_pyne(nucname)
+        z = pyname.znum(nucname)
+        a = pyname.anum(nucname)
+        m = pyname.snum(nucname)
+        code = z * 1000 + a
+        if m != 0:
+            code += 300 + 100 * m
+        return code
 
     def run_depletion_step(self, mpi_args=None, threads=None):
         """Runs a depletion step in OpenMC as a subprocess
@@ -346,17 +401,7 @@ class OpenMCDepcode(Depcode):
         if mpi_args is not None:
             args = mpi_args + args
 
-        print('Running %s' % (self.codename))
-        try:
-            subprocess.check_output(
-                args,
-                cwd=os.path.split(self.template_inputfile_path)[0],
-                stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as error:
-            print(error.output.decode("utf-8"))
-            raise RuntimeError('\n %s RUN FAILED\n see error message above'
-                               % (self.codename))
-        print('Finished OpenMC Run')
+        super().run_depletion_step(mpi_args, args)
 
     def switch_to_next_geometry(self):
         """Switches the geometry file for the OpenMC depletion simulation to
@@ -402,7 +447,12 @@ class OpenMCDepcode(Depcode):
             settings = openmc.Settings.from_xml(
                 self.runtime_inputfile['settings'])
 
-        materials.export_to_xml(self.runtime_matfile)
+        diluted_model = openmc.Model(materials=materials, geometry=geometry, settings=settings)
+        reactions, diluted_materials = MicroXS._add_dilute_nuclides(self.chain_file_path,
+                                                                   diluted_model,
+                                                                   1e3)
+
+        diluted_materials.export_to_xml(self.runtime_matfile)
         geometry.export_to_xml(self.runtime_inputfile['geometry'])
         settings.export_to_xml(self.runtime_inputfile['settings'])
         self.write_depletion_settings(reactor, depletion_step)
@@ -480,13 +530,13 @@ class OpenMCDepcode(Depcode):
                         nuc_name = nuc_name[:-1] + '_m1'
                     components[nuc_name] = mass_fraction
 
-                material.set_density(mats[material.name].density)
+                material.set_density('g/cm3', mats[material.name].density)
                 material.volume = mats[material.name].vol
                 for element in material.get_elements():
                     material.remove_element(element)
                 material.add_components(components, percent_type='wo')
 
-        runtime_materials.export_to_xml(path=self.runtime_materials)
+        runtime_materials.export_to_xml(path=self.runtime_matfile)
         del runtime_materials
         del material
 
@@ -505,39 +555,67 @@ class OpenMCDepcode(Depcode):
 
         """
 
-        # NEED TO GET THE CODE FROM openmc.deplete TO GET ALL NUCLIDES THAT WILL BE DEPLETED FOR OUR DEPLETION SIMULATION
-        # SO WE CAN ASSIGN NUCLIDES TO TALLIES FOR CALCULATING OTHER QUANTITIES
+        ff_nuclides = self._get_fissile_fertile_nuclides()
+        energy_bounds=(0,20e7)
+        n_delayed_groups=6
+        energy_groups = EnergyGroups(energy_bounds)
+        delayed_groups = np.arange(1, n_delayed_groups + 1, 1).tolist()
+
+        delayed_kwargs = {'domain': geometry.root_universe,
+                          'domain_type': 'universe',
+                          'energy_groups': energy_groups,
+                          'delayed_groups': delayed_groups}
+
+        delayed_lambda = DecayRate(**delayed_kwargs)
+        beta = Beta(**delayed_kwargs)
+
+        self._delayed_lambda = delayed_lambda
+        self._beta = beta
+
         tallies = openmc.Tallies()
+        tallies += list(delayed_lambda.tallies.values())
+        tallies += list(beta.tallies.values())
 
-        tally = openmc.Tally(name='delayed-fission-neutrons')
-        tally.filters = [openmc.DelayedGroupFilter([1, 2, 3, 4, 5, 6])]
-        tally.scores = ['delayed-nu-fission']
-        tallies.append(tally)
-
-        tally = openmc.Tally(name='total-fission-neutrons')
+        tally = openmc.Tally(name='breeding_ratio_tally')
         tally.filters = [openmc.UniverseFilter(geometry.root_universe)]
-        tally.scores = ['nu-fission']
+        tally.scores = ['(n,gamma)', 'absorption']
+        tally.nuclides = ff_nuclides
         tallies.append(tally)
 
-        tally = openmc.Tally(name='precursor-decay-constants')
-        tally.filters = [openmc.DelayedGroupFilter([1, 2, 3, 4, 5, 6])]
-        tally.scores = ['decay-rate']
-        tallies.append(tally)
-
-        tally = openmc.Tally(name='fission-energy')
+        tally = openmc.Tally(name='fission_energy')
         tally.filters = [openmc.UniverseFilter(geometry.root_universe)]
-        tally.scores = [
-            'fission-q-recoverable',
-            'fission-q-prompt',
-            'kappa-fission']
+        tally.scores = ['kappa-fission']
         tallies.append(tally)
 
-        tally = openmc.Tally(name='normalization-factor')
+        tally = openmc.Tally(name='heating')
         tally.filters = [openmc.UniverseFilter(geometry.root_universe)]
         tally.scores = ['heating']
         tallies.append(tally)
 
-        out_path = os.path.dirname(self.runtime_inputfile['settings'])
-        self.runtime_inputfile['tallies'] = \
-            os.path.join(out_path, 'tallies.xml')
+        self.runtime_inputfile['tallies'] = self.output_path / 'tallies.xml'
         tallies.export_to_xml(self.runtime_inputfile['tallies'])
+
+    def _get_fissile_fertile_nuclides(self):
+        nuclides_with_data = set()
+        data_lib = DataLibrary.from_xml()
+        for library in data_lib.libraries:
+            if library['type'] != 'neutron':
+                continue
+            for name in library['materials']:
+                if name not in nuclides_with_data:
+                    nuclides_with_data.add(name)
+
+        chain = Chain.from_xml(self.chain_file_path)
+        burnable_nucs = [nuc.name for nuc in chain.nuclides
+                         if nuc.name in nuclides_with_data]
+
+        self._fissile_nucs = set([nuc for nuc in _FISSILE_NUCLIDES if nuc in burnable_nucs])
+        self._fertile_nucs = set([nuc for nuc in _FERTILE_NUCLIDES if nuc in burnable_nucs])
+        #fissile_nucs = [nuc for nuc in chain.nuclides if (nuc.yield_energies is not None and 0.0253 in nuc.yield_energies)]
+        #fertile_nucs = []
+        #for nuc in fissile_nucs:
+        #    for rx in nuc.reactions:
+        #        if rx.target
+        #self._fertile_nucs = [nuc.name for nuc in self._fissile_nucs if
+
+        return list(self._fissile_nucs.union(self._fertile_nucs))

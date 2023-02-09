@@ -6,34 +6,32 @@ import numpy as np
 import openmc
 
 def test_read_step_metadata(openmc_depcode):
-    pass
-    #openmc_depcode.read_step_metadata()
-    #assert openmc_depcode.step_metadata['depcode_name'] == 'openmc'
-    #assert openmc_depcode.step_metadata['depcode_version'] == '2.1.32'
-    #assert openmc_depcode.step_metadata['title'] == 'Untitled'
-    #assert openmc_depcode.step_metadata['depcode_input_filename'] == \
-    #    '/home/andrei2/Desktop/git/saltproc/develop/saltproc/data/saltproc_tap'
-    #assert openmc_depcode.step_metadata['depcode_working_dir'] == \
-    #    '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
-    #assert openmc_depcode.step_metadata['xs_data_path'] == \
-    #    '/home/andrei2/openmc/xsdata/jeff312/sss_jeff312.xsdata'
-
-    #assert openmc_depcode.step_metadata['MPI_tasks'] == 1
-    #assert openmc_depcode.step_metadata['OMP_threads'] == 4
-    #assert openmc_depcode.step_metadata['memory_optimization_mode'] == 4
-    #assert openmc_depcode.step_metadata['depletion_timestep'] == 3.0
-    #assert openmc_depcode.step_metadata['memory_usage'] == [10552.84]
-    #assert openmc_depcode.step_metadata['execution_time'] == [81.933]
+    ## NEED TO CREATE STATEPOINT AND DEPELTION RESULTS FILES
+    openmc_depcode.read_step_metadata()
+    assert openmc_depcode.step_metadata['depcode_name'] == 'openmc'
+    assert openmc_depcode.step_metadata['depcode_version'] == '0.13.2'
+    assert openmc_depcode.step_metadata['title'] == ''
+    assert openmc_depcode.step_metadata['depcode_input_filename'] == ''
+    assert openmc_depcode.step_metadata['depcode_working_dir'] == \
+        '/home/ooblack/projects/saltproc/tests/openmc_data/saltproc_runtime'
+    assert openmc_depcode.step_metadata['xs_data_path'] == \
+        '/home/ooblack/projects/cross-section-librares/endfb71_hdf5/cross_sections.xml'
+    assert openmc_depcode.step_metadata['MPI_tasks'] == -1
+    assert openmc_depcode.step_metadata['OMP_threads'] == -1
+    assert openmc_depcode.step_metadata['memory_optimization_mode'] == -1
+    assert openmc_depcode.step_metadata['depletion_timestep'] == 3.0
+    assert openmc_depcode.step_metadata['memory_usage'] == [-1]
+    assert openmc_depcode.step_metadata['execution_time'] == [81.933] # need to get this value
 
 
 def test_read_neutronics_parameters(openmc_depcode):
-    pass
-    #openmc_depcode.read_neutronics_parameters()
-    #assert openmc_depcode.neutronics_parameters['keff_bds'][0] == 1.00651e+00
-    #assert openmc_depcode.neutronics_parameters['keff_eds'][0] == 1.00569e+00
-    #assert openmc_depcode.neutronics_parameters['fission_mass_bds'] == [70081]
-    #assert openmc_depcode.neutronics_parameters['fission_mass_eds'] == [70077.1]
-    #assert openmc_depcode.neutronics_parameters['breeding_ratio'][1] == 5.20000e-04
+    openmc_depcode.read_neutronics_parameters()
+    # NEED TO GET THESE VALUES AND EXPAND THE TEST
+    assert openmc_depcode.neutronics_parameters['keff_bds'][0] == 1.00651e+00
+    assert openmc_depcode.neutronics_parameters['keff_eds'][0] == 1.00569e+00
+    assert openmc_depcode.neutronics_parameters['fission_mass_bds'] == [70081]
+    assert openmc_depcode.neutronics_parameters['fission_mass_eds'] == [70077.1]
+    assert openmc_depcode.neutronics_parameters['breeding_ratio'][1] == 5.20000e-04
 
 
 def test_read_depleted_materials(openmc_depcode):

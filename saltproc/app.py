@@ -66,10 +66,6 @@ def run():
         simulation.store_mat_data(mats, step_idx, False)
         simulation.store_run_step_info()
 
-        # Preserve depletion and statepoint results files if using OpenMC
-        if depcode.codename == 'openmc':
-            _preserve_h5_files(depcode, step_idx)
-
         # Reprocessing here
         print("\nMass and volume of fuel before reproc: %f g, %f cm3" %
               (mats['fuel'].mass,
@@ -100,6 +96,10 @@ def run():
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_and_feed_streams, step_idx)
         depcode.update_depletable_materials(mats, simulation.burn_time)
+
+        # Preserve depletion and transport result and input files
+        depcode.preserve_simulation_files(step_idx)
+
         del mats, waste_streams, waste_and_feed_streams, extracted_mass
         gc.collect()
         # Switch to another geometry?
@@ -223,6 +223,16 @@ def read_main_input(main_inp_file):
             depcode_input['chain_file_path'] = \
                 str((input_path /
                  depcode_input['chain_file_path']).resolve())
+
+            # process depletion_settings
+            depletion_settings = depcode_input['depletion_settings']
+            operator_kwargs = depletion_settings['operator_kwargs']
+            if operator_kwargs != {}:
+                fission_q_path = operator_kwargs['fission_q']
+                if fission_q_path is not None:
+                    operator_kwargs['fission_q'] = str(input_path / fission_q_path)
+                depletion_settings['operator_kwargs'] = operator_kwargs
+            depcode_input['depletion_settings'] = depletion_settings
         else:
             raise ValueError(f'{codename} is not a supported depletion code.'
                              ' Accepts: "serpent" or "openmc".')
@@ -254,7 +264,7 @@ def _print_simulation_input_info(simulation_input, depcode_input):
           str(simulation_input['restart_flag']) +
           '\n'
           '\tTemplate File Path  = ' +
-          depcode_input['template_input_file_path'] +
+          str(depcode_input['template_input_file_path']) +
           '\n'
           '\tOutput HDF5 database Path = ' +
           simulation_input['db_name'] +
@@ -365,26 +375,6 @@ def _scale_depletion_timesteps(timestep_units, depletion_timesteps, codename):
             raise IOError(f'Unrecognized time unit: {timestep_units}')
 
     return depletion_timesteps
-
-def _preserve_h5_files(depcode, step_idx):
-    """Move depletion_results.h5, summary.h5, and statepoint file from
-    OpenMC simulation to unique a directory
-
-    Parameters
-    ----------
-    depcode : saltproc.OpenMCDepcode
-
-    step_idx : int
-
-    """
-    results_path = depcode.output_path / f'step_{step_idx}_data'
-    results_path.mkdir()
-    fnames = ('depletion_results.h5', 'openmc_simulation_n0.h5', 'summary.h5')
-
-    full_path = lambda x : depcode.output_path / x
-    data_paths = list(map(full_path, data_fnames))
-    for data_path, fname in zip(data_paths, fnames):
-        data_path.rename(results_path / fname)
 
 def reprocess_materials(mats, process_file, dot_file):
     """Applies extraction reprocessing scheme to burnable materials.

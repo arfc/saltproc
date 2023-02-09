@@ -104,7 +104,7 @@
   <lattice id="24" name="11">
     <pitch>3.0 3.0</pitch>
     <dimension>5 5</dimension>
-    <lower_left>7.5 4.6778257224916e-310</lower_left>
+    <lower_left>7.5 0</lower_left>
     <universes>
 9 9 9 9 9 
 9 8 9 8 9 
@@ -115,7 +115,7 @@
   <lattice id="27" name="11R3">
     <pitch>3.0 3.0</pitch>
     <dimension>5 5</dimension>
-    <lower_left>7.5 4.6778257224916e-310</lower_left>
+    <lower_left>7.5 0</lower_left>
     <universes>
 9 9 9 9 9 
 9 8 9 8 9 

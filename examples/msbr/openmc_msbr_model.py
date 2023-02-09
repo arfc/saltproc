@@ -51,15 +51,22 @@ def parse_arguments():
     -------
     deplete : bool
         Flag indicated whether or not to run a depletion simulation.
+    volume : bool
+        Flag indicating whether or not to run a stochastic volume calcuation.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--deplete',
                         type=bool,
                         default=False,
                         help='flag for running depletion')
+    parser.add_argument('--volume',
+                        type=bool,
+                        default=False,
+                        help='flag for running stochasitc volume calculation')
+
 
     args = parser.parse_args()
-    return bool(args.deplete)
+    return bool(args.deplete), bool(args.volume)
 
 def shared_elem_geometry(elem_type='core',
                          gr_sq_d=4.953,
@@ -372,7 +379,7 @@ def plot_geometry(name,
     return plot
 
 
-deplete = parse_arguments()
+deplete, volume = parse_arguments()
 
 (zone_bounds,
  core_bounds,
@@ -458,10 +465,11 @@ settings.temperature = {'default': 900,
                         'range': (800, 1000)}
 
 ll, ur = geo.root_universe.bounding_box
-msbr_volume_calc = openmc.VolumeCalculation([fuel, moder], 1000000000, ll, ur)
-#msbr_volume_calc.set_trigger(1e-03, 'rel_err')
-settings.volume_calculations = [msbr_volume_calc]
-settings.run_mode = 'volume'
+if volume:
+    msbr_volume_calc = openmc.VolumeCalculation([fuel, moder], 1000000000, ll, ur)
+    #msbr_volume_calc.set_trigger(1e-03, 'rel_err')
+    settings.volume_calculations = [msbr_volume_calc]
+    settings.run_mode = 'volume'
 settings.export_to_xml()
 
 ## Slice plots

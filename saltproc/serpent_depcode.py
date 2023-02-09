@@ -1,5 +1,4 @@
 from pathlib import Path
-import subprocess
 import os
 import shutil
 import re
@@ -79,6 +78,10 @@ class SerpentDepcode(Depcode):
                          str((output_path / 'runtime_input.serpent').resolve())
         self.runtime_matfile = str((output_path / 'runtime_mat.ini').resolve())
         self.zaid_convention = zaid_convention
+        self._OUTPUTFILE_NAMES = ('runtime_input.serpent_res.m', 'runtime_input.serpent_dep.m',
+                                 'runtime_input.serpent.seed', 'runtime_input.serpent.out',
+                                 'runtime_input.serpent.dep')
+        self._INPUTFILE_NAMES = ('runtime_mat.ini', 'runtime_input.serpent')
 
     def get_neutron_settings(self, file_lines):
         """Get neutron settings (no. of neutrons per cycle, no. of active and
@@ -224,6 +227,18 @@ class SerpentDepcode(Depcode):
                 nuc_name = pyname.name(nuc_code)
 
         return nuc_name
+
+    def _convert_name_to_nuccode(self, nucname):
+        if nucname [-2:] == 'm1':
+            nucname = nucname[:-2]
+            nucname += "M"
+        z = pyname.znum(nucname)
+        a = pyname.anum(nucname)
+        m = pyname.snum(nucname)
+        code = z * 1000 + a
+        if m != 0:
+            code += 300 + 100 * m
+        return code
 
     def map_nuclide_code_zam_to_serpent(self):
         """Creates a dictionary mapping nuclide codes in `zzaaam` format
@@ -463,17 +478,7 @@ i       Parameters
 
         args = args + [self.runtime_inputfile]
 
-        print('Running %s' % (self.codename))
-        try:
-            subprocess.run(
-                args,
-                cwd=os.path.split(self.template_input_file_path)[0],
-                capture_output=True)
-            print('Finished Serpent2 Run')
-        except subprocess.CalledProcessError as error:
-            print(error.output.decode("utf-8"))
-            raise RuntimeError('\n %s RUN FAILED\n see error message above'
-                               % (self.codename))
+        super().run_depletion_step(mpi_args, args)
 
     def convert_nuclide_code_to_zam(self, nuc_code):
         """Converts nuclide code from Serpent2 format to zam format.
