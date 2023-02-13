@@ -93,7 +93,6 @@ def test_write_saltproc_openmc_tallies(openmc_depcode):
     """
     Unit test for `OpenMCDepcode.write_saltproc_openmc_tallies`
     """
-
     mat = openmc.Materials.from_xml(
         openmc_depcode.template_input_file_path['materials'])
     geo = openmc.Geometry.from_xml(
@@ -104,30 +103,44 @@ def test_write_saltproc_openmc_tallies(openmc_depcode):
 
     # now write asserts statements based on the openmc_depcode.Tallies API and
     # what we expect our tallies to be
-    assert len(tallies) == 5
+    assert len(tallies) == 7
     tal0 = tallies[0]
     tal1 = tallies[1]
     tal2 = tallies[2]
     tal3 = tallies[3]
     tal4 = tallies[4]
+    tal5 = tallies[5]
+    tal6 = tallies[6]
 
-    assert tal0.name == 'delayed-fission-neutrons'
-    assert isinstance(tal0.filters[0], openmc.DelayedGroupFilter)
+    assert isinstace(tal0.filters[0], openmc.UniverseFilter)
+    assert isinstace(tal0.filters[1], openmc.DelayedGroupFilter)
     assert tal0.scores[0] == 'delayed-nu-fission'
-    assert tal1.name == 'total-fission-neutrons'
-    assert isinstance(tal1.filters[0], openmc.UniverseFilter)
-    assert tal1.scores[0] == 'nu-fission'
-    assert tal2.name == 'precursor-decay-constants'
-    assert isinstance(tal2.filters[0], openmc.DelayedGroupFilter)
-    assert tal2.scores[0] == 'decay-rate'
-    assert tal3.name == 'fission-energy'
-    assert isinstance(tal3.filters[0], openmc.UniverseFilter)
-    assert tal3.scores[0] == 'fission-q-recoverable'
-    assert tal3.scores[1] == 'fission-q-prompt'
-    assert tal3.scores[2] == 'kappa-fission'
-    assert tal4.name == 'normalization-factor'
+
+    assert isinstace(tal1.filters[0], openmc.UniverseFilter)
+    assert isinstace(tal1.filters[1], openmc.DelayedGroupFilter)
+    assert tal1.scores[0] == 'decay-rate'
+
+    assert isinstace(tal2.filters[0], openmc.UniverseFilter)
+    assert isinstace(tal2.filters[1], openmc.EnergyFilter)
+    assert tal2.scores[0] == 'nu-fission'
+
+    assert isinstace(tal3.filters[0], openmc.UniverseFilter)
+    assert isinstace(tal3.filters[1], openmc.DelayedGroupFilter)
+    assert isinstace(tal3.filters[1], openmc.EnergyFilter)
+    assert tal3.scores[0] == 'delayed-nu-fission'
+
+    assert tal4.name == 'breeding_ratio_tally'
     assert isinstance(tal4.filters[0], openmc.UniverseFilter)
-    assert tal4.scores[0] == 'heating'
+    assert tal4.scores[0] == '(n,gamma)'
+    assert tal4.scores[1] == 'absorption'
+
+    assert tal5.name == 'fission_energy'
+    assert isinstance(tal5.filters[0], openmc.UniverseFilter)
+    assert tal5.scores[2] == 'kappa-fission'
+
+    assert tal6.name == 'heating'
+    assert isinstance(tal6.filters[0], openmc.UniverseFilter)
+    assert tal6.scores[0] == 'heating'
 
 
 def test_switch_to_next_geometry(openmc_depcode, openmc_reactor):
@@ -141,8 +154,6 @@ def test_switch_to_next_geometry(openmc_depcode, openmc_reactor):
 
     openmc_depcode.switch_to_next_geometry()
     test_geometry_file = openmc_depcode.runtime_inputfile['geometry']
-
-
 
     ref_filelines = openmc_depcode.read_plaintext_file(ref_geometry_file)
     test_filelines = openmc_depcode.read_plaintext_file(test_geometry_file)

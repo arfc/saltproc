@@ -9,7 +9,7 @@
        "zaid_convention": "serpent"
    },
    "simulation": {
-       "sim_name": "test_no_reprocessing",
+       "sim_name": "test_serpent_no_reprocessing",
        "restart_flag": true
    },
    "reactor": {

@@ -9,7 +9,7 @@
        "zaid_convention": "serpent"
    },
    "simulation": {
-       "sim_name": "tap_constant_reprocessing"
+       "sim_name": "serpent_tap_constant_reprocessing"
    },
    "reactor": {
        "volume": 1.0,

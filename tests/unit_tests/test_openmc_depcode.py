@@ -49,7 +49,7 @@ def test_read_depleted_materials(openmc_depcode):
 
 def test_check_for_material_names(cwd, openmc_depcode):
    matfile = openmc_depcode.template_input_file_path['materials']
-   nameless_matfile = str(cwd / 'openmc_data' / 'tap_materials_nameless.xml')
+   nameless_matfile = str(cwd / 'openmc_data' / 'msbr_materials_nameless.xml')
    # should pass
    openmc_depcode._check_for_material_names(matfile)
 
@@ -58,8 +58,8 @@ def test_check_for_material_names(cwd, openmc_depcode):
 
 
 def test_create_mass_percents_dictionary(cwd, openmc_depcode):
-    wo_matfile = str(cwd / 'openmc_data' / 'tap_materials_wo.xml')
-    ao_matfile = str(cwd / 'openmc_data' / 'tap_materials_ao.xml')
+    wo_matfile = str(cwd / 'openmc_data' / 'msbr_materials_wo.xml')
+    ao_matfile = str(cwd / 'openmc_data' / 'msbr_materials_ao.xml')
 
 
     wo_materials = openmc.Materials.from_xml(wo_matfile)
@@ -74,17 +74,16 @@ def test_create_mass_percents_dictionary(cwd, openmc_depcode):
         for nuc, pt, tp in wo_material.nuclides:
             nucs.append(nuc)
             mass_percents.append(pt)
-        zai = list(map(openmc.data.zam, nucs))
-        zam = list(map(openmc_depcode._z_a_m_to_zam, zai))
-        wo_ref_dictionary = dict(zip(zam, mass_percents))
+        nucnames = list(map(openmc_depcode._convert_nucname_to_pyne, nucs))
+        wo_ref_dictionary = dict(zip(nucnames, mass_percents))
 
         for key in wo_ref_dictionary.keys():
             np.testing.assert_almost_equal(wo_ref_dictionary[key], wo_test_dictionary[key], decimal=5)
 
 
-def test_z_a_m_to_zam(openmc_depcode):
-    assert openmc_depcode._z_a_m_to_zam((1,1,0)) == 1001
-    assert openmc_depcode._z_a_m_to_zam((92,238,0)) == 92238
-    assert openmc_depcode._z_a_m_to_zam((47,110,1)) == 47510
-    assert openmc_depcode._z_a_m_to_zam((95,242,1)) == 95242
-    assert openmc_depcode._z_a_m_to_zam((95,242,0)) == 95642
+def test_convert_nucname_to_pyne(openmc_depcode):
+    assert openmc_depcode._convert_nucname_to_pyne('H1') == 1001
+    assert openmc_depcode._convert_nucname_to_pyne('U238') == 92238
+    assert openmc_depcode._convert_nucname_to_pyne('Ag110_m1') == 47510
+    assert openmc_depcode._convert_nucname_to_pyne('Am242') == 95242
+    assert openmc_depcode._convert_nucname_to_pyne('Am242_m1') == 95642

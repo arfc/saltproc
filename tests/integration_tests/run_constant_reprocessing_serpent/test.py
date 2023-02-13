@@ -1,6 +1,5 @@
 """Run SaltProc with reprocessing"""
 from pathlib import Path
-import shutil
 
 import numpy as np
 import pytest
@@ -29,7 +28,7 @@ def test_integration_2step_constant_ideal_removal_heavy(setup):
     np.testing.assert_equal(read_keff(test_db), read_keff(ref_db))
     assert_db_almost_equal(test_db, ref_db, tol)
 
-    shutil.rmtree(cwd + '/saltproc_runtime')
+    (cwd / 'saltproc_runtime').unlink()
 
 def read_keff(file):
     db = tb.open_file(file, mode='r')

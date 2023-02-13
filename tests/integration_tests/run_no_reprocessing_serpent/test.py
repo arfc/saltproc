@@ -1,13 +1,11 @@
 """Run SaltProc without reprocessing"""
 from pathlib import Path
-import shutil
 
 import numpy as np
 import pytest
 
 from pyne import serpent
 from saltproc import app
-from saltproc import SerpentDepcode, Simulation, Reactor
 
 
 @pytest.fixture
@@ -44,7 +42,7 @@ def test_integration_2step_saltproc_no_reproc_heavy(setup):
     test_mdens_error = np.array(ref_fuel_mdens - test_fuel_mdens)
     np.testing.assert_array_almost_equal(test_mdens_error, ref_mdens_error)
 
-    shutil.rmtree(cwd + '/saltproc_runtime')
+    (cwd / 'saltproc_runtime').unlink()
 
 
 def runsim_no_reproc(simulation, reactor, nsteps):
