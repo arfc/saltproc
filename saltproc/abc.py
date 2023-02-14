@@ -123,6 +123,7 @@ class Depcode(ABC):
                 stdout = None
             subprocess.run(
                 args,
+                check=True,
                 cwd=self.output_path,
                 stdout=stdout,
                 stderr=subprocess.STDOUT)

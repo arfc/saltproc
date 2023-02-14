@@ -132,7 +132,7 @@ class OpenMCDepcode(Depcode):
         sp1 = openmc.StatePoint(self.output_path / 'openmc_simulation_n1.h5')
         res = Results(self.output_path / 'depletion_results.h5')
 
-        depcode_name, depcode_ver = 'OpenMC', ".".join(list(map(str,sp0.version)))
+        depcode_name, depcode_ver = self.codename, ".".join(list(map(str,sp0.version)))
         execution_time = sp0.runtime['simulation'] + sp1.runtime['simulation'] + res[0].proc_time + res[1].proc_time
         sp0.close()
         sp1.close()
@@ -141,7 +141,7 @@ class OpenMCDepcode(Depcode):
         self.step_metadata['depcode_version'] = depcode_ver
         self.step_metadata['title'] = ''
         self.step_metadata['depcode_input_filename'] = ''
-        self.step_metadata['depcode_working_dir'] = str(self.output_path.parents[0])
+        self.step_metadata['depcode_working_dir'] = str(self.output_path)
         self.step_metadata['xs_data_path'] = self._find_xs_path()
         self.step_metadata['OMP_threads'] = -1
         self.step_metadata['MPI_tasks'] = -1
@@ -300,7 +300,7 @@ class OpenMCDepcode(Depcode):
         del openmc_materials, depleted_openmc_materials, starting_openmc_materials
         return depleted_materials
 
-    def _create_mass_percents_dictionary(self, mat):
+    def _create_mass_percents_dictionary(self, mat, percent_type='ao'):
         """Creates a dicitonary with nuclide codes
         in zzaaam formate as keys, and material composition
         in mass percent as values
@@ -309,23 +309,28 @@ class OpenMCDepcode(Depcode):
         ----------
         mat : openmc.Material
             A material
+        percent_type : str
+            Percent type of material
 
         Returns
         -------
             mass_dict : dict of int to float
         """
-        at_percents = []
+        percents = []
         nucs = []
         at_mass = []
         for nuc, pt, tp in mat.nuclides:
             nucs.append(nuc)
-            at_percents.append(pt)
+            percents.append(pt)
             at_mass.append(atomic_mass(nuc))
 
-        at_percents = np.array(at_percents)
+        percents = np.array(percents)
         at_mass = np.array(at_mass)
 
-        mass_percents = at_percents*at_mass / np.dot(at_percents, at_mass)
+        if percent_type == 'ao':
+            mass_percents = percents*at_mass / np.dot(percents, at_mass)
+        else:
+            mass_percents = percents
         pyne_nucs = list(map(self._convert_nucname_to_pyne, nucs))
 
         return dict(zip(pyne_nucs, mass_percents))

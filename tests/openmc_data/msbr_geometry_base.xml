@@ -1,0 +1,972 @@
+<?xml version='1.0' encoding='utf-8'?>
+<geometry>
+  <cell id="1" material="1" name="ib_fuel_inner_1" region="-67 -62" universe="1" />
+  <cell id="2" material="2" name="ib_moderator_1" region="67 -66 -62" universe="1" />
+  <cell id="3" material="1" name="ib_fuel_outer_1" region="66 -62" universe="1" />
+  <cell id="4" material="1" name="ib_fuel_inner_main" region="-67 62 -63" universe="1" />
+  <cell id="5" material="2" name="ib_moderator_main" region="67 75 -76 77 -78 ~((80 -84 -86) | (81 -84 87) | (82 85 -86) | (83 85 87)) 92 93 94 95 88 89 90 91 62 -63" universe="1" />
+  <cell id="6" material="1" name="ib_fuel_outer_main" region="~(75 -76 77 -78 ~((80 -84 -86) | (81 -84 87) | (82 85 -86) | (83 85 87))) 92 93 94 95 88 89 90 91 62 -63" universe="1" />
+  <cell id="7" material="2" name="ib_moderator_main_rib_ul" region="-92 62 -63" universe="1" />
+  <cell id="8" material="2" name="ib_moderator_main_rib_br" region="-93 62 -63" universe="1" />
+  <cell id="9" material="2" name="ib_moderator_main_rib_ru" region="-95 62 -63" universe="1" />
+  <cell id="10" material="2" name="ib_moderator_main_rib_lb" region="-94 62 -63" universe="1" />
+  <cell id="11" material="2" name="ib_moderator_main_rib_ul_t" region="-88 62 -63" universe="1" />
+  <cell id="12" material="2" name="ib_moderator_main_rib_br_t" region="-89 62 -63" universe="1" />
+  <cell id="13" material="2" name="ib_moderator_main_rib_ru_t" region="-90 62 -63" universe="1" />
+  <cell id="14" material="2" name="ib_moderator_main_rib_lb_t" region="-91 62 -63" universe="1" />
+  <cell id="15" material="1" name="ib_fuel_inner_2" region="-67 63 -64" universe="1" />
+  <cell id="16" material="2" name="ib_moderator_2" region="67 -66 63 -64" universe="1" />
+  <cell id="17" material="1" name="ib_fuel_outer_2" region="66 63 -64" universe="1" />
+  <cell id="18" material="1" name="ib_fuel_inner_3" region="-67 64 -65" universe="1" />
+  <cell id="19" material="2" name="ib_moderator_3" region="67 -68 64 -65" universe="1" />
+  <cell id="20" material="1" name="ib_fuel_outer_3" region="68 64 -65" universe="1" />
+  <cell id="21" material="3" name="ib_hast" region="-67 65" universe="1" />
+  <cell id="22" material="2" name="ib_moderator_4" region="67 -96 65" universe="1" />
+  <cell id="23" material="1" name="ib_fuel_outer_4" region="96 65" universe="1" />
+  <cell id="24" material="1" name="iia_fuel_inner_main" region="-101 -97" universe="2" />
+  <cell id="25" material="2" name="iia_moderator_main" region="101 75 -76 77 -78 ~((80 -84 -86) | (81 -84 87) | (82 85 -86) | (83 85 87)) 92 93 94 95 88 89 90 91 -97" universe="2" />
+  <cell id="26" material="1" name="iia_fuel_outer_main" region="~(75 -76 77 -78 ~((80 -84 -86) | (81 -84 87) | (82 85 -86) | (83 85 87))) 92 93 94 95 88 89 90 91 -97" universe="2" />
+  <cell id="27" material="1" name="iia_fuel_inner_2" region="-102 97 -98" universe="2" />
+  <cell id="28" material="2" name="iia_moderator_2" region="102 75 -76 77 -78 ~((80 -84 -86) | (81 -84 87) | (82 85 -86) | (83 85 87)) 92 93 94 95 88 89 90 91 97 -98" universe="2" />
+  <cell id="29" material="1" name="iia_fuel_outer_2" region="~(75 -76 77 -78 ~((80 -84 -86) | (81 -84 87) | (82 85 -86) | (83 85 87))) 92 93 94 95 88 89 90 91 97 -98" universe="2" />
+  <cell id="30" material="2" name="iia_moderator_main_rib_ul" region="-92 -97" universe="2" />
+  <cell id="31" material="2" name="iia_moderator_2_rib_ul" region="-92 97 -98" universe="2" />
+  <cell id="32" material="2" name="iia_moderator_main_rib_br" region="-93 -97" universe="2" />
+  <cell id="33" material="2" name="iia_moderator_2_rib_br" region="-93 97 -98" universe="2" />
+  <cell id="34" material="2" name="iia_moderator_main_rib_ru" region="-95 -97" universe="2" />
+  <cell id="35" material="2" name="iia_moderator_2_rib_ru" region="-95 97 -98" universe="2" />
+  <cell id="36" material="2" name="iia_moderator_main_rib_lb" region="-94 -97" universe="2" />
+  <cell id="37" material="2" name="iia_moderator_2_rib_lb" region="-94 97 -98" universe="2" />
+  <cell id="38" material="2" name="iia_moderator_main_rib_ul_t" region="-88 -97" universe="2" />
+  <cell id="39" material="2" name="iia_moderator_2_rib_ul_t" region="-88 97 -98" universe="2" />
+  <cell id="40" material="2" name="iia_moderator_main_rib_br_t" region="-89 -97" universe="2" />
+  <cell id="41" material="2" name="iia_moderator_2_rib_br_t" region="-89 97 -98" universe="2" />
+  <cell id="42" material="2" name="iia_moderator_main_rib_ru_t" region="-90 -97" universe="2" />
+  <cell id="43" material="2" name="iia_moderator_2_rib_ru_t" region="-90 97 -98" universe="2" />
+  <cell id="44" material="2" name="iia_moderator_main_rib_lb_t" region="-91 -97" universe="2" />
+  <cell id="45" material="2" name="iia_moderator_2_rib_lb_t" region="-91 97 -98" universe="2" />
+  <cell id="46" material="1" name="iia_fuel_inner_3" region="-102 98 -99" universe="2" />
+  <cell id="47" material="2" name="iia_moderator_3" region="102 -103 98 -99" universe="2" />
+  <cell id="48" material="1" name="iia_fuel_outer_3" region="103 98 -99" universe="2" />
+  <cell id="49" material="2" name="iia_moderator_4" region="-104 99 -100" universe="2" />
+  <cell id="50" material="1" name="iia_fuel_outer_4" region="104 99 -100" universe="2" />
+  <cell id="51" material="2" name="iia_moderator_5" region="-96 100" universe="2" />
+  <cell id="52" material="1" name="iia_fuel_outer_5" region="96 100" universe="2" />
+  <cell id="53" material="void" name="lattice_void" universe="3" />
+  <cell id="54" material="2" region="-129" universe="4" />
+  <cell id="55" material="1" region="129" universe="4" />
+  <cell id="56" material="2" region="-126" universe="5" />
+  <cell id="57" material="1" region="126" universe="5" />
+  <cell id="58" material="2" region="-127" universe="6" />
+  <cell id="59" material="1" region="127" universe="6" />
+  <cell id="60" material="2" region="-128" universe="7" />
+  <cell id="61" material="1" region="128" universe="7" />
+  <cell fill="8" id="62" name="main_lattice_smaller_octader" region="5 -6 (23 | -24 | 25 | -26 | -27 | -28 | 29 | 30) -15 16 -17 18 19 20 -21 -22 ~(1 -2 3 -4)" universe="13" />
+  <cell fill="8" id="63" name="main_lattice_insite_smallest_octader" region="5 -6 -23 24 -25 26 27 28 -29 -30 ~(1 -2 3 -4)" universe="13" />
+  <cell fill="8" id="64" name="main_lattice_inside_base_octader_deducted_smaller_smallest" region="5 -6 -7 8 -9 10 11 12 -13 -14 (15 | -16 | 17 | -18 | -19 | -20 | 21 | 22) (23 | -24 | 25 | -26 | -27 | -28 | 29 | 30) ~(1 -2 3 -4)" universe="13" />
+  <cell id="65" material="2" name="control_rod" region="-220" universe="9" />
+  <cell id="66" material="1" name="cr_fuel_inner" region="220 -219" universe="9" />
+  <cell id="67" material="2" name="cr_moderator" region="219 130 -131 132 -133 ~((135 -139 -141) | (136 -139 142) | (137 140 -141) | (138 140 142)) ~(-147 148 -149 150 151 -152 ~((153 -159) | (154 -160) | (155 -161) | (156 -162) | (157 -163) | (158 -164))) ~(-165 166 -167 168 169 -170 ~((171 -177) | (172 -178) | (173 -179) | (174 -180) | (175 -181) | (176 -182))) ~(-183 184 -185 -186 187 188 ~((189 -195) | (190 -196) | (191 -197) | (192 -198) | (193 -199) | (194 -200))) ~(-201 202 -203 -204 205 206 ~((207 -213) | (208 -214) | (209 -215) | (210 -216) | (211 -217) | (212 -218))) 143 144 145 146" universe="9" />
+  <cell id="68" material="1" name="cr_fuel_outer" region="~(130 -131 132 -133 ~((135 -139 -141) | (136 -139 142) | (137 140 -141) | (138 140 142))) ~(-147 148 -149 150 151 -152 ~((153 -159) | (154 -160) | (155 -161) | (156 -162) | (157 -163) | (158 -164))) ~(-165 166 -167 168 169 -170 ~((171 -177) | (172 -178) | (173 -179) | (174 -180) | (175 -181) | (176 -182))) ~(-183 184 -185 -186 187 188 ~((189 -195) | (190 -196) | (191 -197) | (192 -198) | (193 -199) | (194 -200))) ~(-201 202 -203 -204 205 206 ~((207 -213) | (208 -214) | (209 -215) | (210 -216) | (211 -217) | (212 -218))) 143 144 145 146" universe="9" />
+  <cell id="69" material="2" name="cr_moderator_rib_ul" region="-147 148 -149 150 151 -152 ~((153 -159) | (154 -160) | (155 -161) | (156 -162) | (157 -163) | (158 -164))" universe="9" />
+  <cell id="70" material="2" name="cr_moderator_rib_br" region="-183 184 -185 -186 187 188 ~((189 -195) | (190 -196) | (191 -197) | (192 -198) | (193 -199) | (194 -200))" universe="9" />
+  <cell id="71" material="2" name="cr_moderator_rib_ru" region="-201 202 -203 -204 205 206 ~((207 -213) | (208 -214) | (209 -215) | (210 -216) | (211 -217) | (212 -218))" universe="9" />
+  <cell id="72" material="2" name="cr_moderator_rib_lb" region="-165 166 -167 168 169 -170 ~((171 -177) | (172 -178) | (173 -179) | (174 -180) | (175 -181) | (176 -182))" universe="9" />
+  <cell id="73" material="2" name="cr_moderator_rib_ul_t" region="-143" universe="9" />
+  <cell id="74" material="2" name="cr_moderator_rib_br_t" region="-144" universe="9" />
+  <cell id="75" material="2" name="cr_moderator_rib_ru_t" region="-145" universe="9" />
+  <cell id="76" material="2" name="cr_moderator_rib_lb_t" region="-146" universe="9" />
+  <cell id="77" material="1" name="crc_fuel_inner" region="-219" universe="10" />
+  <cell id="78" material="2" name="crc_moderator" region="219 130 -131 132 -133 ~((135 -139 -141) | (136 -139 142) | (137 140 -141) | (138 140 142)) ~(-147 148 -149 150 151 -152 ~((153 -159) | (154 -160) | (155 -161) | (156 -162) | (157 -163) | (158 -164))) ~(-165 166 -167 168 169 -170 ~((171 -177) | (172 -178) | (173 -179) | (174 -180) | (175 -181) | (176 -182))) ~(-183 184 -185 -186 187 188 ~((189 -195) | (190 -196) | (191 -197) | (192 -198) | (193 -199) | (194 -200))) ~(-201 202 -203 -204 205 206 ~((207 -213) | (208 -214) | (209 -215) | (210 -216) | (211 -217) | (212 -218))) 143 144 145 146" universe="10" />
+  <cell id="79" material="1" name="crc_fuel_outer" region="~(130 -131 132 -133 ~((135 -139 -141) | (136 -139 142) | (137 140 -141) | (138 140 142))) ~(-147 148 -149 150 151 -152 ~((153 -159) | (154 -160) | (155 -161) | (156 -162) | (157 -163) | (158 -164))) ~(-165 166 -167 168 169 -170 ~((171 -177) | (172 -178) | (173 -179) | (174 -180) | (175 -181) | (176 -182))) ~(-183 184 -185 -186 187 188 ~((189 -195) | (190 -196) | (191 -197) | (192 -198) | (193 -199) | (194 -200))) ~(-201 202 -203 -204 205 206 ~((207 -213) | (208 -214) | (209 -215) | (210 -216) | (211 -217) | (212 -218))) 143 144 145 146" universe="10" />
+  <cell id="80" material="2" name="crc_moderator_rib_ul" region="-147 148 -149 150 151 -152 ~((153 -159) | (154 -160) | (155 -161) | (156 -162) | (157 -163) | (158 -164))" universe="10" />
+  <cell id="81" material="2" name="crc_moderator_rib_br" region="-183 184 -185 -186 187 188 ~((189 -195) | (190 -196) | (191 -197) | (192 -198) | (193 -199) | (194 -200))" universe="10" />
+  <cell id="82" material="2" name="crc_moderator_rib_ru" region="-201 202 -203 -204 205 206 ~((207 -213) | (208 -214) | (209 -215) | (210 -216) | (211 -217) | (212 -218))" universe="10" />
+  <cell id="83" material="2" name="crc_moderator_rib_lb" region="-165 166 -167 168 169 -170 ~((171 -177) | (172 -178) | (173 -179) | (174 -180) | (175 -181) | (176 -182))" universe="10" />
+  <cell id="84" material="2" name="crc_moderator_rib_ul_t" region="-143" universe="10" />
+  <cell id="85" material="2" name="crc_moderator_rib_br_t" region="-144" universe="10" />
+  <cell id="86" material="2" name="crc_moderator_rib_ru_t" region="-145" universe="10" />
+  <cell id="87" material="2" name="crc_moderator_rib_lb_t" region="-146" universe="10" />
+  <cell fill="11" id="88" name="cr_lattice" region="5 -6 1 -2 3 -4" universe="13" />
+  <cell id="89" material="2" name="iib_large_element_0.0" region="-31 221 -223 224 225" universe="12" />
+  <cell id="90" material="1" name="iib_large_element_fuel_hole_0.0" region="-225" universe="12" />
+  <cell id="91" material="2" name="iib_small_element_2.924" region="-31 226 -228 229" universe="12" />
+  <cell id="92" material="2" name="iib_small_element_4.559" region="-31 226 -232 233" universe="12" />
+  <cell id="93" material="2" name="iib_small_element_6.194" region="-31 226 -236 237" universe="12" />
+  <cell id="94" material="2" name="iib_small_element_7.829" region="-31 226 -240 241" universe="12" />
+  <cell id="95" material="2" name="iib_small_element_9.464" region="-31 226 -244 245" universe="12" />
+  <cell id="96" material="2" name="iib_small_element_11.099" region="-31 226 -248 249" universe="12" />
+  <cell id="97" material="2" name="iib_small_element_12.734" region="-31 226 -252 253" universe="12" />
+  <cell id="98" material="2" name="iib_small_element_14.369" region="-31 226 -256 257" universe="12" />
+  <cell id="99" material="2" name="iib_small_element_16.004" region="-31 226 -260 261" universe="12" />
+  <cell id="100" material="2" name="iib_small_element_17.639" region="-31 226 -264 265" universe="12" />
+  <cell id="101" material="2" name="iib_small_element_19.274" region="-31 226 -268 269" universe="12" />
+  <cell id="102" material="2" name="iib_small_element_20.909" region="-31 226 -272 273" universe="12" />
+  <cell id="103" material="2" name="iib_small_element_22.544" region="-31 226 -276 277" universe="12" />
+  <cell id="104" material="2" name="iib_small_element_24.179" region="-31 226 -280 281" universe="12" />
+  <cell id="105" material="2" name="iib_small_element_25.814" region="-31 226 -284 285" universe="12" />
+  <cell id="106" material="2" name="iib_small_element_27.449" region="-31 226 -288 289" universe="12" />
+  <cell id="107" material="2" name="iib_small_element_29.084" region="-31 226 -292 293" universe="12" />
+  <cell id="108" material="2" name="iib_small_element_30.719" region="-31 226 -296 297" universe="12" />
+  <cell id="109" material="2" name="iib_small_element_32.354" region="-31 226 -300 301" universe="12" />
+  <cell id="110" material="2" name="iib_small_element_33.989" region="-31 226 -304 305" universe="12" />
+  <cell id="111" material="2" name="iib_small_element_35.624" region="-31 226 -308 309" universe="12" />
+  <cell id="112" material="2" name="iib_small_element_37.259" region="-31 226 -312 313" universe="12" />
+  <cell id="113" material="2" name="iib_small_element_38.894" region="-31 226 -316 317" universe="12" />
+  <cell id="114" material="2" name="iib_small_element_40.529" region="-31 226 -320 321" universe="12" />
+  <cell id="115" material="2" name="iib_small_element_42.164" region="-31 226 -324 325" universe="12" />
+  <cell id="116" material="2" name="iib_large_element_45.0" region="-31 326 -328 329 330" universe="12" />
+  <cell id="117" material="1" name="iib_large_element_fuel_hole_45.0" region="-330" universe="12" />
+  <cell id="118" material="2" name="iib_small_element_47.924" region="-31 226 -333 334" universe="12" />
+  <cell id="119" material="2" name="iib_small_element_49.559" region="-31 226 -337 338" universe="12" />
+  <cell id="120" material="2" name="iib_small_element_51.194" region="-31 226 -341 342" universe="12" />
+  <cell id="121" material="2" name="iib_small_element_52.829" region="-31 226 -345 346" universe="12" />
+  <cell id="122" material="2" name="iib_small_element_54.464" region="-31 226 -349 350" universe="12" />
+  <cell id="123" material="2" name="iib_small_element_56.099" region="-31 226 -353 354" universe="12" />
+  <cell id="124" material="2" name="iib_small_element_57.734" region="-31 226 -357 358" universe="12" />
+  <cell id="125" material="2" name="iib_small_element_59.369" region="-31 226 -361 362" universe="12" />
+  <cell id="126" material="2" name="iib_small_element_61.004" region="-31 226 -365 366" universe="12" />
+  <cell id="127" material="2" name="iib_small_element_62.639" region="-31 226 -369 370" universe="12" />
+  <cell id="128" material="2" name="iib_small_element_64.274" region="-31 226 -373 374" universe="12" />
+  <cell id="129" material="2" name="iib_small_element_65.909" region="-31 226 -377 378" universe="12" />
+  <cell id="130" material="2" name="iib_small_element_67.544" region="-31 226 -381 382" universe="12" />
+  <cell id="131" material="2" name="iib_small_element_69.179" region="-31 226 -385 386" universe="12" />
+  <cell id="132" material="2" name="iib_small_element_70.814" region="-31 226 -389 390" universe="12" />
+  <cell id="133" material="2" name="iib_small_element_72.449" region="-31 226 -393 394" universe="12" />
+  <cell id="134" material="2" name="iib_small_element_74.084" region="-31 226 -397 398" universe="12" />
+  <cell id="135" material="2" name="iib_small_element_75.719" region="-31 226 -401 402" universe="12" />
+  <cell id="136" material="2" name="iib_small_element_77.354" region="-31 226 -405 406" universe="12" />
+  <cell id="137" material="2" name="iib_small_element_78.989" region="-31 226 -409 410" universe="12" />
+  <cell id="138" material="2" name="iib_small_element_80.624" region="-31 226 -413 414" universe="12" />
+  <cell id="139" material="2" name="iib_small_element_82.259" region="-31 226 -417 418" universe="12" />
+  <cell id="140" material="2" name="iib_small_element_83.894" region="-31 226 -421 422" universe="12" />
+  <cell id="141" material="2" name="iib_small_element_85.529" region="-31 226 -425 426" universe="12" />
+  <cell id="142" material="2" name="iib_small_element_87.164" region="-31 226 -429 430" universe="12" />
+  <cell id="143" material="2" name="iib_large_element_90.0" region="-31 221 -433 434 435" universe="12" />
+  <cell id="144" material="1" name="iib_large_element_fuel_hole_90.0" region="-435" universe="12" />
+  <cell id="145" material="2" name="iib_small_element_92.924" region="-31 226 -438 439" universe="12" />
+  <cell id="146" material="2" name="iib_small_element_94.559" region="-31 226 -442 443" universe="12" />
+  <cell id="147" material="2" name="iib_small_element_96.194" region="-31 226 -446 447" universe="12" />
+  <cell id="148" material="2" name="iib_small_element_97.829" region="-31 226 -450 451" universe="12" />
+  <cell id="149" material="2" name="iib_small_element_99.464" region="-31 226 -454 455" universe="12" />
+  <cell id="150" material="2" name="iib_small_element_101.099" region="-31 226 -458 459" universe="12" />
+  <cell id="151" material="2" name="iib_small_element_102.734" region="-31 226 -462 463" universe="12" />
+  <cell id="152" material="2" name="iib_small_element_104.369" region="-31 226 -466 467" universe="12" />
+  <cell id="153" material="2" name="iib_small_element_106.004" region="-31 226 -470 471" universe="12" />
+  <cell id="154" material="2" name="iib_small_element_107.639" region="-31 226 -474 475" universe="12" />
+  <cell id="155" material="2" name="iib_small_element_109.274" region="-31 226 -478 479" universe="12" />
+  <cell id="156" material="2" name="iib_small_element_110.909" region="-31 226 -482 483" universe="12" />
+  <cell id="157" material="2" name="iib_small_element_112.544" region="-31 226 -486 487" universe="12" />
+  <cell id="158" material="2" name="iib_small_element_114.179" region="-31 226 -490 491" universe="12" />
+  <cell id="159" material="2" name="iib_small_element_115.814" region="-31 226 -494 495" universe="12" />
+  <cell id="160" material="2" name="iib_small_element_117.449" region="-31 226 -498 499" universe="12" />
+  <cell id="161" material="2" name="iib_small_element_119.084" region="-31 226 -502 503" universe="12" />
+  <cell id="162" material="2" name="iib_small_element_120.719" region="-31 226 -506 507" universe="12" />
+  <cell id="163" material="2" name="iib_small_element_122.354" region="-31 226 -510 511" universe="12" />
+  <cell id="164" material="2" name="iib_small_element_123.989" region="-31 226 -514 515" universe="12" />
+  <cell id="165" material="2" name="iib_small_element_125.624" region="-31 226 -518 519" universe="12" />
+  <cell id="166" material="2" name="iib_small_element_127.259" region="-31 226 -522 523" universe="12" />
+  <cell id="167" material="2" name="iib_small_element_128.894" region="-31 226 -526 527" universe="12" />
+  <cell id="168" material="2" name="iib_small_element_130.529" region="-31 226 -530 531" universe="12" />
+  <cell id="169" material="2" name="iib_small_element_132.164" region="-31 226 -534 535" universe="12" />
+  <cell id="170" material="2" name="iib_large_element_135.0" region="-31 326 -538 539 540" universe="12" />
+  <cell id="171" material="1" name="iib_large_element_fuel_hole_135.0" region="-540" universe="12" />
+  <cell id="172" material="2" name="iib_small_element_137.924" region="-31 226 -543 544" universe="12" />
+  <cell id="173" material="2" name="iib_small_element_139.559" region="-31 226 -547 548" universe="12" />
+  <cell id="174" material="2" name="iib_small_element_141.194" region="-31 226 -551 552" universe="12" />
+  <cell id="175" material="2" name="iib_small_element_142.829" region="-31 226 -555 556" universe="12" />
+  <cell id="176" material="2" name="iib_small_element_144.464" region="-31 226 -559 560" universe="12" />
+  <cell id="177" material="2" name="iib_small_element_146.099" region="-31 226 -563 564" universe="12" />
+  <cell id="178" material="2" name="iib_small_element_147.734" region="-31 226 -567 568" universe="12" />
+  <cell id="179" material="2" name="iib_small_element_149.369" region="-31 226 -571 572" universe="12" />
+  <cell id="180" material="2" name="iib_small_element_151.004" region="-31 226 -575 576" universe="12" />
+  <cell id="181" material="2" name="iib_small_element_152.639" region="-31 226 -579 580" universe="12" />
+  <cell id="182" material="2" name="iib_small_element_154.274" region="-31 226 -583 584" universe="12" />
+  <cell id="183" material="2" name="iib_small_element_155.909" region="-31 226 -587 588" universe="12" />
+  <cell id="184" material="2" name="iib_small_element_157.544" region="-31 226 -591 592" universe="12" />
+  <cell id="185" material="2" name="iib_small_element_159.179" region="-31 226 -595 596" universe="12" />
+  <cell id="186" material="2" name="iib_small_element_160.814" region="-31 226 -599 600" universe="12" />
+  <cell id="187" material="2" name="iib_small_element_162.449" region="-31 226 -603 604" universe="12" />
+  <cell id="188" material="2" name="iib_small_element_164.084" region="-31 226 -607 608" universe="12" />
+  <cell id="189" material="2" name="iib_small_element_165.719" region="-31 226 -611 612" universe="12" />
+  <cell id="190" material="2" name="iib_small_element_167.354" region="-31 226 -615 616" universe="12" />
+  <cell id="191" material="2" name="iib_small_element_168.989" region="-31 226 -619 620" universe="12" />
+  <cell id="192" material="2" name="iib_small_element_170.624" region="-31 226 -623 624" universe="12" />
+  <cell id="193" material="2" name="iib_small_element_172.259" region="-31 226 -627 628" universe="12" />
+  <cell id="194" material="2" name="iib_small_element_173.894" region="-31 226 -631 632" universe="12" />
+  <cell id="195" material="2" name="iib_small_element_175.529" region="-31 226 -635 636" universe="12" />
+  <cell id="196" material="2" name="iib_small_element_177.164" region="-31 226 -639 640" universe="12" />
+  <cell id="197" material="2" name="iib_large_element_180.0" region="-31 221 -643 644 645" universe="12" />
+  <cell id="198" material="1" name="iib_large_element_fuel_hole_180.0" region="-645" universe="12" />
+  <cell id="199" material="2" name="iib_small_element_182.924" region="-31 226 -648 649" universe="12" />
+  <cell id="200" material="2" name="iib_small_element_184.559" region="-31 226 -652 653" universe="12" />
+  <cell id="201" material="2" name="iib_small_element_186.194" region="-31 226 -656 657" universe="12" />
+  <cell id="202" material="2" name="iib_small_element_187.829" region="-31 226 -660 661" universe="12" />
+  <cell id="203" material="2" name="iib_small_element_189.464" region="-31 226 -664 665" universe="12" />
+  <cell id="204" material="2" name="iib_small_element_191.099" region="-31 226 -668 669" universe="12" />
+  <cell id="205" material="2" name="iib_small_element_192.734" region="-31 226 -672 673" universe="12" />
+  <cell id="206" material="2" name="iib_small_element_194.369" region="-31 226 -676 677" universe="12" />
+  <cell id="207" material="2" name="iib_small_element_196.004" region="-31 226 -680 681" universe="12" />
+  <cell id="208" material="2" name="iib_small_element_197.639" region="-31 226 -684 685" universe="12" />
+  <cell id="209" material="2" name="iib_small_element_199.274" region="-31 226 -688 689" universe="12" />
+  <cell id="210" material="2" name="iib_small_element_200.909" region="-31 226 -692 693" universe="12" />
+  <cell id="211" material="2" name="iib_small_element_202.544" region="-31 226 -696 697" universe="12" />
+  <cell id="212" material="2" name="iib_small_element_204.179" region="-31 226 -700 701" universe="12" />
+  <cell id="213" material="2" name="iib_small_element_205.814" region="-31 226 -704 705" universe="12" />
+  <cell id="214" material="2" name="iib_small_element_207.449" region="-31 226 -708 709" universe="12" />
+  <cell id="215" material="2" name="iib_small_element_209.084" region="-31 226 -712 713" universe="12" />
+  <cell id="216" material="2" name="iib_small_element_210.719" region="-31 226 -716 717" universe="12" />
+  <cell id="217" material="2" name="iib_small_element_212.354" region="-31 226 -720 721" universe="12" />
+  <cell id="218" material="2" name="iib_small_element_213.989" region="-31 226 -724 725" universe="12" />
+  <cell id="219" material="2" name="iib_small_element_215.624" region="-31 226 -728 729" universe="12" />
+  <cell id="220" material="2" name="iib_small_element_217.259" region="-31 226 -732 733" universe="12" />
+  <cell id="221" material="2" name="iib_small_element_218.894" region="-31 226 -736 737" universe="12" />
+  <cell id="222" material="2" name="iib_small_element_220.529" region="-31 226 -740 741" universe="12" />
+  <cell id="223" material="2" name="iib_small_element_222.164" region="-31 226 -744 745" universe="12" />
+  <cell id="224" material="2" name="iib_large_element_225.0" region="-31 326 -748 749 750" universe="12" />
+  <cell id="225" material="1" name="iib_large_element_fuel_hole_225.0" region="-750" universe="12" />
+  <cell id="226" material="2" name="iib_small_element_227.924" region="-31 226 -753 754" universe="12" />
+  <cell id="227" material="2" name="iib_small_element_229.559" region="-31 226 -757 758" universe="12" />
+  <cell id="228" material="2" name="iib_small_element_231.194" region="-31 226 -761 762" universe="12" />
+  <cell id="229" material="2" name="iib_small_element_232.829" region="-31 226 -765 766" universe="12" />
+  <cell id="230" material="2" name="iib_small_element_234.464" region="-31 226 -769 770" universe="12" />
+  <cell id="231" material="2" name="iib_small_element_236.099" region="-31 226 -773 774" universe="12" />
+  <cell id="232" material="2" name="iib_small_element_237.734" region="-31 226 -777 778" universe="12" />
+  <cell id="233" material="2" name="iib_small_element_239.369" region="-31 226 -781 782" universe="12" />
+  <cell id="234" material="2" name="iib_small_element_241.004" region="-31 226 -785 786" universe="12" />
+  <cell id="235" material="2" name="iib_small_element_242.639" region="-31 226 -789 790" universe="12" />
+  <cell id="236" material="2" name="iib_small_element_244.274" region="-31 226 -793 794" universe="12" />
+  <cell id="237" material="2" name="iib_small_element_245.909" region="-31 226 -797 798" universe="12" />
+  <cell id="238" material="2" name="iib_small_element_247.544" region="-31 226 -801 802" universe="12" />
+  <cell id="239" material="2" name="iib_small_element_249.179" region="-31 226 -805 806" universe="12" />
+  <cell id="240" material="2" name="iib_small_element_250.814" region="-31 226 -809 810" universe="12" />
+  <cell id="241" material="2" name="iib_small_element_252.449" region="-31 226 -813 814" universe="12" />
+  <cell id="242" material="2" name="iib_small_element_254.084" region="-31 226 -817 818" universe="12" />
+  <cell id="243" material="2" name="iib_small_element_255.719" region="-31 226 -821 822" universe="12" />
+  <cell id="244" material="2" name="iib_small_element_257.354" region="-31 226 -825 826" universe="12" />
+  <cell id="245" material="2" name="iib_small_element_258.989" region="-31 226 -829 830" universe="12" />
+  <cell id="246" material="2" name="iib_small_element_260.624" region="-31 226 -833 834" universe="12" />
+  <cell id="247" material="2" name="iib_small_element_262.259" region="-31 226 -837 838" universe="12" />
+  <cell id="248" material="2" name="iib_small_element_263.894" region="-31 226 -841 842" universe="12" />
+  <cell id="249" material="2" name="iib_small_element_265.529" region="-31 226 -845 846" universe="12" />
+  <cell id="250" material="2" name="iib_small_element_267.164" region="-31 226 -849 850" universe="12" />
+  <cell id="251" material="2" name="iib_large_element_270.0" region="-31 221 -853 854 855" universe="12" />
+  <cell id="252" material="1" name="iib_large_element_fuel_hole_270.0" region="-855" universe="12" />
+  <cell id="253" material="2" name="iib_small_element_272.924" region="-31 226 -858 859" universe="12" />
+  <cell id="254" material="2" name="iib_small_element_274.559" region="-31 226 -862 863" universe="12" />
+  <cell id="255" material="2" name="iib_small_element_276.194" region="-31 226 -866 867" universe="12" />
+  <cell id="256" material="2" name="iib_small_element_277.829" region="-31 226 -870 871" universe="12" />
+  <cell id="257" material="2" name="iib_small_element_279.464" region="-31 226 -874 875" universe="12" />
+  <cell id="258" material="2" name="iib_small_element_281.099" region="-31 226 -878 879" universe="12" />
+  <cell id="259" material="2" name="iib_small_element_282.734" region="-31 226 -882 883" universe="12" />
+  <cell id="260" material="2" name="iib_small_element_284.369" region="-31 226 -886 887" universe="12" />
+  <cell id="261" material="2" name="iib_small_element_286.004" region="-31 226 -890 891" universe="12" />
+  <cell id="262" material="2" name="iib_small_element_287.639" region="-31 226 -894 895" universe="12" />
+  <cell id="263" material="2" name="iib_small_element_289.274" region="-31 226 -898 899" universe="12" />
+  <cell id="264" material="2" name="iib_small_element_290.909" region="-31 226 -902 903" universe="12" />
+  <cell id="265" material="2" name="iib_small_element_292.544" region="-31 226 -906 907" universe="12" />
+  <cell id="266" material="2" name="iib_small_element_294.179" region="-31 226 -910 911" universe="12" />
+  <cell id="267" material="2" name="iib_small_element_295.814" region="-31 226 -914 915" universe="12" />
+  <cell id="268" material="2" name="iib_small_element_297.449" region="-31 226 -918 919" universe="12" />
+  <cell id="269" material="2" name="iib_small_element_299.084" region="-31 226 -922 923" universe="12" />
+  <cell id="270" material="2" name="iib_small_element_300.719" region="-31 226 -926 927" universe="12" />
+  <cell id="271" material="2" name="iib_small_element_302.354" region="-31 226 -930 931" universe="12" />
+  <cell id="272" material="2" name="iib_small_element_303.989" region="-31 226 -934 935" universe="12" />
+  <cell id="273" material="2" name="iib_small_element_305.624" region="-31 226 -938 939" universe="12" />
+  <cell id="274" material="2" name="iib_small_element_307.259" region="-31 226 -942 943" universe="12" />
+  <cell id="275" material="2" name="iib_small_element_308.894" region="-31 226 -946 947" universe="12" />
+  <cell id="276" material="2" name="iib_small_element_310.529" region="-31 226 -950 951" universe="12" />
+  <cell id="277" material="2" name="iib_small_element_312.164" region="-31 226 -954 955" universe="12" />
+  <cell id="278" material="2" name="iib_large_element_315.0" region="-31 326 -958 959 960" universe="12" />
+  <cell id="279" material="1" name="iib_large_element_fuel_hole_315.0" region="-960" universe="12" />
+  <cell id="280" material="2" name="iib_small_element_317.924" region="-31 226 -963 964" universe="12" />
+  <cell id="281" material="2" name="iib_small_element_319.559" region="-31 226 -967 968" universe="12" />
+  <cell id="282" material="2" name="iib_small_element_321.194" region="-31 226 -971 972" universe="12" />
+  <cell id="283" material="2" name="iib_small_element_322.829" region="-31 226 -975 976" universe="12" />
+  <cell id="284" material="2" name="iib_small_element_324.464" region="-31 226 -979 980" universe="12" />
+  <cell id="285" material="2" name="iib_small_element_326.099" region="-31 226 -983 984" universe="12" />
+  <cell id="286" material="2" name="iib_small_element_327.734" region="-31 226 -987 988" universe="12" />
+  <cell id="287" material="2" name="iib_small_element_329.369" region="-31 226 -991 992" universe="12" />
+  <cell id="288" material="2" name="iib_small_element_331.004" region="-31 226 -995 996" universe="12" />
+  <cell id="289" material="2" name="iib_small_element_332.639" region="-31 226 -999 1000" universe="12" />
+  <cell id="290" material="2" name="iib_small_element_334.274" region="-31 226 -1003 1004" universe="12" />
+  <cell id="291" material="2" name="iib_small_element_335.909" region="-31 226 -1007 1008" universe="12" />
+  <cell id="292" material="2" name="iib_small_element_337.544" region="-31 226 -1011 1012" universe="12" />
+  <cell id="293" material="2" name="iib_small_element_339.179" region="-31 226 -1015 1016" universe="12" />
+  <cell id="294" material="2" name="iib_small_element_340.814" region="-31 226 -1019 1020" universe="12" />
+  <cell id="295" material="2" name="iib_small_element_342.449" region="-31 226 -1023 1024" universe="12" />
+  <cell id="296" material="2" name="iib_small_element_344.084" region="-31 226 -1027 1028" universe="12" />
+  <cell id="297" material="2" name="iib_small_element_345.719" region="-31 226 -1031 1032" universe="12" />
+  <cell id="298" material="2" name="iib_small_element_347.354" region="-31 226 -1035 1036" universe="12" />
+  <cell id="299" material="2" name="iib_small_element_348.989" region="-31 226 -1039 1040" universe="12" />
+  <cell id="300" material="2" name="iib_small_element_350.624" region="-31 226 -1043 1044" universe="12" />
+  <cell id="301" material="2" name="iib_small_element_352.259" region="-31 226 -1047 1048" universe="12" />
+  <cell id="302" material="2" name="iib_small_element_353.894" region="-31 226 -1051 1052" universe="12" />
+  <cell id="303" material="2" name="iib_small_element_355.529" region="-31 226 -1055 1056" universe="12" />
+  <cell id="304" material="2" name="iib_small_element_357.164" region="-31 226 -1059 1060" universe="12" />
+  <cell id="305" material="1" name="zone_iib_fuel" region="(31 | -221 | 223 | -224) (31 | -226 | 228 | -229) (31 | -226 | 232 | -233) (31 | -226 | 236 | -237) (31 | -226 | 240 | -241) (31 | -226 | 244 | -245) (31 | -226 | 248 | -249) (31 | -226 | 252 | -253) (31 | -226 | 256 | -257) (31 | -226 | 260 | -261) (31 | -226 | 264 | -265) (31 | -226 | 268 | -269) (31 | -226 | 272 | -273) (31 | -226 | 276 | -277) (31 | -226 | 280 | -281) (31 | -226 | 284 | -285) (31 | -226 | 288 | -289) (31 | -226 | 292 | -293) (31 | -226 | 296 | -297) (31 | -226 | 300 | -301) (31 | -226 | 304 | -305) (31 | -226 | 308 | -309) (31 | -226 | 312 | -313) (31 | -226 | 316 | -317) (31 | -226 | 320 | -321) (31 | -226 | 324 | -325) (31 | -326 | 328 | -329) (31 | -226 | 333 | -334) (31 | -226 | 337 | -338) (31 | -226 | 341 | -342) (31 | -226 | 345 | -346) (31 | -226 | 349 | -350) (31 | -226 | 353 | -354) (31 | -226 | 357 | -358) (31 | -226 | 361 | -362) (31 | -226 | 365 | -366) (31 | -226 | 369 | -370) (31 | -226 | 373 | -374) (31 | -226 | 377 | -378) (31 | -226 | 381 | -382) (31 | -226 | 385 | -386) (31 | -226 | 389 | -390) (31 | -226 | 393 | -394) (31 | -226 | 397 | -398) (31 | -226 | 401 | -402) (31 | -226 | 405 | -406) (31 | -226 | 409 | -410) (31 | -226 | 413 | -414) (31 | -226 | 417 | -418) (31 | -226 | 421 | -422) (31 | -226 | 425 | -426) (31 | -226 | 429 | -430) (31 | -221 | 433 | -434) (31 | -226 | 438 | -439) (31 | -226 | 442 | -443) (31 | -226 | 446 | -447) (31 | -226 | 450 | -451) (31 | -226 | 454 | -455) (31 | -226 | 458 | -459) (31 | -226 | 462 | -463) (31 | -226 | 466 | -467) (31 | -226 | 470 | -471) (31 | -226 | 474 | -475) (31 | -226 | 478 | -479) (31 | -226 | 482 | -483) (31 | -226 | 486 | -487) (31 | -226 | 490 | -491) (31 | -226 | 494 | -495) (31 | -226 | 498 | -499) (31 | -226 | 502 | -503) (31 | -226 | 506 | -507) (31 | -226 | 510 | -511) (31 | -226 | 514 | -515) (31 | -226 | 518 | -519) (31 | -226 | 522 | -523) (31 | -226 | 526 | -527) (31 | -226 | 530 | -531) (31 | -226 | 534 | -535) (31 | -326 | 538 | -539) (31 | -226 | 543 | -544) (31 | -226 | 547 | -548) (31 | -226 | 551 | -552) (31 | -226 | 555 | -556) (31 | -226 | 559 | -560) (31 | -226 | 563 | -564) (31 | -226 | 567 | -568) (31 | -226 | 571 | -572) (31 | -226 | 575 | -576) (31 | -226 | 579 | -580) (31 | -226 | 583 | -584) (31 | -226 | 587 | -588) (31 | -226 | 591 | -592) (31 | -226 | 595 | -596) (31 | -226 | 599 | -600) (31 | -226 | 603 | -604) (31 | -226 | 607 | -608) (31 | -226 | 611 | -612) (31 | -226 | 615 | -616) (31 | -226 | 619 | -620) (31 | -226 | 623 | -624) (31 | -226 | 627 | -628) (31 | -226 | 631 | -632) (31 | -226 | 635 | -636) (31 | -226 | 639 | -640) (31 | -221 | 643 | -644) (31 | -226 | 648 | -649) (31 | -226 | 652 | -653) (31 | -226 | 656 | -657) (31 | -226 | 660 | -661) (31 | -226 | 664 | -665) (31 | -226 | 668 | -669) (31 | -226 | 672 | -673) (31 | -226 | 676 | -677) (31 | -226 | 680 | -681) (31 | -226 | 684 | -685) (31 | -226 | 688 | -689) (31 | -226 | 692 | -693) (31 | -226 | 696 | -697) (31 | -226 | 700 | -701) (31 | -226 | 704 | -705) (31 | -226 | 708 | -709) (31 | -226 | 712 | -713) (31 | -226 | 716 | -717) (31 | -226 | 720 | -721) (31 | -226 | 724 | -725) (31 | -226 | 728 | -729) (31 | -226 | 732 | -733) (31 | -226 | 736 | -737) (31 | -226 | 740 | -741) (31 | -226 | 744 | -745) (31 | -326 | 748 | -749) (31 | -226 | 753 | -754) (31 | -226 | 757 | -758) (31 | -226 | 761 | -762) (31 | -226 | 765 | -766) (31 | -226 | 769 | -770) (31 | -226 | 773 | -774) (31 | -226 | 777 | -778) (31 | -226 | 781 | -782) (31 | -226 | 785 | -786) (31 | -226 | 789 | -790) (31 | -226 | 793 | -794) (31 | -226 | 797 | -798) (31 | -226 | 801 | -802) (31 | -226 | 805 | -806) (31 | -226 | 809 | -810) (31 | -226 | 813 | -814) (31 | -226 | 817 | -818) (31 | -226 | 821 | -822) (31 | -226 | 825 | -826) (31 | -226 | 829 | -830) (31 | -226 | 833 | -834) (31 | -226 | 837 | -838) (31 | -226 | 841 | -842) (31 | -226 | 845 | -846) (31 | -226 | 849 | -850) (31 | -221 | 853 | -854) (31 | -226 | 858 | -859) (31 | -226 | 862 | -863) (31 | -226 | 866 | -867) (31 | -226 | 870 | -871) (31 | -226 | 874 | -875) (31 | -226 | 878 | -879) (31 | -226 | 882 | -883) (31 | -226 | 886 | -887) (31 | -226 | 890 | -891) (31 | -226 | 894 | -895) (31 | -226 | 898 | -899) (31 | -226 | 902 | -903) (31 | -226 | 906 | -907) (31 | -226 | 910 | -911) (31 | -226 | 914 | -915) (31 | -226 | 918 | -919) (31 | -226 | 922 | -923) (31 | -226 | 926 | -927) (31 | -226 | 930 | -931) (31 | -226 | 934 | -935) (31 | -226 | 938 | -939) (31 | -226 | 942 | -943) (31 | -226 | 946 | -947) (31 | -226 | 950 | -951) (31 | -226 | 954 | -955) (31 | -326 | 958 | -959) (31 | -226 | 963 | -964) (31 | -226 | 967 | -968) (31 | -226 | 971 | -972) (31 | -226 | 975 | -976) (31 | -226 | 979 | -980) (31 | -226 | 983 | -984) (31 | -226 | 987 | -988) (31 | -226 | 991 | -992) (31 | -226 | 995 | -996) (31 | -226 | 999 | -1000) (31 | -226 | 1003 | -1004) (31 | -226 | 1007 | -1008) (31 | -226 | 1011 | -1012) (31 | -226 | 1015 | -1016) (31 | -226 | 1019 | -1020) (31 | -226 | 1023 | -1024) (31 | -226 | 1027 | -1028) (31 | -226 | 1031 | -1032) (31 | -226 | 1035 | -1036) (31 | -226 | 1039 | -1040) (31 | -226 | 1043 | -1044) (31 | -226 | 1047 | -1048) (31 | -226 | 1051 | -1052) (31 | -226 | 1055 | -1056) (31 | -226 | 1059 | -1060)" universe="12" />
+  <cell fill="12" id="306" name="zone_iib" region="(7 | -8 | 9 | -10 | -11 | -12 | 13 | 14) (15 | -16 | 17 | -18 | -19 | -20 | 21 | 22) (23 | -24 | 25 | -26 | -27 | -28 | 29 | 30) -31 5 -6" universe="13" />
+  <cell id="307" material="1" name="annulus" region="31 -32 5 -6" universe="13" />
+  <cell id="308" material="1" name="lower_plenum" region="-5 33 -32" universe="13" />
+  <cell id="309" material="2" name="radial_reflector" region="32 -34 35 -36" universe="13" />
+  <cell id="310" material="2" name="bottom_axial_reflector" region="-32 -33 35" universe="13" />
+  <cell id="311" material="2" name="top_axial_reflector" region="-32 6 -36" universe="13" />
+  <cell id="312" material="3" name="radial_vessel_wall" region="34 -37 -39 38" universe="13" />
+  <cell id="313" material="3" name="bottom_vessel_wall" region="-34 -35 38" universe="13" />
+  <cell id="314" material="3" name="top_vessel_wall" region="-34 -39 36" universe="13" />
+  <lattice id="8">
+    <pitch>10.16 10.16</pitch>
+    <dimension>45 45</dimension>
+    <lower_left>-228.6 -228.6</lower_left>
+    <universes>
+3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 6 2 2 2 2 2 2 2 2 2 5 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
+3 3 3 3 3 3 3 3 3 3 3 3 3 6 2 2 2 2 1 1 1 1 1 1 1 1 1 2 2 2 2 5 3 3 3 3 3 3 3 3 3 3 3 3 3 
+3 3 3 3 3 3 3 3 3 3 3 6 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 5 3 3 3 3 3 3 3 3 3 3 3 
+3 3 3 3 3 3 3 3 3 3 6 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 5 3 3 3 3 3 3 3 3 3 3 
+3 3 3 3 3 3 3 3 3 6 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 5 3 3 3 3 3 3 3 3 3 
+3 3 3 3 3 3 3 3 6 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 5 3 3 3 3 3 3 3 3 
+3 3 3 3 3 3 3 6 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 5 3 3 3 3 3 3 3 
+3 3 3 3 3 3 6 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 5 3 3 3 3 3 3 
+3 3 3 3 3 6 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 5 3 3 3 3 3 
+3 3 3 3 6 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 5 3 3 3 3 
+3 3 3 6 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 5 3 3 3 
+3 3 6 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 5 3 3 
+3 3 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 3 3 
+3 6 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 5 3 
+3 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 3 
+3 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 3 
+3 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 3 
+6 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 5 
+2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 
+2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 
+2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 
+2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 3 3 3 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 
+2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 3 3 3 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 
+2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 3 3 3 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 
+2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 
+2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 
+2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 
+4 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 7 
+3 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 3 
+3 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 3 
+3 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 3 
+3 4 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 7 3 
+3 3 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 3 3 
+3 3 4 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 7 3 3 
+3 3 3 4 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 7 3 3 3 
+3 3 3 3 4 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 7 3 3 3 3 
+3 3 3 3 3 4 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 7 3 3 3 3 3 
+3 3 3 3 3 3 4 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 7 3 3 3 3 3 3 
+3 3 3 3 3 3 3 4 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 7 3 3 3 3 3 3 3 
+3 3 3 3 3 3 3 3 4 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 7 3 3 3 3 3 3 3 3 
+3 3 3 3 3 3 3 3 3 4 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 7 3 3 3 3 3 3 3 3 3 
+3 3 3 3 3 3 3 3 3 3 4 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 7 3 3 3 3 3 3 3 3 3 3 
+3 3 3 3 3 3 3 3 3 3 3 4 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 7 3 3 3 3 3 3 3 3 3 3 3 
+3 3 3 3 3 3 3 3 3 3 3 3 3 4 2 2 2 2 1 1 1 1 1 1 1 1 1 2 2 2 2 7 3 3 3 3 3 3 3 3 3 3 3 3 3 
+3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 4 2 2 2 2 2 2 2 2 2 7 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 </universes>
+  </lattice>
+  <lattice id="11">
+    <pitch>15.24 15.24</pitch>
+    <dimension>2 2</dimension>
+    <lower_left>-15.24 -15.24</lower_left>
+    <universes>
+9 10 
+10 9 </universes>
+  </lattice>
+  <surface coeffs="-15.24" id="1" name="minimum x" type="x-plane" />
+  <surface coeffs="15.24" id="2" name="maximum x" type="x-plane" />
+  <surface coeffs="-15.24" id="3" name="minimum y" type="y-plane" />
+  <surface coeffs="15.24" id="4" name="maximum y" type="y-plane" />
+  <surface coeffs="0.0" id="5" name="core_base" type="z-plane" />
+  <surface coeffs="449.58" id="6" name="core_top" type="z-plane" />
+  <surface coeffs="208.28" id="7" name="base_octader" type="y-plane" />
+  <surface coeffs="-208.28" id="8" name="base_octader" type="y-plane" />
+  <surface coeffs="208.28" id="9" name="base_octader" type="x-plane" />
+  <surface coeffs="-208.28" id="10" name="base_octader" type="x-plane" />
+  <surface coeffs="-101.60049752388795 -101.60049752388795 0.0 -32000.042151449205" id="11" name="base_octader" type="plane" />
+  <surface coeffs="-101.60049752388795 101.60049752388795 0.0 -32000.042151449205" id="12" name="base_octader" type="plane" />
+  <surface coeffs="-101.60049752388795 -101.60049752388795 0.0 32000.042151449205" id="13" name="base_octader" type="plane" />
+  <surface coeffs="-101.60049752388795 101.60049752388795 0.0 32000.042151449205" id="14" name="base_octader" type="plane" />
+  <surface coeffs="218.44" id="15" name="smaller_octader" type="y-plane" />
+  <surface coeffs="-218.44" id="16" name="smaller_octader" type="y-plane" />
+  <surface coeffs="218.44" id="17" name="smaller_octader" type="x-plane" />
+  <surface coeffs="-218.44" id="18" name="smaller_octader" type="x-plane" />
+  <surface coeffs="-132.0745509017268 -132.0745509017268 0.0 -40257.04280205358" id="19" name="smaller_octader" type="plane" />
+  <surface coeffs="-132.0745509017268 132.0745509017268 0.0 -40257.04280205358" id="20" name="smaller_octader" type="plane" />
+  <surface coeffs="-132.0745509017268 -132.0745509017268 0.0 40257.04280205358" id="21" name="smaller_octader" type="plane" />
+  <surface coeffs="-132.0745509017268 132.0745509017268 0.0 40257.04280205358" id="22" name="smaller_octader" type="plane" />
+  <surface coeffs="228.6" id="23" name="smallest_octader" type="y-plane" />
+  <surface coeffs="-228.6" id="24" name="smallest_octader" type="y-plane" />
+  <surface coeffs="228.6" id="25" name="smallest_octader" type="x-plane" />
+  <surface coeffs="-228.6" id="26" name="smallest_octader" type="x-plane" />
+  <surface coeffs="-182.88499530649074 -182.88499530649074 0.0 -50168.09834587242" id="27" name="smallest_octader" type="plane" />
+  <surface coeffs="-182.88499530649074 182.88499530649074 0.0 -50168.09834587242" id="28" name="smallest_octader" type="plane" />
+  <surface coeffs="-182.88499530649074 -182.88499530649074 0.0 50168.09834587242" id="29" name="smallest_octader" type="plane" />
+  <surface coeffs="-182.88499530649074 182.88499530649074 0.0 50168.09834587242" id="30" name="smallest_octader" type="plane" />
+  <surface coeffs="0.0 0.0 256.032" id="31" name="iib_boundary" type="z-cylinder" />
+  <surface coeffs="0.0 0.0 261.112" id="32" name="annulus_boundary" type="z-cylinder" />
+  <surface coeffs="-7.62" id="33" name="lower_plenum_boundary" type="z-plane" />
+  <surface coeffs="0.0 0.0 338.328" id="34" name="radial_reflector_boundary" type="z-cylinder" />
+  <surface coeffs="-76.2" id="35" name="bottom_axial_reflector_boundary" type="z-plane" />
+  <surface coeffs="525.78" id="36" name="top_axial_reflector_boundary" type="z-plane" />
+  <surface boundary="vacuum" coeffs="0.0 0.0 343.408" id="37" name="radial_vessel_wall" type="z-cylinder" />
+  <surface boundary="vacuum" coeffs="-81.28" id="38" name="bottom_vessel_wall" type="z-plane" />
+  <surface boundary="vacuum" coeffs="530.86" id="39" name="top_vessel_wall" type="z-plane" />
+  <surface coeffs="22.86" id="62" type="z-plane" />
+  <surface coeffs="419.1" id="63" type="z-plane" />
+  <surface coeffs="438.15" id="64" type="z-plane" />
+  <surface coeffs="445.135" id="65" type="z-plane" />
+  <surface coeffs="0.0 0.0 4.953" id="66" name="ib_gr_round_1" type="z-cylinder" />
+  <surface coeffs="0.0 0.0 1.71069" id="67" name="ib_fuel_hole" type="z-cylinder" />
+  <surface coeffs="0.0 0.0 450.81 0.1530626558253405" id="68" name="cone_i" type="z-cone" />
+  <surface coeffs="-4.953" id="75" name="minimum x" type="x-plane" />
+  <surface coeffs="4.953" id="76" name="maximum x" type="x-plane" />
+  <surface coeffs="-4.953" id="77" name="minimum y" type="y-plane" />
+  <surface coeffs="4.953" id="78" name="maximum y" type="y-plane" />
+  <surface coeffs="-4.493 -4.493 0.46" id="80" name="x min y min" type="z-cylinder" />
+  <surface coeffs="-4.493 4.493 0.46" id="81" name="x min y max" type="z-cylinder" />
+  <surface coeffs="4.493 -4.493 0.46" id="82" name="x max y min" type="z-cylinder" />
+  <surface coeffs="4.493 4.493 0.46" id="83" name="x max y max" type="z-cylinder" />
+  <surface coeffs="-4.493" id="84" name="min x" type="x-plane" />
+  <surface coeffs="4.493" id="85" name="max x" type="x-plane" />
+  <surface coeffs="-4.493" id="86" name="min y" type="y-plane" />
+  <surface coeffs="4.493" id="87" name="max y" type="y-plane" />
+  <surface coeffs="-4.28498 -5.62102 0.66802" id="88" name="rib_ul_tip" type="z-cylinder" />
+  <surface coeffs="4.28498 5.62102 0.66802" id="89" name="rib_br_tip" type="z-cylinder" />
+  <surface coeffs="-5.62102 4.28498 0.66802" id="90" name="rib_ru_tip" type="z-cylinder" />
+  <surface coeffs="5.62102 -4.28498 0.66802" id="91" name="rib_lb_tip" type="z-cylinder" />
+  <surface coeffs="-4.28498 4.53898 0.66802" id="92" name="rib_ul" type="z-cylinder" />
+  <surface coeffs="4.28498 -4.53898 0.66802" id="93" name="rib_br" type="z-cylinder" />
+  <surface coeffs="-4.53898 -4.28498 0.66802" id="94" name="rib_lb" type="z-cylinder" />
+  <surface coeffs="4.53898 4.28498 0.66802" id="95" name="rib_ru" type="z-cylinder" />
+  <surface coeffs="0.0 0.0 2.2225" id="96" name="gr_round_4" type="z-cylinder" />
+  <surface coeffs="434.34" id="97" type="z-plane" />
+  <surface coeffs="436.88" id="98" type="z-plane" />
+  <surface coeffs="439.42" id="99" type="z-plane" />
+  <surface coeffs="441.96" id="100" type="z-plane" />
+  <surface coeffs="0.0 0.0 3.302" id="101" name="iia_fuel_hole_main" type="z-cylinder" />
+  <surface coeffs="0.0 0.0 0.635" id="102" name="iia_fuel_hole_2" type="z-cylinder" />
+  <surface coeffs="0.0 0.0 3.65125" id="103" name="iia_gr_round_3" type="z-cylinder" />
+  <surface coeffs="0.0 0.0 445.92 0.31554145710059167" id="104" name="cone_ii" type="z-cone" />
+  <surface coeffs="1.0 1.0 0.0 0.0" id="126" type="plane" />
+  <surface coeffs="-1.0 1.0 0.0 0.0" id="127" type="plane" />
+  <surface coeffs="1.0 -1.0 0.0 0.0" id="128" type="plane" />
+  <surface coeffs="-1.0 -1.0 0.0 0.0" id="129" type="plane" />
+  <surface coeffs="-7.23646" id="130" name="minimum x" type="x-plane" />
+  <surface coeffs="7.23646" id="131" name="maximum x" type="x-plane" />
+  <surface coeffs="-7.23646" id="132" name="minimum y" type="y-plane" />
+  <surface coeffs="7.23646" id="133" name="maximum y" type="y-plane" />
+  <surface coeffs="-6.24646 -6.24646 0.99" id="135" name="x min y min" type="z-cylinder" />
+  <surface coeffs="-6.24646 6.24646 0.99" id="136" name="x min y max" type="z-cylinder" />
+  <surface coeffs="6.24646 -6.24646 0.99" id="137" name="x max y min" type="z-cylinder" />
+  <surface coeffs="6.24646 6.24646 0.99" id="138" name="x max y max" type="z-cylinder" />
+  <surface coeffs="-6.24646" id="139" name="min x" type="x-plane" />
+  <surface coeffs="6.24646" id="140" name="max x" type="x-plane" />
+  <surface coeffs="-6.24646" id="141" name="min y" type="y-plane" />
+  <surface coeffs="6.24646" id="142" name="max y" type="y-plane" />
+  <surface coeffs="-5.8801 -8.03646 0.8" id="143" name="rib_ul_tip" type="z-cylinder" />
+  <surface coeffs="5.8801 8.03646 0.8" id="144" name="rib_br_tip" type="z-cylinder" />
+  <surface coeffs="-8.03646 5.8801 0.8" id="145" name="rib_ru_tip" type="z-cylinder" />
+  <surface coeffs="8.03646 -5.8801 0.8" id="146" name="rib_lb_tip" type="z-cylinder" />
+  <surface coeffs="7.665" id="147" type="y-plane" />
+  <surface coeffs="5.345" id="148" type="y-plane" />
+  <surface coeffs="1.7320508075688772 1.0 0.0 -1.3596319535857537" id="149" type="plane" />
+  <surface coeffs="-1.7320508075688772 1.0 0.0 14.369631953585753" id="150" type="plane" />
+  <surface coeffs="1.7320508075688772 1.0 0.0 -5.999631953585754" id="151" type="plane" />
+  <surface coeffs="-1.7320508075688772 1.0 0.0 19.009631953585753" id="152" type="plane" />
+  <surface coeffs="-6.445903263805833 5.525 0.18" id="153" name="x min y min in" type="z-cylinder" />
+  <surface coeffs="-5.314296736194167 5.525 0.18" id="154" name="x min y max in" type="z-cylinder" />
+  <surface coeffs="-6.445903263805833 7.484999999999999 0.18" id="155" name="x max y min in" type="z-cylinder" />
+  <surface coeffs="-5.314296736194167 7.484999999999999 0.18" id="156" name="x max y max in" type="z-cylinder" />
+  <surface coeffs="-7.011706527611667 6.505 0.18" id="157" name="x min in" type="z-cylinder" />
+  <surface coeffs="-4.748493472388333 6.505 0.18" id="158" name="x max in" type="z-cylinder" />
+  <surface coeffs="-6.549826312259966 5.345 0.10392304845413264" id="159" name="x min y min out" type="z-cylinder" />
+  <surface coeffs="-5.2103736877400335 5.345 0.10392304845413264" id="160" name="x min y max out" type="z-cylinder" />
+  <surface coeffs="-6.549826312259966 7.665 0.10392304845413264" id="161" name="x max y min out" type="z-cylinder" />
+  <surface coeffs="-5.2103736877400335 7.665 0.10392304845413264" id="162" name="x max y max out" type="z-cylinder" />
+  <surface coeffs="-7.219552624519931 6.505 0.10392304845413264" id="163" name="x min out" type="z-cylinder" />
+  <surface coeffs="-4.540647375480068 6.505 0.10392304845413264" id="164" name="x max out" type="z-cylinder" />
+  <surface coeffs="-5.345" id="165" type="y-plane" />
+  <surface coeffs="-7.665" id="166" type="y-plane" />
+  <surface coeffs="1.7320508075688772 1.0 0.0 5.999631953585754" id="167" type="plane" />
+  <surface coeffs="-1.7320508075688772 1.0 0.0 -19.009631953585753" id="168" type="plane" />
+  <surface coeffs="1.7320508075688772 1.0 0.0 1.3596319535857537" id="169" type="plane" />
+  <surface coeffs="-1.7320508075688772 1.0 0.0 -14.369631953585753" id="170" type="plane" />
+  <surface coeffs="5.314296736194167 -7.484999999999999 0.18" id="171" name="x min y min in" type="z-cylinder" />
+  <surface coeffs="6.445903263805833 -7.484999999999999 0.18" id="172" name="x min y max in" type="z-cylinder" />
+  <surface coeffs="5.314296736194167 -5.525 0.18" id="173" name="x max y min in" type="z-cylinder" />
+  <surface coeffs="6.445903263805833 -5.525 0.18" id="174" name="x max y max in" type="z-cylinder" />
+  <surface coeffs="4.748493472388333 -6.505 0.18" id="175" name="x min in" type="z-cylinder" />
+  <surface coeffs="7.011706527611667 -6.505 0.18" id="176" name="x max in" type="z-cylinder" />
+  <surface coeffs="5.2103736877400335 -7.665 0.10392304845413264" id="177" name="x min y min out" type="z-cylinder" />
+  <surface coeffs="6.549826312259966 -7.665 0.10392304845413264" id="178" name="x min y max out" type="z-cylinder" />
+  <surface coeffs="5.2103736877400335 -5.345 0.10392304845413264" id="179" name="x max y min out" type="z-cylinder" />
+  <surface coeffs="6.549826312259966 -5.345 0.10392304845413264" id="180" name="x max y max out" type="z-cylinder" />
+  <surface coeffs="4.540647375480068 -6.505 0.10392304845413264" id="181" name="x min out" type="z-cylinder" />
+  <surface coeffs="7.219552624519931 -6.505 0.10392304845413264" id="182" name="x max out" type="z-cylinder" />
+  <surface coeffs="-5.345" id="183" type="x-plane" />
+  <surface coeffs="-7.665" id="184" type="x-plane" />
+  <surface coeffs="0.5773502691896257 1.0 0.0 -8.296310876558582" id="185" type="plane" />
+  <surface coeffs="-0.5773502691896257 1.0 0.0 -0.7849838744015525" id="186" type="plane" />
+  <surface coeffs="-0.5773502691896257 1.0 0.0 -3.463889123441416" id="187" type="plane" />
+  <surface coeffs="0.5773502691896257 1.0 0.0 -10.975216125598447" id="188" type="plane" />
+  <surface coeffs="-7.484999999999999 -6.445903263805833 0.18" id="189" name="x min y min in" type="z-cylinder" />
+  <surface coeffs="-7.484999999999999 -5.314296736194167 0.18" id="190" name="x min y max in" type="z-cylinder" />
+  <surface coeffs="-5.525 -6.445903263805833 0.18" id="191" name="x max y min in" type="z-cylinder" />
+  <surface coeffs="-5.525 -5.314296736194167 0.18" id="192" name="x max y max in" type="z-cylinder" />
+  <surface coeffs="-6.505 -7.011706527611667 0.18" id="193" name="y min in" type="z-cylinder" />
+  <surface coeffs="-6.505 -4.748493472388333 0.18" id="194" name="y max in" type="z-cylinder" />
+  <surface coeffs="-7.665 -6.549826312259966 0.10392304845413264" id="195" name="x min y min out" type="z-cylinder" />
+  <surface coeffs="-7.665 -5.2103736877400335 0.10392304845413264" id="196" name="x min y max out" type="z-cylinder" />
+  <surface coeffs="-5.345 -6.549826312259966 0.10392304845413264" id="197" name="x max y min out" type="z-cylinder" />
+  <surface coeffs="-5.345 -5.2103736877400335 0.10392304845413264" id="198" name="x max y max out" type="z-cylinder" />
+  <surface coeffs="-6.505 -7.219552624519931 0.10392304845413264" id="199" name="y min out" type="z-cylinder" />
+  <surface coeffs="-6.505 -4.540647375480068 0.10392304845413264" id="200" name="y max out" type="z-cylinder" />
+  <surface coeffs="7.665" id="201" type="x-plane" />
+  <surface coeffs="5.345" id="202" type="x-plane" />
+  <surface coeffs="0.5773502691896257 1.0 0.0 10.975216125598447" id="203" type="plane" />
+  <surface coeffs="-0.5773502691896257 1.0 0.0 3.463889123441416" id="204" type="plane" />
+  <surface coeffs="-0.5773502691896257 1.0 0.0 0.7849838744015525" id="205" type="plane" />
+  <surface coeffs="0.5773502691896257 1.0 0.0 8.296310876558582" id="206" type="plane" />
+  <surface coeffs="5.525 5.314296736194167 0.18" id="207" name="x min y min in" type="z-cylinder" />
+  <surface coeffs="5.525 6.445903263805833 0.18" id="208" name="x min y max in" type="z-cylinder" />
+  <surface coeffs="7.484999999999999 5.314296736194167 0.18" id="209" name="x max y min in" type="z-cylinder" />
+  <surface coeffs="7.484999999999999 6.445903263805833 0.18" id="210" name="x max y max in" type="z-cylinder" />
+  <surface coeffs="6.505 4.748493472388333 0.18" id="211" name="y min in" type="z-cylinder" />
+  <surface coeffs="6.505 7.011706527611667 0.18" id="212" name="y max in" type="z-cylinder" />
+  <surface coeffs="5.345 5.2103736877400335 0.10392304845413264" id="213" name="x min y min out" type="z-cylinder" />
+  <surface coeffs="5.345 6.549826312259966 0.10392304845413264" id="214" name="x min y max out" type="z-cylinder" />
+  <surface coeffs="7.665 5.2103736877400335 0.10392304845413264" id="215" name="x max y min out" type="z-cylinder" />
+  <surface coeffs="7.665 6.549826312259966 0.10392304845413264" id="216" name="x max y max out" type="z-cylinder" />
+  <surface coeffs="6.505 4.540647375480068 0.10392304845413264" id="217" name="y min out" type="z-cylinder" />
+  <surface coeffs="6.505 7.219552624519931 0.10392304845413264" id="218" name="y max out" type="z-cylinder" />
+  <surface coeffs="0.0 0.0 5.08" id="219" name="cr_fuel_hole" type="z-cylinder" />
+  <surface coeffs="0.0 0.0 4.7625" id="220" name="control_rod" type="z-cylinder" />
+  <surface coeffs="0.0 0.0 229.6" id="221" name="iib_large_element_0.0" type="z-cylinder" />
+  <surface coeffs="-0.8159550315872819 -26.41940274469556 0.0 0.0" id="223" name="iib_large_element_0.0" type="plane" />
+  <surface coeffs="0.8159550315872819 -26.41940274469556 0.0 0.0" id="224" name="iib_large_element_0.0" type="plane" />
+  <surface coeffs="242.679 0.0 3.0875" id="225" type="z-cylinder" />
+  <surface coeffs="0.0 0.0 207.28" id="226" name="iib_small_element_2.924" type="z-cylinder" />
+  <surface coeffs="2.078927273060591 -48.707654074008985 0.0 0.0" id="228" name="iib_small_element_2.924" type="plane" />
+  <surface coeffs="2.8947018583929136 -48.66598612122243 0.0 0.0" id="229" name="iib_small_element_2.924" type="plane" />
+  <surface coeffs="3.467820360602161 -48.628507338253684 -4.547473508864641e-13 -4.547473508864641e-13" id="232" name="iib_small_element_4.559" type="plane" />
+  <surface coeffs="4.2820739405185435 -48.56358045663367 0.0 0.0" id="233" name="iib_small_element_4.559" type="plane" />
+  <surface coeffs="4.853889755839305 -48.509764565890805 0.0 0.0" id="236" name="iib_small_element_6.194" type="plane" />
+  <surface coeffs="5.665959319765847 -48.4216316225172 -9.094947017729282e-13 -9.094947017729282e-13" id="237" name="iib_small_element_6.194" type="plane" />
+  <surface coeffs="6.236006843942608 -48.35152244389312 0.0 0.0" id="240" name="iib_small_element_7.829" type="plane" />
+  <surface coeffs="7.045231159652754 -48.240255201512525 -9.094947017729282e-13 -9.094947017729282e-13" id="241" name="iib_small_element_7.829" type="plane" />
+  <surface coeffs="7.613046228271031 -48.153909821801676 -9.094947017729282e-13 -9.094947017729282e-13" id="244" name="iib_small_element_9.464" type="plane" />
+  <surface coeffs="8.418766380297669 -48.01959888039431 0.0 0.0" id="245" name="iib_small_element_9.464" type="plane" />
+  <surface coeffs="8.983886646732536 -47.91708760680953 1.8189894035458565e-12 1.8189894035458565e-12" id="248" name="iib_small_element_11.099" type="plane" />
+  <surface coeffs="9.785446572893576 -47.75984232981767 0.0 0.0" id="249" name="iib_small_element_11.099" type="plane" />
+  <surface coeffs="10.34741188477799 -47.64124863274213 0.0 0.0" id="252" name="iib_small_element_12.734" type="plane" />
+  <surface coeffs="11.14415891037877 -47.46119705802016 0.0 0.0" id="253" name="iib_small_element_12.734" type="plane" />
+  <surface coeffs="11.702511684285241 -47.326617503041206 0.0 0.0" id="256" name="iib_small_element_14.369" type="plane" />
+  <surface coeffs="12.493797053562531 -47.123906238600284 -1.8189894035458565e-12 -1.8189894035458565e-12" id="257" name="iib_small_element_14.369" type="plane" />
+  <surface coeffs="13.04808264759302 -46.97345040788019 0.0 0.0" id="260" name="iib_small_element_16.004" type="plane" />
+  <surface coeffs="13.833262051968092 -46.74824451251169 -1.8189894035458565e-12 -1.8189894035458565e-12" id="261" name="iib_small_element_16.004" type="plane" />
+  <surface coeffs="14.38302913594871 -46.58203491555997 0.0 0.0" id="264" name="iib_small_element_17.639" type="plane" />
+  <surface coeffs="15.161463238659238 -46.33451776443545 0.0 0.0" id="265" name="iib_small_element_17.639" type="plane" />
+  <surface coeffs="15.706264161638416 -46.152689738354695 0.0 0.0" id="268" name="iib_small_element_19.274" type="plane" />
+  <surface coeffs="16.477319118322 -45.88306287371168 0.0 0.0" id="269" name="iib_small_element_19.274" type="plane" />
+  <surface coeffs="17.01671027307283 -45.68576447299856 0.0 0.0" id="272" name="iib_small_element_20.909" type="plane" />
+  <surface coeffs="17.77975824787839 -45.39424744003361 0.0 0.0" id="273" name="iib_small_element_20.909" type="plane" />
+  <surface coeffs="18.31330043210825 -45.181639316024615 0.0 0.0" id="276" name="iib_small_element_22.544" type="plane" />
+  <surface coeffs="19.067720108914912 -44.8684694841275 0.0 0.0" id="277" name="iib_small_element_22.544" type="plane" />
+  <surface coeffs="19.59497888288844 -44.64072475418777 0.0 0.0" id="280" name="iib_small_element_24.179" type="plane" />
+  <surface coeffs="20.34015597121568 -44.306157123661905 3.637978807091713e-12 3.637978807091713e-12" id="281" name="iib_small_element_24.179" type="plane" />
+  <surface coeffs="20.86070201149981 -44.06346123022345 -3.637978807091713e-12 -3.637978807091713e-12" id="284" name="iib_small_element_25.814" type="plane" />
+  <surface coeffs="21.596029746696928 -43.70776822465061 0.0 0.0" id="285" name="iib_small_element_25.814" type="plane" />
+  <surface coeffs="22.10943919573991 -43.45031878421469 0.0 0.0" id="288" name="iib_small_element_27.449" type="plane" />
+  <surface coeffs="22.834318833047604 -43.07379002863257 3.637978807091713e-12 3.637978807091713e-12" id="289" name="iib_small_element_27.449" type="plane" />
+  <surface coeffs="23.340173644307313 -42.80179667085929 0.0 0.0" id="292" name="iib_small_element_29.084" type="plane" />
+  <surface coeffs="24.054014946388975 -42.40473875593261 0.0 0.0" id="293" name="iib_small_element_29.084" type="plane" />
+  <surface coeffs="24.551903224729827 -42.118422952948976 0.0 0.0" id="296" name="iib_small_element_30.719" type="plane" />
+  <surface coeffs="25.25412494227561 -41.70115918532639 0.0 0.0" id="297" name="iib_small_element_30.719" type="plane" />
+  <surface coeffs="25.743641279356382 -41.40075407139119 0.0 0.0" id="300" name="iib_small_element_32.354" type="plane" />
+  <surface coeffs="26.433671624368742 -40.96362421045092 -3.637978807091713e-12 -3.637978807091713e-12" id="301" name="iib_small_element_32.354" type="plane" />
+  <surface coeffs="26.914417428748663 -40.649374392124 0.0 0.0" id="304" name="iib_small_element_33.989" type="plane" />
+  <surface coeffs="27.591694540123967 -40.19273437332291 -3.637978807091713e-12 -3.637978807091713e-12" id="305" name="iib_small_element_33.989" type="plane" />
+  <surface coeffs="28.063278361817993 -39.86489573029277 -3.637978807091713e-12 -3.637978807091713e-12" id="308" name="iib_small_element_35.624" type="plane" />
+  <surface coeffs="28.72725076284506 -39.38911737534386 0.0 0.0" id="309" name="iib_small_element_35.624" type="plane" />
+  <surface coeffs="29.189288612064345 -39.047956852076254 0.0 0.0" id="312" name="iib_small_element_37.259" type="plane" />
+  <surface coeffs="29.83941565946752 -38.553427566190805 0.0 0.0" id="313" name="iib_small_element_37.259" type="plane" />
+  <surface coeffs="30.2915313192851 -38.19922295456763 3.637978807091713e-12 3.637978807091713e-12" id="316" name="iib_small_element_38.894" type="plane" />
+  <surface coeffs="30.92728364344609 -37.68634541100832 3.637978807091713e-12 3.637978807091713e-12" id="317" name="iib_small_element_38.894" type="plane" />
+  <surface coeffs="31.36910897613376 -37.3193851241341 0.0 0.0" id="320" name="iib_small_element_40.529" type="plane" />
+  <surface coeffs="31.989968912133804 -36.78857693633594 0.0 0.0" id="321" name="iib_small_element_40.529" type="plane" />
+  <surface coeffs="32.42114415892033 -36.409159773695734 -3.637978807091713e-12 -3.637978807091713e-12" id="324" name="iib_small_element_42.164" type="plane" />
+  <surface coeffs="33.02660616805181 -35.86085315522206 0.0 0.0" id="325" name="iib_small_element_42.164" type="plane" />
+  <surface coeffs="0.0 0.0 223.6" id="326" name="iib_large_element_45.0" type="z-cylinder" />
+  <surface coeffs="22.214019993874018 -23.629895042334937 0.0 0.0" id="328" name="iib_large_element_45.0" type="plane" />
+  <surface coeffs="23.629895042334937 -22.214019993874018 0.0 0.0" id="329" name="iib_large_element_45.0" type="plane" />
+  <surface coeffs="171.6 171.6 3.0875" id="330" type="z-cylinder" />
+  <surface coeffs="35.911536063795126 -32.97148891904553 0.0 0.0" id="333" name="iib_small_element_47.924" type="plane" />
+  <surface coeffs="36.458912113029726 -32.36518548586386 -3.637978807091713e-12 -3.637978807091713e-12" id="334" name="iib_small_element_47.924" type="plane" />
+  <surface coeffs="36.83766659077753 -31.933428004940367 3.637978807091713e-12 3.637978807091713e-12" id="337" name="iib_small_element_49.559" type="plane" />
+  <surface coeffs="37.36752058046699 -31.311753538701282 -3.637978807091713e-12 -3.637978807091713e-12" id="338" name="iib_small_element_49.559" type="plane" />
+  <surface coeffs="37.7338018397902 -30.869365116818415 3.637978807091713e-12 3.637978807091713e-12" id="341" name="iib_small_element_51.194" type="plane" />
+  <surface coeffs="38.24570233333242 -30.23282581946532 0.0 0.0" id="342" name="iib_small_element_51.194" type="plane" />
+  <surface coeffs="38.59921212764789 -29.78016667389285 -3.637978807091713e-12 -3.637978807091713e-12" id="345" name="iib_small_element_52.829" type="plane" />
+  <surface coeffs="39.09274230717634 -29.129280851141885 0.0 0.0" id="346" name="iib_small_element_52.829" type="plane" />
+  <surface coeffs="39.43319278913859 -28.666719562144337 3.637978807091713e-12 3.637978807091713e-12" id="349" name="iib_small_element_54.464" type="plane" />
+  <surface coeffs="39.90795079491858 -28.002017201450982 0.0 0.0" id="350" name="iib_small_element_54.464" type="plane" />
+  <surface coeffs="40.23506475080072 -27.52993041216905 -3.637978807091713e-12 -3.637978807091713e-12" id="353" name="iib_small_element_56.099" type="plane" />
+  <surface coeffs="40.690664008446106 -26.851952751182694 0.0 0.0" id="354" name="iib_small_element_56.099" type="plane" />
+  <surface coeffs="41.00417508386309 -26.370724860949508 3.637978807091713e-12 3.637978807091713e-12" id="357" name="iib_small_element_57.734" type="plane" />
+  <surface coeffs="41.44024461910641 -25.680023946807793 0.0 0.0" id="358" name="iib_small_element_57.734" type="plane" />
+  <surface coeffs="41.73989753589527 -25.190046798149496 -3.637978807091713e-12 -3.637978807091713e-12" id="361" name="iib_small_element_59.369" type="plane" />
+  <surface coeffs="42.156082276655894 -24.487185037970733 0.0 0.0" id="362" name="iib_small_element_59.369" type="plane" />
+  <surface coeffs="42.44163304073763 -23.988857597546527 3.637978807091713e-12 3.637978807091713e-12" id="365" name="iib_small_element_61.004" type="plane" />
+  <surface coeffs="42.837594106241 -23.27440730048663 0.0 0.0" id="366" name="iib_small_element_61.004" type="plane" />
+  <surface coeffs="43.10881020629401 -22.768135334227964 0.0 0.0" id="369" name="iib_small_element_62.639" type="plane" />
+  <surface coeffs="43.48422518300734 -22.04267824547435 0.0 0.0" id="370" name="iib_small_element_62.639" type="plane" />
+  <surface coeffs="43.74088577979117 -21.528873988187627 0.0 0.0" id="373" name="iib_small_element_64.274" type="plane" />
+  <surface coeffs="44.09544898395046 -20.793000815270005 0.0 0.0" id="374" name="iib_small_element_64.274" type="plane" />
+  <surface coeffs="44.3373450901253 -20.272082634972136 0.0 0.0" id="377" name="iib_small_element_65.909" type="plane" />
+  <surface coeffs="44.67076781664011 -19.5263925667756 0.0 0.0" id="378" name="iib_small_element_65.909" type="plane" />
+  <surface coeffs="44.89770246693601 -18.99878462403548 -3.637978807091713e-12 -3.637978807091713e-12" id="381" name="iib_small_element_67.544" type="plane" />
+  <surface coeffs="45.209713224469056 -18.24388484290739 0.0 0.0" id="382" name="iib_small_element_67.544" type="plane" />
+  <surface coeffs="45.42150163606598 -17.71001674547074 0.0 0.0" id="385" name="iib_small_element_69.179" type="plane" />
+  <surface coeffs="45.711846368096644 -16.946521932819337 -3.637978807091713e-12 -3.637978807091713e-12" id="386" name="iib_small_element_69.179" type="plane" />
+  <surface coeffs="45.90831609108491 -16.406828385798164 -3.637978807091713e-12 -3.637978807091713e-12" id="389" name="iib_small_element_70.814" type="plane" />
+  <surface coeffs="46.17675838277617 -15.635360221584577 -1.8189894035458565e-12 -1.8189894035458565e-12" id="390" name="iib_small_element_70.814" type="plane" />
+  <surface coeffs="46.357749440574736 -15.090280673496082 0.0 0.0" id="393" name="iib_small_element_72.449" type="plane" />
+  <surface coeffs="46.6040707112752 -14.311467330027924 0.0 0.0" id="394" name="iib_small_element_72.449" type="plane" />
+  <surface coeffs="46.76943573089363 -13.761445614971159 -1.8189894035458565e-12 -1.8189894035458565e-12" id="397" name="iib_small_element_74.084" type="plane" />
+  <surface coeffs="46.993435412118174 -12.975921245409744 1.8189894035458565e-12 1.8189894035458565e-12" id="398" name="iib_small_element_74.084" type="plane" />
+  <surface coeffs="47.143039744155686 -12.421405221671016 1.8189894035458565e-12 1.8189894035458565e-12" id="401" name="iib_small_element_75.719" type="plane" />
+  <surface coeffs="47.3445354428994 -11.629809443668563 0.0 0.0" id="402" name="iib_small_element_75.719" type="plane" />
+  <surface coeffs="47.478257271184106 -11.07125062905046 0.0 0.0" id="405" name="iib_small_element_77.354" type="plane" />
+  <surface coeffs="47.65708491843685 -10.274228003937715 0.0 0.0" id="406" name="iib_small_element_77.354" type="plane" />
+  <surface coeffs="47.77481535921527 -9.712081208108096 0.0 0.0" id="409" name="iib_small_element_78.989" type="plane" />
+  <surface coeffs="47.93082934355573 -8.910280716056775 -1.8189894035458565e-12 -1.8189894035458565e-12" id="410" name="iib_small_element_78.989" type="plane" />
+  <surface coeffs="48.03247253415188 -8.345003670217444 0.0 0.0" id="413" name="iib_small_element_80.624" type="plane" />
+  <surface coeffs="48.16554582031267 -7.539078181804342 -9.094947017729282e-13 -9.094947017729282e-13" id="414" name="iib_small_element_80.624" type="plane" />
+  <surface coeffs="48.251018997184815 -6.971131165980875 1.8189894035458565e-12 1.8189894035458565e-12" id="417" name="iib_small_element_82.259" type="plane" />
+  <surface coeffs="48.36104322949146 -6.161736910584356 -9.094947017729282e-13 -9.094947017729282e-13" id="418" name="iib_small_element_82.259" type="plane" />
+  <surface coeffs="48.430276795622774 -5.591582378840435 -9.094947017729282e-13 -9.094947017729282e-13" id="421" name="iib_small_element_83.894" type="plane" />
+  <surface coeffs="48.51716238622308 -4.779378410302005 0.0 0.0" id="422" name="iib_small_element_83.894" type="plane" />
+  <surface coeffs="48.57009996779158 -4.207480614183609 0.0 0.0" id="425" name="iib_small_element_85.529" type="plane" />
+  <surface coeffs="48.63377616960284 -3.3931282741695235 -9.094947017729282e-13 -9.094947017729282e-13" id="426" name="iib_small_element_85.529" type="plane" />
+  <surface coeffs="48.670374661883926 -2.819952884685506 0.0 0.0" id="429" name="iib_small_element_87.164" type="plane" />
+  <surface coeffs="48.710789626199414 -2.0041152641856144 0.0 0.0" id="430" name="iib_small_element_87.164" type="plane" />
+  <surface coeffs="26.41940274469556 -0.8159550315872863 0.0 0.0" id="433" name="iib_large_element_90.0" type="plane" />
+  <surface coeffs="26.41940274469556 0.8159550315872837 2.2737367544323206e-13 2.2737367544323206e-13" id="434" name="iib_large_element_90.0" type="plane" />
+  <surface coeffs="0.0 242.679 3.0875" id="435" type="z-cylinder" />
+  <surface coeffs="48.707654074008985 2.078927273060591 0.0 0.0" id="438" name="iib_small_element_92.924" type="plane" />
+  <surface coeffs="48.66598612122243 2.8947018583929065 0.0 0.0" id="439" name="iib_small_element_92.924" type="plane" />
+  <surface coeffs="48.628507338253684 3.4678203606021487 -4.547473508864641e-13 -4.547473508864641e-13" id="442" name="iib_small_element_94.559" type="plane" />
+  <surface coeffs="48.56358045663367 4.282073940518547 0.0 0.0" id="443" name="iib_small_element_94.559" type="plane" />
+  <surface coeffs="48.509764565890805 4.853889755839305 0.0 0.0" id="446" name="iib_small_element_96.194" type="plane" />
+  <surface coeffs="48.4216316225172 5.66595931976585 -9.094947017729282e-13 -9.094947017729282e-13" id="447" name="iib_small_element_96.194" type="plane" />
+  <surface coeffs="48.35152244389312 6.236006843942604 0.0 0.0" id="450" name="iib_small_element_97.829" type="plane" />
+  <surface coeffs="48.240255201512525 7.045231159652747 -9.094947017729282e-13 -9.094947017729282e-13" id="451" name="iib_small_element_97.829" type="plane" />
+  <surface coeffs="48.153909821801676 7.613046228271017 -1.8189894035458565e-12 -1.8189894035458565e-12" id="454" name="iib_small_element_99.464" type="plane" />
+  <surface coeffs="48.01959888039431 8.418766380297669 0.0 0.0" id="455" name="iib_small_element_99.464" type="plane" />
+  <surface coeffs="47.91708760680953 8.983886646732536 1.8189894035458565e-12 1.8189894035458565e-12" id="458" name="iib_small_element_101.099" type="plane" />
+  <surface coeffs="47.75984232981767 9.78544657289357 0.0 0.0" id="459" name="iib_small_element_101.099" type="plane" />
+  <surface coeffs="47.64124863274213 10.34741188477799 0.0 0.0" id="462" name="iib_small_element_102.734" type="plane" />
+  <surface coeffs="47.46119705802016 11.144158910378763 0.0 0.0" id="463" name="iib_small_element_102.734" type="plane" />
+  <surface coeffs="47.326617503041206 11.702511684285241 -1.8189894035458565e-12 -1.8189894035458565e-12" id="466" name="iib_small_element_104.369" type="plane" />
+  <surface coeffs="47.123906238600284 12.493797053562538 -1.8189894035458565e-12 -1.8189894035458565e-12" id="467" name="iib_small_element_104.369" type="plane" />
+  <surface coeffs="46.97345040788019 13.04808264759302 0.0 0.0" id="470" name="iib_small_element_106.004" type="plane" />
+  <surface coeffs="46.74824451251169 13.833262051968084 -1.8189894035458565e-12 -1.8189894035458565e-12" id="471" name="iib_small_element_106.004" type="plane" />
+  <surface coeffs="46.58203491555997 14.38302913594871 0.0 0.0" id="474" name="iib_small_element_107.639" type="plane" />
+  <surface coeffs="46.33451776443545 15.161463238659238 0.0 0.0" id="475" name="iib_small_element_107.639" type="plane" />
+  <surface coeffs="46.152689738354695 15.706264161638416 0.0 0.0" id="478" name="iib_small_element_109.274" type="plane" />
+  <surface coeffs="45.88306287371168 16.477319118322 0.0 0.0" id="479" name="iib_small_element_109.274" type="plane" />
+  <surface coeffs="45.68576447299856 17.01671027307283 0.0 0.0" id="482" name="iib_small_element_110.909" type="plane" />
+  <surface coeffs="45.39424744003361 17.77975824787839 0.0 0.0" id="483" name="iib_small_element_110.909" type="plane" />
+  <surface coeffs="45.18163931602464 18.313300432108235 -3.637978807091713e-12 -3.637978807091713e-12" id="486" name="iib_small_element_112.544" type="plane" />
+  <surface coeffs="44.8684694841275 19.067720108914912 0.0 0.0" id="487" name="iib_small_element_112.544" type="plane" />
+  <surface coeffs="44.64072475418777 19.59497888288844 0.0 0.0" id="490" name="iib_small_element_114.179" type="plane" />
+  <surface coeffs="44.306157123661905 20.34015597121568 0.0 0.0" id="491" name="iib_small_element_114.179" type="plane" />
+  <surface coeffs="44.06346123022345 20.860702011499825 -3.637978807091713e-12 -3.637978807091713e-12" id="494" name="iib_small_element_115.814" type="plane" />
+  <surface coeffs="43.70776822465061 21.596029746696928 0.0 0.0" id="495" name="iib_small_element_115.814" type="plane" />
+  <surface coeffs="43.45031878421469 22.109439195739895 0.0 0.0" id="498" name="iib_small_element_117.449" type="plane" />
+  <surface coeffs="43.07379002863257 22.834318833047604 0.0 0.0" id="499" name="iib_small_element_117.449" type="plane" />
+  <surface coeffs="42.80179667085929 23.3401736443073 -3.637978807091713e-12 -3.637978807091713e-12" id="502" name="iib_small_element_119.084" type="plane" />
+  <surface coeffs="42.40473875593264 24.05401494638896 0.0 0.0" id="503" name="iib_small_element_119.084" type="plane" />
+  <surface coeffs="42.11842295294895 24.55190322472984 3.637978807091713e-12 3.637978807091713e-12" id="506" name="iib_small_element_120.719" type="plane" />
+  <surface coeffs="41.70115918532639 25.25412494227561 0.0 0.0" id="507" name="iib_small_element_120.719" type="plane" />
+  <surface coeffs="41.40075407139122 25.743641279356382 0.0 0.0" id="510" name="iib_small_element_122.354" type="plane" />
+  <surface coeffs="40.96362421045092 26.433671624368756 3.637978807091713e-12 3.637978807091713e-12" id="511" name="iib_small_element_122.354" type="plane" />
+  <surface coeffs="40.649374392124 26.91441742874865 -3.637978807091713e-12 -3.637978807091713e-12" id="514" name="iib_small_element_123.989" type="plane" />
+  <surface coeffs="40.19273437332291 27.591694540123967 0.0 0.0" id="515" name="iib_small_element_123.989" type="plane" />
+  <surface coeffs="39.86489573029277 28.063278361818007 -3.637978807091713e-12 -3.637978807091713e-12" id="518" name="iib_small_element_125.624" type="plane" />
+  <surface coeffs="39.38911737534386 28.72725076284506 -3.637978807091713e-12 -3.637978807091713e-12" id="519" name="iib_small_element_125.624" type="plane" />
+  <surface coeffs="39.047956852076254 29.18928861206433 0.0 0.0" id="522" name="iib_small_element_127.259" type="plane" />
+  <surface coeffs="38.553427566190805 29.83941565946752 0.0 0.0" id="523" name="iib_small_element_127.259" type="plane" />
+  <surface coeffs="38.19922295456766 30.29153131928507 -3.637978807091713e-12 -3.637978807091713e-12" id="526" name="iib_small_element_128.894" type="plane" />
+  <surface coeffs="37.68634541100832 30.92728364344609 3.637978807091713e-12 3.637978807091713e-12" id="527" name="iib_small_element_128.894" type="plane" />
+  <surface coeffs="37.3193851241341 31.369108976133788 3.637978807091713e-12 3.637978807091713e-12" id="530" name="iib_small_element_130.529" type="plane" />
+  <surface coeffs="36.78857693633597 31.989968912133804 0.0 0.0" id="531" name="iib_small_element_130.529" type="plane" />
+  <surface coeffs="36.409159773695734 32.42114415892033 0.0 0.0" id="534" name="iib_small_element_132.164" type="plane" />
+  <surface coeffs="35.86085315522206 33.02660616805184 3.637978807091713e-12 3.637978807091713e-12" id="535" name="iib_small_element_132.164" type="plane" />
+  <surface coeffs="23.629895042334937 22.21401999387399 0.0 0.0" id="538" name="iib_large_element_135.0" type="plane" />
+  <surface coeffs="22.214019993874018 23.629895042334937 0.0 0.0" id="539" name="iib_large_element_135.0" type="plane" />
+  <surface coeffs="-171.6 171.6 3.0875" id="540" type="z-cylinder" />
+  <surface coeffs="32.97148891904553 35.9115360637951 -3.637978807091713e-12 -3.637978807091713e-12" id="543" name="iib_small_element_137.924" type="plane" />
+  <surface coeffs="32.36518548586386 36.458912113029726 0.0 0.0" id="544" name="iib_small_element_137.924" type="plane" />
+  <surface coeffs="31.933428004940367 36.83766659077753 0.0 0.0" id="547" name="iib_small_element_139.559" type="plane" />
+  <surface coeffs="31.311753538701282 37.36752058046699 0.0 0.0" id="548" name="iib_small_element_139.559" type="plane" />
+  <surface coeffs="30.869365116818415 37.733801839790175 0.0 0.0" id="551" name="iib_small_element_141.194" type="plane" />
+  <surface coeffs="30.23282581946532 38.24570233333242 0.0 0.0" id="552" name="iib_small_element_141.194" type="plane" />
+  <surface coeffs="29.78016667389285 38.59921212764789 -3.637978807091713e-12 -3.637978807091713e-12" id="555" name="iib_small_element_142.829" type="plane" />
+  <surface coeffs="29.129280851141885 39.09274230717634 0.0 0.0" id="556" name="iib_small_element_142.829" type="plane" />
+  <surface coeffs="28.666719562144337 39.43319278913859 0.0 0.0" id="559" name="iib_small_element_144.464" type="plane" />
+  <surface coeffs="28.002017201450997 39.90795079491858 -3.637978807091713e-12 -3.637978807091713e-12" id="560" name="iib_small_element_144.464" type="plane" />
+  <surface coeffs="27.529930412169065 40.23506475080072 -3.637978807091713e-12 -3.637978807091713e-12" id="563" name="iib_small_element_146.099" type="plane" />
+  <surface coeffs="26.851952751182694 40.690664008446106 -3.637978807091713e-12 -3.637978807091713e-12" id="564" name="iib_small_element_146.099" type="plane" />
+  <surface coeffs="26.370724860949522 41.00417508386306 -3.637978807091713e-12 -3.637978807091713e-12" id="567" name="iib_small_element_147.734" type="plane" />
+  <surface coeffs="25.680023946807793 41.44024461910641 -3.637978807091713e-12 -3.637978807091713e-12" id="568" name="iib_small_element_147.734" type="plane" />
+  <surface coeffs="25.19004679814948 41.73989753589527 -3.637978807091713e-12 -3.637978807091713e-12" id="571" name="iib_small_element_149.369" type="plane" />
+  <surface coeffs="24.487185037970747 42.156082276655866 0.0 0.0" id="572" name="iib_small_element_149.369" type="plane" />
+  <surface coeffs="23.988857597546527 42.44163304073763 0.0 0.0" id="575" name="iib_small_element_151.004" type="plane" />
+  <surface coeffs="23.27440730048663 42.837594106241 3.637978807091713e-12 3.637978807091713e-12" id="576" name="iib_small_element_151.004" type="plane" />
+  <surface coeffs="22.768135334227978 43.10881020629401 0.0 0.0" id="579" name="iib_small_element_152.639" type="plane" />
+  <surface coeffs="22.04267824547435 43.48422518300737 3.637978807091713e-12 3.637978807091713e-12" id="580" name="iib_small_element_152.639" type="plane" />
+  <surface coeffs="21.528873988187613 43.74088577979117 0.0 0.0" id="583" name="iib_small_element_154.274" type="plane" />
+  <surface coeffs="20.79300081527002 44.09544898395046 0.0 0.0" id="584" name="iib_small_element_154.274" type="plane" />
+  <surface coeffs="20.272082634972122 44.337345090125325 0.0 0.0" id="587" name="iib_small_element_155.909" type="plane" />
+  <surface coeffs="19.526392566775584 44.67076781664011 0.0 0.0" id="588" name="iib_small_element_155.909" type="plane" />
+  <surface coeffs="18.99878462403548 44.89770246693601 0.0 0.0" id="591" name="iib_small_element_157.544" type="plane" />
+  <surface coeffs="18.24388484290739 45.209713224469056 0.0 0.0" id="592" name="iib_small_element_157.544" type="plane" />
+  <surface coeffs="17.710016745470725 45.42150163606598 0.0 0.0" id="595" name="iib_small_element_159.179" type="plane" />
+  <surface coeffs="16.94652193281935 45.711846368096644 0.0 0.0" id="596" name="iib_small_element_159.179" type="plane" />
+  <surface coeffs="16.40682838579815 45.90831609108491 3.637978807091713e-12 3.637978807091713e-12" id="599" name="iib_small_element_160.814" type="plane" />
+  <surface coeffs="15.635360221584563 46.17675838277617 0.0 0.0" id="600" name="iib_small_element_160.814" type="plane" />
+  <surface coeffs="15.090280673496096 46.357749440574736 -1.8189894035458565e-12 -1.8189894035458565e-12" id="603" name="iib_small_element_162.449" type="plane" />
+  <surface coeffs="14.311467330027924 46.6040707112752 -1.8189894035458565e-12 -1.8189894035458565e-12" id="604" name="iib_small_element_162.449" type="plane" />
+  <surface coeffs="13.761445614971151 46.76943573089363 -1.8189894035458565e-12 -1.8189894035458565e-12" id="607" name="iib_small_element_164.084" type="plane" />
+  <surface coeffs="12.975921245409737 46.993435412118174 1.8189894035458565e-12 1.8189894035458565e-12" id="608" name="iib_small_element_164.084" type="plane" />
+  <surface coeffs="12.421405221671009 47.143039744155686 0.0 0.0" id="611" name="iib_small_element_165.719" type="plane" />
+  <surface coeffs="11.629809443668556 47.3445354428994 0.0 0.0" id="612" name="iib_small_element_165.719" type="plane" />
+  <surface coeffs="11.071250629050468 47.478257271184106 -1.8189894035458565e-12 -1.8189894035458565e-12" id="615" name="iib_small_element_167.354" type="plane" />
+  <surface coeffs="10.274228003937715 47.65708491843685 1.8189894035458565e-12 1.8189894035458565e-12" id="616" name="iib_small_element_167.354" type="plane" />
+  <surface coeffs="9.71208120810811 47.77481535921527 0.0 0.0" id="619" name="iib_small_element_168.989" type="plane" />
+  <surface coeffs="8.910280716056768 47.93082934355573 0.0 0.0" id="620" name="iib_small_element_168.989" type="plane" />
+  <surface coeffs="8.345003670217437 48.03247253415188 0.0 0.0" id="623" name="iib_small_element_170.624" type="plane" />
+  <surface coeffs="7.539078181804328 48.16554582031267 9.094947017729282e-13 9.094947017729282e-13" id="624" name="iib_small_element_170.624" type="plane" />
+  <surface coeffs="6.971131165980879 48.251018997184815 1.8189894035458565e-12 1.8189894035458565e-12" id="627" name="iib_small_element_172.259" type="plane" />
+  <surface coeffs="6.161736910584359 48.36104322949146 -9.094947017729282e-13 -9.094947017729282e-13" id="628" name="iib_small_element_172.259" type="plane" />
+  <surface coeffs="5.5915823788404495 48.430276795622774 0.0 0.0" id="631" name="iib_small_element_173.894" type="plane" />
+  <surface coeffs="4.779378410301998 48.51716238622308 0.0 0.0" id="632" name="iib_small_element_173.894" type="plane" />
+  <surface coeffs="4.207480614183602 48.57009996779158 0.0 0.0" id="635" name="iib_small_element_175.529" type="plane" />
+  <surface coeffs="3.3931282741695377 48.63377616960284 -9.094947017729282e-13 -9.094947017729282e-13" id="636" name="iib_small_element_175.529" type="plane" />
+  <surface coeffs="2.8199528846855184 48.670374661883926 4.547473508864641e-13 4.547473508864641e-13" id="639" name="iib_small_element_177.164" type="plane" />
+  <surface coeffs="2.004115264185616 48.710789626199414 4.547473508864641e-13 4.547473508864641e-13" id="640" name="iib_small_element_177.164" type="plane" />
+  <surface coeffs="0.8159550315872881 26.41940274469556 0.0 0.0" id="643" name="iib_large_element_180.0" type="plane" />
+  <surface coeffs="-0.8159550315872819 26.41940274469556 0.0 0.0" id="644" name="iib_large_element_180.0" type="plane" />
+  <surface coeffs="-242.679 0.0 3.0875" id="645" type="z-cylinder" />
+  <surface coeffs="-2.078927273060577 48.707654074008985 -4.547473508864641e-13 -4.547473508864641e-13" id="648" name="iib_small_element_182.924" type="plane" />
+  <surface coeffs="-2.8947018583929136 48.66598612122243 0.0 0.0" id="649" name="iib_small_element_182.924" type="plane" />
+  <surface coeffs="-3.4678203606021683 48.628507338253684 -4.547473508864641e-13 -4.547473508864641e-13" id="652" name="iib_small_element_184.559" type="plane" />
+  <surface coeffs="-4.282073940518526 48.56358045663367 9.094947017729282e-13 9.094947017729282e-13" id="653" name="iib_small_element_184.559" type="plane" />
+  <surface coeffs="-4.85388975583929 48.509764565890805 0.0 0.0" id="656" name="iib_small_element_186.194" type="plane" />
+  <surface coeffs="-5.665959319765847 48.4216316225172 -9.094947017729282e-13 -9.094947017729282e-13" id="657" name="iib_small_element_186.194" type="plane" />
+  <surface coeffs="-6.236006843942594 48.35152244389312 9.094947017729282e-13 9.094947017729282e-13" id="660" name="iib_small_element_187.829" type="plane" />
+  <surface coeffs="-7.045231159652754 48.240255201512525 -9.094947017729282e-13 -9.094947017729282e-13" id="661" name="iib_small_element_187.829" type="plane" />
+  <surface coeffs="-7.613046228271038 48.153909821801676 -9.094947017729282e-13 -9.094947017729282e-13" id="664" name="iib_small_element_189.464" type="plane" />
+  <surface coeffs="-8.418766380297647 48.01959888039431 0.0 0.0" id="665" name="iib_small_element_189.464" type="plane" />
+  <surface coeffs="-8.983886646732543 47.91708760680953 0.0 0.0" id="668" name="iib_small_element_191.099" type="plane" />
+  <surface coeffs="-9.785446572893576 47.75984232981767 0.0 0.0" id="669" name="iib_small_element_191.099" type="plane" />
+  <surface coeffs="-10.347411884777976 47.64124863274213 0.0 0.0" id="672" name="iib_small_element_192.734" type="plane" />
+  <surface coeffs="-11.14415891037877 47.46119705802016 0.0 0.0" id="673" name="iib_small_element_192.734" type="plane" />
+  <surface coeffs="-11.702511684285248 47.326617503041206 -1.8189894035458565e-12 -1.8189894035458565e-12" id="676" name="iib_small_element_194.369" type="plane" />
+  <surface coeffs="-12.49379705356251 47.123906238600284 -1.8189894035458565e-12 -1.8189894035458565e-12" id="677" name="iib_small_element_194.369" type="plane" />
+  <surface coeffs="-13.048082647593034 46.97345040788019 1.8189894035458565e-12 1.8189894035458565e-12" id="680" name="iib_small_element_196.004" type="plane" />
+  <surface coeffs="-13.833262051968092 46.74824451251169 -1.8189894035458565e-12 -1.8189894035458565e-12" id="681" name="iib_small_element_196.004" type="plane" />
+  <surface coeffs="-14.383029135948696 46.58203491555997 0.0 0.0" id="684" name="iib_small_element_197.639" type="plane" />
+  <surface coeffs="-15.161463238659238 46.33451776443545 0.0 0.0" id="685" name="iib_small_element_197.639" type="plane" />
+  <surface coeffs="-15.706264161638416 46.152689738354695 -3.637978807091713e-12 -3.637978807091713e-12" id="688" name="iib_small_element_199.274" type="plane" />
+  <surface coeffs="-16.477319118321972 45.88306287371168 0.0 0.0" id="689" name="iib_small_element_199.274" type="plane" />
+  <surface coeffs="-17.016710273072846 45.68576447299856 0.0 0.0" id="692" name="iib_small_element_200.909" type="plane" />
+  <surface coeffs="-17.77975824787839 45.39424744003361 0.0 0.0" id="693" name="iib_small_element_200.909" type="plane" />
+  <surface coeffs="-18.313300432108235 45.18163931602464 -3.637978807091713e-12 -3.637978807091713e-12" id="696" name="iib_small_element_202.544" type="plane" />
+  <surface coeffs="-19.067720108914912 44.8684694841275 0.0 0.0" id="697" name="iib_small_element_202.544" type="plane" />
+  <surface coeffs="-19.594978882888455 44.64072475418777 3.637978807091713e-12 3.637978807091713e-12" id="700" name="iib_small_element_204.179" type="plane" />
+  <surface coeffs="-20.34015597121568 44.306157123661905 3.637978807091713e-12 3.637978807091713e-12" id="701" name="iib_small_element_204.179" type="plane" />
+  <surface coeffs="-20.860702011499825 44.06346123022345 0.0 0.0" id="704" name="iib_small_element_205.814" type="plane" />
+  <surface coeffs="-21.596029746696928 43.70776822465061 0.0 0.0" id="705" name="iib_small_element_205.814" type="plane" />
+  <surface coeffs="-22.109439195739895 43.45031878421469 0.0 0.0" id="708" name="iib_small_element_207.449" type="plane" />
+  <surface coeffs="-22.834318833047604 43.07379002863257 0.0 0.0" id="709" name="iib_small_element_207.449" type="plane" />
+  <surface coeffs="-23.340173644307328 42.80179667085929 0.0 0.0" id="712" name="iib_small_element_209.084" type="plane" />
+  <surface coeffs="-24.054014946388975 42.40473875593261 0.0 0.0" id="713" name="iib_small_element_209.084" type="plane" />
+  <surface coeffs="-24.551903224729827 42.11842295294895 0.0 0.0" id="716" name="iib_small_element_210.719" type="plane" />
+  <surface coeffs="-25.25412494227561 41.70115918532639 0.0 0.0" id="717" name="iib_small_element_210.719" type="plane" />
+  <surface coeffs="-25.743641279356368 41.40075407139122 -3.637978807091713e-12 -3.637978807091713e-12" id="720" name="iib_small_element_212.354" type="plane" />
+  <surface coeffs="-26.433671624368742 40.96362421045092 -3.637978807091713e-12 -3.637978807091713e-12" id="721" name="iib_small_element_212.354" type="plane" />
+  <surface coeffs="-26.91441742874865 40.649374392124 0.0 0.0" id="724" name="iib_small_element_213.989" type="plane" />
+  <surface coeffs="-27.591694540123967 40.19273437332291 -3.637978807091713e-12 -3.637978807091713e-12" id="725" name="iib_small_element_213.989" type="plane" />
+  <surface coeffs="-28.063278361818007 39.86489573029277 0.0 0.0" id="728" name="iib_small_element_215.624" type="plane" />
+  <surface coeffs="-28.72725076284506 39.38911737534386 0.0 0.0" id="729" name="iib_small_element_215.624" type="plane" />
+  <surface coeffs="-29.18928861206433 39.047956852076254 0.0 0.0" id="732" name="iib_small_element_217.259" type="plane" />
+  <surface coeffs="-29.83941565946752 38.553427566190805 0.0 0.0" id="733" name="iib_small_element_217.259" type="plane" />
+  <surface coeffs="-30.29153131928507 38.19922295456766 -3.637978807091713e-12 -3.637978807091713e-12" id="736" name="iib_small_element_218.894" type="plane" />
+  <surface coeffs="-30.92728364344609 37.68634541100832 3.637978807091713e-12 3.637978807091713e-12" id="737" name="iib_small_element_218.894" type="plane" />
+  <surface coeffs="-31.369108976133788 37.3193851241341 3.637978807091713e-12 3.637978807091713e-12" id="740" name="iib_small_element_220.529" type="plane" />
+  <surface coeffs="-31.989968912133804 36.78857693633597 0.0 0.0" id="741" name="iib_small_element_220.529" type="plane" />
+  <surface coeffs="-32.42114415892033 36.40915977369576 -7.275957614183426e-12 -7.275957614183426e-12" id="744" name="iib_small_element_222.164" type="plane" />
+  <surface coeffs="-33.02660616805184 35.86085315522206 3.637978807091713e-12 3.637978807091713e-12" id="745" name="iib_small_element_222.164" type="plane" />
+  <surface coeffs="-22.21401999387399 23.629895042334937 -3.637978807091713e-12 -3.637978807091713e-12" id="748" name="iib_large_element_225.0" type="plane" />
+  <surface coeffs="-23.629895042334937 22.214019993874018 0.0 0.0" id="749" name="iib_large_element_225.0" type="plane" />
+  <surface coeffs="-171.6 -171.6 3.0875" id="750" type="z-cylinder" />
+  <surface coeffs="-35.9115360637951 32.97148891904553 0.0 0.0" id="753" name="iib_small_element_227.924" type="plane" />
+  <surface coeffs="-36.4589121130297 32.36518548586386 -3.637978807091713e-12 -3.637978807091713e-12" id="754" name="iib_small_element_227.924" type="plane" />
+  <surface coeffs="-36.83766659077753 31.933428004940367 3.637978807091713e-12 3.637978807091713e-12" id="757" name="iib_small_element_229.559" type="plane" />
+  <surface coeffs="-37.36752058046699 31.311753538701282 -3.637978807091713e-12 -3.637978807091713e-12" id="758" name="iib_small_element_229.559" type="plane" />
+  <surface coeffs="-37.733801839790175 30.869365116818415 0.0 0.0" id="761" name="iib_small_element_231.194" type="plane" />
+  <surface coeffs="-38.24570233333242 30.23282581946529 0.0 0.0" id="762" name="iib_small_element_231.194" type="plane" />
+  <surface coeffs="-38.59921212764792 29.780166673892836 0.0 0.0" id="765" name="iib_small_element_232.829" type="plane" />
+  <surface coeffs="-39.09274230717634 29.129280851141885 0.0 0.0" id="766" name="iib_small_element_232.829" type="plane" />
+  <surface coeffs="-39.43319278913856 28.66671956214435 0.0 0.0" id="769" name="iib_small_element_234.464" type="plane" />
+  <surface coeffs="-39.90795079491858 28.002017201450997 0.0 0.0" id="770" name="iib_small_element_234.464" type="plane" />
+  <surface coeffs="-40.23506475080072 27.52993041216905 -3.637978807091713e-12 -3.637978807091713e-12" id="773" name="iib_small_element_236.099" type="plane" />
+  <surface coeffs="-40.690664008446106 26.851952751182694 0.0 0.0" id="774" name="iib_small_element_236.099" type="plane" />
+  <surface coeffs="-41.00417508386306 26.370724860949522 -3.637978807091713e-12 -3.637978807091713e-12" id="777" name="iib_small_element_237.734" type="plane" />
+  <surface coeffs="-41.44024461910641 25.680023946807808 0.0 0.0" id="778" name="iib_small_element_237.734" type="plane" />
+  <surface coeffs="-41.73989753589527 25.190046798149496 -3.637978807091713e-12 -3.637978807091713e-12" id="781" name="iib_small_element_239.369" type="plane" />
+  <surface coeffs="-42.156082276655894 24.487185037970733 0.0 0.0" id="782" name="iib_small_element_239.369" type="plane" />
+  <surface coeffs="-42.44163304073763 23.98885759754654 3.637978807091713e-12 3.637978807091713e-12" id="785" name="iib_small_element_241.004" type="plane" />
+  <surface coeffs="-42.837594106241 23.274407300486615 0.0 0.0" id="786" name="iib_small_element_241.004" type="plane" />
+  <surface coeffs="-43.10881020629401 22.768135334227964 0.0 0.0" id="789" name="iib_small_element_242.639" type="plane" />
+  <surface coeffs="-43.48422518300734 22.04267824547435 0.0 0.0" id="790" name="iib_small_element_242.639" type="plane" />
+  <surface coeffs="-43.74088577979117 21.52887398818764 0.0 0.0" id="793" name="iib_small_element_244.274" type="plane" />
+  <surface coeffs="-44.09544898395046 20.79300081527002 3.637978807091713e-12 3.637978807091713e-12" id="794" name="iib_small_element_244.274" type="plane" />
+  <surface coeffs="-44.337345090125325 20.272082634972136 0.0 0.0" id="797" name="iib_small_element_245.909" type="plane" />
+  <surface coeffs="-44.67076781664011 19.5263925667756 -3.637978807091713e-12 -3.637978807091713e-12" id="798" name="iib_small_element_245.909" type="plane" />
+  <surface coeffs="-44.89770246693601 18.99878462403548 0.0 0.0" id="801" name="iib_small_element_247.544" type="plane" />
+  <surface coeffs="-45.20971322446903 18.24388484290742 0.0 0.0" id="802" name="iib_small_element_247.544" type="plane" />
+  <surface coeffs="-45.42150163606598 17.710016745470725 0.0 0.0" id="805" name="iib_small_element_249.179" type="plane" />
+  <surface coeffs="-45.711846368096644 16.946521932819337 0.0 0.0" id="806" name="iib_small_element_249.179" type="plane" />
+  <surface coeffs="-45.90831609108491 16.40682838579818 0.0 0.0" id="809" name="iib_small_element_250.814" type="plane" />
+  <surface coeffs="-46.1767583827762 15.635360221584548 0.0 0.0" id="810" name="iib_small_element_250.814" type="plane" />
+  <surface coeffs="-46.357749440574764 15.090280673496082 0.0 0.0" id="813" name="iib_small_element_252.449" type="plane" />
+  <surface coeffs="-46.6040707112752 14.31146733002793 -3.637978807091713e-12 -3.637978807091713e-12" id="814" name="iib_small_element_252.449" type="plane" />
+  <surface coeffs="-46.76943573089363 13.76144561497113 0.0 0.0" id="817" name="iib_small_element_254.084" type="plane" />
+  <surface coeffs="-46.993435412118174 12.975921245409758 1.8189894035458565e-12 1.8189894035458565e-12" id="818" name="iib_small_element_254.084" type="plane" />
+  <surface coeffs="-47.143039744155686 12.421405221671009 1.8189894035458565e-12 1.8189894035458565e-12" id="821" name="iib_small_element_255.719" type="plane" />
+  <surface coeffs="-47.3445354428994 11.629809443668556 1.8189894035458565e-12 1.8189894035458565e-12" id="822" name="iib_small_element_255.719" type="plane" />
+  <surface coeffs="-47.478257271184106 11.071250629050425 -1.8189894035458565e-12 -1.8189894035458565e-12" id="825" name="iib_small_element_257.354" type="plane" />
+  <surface coeffs="-47.65708491843685 10.274228003937694 0.0 0.0" id="826" name="iib_small_element_257.354" type="plane" />
+  <surface coeffs="-47.77481535921527 9.712081208108089 0.0 0.0" id="829" name="iib_small_element_258.989" type="plane" />
+  <surface coeffs="-47.93082934355573 8.910280716056775 -1.8189894035458565e-12 -1.8189894035458565e-12" id="830" name="iib_small_element_258.989" type="plane" />
+  <surface coeffs="-48.03247253415188 8.345003670217459 0.0 0.0" id="833" name="iib_small_element_260.624" type="plane" />
+  <surface coeffs="-48.16554582031267 7.539078181804356 0.0 0.0" id="834" name="iib_small_element_260.624" type="plane" />
+  <surface coeffs="-48.251018997184815 6.971131165980861 9.094947017729282e-13 9.094947017729282e-13" id="837" name="iib_small_element_262.259" type="plane" />
+  <surface coeffs="-48.36104322949146 6.1617369105844055 -9.094947017729282e-13 -9.094947017729282e-13" id="838" name="iib_small_element_262.259" type="plane" />
+  <surface coeffs="-48.430276795622774 5.591582378840453 -9.094947017729282e-13 -9.094947017729282e-13" id="841" name="iib_small_element_263.894" type="plane" />
+  <surface coeffs="-48.51716238622308 4.779378410301977 9.094947017729282e-13 9.094947017729282e-13" id="842" name="iib_small_element_263.894" type="plane" />
+  <surface coeffs="-48.57009996779158 4.207480614183648 9.094947017729282e-13 9.094947017729282e-13" id="845" name="iib_small_element_265.529" type="plane" />
+  <surface coeffs="-48.63377616960284 3.393128274169518 0.0 0.0" id="846" name="iib_small_element_265.529" type="plane" />
+  <surface coeffs="-48.670374661883926 2.8199528846854793 0.0 0.0" id="849" name="iib_small_element_267.164" type="plane" />
+  <surface coeffs="-48.710789626199414 2.0041152641855984 0.0 0.0" id="850" name="iib_small_element_267.164" type="plane" />
+  <surface coeffs="-26.41940274469556 0.8159550315872899 0.0 0.0" id="853" name="iib_large_element_270.0" type="plane" />
+  <surface coeffs="-26.41940274469556 -0.8159550315872801 0.0 0.0" id="854" name="iib_large_element_270.0" type="plane" />
+  <surface coeffs="0.0 -242.697 3.0875" id="855" type="z-cylinder" />
+  <surface coeffs="-48.70765407400896 -2.078927273060618 4.547473508864641e-13 4.547473508864641e-13" id="858" name="iib_small_element_272.924" type="plane" />
+  <surface coeffs="-48.66598612122243 -2.8947018583928905 4.547473508864641e-13 4.547473508864641e-13" id="859" name="iib_small_element_272.924" type="plane" />
+  <surface coeffs="-48.628507338253684 -3.4678203606021647 -4.547473508864641e-13 -4.547473508864641e-13" id="862" name="iib_small_element_274.559" type="plane" />
+  <surface coeffs="-48.56358045663367 -4.2820739405185435 0.0 0.0" id="863" name="iib_small_element_274.559" type="plane" />
+  <surface coeffs="-48.509764565890805 -4.85388975583929 9.094947017729282e-13 9.094947017729282e-13" id="866" name="iib_small_element_276.194" type="plane" />
+  <surface coeffs="-48.4216316225172 -5.665959319765822 -9.094947017729282e-13 -9.094947017729282e-13" id="867" name="iib_small_element_276.194" type="plane" />
+  <surface coeffs="-48.35152244389312 -6.2360068439426115 0.0 0.0" id="870" name="iib_small_element_277.829" type="plane" />
+  <surface coeffs="-48.240255201512525 -7.045231159652751 -9.094947017729282e-13 -9.094947017729282e-13" id="871" name="iib_small_element_277.829" type="plane" />
+  <surface coeffs="-48.153909821801676 -7.613046228271017 0.0 0.0" id="874" name="iib_small_element_279.464" type="plane" />
+  <surface coeffs="-48.01959888039431 -8.418766380297683 0.0 0.0" id="875" name="iib_small_element_279.464" type="plane" />
+  <surface coeffs="-47.91708760680953 -8.983886646732536 0.0 0.0" id="878" name="iib_small_element_281.099" type="plane" />
+  <surface coeffs="-47.75984232981767 -9.785446572893576 1.8189894035458565e-12 1.8189894035458565e-12" id="879" name="iib_small_element_281.099" type="plane" />
+  <surface coeffs="-47.64124863274213 -10.347411884778019 0.0 0.0" id="882" name="iib_small_element_282.734" type="plane" />
+  <surface coeffs="-47.46119705802019 -11.14415891037875 0.0 0.0" id="883" name="iib_small_element_282.734" type="plane" />
+  <surface coeffs="-47.326617503041206 -11.702511684285248 0.0 0.0" id="886" name="iib_small_element_284.369" type="plane" />
+  <surface coeffs="-47.123906238600284 -12.493797053562531 -1.8189894035458565e-12 -1.8189894035458565e-12" id="887" name="iib_small_element_284.369" type="plane" />
+  <surface coeffs="-46.97345040788019 -13.048082647593006 1.8189894035458565e-12 1.8189894035458565e-12" id="890" name="iib_small_element_286.004" type="plane" />
+  <surface coeffs="-46.74824451251169 -13.83326205196807 -1.8189894035458565e-12 -1.8189894035458565e-12" id="891" name="iib_small_element_286.004" type="plane" />
+  <surface coeffs="-46.58203491555997 -14.38302913594871 0.0 0.0" id="894" name="iib_small_element_287.639" type="plane" />
+  <surface coeffs="-46.33451776443542 -15.161463238659266 -1.8189894035458565e-12 -1.8189894035458565e-12" id="895" name="iib_small_element_287.639" type="plane" />
+  <surface coeffs="-46.152689738354695 -15.706264161638401 0.0 0.0" id="898" name="iib_small_element_289.274" type="plane" />
+  <surface coeffs="-45.88306287371165 -16.477319118322015 0.0 0.0" id="899" name="iib_small_element_289.274" type="plane" />
+  <surface coeffs="-45.68576447299856 -17.016710273072803 0.0 0.0" id="902" name="iib_small_element_290.909" type="plane" />
+  <surface coeffs="-45.39424744003361 -17.77975824787839 0.0 0.0" id="903" name="iib_small_element_290.909" type="plane" />
+  <surface coeffs="-45.181639316024615 -18.313300432108278 0.0 0.0" id="906" name="iib_small_element_292.544" type="plane" />
+  <surface coeffs="-44.8684694841275 -19.067720108914884 0.0 0.0" id="907" name="iib_small_element_292.544" type="plane" />
+  <surface coeffs="-44.64072475418777 -19.594978882888455 3.637978807091713e-12 3.637978807091713e-12" id="910" name="iib_small_element_294.179" type="plane" />
+  <surface coeffs="-44.306157123661905 -20.340155971215665 0.0 0.0" id="911" name="iib_small_element_294.179" type="plane" />
+  <surface coeffs="-44.06346123022345 -20.860702011499797 -3.637978807091713e-12 -3.637978807091713e-12" id="914" name="iib_small_element_295.814" type="plane" />
+  <surface coeffs="-43.707768224650636 -21.596029746696914 0.0 0.0" id="915" name="iib_small_element_295.814" type="plane" />
+  <surface coeffs="-43.45031878421469 -22.10943919573991 -3.637978807091713e-12 -3.637978807091713e-12" id="918" name="iib_small_element_297.449" type="plane" />
+  <surface coeffs="-43.0737900286326 -22.83431883304756 -3.637978807091713e-12 -3.637978807091713e-12" id="919" name="iib_small_element_297.449" type="plane" />
+  <surface coeffs="-42.80179667085929 -23.3401736443073 0.0 0.0" id="922" name="iib_small_element_299.084" type="plane" />
+  <surface coeffs="-42.40473875593261 -24.05401494638899 -3.637978807091713e-12 -3.637978807091713e-12" id="923" name="iib_small_element_299.084" type="plane" />
+  <surface coeffs="-42.118422952948976 -24.5519032247298 3.637978807091713e-12 3.637978807091713e-12" id="926" name="iib_small_element_300.719" type="plane" />
+  <surface coeffs="-41.70115918532639 -25.254124942275595 -3.637978807091713e-12 -3.637978807091713e-12" id="927" name="iib_small_element_300.719" type="plane" />
+  <surface coeffs="-41.40075407139119 -25.74364127935641 0.0 0.0" id="930" name="iib_small_element_302.354" type="plane" />
+  <surface coeffs="-40.96362421045092 -26.433671624368756 -3.637978807091713e-12 -3.637978807091713e-12" id="931" name="iib_small_element_302.354" type="plane" />
+  <surface coeffs="-40.649374392124 -26.914417428748663 0.0 0.0" id="934" name="iib_small_element_303.989" type="plane" />
+  <surface coeffs="-40.19273437332291 -27.591694540123967 3.637978807091713e-12 3.637978807091713e-12" id="935" name="iib_small_element_303.989" type="plane" />
+  <surface coeffs="-39.86489573029277 -28.06327836181798 0.0 0.0" id="938" name="iib_small_element_305.624" type="plane" />
+  <surface coeffs="-39.38911737534386 -28.727250762845046 0.0 0.0" id="939" name="iib_small_element_305.624" type="plane" />
+  <surface coeffs="-39.047956852076254 -29.189288612064345 0.0 0.0" id="942" name="iib_small_element_307.259" type="plane" />
+  <surface coeffs="-38.553427566190834 -29.83941565946749 0.0 0.0" id="943" name="iib_small_element_307.259" type="plane" />
+  <surface coeffs="-38.19922295456766 -30.29153131928507 0.0 0.0" id="946" name="iib_small_element_308.894" type="plane" />
+  <surface coeffs="-37.68634541100832 -30.92728364344609 0.0 0.0" id="947" name="iib_small_element_308.894" type="plane" />
+  <surface coeffs="-37.31938512413413 -31.36910897613373 -3.637978807091713e-12 -3.637978807091713e-12" id="950" name="iib_small_element_310.529" type="plane" />
+  <surface coeffs="-36.78857693633594 -31.989968912133804 0.0 0.0" id="951" name="iib_small_element_310.529" type="plane" />
+  <surface coeffs="-36.409159773695734 -32.421144158920356 -3.637978807091713e-12 -3.637978807091713e-12" id="954" name="iib_small_element_312.164" type="plane" />
+  <surface coeffs="-35.86085315522203 -33.02660616805184 3.637978807091713e-12 3.637978807091713e-12" id="955" name="iib_small_element_312.164" type="plane" />
+  <surface coeffs="-23.629895042334937 -22.21401999387399 0.0 0.0" id="958" name="iib_large_element_315.0" type="plane" />
+  <surface coeffs="-22.214019993874018 -23.629895042334937 0.0 0.0" id="959" name="iib_large_element_315.0" type="plane" />
+  <surface coeffs="171.6 -171.6 3.0875" id="960" type="z-cylinder" />
+  <surface coeffs="-32.9714889190455 -35.911536063795126 -3.637978807091713e-12 -3.637978807091713e-12" id="963" name="iib_small_element_317.924" type="plane" />
+  <surface coeffs="-32.36518548586389 -36.4589121130297 -3.637978807091713e-12 -3.637978807091713e-12" id="964" name="iib_small_element_317.924" type="plane" />
+  <surface coeffs="-31.933428004940367 -36.83766659077753 3.637978807091713e-12 3.637978807091713e-12" id="967" name="iib_small_element_319.559" type="plane" />
+  <surface coeffs="-31.311753538701282 -37.36752058046699 0.0 0.0" id="968" name="iib_small_element_319.559" type="plane" />
+  <surface coeffs="-30.869365116818415 -37.733801839790175 3.637978807091713e-12 3.637978807091713e-12" id="971" name="iib_small_element_321.194" type="plane" />
+  <surface coeffs="-30.232825819465347 -38.24570233333239 -3.637978807091713e-12 -3.637978807091713e-12" id="972" name="iib_small_element_321.194" type="plane" />
+  <surface coeffs="-29.780166673892836 -38.59921212764789 -3.637978807091713e-12 -3.637978807091713e-12" id="975" name="iib_small_element_322.829" type="plane" />
+  <surface coeffs="-29.129280851141857 -39.092742307176366 0.0 0.0" id="976" name="iib_small_element_322.829" type="plane" />
+  <surface coeffs="-28.66671956214435 -39.43319278913856 0.0 0.0" id="979" name="iib_small_element_324.464" type="plane" />
+  <surface coeffs="-28.00201720145097 -39.90795079491858 -3.637978807091713e-12 -3.637978807091713e-12" id="980" name="iib_small_element_324.464" type="plane" />
+  <surface coeffs="-27.52993041216905 -40.23506475080072 -3.637978807091713e-12 -3.637978807091713e-12" id="983" name="iib_small_element_326.099" type="plane" />
+  <surface coeffs="-26.851952751182694 -40.690664008446106 0.0 0.0" id="984" name="iib_small_element_326.099" type="plane" />
+  <surface coeffs="-26.370724860949494 -41.00417508386309 -3.637978807091713e-12 -3.637978807091713e-12" id="987" name="iib_small_element_327.734" type="plane" />
+  <surface coeffs="-25.680023946807808 -41.44024461910638 -3.637978807091713e-12 -3.637978807091713e-12" id="988" name="iib_small_element_327.734" type="plane" />
+  <surface coeffs="-25.190046798149496 -41.73989753589527 -3.637978807091713e-12 -3.637978807091713e-12" id="991" name="iib_small_element_329.369" type="plane" />
+  <surface coeffs="-24.487185037970733 -42.156082276655894 0.0 0.0" id="992" name="iib_small_element_329.369" type="plane" />
+  <surface coeffs="-23.988857597546556 -42.44163304073763 3.637978807091713e-12 3.637978807091713e-12" id="995" name="iib_small_element_331.004" type="plane" />
+  <surface coeffs="-23.274407300486658 -42.83759410624097 0.0 0.0" id="996" name="iib_small_element_331.004" type="plane" />
+  <surface coeffs="-22.768135334227964 -43.10881020629401 0.0 0.0" id="999" name="iib_small_element_332.639" type="plane" />
+  <surface coeffs="-22.042678245474306 -43.48422518300737 3.637978807091713e-12 3.637978807091713e-12" id="1000" name="iib_small_element_332.639" type="plane" />
+  <surface coeffs="-21.52887398818764 -43.74088577979117 0.0 0.0" id="1003" name="iib_small_element_334.274" type="plane" />
+  <surface coeffs="-20.79300081526999 -44.09544898395049 0.0 0.0" id="1004" name="iib_small_element_334.274" type="plane" />
+  <surface coeffs="-20.27208263497218 -44.3373450901253 0.0 0.0" id="1007" name="iib_small_element_335.909" type="plane" />
+  <surface coeffs="-19.5263925667756 -44.67076781664011 0.0 0.0" id="1008" name="iib_small_element_335.909" type="plane" />
+  <surface coeffs="-18.998784624035437 -44.89770246693601 0.0 0.0" id="1011" name="iib_small_element_337.544" type="plane" />
+  <surface coeffs="-18.243884842907377 -45.209713224469056 0.0 0.0" id="1012" name="iib_small_element_337.544" type="plane" />
+  <surface coeffs="-17.71001674547074 -45.42150163606598 0.0 0.0" id="1015" name="iib_small_element_339.179" type="plane" />
+  <surface coeffs="-16.946521932819337 -45.711846368096644 0.0 0.0" id="1016" name="iib_small_element_339.179" type="plane" />
+  <surface coeffs="-16.40682838579818 -45.90831609108491 0.0 0.0" id="1019" name="iib_small_element_340.814" type="plane" />
+  <surface coeffs="-15.635360221584591 -46.17675838277617 0.0 0.0" id="1020" name="iib_small_element_340.814" type="plane" />
+  <surface coeffs="-15.090280673496082 -46.357749440574764 1.8189894035458565e-12 1.8189894035458565e-12" id="1023" name="iib_small_element_342.449" type="plane" />
+  <surface coeffs="-14.311467330027973 -46.6040707112752 -1.8189894035458565e-12 -1.8189894035458565e-12" id="1024" name="iib_small_element_342.449" type="plane" />
+  <surface coeffs="-13.76144561497118 -46.76943573089363 0.0 0.0" id="1027" name="iib_small_element_344.084" type="plane" />
+  <surface coeffs="-12.975921245409722 -46.993435412118174 1.8189894035458565e-12 1.8189894035458565e-12" id="1028" name="iib_small_element_344.084" type="plane" />
+  <surface coeffs="-12.421405221671058 -47.14303974415566 0.0 0.0" id="1031" name="iib_small_element_345.719" type="plane" />
+  <surface coeffs="-11.629809443668563 -47.3445354428994 0.0 0.0" id="1032" name="iib_small_element_345.719" type="plane" />
+  <surface coeffs="-11.071250629050432 -47.478257271184106 -1.8189894035458565e-12 -1.8189894035458565e-12" id="1035" name="iib_small_element_347.354" type="plane" />
+  <surface coeffs="-10.2742280039377 -47.65708491843685 0.0 0.0" id="1036" name="iib_small_element_347.354" type="plane" />
+  <surface coeffs="-9.712081208108089 -47.77481535921527 0.0 0.0" id="1039" name="iib_small_element_348.989" type="plane" />
+  <surface coeffs="-8.910280716056775 -47.93082934355573 -1.8189894035458565e-12 -1.8189894035458565e-12" id="1040" name="iib_small_element_348.989" type="plane" />
+  <surface coeffs="-8.345003670217466 -48.03247253415188 0.0 0.0" id="1043" name="iib_small_element_350.624" type="plane" />
+  <surface coeffs="-7.539078181804356 -48.16554582031267 9.094947017729282e-13 9.094947017729282e-13" id="1044" name="iib_small_element_350.624" type="plane" />
+  <surface coeffs="-6.971131165980864 -48.251018997184815 9.094947017729282e-13 9.094947017729282e-13" id="1047" name="iib_small_element_352.259" type="plane" />
+  <surface coeffs="-6.161736910584363 -48.36104322949146 0.0 0.0" id="1048" name="iib_small_element_352.259" type="plane" />
+  <surface coeffs="-5.591582378840457 -48.430276795622774 -9.094947017729282e-13 -9.094947017729282e-13" id="1051" name="iib_small_element_353.894" type="plane" />
+  <surface coeffs="-4.77937841030198 -48.51716238622308 0.0 0.0" id="1052" name="iib_small_element_353.894" type="plane" />
+  <surface coeffs="-4.207480614183652 -48.57009996779158 0.0 0.0" id="1055" name="iib_small_element_355.529" type="plane" />
+  <surface coeffs="-3.3931282741695217 -48.63377616960284 -9.094947017729282e-13 -9.094947017729282e-13" id="1056" name="iib_small_element_355.529" type="plane" />
+  <surface coeffs="-2.819952884685483 -48.670374661883926 0.0 0.0" id="1059" name="iib_small_element_357.164" type="plane" />
+  <surface coeffs="-2.0041152641856 -48.710789626199414 4.547473508864641e-13 4.547473508864641e-13" id="1060" name="iib_small_element_357.164" type="plane" />
+</geometry>

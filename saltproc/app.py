@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from copy import deepcopy
 
@@ -185,7 +186,8 @@ def read_main_input(main_inp_file):
                 traceback.print_exc()
 
         # Global input path
-        input_path = (Path.cwd() / Path(f.name).parents[0])
+        input_path = (Path.cwd() / Path(f.name).parents[0]).resolve()
+        os.chdir(input_path)
 
         # Saltproc settings
         process_file = str((input_path /

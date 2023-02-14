@@ -1,12 +1,17 @@
 """Test OpenMC file interface"""
 import json
-from os import remove
+import os
 from pathlib import Path
 
+import saltproc
 import numpy as np
 import pytest
 import openmc
 
+
+@pytest.fixture
+def setup(scope='module'):
+    os.chdir(Path(__file__).parents[2] / 'openmc_data')
 
 @pytest.fixture
 def geometry_switch(scope='module'):
@@ -14,7 +19,7 @@ def geometry_switch(scope='module'):
     return (path / 'openmc_data' / 'geometry_switch.xml')
 
 
-def test_write_runtime_input(openmc_depcode, openmc_reactor):
+def test_write_runtime_input(setup, openmc_depcode, openmc_reactor):
     initial_geometry_file = openmc_depcode.geo_file_paths[0]
 
     # compare settings, geometry, and material files
@@ -43,7 +48,7 @@ def test_write_runtime_input(openmc_depcode, openmc_reactor):
     openmc_depcode.geo_file_paths[0] = initial_geometry_file
 
 
-def test_update_depletable_materials(openmc_depcode, openmc_reactor):
+def test_update_depletable_materials(setup, openmc_depcode, openmc_reactor):
     initial_geometry_file = openmc_depcode.geo_file_paths[0]
     # write_runtime_input
     openmc_depcode.write_runtime_input(openmc_reactor,
@@ -53,27 +58,34 @@ def test_update_depletable_materials(openmc_depcode, openmc_reactor):
     old_output_path = openmc_depcode.output_path
 
     # switch output_path to where read_depleted_materials will pick up the correct database
-    openmc_depcode.output_path = Path(openmc_depcode.runtime_matfile).parents[1]
-    ref_materials = openmc_depcode.read_depleted_materials(True)
+    openmc_depcode.output_path = Path(__file__).parents[2] / 'openmc_data/saltproc_runtime_ref'
+
+    # Create dummy matfile to read depletion results
+    ref_mats = openmc_depcode.read_depleted_materials(True)
     openmc_depcode.output_path = old_output_path
 
-    openmc_depcode.update_depletable_materials(ref_materials, 12.0)
+    openmc_depcode.update_depletable_materials(ref_mats, 12.0)
     test_mats = openmc.Materials.from_xml(openmc_depcode.runtime_matfile)
 
     # compare material objects
     for material in test_mats:
         if material.name in ref_mats.keys():
             ref_material = ref_mats[material.name]
-            test_material = openmc_depcode._create_mass_percents_dictionary(material)
+            nucvec = openmc_depcode._create_mass_percents_dictionary(material, percent_type='wo')
+            test_material = saltproc.Materialflow(nucvec)
+            test_material.density = material.get_mass_density()
+            test_material.mass = material.density * material.volume
+            test_material.vol = material.volume
             for key in test_material.keys():
-                np.testing.assert_almost_equal(ref_material[key], test_material[key], decimal=5)
+                np.testing.assert_almost_equal(ref_material[key], test_material[key])
 
-    remove(openmc_depcode.runtime_matfile)
+    os.remove(openmc_depcode.runtime_matfile)
+    # add the initial geometry file back in
     openmc_depcode.geo_file_paths *= 2
     openmc_depcode.geo_file_paths[0] = initial_geometry_file
 
 
-def test_write_depletion_settings(openmc_depcode, openmc_reactor):
+def test_write_depletion_settings(setup, openmc_depcode, openmc_reactor):
     """
     Unit test for `Depcodeopenmc_depcode.write_depletion_settings`
     """
@@ -89,7 +101,7 @@ def test_write_depletion_settings(openmc_depcode, openmc_reactor):
         assert j['integrator_kwargs']['timestep_units'] == 'd'
 
 
-def test_write_saltproc_openmc_tallies(openmc_depcode):
+def test_write_saltproc_openmc_tallies(setup, openmc_depcode):
     """
     Unit test for `OpenMCDepcode.write_saltproc_openmc_tallies`
     """
@@ -112,21 +124,21 @@ def test_write_saltproc_openmc_tallies(openmc_depcode):
     tal5 = tallies[5]
     tal6 = tallies[6]
 
-    assert isinstace(tal0.filters[0], openmc.UniverseFilter)
-    assert isinstace(tal0.filters[1], openmc.DelayedGroupFilter)
+    assert isinstance(tal0.filters[0], openmc.UniverseFilter)
+    assert isinstance(tal0.filters[1], openmc.DelayedGroupFilter)
     assert tal0.scores[0] == 'delayed-nu-fission'
 
-    assert isinstace(tal1.filters[0], openmc.UniverseFilter)
-    assert isinstace(tal1.filters[1], openmc.DelayedGroupFilter)
+    assert isinstance(tal1.filters[0], openmc.UniverseFilter)
+    assert isinstance(tal1.filters[1], openmc.DelayedGroupFilter)
     assert tal1.scores[0] == 'decay-rate'
 
-    assert isinstace(tal2.filters[0], openmc.UniverseFilter)
-    assert isinstace(tal2.filters[1], openmc.EnergyFilter)
+    assert isinstance(tal2.filters[0], openmc.UniverseFilter)
+    assert isinstance(tal2.filters[1], openmc.EnergyFilter)
     assert tal2.scores[0] == 'nu-fission'
 
-    assert isinstace(tal3.filters[0], openmc.UniverseFilter)
-    assert isinstace(tal3.filters[1], openmc.DelayedGroupFilter)
-    assert isinstace(tal3.filters[1], openmc.EnergyFilter)
+    assert isinstance(tal3.filters[0], openmc.UniverseFilter)
+    assert isinstance(tal3.filters[1], openmc.DelayedGroupFilter)
+    assert isinstance(tal3.filters[2], openmc.EnergyFilter)
     assert tal3.scores[0] == 'delayed-nu-fission'
 
     assert tal4.name == 'breeding_ratio_tally'
@@ -136,14 +148,47 @@ def test_write_saltproc_openmc_tallies(openmc_depcode):
 
     assert tal5.name == 'fission_energy'
     assert isinstance(tal5.filters[0], openmc.UniverseFilter)
-    assert tal5.scores[2] == 'kappa-fission'
+    assert tal5.scores[0] == 'kappa-fission'
 
     assert tal6.name == 'heating'
     assert isinstance(tal6.filters[0], openmc.UniverseFilter)
     assert tal6.scores[0] == 'heating'
 
 
-def test_switch_to_next_geometry(openmc_depcode, openmc_reactor):
+def test_read_neutronics_parameters(setup, openmc_depcode):
+    mat = openmc.Materials.from_xml(
+        openmc_depcode.template_input_file_path['materials'])
+    geo = openmc.Geometry.from_xml(
+        openmc_depcode.geo_file_paths[0], mat)
+    openmc_depcode.write_saltproc_openmc_tallies(mat, geo)
+
+    old_output_path = openmc_depcode.output_path
+    openmc_depcode.output_path = Path(__file__).parents[2] / 'openmc_data/saltproc_runtime_ref'
+    openmc_depcode.read_neutronics_parameters()
+    np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['keff_bds'], [1.08350823, 0.00479646])
+    np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['keff_eds'], [1.05103269, 0.00466057])
+    np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['fission_mass_bds'], 72564.3093712)
+    np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['fission_mass_eds'], 72557.3124427)
+    np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['breeding_ratio'], [0.97204677, 0.00752009])
+    assert openmc_depcode.neutronics_parameters['power_level'] == 2250000000.0
+    assert openmc_depcode.neutronics_parameters['burn_days'] == 3.0
+    openmc_depcode.output_path = old_output_path
+
+
+def test_read_depleted_materials(setup, openmc_depcode):
+    old_output_path = openmc_depcode.output_path
+    openmc_depcode.output_path = Path(__file__).parents[2] / 'openmc_data/saltproc_runtime_ref'
+    xml_mats = openmc.Materials.from_xml(openmc_depcode.output_path / 'depleted_materials.xml')
+    xml_mats = dict([(mat.name, mat) for mat in xml_mats if mat.depletable])
+
+    ref_mats = openmc_depcode.read_depleted_materials(True)
+    for mat_name, ref_mat in ref_mats.items():
+        for nuc in xml_mats[mat_name].get_nuclides():
+            pyne_nuc = openmc_depcode._convert_nucname_to_pyne(nuc)
+            np.testing.assert_almost_equal(ref_mat[pyne_nuc], xml_mats[mat_name].get_mass(nuc))
+
+
+def test_switch_to_next_geometry(setup, openmc_depcode, openmc_reactor):
     initial_geometry_file = openmc_depcode.geo_file_paths[0]
     ref_geometry_file = openmc_depcode.geo_file_paths[1]
 

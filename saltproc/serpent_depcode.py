@@ -295,6 +295,32 @@ class SerpentDepcode(Depcode):
                     nuc_code_map.update({zzaaam: line[2]})
         return nuc_code_map
 
+    def resolve_include_paths(self, lines):
+        """Resolves relative paths in runtime inputfile into
+        absolut paths.
+
+        Parameters
+        ----------
+        lines : list of str
+            Serpent2 runtime input file.
+
+        Returns
+        -------
+            Serpent 2 runtime input file containing modified `include` paths
+
+        """
+        for idx, line in enumerate(lines):
+            if line.startswith('include'):
+                split_line = line.split(' ')
+                include_path = split_line[1].split('\"')[1]
+                include_path = \
+                    Path(self.template_input_file_path).parents[0] / include_path
+                include_path = include_path.resolve()
+                line = f'include \"{str(include_path)}\"\n'
+                lines[idx] = line
+
+        return lines
+
     def insert_path_to_geometry(self, lines):
         """Inserts ``include <first_geometry_file>`` line on the 6th line of
         Serpent2 input file.
@@ -551,6 +577,7 @@ i       Parameters
 
         if dep_step == 0 and not restart:
             lines = self.read_plaintext_file(self.template_input_file_path)
+            lines = self.resolve_include_paths(lines)
             lines = self.insert_path_to_geometry(lines)
             lines = self.create_runtime_matfile(lines)
             self.get_neutron_settings(lines)
