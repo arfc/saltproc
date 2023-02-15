@@ -12,17 +12,33 @@ from saltproc.app import (SECOND_UNITS, MINUTE_UNITS, HOUR_UNITS, DAY_UNITS,
                           YEAR_UNITS)
 from saltproc.app import get_feeds, get_extraction_process_paths
 
-with open(Path(__file__).parents[1] / 'openmc_data/depletion_settings.json') as f:
-    expected_depletion_settings = json.load(f)
-    expected_depletion_settings['operator_kwargs'].pop('chain_file')
-    expected_depletion_settings['integrator_kwargs'] = {}
-    expected_depletion_settings.pop('directory')
-    expected_depletion_settings.pop('timesteps')
+#with open(Path(__file__).parents[1] / 'openmc_data/depletion_settings.json') as f:
+#    expected_depletion_settings = json.load(f)
+#    expected_depletion_settings['operator_kwargs'].pop('chain_file')
+#    expected_depletion_settings['integrator_kwargs'] = {}
+#    expected_depletion_settings.pop('directory')
+#    expected_depletion_settings.pop('timesteps')
+
+@pytest.fixture
+def expected_depletion_settings(scope='module'):
+    with open(Path(__file__).parents[1] / 'openmc_data/depletion_settings.json') as f:
+        expected_depletion_settings = json.load(f)
+        #expected_depletion_settings['chain_file'] = \
+        #    Path(__file__).parents[1] / 'openmc_data' / expected_depletion_settings['chain_file']
+        expected_depletion_settings['operator_kwargs']['fission_q'] = \
+            str(Path(__file__).parents[1] / 'openmc_data' / expected_depletion_settings['operator_kwargs']['fission_q'])
+
+        expected_depletion_settings['operator_kwargs'].pop('chain_file')
+        expected_depletion_settings['integrator_kwargs'] = {}
+        expected_depletion_settings.pop('directory')
+        expected_depletion_settings.pop('timesteps')
+    return expected_depletion_settings
+
 
 @pytest.mark.parametrize("codename, ext, reactor_name", [
     ("serpent", ".ini", "tap"),
     ("openmc", ".xml", "msbr")])
-def test_read_main_input(cwd, codename, ext, reactor_name):
+def test_read_main_input(cwd, expected_depletion_settings, codename, ext, reactor_name):
     data_path = codename + '_data'
     data_path = cwd / data_path
     main_input = str(data_path / f'{reactor_name}_input.json')
@@ -106,7 +122,8 @@ def test_validate_depletion_timesteps_power_levels(n_depletion_steps,
     ([1.], DAY_UNITS),
     ([365.25], YEAR_UNITS)
 ])
-def test_scale_depletion_timesteps(expected_depletion_timesteps,
+def test_scale_depletion_timesteps(expected_depletion_settings,
+                                   expected_depletion_timesteps,
                                    timestep_units):
     expected_depletion_timesteps = np.array(expected_depletion_timesteps)
     base_timestep = np.array([1.])
@@ -138,7 +155,7 @@ def test_scale_depletion_timesteps(expected_depletion_timesteps,
     "constant_fission_yield",
     "cutoff_fission_yield",
     "flux_reaction_rate"])
-def test_openmc_depletion_settings(cwd, filename):
+def test_openmc_depletion_settings(cwd, expected_depletion_settings, filename):
     data_path = 'openmc_data'
     data_path = cwd / data_path
     main_input = str(data_path / f'{filename}_input.json')

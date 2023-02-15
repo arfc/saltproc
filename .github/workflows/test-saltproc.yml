@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 env:
-  CACHE_NUMBER: 0 #change to manually reset cache
+  CACHE_NUMBER: 6 #change to manually reset cache
 
 jobs:
   test-saltproc:
@@ -57,6 +57,7 @@ jobs:
           path: |
             /usr/share/miniconda3/envs/saltproc-env
             ~/openmc_src
+            ~/mcpl_src
             ~/endfb71_hdf5
             ~/.cache/pip
           key: depcache-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
@@ -94,7 +95,10 @@ jobs:
       - name: Install SaltProc
         run:  pip install .
 
-      - name: Test SaltProc
+      - name: Environment variables
         run: |
           echo "OPENMC_CROSS_SECTIONS=$HOME/endfb71_hdf5/cross_sections.xml" >> $GITHUB_ENV
-          pytest --ignore tests/integration_tests/run_no_reprocessing --ignore tests/integration_tests/run_constant_reprocessing tests/
+
+      - name: Test SaltProc
+        run: |
+          pytest --ignore tests/integration_tests/run_no_reprocessing_serpent --ignore tests/integration_tests/run_no_reprocessing_openmc --ignore tests/integration_tests/run_constant_reprocessing_serpent --ignore tests/integration_tests/run_constant_reprocessing_openmc tests/

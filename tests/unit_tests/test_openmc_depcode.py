@@ -15,9 +15,7 @@ def test_read_step_metadata(openmc_depcode):
     assert openmc_depcode.step_metadata['title'] == ''
     assert openmc_depcode.step_metadata['depcode_input_filename'] == ''
     assert openmc_depcode.step_metadata['depcode_working_dir'] == \
-        '/home/ooblack/projects/saltproc/tests/openmc_data/saltproc_runtime_ref'
-    assert openmc_depcode.step_metadata['xs_data_path'] == \
-        '/home/ooblack/projects/cross-section-libraries/endfb71_hdf5/cross_sections.xml'
+       str((Path(__file__).parents[1] / 'openmc_data/saltproc_runtime_ref').resolve())
     assert openmc_depcode.step_metadata['MPI_tasks'] == -1
     assert openmc_depcode.step_metadata['OMP_threads'] == -1
     assert openmc_depcode.step_metadata['memory_optimization_mode'] == -1

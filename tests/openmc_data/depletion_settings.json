@@ -1,6 +1,6 @@
 {
     "operator_kwargs": {
-        "fission_q": "/home/ooblack/projects/saltproc/tests/openmc_data/serpent_fissq.json",
+        "fission_q": "serpent_fissq.json",
         "diff_burnable_mats": false,
         "normalization_mode": "fission-q",
         "dilute_initial": 1000,
@@ -10,7 +10,7 @@
         "reaction_rate_opts": null,
         "reduce_chain": false,
         "reduce_chain_level": null,
-        "chain_file": "/home/ooblack/projects/saltproc/tests/openmc_data/chain_endfb71_pwr.xml"
+        "chain_file": "chain_endfb71_pwr.xml"
     },
     "method": "predictor",
     "final_step": true,
@@ -19,7 +19,7 @@
         "power": 2250000000,
         "timestep_units": "d"
     },
-    "directory": "/home/ooblack/projects/saltproc/tests/openmc_data/saltproc_runtime",
+    "directory": "saltproc_runtime",
     "timesteps": [
         3
     ]
