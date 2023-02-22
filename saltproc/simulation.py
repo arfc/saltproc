@@ -160,7 +160,7 @@ class Simulation():
                     earr.flavor = 'python'
                     earr.attrs.iso_map = iso_idx
 
-                earr, iso_wt_frac = self._add_missing_nuclides(db, earr, iso_idx, iso_wt_frac)
+                earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, iso_idx, iso_wt_frac)
 
                 earr.append(np.asarray([iso_wt_frac], dtype=np.float64))
                 del iso_wt_frac
@@ -169,37 +169,17 @@ class Simulation():
         self.store_mat_data(after_mats, dep_step, True)
         db.close()
 
-    def _add_missing_nuclides(self, db, earr, iso_idx, iso_wt_frac):
+    def _fix_nuclide_discrepancy(self, db, earr, iso_idx, iso_wt_frac):
+        """Fix discrepancies between nuclide keys present in stored results and
+        nuclides keys stored in results for the current depletion step """
         base_nucs= set(earr.attrs.iso_map.keys())
         step_nucs = set(iso_idx.keys())
         forward_difference = base_nucs.difference(step_nucs)
         backward_difference = step_nucs.difference(base_nucs)
 
         if len(backward_difference) > 0 or len(forward_difference) > 0:
-            combined_nucs = list(base_nucs.union(step_nucs))
-            # Sort the nucnames by ZAM
-            nuccodes = list(map(self.sim_depcode._convert_name_to_nuccode, combined_nucs))
-            combined_nucs = [nucname for nuccode, nucname in sorted(zip(nuccodes,combined_nucs))]
-
-            combined_values = np.arange(0, len(combined_nucs), 1).tolist()
-            combined_map = OrderedDict(zip(combined_nucs,combined_values))
-            combined_earr = np.zeros((len(earr), len(combined_map)))
-            combined_step_arr = np.zeros(len(combined_map))
-            earr_len = len(earr)
-            # not efficient, but can't come up with a better way right now
-            for nuc, idx in combined_map.items():
-                if nuc in base_nucs:
-                    for i in range(earr_len):
-                        combined_earr[i,idx] = earr[i][earr.attrs.iso_map[nuc]]
-                    if nuc in step_nucs:
-                        combined_step_arr[idx] = iso_wt_frac[iso_idx[nuc]]
-                    else:
-                        combined_step_arr[idx] = 0.0
-
-                elif nuc in step_nucs:
-                    for i in range(earr_len):
-                        combined_earr[i,idx] = 0.0
-                    combined_step_arr[idx] = iso_wt_frac[iso_idx[nuc]]
+            combined_nucs, combined_map, combined_earr, combined_step_arr = \
+                self._add_missing_nuclides(base_nucs, step_nucs, earr, iso_idx, iso_wt_frac)
 
             node_name = earr.name
             node_title = earr.title
@@ -221,6 +201,35 @@ class Simulation():
             combined_step_arr = iso_wt_frac
 
         return earr, combined_step_arr
+
+    def _add_missing_nuclides(self, base_nucs, step_nucs, earr, iso_idx, iso_wt_frac):
+        """Add missing nuclides to stored results and the results for the
+        current depletion step"""
+        combined_nucs = list(base_nucs.union(step_nucs))
+        # Sort the nucnames by ZAM
+        nuccodes = list(map(self.sim_depcode._convert_name_to_nuccode, combined_nucs))
+        combined_nucs = [nucname for nuccode, nucname in sorted(zip(nuccodes,combined_nucs))]
+
+        combined_values = np.arange(0, len(combined_nucs), 1).tolist()
+        combined_map = OrderedDict(zip(combined_nucs,combined_values))
+        combined_earr = np.zeros((len(earr), len(combined_map)))
+        combined_step_arr = np.zeros(len(combined_map))
+        earr_len = len(earr)
+        # not efficient, but can't come up with a better way right now
+        for nuc, idx in combined_map.items():
+            if nuc in base_nucs:
+                for i in range(earr_len):
+                    combined_earr[i,idx] = earr[i][earr.attrs.iso_map[nuc]]
+                if nuc in step_nucs:
+                    combined_step_arr[idx] = iso_wt_frac[iso_idx[nuc]]
+                else:
+                    combined_step_arr[idx] = 0.0
+
+            elif nuc in step_nucs:
+                for i in range(earr_len):
+                    combined_earr[i,idx] = 0.0
+                combined_step_arr[idx] = iso_wt_frac[iso_idx[nuc]]
+        return combined_nucs, combined_map, combined_earr, combined_step_arr
 
     def store_mat_data(self, mats, dep_step, store_at_end=False):
         """Initialize the HDF5/Pytables database (if it doesn't exist) or
@@ -339,7 +348,7 @@ class Simulation():
             print('Dumping Material %s data %s to %s.' %
                   (key, dep_step_str, os.path.abspath(self.db_path)))
 
-            earr, iso_wt_frac = self._add_missing_nuclides(db, earr, iso_idx[key], iso_wt_frac)
+            earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, iso_idx[key], iso_wt_frac)
 
             # Add row for the timestep to EArray and Material Parameters table
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
