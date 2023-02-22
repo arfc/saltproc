@@ -316,16 +316,13 @@ class OpenMCDepcode(Depcode):
         -------
             mass_dict : dict of int to float
         """
-        percents = []
+        percents = np.zeros(len(mat.nuclides))
         nucs = []
-        at_mass = []
-        for nuc, pt, tp in mat.nuclides:
+        at_mass = np.zeros(len(mat.nuclides))
+        for i, (nuc, pt, tp) in enumerate(mat.nuclides):
             nucs.append(nuc)
-            percents.append(pt)
-            at_mass.append(atomic_mass(nuc))
-
-        percents = np.array(percents)
-        at_mass = np.array(at_mass)
+            percents[i] = pt
+            at_mass[i] = atomic_mass(nuc)
 
         if percent_type == 'ao':
             mass_percents = percents*at_mass / np.dot(percents, at_mass)
@@ -616,11 +613,5 @@ class OpenMCDepcode(Depcode):
 
         self._fissile_nucs = set([nuc for nuc in _FISSILE_NUCLIDES if nuc in burnable_nucs])
         self._fertile_nucs = set([nuc for nuc in _FERTILE_NUCLIDES if nuc in burnable_nucs])
-        #fissile_nucs = [nuc for nuc in chain.nuclides if (nuc.yield_energies is not None and 0.0253 in nuc.yield_energies)]
-        #fertile_nucs = []
-        #for nuc in fissile_nucs:
-        #    for rx in nuc.reactions:
-        #        if rx.target
-        #self._fertile_nucs = [nuc.name for nuc in self._fissile_nucs if
 
         return list(self._fissile_nucs.union(self._fertile_nucs))

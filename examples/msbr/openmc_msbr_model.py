@@ -62,7 +62,7 @@ def parse_arguments():
     parser.add_argument('--volume',
                         type=bool,
                         default=False,
-                        help='flag for running stochasitc volume calculation')
+                        help='flag for running stochastic volume calculation')
 
 
     args = parser.parse_args()
