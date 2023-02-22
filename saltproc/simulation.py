@@ -69,8 +69,14 @@ class Simulation():
         restart_flag : bool
             Is the current simulation restarted?
 
+        Returns
+        -------
+        failed_step : int
+            The depletion step that the simulation failed on.
+
         """
         if not self.restart_flag:
+            failed_step = 0
             try:
                 os.remove(self.db_path)
                 os.remove(self.sim_depcode.runtime_matfile)
@@ -82,6 +88,15 @@ class Simulation():
                 print("Previous run output files were deleted.")
             except OSError as e:
                 pass
+        else:
+            db = tb.open_file(
+                self.db_path,
+                mode='r')
+            failed_step = len(db.root.simulation_parameters.col('keff_eds'))
+            db.close()
+        return failed_step
+
+
 
     def store_after_repr(self, after_mats, waste_dict, dep_step):
         """Add data for waste streams [grams per depletion step] of each

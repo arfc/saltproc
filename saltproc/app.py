@@ -46,10 +46,10 @@ def run():
     msr = _create_reactor_object(object_input[2])
 
     # Check: Restarting previous simulation or starting new?
-    simulation.check_restart()
+    failed_step = simulation.check_restart()
     # Run sequence
     # Start sequence
-    for step_idx in range(len(msr.depletion_timesteps)):
+    for step_idx in range(failed_step, len(msr.depletion_timesteps)):
         print("\n\n\nStep #%i has been started" % (step_idx + 1))
         simulation.sim_depcode.write_runtime_input(msr,
                                                    step_idx,
