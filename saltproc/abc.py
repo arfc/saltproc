@@ -111,7 +111,7 @@ class Depcode(ABC):
             Arguments for running simulations on supercomputers using
             ``mpiexec`` or similar programs.
         args : int
-            Threads to use for shared-memory parallelism
+            Arguments for running depletion step.
 
         """
 
