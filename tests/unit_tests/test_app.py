@@ -12,12 +12,6 @@ from saltproc.app import (SECOND_UNITS, MINUTE_UNITS, HOUR_UNITS, DAY_UNITS,
                           YEAR_UNITS)
 from saltproc.app import get_feeds, get_extraction_process_paths
 
-#with open(Path(__file__).parents[1] / 'openmc_data/depletion_settings.json') as f:
-#    expected_depletion_settings = json.load(f)
-#    expected_depletion_settings['operator_kwargs'].pop('chain_file')
-#    expected_depletion_settings['integrator_kwargs'] = {}
-#    expected_depletion_settings.pop('directory')
-#    expected_depletion_settings.pop('timesteps')
 
 @pytest.fixture
 def expected_depletion_settings(scope='module'):
