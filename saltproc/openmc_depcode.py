@@ -409,6 +409,7 @@ class OpenMCDepcode(Depcode):
         """Switches the geometry file for the OpenMC depletion simulation to
         the next geometry file in `geo_file_paths`.
         """
+        openmc.reset_auto_ids()
         mats = openmc.Materials.from_xml(self.runtime_matfile)
         next_geometry = openmc.Geometry.from_xml(
             path=self.geo_file_paths.pop(0),
@@ -443,6 +444,7 @@ class OpenMCDepcode(Depcode):
             self.active_cycles = settings.batches - self.inactive_cycles
 
         else:
+            openmc.reset_auto_ids()
             materials = openmc.Materials.from_xml(self.runtime_matfile)
             geometry = openmc.Geometry.from_xml(
                 self.runtime_inputfile['geometry'], materials=materials)
@@ -519,6 +521,7 @@ class OpenMCDepcode(Depcode):
             Current time at the end of the depletion step (d).
 
         """
+        openmc.reset_auto_ids()
         runtime_materials = openmc.Materials.from_xml(self.runtime_matfile)
 
         for material in runtime_materials:

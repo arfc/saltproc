@@ -195,6 +195,7 @@ class Simulation():
             # Save isotope indexes map and units in EArray attributes
             earr.flavor = 'python'
             earr.attrs.iso_map = combined_map
+            earr_len = len(earr)
             for i in range(earr_len):
                 earr.append(np.array([combined_earr[i]]))
         else:
