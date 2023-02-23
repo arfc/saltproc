@@ -117,6 +117,7 @@ class OpenMCDepcode(Depcode):
 
         """
 
+        openmc.reset_auto_ids()
         materials = openmc.Materials.from_xml(filename)
 
         material_id_to_name = {}
@@ -154,6 +155,7 @@ class OpenMCDepcode(Depcode):
         try:
             xs_path = os.environ['OPENMC_CROSS_SECTIONS']
         except KeyError:
+            openmc.reset_auto_ids()
             xs_path = openmc.Materials.from_xml(self.runtime_matfile).cross_sections
         return xs_path
 
@@ -433,6 +435,7 @@ class OpenMCDepcode(Depcode):
 
         if depletion_step == 0 and not restart:
             geo_file = self.geo_file_paths.pop(0)
+            openmc.reset_auto_ids()
             materials = openmc.Materials.from_xml(
                 self.template_input_file_path['materials'])
             geometry = openmc.Geometry.from_xml(
