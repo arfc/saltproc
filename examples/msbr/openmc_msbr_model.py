@@ -466,7 +466,7 @@ settings.temperature = {'default': 900,
 
 ll, ur = geo.root_universe.bounding_box
 if volume:
-    msbr_volume_calc = openmc.VolumeCalculation([fuel, moder], 1000000000, ll, ur)
+    msbr_volume_calc = openmc.VolumeCalculation([fuel, moder], int(1e10), ll, ur)
     #msbr_volume_calc.set_trigger(1e-03, 'rel_err')
     settings.volume_calculations = [msbr_volume_calc]
     settings.run_mode = 'volume'

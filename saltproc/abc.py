@@ -239,7 +239,8 @@ class Depcode(ABC):
         output_paths = list(map(file_path, self._OUTPUTFILE_NAMES))
         input_paths = list(map(file_path, self._INPUTFILE_NAMES))
         for file_path, fname in zip(output_paths, self._OUTPUTFILE_NAMES):
-            file_path.rename(step_results_dir / fname)
+            file_path.rename(step_results_dir / name)
+            
         for file_path, fname in zip(input_paths, self._INPUTFILE_NAMES):
             lines = self.read_plaintext_file(file_path)
             with open(step_results_dir / fname, 'w') as out_file:
