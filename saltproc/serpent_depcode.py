@@ -296,8 +296,8 @@ class SerpentDepcode(Depcode):
         return nuc_code_map
 
     def resolve_include_paths(self, lines):
-        """Resolves relative paths in runtime inputfile into
-        absolut paths.
+        """Resolves relative paths in runtime input file into
+        absolute paths.
 
         Parameters
         ----------
@@ -306,7 +306,8 @@ class SerpentDepcode(Depcode):
 
         Returns
         -------
-            Serpent 2 runtime input file containing modified `include` paths
+            lines : list of str
+                Serpent 2 runtime input file containing modified `include` paths
 
         """
         for idx, line in enumerate(lines):
