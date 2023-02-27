@@ -20,6 +20,10 @@ from openmc.data import atomic_mass, DataLibrary, JOULE_PER_EV
 
 _FISSILE_NUCLIDES = ['U233', 'U235', 'Pu239', 'Pu241']
 _FERTILE_NUCLIDES = ['Th232', 'U234', 'U238', 'Pu238', 'Pu240']
+_KG_PER_G = 1e-3
+_MW_PER_W = 1e-6
+_DELAYED_ENERGY_BOUNDS = (0,20e7) # eV
+_N_DELAYED_GROUPS = 6
 
 class OpenMCDepcode(Depcode):
     """Interface for running depletion steps in OpenMC, as well as obtaining
@@ -230,8 +234,8 @@ class OpenMCDepcode(Depcode):
                 final_fission_mass += final_mat.fissionable_mass
 
         # Convert g to kg
-        init_fission_mass *= 1e-3
-        final_fission_mass *= 1e-3
+        init_fission_mass *= _KG_PER_G
+        final_fission_mass *= _KG_PER_G
 
         del init_mat, final_mat, init_mats, final_mats
         return init_fission_mass, final_fission_mass
@@ -268,7 +272,6 @@ class OpenMCDepcode(Depcode):
         results_file = Path(self.output_path / 'depletion_results.h5')
         depleted_materials = {}
         results = Results(results_file)
-        #self.days = results['DAYS'][moment]
         depleted_openmc_materials = results.export_to_materials(moment)
         if read_at_end:
             starting_openmc_materials = results.export_to_materials(0)
@@ -291,9 +294,8 @@ class OpenMCDepcode(Depcode):
 
                 if read_at_end:
                     sp0 = openmc.StatePoint(self.output_path / 'openmc_simulation_n0.h5')
-                    heavy_metal_mass = starting_material.fissionable_mass * 1e-3
-                    #power = self._get_power_from_tallies(sp0, results[1].source_rate) * 1e-6
-                    power = results[1].source_rate * 1e-6
+                    heavy_metal_mass = starting_material.fissionable_mass * _KG_PER_G
+                    power = results[1].source_rate * _MW_PER_W
                     days = results[1].time[1] / _SECONDS_PER_DAY
                     burnup = power * days / heavy_metal_mass
                 else:
@@ -312,7 +314,7 @@ class OpenMCDepcode(Depcode):
         mat : openmc.Material
             A material
         percent_type : str
-            Percent type of material
+            Percent type of material,
 
         Returns
         -------
@@ -328,8 +330,10 @@ class OpenMCDepcode(Depcode):
 
         if percent_type == 'ao':
             mass_percents = percents*at_mass / np.dot(percents, at_mass)
-        else:
+        elif percent_type == 'wo':
             mass_percents = percents
+        else:
+            raise ValueError(f'{percent_type} is not a valid percent type')
         pyne_nucs = list(map(self._convert_nucname_to_pyne, nucs))
 
         return dict(zip(pyne_nucs, mass_percents))
@@ -353,12 +357,11 @@ class OpenMCDepcode(Depcode):
             nucname += 'M'
         return nucname
 
-    def _get_power_from_tallies(self, sp, P):
-        # CLEANUP: import constants from openmc
+    def _get_power_from_tallies(self, sp, power):
         fission_energy = sp.get_tally(name='fission_energy').mean.flatten()[0] # eV / src
         heating = sp.get_tally(name='heating').mean.flatten()[0] # eV / src
         Hp = JOULE_PER_EV * heating # J / src
-        f = P / Hp # src / s
+        f = power / Hp # src / s
         power = fission_energy * f * JOULE_PER_EV # J / s
         return power
 
@@ -463,7 +466,7 @@ class OpenMCDepcode(Depcode):
         geometry.export_to_xml(self.runtime_inputfile['geometry'])
         settings.export_to_xml(self.runtime_inputfile['settings'])
         self.write_depletion_settings(reactor, depletion_step)
-        self.write_saltproc_openmc_tallies(materials, geometry)
+        self.write_saltproc_openmc_tallies(materials, geometry, _ENERGY_BOUNDS, _N_DELAYED_GROUPS)
         del materials, geometry, settings
 
     def write_depletion_settings(self, reactor, step_idx):
@@ -549,7 +552,7 @@ class OpenMCDepcode(Depcode):
         del material
 
 
-    def write_saltproc_openmc_tallies(self, materials, geometry):
+    def write_saltproc_openmc_tallies(self, materials, geometry, energy_bounds, n_delayed_groups):
         """
         Write tallies for calculating burnup and delayed neutron
         parameters.
@@ -560,12 +563,18 @@ class OpenMCDepcode(Depcode):
             The materials for the depletion simulation
         geometry : `openmc.Geometry` object
             The geometry for the depletion simulation
+        energy_bounds : iterable of float
+            Energy group boundaries for calculating :math:`\beta`, the delayed
+            neutron fraction, and :math:`lambda`, the decay rate for delayed
+            neutron precursors.
+        n_delayed_groups : int
+            Number of delayed groups for calculating :math:`\beta`, the delayed
+            neutron fraction, and :math:`lambda`, the decay rate for delayed
+            neutron precursors.
 
         """
 
         ff_nuclides = self._get_fissile_fertile_nuclides()
-        energy_bounds=(0,20e7)
-        n_delayed_groups=6
         energy_groups = EnergyGroups(energy_bounds)
         delayed_groups = np.arange(1, n_delayed_groups + 1, 1).tolist()
 
