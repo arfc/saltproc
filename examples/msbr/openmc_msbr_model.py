@@ -63,10 +63,15 @@ def parse_arguments():
                         type=bool,
                         default=False,
                         help='flag for running stochastic volume calculation')
+    parser.add_argument('--entropy',
+                        type=bool,
+                        default=False,
+                        help='flag for including entropy mesh')
+
 
 
     args = parser.parse_args()
-    return bool(args.deplete), bool(args.volume)
+    return bool(args.deplete), bool(args.volume), bool(args.entropy)
 
 def shared_elem_geometry(elem_type='core',
                          gr_sq_d=4.953,
@@ -379,7 +384,7 @@ def plot_geometry(name,
     return plot
 
 
-deplete, volume = parse_arguments()
+deplete, volume, entropy = parse_arguments()
 
 (zone_bounds,
  core_bounds,
@@ -457,9 +462,9 @@ geo.export_to_xml()
 
 # Settings
 settings = openmc.Settings()
-settings.particles = 10000
-settings.batches = 150
-settings.inactive = 25
+settings.particles = 60000
+settings.batches = 200
+settings.inactive = 80
 settings.temperature = {'default': 900,
                         'method': 'interpolation',
                         'range': (800, 1000)}
@@ -470,6 +475,12 @@ if volume:
     #msbr_volume_calc.set_trigger(1e-03, 'rel_err')
     settings.volume_calculations = [msbr_volume_calc]
     settings.run_mode = 'volume'
+if entropy:
+    entropy_mesh = openmc.RegularMesh()
+    entropy_mesh.lower_left = ll
+    entropy_mesh.upper_right = ur
+    entropy_mesh.dimension = (20, 20, 20)
+    settings.entropy_mesh = entropy_mesh
 settings.export_to_xml()
 
 ## Slice plots
