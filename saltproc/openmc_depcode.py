@@ -466,7 +466,7 @@ class OpenMCDepcode(Depcode):
         geometry.export_to_xml(self.runtime_inputfile['geometry'])
         settings.export_to_xml(self.runtime_inputfile['settings'])
         self.write_depletion_settings(reactor, depletion_step)
-        self.write_saltproc_openmc_tallies(materials, geometry, _ENERGY_BOUNDS, _N_DELAYED_GROUPS)
+        self.write_saltproc_openmc_tallies(materials, geometry, _DELAYED_ENERGY_BOUNDS, _N_DELAYED_GROUPS)
         del materials, geometry, settings
 
     def write_depletion_settings(self, reactor, step_idx):

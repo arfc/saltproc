@@ -1,7 +1,7 @@
 {
    "proc_input_file": "msbr_objects.json",
    "dot_input_file": "msbr.dot",
-   "n_depletion_steps": 12,
+   "n_depletion_steps": 122,
    "output_path": "serpent_msbr_test",
    "depcode": {
        "codename": "serpent",

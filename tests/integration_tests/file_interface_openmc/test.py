@@ -8,6 +8,9 @@ import numpy as np
 import pytest
 import openmc
 
+from saltproc.openmc_depcode import _DELAYED_ENERGY_BOUNDS, _N_DELAYED_GROUPS
+
+
 
 @pytest.fixture
 def setup(scope='module'):
@@ -109,7 +112,8 @@ def test_write_saltproc_openmc_tallies(setup, openmc_depcode):
         openmc_depcode.template_input_file_path['materials'])
     geo = openmc.Geometry.from_xml(
         openmc_depcode.geo_file_paths[0], mat)
-    openmc_depcode.write_saltproc_openmc_tallies(mat, geo)
+    openmc_depcode.write_saltproc_openmc_tallies(mat, geo,
+                                                 _DELAYED_ENERGY_BOUNDS, _N_DELAYED_GROUPS)
     del mat, geo
     tallies = openmc.Tallies.from_xml(openmc_depcode.runtime_inputfile['tallies'])
 
@@ -160,7 +164,8 @@ def test_read_neutronics_parameters(setup, openmc_depcode):
         openmc_depcode.template_input_file_path['materials'])
     geo = openmc.Geometry.from_xml(
         openmc_depcode.geo_file_paths[0], mat)
-    openmc_depcode.write_saltproc_openmc_tallies(mat, geo)
+    openmc_depcode.write_saltproc_openmc_tallies(mat, geo,
+                                                 _DELAYED_ENERGY_BOUNDS, _N_DELAYED_GROUPS)
 
     old_output_path = openmc_depcode.output_path
     openmc_depcode.output_path = Path(__file__).parents[2] / 'openmc_data/saltproc_runtime_ref'
