@@ -110,7 +110,7 @@ class Depcode(ABC):
         mpi_args : list of str
             Arguments for running simulations on supercomputers using
             ``mpiexec`` or similar programs.
-        args : int
+        args : list of str
             Arguments for running depletion step.
 
         """
