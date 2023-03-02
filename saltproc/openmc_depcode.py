@@ -314,7 +314,7 @@ class OpenMCDepcode(Depcode):
         mat : openmc.Material
             A material
         percent_type : str
-            Percent type of material,
+            Percent type of material
 
         Returns
         -------

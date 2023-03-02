@@ -171,7 +171,33 @@ class Simulation():
 
     def _fix_nuclide_discrepancy(self, db, earr, iso_idx, iso_wt_frac):
         """Fix discrepancies between nuclide keys present in stored results and
-        nuclides keys stored in results for the current depletion step """
+        nuclides keys stored in results for the current depletion step
+
+        Parameters
+        ----------
+        db : tables.File
+            The SaltProc results database
+        earr : tables.EArray
+            Array storing nuclide material mass compositions from previously
+            completed depletion steps
+        iso_idx : OrderedDict
+            Map of nuclide name to array index
+        iso_wt_frac : list of float
+            List storing nuclide material mass compositions for current
+            depletion step.
+
+        Returns
+        -------
+        earr : tables.EArray
+            Array storing nuclide material mass compositions from
+            previously completed depletion steps with additional
+            rows for nuclides introduces in iso_wt_frac
+        iso_wt_frac : list of float
+            List storing nuclide material mass compositions for current
+            depletion step with additional entries for nuclides not present
+            in the current depletion step that are stored in earr.
+        """
+
         base_nucs= set(earr.attrs.iso_map.keys())
         step_nucs = set(iso_idx.keys())
         forward_difference = base_nucs.difference(step_nucs)
@@ -205,7 +231,38 @@ class Simulation():
 
     def _add_missing_nuclides(self, base_nucs, step_nucs, earr, iso_idx, iso_wt_frac):
         """Add missing nuclides to stored results and the results for the
-        current depletion step"""
+        current depletion step
+
+        Parameters
+        ----------
+        base_nucs : set
+            Nuclides present in previous depletion steps
+        step_nucs : set
+            Nuclides present in current depletion step
+        earr : tables.EArray
+            Array storing nuclide material mass compositions from previously
+            completed depletion steps
+        iso_idx : OrderedDict
+            Map of nuclide name to array index
+        iso_wt_frac : list of float
+            List storing nuclide material mass compositions for current
+            depletion step.
+
+        Returns
+        -------
+        combined_nucs : numpy.ndarray
+            Nuclide-code sorted union of base_nucs and step_nucs
+        combined_map : OrderedDict
+            Map of nuclide names to array index
+        combined_earr : numpy.ndarray
+            Array storing nuclide material mass compositions from
+            previously completed depletion steps with additional
+            rows for nuclides introduces in iso_wt_frac
+        combined_step_arr : numpy.ndarray
+            Array storing nuclide material mass compositions for current
+            depletion step with additional entries for nuclides not present
+            in the current depletion step that are stored in earr.
+        """
         combined_nucs = list(base_nucs.union(step_nucs))
         # Sort the nucnames by ZAM
         nuccodes = list(map(self.sim_depcode._convert_name_to_nuccode, combined_nucs))

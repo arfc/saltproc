@@ -51,15 +51,17 @@ def parse_arguments():
     -------
     deplete : bool
         Flag indicated whether or not to run a depletion simulation.
-    volume : bool
+    volume_calculation : bool
         Flag indicating whether or not to run a stochastic volume calcuation.
+    entropy : bool
+        Flag indicating whether or not to calculate Shannon entropy.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--deplete',
                         type=bool,
                         default=False,
                         help='flag for running depletion')
-    parser.add_argument('--volume',
+    parser.add_argument('--volume_calculation',
                         type=bool,
                         default=False,
                         help='flag for running stochastic volume calculation')
@@ -71,7 +73,7 @@ def parse_arguments():
 
 
     args = parser.parse_args()
-    return bool(args.deplete), bool(args.volume), bool(args.entropy)
+    return bool(args.deplete), bool(args.volume_calculation), bool(args.entropy)
 
 def shared_elem_geometry(elem_type='core',
                          gr_sq_d=4.953,
@@ -384,7 +386,7 @@ def plot_geometry(name,
     return plot
 
 
-deplete, volume, entropy = parse_arguments()
+deplete, volume_calculation, entropy = parse_arguments()
 
 (zone_bounds,
  core_bounds,
@@ -470,7 +472,7 @@ settings.temperature = {'default': 900,
                         'range': (800, 1000)}
 
 ll, ur = geo.root_universe.bounding_box
-if volume:
+if volume_calculation:
     msbr_volume_calc = openmc.VolumeCalculation([fuel, moder], int(1e10), ll, ur)
     #msbr_volume_calc.set_trigger(1e-03, 'rel_err')
     settings.volume_calculations = [msbr_volume_calc]
