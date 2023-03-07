@@ -1,30 +1,31 @@
 {
-   "proc_input_file": "../tap_processes.json",
-   "dot_input_file": "../tap_paths.dot",
+   "proc_input_file": "../msbr_processes.json",
+   "dot_input_file": "../msbr_paths.dot",
    "n_depletion_steps": 2,
    "depcode": {
        "codename": "openmc",
        "template_input_file_path": {
-           "materials": "tap_materials.xml",
-           "settings": "tap_settings.xml"
+           "materials": "msbr_materials.xml",
+           "settings": "msbr_settings.xml"
        },
-       "geo_file_paths": ["tap_geometry_base.xml"],
-       "chain_file_path": "test_chain.xml",
+       "geo_file_paths": ["msbr_geometry_base.xml"],
+       "chain_file_path": "chain_endfb71_pwr.xml",
        "depletion_settings": {
            "operator_kwargs": {
+               "fission_q": "serpent_fissq.json",
                "fission_yield_mode": "constant",
                "fission_yield_opts": {"energy": 0.0253}
            }          
        }
    },
    "simulation": {
-       "sim_name": "tap_test_simulation_openmc"
+       "sim_name": "msbr_test_simulation_openmc"
    },
    "reactor": {
        "volume": 1.0,
-       "mass_flowrate": 9.92E+6,
-       "power_levels": [ 1.250E+9 ],
-       "depletion_timesteps": [ 5 ],
+       "mass_flowrate": 9920000,
+       "power_levels": [ 2250000000 ],
+       "depletion_timesteps": [3],
        "timestep_units": "d"
    }
 }

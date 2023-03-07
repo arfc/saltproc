@@ -1,3 +1,6 @@
+import sys
+import subprocess
+
 from abc import ABC, abstractmethod
 
 class Depcode(ABC):
@@ -99,9 +102,7 @@ class Depcode(ABC):
                 :class:`Materialflow` object holding material composition and properties.
 
         """
-
-    @abstractmethod
-    def run_depletion_step(self, mpi_args, threads):
+    def run_depletion_step(self, mpi_args, args):
         """Runs a depletion step as a subprocess with the given parameters.
 
         Parameters
@@ -109,10 +110,28 @@ class Depcode(ABC):
         mpi_args : list of str
             Arguments for running simulations on supercomputers using
             ``mpiexec`` or similar programs.
-        threads : int
-            Threads to use for shared-memory parallelism
+        args : list of str
+            Arguments for running depletion step.
 
         """
+
+        print('Running %s' % (self.codename))
+        try:
+            if mpi_args is None:
+                stdout = sys.stdout
+            else:
+                stdout = None
+            subprocess.run(
+                args,
+                check=True,
+                cwd=self.output_path,
+                stdout=stdout,
+                stderr=subprocess.STDOUT)
+            print(f'Finished {self.codename.upper()} Run')
+        except subprocess.CalledProcessError as error:
+            print(error.output.decode("utf-8"))
+            raise RuntimeError('\n %s RUN FAILED\n see error message above'
+                               % (self.codename))
 
     @abstractmethod
     def switch_to_next_geometry(self):
@@ -153,5 +172,76 @@ class Depcode(ABC):
 
         """
 
+    def read_plaintext_file(self, file_path):
+        """Reads the content of a plaintext file for use by other methods.
 
+        Parameters
+        ----------
+        file_path : str
+            Path to file.
 
+        Returns
+        -------
+        file_lines : list of str
+            File lines.
+
+        """
+        file_lines = []
+        with open(file_path, 'r') as file:
+            file_lines = file.readlines()
+        return file_lines
+
+    @abstractmethod
+    def convert_nuclide_code_to_name(self, nuc_code):
+        """Converts depcode nuclide code to symbolic nuclide name.
+
+        Parameters
+        ----------
+        nuc_code : str
+            Nuclide code
+
+        Returns
+        -------
+        nuc_name : str
+            Symbolic nuclide name (`Am242m1`).
+
+        """
+
+    @abstractmethod
+    def _convert_name_to_nuccode(self, nucname):
+        """Converts depcode nuclide name to ZA nuclide code
+
+        Parameters
+        ----------
+        nucname : str
+            Nuclide namce
+
+        Returns
+        -------
+        nuc_name : str
+            ZA nuclide code
+
+        """
+
+    def preserve_simulation_files(self, step_idx):
+        """Move simulation input and output files
+        to unique a directory
+
+        Parameters
+        ----------
+        step_idx : int
+
+        """
+        step_results_dir = self.output_path / f'step_{step_idx}_data'
+        step_results_dir.mkdir(exist_ok=True)
+
+        file_path = lambda file : self.output_path / file
+        output_paths = list(map(file_path, self._OUTPUTFILE_NAMES))
+        input_paths = list(map(file_path, self._INPUTFILE_NAMES))
+        for file_path, fname in zip(output_paths, self._OUTPUTFILE_NAMES):
+            file_path.rename(step_results_dir / fname)
+
+        for file_path, fname in zip(input_paths, self._INPUTFILE_NAMES):
+            lines = self.read_plaintext_file(file_path)
+            with open(step_results_dir / fname, 'w') as out_file:
+                out_file.writelines(lines)

@@ -1,0 +1,29 @@
+{
+   "proc_input_file": "../msbr_processes.json",
+   "dot_input_file": "../msbr_paths.dot",
+   "n_depletion_steps": 2,
+   "depcode": {
+       "codename": "openmc",
+       "template_input_file_path": {
+           "materials": "materials.xml",
+           "settings": "msbr_settings.xml"
+       },
+       "geo_file_paths": ["msbr_geometry_base.xml", "msbr_geometry_switch.xml"],
+       "chain_file_path": "chain_endfb71_pwr.xml",
+       "depletion_settings": {
+           "operator_kwargs": {
+               "fission_q": "serpent_fissq.json"
+           }
+       }
+   },
+   "simulation": {
+       "sim_name": "msbr_test_simulation_openmc"
+   },
+   "reactor": {
+       "volume": 1.0,
+       "mass_flowrate": 9920000,
+       "power_levels": [ 2250000000 ],
+       "depletion_timesteps": [3],
+       "timestep_units": "d"
+   }
+}

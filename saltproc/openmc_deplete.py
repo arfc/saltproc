@@ -42,12 +42,11 @@ def parse_arguments():
                         default=None,
                         help='path to openmc tallies xml file')
     parser.add_argument('--directory',
-                        type='str',
+                        type=str,
                         default=None,
                         help='path to output directory')
     args = parser.parse_args()
-    return str(args.materials), str(args.geometry), str(args.settings), \
-        str(args.tallies), str(args.directory)
+    return args
 
 
 args = parse_arguments()
@@ -73,6 +72,7 @@ if not(fission_q is None):
 
     depletion_settings['operator_kwargs']['fission_q'] = fission_q
 
-model.deplete(timesteps, **depletion_settings)
+integrator_kwargs = depletion_settings.pop('integrator_kwargs')
+model.deplete(timesteps, **depletion_settings, **integrator_kwargs)
 
 del materials, geometry, settings, tallies, model

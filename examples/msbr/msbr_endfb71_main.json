@@ -1,7 +1,8 @@
 {
    "proc_input_file": "msbr_objects.json",
    "dot_input_file": "msbr.dot",
-   "n_depletion_steps": 12,
+   "n_depletion_steps": 122,
+   "output_path": "serpent_msbr_test",
    "depcode": {
        "codename": "serpent",
        "exec_path": "sss2",
@@ -9,10 +10,7 @@
        "geo_file_paths": ["./geometry/msbr_full.ini"]
    },
    "simulation": {
-       "sim_name": "msbr_example_simulation",
-       "db_name": "msbr_kl_100_saltproc.h5",
-       "restart_flag": false,
-       "adjust_geo": false
+       "sim_name": "msbr_serpent_test"
    },
    "reactor": {
        "volume": 1.0,
