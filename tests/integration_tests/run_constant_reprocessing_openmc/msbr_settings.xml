@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<settings>
+  <run_mode>eigenvalue</run_mode>
+  <particles>6000</particles>
+  <batches>200</batches>
+  <inactive>80</inactive>
+  <entropy_mesh>1</entropy_mesh>
+  <mesh id="1">
+    <dimension>20 20 20</dimension>
+    <lower_left>-343.408 -343.408 -81.28</lower_left>
+    <upper_right>343.408 343.408 530.86</upper_right>
+  </mesh>
+  <temperature_default>900.0</temperature_default>
+  <temperature_method>interpolation</temperature_method>
+  <temperature_range>800.0 1000.0</temperature_range>
+</settings>

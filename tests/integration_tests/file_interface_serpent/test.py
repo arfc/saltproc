@@ -5,8 +5,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from saltproc import Reactor
-
 
 @pytest.fixture
 def geometry_switch(scope='module'):

@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<materials>
+  <material depletable="true" id="1" name="fuel" volume="48710000.0">
+    <density units="g/cm3" value="3.35" />
+    <nuclide name="Li7" wo="0.07874746738790854" />
+    <nuclide name="Be9" wo="0.022556687913832116" />
+    <nuclide name="F19" wo="0.4540030121792843" />
+    <nuclide name="Th232" wo="0.4355791304823362" />
+    <nuclide name="U233" wo="0.009113702036638935" />
+  </material>
+  <material id="2" name="graphite">
+    <density units="g/cm3" value="1.84" />
+    <nuclide name="C0" wo="1.0" />
+    <sab name="c_Graphite" />
+  </material>
+  <material id="3" name="hastelloyN">
+    <density units="g/cm3" value="8.671" />
+    <nuclide name="Al27" wo="0.0030000000000000005" />
+    <nuclide name="Ni58" wo="0.4549284648579137" />
+    <nuclide name="Ni60" wo="0.18127326882778416" />
+    <nuclide name="Ni61" wo="0.00801134100745873" />
+    <nuclide name="Ni62" wo="0.025961746994608147" />
+    <nuclide name="Ni64" wo="0.006825178312235457" />
+    <nuclide name="W180" wo="0.0002936438828482038" />
+    <nuclide name="W182" wo="0.06556762369071832" />
+    <nuclide name="W183" wo="0.03560150632111731" />
+    <nuclide name="W184" wo="0.07664548021845777" />
+    <nuclide name="W186" wo="0.07189174588685847" />
+    <nuclide name="Cr50" wo="0.0029215806359028204" />
+    <nuclide name="Cr52" wo="0.05858955364594215" />
+    <nuclide name="Cr53" wo="0.00677151077307263" />
+    <nuclide name="Cr54" wo="0.0017173549450824302" />
+  </material>
+</materials>

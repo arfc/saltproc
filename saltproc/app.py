@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from copy import deepcopy
 
@@ -27,6 +28,11 @@ HOUR_UNITS = ('h', 'hr', 'hour')
 DAY_UNITS = ('d', 'day')
 YEAR_UNITS = ('a', 'year', 'yr')
 
+_SECONDS_PER_DAY = 60 * 60 * 24
+_MINUTES_PER_DAY = 60 * 24
+_HOURS_PER_DAY = 24
+_DAYS_PER_YEAR = 365.25
+
 def run():
     """ Inititializes main run"""
     threads, saltproc_input = parse_arguments()
@@ -40,10 +46,10 @@ def run():
     msr = _create_reactor_object(object_input[2])
 
     # Check: Restarting previous simulation or starting new?
-    simulation.check_restart()
+    failed_step = simulation.check_restart()
     # Run sequence
     # Start sequence
-    for step_idx in range(len(msr.depletion_timesteps)):
+    for step_idx in range(failed_step, len(msr.depletion_timesteps)):
         print("\n\n\nStep #%i has been started" % (step_idx + 1))
         simulation.sim_depcode.write_runtime_input(msr,
                                                    step_idx,
@@ -60,6 +66,7 @@ def run():
         mats = depcode.read_depleted_materials(True)
         simulation.store_mat_data(mats, step_idx, False)
         simulation.store_run_step_info()
+
         # Reprocessing here
         print("\nMass and volume of fuel before reproc: %f g, %f cm3" %
               (mats['fuel'].mass,
@@ -90,6 +97,10 @@ def run():
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_and_feed_streams, step_idx)
         depcode.update_depletable_materials(mats, simulation.burn_time)
+
+        # Preserve depletion and transport result and input files
+        depcode.preserve_simulation_files(step_idx)
+
         del mats, waste_streams, waste_and_feed_streams, extracted_mass
         gc.collect()
         # Switch to another geometry?
@@ -175,7 +186,8 @@ def read_main_input(main_inp_file):
                 traceback.print_exc()
 
         # Global input path
-        input_path = (Path.cwd() / Path(f.name).parents[0])
+        input_path = (Path.cwd() / Path(f.name).parents[0]).resolve()
+        os.chdir(input_path)
 
         # Saltproc settings
         process_file = str((input_path /
@@ -213,6 +225,16 @@ def read_main_input(main_inp_file):
             depcode_input['chain_file_path'] = \
                 str((input_path /
                  depcode_input['chain_file_path']).resolve())
+
+            # process depletion_settings
+            depletion_settings = depcode_input['depletion_settings']
+            operator_kwargs = depletion_settings['operator_kwargs']
+            if operator_kwargs != {}:
+                fission_q_path = operator_kwargs['fission_q']
+                if fission_q_path is not None:
+                    operator_kwargs['fission_q'] = str(input_path / fission_q_path)
+                depletion_settings['operator_kwargs'] = operator_kwargs
+            depcode_input['depletion_settings'] = depletion_settings
         else:
             raise ValueError(f'{codename} is not a supported depletion code.'
                              ' Accepts: "serpent" or "openmc".')
@@ -244,7 +266,7 @@ def _print_simulation_input_info(simulation_input, depcode_input):
           str(simulation_input['restart_flag']) +
           '\n'
           '\tTemplate File Path  = ' +
-          depcode_input['template_input_file_path'] +
+          str(depcode_input['template_input_file_path']) +
           '\n'
           '\tOutput HDF5 database Path = ' +
           simulation_input['db_name'] +
@@ -303,8 +325,8 @@ def _process_main_input_reactor_params(reactor_input,
                                                      depletion_timesteps,
                                                      codename)
 
-    reactor_input['depletion_timesteps'] = list(depletion_timesteps)
-    reactor_input['power_levels'] = list(power_levels)
+    reactor_input['depletion_timesteps'] = depletion_timesteps.tolist()
+    reactor_input['power_levels'] = power_levels.tolist()
 
     return reactor_input
 
@@ -344,18 +366,17 @@ def _scale_depletion_timesteps(timestep_units, depletion_timesteps, codename):
     # serpent base timestep units are days or mwd/kg
     if not(timestep_units in DAY_UNITS) and timestep_units.lower() != 'mwd/kg' and codename == 'serpent':
         if timestep_units in SECOND_UNITS:
-            depletion_timesteps /= 60 * 60 * 24
+            depletion_timesteps /= _SECONDS_PER_DAY
         elif timestep_units in MINUTE_UNITS:
-            depletion_timesteps /= 60 * 24
+            depletion_timesteps /= _MINUTES_PER_DAY
         elif timestep_units in HOUR_UNITS:
-            depletion_timesteps /= 24
+            depletion_timesteps /= _HOURS_PER_DAY
         elif timestep_units in YEAR_UNITS:
-            depletion_timesteps *= 365.25
+            depletion_timesteps *= _DAYS_PER_YEAR
         else:
             raise IOError(f'Unrecognized time unit: {timestep_units}')
 
     return depletion_timesteps
-
 
 def reprocess_materials(mats, process_file, dot_file):
     """Applies extraction reprocessing scheme to burnable materials.

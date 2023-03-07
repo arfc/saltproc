@@ -1,0 +1,30 @@
+{
+   "proc_input_file": "processes.json",
+   "dot_input_file": "paths.dot",
+   "n_depletion_steps": 2,
+   "depcode": {
+       "codename": "openmc",
+
+       "template_input_file_path": {
+           "materials": "materials.xml",
+           "settings": "settings.xml"},
+       "geo_file_paths": ["../../openmc_data/msbr_geometry_base.xml"],
+       "chain_file_path": "../../openmc_data/chain_endfb71_pwr.xml",
+       "depletion_settings": {
+           "operator_kwargs": {
+               "fission_q": "../../openmc_data/serpent_fissq.json"
+           }
+       }
+   },
+   "simulation": {
+       "sim_name": "test_openmc_no_reprocessing",
+       "restart_flag": true
+   },
+   "reactor": {
+       "volume": 1.0,
+       "mass_flowrate": 9920000,
+       "power_levels": [ 2250000000 ],
+       "depletion_timesteps": [ 3 ],
+       "timestep_units": "d"
+   }
+}

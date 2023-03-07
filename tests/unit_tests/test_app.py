@@ -1,5 +1,6 @@
 """Test methods in the app package"""
 from pathlib import Path
+import json
 
 import numpy as np
 import pytest
@@ -11,29 +12,30 @@ from saltproc.app import (SECOND_UNITS, MINUTE_UNITS, HOUR_UNITS, DAY_UNITS,
                           YEAR_UNITS)
 from saltproc.app import get_feeds, get_extraction_process_paths
 
-expected_depletion_settings = {'method': 'predictor',
-                                   'final_step': True,
-                                   'operator_kwargs': {
-                                       'diff_burnable_mats': False,
-                                       'normalization_mode': 'fission-q',
-                                       'fission_q': None,
-                                       'dilute_initial': 1000,
-                                       'fission_yield_mode': 'constant',
-                                       'fission_yield_opts': None,
-                                       'reaction_rate_mode': 'direct',
-                                       'reaction_rate_opts': None,
-                                       'reduce_chain': False,
-                                       'reduce_chain_level': None},
-                                   'output': True,
-                                   'integrator_kwargs': {}}
 
-@pytest.mark.parametrize("codename, ext", [
-    ("serpent", ".ini"),
-    ("openmc", ".xml")])
-def test_read_main_input(cwd, codename, ext):
+@pytest.fixture
+def expected_depletion_settings(scope='module'):
+    with open(Path(__file__).parents[1] / 'openmc_data/depletion_settings.json') as f:
+        expected_depletion_settings = json.load(f)
+        #expected_depletion_settings['chain_file'] = \
+        #    Path(__file__).parents[1] / 'openmc_data' / expected_depletion_settings['chain_file']
+        expected_depletion_settings['operator_kwargs']['fission_q'] = \
+            str(Path(__file__).parents[1] / 'openmc_data' / expected_depletion_settings['operator_kwargs']['fission_q'])
+
+        expected_depletion_settings['operator_kwargs'].pop('chain_file')
+        expected_depletion_settings['integrator_kwargs'] = {}
+        expected_depletion_settings.pop('directory')
+        expected_depletion_settings.pop('timesteps')
+    return expected_depletion_settings
+
+
+@pytest.mark.parametrize("codename, ext, reactor_name", [
+    ("serpent", ".ini", "tap"),
+    ("openmc", ".xml", "msbr")])
+def test_read_main_input(cwd, expected_depletion_settings, codename, ext, reactor_name):
     data_path = codename + '_data'
     data_path = cwd / data_path
-    main_input = str(data_path / 'tap_input.json')
+    main_input = str(data_path / f'{reactor_name}_input.json')
     out = read_main_input(main_input)
     input_path, process_input_file, path_input_file, mpi_args, object_input = out
     depcode_input, simulation_input, reactor_input = object_input
@@ -44,29 +46,33 @@ def test_read_main_input(cwd, codename, ext):
 
     assert depcode_input['codename'] == codename
     assert depcode_input['geo_file_paths'][0] == \
-        str(data_path / ('tap_geometry_base' + ext))
+        str(data_path / (f'{reactor_name}_geometry_base' + ext))
+    assert depcode_input['output_path'] == cwd / (f'{codename}_data/saltproc_runtime')
     if codename == 'openmc':
         assert depcode_input['template_input_file_path'] == \
-            {'materials': str((input_path / 'tap_materials.xml').resolve()),
-             'settings': str((input_path / 'tap_settings.xml').resolve())}
+            {'materials': str((input_path / 'materials.xml').resolve()),
+             'settings': str((input_path / f'{reactor_name}_settings.xml').resolve())}
         assert depcode_input['chain_file_path'] == \
-            str((input_path / 'test_chain.xml').resolve())
+            str((input_path / 'chain_endfb71_pwr.xml').resolve())
         assert depcode_input['depletion_settings'] == \
             expected_depletion_settings
+        np.testing.assert_equal(reactor_input['power_levels'],
+                                [2.250E+9, 2.250E+9])
+        np.testing.assert_equal(reactor_input['depletion_timesteps'],
+                                [3, 3])
+
     elif codename == 'serpent':
         assert depcode_input['template_input_file_path'] == \
-            str((input_path / 'tap_template.ini').resolve())
+            str((input_path / f'{reactor_name}_template.ini').resolve())
         assert depcode_input['zaid_convention'] == 'serpent'
+        np.testing.assert_equal(reactor_input['power_levels'],
+                                [1.250E+9, 1.250E+9])
+        np.testing.assert_equal(reactor_input['depletion_timesteps'],
+                                [5, 5])
 
     assert simulation_input['db_name'] == \
         str((data_path / f'../{codename}_data/saltproc_runtime/saltproc_results.h5').resolve())
     assert simulation_input['restart_flag'] is False
-
-    np.testing.assert_equal(
-        reactor_input['power_levels'], [
-            1.250E+9, 1.250E+9])
-    np.testing.assert_equal(reactor_input['depletion_timesteps'],
-                            [5, 5])
 
     assert reactor_input['timestep_units'] == 'd'
     assert reactor_input['timestep_type'] == 'stepwise'
@@ -110,7 +116,8 @@ def test_validate_depletion_timesteps_power_levels(n_depletion_steps,
     ([1.], DAY_UNITS),
     ([365.25], YEAR_UNITS)
 ])
-def test_scale_depletion_timesteps(expected_depletion_timesteps,
+def test_scale_depletion_timesteps(expected_depletion_settings,
+                                   expected_depletion_timesteps,
                                    timestep_units):
     expected_depletion_timesteps = np.array(expected_depletion_timesteps)
     base_timestep = np.array([1.])
@@ -142,7 +149,7 @@ def test_scale_depletion_timesteps(expected_depletion_timesteps,
     "constant_fission_yield",
     "cutoff_fission_yield",
     "flux_reaction_rate"])
-def test_openmc_depletion_settings(cwd, filename):
+def test_openmc_depletion_settings(cwd, expected_depletion_settings, filename):
     data_path = 'openmc_data'
     data_path = cwd / data_path
     main_input = str(data_path / f'{filename}_input.json')
@@ -151,10 +158,10 @@ def test_openmc_depletion_settings(cwd, filename):
     depcode_input, simulation_input, reactor_input = object_input
 
     assert depcode_input['template_input_file_path'] == \
-        {'materials': str((input_path / 'tap_materials.xml').resolve()),
-         'settings': str((input_path / 'tap_settings.xml').resolve())}
+        {'materials': str((input_path / 'msbr_materials.xml').resolve()),
+         'settings': str((input_path / 'msbr_settings.xml').resolve())}
     assert depcode_input['chain_file_path'] == \
-        str((input_path / 'test_chain.xml').resolve())
+        str((input_path / 'chain_endfb71_pwr.xml').resolve())
 
     modified_operator_kwargs = expected_depletion_settings['operator_kwargs'].copy()
     if filename == 'constant_fission_yield':

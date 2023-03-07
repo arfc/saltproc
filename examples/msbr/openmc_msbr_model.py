@@ -51,15 +51,29 @@ def parse_arguments():
     -------
     deplete : bool
         Flag indicated whether or not to run a depletion simulation.
+    volume_calculation : bool
+        Flag indicating whether or not to run a stochastic volume calcuation.
+    entropy : bool
+        Flag indicating whether or not to calculate Shannon entropy.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--deplete',
                         type=bool,
                         default=False,
                         help='flag for running depletion')
+    parser.add_argument('--volume_calculation',
+                        type=bool,
+                        default=False,
+                        help='flag for running stochastic volume calculation')
+    parser.add_argument('--entropy',
+                        type=bool,
+                        default=False,
+                        help='flag for including entropy mesh')
+
+
 
     args = parser.parse_args()
-    return bool(args.deplete)
+    return bool(args.deplete), bool(args.volume_calculation), bool(args.entropy)
 
 def shared_elem_geometry(elem_type='core',
                          gr_sq_d=4.953,
@@ -372,7 +386,7 @@ def plot_geometry(name,
     return plot
 
 
-deplete = parse_arguments()
+deplete, volume_calculation, entropy = parse_arguments()
 
 (zone_bounds,
  core_bounds,
@@ -450,18 +464,25 @@ geo.export_to_xml()
 
 # Settings
 settings = openmc.Settings()
-settings.particles = 10000
-settings.batches = 150
-settings.inactive = 25
+settings.particles = 60000
+settings.batches = 200
+settings.inactive = 80
 settings.temperature = {'default': 900,
                         'method': 'interpolation',
                         'range': (800, 1000)}
 
 ll, ur = geo.root_universe.bounding_box
-msbr_volume_calc = openmc.VolumeCalculation([fuel, moder], 1000000000, ll, ur)
-#msbr_volume_calc.set_trigger(1e-03, 'rel_err')
-settings.volume_calculations = [msbr_volume_calc]
-settings.run_mode = 'volume'
+if volume_calculation:
+    msbr_volume_calc = openmc.VolumeCalculation([fuel, moder], int(1e10), ll, ur)
+    #msbr_volume_calc.set_trigger(1e-03, 'rel_err')
+    settings.volume_calculations = [msbr_volume_calc]
+    settings.run_mode = 'volume'
+if entropy:
+    entropy_mesh = openmc.RegularMesh()
+    entropy_mesh.lower_left = ll
+    entropy_mesh.upper_right = ur
+    entropy_mesh.dimension = (20, 20, 20)
+    settings.entropy_mesh = entropy_mesh
 settings.export_to_xml()
 
 ## Slice plots
