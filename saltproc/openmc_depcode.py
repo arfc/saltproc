@@ -11,7 +11,7 @@ from pyne import serpent
 import openmc
 
 from saltproc import Materialflow
-from saltproc.abc import Depcode
+from saltproc.depcode import Depcode
 from openmc.deplete.abc import _SECONDS_PER_DAY
 from openmc.deplete import Results, Chain, MicroXS
 from openmc.mgxs import Beta, DecayRate, EnergyGroups

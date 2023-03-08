@@ -7,7 +7,7 @@ from pyne import nucname as pyname
 from pyne import serpent
 
 from saltproc import Materialflow
-from saltproc.abc import Depcode
+from saltproc.depcode import Depcode
 
 class SerpentDepcode(Depcode):
     """Interface for running depletion steps in Serpent, as well as obtaining
