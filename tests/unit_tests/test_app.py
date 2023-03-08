@@ -4,13 +4,13 @@ import json
 
 import numpy as np
 import pytest
-from saltproc.app import read_main_input, _get_extraction_processes
+from saltproc.app import read_main_input, get_extraction_processes
 from saltproc.app import (_validate_depletion_timesteps_power_levels,
                           _convert_cumulative_to_stepwise,
                           _scale_depletion_timesteps)
 from saltproc.app import (SECOND_UNITS, MINUTE_UNITS, HOUR_UNITS, DAY_UNITS,
                           YEAR_UNITS)
-from saltproc.app import _get_feeds, _get_extraction_process_paths
+from saltproc.app import get_feeds, get_extraction_process_paths
 
 
 @pytest.fixture
@@ -188,7 +188,7 @@ def test_openmc_depletion_settings(cwd, expected_depletion_settings, filename):
 
 
 def test_get_extraction_processes(proc_test_file):
-    procs = _get_extraction_processes(proc_test_file)
+    procs = get_extraction_processes(proc_test_file)
     assert procs['fuel']['heat_exchanger'].volume == 1.37E+7
     assert procs['fuel']['sparger'].efficiency['H'] == 0.6
     assert procs['fuel']['sparger'].efficiency['Kr'] == 0.6
@@ -201,7 +201,7 @@ def test_get_extraction_processes(proc_test_file):
 
 
 def test_get_feeds(proc_test_file):
-    feeds = _get_feeds(proc_test_file)
+    feeds = get_feeds(proc_test_file)
     assert feeds['fuel']['leu'].mass == 4.9602E+8
     assert feeds['fuel']['leu'].density == 4.9602
     assert feeds['fuel']['leu']['U235'] == 15426147.398592
@@ -209,7 +209,7 @@ def test_get_feeds(proc_test_file):
 
 
 def test_get_extraction_process_paths(path_test_file):
-    burnable_mat, paths = _get_extraction_process_paths(path_test_file)
+    burnable_mat, paths = get_extraction_process_paths(path_test_file)
     assert burnable_mat == 'fuel'
     assert paths[0][1] == 'sparger'
     assert paths[1][-2] == 'heat_exchanger'

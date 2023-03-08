@@ -10,7 +10,6 @@ import traceback
 import json, jsonschema
 import gc
 import networkx as nx
-#import pydotplus
 
 from saltproc import SerpentDepcode, OpenMCDepcode, Simulation, Reactor
 from saltproc import Process, Sparger, Separator, Materialflow
@@ -413,9 +412,9 @@ def reprocess_materials(mats, process_file, dot_file):
     waste_streams = OrderedDict()
     thru_flows = OrderedDict()
 
-    extraction_processes = _get_extraction_processes(process_file)
+    extraction_processes = get_extraction_processes(process_file)
     material_for_extraction, extraction_process_paths = \
-        _get_extraction_process_paths(dot_file)
+        get_extraction_process_paths(dot_file)
 
     # iterate over materials
     for mat_name, processes in extraction_processes.items():
@@ -482,7 +481,7 @@ def reprocess_materials(mats, process_file, dot_file):
     return waste_streams, extracted_mass
 
 
-def _get_extraction_processes(process_file):
+def get_extraction_processes(process_file):
     """Parses ``extraction_processes`` objects from the `.json` file describing
     processing system objects.
 
@@ -529,7 +528,7 @@ def _get_extraction_processes(process_file):
         return extraction_processes
 
 
-def _get_extraction_process_paths(dot_file):
+def get_extraction_process_paths(dot_file):
     """Reads directed graph that describes fuel reprocessing system structure
     from a `*.dot` file.
 
@@ -547,9 +546,7 @@ def _get_extraction_process_paths(dot_file):
         `core_inlet`.
 
     """
-    #graph_pydot = pydotplus.graph_from_dot_file(dot_file)
     digraph = nx.drawing.nx_pydot.read_dot(dot_file)
-    #digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
     mat_name = digraph.name
     # Iterate over all possible paths between 'core_outlet' and 'core_inlet'
     all_simple_paths = nx.all_simple_paths(digraph,
@@ -594,7 +591,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
 
     """
     print('Fuel before refilling: ^^^', mats['fuel'].print_attr())
-    feeds = _get_feeds(process_file)
+    feeds = get_feeds(process_file)
     refill_mats = OrderedDict()
     # Get feed group for each material
     for mat, mat_feeds in feeds.items():
@@ -612,7 +609,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
     return waste_streams
 
 
-def _get_feeds(process_file):
+def get_feeds(process_file):
     """Parses ``feed`` objects from `.json` file describing processing system
     objects.
 
