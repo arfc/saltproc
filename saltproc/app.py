@@ -10,7 +10,7 @@ import traceback
 import json, jsonschema
 import gc
 import networkx as nx
-import pydotplus
+#import pydotplus
 
 from saltproc import SerpentDepcode, OpenMCDepcode, Simulation, Reactor
 from saltproc import Process, Sparger, Separator, Materialflow
@@ -547,8 +547,9 @@ def _get_extraction_process_paths(dot_file):
         `core_inlet`.
 
     """
-    graph_pydot = pydotplus.graph_from_dot_file(dot_file)
-    digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
+    #graph_pydot = pydotplus.graph_from_dot_file(dot_file)
+    digraph = nx.drawing.nx_pydot.read_dot(dot_file)
+    #digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
     mat_name = digraph.name
     # Iterate over all possible paths between 'core_outlet' and 'core_inlet'
     all_simple_paths = nx.all_simple_paths(digraph,
