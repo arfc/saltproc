@@ -15,8 +15,11 @@ Serpent 2 Template Files
 A valid Serpent 2 template input file must have at least the following:
 
   - Burnable materials linked via the `include card`_ The burnable material cards **must** include the ``fix`` option.
+
   - Non-burnable materials instantiated directly in the file **OR** via an `include card`_ *after* the burnable materials.
+
   - Neutron particle parameters set via the `set pop card`_.
+
   - Spontaneous fission yielf sublibray via the `set sfylib card`_
 
 Template input files should also have the following (they are not neccesary if
@@ -24,7 +27,9 @@ the user has used the appropriate environment variables to specify them. See
 the links for each card for more details):
 
   - The cross section data directory file via the `set acelib card`_.
+
   - Decay sublibraries set via the `set declib card`_.
+
   - Delayed fission yield sublibrary via the `set nfylib card`_.
 
 
@@ -83,6 +88,5 @@ OpenMC Template Files
 Any valid :class:`~openmc.model.Model` object can be exported into a set of
 template files that will work with SaltProc. See the `OpenMC docpages`_ for more
 info.
-
 
 .. _OpenMC docpages: https://docs.openmc.org/

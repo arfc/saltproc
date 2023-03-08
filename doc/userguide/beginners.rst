@@ -24,6 +24,8 @@ What do I need to know?
 -----------------------
 If you are starting to work with SaltProc, there are a few things you should be familiar with:
 
-- You should be comfortable with working in a command line environment.
-- You should be familiar with at least one of the supported transport solvers.
-  See :ref:`the list of supported codes <supported_codes>` for a list of currently supported transport solvers.
+  - You should be comfortable with working in a command line environment.
+
+  - You should be familiar with at least one of the supported transport solvers.
+  See :ref:`the list of supported codes <supported_codes>` for a list of
+  currently supported transport solvers.

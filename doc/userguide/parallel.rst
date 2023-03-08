@@ -14,7 +14,7 @@ Shared-Memory Parallelsim
 ----------------------------------
 
 To specify the number of theads to use in shared memory parallelism, use the
-`-s` or `--threads` command line argument when calling SaltProc. Note that
+``-s`` or ``--threads`` command line argument when calling SaltProc. Note that
 this argument currently does not affect how OpenMC uses shared-memory
 parallelsim, as there is no way to specify the number of threads used
 in depletion. The default behavior is to use all available threads.
