@@ -6,7 +6,7 @@ depletion simulation.
 from __future__ import absolute_import, division, print_function
 from .version import __version__  # noqa
 from .materialflow import *
-from .abc import *
+from .depcode import *
 from .serpent_depcode import *
 from .openmc_depcode import *
 from .simulation import *
