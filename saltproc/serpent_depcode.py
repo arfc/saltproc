@@ -13,8 +13,32 @@ class SerpentDepcode(Depcode):
     """Interface for running depletion steps in Serpent, as well as obtaining
     depletion step results.
 
+    Parameters
+    ----------
+    output_path : str
+        Path to results storage directory.
+    exec_path : str
+        Path to Serpent2 executable.
+    template_input_file_path : str
+        Path to user input file for Serpent2
+    geo_file_paths : str or list
+        Path to file that contains the reactor geometry.
+        List of `str` if reactivity control by
+        switching geometry is `On` or just `str` otherwise.
+    zaid_convention : str
+        ZAID naming convention for nuclide codes.
+
+        'serpent' - The third digit in ZA for nuclides in isomeric states
+        is 3 (e.g. 47310 for for Ag-110m).
+
+        'mcnp' - ZA = Z*1000 + A + (300 + 100*m). where m is the mth
+        isomeric state (e.g. 47510 for Ag-110m)
+
+        'nndc' - Identical to 'mcnp', except Am242m1 is 95242 and Am242
+        is 95642
+
     Attributes
-    -----------
+    ----------
     neutronics_parameters : dict of str to type
         Holds Serpent2 depletion step neutronics parameters. Parameter names are
         keys and parameter values are values.
@@ -43,30 +67,6 @@ class SerpentDepcode(Depcode):
                  geo_file_paths,
                  zaid_convention):
         """Initialize a SerpentDepcode object.
-
-           Parameters
-           ----------
-           output_path : str
-               Path to results storage directory.
-           exec_path : str
-               Path to Serpent2 executable.
-           template_input_file_path : str
-               Path to user input file for Serpent2
-           geo_file_paths : str or list
-               Path to file that contains the reactor geometry.
-               List of `str` if reactivity control by
-               switching geometry is `On` or just `str` otherwise.
-           zaid_convention : str
-               ZAID naming convention for nuclide codes.
-
-               'serpent' - The third digit in ZA for nuclides in isomeric states
-               is 3 (e.g. 47310 for for Ag-110m).
-
-               'mcnp' - ZA = Z*1000 + A + (300 + 100*m). where m is the mth
-               isomeric state (e.g. 47510 for Ag-110m)
-
-               'nndc' - Identical to 'mcnp', except Am242m1 is 95242 and Am242
-               is 95642
 
         """
         super().__init__("serpent",

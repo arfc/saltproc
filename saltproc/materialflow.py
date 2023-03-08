@@ -6,8 +6,23 @@ from pyne.material import Material as pymat
 
 
 class Materialflow(pymat):
-    """ Class contains information about burnable material flow. Based on
+    """ Class contains information about burnable material flow. Child class of
     :class:`pyne.Material`.
+
+    Parameters
+    ----------
+    :class:`pyne.Material`
+        PyNE Material parent class containing nuclide vector, density,
+        mass, atoms_per_molecule, metadata
+    temp : float
+        temperature of the material flow (K)
+    mass_flowrate : float
+        mass flow rate of the material flow (g/s)
+    void_frac : float
+        void fraction in the material (%)
+    burnup : float
+        material burnup at the end of depletion step [MWd/kgU]
+
     """
 
     def __init__(
@@ -24,20 +39,6 @@ class Materialflow(pymat):
             burnup=0.0):
         """ Initializes the Materialflow object.
 
-        Parameters
-        ----------
-
-        :class:`pyne.Material`
-            PyNE Material parent class containing nuclide vector, density,
-            mass, atoms_per_molecule, metadata
-        temp : float
-            temperature of the material flow (K)
-        mass_flowrate : float
-            mass flow rate of the material flow (g/s)
-        void_frac : float
-            void fraction in the material (%)
-        burnup : float
-            material burnup at the end of depletion step [MWd/kgU]
         """
         # initialize parent class attributes
         # super().__init__()

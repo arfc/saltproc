@@ -1,6 +1,21 @@
 class Reactor ():
-    """
-    Class contains information about current state of the reactor.
+    """Class contains information about current state of the reactor.
+
+    Parameters
+    ----------
+    volume : float
+        Total volume of the reactor core (:math:`cm^3`).
+    mass_flowrate : float
+        Total mass flowrate through reactor core (g/s).
+    power_levels : array [:math:`N_{steps}` x1]
+        Normalized power level for each depletion step (W).
+    depletion_timesteps : array [:math:`N_{steps}` x1]
+        Array of timesteps.
+    timestep_type: str
+        'cumulative', 'stepwise'.
+    timestep_units : str
+        Timestep units
+
     """
 
     def __init__(self,
@@ -10,22 +25,7 @@ class Reactor ():
                  depletion_timesteps=[1],
                  timestep_type='stepwise',
                  timestep_units='d'):
-        """Initializes the class.
-
-        Parameters
-        ----------
-        volume : float
-            Total volume of the reactor core (:math:`cm^3`).
-        mass_flowrate : float
-            Total mass flowrate through reactor core (g/s).
-        power_levels : array [:math:`N_{steps}` x1]
-            Normalized power level for each depletion step (W).
-        depletion_timesteps : array [:math:`N_{steps}` x1]
-            Array of timesteps.
-        timestep_type: str
-            'cumulative', 'stepwise'.
-        timestep_units : str
-            Timestep units
+        """Initialize a reactor object
 
         """
         # initialize all object attributes

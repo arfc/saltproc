@@ -12,6 +12,30 @@ class Simulation():
     a database, predict reactor criticality at next depletion step, and
     switch simulation geometry.
 
+    Parameters
+    ----------
+    sim_name : str
+        Name to identify the simulation. May contain information such as
+        the number of a reference case, a paper name, or some other
+        specific information identify the simulation.
+    sim_depcode : `Depcode` object
+        An instance of one of the `Depcode` child classes
+    db_path : str
+        Path of HDF5 database that stores simulation information and
+        data.
+    restart_flag : bool
+        This value determines our initial condition. If `True`, then
+        then we run the simulation starting from the inital material
+        composition in the material input file inside our `depcode`
+        object. If `False`, then we runthe simulation starting from
+        the final material composition resulting within the `.h5`
+        database.
+    adjust_geo : bool
+        This value determines if we switch reactor geometry when keff
+        drops below 1.0
+    compression_params : Pytables filter object
+        Compression parameters for HDF5 database.
+
     """
 
     def __init__(
@@ -26,30 +50,6 @@ class Simulation():
                                           fletcher32=True),
     ):
         """Initializes the Simulation object.
-
-        Parameters
-        ----------
-        sim_name : str
-            Name to identify the simulation. May contain information such as
-            the number of a reference case, a paper name, or some other
-            specific information identify the simulation.
-        sim_depcode : `Depcode` object
-            An instance of one of the `Depcode` child classes
-        db_path : str
-            Path of HDF5 database that stores simulation information and
-            data.
-        restart_flag : bool
-            This value determines our initial condition. If `True`, then
-            then we run the simulation starting from the inital material
-            composition in the material input file inside our `depcode`
-            object. If `False`, then we runthe simulation starting from
-            the final material composition resulting within the `.h5`
-            database.
-        adjust_geo : bool
-            This value determines if we switch reactor geometry when keff
-            drops below 1.0
-        compression_params : Pytables filter object
-            Compression parameters for HDF5 database.
 
         """
         # initialize all object attributes
