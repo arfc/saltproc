@@ -212,7 +212,7 @@ OpenMC-specific properties
     ``string``
 
 
-.. _opemc_depletion_settings_property:
+.. _openmc_depletion_settings_property:
 
 ``depletion_settings``
 ~~~~~~~~~~~~~~~~~~~~~~

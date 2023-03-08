@@ -61,8 +61,8 @@ parameters to be filled by the user:
 
 JavaScript Object Notation (JSON)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-SaltProc uses :ref:`JSON` to structure its input files. JSON is used as it has
-all the capabilities of stuctured markup language like :ref:`XML`, but intead
+SaltProc uses `JSON`_ to structure its input files. JSON is used as it has
+all the capabilities of stuctured markup language like `XML`_, but intead
 of using tags, it is structured more or less like a dictionary data structure.
 This has the benefit of being extremely easy and quick to write by hand.
 
@@ -99,8 +99,10 @@ in which case the results are stored in a directory with that path):
   for the :math:`i`-th depletion step.
 
 .. note:: 
-   Users must use :ref:`PyTables` to load and read results directly from
+   Users must use `PyTables`_ to load and read results directly from
    the HDF5 file. An API for doing this is in development.
+
+.. _PyTables: http://pytables.org
 
 Physical Units
 --------------

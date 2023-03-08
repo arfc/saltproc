@@ -62,14 +62,18 @@ code.
 
 Serpent2
 ~~~~~~~~
-Only two additional parameters are needed for Serpent2 coupling. The first is 
-:ref:`serpent_template_input_file_path_property`, which is a path to a template
-input file. We describe the structure of this file in :ref:`userguide_templates_serpent`.
-The second is :ref:`zaid_convention_property`, which is a string that tells SaltProc what
-convention to use for the ZAIDs of metastable isotopes. By default, SaltProc
-uses the ``mcnp`` convention. 
-Let's
-assume that we name our template input file `template.serpent`:
+Only two additional parameters are needed for Serpent2 coupling:
+
+:ref:`serpent_template_input_file_path_property`
+  A path to a template input file. We describe the structure of this file in :ref:`userguide_templates_serpent`.
+
+:ref:`zaid_convention_property`
+  A string that tells SaltProc what convention to use for the ZAIDs of
+  metastable isotopes. By default, SaltProc uses the ``mcnp`` convention. 
+
+Let's assume that we name our template input file `template.serpent`. If we have
+verified that we are okay to use the default value for ``zaid_convention``, then
+we have:
 
 .. code-block:: json
 
@@ -95,7 +99,7 @@ Fortunately, SaltProc doesn't require users to touch these setting at all if
 they want to use the default options. Users interested in configuring their
 OpenMC depletion settings should advise the `deplete module API`_ as well as the
 `user guide section on depletion`_ to familiarize themselves with the various
-options, then look at the section on...
+options, then look at the options in :ref:`openmc_depletion_settings_property`.
 
 The ``depcode`` paramter for OpenMC also has the
 :ref:`openmc_template_input_file_path_property` parameter, except it is an
@@ -128,7 +132,31 @@ which is a path to an OpenMC depletion chain file. Suppose we prepend
 
 Simulation parameters
 ---------------------
-SaltProc allows some degree of control over how the simulation behaves. These are not relevant...
+Most users will only need to set the ``sim_name`` parameter. In this case,
+we can just pick ``"saltproc_example"``:
+
+.. code-block:: json
+
+   {
+       "proc_input_file": "processes.json",
+       "dot_input_file": "graph.dot",
+       "depcode": {},
+       "simulation": {
+           "sim_name": "saltproc_example"
+       }
+   }
+
+There are two optional parameters that are important to make note of:
+
+:ref:`restart_flag_property`
+  If a simulation fails before all the depletion steps have been calculated, the
+  users can set ``restart_flag`` to ``true`` to run the simulation
+  staring the last completed depletion step
+
+:ref:`adjust_geo_property`
+  Setting ``adjut_geo`` to ``true`` will instruct SaltProc to switch to the next
+  geometry file in ``geo_file_paths`` when :math:`k_\text{eff}` drops below 1.
+
 
 Depletion step parameters
 -------------------------
@@ -137,11 +165,53 @@ method, solver used for the Bateman equations, normalization, etc.) should be
 set in the template input file when possible. The rationale for this is that
 these settings have more to do with the internal depletion calculations of the
 transport code than they do with SaltProc execution. The obvious exception to
-this is the delpletion step settings. 
+this are the delpletion step settings. 
 
-SaltProc has three...
+The ``reactor`` parameter provides four parameters to specify depletion settings:
+
+:ref:`power_levels_property`
+  This property describes the power level at each depletion timestep. If a user
+  wants to use the same power level for each depletion timestep, they can pass
+  a singleton list instead and set :ref:`n_depletion_steps_property`.
+
+:ref:`depletion_timesteps_property`
+  This property described the length of each depletion step.
+
+:ref:`timestep_type_property`
+  The value of this property (``cumulative`` or ``stepwise``) tells SaltProc how
+  to interpret ``depletion_timesteps``. If ``cumulative``, each value in
+  ``depletion timesteps`` is assumed to be an absolute time, so the depletion
+  step lengths are the differences between consecutive entries. If
+  ``stepwise``, each value in ``depletion_stimesetps`` is assumed to be the
+  length of each depletion step. ``stepwise`` is the default value for this
+  parameter.
+
+:ref:`timestep_units_property`
+  This parameter specifies the units for ``depletion_timesteps``
 
 
+Let's assume we want to run a depletion simultion for 36 days using 3-day
+timesteps at 1000MW:
+
+.. code-block:: json
+
+   {
+       "proc_input_file": "processes.json",
+       "dot_input_file": "graph.dot",
+       "n_depletion_steps": 12,
+       "depcode": {},
+       "simulation": {
+           "sim_name": "saltproc_example"
+       },
+       "reactor": {
+           "depletion_timesteps": [3],
+           "power_levels": [1000],
+           "timestep_units": "d"
+       }
+   }
+
+
+With this, our input file is finished!
 
 .. rubric:: Footnotes
 

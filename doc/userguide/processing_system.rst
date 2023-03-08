@@ -278,7 +278,9 @@ associated with it, and *acyclic* means there shouldn't be any "loops", that is,
 there should be no way to traverse along an edge that takes you back to a node
 you already visited.
 
-SaltProc uses the :ref:`networkx` package to process graphs, and this is also
+.. _networkx: http://networkx.github.io
+
+SaltProc uses the `networkx`_ package to process graphs, and this is also
 how they should be constructed. We start by importing ``networkx`` and creating
 a ``DiGraph``:
 
@@ -325,4 +327,4 @@ Finally, we need to export this graph to a ``.dot`` file:
 .. code-block:: python
 
    import networkx.drawing as nxd
-   nxd.nx_pydot.write_dot(system, 'processing_graph.dot')
+   nxd.nx_pydot.write_dot(system, 'graph.dot')
