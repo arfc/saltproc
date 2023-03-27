@@ -612,7 +612,7 @@ i       Parameters
             nuc_code_map = self.map_nuclide_code_zam_to_serpent()
             if not(hasattr(self, '_burnable_material_card_data')):
                 lines = self.read_plaintext_file(self.template_input_file_path)
-                _, abs_src_matfile = self.get_burnable_materials_file(lines)
+                _, abs_src_matfile = self._get_burnable_materials_file(lines)
                 file_lines = self.read_plaintext_file(abs_src_matfile)
                 self._get_burnable_material_card_data(file_lines)
             for name, mat in mats.items():
