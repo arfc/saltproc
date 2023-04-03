@@ -5,4 +5,4 @@ json
 jsonschema
 pytables
 networkx
-pydotplus
+pydot
