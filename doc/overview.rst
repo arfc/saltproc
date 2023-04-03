@@ -16,8 +16,7 @@ liquid-fueled depletion simulations with the following capabilities:
 
   - Can model any reactor design,
   
-  - Potentially, can couple with any depletion tool (i.e., MCNP, SCALE, OpenMC).
-
+  - Couples with OpenMC and SERPENT (and extendable to other tools such as MCNP or SCALE). 
 .. _supported_codes:
 
 Currently supported transport solvers:
