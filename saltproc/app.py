@@ -69,7 +69,7 @@ def run():
         # Reprocessing here
         print("\nMass and volume of fuel before reproc: %f g, %f cm3" %
               (mats['fuel'].mass,
-               mats['fuel'].vol))
+               mats['fuel'].volume))
         # print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
         #       (mats['ctrlPois'].mass,
         #        mats['ctrlPois'].vol))
@@ -78,22 +78,24 @@ def run():
                                                             dot_file)
         print("\nMass and volume of fuel after reproc: %f g, %f cm3" %
               (mats['fuel'].mass,
-               mats['fuel'].vol))
+               mats['fuel'].volume))
         # print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
         #       (mats['ctrlPois'].mass,
         #        mats['ctrlPois'].vol))
+        #breakpoint()
         waste_and_feed_streams = refill_materials(mats,
                                                   extracted_mass,
                                                   waste_streams,
                                                   process_file)
         print("\nMass and volume of fuel after REFILL: %f g, %f cm3" %
               (mats['fuel'].mass,
-               mats['fuel'].vol))
+               mats['fuel'].volume))
         # print("Mass and volume of ctrlPois after REFILL %f g; %f cm3" %
         #       (mats['ctrlPois'].mass,
         #        mats['ctrlPois'].vol))
         print("Removed mass [g]:", extracted_mass)
         # Store in DB after reprocessing and refill (right before next depl)
+        #breakpoint()
         simulation.store_after_repr(mats, waste_and_feed_streams, step_idx)
         depcode.update_depletable_materials(mats, simulation.burn_time)
 
@@ -470,6 +472,7 @@ def reprocess_materials(mats, process_file, dot_file):
         #    waste_streams[mat_name]['removal_tb_dy'] = waste_stream
         #    mats[mat_name] = thru_flow
 
+        #assert 1 == 2
         extracted_mass[mat_name] = \
             inmass[mat_name] - float(mats[mat_name].mass)
 
@@ -590,7 +593,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
         representing those material feed streams.
 
     """
-    print('Fuel before refilling: ^^^', mats['fuel'].print_attr())
+    #print('Fuel before refilling: ^^^', mats['fuel'].print_attr())
     feeds = get_feeds(process_file)
     refill_mats = OrderedDict()
     # Get feed group for each material
@@ -603,8 +606,8 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
         mats[mat] += refill_mats[mat]
         print('Refilled fresh material: %s %f g' %
               (mat, refill_mats[mat].mass))
-        print('Refill Material: ^^^', refill_mats[mat].print_attr())
-        print('Fuel after arefill: ^^^', mats[mat].print_attr())
+        #print('Refill Material: ^^^', refill_mats[mat].print_attr())
+        #print('Fuel after arefill: ^^^', mats[mat].print_attr())
     return waste_streams
 
 
@@ -639,9 +642,8 @@ def get_feeds(process_file):
         for mat in j:
             feeds[mat] = OrderedDict()
             for feed_name, feed_data in j[mat]['feeds'].items():
-                nucvec = feed_data['comp']
-                feeds[mat][feed_name] = Materialflow(nucvec)
-                feeds[mat][feed_name].mass = feed_data['mass']
-                feeds[mat][feed_name].density = feed_data['density']
-                feeds[mat][feed_name].vol = feed_data['volume']
+                comp = feed_data['comp']
+                feeds[mat][feed_name] = Materialflow(comp=comp,
+                                                     density=feed_data['density'],
+                                                     volume=feed_data['volume'])
         return feeds

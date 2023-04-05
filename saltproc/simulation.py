@@ -59,6 +59,8 @@ class Simulation():
         self.restart_flag = restart_flag
         self.adjust_geo = adjust_geo
         self.compression_params = compression_params
+        self.nuclide_indices_dtype = np.dtype([('nuclide', 'S9'),
+                                          ('index', int)])
 
     def check_restart(self):
         """If the user set `restart_flag`
@@ -119,57 +121,67 @@ class Simulation():
             Current depletion time step.
 
         """
-        streams_gr = 'in_out_streams'
+        #breakpoint()
+        streams_description = 'in_out_streams'
         db = tb.open_file(
             self.db_path,
             mode='a',
             filters=self.compression_params)
-        for mn in waste_dict.keys():  # iterate over materials
-            mat_node = getattr(db.root.materials, mn)
-            if not hasattr(mat_node, streams_gr):
+        for material_name in waste_dict.keys():  # iterate over materials
+            mat_node = getattr(db.root.materials, material_name)
+            if not hasattr(mat_node, streams_description):
                 waste_group = db.create_group(
                     mat_node,
-                    streams_gr,
-                    'Waste Material streams data for each process')
+                    streams_description,
+                    'Waste stream compositions for each process')
             else:
-                waste_group = getattr(mat_node, streams_gr)
-            for proc in waste_dict[mn].keys():
-                # proc_node = db.create_group(waste_group, proc)
-                # iso_idx[proc] = OrderedDict()
-                iso_idx = OrderedDict()
+                waste_group = getattr(mat_node, streams_description)
+            for proc in waste_dict[material_name].keys():
+                if not hasattr(waste_group, proc):
+                    proc_node = db.create_group(waste_group, proc)
+                else:
+                    proc_node = getattr(waste_group, proc)
+                #iso_idx = OrderedDict()
+                nuclide_indices = []
                 iso_wt_frac = []
                 coun = 0
-                # Read isotopes from Materialflow
-                for nuc, wt_frac in waste_dict[mn][proc].comp.items():
-                    # Dictonary in format {isotope_name : index(int)}
-                    iso_idx[self.sim_depcode.convert_nuclide_code_to_name(nuc)] = coun
-                    # Convert wt% to absolute [user units]
-                    iso_wt_frac.append(wt_frac * waste_dict[mn][proc].mass)
-                    coun += 1
-                # Try to open EArray and table and if not exist - create
-                try:
-                    earr = db.get_node(waste_group, proc)
-                except Exception:
-                    earr = db.create_earray(
-                        waste_group,
-                        proc,
-                        atom=tb.Float64Atom(),
-                        shape=(0, len(iso_idx)),
-                        title="Isotopic composition for %s" % proc)
-                    # Save isotope indexes map and units in EArray attributes
-                    earr.flavor = 'python'
-                    earr.attrs.iso_map = iso_idx
+                if hasattr(waste_dict[material_name][proc], 'comp'):
+                    # Read isotopes from Materialflow
+                    for nuc, wt_frac in waste_dict[material_name][proc].comp.items():
+                        # Dictonary in format {isotope_name : index(int)}
+                        #iso_idx[nuc] = coun
+                        nuclide_indices.append((nuc, coun))
+                        # Convert wt% to absolute [user units]
+                        iso_wt_frac.append(wt_frac * waste_dict[material_name][proc].mass)
+                        coun += 1
+                    # Try to open EArray and table and if not exist - create
+                    nuclide_indices_array = np.array(nuclide_indices, dtype=self.nuclide_indices_dtype)
+                    if hasattr(proc_node, 'comp'):
+                        earr = db.get_node(proc_node, 'comp')
+                    else:
+                        earr = db.create_earray(
+                            proc_node,
+                            'comp',
+                            atom=tb.Float64Atom(),
+                            shape=(0, len(nuclide_indices_array)),
+                            title="Isotopic composition for %s" % proc)
+                        # Save isotope indexes map and units in EArray attributes
+                        earr.flavor = 'python'
+                        #earr.attrs.iso_map = iso_idx
+                    if not hasattr(proc_node, 'nuclide_map'):
+                        db.create_table(proc_node,
+                                       'nuclide_map',
+                                        description=nuclide_indices_array)
 
-                earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, iso_idx, iso_wt_frac)
+                    earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, nuclide_indices, iso_wt_frac)
 
-                earr.append(np.asarray([iso_wt_frac], dtype=np.float64))
-                del iso_wt_frac
-                del iso_idx
+                    earr.append(np.asarray([iso_wt_frac], dtype=np.float64))
+                    del iso_wt_frac
         # Also save materials AFTER reprocessing and refill here
         self.store_mat_data(after_mats, dep_step, True)
         db.close()
 
-    def _fix_nuclide_discrepancy(self, db, earr, iso_idx, iso_wt_frac):
+    def _fix_nuclide_discrepancy(self, db, earr, nuclide_indices, iso_wt_frac):
         """Fix discrepancies between nuclide keys present in stored results and
         nuclides keys stored in results for the current depletion step
 
@@ -180,7 +192,7 @@ class Simulation():
         earr : tables.EArray
             Array storing nuclide material mass compositions from previously
             completed depletion steps
-        iso_idx : OrderedDict
+        nuclide_indices : OrderedDict
             Map of nuclide name to array index
         iso_wt_frac : list of float
             List storing nuclide material mass compositions for current
@@ -198,7 +210,14 @@ class Simulation():
             in the current depletion step that are stored in earr.
         """
 
-        base_nucs= set(earr.attrs.iso_map.keys())
+        parent_node = earr._v_parent
+        #if isinstance(nuclide_indices, dict):
+        #    base_nucs = set(earr.attrs.iso_map.keys())
+        #    iso_idx = nuclide_indices
+        #    step_nucs = set(iso_idx.keys())
+        #else:
+        base_nucs = set(map(bytes.decode, parent_node.nuclide_map.col('nuclide')))
+        iso_idx = dict(nuclide_indices)
         step_nucs = set(iso_idx.keys())
         forward_difference = base_nucs.difference(step_nucs)
         backward_difference = step_nucs.difference(base_nucs)
@@ -220,10 +239,18 @@ class Simulation():
                         title=node_title)
             # Save isotope indexes map and units in EArray attributes
             earr.flavor = 'python'
-            earr.attrs.iso_map = combined_map
+            #earr.attrs.iso_map = combined_map
             earr_len = len(combined_earr)
             for i in range(earr_len):
                 earr.append(np.array([combined_earr[i]]))
+
+            # Reform nuclide_map
+            nuclide_indices = list(zip(combined_map.keys(), combined_map.values()))
+            nuclide_indices_array = np.array(nuclide_indices, dtype=self.nuclide_indices_dtype)
+            db.remove_node(parent_node.nuclide_map)
+            db.create_table(parent_node,
+                            'nuclide_map',
+                            description=nuclide_indices_array)
         else:
             combined_step_arr = iso_wt_frac
 
@@ -263,10 +290,14 @@ class Simulation():
             depletion step with additional entries for nuclides not present
             in the current depletion step that are stored in earr.
         """
+        parent_node = earr._v_parent
+        _nuclides = list(map(bytes.decode, parent_node.nuclide_map.col('nuclide')))
+        _indices = parent_node.nuclide_map.col('index')
+        base_nuclide_map = dict(zip(_nuclides, _indices))
         combined_nucs = list(base_nucs.union(step_nucs))
         # Sort the nucnames by ZAM
-        nuccodes = list(map(self.sim_depcode._convert_name_to_nuccode, combined_nucs))
-        combined_nucs = [nucname for nuccode, nucname in sorted(zip(nuccodes,combined_nucs))]
+        nuclide_codes = list(map(self.sim_depcode.name_to_nuclide_code, combined_nucs))
+        combined_nucs = [nucname for nuclide_code, nucname in sorted(zip(nuclide_codes,combined_nucs))]
 
         combined_values = np.arange(0, len(combined_nucs), 1).tolist()
         combined_map = OrderedDict(zip(combined_nucs,combined_values))
@@ -277,7 +308,7 @@ class Simulation():
         for nuc, idx in combined_map.items():
             if nuc in base_nucs:
                 for i in range(earr_len):
-                    combined_earr[i,idx] = earr[i][earr.attrs.iso_map[nuc]]
+                    combined_earr[i,idx] = earr[i][base_nuclide_map[nuc]]
                 if nuc in step_nucs:
                     combined_step_arr[idx] = iso_wt_frac[iso_idx[nuc]]
                 else:
@@ -320,7 +351,8 @@ class Simulation():
             dep_step_str = ["before_reproc", "before"]
 
         # Moment when store compositions
-        iso_idx = OrderedDict()
+        #iso_idx = OrderedDict()
+        #
         # numpy array row storage data for material physical properties
         mpar_dtype = np.dtype([
             ('mass', float),
@@ -335,6 +367,7 @@ class Simulation():
         print(
             '\nStoring material data for depletion step #%i.' %
             (dep_step + 1))
+        #breakpoint()
         db = tb.open_file(
             self.db_path,
             mode='a',
@@ -345,7 +378,8 @@ class Simulation():
                                          'Material data')
         # Iterate over all materials
         for key, value in mats.items():
-            iso_idx[key] = OrderedDict()
+            #iso_idx[key] = OrderedDict()
+            nuclide_indices = []
             iso_wt_frac = []
             coun = 0
             # Create group for each material
@@ -360,18 +394,21 @@ class Simulation():
                                 'Material data {dep_step_str[1]} reprocessing')
             comp_pfx = '/materials/' + str(key) + '/' + dep_step_str[0]
             # Read isotopes from Materialflow for material
-            for nuc_code, wt_frac in mats[key].comp.items():
+            for nuc, wt_frac in mats[key].comp.items():
                 # Dictonary in format {isotope_name : index(int)}
-                iso_idx[key][self.sim_depcode.convert_nuclide_code_to_name(nuc_code)] = coun
+                #iso_idx[key][nuc] = coun
+                nuclide_indices.append((nuc, coun))
                 # Convert wt% to absolute [user units]
                 iso_wt_frac.append(wt_frac * mats[key].mass)
                 coun += 1
+            nuclide_indices_array = np.array(nuclide_indices,
+                                             dtype=self.nuclide_indices_dtype)
             # Store information about material properties in new array row
             mpar_row = (
                 mats[key].mass,
-                mats[key].density,
-                mats[key].vol,
-                mats[key].temp,
+                mats[key].get_density(),
+                mats[key].volume,
+                mats[key].temperature,
                 mats[key].mass_flowrate,
                 mats[key].void_frac,
                 mats[key].burnup
@@ -391,22 +428,26 @@ class Simulation():
                     comp_pfx,
                     'comp',
                     atom=tb.Float64Atom(),
-                    shape=(0, len(iso_idx[key])),
+                    shape=(0, len(nuclide_indices_array)),
                     title="Isotopic composition for %s" % key)
                 # Save isotope indexes map and units in EArray attributes
                 earr.flavor = 'python'
-                earr.attrs.iso_map = iso_idx[key]
+                #earr.attrs.iso_map = iso_idx[key]
                 # Create table for material Parameters
+                print('Creating ' + key + ' lookup table.')
+                db.create_table(comp_pfx,
+                                'nuclide_map',
+                                description=nuclide_indices_array)
                 print('Creating ' + key + ' parameters table.')
                 mpar_table = db.create_table(
                     comp_pfx,
                     'parameters',
                     np.empty(0, dtype=mpar_dtype),
-                    "Material parameters data")
+                    title="Material parameters data")
             print('Dumping Material %s data %s to %s.' %
                   (key, dep_step_str[0], os.path.abspath(self.db_path)))
 
-            earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, iso_idx[key], iso_wt_frac)
+            earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, nuclide_indices, iso_wt_frac)
 
             # Add row for the timestep to EArray and Material Parameters table
             earr.append(np.array([iso_wt_frac], dtype=np.float64))

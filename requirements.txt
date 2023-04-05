@@ -1,4 +1,3 @@
-pyne
 numpy
 scipy
 json
@@ -6,3 +5,4 @@ jsonschema
 pytables
 networkx
 pydot
+serpentTools

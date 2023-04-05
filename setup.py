@@ -7,6 +7,11 @@ ver_file = os.path.join('saltproc', 'version.py')
 with open(ver_file) as f:
     exec(f.read())
 
+
+ENTRY_POINTS = {
+    'console_scripts': ['saltproc = saltproc.app:run']
+}
+
 opts = dict(name=NAME,
             maintainer=MAINTAINER,
             maintainer_email=MAINTAINER_EMAIL,

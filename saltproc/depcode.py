@@ -191,7 +191,7 @@ class Depcode(ABC):
         return file_lines
 
     @abstractmethod
-    def convert_nuclide_code_to_name(self, nuc_code):
+    def nuclide_code_to_name(self, nuc_code):
         """Converts depcode nuclide code to symbolic nuclide name.
 
         Parameters
@@ -207,7 +207,7 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def _convert_name_to_nuccode(self, nucname):
+    def name_to_nuclide_code(self, nucname):
         """Converts depcode nuclide name to ZA nuclide code
 
         Parameters

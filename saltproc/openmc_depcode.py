@@ -6,8 +6,6 @@ from pathlib import Path
 import numpy as np
 
 from uncertainties import unumpy
-from pyne import nucname as pyname
-from pyne import serpent
 import openmc
 
 from saltproc import Materialflow
@@ -285,13 +283,9 @@ class OpenMCDepcode(Depcode):
         for starting_material, depleted_material in openmc_materials:
             if depleted_material.depletable:
                 volume = depleted_material.volume
-                nucvec = self._create_mass_percents_dictionary(depleted_material)
+                density = depleted_material.get_mass_density()
+                comp = self._create_mass_percents_dictionary(depleted_material)
                 name = depleted_material.name
-                depleted_materials[name] = Materialflow(nucvec)
-                depleted_materials[name].density = depleted_material.get_mass_density()
-                depleted_materials[name].mass = depleted_materials[name].density * volume
-                depleted_materials[name].vol = volume
-
                 if read_at_end:
                     sp0 = openmc.StatePoint(self.output_path / 'openmc_simulation_n0.h5')
                     heavy_metal_mass = starting_material.fissionable_mass * _KG_PER_G
@@ -300,7 +294,10 @@ class OpenMCDepcode(Depcode):
                     burnup = power * days / heavy_metal_mass
                 else:
                     burnup = 0
-                depleted_materials[name].burnup = burnup
+                depleted_materials[name] = Materialflow(comp=comp,
+                                                        density=density,
+                                                        volume=volume,
+                                                        burnup=burnup)
         del openmc_materials, depleted_openmc_materials, starting_openmc_materials
         return depleted_materials
 
@@ -334,10 +331,14 @@ class OpenMCDepcode(Depcode):
             mass_percents = percents
         else:
             raise ValueError(f'{percent_type} is not a valid percent type')
-        pyne_nucs = list(map(self._convert_nucname_to_pyne, nucs))
+        #PyNE
+        #pyne_nucs = list(map(self._convert_nucname_to_pyne, nucs))
 
-        return dict(zip(pyne_nucs, mass_percents))
+        #PyNE
+        #return dict(zip(pyne_nucs, mass_percents))
+        return dict(zip(nucs, mass_percents))
 
+    #PyNE
     def _convert_nucname_to_pyne(self, nucname):
         """Helper function for :func:`_create_mass_percents_dictionary`.
         Converts an OpenMC-formatted nuclide name into a PyNE-formatted
@@ -365,18 +366,11 @@ class OpenMCDepcode(Depcode):
         power = fission_energy * f * JOULE_PER_EV # J / s
         return power
 
-    def convert_nuclide_code_to_name(self, nuc):
-        nucname = pyname.name(nuc)
-        if nucname[-1] == 'M':
-            nucname = nucname[:-1]
-            nucname += '_m1'
-        return nucname
+    def nuclide_code_to_name(self, nuc):
+        return nuc
 
-    def _convert_name_to_nuccode(self, nucname):
-        nucname = self._convert_nucname_to_pyne(nucname)
-        z = pyname.znum(nucname)
-        a = pyname.anum(nucname)
-        m = pyname.snum(nucname)
+    def name_to_nuclide_code(self, nucname):
+        z, a, m = openmc.data.zam(nucname)
         code = z * 1000 + a
         if m != 0:
             code += 300 + 100 * m
@@ -534,15 +528,11 @@ class OpenMCDepcode(Depcode):
             # depletable materials only
             if material.name in mats.keys():
                 components = {}
-                for nuc_code, mass_fraction in mats[material.name].comp.items():
-                    nuc_name = pyname.name(nuc_code)
-                    # Convert nuclide names from PyNE format to OpenMC format
-                    if nuc_name[-1] == 'M':
-                        nuc_name = nuc_name[:-1] + '_m1'
+                for nuc_name, mass_fraction in mats[material.name].comp.items():
                     components[nuc_name] = mass_fraction
 
                 material.set_density('g/cm3', mats[material.name].density)
-                material.volume = mats[material.name].vol
+                material.volume = mats[material.name].volume
                 for element in material.get_elements():
                     material.remove_element(element)
                 material.add_components(components, percent_type='wo')

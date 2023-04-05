@@ -74,13 +74,15 @@ def test_update_depletable_materials(setup, openmc_depcode, openmc_reactor):
     for material in test_mats:
         if material.name in ref_mats.keys():
             ref_material = ref_mats[material.name]
-            nucvec = openmc_depcode._create_mass_percents_dictionary(material, percent_type='wo')
-            test_material = saltproc.Materialflow(nucvec)
-            test_material.density = material.get_mass_density()
-            test_material.mass = material.density * material.volume
-            test_material.vol = material.volume
-            for key in test_material.keys():
-                np.testing.assert_almost_equal(ref_material[key], test_material[key])
+            comp = openmc_depcode._create_mass_percents_dictionary(material, percent_type='wo')
+            test_material = saltproc.Materialflow(comp=comp,
+                                                  density=material.get_mass_density(),
+                                                  volume=material.volume)
+            #test_material.set_density('g/cm3', material.get_mass_density())
+            #test_material.mass = material.density * material.volume
+            #test_material.volume = material.volume
+            for key in test_material.comp.keys():
+                np.testing.assert_almost_equal(ref_material.comp[key], test_material.comp[key])
 
     os.remove(openmc_depcode.runtime_matfile)
     # add the initial geometry file back in
@@ -189,8 +191,7 @@ def test_read_depleted_materials(setup, openmc_depcode):
     ref_mats = openmc_depcode.read_depleted_materials(True)
     for mat_name, ref_mat in ref_mats.items():
         for nuc in xml_mats[mat_name].get_nuclides():
-            pyne_nuc = openmc_depcode._convert_nucname_to_pyne(nuc)
-            np.testing.assert_almost_equal(ref_mat[pyne_nuc], xml_mats[mat_name].get_mass(nuc))
+            np.testing.assert_almost_equal(ref_mat.get_mass(nuc), xml_mats[mat_name].get_mass(nuc))
 
 
 def test_switch_to_next_geometry(setup, openmc_depcode, openmc_reactor):
