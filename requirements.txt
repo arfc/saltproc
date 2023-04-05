@@ -2,7 +2,7 @@ numpy
 scipy
 json
 jsonschema
-pytables
+tables
 networkx
 pydot
 serpentTools
