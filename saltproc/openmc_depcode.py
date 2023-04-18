@@ -376,7 +376,7 @@ class OpenMCDepcode(Depcode):
             code += 300 + 100 * m
         return code
 
-    def run_depletion_step(self, mpi_args=None, threads=None):
+    def run_depletion_step(self, mpi_args, threads, subprocess_kwargs):
         """Runs a depletion step in OpenMC as a subprocess
 
         mpi_args : list of str
@@ -402,7 +402,7 @@ class OpenMCDepcode(Depcode):
         if mpi_args is not None:
             args = mpi_args + args
 
-        super().run_depletion_step(mpi_args, args)
+        super().run_depletion_step(mpi_args, args, subprocess_kwargs)
 
     def switch_to_next_geometry(self):
         """Switches the geometry file for the OpenMC depletion simulation to

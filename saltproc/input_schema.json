@@ -49,7 +49,11 @@
                     "type": "array",
                     "items": { "type": "string"},
                     "minItems": 1,
-                    "uniqueItems": true}
+                    "uniqueItems": true},
+                "subprocess_kwargs": {
+                    "description": "Keyword arguments for subprocess.run() in Depcode.run_depletion_step()",
+                    "type": "object",
+                    "default": {}}
             },
             "required": ["codename", "template_input_file_path", "geo_file_paths"],
             "allOf": [
