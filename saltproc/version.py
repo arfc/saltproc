@@ -90,6 +90,7 @@ PACKAGE_DATA = {'saltproc': [pjoin('data', '*'),
 PACKAGES = ["saltproc"]
 REQUIRES = ["numpy",
             "networkx",
+            "openmc",
             "tables",
             "pydot",
             "pytest",

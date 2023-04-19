@@ -5,7 +5,7 @@ channels:
 dependencies:
   - numpy
   - openmc
-  - tables
+  - pytables
   - networkx
   - pydot
   - pytest

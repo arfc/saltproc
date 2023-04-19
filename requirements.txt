@@ -2,7 +2,8 @@ numpy
 scipy
 json
 jsonschema
-tables
+openmc
+pytables
 networkx
 pydot
 serpentTools
