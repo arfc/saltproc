@@ -1,15 +1,32 @@
+.. _saltproc_overview:
+
 Overview
 =========
 
-SaltProc couples directly with a variety of Monte Carlo neutron transport codes with depletion capabilities and enables sophisticated, multi-component online fuel reprocessing system
-modeling. SaltProc is the first open-source tool for liquid-fueled MSR
-depletion simulation with the following capabilities:
+SaltProc couples directly with a variety of neutron transport codes with
+depletion capabilities and enables sophisticated, multi-component online fuel
+reprocessing system modeling. SaltProc is the first open-source tool for
+liquid-fueled depletion simulations with the following capabilities:
 
-- neutron poison removal with user-defined efficiency,
-- make-up mass loss by fresh fuel injection,
-- reactivity control by adjusting fuel feed rate or reactor geometry (i.e. control rod depth),
-- can model any reactor design,
-- potentially, can couple with any depletion tool (i.e., MCNP, SCALE, OpenMC).
+  - Neutron poison removal with user-defined efficiency,
+
+  - Make-up mass loss by fresh fuel injection,
+
+  - Reactivity control by adjusting fuel feed rate or reactor geometry (i.e. control rod depth),
+
+  - Can model any reactor design,
+  
+  - Couples with OpenMC and SERPENT (and extendable to other tools such as MCNP or SCALE). 
+.. _supported_codes:
+
+Currently supported transport solvers:
+
+  - `Serpent2`_
+
+  - `OpenMC`_
+
+.. _Serpent2: http://montecarlo.vtt.fi
+.. _OpenMC: https://openmc.org/
 
 
 How SaltProc works
@@ -18,10 +35,10 @@ How SaltProc works
 SaltProc is a driver for Monte Carlo transport codes with depletion capabilities (henceforth referred to as *transport-depletion codes*) to simulate online fuel salt reprocessing for
 Molten Salt Reactors. It performs following major functions:
 
-  - runs the transport-depletion code
-  - parses and stores depleted material data in HDF5
-  - modifies parsed material composition (`reprocesses`)
-  - creates a new transport-depletion code input file
+  - Runs the transport-depletion code
+  - Parses and stores depleted material data in HDF5
+  - Modifies parsed material composition (`reprocesses`)
+  - Creates a new transport-depletion code input file
 
 
 The code logic flow is the following:

@@ -6,6 +6,24 @@ from abc import ABC, abstractmethod
 class Depcode(ABC):
     """Abstract interface for running depletion steps.
 
+    Parameters
+    ----------
+    output_path : str
+        Path to results storage directory.
+    codename : str
+        Name of depletion code.
+    exec_path : str
+        Path to depletion code executable.
+    template_input_file_path : str or dict of str to str
+        Path(s) to depletion code input file(s), or a dictionary where
+        the input type (e.g. material, geometry, settings, etc.) as a
+        string are keys, and the path to the input file are values.
+        Type depends on depletion code in use.
+    geo_file_paths : str or list, optional
+        Path to file that contains the reactor geometry.
+        List of `str` if reactivity control by
+        switching geometry is `On` or just `str` otherwise.
+
     Attributes
     -----------
     neutronics_parameters : dict of str to type
@@ -26,7 +44,6 @@ class Depcode(ABC):
     inactive_cycles : int
         Number of inactive cycles.
 
-
     """
 
     def __init__(self,
@@ -36,24 +53,6 @@ class Depcode(ABC):
                  template_input_file_path,
                  geo_file_paths):
         """Initialize a Depcode object.
-
-           Parameters
-           ----------
-           output_path : str
-               Path to results storage directory.
-           codename : str
-               Name of depletion code.
-           exec_path : str
-               Path to depletion code executable.
-           template_input_file_path : str or dict of str to str
-               Path(s) to depletion code input file(s), or a dictionary where
-               the input type (e.g. material, geometry, settings, etc.) as a
-               string are keys, and the path to the input file are values.
-               Type depends on depletion code in use.
-           geo_file_paths : str or list, optional
-               Path to file that contains the reactor geometry.
-               List of `str` if reactivity control by
-               switching geometry is `On` or just `str` otherwise.
 
         """
         self.codename = codename

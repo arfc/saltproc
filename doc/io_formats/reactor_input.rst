@@ -103,7 +103,7 @@ Required properties: ``volume``, ``mass_flowrate``, ``power_levels``,
   :default:
     ``stepwise``
 
-.. _timestep_unites_property:
+.. _timestep_units_property:
 
 ``timestep_units``
 ------------------

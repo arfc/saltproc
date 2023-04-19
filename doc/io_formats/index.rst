@@ -1,9 +1,9 @@
-.. _fileformatspec:
+.. _io_formats:
 
 File Format Specifications
 ==========================
 
-.. _fileformatspect_input_files:
+.. _io_formats_input_files:
 
 Input Files
 -----------
@@ -17,7 +17,7 @@ Input Files
   reactor_input
 
 
-.. _fileformatspec_output_files:
+.. _io_formats_output_files:
 
 Output Files
 ------------

@@ -10,7 +10,6 @@ import traceback
 import json, jsonschema
 import gc
 import networkx as nx
-import pydotplus
 
 from saltproc import SerpentDepcode, OpenMCDepcode, Simulation, Reactor
 from saltproc import Process, Sparger, Separator, Materialflow
@@ -454,22 +453,22 @@ def reprocess_materials(mats, process_file, dot_file):
                 print(f'{i + 1} Materal mass on path {i}: '
                       f'{thru_flows[mat_name][i].mass}')
 
-            print('\nMass balance: %f g = %f + %f + %f + %f + %f + %f' %
-                  (inmass[mat_name],
-                   mats[mat_name].mass,
-                   waste_streams[mat_name]['waste_sparger'].mass,
-                   waste_streams[mat_name]['waste_entrainment_separator'].mass,
-                   waste_streams[mat_name]['waste_nickel_filter'].mass,
-                   waste_streams[mat_name]['waste_bypass'].mass,
-                   waste_streams[mat_name]['waste_liquid_metal'].mass))
+        #    print('\nMass balance: %f g = %f + %f + %f + %f + %f + %f' %
+        #          (inmass[mat_name],
+        #           mats[mat_name].mass,
+        #           waste_streams[mat_name]['waste_sparger'].mass,
+        #           waste_streams[mat_name]['waste_entrainment_separator'].mass,
+        #           waste_streams[mat_name]['waste_nickel_filter'].mass,
+        #           waste_streams[mat_name]['waste_bypass'].mass,
+        #           waste_streams[mat_name]['waste_liquid_metal'].mass))
 
         # Bootstrap for many materials
-        if mat_name == 'ctrlPois':
-            thru_flow, waste_stream = \
-                processes['removal_tb_dy'].process_material(mats[mat_name])
+        #if mat_name == 'ctrlPois':
+        #    thru_flow, waste_stream = \
+        #        processes['removal_tb_dy'].process_material(mats[mat_name])
 
-            waste_streams[mat_name]['removal_tb_dy'] = waste_stream
-            mats[mat_name] = thru_flow
+        #    waste_streams[mat_name]['removal_tb_dy'] = waste_stream
+        #    mats[mat_name] = thru_flow
 
         extracted_mass[mat_name] = \
             inmass[mat_name] - float(mats[mat_name].mass)
@@ -547,8 +546,7 @@ def get_extraction_process_paths(dot_file):
         `core_inlet`.
 
     """
-    graph_pydot = pydotplus.graph_from_dot_file(dot_file)
-    digraph = nx.drawing.nx_pydot.from_pydot(graph_pydot)
+    digraph = nx.drawing.nx_pydot.read_dot(dot_file)
     mat_name = digraph.name
     # Iterate over all possible paths between 'core_outlet' and 'core_inlet'
     all_simple_paths = nx.all_simple_paths(digraph,
@@ -588,7 +586,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
     -------
     waste_streams : dict of str to dict
         Superset of the input parameter `waste_streams`. Dictionary has
-        keys for feed streams that map to :classs:`Materialflow` objects
+        keys for feed streams that map to :class:`Materialflow` objects
         representing those material feed streams.
 
     """
@@ -597,7 +595,6 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
     refill_mats = OrderedDict()
     # Get feed group for each material
     for mat, mat_feeds in feeds.items():
-        refill_mats[mat] = {}
         # Get each feed in the feed group
         for feed_name, feed in mat_feeds.items():
             scale = extracted_mass[mat] / feed.mass
@@ -607,7 +604,7 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
         print('Refilled fresh material: %s %f g' %
               (mat, refill_mats[mat].mass))
         print('Refill Material: ^^^', refill_mats[mat].print_attr())
-        print('Fuel after refill: ^^^', mats[mat].print_attr())
+        print('Fuel after arefill: ^^^', mats[mat].print_attr())
     return waste_streams
 
 

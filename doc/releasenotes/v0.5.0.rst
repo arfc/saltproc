@@ -44,7 +44,11 @@ Dependency Changes
   - (new) → `openmc`_
   
 - ``pyne>=0.5.11`` → ``pyne>=0.5.11=nomoab_noopenmc*``
-  
+
+- ``pydotplus`` →  (removed)
+
+- (new) → ``pydot``
+
 
 
 New Features

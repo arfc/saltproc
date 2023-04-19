@@ -1,3 +1,5 @@
+.. _devguide_contributing:
+
 Contributing
 ============
 

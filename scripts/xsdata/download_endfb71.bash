@@ -22,7 +22,7 @@ mkdir -p $DATADIR/acedata
 # ndy, decay, sfy data
 LN="https://www.nndc.bnl.gov/endf-b7.1/zips/"
 SLUG="ENDF-B-VII.1-"
-DATA=("nfy" "decay" "sfy")
+DATA=("nfy" "decay" "sfy" "neutrons")
 EXT=".zip"
 for D in ${DATA[@]}
 do
@@ -35,20 +35,19 @@ do
         mkdir -p $DATADIR/$D
         unzip -j $DATADIR/$SLUG$D$EXT -d $DATADIR/$D
     fi
-    if [[ ! -f $DATADIR/endfb71.$D ]]
+    if [[ $D -ne "neutrons" ]]
     then
-        touch $DATADIR/endfb71.$D
-        files=$(ls $DATADIR/$D/*.[Ee][Nn][Dd][Ff])
-        for file in $files
-        do
-            cat $file >> $DATADIR/endfb71.$D
-        done
+        if [[ ! -f $DATADIR/endfb71.$D ]]
+        then
+            touch $DATADIR/endfb71.$D
+            files=$(ls $DATADIR/$D/*.[Ee][Nn][Dd][Ff])
+            for file in $files
+            do
+                cat $file >> $DATADIR/endfb71.$D
+            done
+        fi
     fi
 done
-
-# OpenMC depletion chain
-#conda activate openmc-env
-#python openmc_make_chain.py -D $DATADIR
 
 #########################
 ### SETUP .xsdir FILE ###

@@ -91,7 +91,7 @@ PACKAGES = ["saltproc"]
 REQUIRES = ["numpy",
             "pyne",
             "networkx",
-            "pydotplus",
+            "pydot",
             "pytest",
             "argparse",
             "jsonschema"]

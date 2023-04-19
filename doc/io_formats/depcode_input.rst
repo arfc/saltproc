@@ -95,6 +95,9 @@ Serpent-specific properties
   :pattern: 
     ``^(.\\/)*(.*)$``
                   
+
+.. _zaid_convention_property:
+
 ``zaid_convention``
 ~~~~~~~~~~~~~~~~~~~
 
@@ -209,7 +212,7 @@ OpenMC-specific properties
     ``string``
 
 
-.. _opemc_depletion_settings_property:
+.. _openmc_depletion_settings_property:
 
 ``depletion_settings``
 ~~~~~~~~~~~~~~~~~~~~~~

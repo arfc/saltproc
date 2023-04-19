@@ -6,6 +6,38 @@ from saltproc import Process
 class Separator(Process):
     """Represents a bubble separator.
 
+    Parameters
+    ----------
+    q_salt : float
+        volumetric salt flow rate (m^3/s)
+        Default: 0.1
+    q_he : float
+        volumetric helium flow rate (m^3/s)
+        Default: 0.005
+    do : float
+        gas outlet diameter (m)
+        Ranging from 1~3cm in our simulations
+        Default: 0.02
+    dp : float
+        sparger/contractor (pipe) diameter (m)
+        Default: 0.1
+    db : float
+        bubble diameter (m) for bubble generator/separator
+        Default: 0.001
+    deltap : float
+        Pressure difference between the inlet and the gas outlet (Pa)
+        (from 2e5 to 5e5 Pa)
+        Default: 4e5
+    temp_room: real
+        room temperature (Kelvin)
+        Default: 900
+    area : float
+        contactor cross-section (m^2)
+    jl : float
+        liquid superficial velocity (m/s)
+    alpha : float
+        void fraction
+
     Attributes
     ----------
     q_salt : float
@@ -47,6 +79,11 @@ class Separator(Process):
     ----------
     [1] Jiaqi Chen and Caleb S. Brooks. Milestone 1.2 Report: CFD
     Sensitivity Analysis. In preparation
+
+    Notes
+    -----
+    Default values from Jiaqi's simulation
+
     """
 
     k = 1.0
@@ -55,41 +92,6 @@ class Separator(Process):
                  deltap=4e5, temp_salt=900, *initial_data, **kwargs):
         """ Initializes the Separator object.
 
-        Parameters
-        ----------
-        q_salt : float
-            volumetric salt flow rate (m^3/s)
-            Default: 0.1
-        q_he : float
-            volumetric helium flow rate (m^3/s)
-            Default: 0.005
-        do : float
-            gas outlet diameter (m)
-            Ranging from 1~3cm in our simulations
-            Default: 0.02
-        dp : float
-            sparger/contractor (pipe) diameter (m)
-            Default: 0.1
-        db : float
-            bubble diameter (m) for bubble generator/separator
-            Default: 0.001
-        deltap : float
-            Pressure difference between the inlet and the gas outlet (Pa)
-            (from 2e5 to 5e5 Pa)
-            Default: 4e5
-        temp_room: real
-            room temperature (Kelvin)
-            Default: 900
-        area : float
-            contactor cross-section (m^2)
-        jl : float
-            liquid superficial velocity (m/s)
-        alpha : float
-            void fraction
-
-        Notes
-        -----
-        Default values from Jiaqi's simulation
         """
         super().__init__(*initial_data, **kwargs)
         self.q_salt = q_salt

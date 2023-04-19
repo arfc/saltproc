@@ -21,3 +21,5 @@ in this developer's guide that relies on understanding it.
    :maxdepth: 1
 
    contributing
+   style
+   tests

@@ -1,3 +1,5 @@
+.. _results_file:
+
 ================
 HDF5 Output File
 ================

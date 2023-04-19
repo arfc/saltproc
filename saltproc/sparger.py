@@ -6,6 +6,34 @@ from saltproc import Process
 class Sparger(Process):
     """Represents a gas sparger/bubble generator.
 
+    Parameters
+    ----------
+    q_salt : float
+        volumetric salt flow rate (m^3/s)
+        Default: 0.1
+    q_he : float
+        volumetric helium flow rate (m^3/s)
+        Default: 0.005
+    length : float
+        sparger/contractor length (m)
+        Default: 10
+    dp : float
+        sparger/contractor (pipe) diameter (m)
+        Default: 0.1
+    db : float
+        bubble diameter (m) for bubble generator/separator
+        Default: 0.001
+    temp_salt: float
+        salt temperature (K)
+        Default: 900
+    area : float
+        contactor cross-section (m^2)
+    corr: string
+         Sherwood correlations: ORNL-TM-2245 or Jaiqi's
+         (1) milestone report from Jiaqi [3]
+         (2) ORNL-TM-2245 Eq.36 [2]
+         default: Sherwood correlation from ORNL-TM-2245 Eq.36
+
     Attributes
     ----------
     h_const : dict of str to float
@@ -72,6 +100,11 @@ class Sparger(Process):
     National Laboratory, Oak Ridge, TN, Report No. ORNL-TM-2245.
     [3] Jiaqi Chen and Caleb S. Brooks. Milestone 1.2 Report: CFD
     Sensitivity Analysis. In preparation
+
+    Notes
+    -----
+    Default values comes from Jiaqi's simulation
+
     """
 
     diffusivity = 2.5E-9
@@ -85,37 +118,6 @@ class Sparger(Process):
                  *initial_data, **kwargs):
         """ Initializes the Sparger object.
 
-        Parameters
-        ----------
-        q_salt : float
-            volumetric salt flow rate (m^3/s)
-            Default: 0.1
-        q_he : float
-            volumetric helium flow rate (m^3/s)
-            Default: 0.005
-        length : float
-            sparger/contractor length (m)
-            Default: 10
-        dp : float
-            sparger/contractor (pipe) diameter (m)
-            Default: 0.1
-        db : float
-            bubble diameter (m) for bubble generator/separator
-            Default: 0.001
-        temp_salt: float
-            salt temperature (K)
-            Default: 900
-        area : float
-            contactor cross-section (m^2)
-        corr: string
-             Sherwood correlations: ORNL-TM-2245 or Jaiqi's
-             (1) milestone report from Jiaqi [3]
-             (2) ORNL-TM-2245 Eq.36 [2]
-             default: Sherwood correlation from ORNL-TM-2245 Eq.36
-
-        Notes
-        -----
-        Default values comes from Jiaqi's simulation
         """
         super().__init__(*initial_data, **kwargs)
         self.q_salt = q_salt

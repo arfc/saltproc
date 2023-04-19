@@ -11,7 +11,7 @@ from pyne import serpent
 import openmc
 
 from saltproc import Materialflow
-from saltproc.abc import Depcode
+from saltproc.depcode import Depcode
 from openmc.deplete.abc import _SECONDS_PER_DAY
 from openmc.deplete import Results, Chain, MicroXS
 from openmc.mgxs import Beta, DecayRate, EnergyGroups
@@ -28,6 +28,26 @@ _N_DELAYED_GROUPS = 6
 class OpenMCDepcode(Depcode):
     """Interface for running depletion steps in OpenMC, as well as obtaining
     depletion step results.
+
+    Parameters
+    ----------
+    output_path : str
+        Path to results storage directory.
+    exec_path : str
+        Path to OpenMC depletion script.
+    template_input_file_path : dict of str to str
+        Path to user input files (``.xml`` file for geometry,
+        material, and settings) for OpenMC. File type as strings
+        are keys (e.g. 'geometry', 'settings', 'material'), and
+        file path as strings are values.
+    geo_file_paths : str or list, optional
+        Path to file that contains the reactor geometry.
+        List of `str` if reactivity control by
+        switching geometry is `On` or just `str` otherwise.
+     depletion_settings : dict
+         Keyword arguments to pass to :func:`openmc.model.deplete()`.
+     chain_file_path : str
+         Path to depletion chain file
 
     Attributes
     ----------
@@ -61,26 +81,6 @@ class OpenMCDepcode(Depcode):
                  chain_file_path
                  ):
         """Initialize a OpenMCDepcode object.
-
-           Parameters
-           ----------
-           output_path : str
-               Path to results storage directory.
-           exec_path : str
-               Path to OpenMC depletion script.
-           template_input_file_path : dict of str to str
-               Path to user input files (``.xml`` file for geometry,
-               material, and settings) for OpenMC. File type as strings
-               are keys (e.g. 'geometry', 'settings', 'material'), and
-               file path as strings are values.
-           geo_file_paths : str or list, optional
-               Path to file that contains the reactor geometry.
-               List of `str` if reactivity control by
-               switching geometry is `On` or just `str` otherwise.
-            depletion_settings : dict
-                Keyword arguments to pass to :func:`openmc.model.deplete()`.
-            chain_file_path : str
-                Path to depletion chain file
 
         """
 
@@ -564,12 +564,12 @@ class OpenMCDepcode(Depcode):
         geometry : `openmc.Geometry` object
             The geometry for the depletion simulation
         energy_bounds : iterable of float
-            Energy group boundaries for calculating :math:`\beta`, the delayed
-            neutron fraction, and :math:`lambda`, the decay rate for delayed
+            Energy group boundaries for calculating :math:`\\beta`, the delayed
+            neutron fraction, and :math:`\\lambda`, the decay rate for delayed
             neutron precursors.
         n_delayed_groups : int
-            Number of delayed groups for calculating :math:`\beta`, the delayed
-            neutron fraction, and :math:`lambda`, the decay rate for delayed
+            Number of delayed groups for calculating :math:`\\beta`, the delayed
+            neutron fraction, and :math:`\\lambda`, the decay rate for delayed
             neutron precursors.
 
         """

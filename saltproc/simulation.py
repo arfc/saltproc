@@ -12,6 +12,30 @@ class Simulation():
     a database, predict reactor criticality at next depletion step, and
     switch simulation geometry.
 
+    Parameters
+    ----------
+    sim_name : str
+        Name to identify the simulation. May contain information such as
+        the number of a reference case, a paper name, or some other
+        specific information identify the simulation.
+    sim_depcode : `Depcode` object
+        An instance of one of the `Depcode` child classes
+    db_path : str
+        Path of HDF5 database that stores simulation information and
+        data.
+    restart_flag : bool
+        This value determines our initial condition. If `True`, then
+        then we run the simulation starting from the inital material
+        composition in the material input file inside our `depcode`
+        object. If `False`, then we runthe simulation starting from
+        the final material composition resulting within the `.h5`
+        database.
+    adjust_geo : bool
+        This value determines if we switch reactor geometry when keff
+        drops below 1.0
+    compression_params : Pytables filter object
+        Compression parameters for HDF5 database.
+
     """
 
     def __init__(
@@ -26,30 +50,6 @@ class Simulation():
                                           fletcher32=True),
     ):
         """Initializes the Simulation object.
-
-        Parameters
-        ----------
-        sim_name : str
-            Name to identify the simulation. May contain information such as
-            the number of a reference case, a paper name, or some other
-            specific information identify the simulation.
-        sim_depcode : `Depcode` object
-            An instance of one of the `Depcode` child classes
-        db_path : str
-            Path of HDF5 database that stores simulation information and
-            data.
-        restart_flag : bool
-            This value determines our initial condition. If `True`, then
-            then we run the simulation starting from the inital material
-            composition in the material input file inside our `depcode`
-            object. If `False`, then we runthe simulation starting from
-            the final material composition resulting within the `.h5`
-            database.
-        adjust_geo : bool
-            This value determines if we switch reactor geometry when keff
-            drops below 1.0
-        compression_params : Pytables filter object
-            Compression parameters for HDF5 database.
 
         """
         # initialize all object attributes
@@ -221,7 +221,7 @@ class Simulation():
             # Save isotope indexes map and units in EArray attributes
             earr.flavor = 'python'
             earr.attrs.iso_map = combined_map
-            earr_len = len(earr)
+            earr_len = len(combined_earr)
             for i in range(earr_len):
                 earr.append(np.array([combined_earr[i]]))
         else:
@@ -315,9 +315,9 @@ class Simulation():
         """
         # Determine moment in depletion step from which to store data
         if store_at_end:
-            dep_step_str = "after_reproc"
+            dep_step_str = ["after_reproc", "after"]
         else:
-            dep_step_str = "before_reproc"
+            dep_step_str = ["before_reproc", "before"]
 
         # Moment when store compositions
         iso_idx = OrderedDict()
@@ -354,11 +354,11 @@ class Simulation():
                                 key)
             # Create group for composition and parameters before reprocessing
             mat_node = getattr(db.root.materials, key)
-            if not hasattr(mat_node, dep_step_str):
+            if not hasattr(mat_node, dep_step_str[0]):
                 db.create_group(mat_node,
-                                dep_step_str,
-                                'Material data before reprocessing')
-            comp_pfx = '/materials/' + str(key) + '/' + dep_step_str
+                                dep_step_str[0],
+                                'Material data {dep_step_str[1]} reprocessing')
+            comp_pfx = '/materials/' + str(key) + '/' + dep_step_str[0]
             # Read isotopes from Materialflow for material
             for nuc_code, wt_frac in mats[key].comp.items():
                 # Dictonary in format {isotope_name : index(int)}
@@ -404,7 +404,7 @@ class Simulation():
                     np.empty(0, dtype=mpar_dtype),
                     "Material parameters data")
             print('Dumping Material %s data %s to %s.' %
-                  (key, dep_step_str, os.path.abspath(self.db_path)))
+                  (key, dep_step_str[0], os.path.abspath(self.db_path)))
 
             earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, iso_idx[key], iso_wt_frac)
 

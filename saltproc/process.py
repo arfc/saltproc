@@ -10,30 +10,32 @@ from saltproc import Materialflow
 class Process():
     """Represents an aribtrary processing component that extracts nuclides from
     a material.
+
+    Parameters
+    ----------
+    mass_flowrate : float
+        mass flow rate of the material flow (g/s)
+    capacity : float
+        maximum mass flow rate of the material flow which current process
+        can handle (g/s)
+    volume : float
+        total volume of the current facility (:math:`cm^3`)
+    efficiency : dict of str to float or str
+
+        ``key``
+            element name for removal (not isotope)
+        ``value``
+            removal efficency for the isotope as a weight fraction (float)
+            or a function eps(x,m,t,P,L) (str)
+    optional_parameter : float
+        user can define any custom parameter in the input file describing
+        processes and use it in efficiency function
+
      """
 
     def __init__(self, *initial_data, **kwargs):
         """ Initializes the Process object.
 
-        Parameters
-        ----------
-        mass_flowrate : float
-            mass flow rate of the material flow (g/s)
-        capacity : float
-            maximum mass flow rate of the material flow which current process
-            can handle (g/s)
-        volume : float
-            total volume of the current facility (:math:`cm^3`)
-        efficiency : dict of str to float or str
-
-            ``key``
-                element name for removal (not isotope)
-            ``value``
-                removal efficency for the isotope as a weight fraction (float)
-                or a function eps(x,m,t,P,L) (str)
-        optional_parameter : float
-            user can define any custom parameter in the input file describing
-            processes and use it in efficiency function
         """
         for dictionary in initial_data:
             for key in dictionary:
