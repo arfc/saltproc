@@ -33,11 +33,9 @@ def test_integration_2step_saltproc_no_reproc_heavy(setup):
     runsim_no_reproc(simulation, reactor, 2)
 
     output_path = str(simulation.sim_depcode.output_path)
-    # NEED TO CREATE THIS FILE
     ref_results = tb.File('ref_saltproc_results.h5')
     test_results = tb.File('saltproc_runtime/saltproc_results.h5')
 
-    # NEED TO CREATE THIS FILE
     ref_mdens_error = np.loadtxt(cwd / 'reference_error')
 
     ref_fuel_mdens = ref_results.root.materials.fuel.before_reproc.comp[-1]

@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<materials>
+  <material depletable="true" id="1" name="fuel" volume="0.5541769440932395">
+    <density units="g/cc" value="10.4" />
+    <nuclide ao="0.00038451838825337013" name="U234" />
+    <nuclide ao="0.04301995214068152" name="U235" />
+    <nuclide ao="0.9563984774270893" name="U238" />
+    <nuclide ao="0.0001970520439757738" name="U236" />
+    <nuclide ao="1.999242" name="O16" />
+    <nuclide ao="0.000758" name="O17" />
+  </material>
+  <material id="2" name="clad">
+    <density units="g/cc" value="6" />
+    <nuclide ao="0.5145" name="Zr90" />
+    <nuclide ao="0.1122" name="Zr91" />
+    <nuclide ao="0.1715" name="Zr92" />
+    <nuclide ao="0.1738" name="Zr94" />
+    <nuclide ao="0.028" name="Zr96" />
+  </material>
+  <material id="3" name="water">
+    <density units="g/cc" value="1.0" />
+    <nuclide ao="0.999621" name="O16" />
+    <nuclide ao="0.000379" name="O17" />
+    <nuclide ao="1.99968852" name="H1" />
+    <nuclide ao="0.00031148" name="H2" />
+    <sab name="c_H_in_H2O" />
+  </material>
+</materials>

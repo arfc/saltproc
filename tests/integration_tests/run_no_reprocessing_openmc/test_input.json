@@ -7,8 +7,8 @@
 
        "template_input_file_path": {
            "materials": "materials.xml",
-           "settings": "settings.xml"},
-       "geo_file_paths": ["../../openmc_data/msbr_geometry_base.xml"],
+           "settings": "pincell_settings.xml"},
+       "geo_file_paths": ["pincell_geometry.xml"],
        "chain_file_path": "../../openmc_data/chain_endfb71_pwr.xml",
        "depletion_settings": {
            "operator_kwargs": {
@@ -23,7 +23,7 @@
    "reactor": {
        "volume": 1.0,
        "mass_flowrate": 9920000,
-       "power_levels": [ 2250000000 ],
+       "power_levels": [ 174 ],
        "depletion_timesteps": [ 3 ],
        "timestep_units": "d"
    }
