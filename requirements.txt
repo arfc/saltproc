@@ -2,7 +2,7 @@ numpy
 scipy
 json
 jsonschema
-openmc >= 0.13.3
+openmc
 pytables
 networkx
 pydot
