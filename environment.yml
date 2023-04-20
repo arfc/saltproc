@@ -11,5 +11,5 @@ dependencies:
   - pytest
   - jsonschema
   - pip:
-    - argparse==1.4.0
     - serpentTools
+    - argparse==1.4.0
