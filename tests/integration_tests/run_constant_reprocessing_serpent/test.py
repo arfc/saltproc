@@ -96,7 +96,6 @@ def read_nuclide_mass(db_file, version):
     mass_before = {}
     mass_after = {}
 
-    breakpoint()
     for nuc, idx in before_nucmap.items():
         mass_before[nuc] = np.array([row[idx] for row in fuel_before])
     for nuc, idx in after_nucmap.items():
