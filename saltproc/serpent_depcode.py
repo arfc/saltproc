@@ -479,7 +479,7 @@ class SerpentDepcode(Depcode):
                           (current_power, step_type, step_length))
         return file_lines
 
-    def run_depletion_step(self, mpi_args, threads, subprocess_kwargs):
+    def run_depletion_step(self, mpi_args=None, threads=None):
         """Runs a depletion step in Serpent2 as a subprocess.
 
 i       Parameters
@@ -502,7 +502,7 @@ i       Parameters
 
         args = args + [self.runtime_inputfile]
 
-        super().run_depletion_step(mpi_args, args, subprocess_kwargs)
+        super().run_depletion_step(mpi_args, args)
 
     def switch_to_next_geometry(self):
         """Inserts line with path to next Serpent geometry file at the

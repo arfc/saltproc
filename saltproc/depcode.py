@@ -101,7 +101,7 @@ class Depcode(ABC):
                 :class:`Materialflow` object holding material composition and properties.
 
         """
-    def run_depletion_step(self, mpi_args, args, subprocess_kwargs):
+    def run_depletion_step(self, mpi_args, args):
         """Runs a depletion step as a subprocess with the given parameters.
 
         Parameters
@@ -125,8 +125,7 @@ class Depcode(ABC):
                 check=True,
                 cwd=self.output_path,
                 stdout=stdout,
-                stderr=subprocess.STDOUT,
-                **subprocess_kwargs)
+                stderr=subprocess.STDOUT)
             print(f'Finished {self.codename.upper()} Run')
         except subprocess.CalledProcessError as error:
             print(error.output.decode("utf-8"))

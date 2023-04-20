@@ -35,7 +35,7 @@ _DAYS_PER_YEAR = 365.25
 def run():
     """ Inititializes main run"""
     threads, saltproc_input = parse_arguments()
-    input_path, process_file, dot_file, mpi_args, subprocess_kwargs, object_input = \
+    input_path, process_file, dot_file, mpi_args, object_input = \
         read_main_input(saltproc_input)
     _print_simulation_input_info(object_input[1], object_input[0])
     # Intializing objects
@@ -53,7 +53,7 @@ def run():
         simulation.sim_depcode.write_runtime_input(msr,
                                                    step_idx,
                                                    simulation.restart_flag)
-        depcode.run_depletion_step(mpi_args, threads, subprocess_kwargs)
+        depcode.run_depletion_step(mpi_args, threads)
         if step_idx == 0 and simulation.restart_flag is False:  # First step
             # Read general simulation data which never changes
             simulation.store_run_init_info()
@@ -257,9 +257,7 @@ def read_main_input(main_inp_file):
         reactor_input = _process_main_input_reactor_params(
             reactor_input, n_depletion_steps, depcode_input['codename'])
 
-        subprocess_kwargs = depcode_input['subprocess_kwargs']
-
-        return input_path, process_file, dot_file, mpi_args, subprocess_kwargs, (
+        return input_path, process_file, dot_file, mpi_args, (
             depcode_input, simulation_input, reactor_input)
 
 def _print_simulation_input_info(simulation_input, depcode_input):
@@ -279,11 +277,9 @@ def _print_simulation_input_info(simulation_input, depcode_input):
 def _create_depcode_object(depcode_input):
     """Helper function for `run()` """
     codename = depcode_input.pop('codename')
-    subprocess_kwargs = depcode_input.pop('subprocess_kwargs')
     depcode = CODENAME_MAP[codename]
     depcode = depcode(**depcode_input)
     depcode_input['codename'] = codename
-    depcode_input['subprocess_kwargs'] = subprocess_kwargs
 
     return depcode
 
