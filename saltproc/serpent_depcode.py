@@ -203,7 +203,7 @@ class SerpentDepcode(Depcode):
         else:
             Z, a, m = self._decay_code_to_zam(nuc_code)
 
-        nucname = openmc.data.gnd_name(Z, a, m=m)
+        nucname = openmc.data.gnds_name(Z, a, m=m)
         if m != 0:
             nucname = nucname[:-3] + f'_m{m}'
         return nucname
