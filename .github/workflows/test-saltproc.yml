@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 env:
-  CACHE_NUMBER: 0 #change to manually reset cache
+  CACHE_NUMBER: 6 #change to manually reset cache
 
 jobs:
   test-saltproc:
@@ -22,6 +22,15 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
+
+    env:
+      MPI: no
+      OMP: no
+      PHDF5: no
+      DAGMC: no
+      EVENT: no
+      VECTFIT: no
+      LIBMESH: no
 
     steps:
       - uses: actions/checkout@v3
@@ -48,6 +57,8 @@ jobs:
         with:
           path: |
             /usr/share/miniconda3/envs/saltproc-env
+            ~/openmc_src
+            ~/mcpl_src
             ~/endfb71_hdf5
             ~/.cache/pip
           key: depcache-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
@@ -61,6 +72,27 @@ jobs:
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
         run: $GITHUB_WORKSPACE/scripts/ci/openmc-xs.bash
       
+      - name: OpenMC dependencies
+        run: |
+          sudo apt -y update
+          sudo apt install -y libhdf5-dev
+
+      - name: Download OpenMC
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with: 
+          repository: openmc-dev/openmc
+          path: openmc
+          submodules: recursive
+
+      - name: Build OpenMC from source if no cache is found
+        if: steps.dependencies-cache.outputs.cache-hit != 'true'
+        run: $GITHUB_WORKSPACE/tools/ci/build-openmc.sh
+
+      - name: Restore OpenMC source build from cache
+        if: steps.dependencies-cache.outputs.cache-hit == 'true'
+        run: $GITHUB_WORKSPACE/tools/ci/restore-openmc.sh
+          
       - name: Install SaltProc
         run:  pip install .
 
