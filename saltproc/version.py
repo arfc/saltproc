@@ -89,7 +89,7 @@ PACKAGE_DATA = {'saltproc': [pjoin('data', '*'),
                              './input_schema.json']}
 PACKAGES = ["saltproc"]
 REQUIRES = ["numpy",
-            "openmc",
+            "openmc>=0.13.3",
             "tables",
             "networkx",
             "pydot",
