@@ -102,4 +102,4 @@ jobs:
 
       - name: Test SaltProc
         run: |
-          pytest --ignore tests/integration_tests/run_no_reprocessing_serpent --ignore tests/integration_tests/run_constant_reprocessing_serpent tests/
+          pytest --ignore tests/integration_tests/run_no_reprocessing_serpent --ignore tests/integration_tests/run_no_reprocessing_openmc --ignore tests/integration_tests/run_constant_reprocessing_serpent --ignore tests/integration_tests/run_constant_reprocessing_openmc tests/
