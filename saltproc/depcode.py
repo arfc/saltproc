@@ -3,6 +3,14 @@ import subprocess
 
 from abc import ABC, abstractmethod
 
+try:
+    from mpi4py import MPI
+    import os
+    MPI_ON = True
+except ImportError:
+    MPI_ON = False
+
+
 class Depcode(ABC):
     """Abstract interface for running depletion steps.
 
@@ -116,16 +124,17 @@ class Depcode(ABC):
 
         print('Running %s' % (self.codename))
         try:
-            if mpi_args is None:
-                stdout = sys.stdout
+            if MPI_ON:
+                env = os.environ
             else:
-                stdout = None
+                env = None
             subprocess.run(
                 args,
                 check=True,
                 cwd=self.output_path,
-                stdout=stdout,
-                stderr=subprocess.STDOUT)
+                stdout=sys.stdout,
+                stderr=subprocess.STDOUT,
+                env=None)
             print(f'Finished {self.codename.upper()} Run')
         except subprocess.CalledProcessError as error:
             print(error.output.decode("utf-8"))
