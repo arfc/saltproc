@@ -298,7 +298,7 @@ class SerpentDepcode(Depcode):
         absolute paths.
 
         Parameters
-        -self._---------
+        ----------
         lines : list of str
             Serpent2 runtime input file.
 
