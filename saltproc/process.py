@@ -107,10 +107,13 @@ class Process():
 
         if bool(self.efficiency):
             process_elements = list(self.efficiency.keys())
-            process_nucs = [nuc for nuc in inflow.comp.keys() if re.match(r"([A-Z]+)([0-9]+)", nuc, re.I).groups()[0] in process_elements]
+            process_nucs = [nuc for nuc in inflow.comp.keys() \
+                            if re.match(r"([A-Z]+)([0-9]+)", nuc, re.I).groups()[0] \
+                            in process_elements]
             thru_nucs = list(set(inflow.comp.keys()).difference(set(process_nucs)))
 
-            efficiency = [self.calculate_removal_efficiency(elem) for elem in process_elements]
+            efficiency = [self.calculate_removal_efficiency(elem) \
+                          for elem in process_elements]
             efficiency = dict(zip(process_elements, efficiency))
 
             nuc_efficiency = {}
@@ -118,8 +121,12 @@ class Process():
                 elem = re.match(r"([A-Z]+)([0-9]+)", nuc, re.I).groups()[0]
                 nuc_efficiency[nuc] = efficiency[elem]
 
-            thru_mass = np.array([inflow.get_mass(nuc) * (1.0 - nuc_efficiency[nuc]) for nuc in process_nucs])
-            waste_mass = np.array([inflow.get_mass(nuc) * nuc_efficiency[nuc] for nuc in process_nucs])
+            thru_mass = np.array([inflow.get_mass(nuc) * \
+                                  (1.0 - nuc_efficiency[nuc]) \
+                                  for nuc in process_nucs])
+            waste_mass = np.array([inflow.get_mass(nuc) * \
+                                   nuc_efficiency[nuc] \
+                                   for nuc in process_nucs])
 
             total_waste_mass = np.sum(waste_mass)
             total_thru_mass = inflow.mass - np.sum(waste_mass)
@@ -141,16 +148,15 @@ class Process():
             waste_stream.mass = total_waste_mass
         else:
             waste_stream.volume = 0.0
-        #breakpoint()
         # preserve inflow attributes
         thru_flow = deepcopy(inflow)
         thru_flow.replace_components(thru_mass)
         # initial guess
         thru_flow.volume = inflow.volume - waste_stream.volume
         # correction
-        thru_flow.volume = thru_flow.volume * total_thru_mass / thru_flow.get_mass()
+        thru_flow.volume = thru_flow.volume * \
+            total_thru_mass / thru_flow.get_mass()
         thru_flow.mass = total_thru_mass
-        #breakpoint()
         #thru_flow.mass = float(inflow.mass - waste_stream.mass)
         #thru_flow.norm_comp()
 

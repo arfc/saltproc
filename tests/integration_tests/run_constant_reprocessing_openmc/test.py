@@ -156,7 +156,6 @@ def read_fuel(file):
     db = tb.open_file(file, mode='r')
     fuel = db.root.materials.fuel
     out_data = {}
-    out_data = {}
     for node in db.walk_nodes(fuel, classname="EArray"):
         nucmap = _create_nuclide_map(node._v_parent)
         if node._v_name == 'comp':

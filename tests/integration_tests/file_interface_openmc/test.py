@@ -78,9 +78,6 @@ def test_update_depletable_materials(setup, openmc_depcode, openmc_reactor):
             test_material = saltproc.Materialflow(comp=comp,
                                                   density=material.get_mass_density(),
                                                   volume=material.volume)
-            #test_material.set_density('g/cm3', material.get_mass_density())
-            #test_material.mass = material.density * material.volume
-            #test_material.volume = material.volume
             for key in test_material.comp.keys():
                 np.testing.assert_almost_equal(ref_material.comp[key], test_material.comp[key])
 

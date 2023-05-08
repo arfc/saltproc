@@ -78,9 +78,7 @@ class Materialflow(Material):
 
         nucs = np.array(list(comp.keys()))
         nonzeros = np.array(list(comp.values()))
-        #nucs = nucs[nonzeros != 0.0]
         if len(nucs) > 0:
-            #nonzeros = nonzeros[nonzeros != 0.0]
             comp = dict(zip(nucs, nonzeros))
             super().add_components(comp, percent_type='wo')
             density = self.get_density()
@@ -144,7 +142,6 @@ class Materialflow(Material):
                 The keys are preserved from PyNE Material (integers
                 representing nuclides in id-form).
             ``value``
-                Each nuclide's mass fraction, multiplied by
                 factor f.
 
         """
@@ -181,9 +178,8 @@ class Materialflow(Material):
 
     def __eq__(self, other):
         """Overrides Python ``=`` operation to compare two Materialflow
-        objects. Compares objects total mass, density, atoms_per_molecule,
-        temperature, mass flowrate, and masses of important isotopes:
-        uranium-235 and uranium-238.
+        objects. Compares objects total mass, volume temperature,
+        and mass flowrate.
 
         Parameters
         ----------
@@ -206,9 +202,6 @@ class Materialflow(Material):
             and self.volume == other.volume \
             and self.temperature == other.temperature \
             and self.mass_flowrate == other.mass_flowrate
-        #if value:
-            # fast comparision of dicts
-            # ...
 
         return value
 
@@ -231,7 +224,6 @@ class Materialflow(Material):
             Materialflow which is a sum of isotope masses from `x` and `y`.
 
         """
-        # REFACTOR TO RELFECT NO PYNE
         if x.mass == 0.0 or x.volume == 0.0 and y.mass != 0.0 and y.volume != 0.0:
             return y
         elif y.mass == 0.0 or y.volume == 0.0 and x.mass != 0.0 and x.volume != 0.0:

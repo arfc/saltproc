@@ -211,7 +211,6 @@ class SerpentDepcode(Depcode):
     def _decay_code_to_zam(self, nuc_code):
         m = int(str(nuc_code)[-1])
         nuc_code = int(str(nuc_code)[:-1])
-        #nuc_code = floor(nuc_code * 1e-1)
         Z = floor(nuc_code * 1e-3)
         a = nuc_code % 1000
         return Z, a, m

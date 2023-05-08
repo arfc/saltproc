@@ -121,7 +121,6 @@ class Simulation():
             Current depletion time step.
 
         """
-        #breakpoint()
         streams_description = 'in_out_streams'
         db = tb.open_file(
             self.db_path,
@@ -141,7 +140,6 @@ class Simulation():
                     proc_node = db.create_group(waste_group, proc)
                 else:
                     proc_node = getattr(waste_group, proc)
-                #iso_idx = OrderedDict()
                 nuclide_indices = []
                 iso_wt_frac = []
                 coun = 0
@@ -149,7 +147,6 @@ class Simulation():
                     # Read isotopes from Materialflow
                     for nuc, wt_frac in waste_dict[material_name][proc].comp.items():
                         # Dictonary in format {isotope_name : index(int)}
-                        #iso_idx[nuc] = coun
                         nuclide_indices.append((nuc, coun))
                         # Convert wt% to absolute [user units]
                         iso_wt_frac.append(wt_frac * waste_dict[material_name][proc].mass)
@@ -167,7 +164,6 @@ class Simulation():
                             title="Isotopic composition for %s" % proc)
                         # Save isotope indexes map and units in EArray attributes
                         earr.flavor = 'python'
-                        #earr.attrs.iso_map = iso_idx
                     if not hasattr(proc_node, 'nuclide_map'):
                         db.create_table(proc_node,
                                        'nuclide_map',
@@ -176,7 +172,7 @@ class Simulation():
                     earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, nuclide_indices, iso_wt_frac)
 
                     earr.append(np.asarray([iso_wt_frac], dtype=np.float64))
-                    del iso_wt_frac
+                    del iso_wt_frac, nuclide_indices
         # Also save materials AFTER reprocessing and refill here
         self.store_mat_data(after_mats, dep_step, True)
         db.close()
@@ -211,11 +207,6 @@ class Simulation():
         """
 
         parent_node = earr._v_parent
-        #if isinstance(nuclide_indices, dict):
-        #    base_nucs = set(earr.attrs.iso_map.keys())
-        #    iso_idx = nuclide_indices
-        #    step_nucs = set(iso_idx.keys())
-        #else:
         base_nucs = set(map(bytes.decode, parent_node.nuclide_map.col('nuclide')))
         iso_idx = dict(nuclide_indices)
         step_nucs = set(iso_idx.keys())
@@ -351,8 +342,6 @@ class Simulation():
             dep_step_str = ["before_reproc", "before"]
 
         # Moment when store compositions
-        #iso_idx = OrderedDict()
-        #
         # numpy array row storage data for material physical properties
         mpar_dtype = np.dtype([
             ('mass', float),
@@ -367,7 +356,6 @@ class Simulation():
         print(
             '\nStoring material data for depletion step #%i.' %
             (dep_step + 1))
-        #breakpoint()
         db = tb.open_file(
             self.db_path,
             mode='a',
@@ -378,7 +366,6 @@ class Simulation():
                                          'Material data')
         # Iterate over all materials
         for key, value in mats.items():
-            #iso_idx[key] = OrderedDict()
             nuclide_indices = []
             iso_wt_frac = []
             coun = 0
@@ -396,7 +383,6 @@ class Simulation():
             # Read isotopes from Materialflow for material
             for nuc, wt_frac in mats[key].comp.items():
                 # Dictonary in format {isotope_name : index(int)}
-                #iso_idx[key][nuc] = coun
                 nuclide_indices.append((nuc, coun))
                 # Convert wt% to absolute [user units]
                 iso_wt_frac.append(wt_frac * mats[key].mass)
@@ -432,7 +418,6 @@ class Simulation():
                     title="Isotopic composition for %s" % key)
                 # Save isotope indexes map and units in EArray attributes
                 earr.flavor = 'python'
-                #earr.attrs.iso_map = iso_idx[key]
                 # Create table for material Parameters
                 print('Creating ' + key + ' lookup table.')
                 db.create_table(comp_pfx,

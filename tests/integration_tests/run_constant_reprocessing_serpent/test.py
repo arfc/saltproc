@@ -192,7 +192,6 @@ def read_fuel(file, version):
         else:
             node_name = node._v_name
         out_data[node_name] = {}
-        # print(node)
         for nuc, idx in nucmap.items():
             out_data[node_name][nuc] = \
                 np.array([row[idx] for row in node])

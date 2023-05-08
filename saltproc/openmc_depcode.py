@@ -331,32 +331,8 @@ class OpenMCDepcode(Depcode):
             mass_percents = percents
         else:
             raise ValueError(f'{percent_type} is not a valid percent type')
-        #PyNE
-        #pyne_nucs = list(map(self._convert_nucname_to_pyne, nucs))
 
-        #PyNE
-        #return dict(zip(pyne_nucs, mass_percents))
         return dict(zip(nucs, mass_percents))
-
-    #PyNE
-    def _convert_nucname_to_pyne(self, nucname):
-        """Helper function for :func:`_create_mass_percents_dictionary`.
-        Converts an OpenMC-formatted nuclide name into a PyNE-formatted
-        nuclide name.
-
-        Parameters
-        ----------
-        nucname : str
-
-        Returns
-        -------
-        pyne_nucname : str
-
-        """
-        if nucname[-3:-1] == '_m':
-            nucname = nucname.split('_')[0]
-            nucname += 'M'
-        return nucname
 
     def _get_power_from_tallies(self, sp, power):
         fission_energy = sp.get_tally(name='fission_energy').mean.flatten()[0] # eV / src
@@ -388,15 +364,15 @@ class OpenMCDepcode(Depcode):
         """
         # need to add flow control for plots option
         args = ['python',
-                self.exec_path,
+                str(self.exec_path),
                 '--materials',
-                self.runtime_matfile,
+                str(self.runtime_matfile),
                 '--geometry',
-                self.runtime_inputfile['geometry'],
+                str(self.runtime_inputfile['geometry']),
                 '--settings',
-                self.runtime_inputfile['settings'],
+                str(self.runtime_inputfile['settings']),
                 '--tallies',
-                self.runtime_inputfile['tallies'],
+                str(self.runtime_inputfile['tallies']),
                 '--directory',
                 str(self.output_path)]
         if mpi_args is not None:
