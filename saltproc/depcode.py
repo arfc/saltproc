@@ -134,7 +134,7 @@ class Depcode(ABC):
                 cwd=self.output_path,
                 stdout=sys.stdout,
                 stderr=subprocess.STDOUT,
-                env=None)
+                env=env)
             print(f'Finished {self.codename.upper()} Run')
         except subprocess.CalledProcessError as error:
             print(error.output.decode("utf-8"))
