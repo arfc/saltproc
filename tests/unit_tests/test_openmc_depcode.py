@@ -52,17 +52,16 @@ def test_create_mass_percents_dictionary(cwd, openmc_depcode):
         for nuc, pt, tp in wo_material.nuclides:
             nucs.append(nuc)
             mass_percents.append(pt)
-        nucnames = list(map(openmc_depcode._convert_nucname_to_pyne, nucs))
-        wo_ref_dictionary = dict(zip(nucnames, mass_percents))
+        wo_ref_dictionary = dict(zip(nucs, mass_percents))
 
         for key in wo_ref_dictionary.keys():
             np.testing.assert_almost_equal(wo_ref_dictionary[key], wo_test_dictionary_1[key], decimal=5)
             np.testing.assert_almost_equal(wo_ref_dictionary[key], wo_test_dictionary_2[key], decimal=5)
 
 
-def test_convert_nucname_to_pyne(openmc_depcode):
-    assert openmc_depcode._convert_nucname_to_pyne('H1') == 'H1'
-    assert openmc_depcode._convert_nucname_to_pyne('U238') == 'U238'
-    assert openmc_depcode._convert_nucname_to_pyne('Ag110_m1') == 'Ag110M'
-    assert openmc_depcode._convert_nucname_to_pyne('Am242') == 'Am242'
-    assert openmc_depcode._convert_nucname_to_pyne('Am242_m1') == 'Am242M'
+def test_name_to_nuclide_code(openmc_depcode):
+    assert openmc_depcode.name_to_nuclide_code('H1') == 1001
+    assert openmc_depcode.name_to_nuclide_code('U238') == 92238
+    assert openmc_depcode.name_to_nuclide_code('Ag110_m1') == 47510
+    assert openmc_depcode.name_to_nuclide_code('Am242') == 95242
+    assert openmc_depcode.name_to_nuclide_code('Am242_m1') == 95642
