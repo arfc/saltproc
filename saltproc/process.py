@@ -129,7 +129,7 @@ class Process():
                                    for nuc in process_nucs])
 
             total_waste_mass = np.sum(waste_mass)
-            total_thru_mass = inflow.mass - np.sum(waste_mass)
+            total_thru_mass = inflow.mass - total_waste_mass
 
             waste_mass = dict(zip(process_nucs, waste_mass / total_waste_mass))
 
