@@ -5,7 +5,7 @@ import shutil
 import numpy as np
 import pytest
 
-from pyne import serpent
+import serpentTools
 from saltproc import app
 
 
@@ -32,13 +32,13 @@ def test_integration_2step_saltproc_no_reproc_heavy(setup):
     runsim_no_reproc(simulation, reactor, 2)
 
     output_path = str(simulation.sim_depcode.output_path)
-    ref_result = serpent.parse_dep(cwd + '/reference_dep.m', make_mats=False)
-    test_result = serpent.parse_dep(f'{output_path}/runtime_input.serpent_dep.m', make_mats=False)
+    ref_result = serpentTools.read(cwd + '/reference_dep.m')
+    test_result = serpentTools.read(f'{output_path}/runtime_input.serpent_dep.m')
 
     ref_mdens_error = np.loadtxt(cwd + '/reference_error')
 
-    ref_fuel_mdens = ref_result['MAT_fuel_MDENS'][:, -2]
-    test_fuel_mdens = test_result['MAT_fuel_MDENS'][:, -1]
+    ref_fuel_mdens = ref_result.materials['fuel'].mdens[:, -2]
+    test_fuel_mdens = test_result.materials['fuel'].mdens[:, -1]
 
     test_mdens_error = np.array(ref_fuel_mdens - test_fuel_mdens)
     np.testing.assert_array_almost_equal(test_mdens_error, ref_mdens_error)
