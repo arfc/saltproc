@@ -513,15 +513,7 @@ class OpenMCDepcode(Depcode):
                     material.remove_element(element)
                 material.add_components(components, percent_type='wo')
 
-        geometry = openmc.Geometry.from_xml(self.runtime_inputfile['geometry'])
-        settings = openmc.Settings.from_xml(self.runtime_inputfile['settings'])
-        diluted_model = openmc.Model(materials=runtime_materials, geometry=geometry, settings=settings)
-        reactions, diluted_materials = MicroXS._add_dilute_nuclides(self.chain_file_path,
-                                                                   diluted_model,
-                                                                   1e3)
-
-        diluted_materials.export_to_xml(path=self.runtime_matfile)
-        #runtime_materials.export_to_xml(path=self.runtime_matfile)
+        runtime_materials.export_to_xml(path=self.runtime_matfile)
         del runtime_materials
         del material
 
