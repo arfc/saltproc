@@ -505,8 +505,8 @@ class OpenMCDepcode(Depcode):
             if material.name in mats.keys():
                 components = {}
                 for nuc_name, mass_fraction in mats[material.name].comp.items():
-                    components[nuc_name] = mass_fraction
-
+                    if not(mass_fraction == 0.0 or mass_fraction == 0):
+                        components[nuc_name] = mass_fraction
                 material.set_density('g/cm3', mats[material.name].density)
                 material.volume = mats[material.name].volume
                 for element in material.get_elements():
