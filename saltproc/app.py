@@ -69,7 +69,8 @@ def run():
         # Main sequence
         mats = depcode.read_depleted_materials(True)
         simulation.store_mat_data(mats, step_idx, False)
-        simulation.store_run_step_info()
+        simulation.store_step_neutronics_parameters()
+        simulation.store_step_metadata()
 
         # Reprocessing here
         if not run_without_reprocessing:

@@ -447,7 +447,7 @@ class Simulation():
             mpar_table.flush()
         db.close()
 
-    def store_run_step_info(self):
+    def store_step_neutronics_parameters(self):
         """Adds the following depletion code and SaltProc simulation
         data at the current depletion step to the database:
         execution time, memory usage, multiplication factor, breeding ratio,
@@ -536,20 +536,61 @@ class Simulation():
         # numpy arraw row storage for run info
         # delete and make this datatype specific
         # to Depcode subclasses
-        step_metadata_dtype = np.dtype([
-            ('neutron_population', int),
-            ('active_cycles', int),
-            ('inactive_cycles', int),
+        depcode_metadata_dtype = np.dtype([
             ('depcode_name', 'S20'),
             ('depcode_version', 'S20'),
             ('title', 'S90'),
             ('depcode_input_filename', 'S90'),
             ('depcode_working_dir', 'S90'),
-            ('xs_data_path', 'S90'),
+            ('xs_data_path', 'S90')
+        ])
+        # Read info from depcode _res.m File
+        self.sim_depcode.read_depcode_metadata()
+        # Store information about material properties in new array row
+        depcode_metadata_row = (
+            self.sim_depcode.step_metadata['depcode_name'],
+            self.sim_depcode.step_metadata['depcode_version'],
+            self.sim_depcode.step_metadata['title'],
+            self.sim_depcode.step_metadata['depcode_input_filename'],
+            self.sim_depcode.step_metadata['depcode_working_dir'],
+            self.sim_depcode.step_metadata['xs_data_path']
+        )
+        depcode_metadata_array = np.array([depcode_metadata_row], dtype=depcode_metadata_dtype)
+
+        # Open or restore db and append datat to it
+        db = tb.open_file(
+            self.db_path,
+            mode='a',
+            filters=self.compression_params)
+        try:
+            depcode_metadata_table = db.get_node(db.root, 'depcode_metadata')
+        except Exception:
+            depcode_metadata_table = db.create_table(
+                db.root,
+                'depcode_metadata',
+                depcode_metadata_array,
+                "Depletion code metadata")
+        depcode_metadata_table.flush()
+        db.close()
+
+    def store_step_metadata(self):
+        """Adds the following depletion code and SaltProc simulation parameters
+        to the database:
+        neutron population, active cycles, inactive cycles, # of OMP threads, # of MPI
+        tasks, memory optimization mode (Serpent), depletion timestep size.
+
+        """
+        # numpy arraw row storage for run info
+        # delete and make this datatype specific
+        # to Depcode subclasses
+        step_metadata_dtype = np.dtype([
+            ('neutron_population', int),
+            ('active_cycles', int),
+            ('inactive_cycles', int),
             ('OMP_threads', int),
             ('MPI_tasks', int),
             ('memory_optimization_mode', int),
-            ('depletion_timestep', float),
+            ('depletion_timestep_size', float),
             ('execution_time', float),
             ('memory_usage', float)
         ])
@@ -560,18 +601,12 @@ class Simulation():
             self.sim_depcode.npop,
             self.sim_depcode.active_cycles,
             self.sim_depcode.inactive_cycles,  # delete the below
-            self.sim_depcode.step_metadata['depcode_name'],
-            self.sim_depcode.step_metadata['depcode_version'],
-            self.sim_depcode.step_metadata['title'],
-            self.sim_depcode.step_metadata['depcode_input_filename'],
-            self.sim_depcode.step_metadata['depcode_working_dir'],
-            self.sim_depcode.step_metadata['xs_data_path'],
             self.sim_depcode.step_metadata['OMP_threads'],
             self.sim_depcode.step_metadata['MPI_tasks'],
             self.sim_depcode.step_metadata['memory_optimization_mode'],
-            self.sim_depcode.step_metadata['depletion_timestep'],
-            self.sim_depcode.step_metadata['execution_time'],
-            self.sim_depcode.step_metadata['memory_usage']
+            self.sim_depcode.step_metadata['depletion_timestep_size'],
+            self.sim_depcode.step_metadata['step_execution_time'],
+            self.sim_depcode.step_metadata['step_memory_usage']
 
         )
         step_metadata_array = np.array([step_metadata_row], dtype=step_metadata_dtype)
@@ -582,13 +617,15 @@ class Simulation():
             mode='a',
             filters=self.compression_params)
         try:
-            step_metadata_table = db.get_node(db.root, 'initial_depcode_siminfo')
+            step_metadata_table = db.get_node(db.root, 'depletion_step_metadata')
         except Exception:
             step_metadata_table = db.create_table(
                 db.root,
-                'initial_depcode_siminfo',
-                step_metadata_array,
-                "Initial depletion code simulation parameters")
+                'depletion_step_metadata',
+                np.empty(0, dtype=step_metadata_dtype),
+                "Depletion step metadata")
+
+        step_metadata_table.append(step_metadata_array)
         step_metadata_table.flush()
         db.close()
 

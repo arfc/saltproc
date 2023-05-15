@@ -20,22 +20,22 @@ class Results():
         self.fission_mass = self._collect_eds_bds_params(sim_params, 'fission_mass')
         self.breeding_ratio = self._collect_eds_bds_params(sim_params, 'breeding_ratio', errors=True)
         self.power_level = sim_params.col('power_level')
-        self.breeding_ratio = self._collect_eds_bds_params(sim_params, 'breeding_ratio', errors=True)
         self.beta_eff = self._collect_eds_bds_params(sim_params, 'beta_eff', errors=True, multidim=True)
         self.lambda_eff = self._collect_eds_bds_params(sim_params, 'delayed_neutrons_lambda', errors=True, multidim=True)
 
         # metadata
-        metadata = f.root.initial_depcode_siminfo
-        metadata = pd.DataFrame.from_records(metadata[:]).to_dict()
-        for key, value in metadata.items():
-            metadata[key] = value[0]
-        self.metadata = metadata
+        self.depcode_metadata = self._collect_metadata(f, 'depcode_metadata')
+        self.depletion_step_metadata = self._collect_metadata(f, 'depletion_step_metadata', array=True)
+        #metadata = pd.DataFrame.from_records(metadata[:]).to_dict()
+        #for key, value in metadata.items():
+        #    metadata[key] = value[0#]
+        ##self.depcode_metadata = metadata
 
         # Materials
         materials = root.materials
-        nuclide_idx, material_compositions, material_parameters, waste_streams = self._collect_material_params(materials)
+        nuclide_idx, material_composition, material_parameters, waste_streams = self._collect_material_params(materials)
         self.nuclide_idx = nuclide_idx
-        self.material_compositions = material_compositions
+        self.material_composition = material_composition
         self.material_parameters = material_parameters
         self.waste_streams = waste_streams
 
@@ -58,16 +58,26 @@ class Results():
                 col = unp.uarray(col[:,0], col[:,1])
         return col
 
+    def _collect_metadata(self, f, nodename, array=False):
+        metadata = f.root[nodename]
+        metadata = pd.DataFrame.from_records(metadata[:]).to_dict()
+        for key, value in metadata.items():
+            if array:
+                metadata[key] = list(value.values())
+            else:
+                metadata[key] = value[0]
+        return metadata
+
     def _collect_material_params(self, materials):
         nuclide_idx = {}
-        material_compositions = {}
+        material_composition = {}
         material_parameters = {}
         waste_streams = {}
         for mat_name in materials._v_groups.keys():
             material = materials[mat_name]
 
             # main material composition
-            nuclide_idx[mat_name], material_compositions[mat_name] = self._collect_material_comp(material)
+            nuclide_idx[mat_name], material_composition[mat_name] = self._collect_material_comp(material)
 
             # material parameters
             material_parameters[mat_name] = {}
@@ -83,7 +93,7 @@ class Results():
                     waste_streams[mat_name][stream_name] = \
                         self._collect_waste_streams(waste_stream, stream_name)
 
-        return nuclide_idx, material_compositions, material_parameters, waste_streams
+        return nuclide_idx, material_composition, material_parameters, waste_streams
 
     # MAKE THIS COLLECT IT INTO A TABLE/2D ARRAY
     def _collect_material_comp(self, material):
@@ -126,3 +136,10 @@ class Results():
         return waste_stream_comp
 
     # methods to get timeseries of various values
+    def get_nuclide_mass(self, material, nuclide, timestep=None):
+        nucmap = self.nuclide_idx[material]
+        comp = self.material_composition[material]
+        nuclide_mass = comp[nucmap[nuclide]]
+        if timestep is not None:
+            nuclide_mass = nuclide_mass[timestep]
+        return nuclide_mass

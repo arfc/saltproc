@@ -75,8 +75,13 @@ class Depcode(ABC):
         self.runtime_matfile = None
 
     @abstractmethod
+    def read_depcode_metadata(self):
+        """Read depletion code metadata, and store it in the :class:`Depcode`
+        object's :attr:`depcode_metadata` attribute"""
+
+    @abstractmethod
     def read_step_metadata(self):
-        """Reads depletion code's depletion step metadata and stores it in the
+        """Reads depletion step metadata and stores it in the
         :class:`Depcode` object's :attr:`step_metadata` attribute.
         """
 

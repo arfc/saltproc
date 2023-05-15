@@ -7,6 +7,7 @@ import serpentTools
 import openmc
 import openmc.data
 from math import floor
+import numpy as np
 
 from saltproc import Materialflow
 from saltproc.depcode import Depcode
@@ -46,6 +47,9 @@ class SerpentDepcode(Depcode):
         keys and parameter values are values.
     step_metadata : dict of str to type
         Holds Serpent2 depletion step metadata. Metadata labels are keys
+        and metadata values are values.
+    depcode_metadata : dict of str to type
+        Holds Serpent2 simulation metadata. Metadata labels are keys
         and metadata values are values.
     runtime_inputfile : str
         Path to Serpent2 input file used to run depletion step. Contains neutron
@@ -388,10 +392,11 @@ class SerpentDepcode(Depcode):
                                                                  burnup=results.burnup[moment])
         return depleted_materials
 
-    def read_step_metadata(self):
-        """Reads Serpent2 depletion step metadata and stores it in the
-        :class:`SerpentDepcode` object's :attr:`step_metadata` attribute.
+    def read_depcode_metadata(self):
+        """Reads Serpent2 metadata and stores it in the
+        :class:`SerpentDepcode` object's :attr:`depcode_metadata` attribute.
         """
+
         res = serpentTools.read(self.runtime_inputfile + "_res.m")
         depcode_name, depcode_ver = res.metadata['version'].split()
         self.step_metadata['depcode_name'] = depcode_name
@@ -403,12 +408,19 @@ class SerpentDepcode(Depcode):
             res.metadata['workingDirectory']
         self.step_metadata['xs_data_path'] = \
             res.metadata['xsDataFilePath']
+
+
+    def read_step_metadata(self):
+        """Reads Serpent2 depletion step metadata and stores it in the
+        :class:`SerpentDepcode` object's :attr:`step_metadata` attribute.
+        """
+        res = serpentTools.read(self.runtime_inputfile + "_res.m")
         self.step_metadata['OMP_threads'] = res.metadata['ompThreads']
         self.step_metadata['MPI_tasks'] = res.metadata['mpiTasks']
         self.step_metadata['memory_optimization_mode'] = res.metadata['optimizationMode']
-        self.step_metadata['depletion_timestep'] = res.resdata['burnDays'][1][0]
-        self.step_metadata['execution_time'] = res.resdata['runningTime'][1]
-        self.step_metadata['memory_usage'] = res.resdata['memsize'][0]
+        self.step_metadata['depletion_timestep_size'] = res.resdata['burnDays'][1][0]
+        self.step_metadata['step_execution_time'] = np.sum(res.resdata['runningTime'])
+        self.step_metadata['step_memory_usage'] = np.sum(res.resdata['memsize'][0])
 
 
     def read_neutronics_parameters(self):

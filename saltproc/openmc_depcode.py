@@ -55,6 +55,9 @@ class OpenMCDepcode(Depcode):
     step_metadata : dict of str to type
         Holds OpenMC depletion step metadata. Metadata labels are keys
         and metadata values are values.
+    depcode_metadata : dict of str to type
+        Holds OpenMC simulation metadata. Metadata labels are keys
+        and metadata values are values.
     runtime_inputfile : dict of str to str
         Paths to OpenMC input files used to run depletion step. Contains neutron
         settings and geometry.
@@ -127,18 +130,14 @@ class OpenMCDepcode(Depcode):
             if material.name == '':
                 raise ValueError(f"Material {material.id} has no name.")
 
-    def read_step_metadata(self):
+    def read_depcode_metadata(self):
         """Reads OpenMC's depletion step metadata and stores it in the
         :class:`OpenMCDepcode` object's :attr:`step_metadata` attribute.
         """
         sp0 = openmc.StatePoint(self.output_path / 'openmc_simulation_n0.h5')
-        sp1 = openmc.StatePoint(self.output_path / 'openmc_simulation_n1.h5')
-        res = Results(self.output_path / 'depletion_results.h5')
 
         depcode_name, depcode_ver = self.codename, ".".join(list(map(str,sp0.version)))
-        execution_time = sp0.runtime['simulation'] + sp1.runtime['simulation'] + res[0].proc_time + res[1].proc_time
         sp0.close()
-        sp1.close()
 
         self.step_metadata['depcode_name'] = depcode_name
         self.step_metadata['depcode_version'] = depcode_ver
@@ -146,12 +145,6 @@ class OpenMCDepcode(Depcode):
         self.step_metadata['depcode_input_filename'] = ''
         self.step_metadata['depcode_working_dir'] = str(self.output_path)
         self.step_metadata['xs_data_path'] = self._find_xs_path()
-        self.step_metadata['OMP_threads'] = -1
-        self.step_metadata['MPI_tasks'] = -1
-        self.step_metadata['memory_optimization_mode'] = -1
-        self.step_metadata['depletion_timestep'] = res[1].time[0]
-        self.step_metadata['execution_time'] = execution_time
-        self.step_metadata['memory_usage'] = -1
 
     def _find_xs_path(self):
         try:
@@ -160,6 +153,25 @@ class OpenMCDepcode(Depcode):
             openmc.reset_auto_ids()
             xs_path = openmc.Materials.from_xml(self.runtime_matfile).cross_sections
         return xs_path
+
+    def read_step_metadata(self):
+        """Reads OpenMC's depletion step metadata and stores it in the
+        :class:`OpenMCDepcode` object's :attr:`step_metadata` attribute.
+        """
+        sp0 = openmc.StatePoint(self.output_path / 'openmc_simulation_n0.h5')
+        sp1 = openmc.StatePoint(self.output_path / 'openmc_simulation_n1.h5')
+        res = Results(self.output_path / 'depletion_results.h5')
+
+        execution_time = sp0.runtime['simulation'] + sp1.runtime['simulation'] + res[0].proc_time + res[1].proc_time
+        sp0.close()
+        sp1.close()
+
+        self.step_metadata['OMP_threads'] = -1
+        self.step_metadata['MPI_tasks'] = -1
+        self.step_metadata['memory_optimization_mode'] = -1
+        self.step_metadata['depletion_timestep_size'] = res[1].time[0]
+        self.step_metadata['step_execution_time'] = execution_time
+        self.step_metadata['step_memory_usage'] = -1
 
     def read_neutronics_parameters(self):
         """Reads OpenMC depletion step neutronics parameters and stores them
