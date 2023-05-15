@@ -419,14 +419,20 @@ class SerpentDepcode(Depcode):
         res = serpentTools.read(self.runtime_inputfile + "_res.m")
         self.neutronics_parameters['keff_bds'] = res.resdata['impKeff'][0]
         self.neutronics_parameters['keff_eds'] = res.resdata['impKeff'][1]
-        self.neutronics_parameters['breeding_ratio'] = \
+        self.neutronics_parameters['breeding_ratio_bds'] = \
+            res.resdata['conversionRatio'][0]
+        self.neutronics_parameters['breeding_ratio_eds'] = \
             res.resdata['conversionRatio'][1]
         self.neutronics_parameters['burn_days'] = res.resdata['burnDays'][1][0]
         self.neutronics_parameters['power_level'] = res.resdata['totPower'][1][0]
         b_l = int(.5 * len(res['fwdAnaBetaZero'][1]))
-        self.neutronics_parameters['beta_eff'] = \
+        self.neutronics_parameters['beta_eff_bds'] = \
+            res.resdata['fwdAnaBetaZero'][0].reshape((b_l, 2))
+        self.neutronics_parameters['beta_eff_eds'] = \
             res.resdata['fwdAnaBetaZero'][1].reshape((b_l, 2))
-        self.neutronics_parameters['delayed_neutrons_lambda'] = \
+        self.neutronics_parameters['delayed_neutrons_lambda_bds'] = \
+            res.resdata['fwdAnaLambda'][0].reshape((b_l, 2))
+        self.neutronics_parameters['delayed_neutrons_lambda_eds'] = \
             res.resdata['fwdAnaLambda'][1].reshape((b_l, 2))
         self.neutronics_parameters['fission_mass_bds'] = \
             res.resdata['iniFmass'][1]

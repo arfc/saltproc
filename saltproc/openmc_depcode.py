@@ -172,21 +172,25 @@ class OpenMCDepcode(Depcode):
 
         self.neutronics_parameters['keff_bds'] = res[0].k[0]
         self.neutronics_parameters['keff_eds'] = res[1].k[0]
-        self.neutronics_parameters['breeding_ratio'] = self._calculate_breeding_ratio(sp1)
+        self.neutronics_parameters['breeding_ratio_bds'] = self._calculate_breeding_ratio(sp0)
+        self.neutronics_parameters['breeding_ratio_eds'] = self._calculate_breeding_ratio(sp1)
         self.neutronics_parameters['burn_days'] = res[1].time[0] / _SECONDS_PER_DAY
         self.neutronics_parameters['power_level'] = res[1].source_rate
-        self.neutronics_parameters['beta_eff'] = self._calculate_delayed_quantity(sp1, self._beta)
-        self.neutronics_parameters['delayed_neutrons_lambda'] = \
+        self.neutronics_parameters['beta_eff_bds'] = self._calculate_delayed_quantity(sp0, self._beta)
+        self.neutronics_parameters['beta_eff_eds'] = self._calculate_delayed_quantity(sp1, self._beta)
+        self.neutronics_parameters['delayed_neutrons_lambda_bds'] = \
+            self._calculate_delayed_quantity(sp0, self._delayed_lambda)
+        self.neutronics_parameters['delayed_neutrons_lambda_eds'] = \
             self._calculate_delayed_quantity(sp1, self._delayed_lambda)
         init_fission_mass, final_fission_mass = self._calculate_fission_masses(res)
         self.neutronics_parameters['fission_mass_bds'] = init_fission_mass
         self.neutronics_parameters['fission_mass_eds'] = final_fission_mass
         del sp0, sp1
 
-    def _calculate_breeding_ratio(self, sp1):
+    def _calculate_breeding_ratio(self, sp):
         """Fissile material produces / fissile material destroyed"""
 
-        breeding_ratio_tally = sp1.get_tally(name='breeding_ratio_tally')
+        breeding_ratio_tally = sp.get_tally(name='breeding_ratio_tally')
         frame = breeding_ratio_tally.get_pandas_dataframe().set_index('score')
         n_gamma_frame = frame.loc['(n,gamma)'].set_index('nuclide')
         absorption_frame = frame.loc['absorption'].set_index('nuclide')
@@ -204,9 +208,9 @@ class OpenMCDepcode(Depcode):
 
         return np.array([breeding_ratio.n, breeding_ratio.s])
 
-    def _calculate_delayed_quantity(self, sp1, mgxs):
+    def _calculate_delayed_quantity(self, sp, mgxs):
         # group-wise delayed quantity
-        mgxs.load_from_statepoint(sp1)
+        mgxs.load_from_statepoint(sp)
         frame = mgxs.get_pandas_dataframe()
         vals = self._get_values_with_uncertainties(frame)
         tot = vals.sum()

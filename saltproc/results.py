@@ -18,8 +18,11 @@ class Results():
 
         self.keff = self._collect_eds_bds_params(sim_params, 'keff', errors=True)
         self.fission_mass = self._collect_eds_bds_params(sim_params, 'fission_mass')
+        self.breeding_ratio = self._collect_eds_bds_params(sim_params, 'breeding_ratio', errors=True)
         self.power_level = sim_params.col('power_level')
-        self.breeding_ratio = sim_params.col('breeding_ratio')
+        self.breeding_ratio = self._collect_eds_bds_params(sim_params, 'breeding_ratio', errors=True)
+        self.beta_eff = self._collect_eds_bds_params(sim_params, 'beta_eff', errors=True, multidim=True)
+        self.lambda_eff = self._collect_eds_bds_params(sim_params, 'delayed_neutrons_lambda', errors=True, multidim=True)
 
         # metadata
         metadata = f.root.initial_depcode_siminfo
@@ -36,16 +39,23 @@ class Results():
         self.material_parameters = material_parameters
         self.waste_streams = waste_streams
 
-    def _collect_eds_bds_params(self, sim_params, col, errors=False):
+    def _collect_eds_bds_params(self, sim_params, col, errors=False, multidim=False):
         col_eds = sim_params.col(f'{col}_eds').tolist()
         col_bds = sim_params.col(f'{col}_bds').tolist()
         col = [col_bds[0], col_eds[0]]
         for (k1, k2) in zip(col_bds[1:], col_eds[1:]):
-            col = col + [k1]
-            col = col + [k2]
+            col += [k1]
+            col += [k2]
         col = np.array(col)
-        if errors == True:
-            col = unp.uarray(col[:,0], col[:,1])
+        if errors:
+            if multidim:
+                new_col = []
+                for c in col:
+                    c = np.array(c)
+                    new_col += [unp.uarray(c[:,0], c[:,1]).tolist()]
+                col = np.array(new_col)
+            else:
+                col = unp.uarray(col[:,0], col[:,1])
         return col
 
     def _collect_material_params(self, materials):

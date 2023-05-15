@@ -458,16 +458,19 @@ class Simulation():
         # Read info from depcode _res.m File
         self.sim_depcode.read_neutronics_parameters()
         # Initialize beta groups number
-        b_g = len(self.sim_depcode.neutronics_parameters['beta_eff'])
+        b_g = len(self.sim_depcode.neutronics_parameters['beta_eff_bds'])
         # numpy array row storage for run info
 
         class Step_info(tb.IsDescription):
             keff_bds = tb.Float32Col((2,))
             keff_eds = tb.Float32Col((2,))
-            breeding_ratio = tb.Float32Col((2,))
+            breeding_ratio_bds = tb.Float32Col((2,))
+            breeding_ratio_eds = tb.Float32Col((2,))
             cumulative_time_at_eds = tb.Float32Col()
             power_level = tb.Float32Col()
+            beta_eff_bds = tb.Float32Col((b_g, 2))
             beta_eff_eds = tb.Float32Col((b_g, 2))
+            delayed_neutrons_lambda_bds = tb.Float32Col((b_g, 2))
             delayed_neutrons_lambda_eds = tb.Float32Col((b_g, 2))
             fission_mass_bds = tb.Float32Col()
             fission_mass_eds = tb.Float32Col()
@@ -497,14 +500,20 @@ class Simulation():
 
         step_info['keff_bds'] = self.sim_depcode.neutronics_parameters['keff_bds']
         step_info['keff_eds'] = self.sim_depcode.neutronics_parameters['keff_eds']
-        step_info['breeding_ratio'] = self.sim_depcode.neutronics_parameters[
-            'breeding_ratio']
+        step_info['breeding_ratio_bds'] = self.sim_depcode.neutronics_parameters[
+            'breeding_ratio_bds']
+        step_info['breeding_ratio_eds'] = self.sim_depcode.neutronics_parameters[
+            'breeding_ratio_eds']
         step_info['cumulative_time_at_eds'] = self.burn_time
         step_info['power_level'] = self.sim_depcode.neutronics_parameters['power_level']
+        step_info['beta_eff_bds'] = self.sim_depcode.neutronics_parameters[
+            'beta_eff_bds']
         step_info['beta_eff_eds'] = self.sim_depcode.neutronics_parameters[
-            'beta_eff']
+            'beta_eff_eds']
+        step_info['delayed_neutrons_lambda_bds'] = self.sim_depcode.neutronics_parameters[
+            'delayed_neutrons_lambda_bds']
         step_info['delayed_neutrons_lambda_eds'] = self.sim_depcode.neutronics_parameters[
-            'delayed_neutrons_lambda']
+            'delayed_neutrons_lambda_eds']
         step_info['fission_mass_bds'] = self.sim_depcode.neutronics_parameters[
             'fission_mass_bds']
         step_info['fission_mass_eds'] = self.sim_depcode.neutronics_parameters[
