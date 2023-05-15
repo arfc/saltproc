@@ -121,61 +121,62 @@ class Simulation():
             Current depletion time step.
 
         """
-        streams_description = 'in_out_streams'
-        db = tb.open_file(
-            self.db_path,
-            mode='a',
-            filters=self.compression_params)
-        for material_name in waste_dict.keys():  # iterate over materials
-            mat_node = getattr(db.root.materials, material_name)
-            if not hasattr(mat_node, streams_description):
-                waste_group = db.create_group(
-                    mat_node,
-                    streams_description,
-                    'Waste stream compositions for each process')
-            else:
-                waste_group = getattr(mat_node, streams_description)
-            for proc in waste_dict[material_name].keys():
-                if not hasattr(waste_group, proc):
-                    proc_node = db.create_group(waste_group, proc)
+        if waste_dict is not None:
+            streams_description = 'in_out_streams'
+            db = tb.open_file(
+                self.db_path,
+                mode='a',
+                filters=self.compression_params)
+            for material_name in waste_dict.keys():  # iterate over materials
+                mat_node = getattr(db.root.materials, material_name)
+                if not hasattr(mat_node, streams_description):
+                    waste_group = db.create_group(
+                        mat_node,
+                        streams_description,
+                        'Waste stream compositions for each process')
                 else:
-                    proc_node = getattr(waste_group, proc)
-                nuclide_indices = []
-                iso_wt_frac = []
-                coun = 0
-                if hasattr(waste_dict[material_name][proc], 'comp'):
-                    # Read isotopes from Materialflow
-                    for nuc, wt_frac in waste_dict[material_name][proc].comp.items():
-                        # Dictonary in format {isotope_name : index(int)}
-                        nuclide_indices.append((nuc, coun))
-                        # Convert wt% to absolute [user units]
-                        iso_wt_frac.append(wt_frac * waste_dict[material_name][proc].mass)
-                        coun += 1
-                    # Try to open EArray and table and if not exist - create
-                    nuclide_indices_array = np.array(nuclide_indices, dtype=self.nuclide_indices_dtype)
-                    if hasattr(proc_node, 'comp'):
-                        earr = db.get_node(proc_node, 'comp')
+                    waste_group = getattr(mat_node, streams_description)
+                for proc in waste_dict[material_name].keys():
+                    if not hasattr(waste_group, proc):
+                        proc_node = db.create_group(waste_group, proc)
                     else:
-                        earr = db.create_earray(
-                            proc_node,
-                            'comp',
-                            atom=tb.Float64Atom(),
-                            shape=(0, len(nuclide_indices_array)),
-                            title="Isotopic composition for %s" % proc)
-                        # Save isotope indexes map and units in EArray attributes
-                        earr.flavor = 'python'
-                    if not hasattr(proc_node, 'nuclide_map'):
-                        db.create_table(proc_node,
-                                       'nuclide_map',
-                                        description=nuclide_indices_array)
+                        proc_node = getattr(waste_group, proc)
+                    nuclide_indices = []
+                    iso_wt_frac = []
+                    coun = 0
+                    if hasattr(waste_dict[material_name][proc], 'comp'):
+                        # Read isotopes from Materialflow
+                        for nuc, wt_frac in waste_dict[material_name][proc].comp.items():
+                            # Dictonary in format {isotope_name : index(int)}
+                            nuclide_indices.append((nuc, coun))
+                            # Convert wt% to absolute [user units]
+                            iso_wt_frac.append(wt_frac * waste_dict[material_name][proc].mass)
+                            coun += 1
+                        # Try to open EArray and table and if not exist - create
+                        nuclide_indices_array = np.array(nuclide_indices, dtype=self.nuclide_indices_dtype)
+                        if hasattr(proc_node, 'comp'):
+                            earr = db.get_node(proc_node, 'comp')
+                        else:
+                            earr = db.create_earray(
+                                proc_node,
+                                'comp',
+                                atom=tb.Float64Atom(),
+                                shape=(0, len(nuclide_indices_array)),
+                                title="Isotopic composition for %s" % proc)
+                            # Save isotope indexes map and units in EArray attributes
+                            earr.flavor = 'python'
+                        if not hasattr(proc_node, 'nuclide_map'):
+                            db.create_table(proc_node,
+                                           'nuclide_map',
+                                            description=nuclide_indices_array)
 
-                    earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, nuclide_indices, iso_wt_frac)
+                        earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, nuclide_indices, iso_wt_frac)
 
-                    earr.append(np.asarray([iso_wt_frac], dtype=np.float64))
-                    del iso_wt_frac, nuclide_indices
+                        earr.append(np.asarray([iso_wt_frac], dtype=np.float64))
+                        del iso_wt_frac, nuclide_indices
+            db.close()
         # Also save materials AFTER reprocessing and refill here
         self.store_mat_data(after_mats, dep_step, True)
-        db.close()
 
     def _fix_nuclide_discrepancy(self, db, earr, nuclide_indices, iso_wt_frac):
         """Fix discrepancies between nuclide keys present in stored results and

@@ -35,6 +35,11 @@
             "type": "boolean",
             "default": false
         },
+        "run_without_reprocessing" : {
+            "description": "Flag to run the simulation with no material reprocessing",
+            "type": "boolean",
+            "default": false
+        },
         "depcode": {
             "description": "Depcode class input parameters",
             "type": "object",

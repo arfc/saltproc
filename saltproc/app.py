@@ -35,7 +35,8 @@ _DAYS_PER_YEAR = 365.25
 def run():
     """ Inititializes main run"""
     threads, saltproc_input = parse_arguments()
-    input_path, process_file, dot_file, mpi_args, rebuild_saltproc_results, object_input = \
+    input_path, process_file, dot_file, mpi_args, \
+        rebuild_saltproc_results, run_without_reprocessing, object_input = \
         read_main_input(saltproc_input)
     _print_simulation_input_info(object_input[1], object_input[0])
     # Intializing objects
@@ -71,28 +72,31 @@ def run():
         simulation.store_run_step_info()
 
         # Reprocessing here
-        for key in mats.keys():
-            print('\nMass and volume of '
-                  f'{key} before reproc: {mats[key].mass} g, ',
-                  f'{mats[key].volume} cm3')
-        waste_streams, extracted_mass = reprocess_materials(mats,
-                                                            process_file,
-                                                            dot_file)
-        for key in mats.keys():
-            print('\nMass and volume of '
-                  f'{key} after reproc: {mats[key].mass} g, ',
-                  f'{mats[key].volume} cm3')
+        if not run_without_reprocessing:
+            for key in mats.keys():
+                print('\nMass and volume of '
+                      f'{key} before reproc: {mats[key].mass} g, ',
+                      f'{mats[key].volume} cm3')
+            waste_streams, extracted_mass = reprocess_materials(mats,
+                                                                process_file,
+                                                                dot_file)
+            for key in mats.keys():
+                print('\nMass and volume of '
+                      f'{key} after reproc: {mats[key].mass} g, ',
+                      f'{mats[key].volume} cm3')
 
-        waste_and_feed_streams = refill_materials(mats,
-                                                  extracted_mass,
-                                                  waste_streams,
-                                                  process_file)
-        for key in mats.keys():
-            print('\nMass and volume of '
-                  f'{key} after refill: {mats[key].mass} g, ',
-                  f'{mats[key].volume} cm3')
+            waste_and_feed_streams = refill_materials(mats,
+                                                      extracted_mass,
+                                                      waste_streams,
+                                                      process_file)
+            for key in mats.keys():
+                print('\nMass and volume of '
+                      f'{key} after refill: {mats[key].mass} g, ',
+                      f'{mats[key].volume} cm3')
 
-        print("Removed mass [g]:", extracted_mass)
+            print("Removed mass [g]:", extracted_mass)
+        else:
+            waste_and_feed_streams = None
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_and_feed_streams, step_idx)
         depcode.update_depletable_materials(mats, simulation.burn_time)
@@ -205,6 +209,9 @@ def read_main_input(main_inp_file):
         # Rebuild saltproc results?
         rebuild_saltproc_results = input_parameters['rebuild_saltproc_results']
 
+        # Run without reprocessing?
+        run_without_reprocessing = input_parameters['run_without_reprocessing']
+
         # Class settings
         depcode_input = input_parameters['depcode']
         simulation_input = input_parameters['simulation']
@@ -254,7 +261,7 @@ def read_main_input(main_inp_file):
         reactor_input = _process_main_input_reactor_params(
             reactor_input, n_depletion_steps, depcode_input['codename'])
 
-        return input_path, process_file, dot_file, mpi_args, rebuild_saltproc_results, (
+        return input_path, process_file, dot_file, mpi_args, rebuild_saltproc_results, run_without_reprocessing, (
             depcode_input, simulation_input, reactor_input)
 
 def _print_simulation_input_info(simulation_input, depcode_input):
