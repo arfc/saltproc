@@ -380,11 +380,15 @@ class Simulation():
                                 dep_step_str[0],
                                 'Material data {dep_step_str[1]} reprocessing')
             comp_pfx = '/materials/' + str(key) + '/' + dep_step_str[0]
+            # Order the nucnames by ZAM
+            nuclide_codes = list(map(self.sim_depcode.name_to_nuclide_code, mats[key].comp.keys()))
+            ordered_nucs = [nucname for nuclide_code, nucname in sorted(zip(nuclide_codes,mats[key].comp.keys()))]
             # Read isotopes from Materialflow for material
-            for nuc, wt_frac in mats[key].comp.items():
+            for nuc in ordered_nucs:
+                wt_frac = mats[key].comp[nuc]
                 # Dictonary in format {isotope_name : index(int)}
                 nuclide_indices.append((nuc, coun))
-                # Convert wt% to absolute [user units]
+                # Convert wt% to total mass [g]
                 iso_wt_frac.append(wt_frac * mats[key].mass)
                 coun += 1
             nuclide_indices_array = np.array(nuclide_indices,

@@ -1,5 +1,6 @@
 import sys
 import subprocess
+import shutil
 
 from abc import ABC, abstractmethod
 
@@ -253,3 +254,23 @@ class Depcode(ABC):
             lines = self.read_plaintext_file(file_path)
             with open(step_results_dir / fname, 'w') as out_file:
                 out_file.writelines(lines)
+
+    def rebuild_simulation_files(self, step_idx):
+        """Move simulation input and output files
+        from unique directory to runtime directory
+
+        Parameters
+        ----------
+        step_idx : int
+
+        """
+        step_results_dir = self.output_path / f'step_{step_idx}_data'
+
+        file_path = lambda file : self.output_path / step_results_dir / file
+        output_paths = list(map(file_path, self._OUTPUTFILE_NAMES))
+        input_paths = list(map(file_path, self._INPUTFILE_NAMES))
+        for file_path, fname in zip(output_paths, self._OUTPUTFILE_NAMES):
+            shutil.copy(file_path, (self.output_path / fname))
+
+        for file_path, fname in zip(input_paths, self._INPUTFILE_NAMES):
+            shutil.copy(file_path, (self.output_path / fname))

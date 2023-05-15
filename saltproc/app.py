@@ -35,7 +35,7 @@ _DAYS_PER_YEAR = 365.25
 def run():
     """ Inititializes main run"""
     threads, saltproc_input = parse_arguments()
-    input_path, process_file, dot_file, mpi_args, object_input = \
+    input_path, process_file, dot_file, mpi_args, rebuild_saltproc_results, object_input = \
         read_main_input(saltproc_input)
     _print_simulation_input_info(object_input[1], object_input[0])
     # Intializing objects
@@ -53,7 +53,11 @@ def run():
         simulation.sim_depcode.write_runtime_input(msr,
                                                    step_idx,
                                                    simulation.restart_flag)
-        depcode.run_depletion_step(mpi_args, threads)
+
+        if rebuild_saltproc_results:
+            simulation.sim_depcode.rebuild_simulation_files(step_idx)
+        else:
+            depcode.run_depletion_step(mpi_args, threads)
         if step_idx == 0 and simulation.restart_flag is False:  # First step
             # Read general simulation data which never changes
             simulation.store_run_init_info()
@@ -94,7 +98,8 @@ def run():
         depcode.update_depletable_materials(mats, simulation.burn_time)
 
         # Preserve depletion and transport result and input files
-        depcode.preserve_simulation_files(step_idx)
+        if not rebuild_saltproc_results:
+            depcode.preserve_simulation_files(step_idx)
 
         del mats, waste_streams, waste_and_feed_streams, extracted_mass
         gc.collect()
@@ -197,6 +202,9 @@ def read_main_input(main_inp_file):
         if not Path(input_parameters['output_path']).exists():
             Path(input_parameters['output_path']).mkdir(parents=True)
 
+        # Rebuild saltproc results?
+        rebuild_saltproc_results = input_parameters['rebuild_saltproc_results']
+
         # Class settings
         depcode_input = input_parameters['depcode']
         simulation_input = input_parameters['simulation']
@@ -246,7 +254,7 @@ def read_main_input(main_inp_file):
         reactor_input = _process_main_input_reactor_params(
             reactor_input, n_depletion_steps, depcode_input['codename'])
 
-        return input_path, process_file, dot_file, mpi_args, (
+        return input_path, process_file, dot_file, mpi_args, rebuild_saltproc_results, (
             depcode_input, simulation_input, reactor_input)
 
 def _print_simulation_input_info(simulation_input, depcode_input):

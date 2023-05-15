@@ -30,6 +30,11 @@
             "items": { "type": ["string", "integer"]},
             "default": null
         },
+        "rebuild_saltproc_results" : {
+            "description": "Flag to reconstruct the saltproc_results.h5 files from the stepwise depletion simulation results",
+            "type": "boolean",
+            "default": false
+        },
         "depcode": {
             "description": "Depcode class input parameters",
             "type": "object",
