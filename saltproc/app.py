@@ -98,6 +98,8 @@ def run():
             print("Removed mass [g]:", extracted_mass)
         else:
             waste_and_feed_streams = None
+            waste_streams = None
+            extracted_mass = None
         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_and_feed_streams, step_idx)
         depcode.update_depletable_materials(mats, simulation.burn_time)
