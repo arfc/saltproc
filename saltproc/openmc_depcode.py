@@ -431,9 +431,6 @@ class OpenMCDepcode(Depcode):
                 geo_file, materials=materials)
             settings = openmc.Settings.from_xml(
                 self.template_input_file_path['settings'])
-            self.npop = settings.particles
-            self.inactive_cycles = settings.inactive
-            self.active_cycles = settings.batches - self.inactive_cycles
 
         else:
             openmc.reset_auto_ids()
@@ -442,6 +439,10 @@ class OpenMCDepcode(Depcode):
                 self.runtime_inputfile['geometry'], materials=materials)
             settings = openmc.Settings.from_xml(
                 self.runtime_inputfile['settings'])
+
+        self.npop = settings.particles
+        self.inactive_cycles = settings.inactive
+        self.active_cycles = settings.batches - self.inactive_cycles
 
         diluted_model = openmc.Model(materials=materials, geometry=geometry, settings=settings)
         reactions, diluted_materials = MicroXS._add_dilute_nuclides(self.chain_file_path,
