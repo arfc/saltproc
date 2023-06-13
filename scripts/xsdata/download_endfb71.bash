@@ -65,7 +65,7 @@ tar -xOzf $DATADIR/$ACEGZ xsdir | cat > $DATADIR/$XSDIR_FILE
 DATADIR_REGEX=${DATADIR//\//\\\/}
 
 # Fix datapath
-sed -i "s/datapath/datapath=$DATADIR_REGEX/" $DATADIR/$XSDIR_FILE
+sed -i "s/datapath /datapath=$DATADIR_REGEX/" $DATADIR/$XSDIR_FILE
 
 # Get cutoff line number
 LN="$(grep -n "directory" $DATADIR/$XSDIR_FILE)"
