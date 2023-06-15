@@ -524,7 +524,7 @@ class Simulation():
         step_info_table.flush()
         db.close()
 
-    def store_run_init_info(self):
+    def store_depcode_metadata(self):
         """Adds the following depletion code and SaltProc simulation parameters
         to the database:
         neutron population, active cycles, inactive cycles, depletion code

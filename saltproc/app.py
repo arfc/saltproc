@@ -61,7 +61,7 @@ def run():
             depcode.run_depletion_step(mpi_args, threads)
         if step_idx == 0 and simulation.restart_flag is False:  # First step
             # Read general simulation data which never changes
-            simulation.store_run_init_info()
+            simulation.store_depcode_metadata()
             # Parse and store data for initial state (beginning of step_idx)
             mats = depcode.read_depleted_materials(False)
             simulation.store_mat_data(mats, step_idx - 1, False)

@@ -223,9 +223,9 @@ def test_store_mat_data(simulation):
     simulation.db_path = db_path_old
 
 
-def test_store_run_init_info(simulation):
+def test_store_depcode_metadata(simulation):
     """
-    This unit test checks that the entries ``store_run_init_info()`
+    This unit test checks that the entries ``store_depcode_metadata()`
     stores in the database match the corresponding entries from the input
     explicity in value and implicitly in type.
     """
@@ -245,7 +245,7 @@ def test_store_run_init_info(simulation):
     simulation.db_path = db_file
 
     # store data at
-    simulation.store_run_init_info()
+    simulation.store_depcode_metadata()
 
     # read stored data
     try:
@@ -256,23 +256,14 @@ def test_store_run_init_info(simulation):
         print('Unable to assign correct value to db.\
               See error stack for more info.')
 
-    tinit_info = db.root.initial_depcode_siminfo[0]
+    tinit_info = db.root.depcode_metadata[0]
 
-    assert tinit_info[0] == simulation.sim_depcode.npop
-    assert tinit_info[1] == simulation.sim_depcode.active_cycles
-    assert tinit_info[2] == simulation.sim_depcode.inactive_cycles
-    assert str(tinit_info[3])[2:-1] == init_info['depcode_name']
-    assert str(tinit_info[4])[2:-1] == init_info['depcode_version']
-    assert str(tinit_info[5])[2:-1] == init_info['title']
-    assert str(tinit_info[6])[2:-1] == init_info['depcode_input_filename']
-    assert str(tinit_info[7])[2:-1] == init_info['depcode_working_dir']
-    assert str(tinit_info[8])[2:-1] == init_info['xs_data_path']
-    assert tinit_info[9] == init_info['OMP_threads']
-    assert tinit_info[10] == init_info['MPI_tasks']
-    assert tinit_info[11] == init_info['memory_optimization_mode']
-    assert tinit_info[12] == init_info['depletion_timestep']
-    assert tinit_info[13] == init_info['execution_time']
-    assert tinit_info[14] == init_info['memory_usage']
+    assert str(tinit_info[0])[2:-1] == init_info['depcode_name']
+    assert str(tinit_info[1])[2:-1] == init_info['depcode_version']
+    assert str(tinit_info[2])[2:-1] == init_info['title']
+    assert str(tinit_info[3])[2:-1] == init_info['depcode_input_filename']
+    assert str(tinit_info[4])[2:-1] == init_info['depcode_working_dir']
+    assert str(tinit_info[5])[2:-1] == init_info['xs_data_path']
 
     # close the file
     db.close()
@@ -284,9 +275,65 @@ def test_store_run_init_info(simulation):
     simulation.db_path = db_path_old
 
 
-def test_store_run_step_info(simulation):
+def test_store_step_metadata(simulation):
     """
-    This unit test checks that the entries ``store_run_step_info()`
+    This unit test checks that the entries ``store_step_metadata()`
+    stores in the database match the corresponding entries from the input
+    explicity in value and implicitly in type.
+    """
+
+    # read data
+    simulation.sim_depcode.read_step_metadata()
+
+    file = simulation.sim_depcode.template_input_file_path
+    file_lines = simulation.sim_depcode.read_plaintext_file(file)
+    simulation.sim_depcode.get_neutron_settings(file_lines)
+    init_info = simulation.sim_depcode.step_metadata
+
+    # we want to keep the old path for other sims, but for this
+    # test we'll want a fresh db
+    db_path_old = simulation.db_path
+    db_file = simulation.sim_depcode.codename + '_test.h5'
+    simulation.db_path = db_file
+
+    # store data at
+    simulation.store_step_metadata()
+
+    # read stored data
+    try:
+        db = tb.open_file(simulation.db_path, mode='r',
+                          filters=simulation.compression_params)
+    except Exception:
+        db.close()
+        print('Unable to assign correct value to db.\
+              See error stack for more info.')
+
+    tinit_info = db.root.depletion_step_metadata[0]
+
+    assert tinit_info[0] == simulation.sim_depcode.npop
+    assert tinit_info[1] == simulation.sim_depcode.active_cycles
+    assert tinit_info[2] == simulation.sim_depcode.inactive_cycles
+    assert tinit_info[3] == init_info['OMP_threads']
+    assert tinit_info[4] == init_info['MPI_tasks']
+    assert tinit_info[5] == init_info['memory_optimization_mode']
+    assert tinit_info[6] == init_info['depletion_timestep_size']
+    assert tinit_info[7] == init_info['step_execution_time']
+    assert tinit_info[8] == init_info['step_memory_usage']
+
+    # close the file
+    db.close()
+
+    # delete test file
+    os.remove(db_file)
+
+    # use original db path
+    simulation.db_path = db_path_old
+
+
+
+def test_store_step_neutronics_parameters(simulation):
+    """
+    This unit test checks that the entries ``store_step_neutronics_parameters()`
     stores in the database match the corresponding entries from the input
     explicity in value and implicitly in type.
     """
@@ -301,7 +348,7 @@ def test_store_run_step_info(simulation):
     simulation.db_path = db_file
 
     # store data at
-    simulation.store_run_step_info()
+    simulation.store_step_neutronics_parameters()
 
     # read stored data
     try:
@@ -311,22 +358,29 @@ def test_store_run_step_info(simulation):
         print('Unable to assign correct value to db.\
               See error stack for more info.')
 
-    tstep_info = db.root.simulation_parameters[0]
-    assert np.array_equal(tstep_info[0],
-                          step_info['beta_eff'].astype('float32'))
-    assert np.array_equal(tstep_info[1],
-                          step_info['breeding_ratio'].astype('float32'))
-    assert tstep_info[2] == simulation.burn_time
-    assert np.array_equal(tstep_info[3],
-                          step_info['delayed_neutrons_lambda'].
+    tstep_info = db.root.simulation_parameters
+    assert np.array_equal(tstep_info.col('beta_eff_bds')[0],
+                          step_info['beta_eff_bds'].astype('float32'))
+    assert np.array_equal(tstep_info.col('beta_eff_eds')[0],
+                          step_info['beta_eff_eds'].astype('float32'))
+    assert np.array_equal(tstep_info.col('breeding_ratio_bds')[0],
+                          step_info['breeding_ratio_bds'].astype('float32'))
+    assert np.array_equal(tstep_info.col('breeding_ratio_eds')[0],
+                          step_info['breeding_ratio_eds'].astype('float32'))
+    assert tstep_info.col('cumulative_time_at_eds')[0] == simulation.burn_time
+    assert np.array_equal(tstep_info.col('delayed_neutrons_lambda_bds')[0],
+                          step_info['delayed_neutrons_lambda_bds'].
                           astype('float32'))
-    assert tstep_info[4] == step_info['fission_mass_bds'].astype('float32')
-    assert tstep_info[5] == step_info['fission_mass_eds'].astype('float32')
-    assert np.array_equal(tstep_info[6],
+    assert np.array_equal(tstep_info.col('delayed_neutrons_lambda_eds')[0],
+                          step_info['delayed_neutrons_lambda_eds'].
+                          astype('float32'))
+    assert tstep_info.col('fission_mass_bds')[0] == step_info['fission_mass_bds'].astype('float32')
+    assert tstep_info.col('fission_mass_eds')[0] == step_info['fission_mass_eds'].astype('float32')
+    assert np.array_equal(tstep_info.col('keff_bds')[0],
                           step_info['keff_bds'].astype('float32'))
-    assert np.array_equal(tstep_info[7],
+    assert np.array_equal(tstep_info.col('keff_eds')[0],
                           step_info['keff_eds'].astype('float32'))
-    assert tstep_info[8] == step_info['power_level'].astype('float32')
+    assert tstep_info.col('power_level')[0] == step_info['power_level'].astype('float32')
 
     # close the file
     db.close()
