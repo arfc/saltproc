@@ -37,12 +37,16 @@ def test_read_main_input(cwd, expected_depletion_settings, codename, ext, reacto
     data_path = cwd / data_path
     main_input = str(data_path / f'{reactor_name}_input.json')
     out = read_main_input(main_input)
-    input_path, process_input_file, path_input_file, mpi_args, object_input = out
+    (input_path, process_input_file, path_input_file, mpi_args,
+     rebuild_saltproc_results, run_without_reprocessing, object_input) = out
     depcode_input, simulation_input, reactor_input = object_input
 
     assert input_path == data_path
 
     assert mpi_args is None
+
+    assert rebuild_saltproc_results == False
+    assert run_without_reprocessing == False
 
     assert depcode_input['codename'] == codename
     assert depcode_input['geo_file_paths'][0] == \
@@ -154,7 +158,8 @@ def test_openmc_depletion_settings(cwd, expected_depletion_settings, filename):
     data_path = cwd / data_path
     main_input = str(data_path / f'{filename}_input.json')
     out = read_main_input(main_input)
-    input_path, process_input_file, path_input_file, mpi_args, object_input = out
+    (input_path, process_input_file, path_input_file, mpi_args,
+     rebuild_saltproc_results, run_without_reprocessing, object_input) = out
     depcode_input, simulation_input, reactor_input = object_input
 
     assert depcode_input['template_input_file_path'] == \

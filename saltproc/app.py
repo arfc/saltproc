@@ -164,6 +164,12 @@ def read_main_input(main_inp_file):
     mpi_args : list of str
         Arguments for running simulations on supercomputers using mpiexec or
         similar programs.
+    rebuild_saltproc_results : bool
+        Flag to indicate wheter or not to rebuild SaltProc results file
+        from existing depcode results
+    run_without_reprocessing : bool
+        Flag to indicate whether or not to run the depletion code in
+        SaltProc without applying the reprocessing system.
     object_inputs : 3-tuple of dict
         tuple containing the inputs for constructing the
         :class:`~saltproc.Depcode`, :class:`~saltproc.Simulation`, and
