@@ -231,12 +231,12 @@ def test_store_depcode_metadata(simulation):
     """
 
     # read data
-    simulation.sim_depcode.read_step_metadata()
+    simulation.sim_depcode.read_depcode_metadata()
 
     file = simulation.sim_depcode.template_input_file_path
     file_lines = simulation.sim_depcode.read_plaintext_file(file)
     simulation.sim_depcode.get_neutron_settings(file_lines)
-    init_info = simulation.sim_depcode.step_metadata
+    init_info = simulation.sim_depcode.depcode_metadata
 
     # we want to keep the old path for other sims, but for this
     # test we'll want a fresh db

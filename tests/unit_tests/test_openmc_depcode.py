@@ -6,22 +6,29 @@ from pathlib import Path
 
 import openmc
 
+
+def test_read_depcode_metadata(openmc_depcode):
+    old_output_path = openmc_depcode.output_path
+    openmc_depcode.output_path = Path(__file__).parents[1] / 'openmc_data/saltproc_runtime_ref'
+    openmc_depcode.read_depcode_metadata()
+    assert openmc_depcode.depcode_metadata['depcode_name'] == 'openmc'
+    assert openmc_depcode.depcode_metadata['depcode_version'] == '0.13.3'
+    assert openmc_depcode.depcode_metadata['title'] == ''
+    assert openmc_depcode.depcode_metadata['depcode_input_filename'] == ''
+    assert openmc_depcode.depcode_metadata['depcode_working_dir'] == \
+       str((Path(__file__).parents[1] / 'openmc_data/saltproc_runtime_ref').resolve())
+
+
 def test_read_step_metadata(openmc_depcode):
     old_output_path = openmc_depcode.output_path
     openmc_depcode.output_path = Path(__file__).parents[1] / 'openmc_data/saltproc_runtime_ref'
     openmc_depcode.read_step_metadata()
-    assert openmc_depcode.step_metadata['depcode_name'] == 'openmc'
-    assert openmc_depcode.step_metadata['depcode_version'] == '0.13.3'
-    assert openmc_depcode.step_metadata['title'] == ''
-    assert openmc_depcode.step_metadata['depcode_input_filename'] == ''
-    assert openmc_depcode.step_metadata['depcode_working_dir'] == \
-       str((Path(__file__).parents[1] / 'openmc_data/saltproc_runtime_ref').resolve())
     assert openmc_depcode.step_metadata['MPI_tasks'] == -1
     assert openmc_depcode.step_metadata['OMP_threads'] == -1
     assert openmc_depcode.step_metadata['memory_optimization_mode'] == -1
-    assert openmc_depcode.step_metadata['depletion_timestep'] == 259200.0
-    assert openmc_depcode.step_metadata['memory_usage'] == -1
-    np.testing.assert_almost_equal(openmc_depcode.step_metadata['execution_time'], 423.90163846)
+    assert openmc_depcode.step_metadata['depletion_timestep_size'] == 259200.0
+    assert openmc_depcode.step_metadata['step_memory_usage'] == -1
+    np.testing.assert_almost_equal(openmc_depcode.step_metadata['step_execution_time'], 423.90163846)
 
 
 def test_check_for_material_names(cwd, openmc_depcode):
