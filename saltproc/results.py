@@ -4,9 +4,42 @@ import pandas as pd
 import uncertainties.unumpy as unp
 
 class Results():
-    """Interface class for reading SaltProc results"""
+    """Interface class for reading SaltProc results.
 
-    def __init__(self, path):
+    Parameters
+    ----------
+    path
+
+    Attributes
+    ----------
+
+    time_at_eds : numpy.ndarray
+        Cumulative time at each depletion step
+    time_total : numpy.ndarray
+        Cumulative time at each depletion step
+        and each processing step.
+    keff : numpy.ndarray
+        :math:`k_\text{eff}` at each depletion and ...
+    fisson_mass : numpy.ndarray
+        Mass of fissionable nuclides summed over all
+        depletable materials.
+    breeding_ratio : numpy.ndarray
+        Breeding ratio in the ...
+    power_level : numpy.ndarray
+        Power in [W].
+    beta_eff : numpy.ndarray
+        ...
+    lambda_eff : numpy.ndarray
+        ...
+    depcode_metadata : ...
+    depletion_step_metadata : ...
+    nuclide_ids : ...
+    material_composition : ...
+    material_parameters : ...
+    waste_streams : ...
+
+    """
+    def __init__(self, path, load_in_out_streams=True):
         f = tb.open_file(path, mode='r')
         root = f.root
         sim_params = root.simulation_parameters
@@ -33,7 +66,7 @@ class Results():
 
         # Materials
         materials = root.materials
-        nuclide_idx, material_composition, material_parameters, waste_streams = self._collect_material_params(materials)
+        nuclide_idx, material_composition, material_parameters, waste_streams = self._collect_material_params(materials, load_in_out_streams)
         self.nuclide_idx = nuclide_idx
         self.material_composition = material_composition
         self.material_parameters = material_parameters
@@ -68,7 +101,7 @@ class Results():
                 metadata[key] = value[0]
         return metadata
 
-    def _collect_material_params(self, materials):
+    def _collect_material_params(self, materials, load_in_out_streams):
         nuclide_idx = {}
         material_composition = {}
         material_parameters = {}
@@ -87,11 +120,12 @@ class Results():
 
             # in and out streams
             waste_streams[mat_name] = {}
-            for stream_name in material.in_out_streams._v_groups.keys():
-                waste_stream = material.in_out_streams[stream_name]
-                if len(waste_stream._v_children) > 0:
-                    waste_streams[mat_name][stream_name] = \
-                        self._collect_waste_streams(waste_stream, stream_name)
+            if load_in_out_streams:
+                for stream_name in material.in_out_streams._v_groups.keys():
+                    waste_stream = material.in_out_streams[stream_name]
+                    if len(waste_stream._v_children) > 0:
+                        waste_streams[mat_name][stream_name] = \
+                            self._collect_waste_streams(waste_stream, stream_name)
 
         return nuclide_idx, material_composition, material_parameters, waste_streams
 
