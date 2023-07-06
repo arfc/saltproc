@@ -139,12 +139,12 @@ class OpenMCDepcode(Depcode):
         depcode_name, depcode_ver = self.codename, ".".join(list(map(str,sp0.version)))
         sp0.close()
 
-        self.step_metadata['depcode_name'] = depcode_name
-        self.step_metadata['depcode_version'] = depcode_ver
-        self.step_metadata['title'] = ''
-        self.step_metadata['depcode_input_filename'] = ''
-        self.step_metadata['depcode_working_dir'] = str(self.output_path)
-        self.step_metadata['xs_data_path'] = self._find_xs_path()
+        self.depcode_metadata['depcode_name'] = depcode_name
+        self.depcode_metadata['depcode_version'] = depcode_ver
+        self.depcode_metadata['title'] = ''
+        self.depcode_metadata['depcode_input_filename'] = ''
+        self.depcode_metadata['depcode_working_dir'] = str(self.output_path)
+        self.depcode_metadata['xs_data_path'] = self._find_xs_path()
 
     def _find_xs_path(self):
         try:

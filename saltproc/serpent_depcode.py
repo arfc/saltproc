@@ -399,14 +399,14 @@ class SerpentDepcode(Depcode):
 
         res = serpentTools.read(self.runtime_inputfile + "_res.m")
         depcode_name, depcode_ver = res.metadata['version'].split()
-        self.step_metadata['depcode_name'] = depcode_name
-        self.step_metadata['depcode_version'] = depcode_ver
-        self.step_metadata['title'] = res.metadata['title']
-        self.step_metadata['depcode_input_filename'] = \
+        self.depcode_metadata['depcode_name'] = depcode_name
+        self.depcode_metadata['depcode_version'] = depcode_ver
+        self.depcode_metadata['title'] = res.metadata['title']
+        self.depcode_metadata['depcode_input_filename'] = \
             res.metadata['inputFileName']
-        self.step_metadata['depcode_working_dir'] = \
+        self.depcode_metadata['depcode_working_dir'] = \
             res.metadata['workingDirectory']
-        self.step_metadata['xs_data_path'] = \
+        self.depcode_metadata['xs_data_path'] = \
             res.metadata['xsDataFilePath']
 
 

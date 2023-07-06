@@ -41,6 +41,9 @@ class Depcode(ABC):
     step_metadata : dict of str to type
         Holds depletion code depletion step metadata. Metadata labels are keys
         and metadata values are values.
+    depcode_metadata : dict of str to type
+        Holds depletion code simulation metadata. Metadata labels are keys
+        and metadata values are values.
     runtime_inputfile : str
         Path to input file used to run depletion step.
     runtime_matfile : str
@@ -71,6 +74,7 @@ class Depcode(ABC):
         self.geo_file_paths = geo_file_paths
         self.neutronics_parameters = {}
         self.step_metadata = {}
+        self.depcode_metadata = {}
         self.runtime_inputfile = None
         self.runtime_matfile = None
 

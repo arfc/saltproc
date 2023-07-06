@@ -548,12 +548,12 @@ class Simulation():
         self.sim_depcode.read_depcode_metadata()
         # Store information about material properties in new array row
         depcode_metadata_row = (
-            self.sim_depcode.step_metadata['depcode_name'],
-            self.sim_depcode.step_metadata['depcode_version'],
-            self.sim_depcode.step_metadata['title'],
-            self.sim_depcode.step_metadata['depcode_input_filename'],
-            self.sim_depcode.step_metadata['depcode_working_dir'],
-            self.sim_depcode.step_metadata['xs_data_path']
+            self.sim_depcode.depcode_metadata['depcode_name'],
+            self.sim_depcode.depcode_metadata['depcode_version'],
+            self.sim_depcode.depcode_metadata['title'],
+            self.sim_depcode.depcode_metadata['depcode_input_filename'],
+            self.sim_depcode.depcode_metadata['depcode_working_dir'],
+            self.sim_depcode.depcode_metadata['xs_data_path']
         )
         depcode_metadata_array = np.array([depcode_metadata_row], dtype=depcode_metadata_dtype)
 

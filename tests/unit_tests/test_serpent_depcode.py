@@ -164,33 +164,81 @@ def test_nuclide_code_to_name(serpent_depcode):
     serpent_depcode.zaid_convention = 'serpent'
 
 
-def test_read_step_metadata(serpent_depcode):
-    serpent_depcode.read_step_metadata()
-    assert serpent_depcode.step_metadata['depcode_name'] == 'Serpent'
-    assert serpent_depcode.step_metadata['depcode_version'] == '2.1.31'
-    assert serpent_depcode.step_metadata['title'] == 'Untitled'
-    assert serpent_depcode.step_metadata['depcode_input_filename'] == \
+def test_read_depcode_metadata(serpent_depcode):
+    serpent_depcode.read_depcode_metadata()
+    assert serpent_depcode.depcode_metadata['depcode_name'] == 'Serpent'
+    assert serpent_depcode.depcode_metadata['depcode_version'] == '2.1.31'
+    assert serpent_depcode.depcode_metadata['title'] == 'Untitled'
+    assert serpent_depcode.depcode_metadata['depcode_input_filename'] == \
         '/home/andrei2/Desktop/git/saltproc/develop/saltproc/data/saltproc_tap'
-    assert serpent_depcode.step_metadata['depcode_working_dir'] == \
+    assert serpent_depcode.depcode_metadata['depcode_working_dir'] == \
         '/home/andrei2/Desktop/git/saltproc/develop/saltproc'
-    assert serpent_depcode.step_metadata['xs_data_path'] == \
+    assert serpent_depcode.depcode_metadata['xs_data_path'] == \
         '/home/andrei2/serpent/xsdata/jeff312/sss_jeff312.xsdata'
 
+
+def test_read_step_metadata(serpent_depcode):
+    serpent_depcode.read_step_metadata()
     assert serpent_depcode.step_metadata['MPI_tasks'] == 1
     assert serpent_depcode.step_metadata['OMP_threads'] == 4
     assert serpent_depcode.step_metadata['memory_optimization_mode'] == 4
-    assert serpent_depcode.step_metadata['depletion_timestep'] == 3.0
-    assert serpent_depcode.step_metadata['memory_usage'] == [10552.8]
-    assert serpent_depcode.step_metadata['execution_time'] == [81.933]
+    assert serpent_depcode.step_metadata['depletion_timestep_size'] == 3.0
+    assert serpent_depcode.step_metadata['step_memory_usage'] == 10552.8
+    assert serpent_depcode.step_metadata['step_execution_time'] == 111.76060000000001
 
 
 def test_read_neutronics_parameters(serpent_depcode):
     serpent_depcode.read_neutronics_parameters()
-    assert serpent_depcode.neutronics_parameters['keff_bds'][0] == 1.00651e+00
-    assert serpent_depcode.neutronics_parameters['keff_eds'][0] == 1.00569e+00
+    assert serpent_depcode.neutronics_parameters['keff_bds'][0] == 1.00651
+    assert serpent_depcode.neutronics_parameters['keff_eds'][0] == 1.00569
     assert serpent_depcode.neutronics_parameters['fission_mass_bds'] == [70081]
     assert serpent_depcode.neutronics_parameters['fission_mass_eds'] == [70077.1]
-    assert serpent_depcode.neutronics_parameters['breeding_ratio'][1] == 5.20000e-04
+    assert serpent_depcode.neutronics_parameters['breeding_ratio_eds'][1] == 5.2e-04
+    assert serpent_depcode.neutronics_parameters['breeding_ratio_bds'][1] == 5.4e-04
+    assert serpent_depcode.neutronics_parameters['burn_days'] == 3.0
+    assert serpent_depcode.neutronics_parameters['power_level'] == 1.25e9
+    np.testing.assert_equal(serpent_depcode.neutronics_parameters['beta_eff_bds'],
+                            [[0.0073977, 0.00324],
+                             [0.000217048, 0.01744],
+                             [0.00105221, 0.00807],
+                             [0.000638056, 0.00979],
+                             [0.00139092, 0.0068],
+                             [0.00234135, 0.00544],
+                             [0.000813505, 0.00916],
+                             [0.000680349, 0.00967],
+                             [0.000264266, 0.0154]])
+    np.testing.assert_equal(serpent_depcode.neutronics_parameters['beta_eff_eds'],
+                            [[0.00739026, 0.00312],
+                             [0.000219973, 0.01763],
+                             [0.00106376, 0.00788],
+                             [0.000632466, 0.01052],
+                             [0.00139341, 0.00701],
+                             [0.00230227, 0.00542],
+                             [0.000822292, 0.00841],
+                             [0.000685158, 0.01013],
+                             [0.000270932, 0.01507]])
+    np.testing.assert_equal(serpent_depcode.neutronics_parameters['delayed_neutrons_lambda_bds'],
+                            [[4.76145e-01, 4.39000e-03],
+                             [1.24667e-02, 0.00000e+00],
+                             [2.82917e-02, 4.90000e-09],
+                             [4.25244e-02, 7.10000e-09],
+                             [1.33042e-01, 0.00000e+00],
+                             [2.92467e-01, 0.00000e+00],
+                             [6.66488e-01, 0.00000e+00],
+                             [1.63478e+00, 5.20000e-09],
+                             [3.55460e+00, 0.00000e+00]])
+    np.testing.assert_equal(serpent_depcode.neutronics_parameters['delayed_neutrons_lambda_eds'],
+                            [[4.80259e-01, 4.51000e-03],
+                             [1.24667e-02, 0.00000e+00],
+                             [2.82917e-02, 4.90000e-09],
+                             [4.25244e-02, 7.10000e-09],
+                             [1.33042e-01, 0.00000e+00],
+                             [2.92467e-01, 0.00000e+00],
+                             [6.66488e-01, 0.00000e+00],
+                             [1.63478e+00, 5.20000e-09],
+                             [3.55460e+00, 0.00000e+00]])
+    assert serpent_depcode.neutronics_parameters['fission_mass_bds'] == 70081.
+    assert serpent_depcode.neutronics_parameters['fission_mass_eds'] == 70077.1
 
 
 def test_read_depleted_materials(serpent_depcode):
