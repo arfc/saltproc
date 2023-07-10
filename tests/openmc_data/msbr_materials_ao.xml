@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version='1.0' encoding='UTF-8'?>
 <materials>
   <material depletable="true" id="1" name="fuel" volume="48710000.0">
     <density units="g/cm3" value="3.35" />

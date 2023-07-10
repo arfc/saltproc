@@ -11,7 +11,7 @@ import openmc
 from saltproc import Materialflow
 from saltproc.depcode import Depcode
 from openmc.deplete.abc import _SECONDS_PER_DAY
-from openmc.deplete import Results, Chain, MicroXS
+from openmc.deplete import Results, Chain
 from openmc.mgxs import Beta, DecayRate, EnergyGroups
 from openmc.data import atomic_mass, DataLibrary, JOULE_PER_EV
 
@@ -444,12 +444,7 @@ class OpenMCDepcode(Depcode):
         self.inactive_cycles = settings.inactive
         self.active_cycles = settings.batches - self.inactive_cycles
 
-        diluted_model = openmc.Model(materials=materials, geometry=geometry, settings=settings)
-        reactions, diluted_materials = MicroXS._add_dilute_nuclides(self.chain_file_path,
-                                                                   diluted_model,
-                                                                   1e3)
-
-        diluted_materials.export_to_xml(self.runtime_matfile)
+        materials.export_to_xml(self.runtime_matfile)
         geometry.export_to_xml(self.runtime_inputfile['geometry'])
         settings.export_to_xml(self.runtime_inputfile['settings'])
         self.write_depletion_settings(reactor, depletion_step)

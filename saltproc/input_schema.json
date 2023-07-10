@@ -216,11 +216,6 @@
                                                 "description": "Path to fission Q values",
                                                 "type": ["string", "null"],
                                                 "default": null},
-                                            "dilute_initial": {
-                                                "description": "Initial atom density to add for nuclides that are zero in initial condition.",
-                                                "type": "number",
-                                                "minimum": 0,
-                                                "default": 1000},
                                             "fission_yield_mode": {
                                                 "description": "Determine what fission energy helper is used",
                                                 "type": "string",

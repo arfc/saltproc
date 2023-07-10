@@ -1,4 +1,6 @@
 """Run SaltProc with reprocessing"""
+from tests.integration_tests import config
+
 import os
 import shutil
 from pathlib import Path
@@ -35,12 +37,15 @@ def test_integration_2step_constant_ideal_removal_heavy(setup):
         args,
         check=True,
         cwd=cwd,
-        stdout=sys.stdout,
+        stdout=subprocess.DEVNULL,
         stderr=subprocess.STDOUT)
+    if config['update']:
+        shutil.copyfile(test_db, ref_db)
+        return
     np.testing.assert_allclose(read_keff(test_db), read_keff(ref_db), atol=atol)
     assert_db_allclose(test_db, ref_db, atol, rtol)
 
-    #shutil.rmtree(cwd / 'saltproc_runtime')
+    shutil.rmtree(cwd / 'saltproc_runtime')
 
 def read_keff(file):
     db = tb.open_file(file, mode='r')

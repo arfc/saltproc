@@ -31,8 +31,9 @@ def test_integration_2step_constant_ideal_removal_heavy(setup):
         args,
         check=True,
         cwd=cwd,
-        stdout=sys.stdout,
+        stdout=subprocess.DEVNULL,
         stderr=subprocess.STDOUT)
+
     np.testing.assert_allclose(read_keff(test_db)[0], read_keff(ref_db)[0], rtol=5e-2)
     np.testing.assert_allclose(read_keff(test_db)[1], read_keff(ref_db)[1], rtol=5e-1)
     assert_db_allclose(test_db, ref_db, tol)

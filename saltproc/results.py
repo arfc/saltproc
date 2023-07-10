@@ -8,7 +8,10 @@ class Results():
 
     Parameters
     ----------
-    path
+    path : str
+        Path of results file
+    load_in_out_streams : bool
+        Switch on whether or not to load waste streams.
 
     Attributes
     ----------
@@ -28,15 +31,25 @@ class Results():
     power_level : numpy.ndarray
         Power in [W].
     beta_eff : numpy.ndarray
-        ...
+        Timeseries of delayed neutron fractions.
     lambda_eff : numpy.ndarray
-        ...
-    depcode_metadata : ...
-    depletion_step_metadata : ...
-    nuclide_ids : ...
-    material_composition : ...
-    material_parameters : ...
-    waste_streams : ...
+        Timesereis of delayed neutron precursor decay constants.
+    depcode_metadata : dict of str to object
+        Depletion code metadata, such as depletion code name, version, etc.
+    depletion_step_metadata : dict of str to object
+        Depletion step metadata, such as step runtime, memory usage, etc.
+    nuclide_idx : dict of str to int
+        A dictionary mapping nuclide name as a string to index.
+    material_composition : dict of str to numpy.ndarray
+       A dictionary mapping material name as a string to nuclide composition
+       over time.
+    material_parameters : dict of str to object
+        A dictionary mapping material name as a string to material parameters
+        (density, volume, burnup, etc.)
+    waste_streams : dict of str to dict
+        A dictionary mapping material name as a string to a dictionary mapping
+        waste stream names as a string to the waste streams mass [g] as a
+        timeseries.
 
     """
     def __init__(self, path, load_in_out_streams=True):
@@ -59,10 +72,6 @@ class Results():
         # metadata
         self.depcode_metadata = self._collect_metadata(f, 'depcode_metadata')
         self.depletion_step_metadata = self._collect_metadata(f, 'depletion_step_metadata', array=True)
-        #metadata = pd.DataFrame.from_records(metadata[:]).to_dict()
-        #for key, value in metadata.items():
-        #    metadata[key] = value[0#]
-        ##self.depcode_metadata = metadata
 
         # Materials
         materials = root.materials
@@ -171,6 +180,23 @@ class Results():
 
     # methods to get timeseries of various values
     def get_nuclide_mass(self, material, nuclide, timestep=None):
+        """Get nuclide mass as a timeseries. If :attr:`timestep` is `None`,
+        then return the mass at all times.
+
+        Parameters
+        ----------
+        material : str
+            Material name
+        nuclide : str
+            Nuclide string (e.g. 'U235')
+        timestep : idx
+            Timestep index
+
+        Returns
+        -------
+        nuclide_mass : numpy.ndarray
+
+        """
         nucmap = self.nuclide_idx[material]
         comp = self.material_composition[material]
         nuclide_mass = comp[nucmap[nuclide]]

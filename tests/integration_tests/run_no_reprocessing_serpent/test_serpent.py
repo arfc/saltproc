@@ -18,18 +18,23 @@ def test_integration_2step_saltproc_no_reproc_heavy():
         args,
         check=True,
         cwd=cwd,
-        stdout=sys.stdout,
+        stdout=subprocess.DEVNULL,
         stderr=subprocess.STDOUT)
 
-    ref_result = serpentTools.read(cwd + '/reference_dep.m')
-    test_result = serpentTools.read(cwd + '/saltproc_runtime/step_1_data/runtime_input.serpent_dep.m')
+    test_path = cwd + '/saltproc_runtime/step_1_data/runtime_input.serpent_dep.m'
+    ref_path = cwd + '/reference_dep.m'
 
-    ref_mdens_error = np.loadtxt(cwd + '/reference_error')
+    ref_result = serpentTools.read(ref_path)
+    test_result = serpentTools.read(test_path)
+
 
     ref_fuel_mdens = ref_result.materials['fuel'].mdens[:, -2]
     test_fuel_mdens = test_result.materials['fuel'].mdens[:, -1]
 
     test_mdens_error = np.array(ref_fuel_mdens - test_fuel_mdens)
+
+    ref_mdens_error = np.loadtxt(cwd + '/reference_error')
+
     np.testing.assert_array_almost_equal(test_mdens_error, ref_mdens_error)
 
     shutil.rmtree(cwd + '/saltproc_runtime')
