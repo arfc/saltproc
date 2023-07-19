@@ -286,9 +286,13 @@ class OpenMCDepcode(Depcode):
         results_file = Path(self.output_path / 'depletion_results.h5')
         depleted_materials = {}
         results = Results(results_file)
-        depleted_openmc_materials = results.export_to_materials(moment)
+
+        # Get decay and transport nuclides
+        nucs = list(results[-1].index_nuc.keys())
+        depleted_openmc_materials = results.export_to_materials(moment, nuclides_with_data=nucs)
         if read_at_end:
-            starting_openmc_materials = results.export_to_materials(0)
+            _nucs = list(results[0].index_nuc.keys())
+            starting_openmc_materials = results.export_to_materials(0, nuclides_with_data=nucs)
         else:
             # placeholder for starting materials
             starting_openmc_materials = np.zeros(len(depleted_openmc_materials))
@@ -512,6 +516,7 @@ class OpenMCDepcode(Depcode):
         openmc.reset_auto_ids()
         runtime_materials = openmc.Materials.from_xml(self.runtime_matfile)
 
+        breakpoint()
         for material in runtime_materials:
             # depletable materials only
             if material.name in mats.keys():

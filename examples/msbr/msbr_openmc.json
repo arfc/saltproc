@@ -12,7 +12,8 @@
        "chain_file_path": "chain_endfb71_pwr.xml",
        "depletion_settings": {
            "operator_kwargs": {
-               "fission_q": "serpent_fissq.json"
+               "fission_q": "serpent_fissq.json",
+               "fission_yield_mode": "average"
            }
        }
    },
