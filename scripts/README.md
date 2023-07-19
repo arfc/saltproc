@@ -2,6 +2,9 @@
 This directory contains various scripts to help you set-up and analyze results
 of your SaltProc simulations.
 
+When passing paths of directories to scripts, make sure to remove any
+trailing `/` to ensure they produce correct files.
+
 ### `xsdata`
 The scripts in this directory download and processe cross section data for
 use in Serpent and OpenMC
@@ -45,7 +48,9 @@ section libraries. Running the script without setting `XSDIR` will install the c
 
 #### `process_endfb71_to_openmc.bash`
 Processes the endfb71 library created by the previous script into
-OpenMC's HDF5 format for cross section data on a UNIX-like machine.
+OpenMC's HDF5 format for cross section data on a UNIX-like machine
+as well as a depletion chain utilizing Serpent2's default branching
+ratios. Branching ratios are obtained from [this](https://github.com/openmc-dev/data/blob/master/depletion/branching_ratios_pwr.json) file.
 
 *You must have installed OpenMC on your machine and have openmc repo on your
 machine in order for this script to work*

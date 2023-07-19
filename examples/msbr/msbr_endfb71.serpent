@@ -54,7 +54,6 @@ set title "MSBR Saltproc long-term, 91% removal, BOL, fresh fuel, ENDF"
 set acelib "endfb71.xsdata"
 set declib "endfb71.decay"
 set nfylib "endfb71.nfy"
-set sfylib "endfb71.sfy"
 
 % --- Neutron population and criticality cycles:
 

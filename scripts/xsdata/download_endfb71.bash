@@ -1,4 +1,5 @@
 #! ~/bin/bash
+set -ex
 ################
 ### DOWNLOAD ###
 ################
@@ -22,7 +23,7 @@ mkdir -p $DATADIR/acedata
 # ndy, decay, sfy data
 LN="https://www.nndc.bnl.gov/endf-b7.1/zips/"
 SLUG="ENDF-B-VII.1-"
-DATA=("nfy" "decay" "sfy" "neutrons")
+DATA=("nfy" "decay" "neutrons")
 EXT=".zip"
 for D in ${DATA[@]}
 do
@@ -34,6 +35,15 @@ do
     then
         mkdir -p $DATADIR/$D
         unzip -j $DATADIR/$SLUG$D$EXT -d $DATADIR/$D
+    fi
+    # Remove Be7 evaluation
+    if [[ -f $DATADIR/$D/dec-004_Be_007.endf ]]
+    then
+        rm $DATADIR/$D/dec-004_Be_007.endf
+    fi
+    if [[ -f $DATADIR/$D/n-004_Be_007.endf ]]
+    then
+        rm $DATADIR/$D/n-004_Be_007.endf
     fi
     if [[ $D -ne "neutrons" ]]
     then
@@ -97,6 +107,37 @@ do
     then
         tar -xzf $DATADIR/"$D$EXT" -C $DATADIR --verbose
         mv $DATADIR/$D/$D $DATADIR/acedata/.
+    fi
+    if [[ $D == "endf71x" ]]
+    then
+        # Remove old hydrogen evaluations
+        rm -f $DATADIR/acedata/$D/H/H1001.71*
+        sed -i "s/.*H\/1001\.71.*//" $DATADIR/$D/xsdir
+
+        # Remove bad Be7 evaluation
+        rm -f $DATADIR/acedata/$D/Be/4007*
+        sed -i "s/.*Be\/4007.*//" $DATADIR/$D/xsdir
+    else
+        if $SUPPORTS_INTERPOLATE_CONTINUOUS_ENERGY
+        then
+            if [[ -f $DATADIR/acedata/$D/sio2.10t ]]
+            then
+                rm -f $DATADIR/acedata/$D.sio2.2*
+                rm -f $DATADIR/acedata/$D.sio2.3*
+                sed -i "s/.*sio2\.2.*//" $DATADIR/$D/xsdir
+                sed -i "s/.*sio2\.3.*//" $DATADIR/$D/xsdir
+            fi
+            if [[ -f $DATADIR/acedata/$D/u-o2.30t ]]
+            then
+                rm -f $DATADIR/acedata/$D.u-o2.2*
+                sed -i "s/.*u-o2\.2.*//" $DATADIR/$D/xsdir
+            fi
+            if [[ -f $DATADIR/acedata/$D/zr-h.30t ]]
+            then
+                rm -f $DATADIR/acedata/$D.zr-h.2*
+                sed -i "s/.*zr-h\.2.*//" $DATADIR/$D/xsdir
+            fi
+        fi
     fi
 
     cat $DATADIR/$D/xsdir >> $DATADIR/$XSDIR_FILE
