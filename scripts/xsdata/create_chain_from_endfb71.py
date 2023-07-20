@@ -27,7 +27,6 @@ neutron_files = [str(x) for x in neutron_paths if x.is_file()]
 
 fpy_files = nfy_files
 
-branching_ratios = pd.read_csv('serpent_branching_ratios.csv', header=None).to_numpy()
 endfb71_chain = Chain.from_endf(decay_files, fpy_files, neutron_files)
 with open('branching_ratios_pwr.json') as f:
     br = json.load(f)

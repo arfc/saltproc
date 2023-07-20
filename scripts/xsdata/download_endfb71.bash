@@ -114,9 +114,9 @@ do
         rm -f $DATADIR/acedata/$D/H/H1001.71*
         sed -i "s/.*H\/1001\.71.*//" $DATADIR/$D/xsdir
 
-        # Remove bad Be7 evaluation
-        rm -f $DATADIR/acedata/$D/Be/4007*
-        sed -i "s/.*Be\/4007.*//" $DATADIR/$D/xsdir
+        ## Remove bad Be7 evaluation
+        #rm -f $DATADIR/acedata/$D/Be/4007*
+        #sed -i "s/.*Be\/4007.*//" $DATADIR/$D/xsdir
     else
         if $SUPPORTS_INTERPOLATE_CONTINUOUS_ENERGY
         then
