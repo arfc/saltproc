@@ -27,7 +27,7 @@ class Results():
         Mass of fissionable nuclides summed over all
         depletable materials.
     breeding_ratio : numpy.ndarray
-        Breeding ratio in the ...
+        Breeding ratio in the reactor
     power_level : numpy.ndarray
         Power in [W].
     beta_eff : numpy.ndarray
