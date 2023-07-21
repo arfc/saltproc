@@ -13,7 +13,7 @@ import subprocess
 from saltproc import app, Results
 
 @pytest.mark.slow
-def test_integration_2step_saltproc_no_reproc_heavy():
+def test_no_reprocessing_openmc():
     cwd = str(Path(__file__).parents[0].resolve())
     args = ['python', '-m', 'saltproc', '-s', '12', '-i', cwd + '/test_input.json']
     subprocess.run(

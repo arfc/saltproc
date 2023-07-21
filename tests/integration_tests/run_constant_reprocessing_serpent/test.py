@@ -23,8 +23,7 @@ def setup(scope='module'):
 
     return cwd, test_db, ref_db, tol
 
-@pytest.mark.slow
-def test_integration_2step_constant_ideal_removal_heavy(setup):
+def test_constant_reprocessing_serpent(setup):
     cwd, test_db, ref_db, tol = setup
     args = ['python', '-m', 'saltproc', '-s', '12', '-i', cwd + '/tap_input.json']
     subprocess.run(

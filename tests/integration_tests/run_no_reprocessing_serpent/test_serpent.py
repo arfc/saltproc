@@ -11,7 +11,7 @@ import serpentTools
 from saltproc import app
 
 @pytest.mark.slow
-def test_integration_2step_saltproc_no_reproc_heavy():
+def test_no_reprocessing_serpent():
     cwd = str(Path(__file__).parents[0].resolve())
     args = ['python', '-m', 'saltproc', '-s', '12', '-i', cwd + '/test_input.json']
     subprocess.run(

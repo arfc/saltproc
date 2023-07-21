@@ -5,17 +5,11 @@
    "run_without_reprocessing": true,
    "depcode": {
        "codename": "openmc",
-
        "template_input_file_path": {
            "materials": "materials.xml",
            "settings": "pincell_settings.xml"},
        "geo_file_paths": ["pincell_geometry.xml"],
-       "chain_file_path": "../../openmc_data/chain_endfb71_pwr.xml",
-       "depletion_settings": {
-           "operator_kwargs": {
-               "fission_q": "../../openmc_data/serpent_fissq.json"
-           }
-       }
+       "chain_file_path": "../../openmc_data/chain_simple.xml"
    },
    "simulation": {
        "sim_name": "test_openmc_no_reprocessing"

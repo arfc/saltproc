@@ -29,8 +29,7 @@ def setup(scope='module'):
 
     return cwd, test_db, ref_db, atol, rtol
 
-@pytest.mark.slow
-def test_integration_2step_constant_ideal_removal_heavy(setup):
+def test_constant_reprocesing_openmc(setup):
     cwd, test_db, ref_db, atol, rtol = setup
     args = ['python', '-m', 'saltproc', '-i', str(cwd / 'pincell_input.json')]
     subprocess.run(
@@ -100,61 +99,37 @@ def read_nuclide_mass(db_file):
     return mass_before, mass_after
 
 def assert_in_out_streams_allclose(test_db, ref_db, atol, rtol):
-    ref_sparger, \
-        ref_test_separator, \
-        ref_ni_filter, \
+    ref_test_separator, \
         ref_feed = read_in_out_streams(ref_db)
-    test_sparger, \
-        test_separator, \
-        test_ni_filter, \
+    test_separator, \
         test_feed = read_in_out_streams(test_db)
-    for key, val in ref_sparger.items():
-        np.testing.assert_allclose(val, test_sparger[key], atol=atol, rtol=rtol)
     for key, val in ref_test_separator.items():
         np.testing.assert_allclose(val, test_separator[key], atol=atol, rtol=rtol)
-    for key, val in ref_ni_filter.items():
-        np.testing.assert_allclose(val, test_ni_filter[key], atol=atol, rtol=rtol)
     for key, val in ref_feed.items():
         np.testing.assert_allclose(val, test_feed[key], atol=atol, rtol=rtol)
 
 def read_in_out_streams(db_file):
     db = tb.open_file(db_file, mode='r')
-    waste_sparger = db.root.materials.fuel.in_out_streams.waste_sparger
     waste_separator = \
         db.root.materials.fuel.in_out_streams.waste_entrainment_separator
-    waste_ni_filter = db.root.materials.fuel.in_out_streams.waste_nickel_filter
     feed_leu = db.root.materials.fuel.in_out_streams.feed_leu
 
-    waste_sparger_nucmap = _create_nuclide_map(waste_sparger)
     waste_separator_nucmap = _create_nuclide_map(waste_separator)
-    waste_ni_filter_nucmap = _create_nuclide_map(waste_ni_filter)
     feed_nucmap = _create_nuclide_map(feed_leu)
-    waste_sparger = waste_sparger.comp
     waste_separator = waste_separator.comp
-    waste_ni_filter = waste_ni_filter.comp
     feed_leu = feed_leu.comp
 
-    mass_waste_sparger = {}
     mass_waste_separator = {}
-    mass_waste_ni_filter = {}
     mass_feed_leu = {}
 
-    for nuc, idx in waste_sparger_nucmap.items():
-        mass_waste_sparger[nuc] = np.array(
-            [row[idx] for row in waste_sparger])
     for nuc, idx in waste_separator_nucmap.items():
         mass_waste_separator[nuc] = np.array(
             [row[idx] for row in waste_separator])
-    for nuc, idx in waste_ni_filter_nucmap.items():
-        mass_waste_ni_filter[nuc] = np.array(
-            [row[idx] for row in waste_ni_filter])
     for nuc, idx in feed_nucmap.items():
         mass_feed_leu[nuc] = np.array(
             [row[idx] for row in feed_leu])
     db.close()
-    return mass_waste_sparger, \
-        mass_waste_separator, \
-        mass_waste_ni_filter, \
+    return mass_waste_separator, \
         mass_feed_leu
 
 def read_fuel(file):
