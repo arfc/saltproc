@@ -12,73 +12,57 @@ import core_elements as ce
 import control_rods as cr
 import root_geometry as rg
 
-MAT_FLAG='REF'
+MAT_FLAG='model'
 # Materials
 fuel = openmc.Material(name='fuel')
 fuel.set_density('g/cm3', density=3.35)
 fuel.depletable = True
 fuel.volume = 48710000.0
+def create_mass_percents_dictionary(mat):
+    at_percents = []
+    nucs = []
+    at_mass = []
+    for nuc, pt, tp in mat.nuclides:
+        nucs.append(nuc)
+        at_percents.append(pt)
+        at_mass.append(atomic_mass(nuc))
+
+    at_percents = np.array(at_percents)
+    at_mass = np.array(at_mass)
+
+    mass_percents = at_percents*at_mass / np.dot(at_percents, at_mass)
+
+    return dict(zip(nucs, mass_percents))
+
 if MAT_FLAG == 'model':
-    fuel.add_components({'Li7': 0.0787474673879085,
-                         'Be9': 0.0225566879138321,
-                         'F19': 0.454003012179284,
-                         'Th232': 0.435579130482336,
-                         'U233': 0.00911370203663893},
-                        percent_type='wo')
-else:
-    def create_mass_percents_dictionary(mat):
-        at_percents = []
-        nucs = []
-        at_mass = []
-        for nuc, pt, tp in mat.nuclides:
-            nucs.append(nuc)
-            at_percents.append(pt)
-            at_mass.append(atomic_mass(nuc))
-
-        at_percents = np.array(at_percents)
-        at_mass = np.array(at_mass)
-
-        mass_percents = at_percents*at_mass / np.dot(at_percents, at_mass)
-
-        return dict(zip(nucs, mass_percents))
-    comps = np.array([1, 1, 1, 2, 1, 4, 1, 4])
-
-    # Mol fractions
-    comps = np.array([1, 1, 1, 2, 1, 4, 1, 4])
-    #vals = np.array([71.7,71.7,16.0,16.0, 12.0,12.0, 0.3,0.3])
     vals = np.array([71.75,71.75,16.0,16.0, 12.0,12.0, 0.25,0.25])
-    nucs = (['Li', 'F', 'Be', 'F', 'Th', 'F', 'U', 'F'])
-    vals = comps*vals
+else:
+    vals = np.array([71.7,71.7,16.0,16.0, 12.0,12.0, 0.3,0.3])
+# Mol fractions
+comps = np.array([1, 1, 1, 2, 1, 4, 1, 4])
+nucs = (['Li', 'F', 'Be', 'F', 'Th', 'F', 'U', 'F'])
+vals = comps*vals
 
-    # Li, F, Be, Th, U
-    tots = ([vals[0], vals[1] + vals[3] + vals[5] + vals[7], vals[2], vals[4], vals[6]])
-    tots = tots / np.sum(tots) * 100
-    nucs = [nucs[0], nucs[1], nucs[2], nucs[4], nucs[6]]
+# Li, F, Be, Th, U
+tots = ([vals[0], vals[1] + vals[3] + vals[5] + vals[7], vals[2], vals[4], vals[6]])
+tots = tots / np.sum(tots) * 100
+nucs = [nucs[0], nucs[1], nucs[2], nucs[4], nucs[6]]
 
-    components = {'Li': {'percent': tots[0]/100,
-                         'enrichment': 99.995,
-                         'enrichment_target': 'Li7',
-                         'enrichment_type': 'wo'},
-                  'F19': tots[1]/100,
-                  'Be9': tots[2]/100,
-                  'Th232': tots[3]/100,
-                  'U233': tots[4]/100}
-    fuel.add_components(components, percent_type='ao')
+components = {'Li': {'percent': tots[0]/100,
+                     'enrichment': 99.995,
+                     'enrichment_target': 'Li7',
+                     'enrichment_type': 'wo'},
+              'F19': tots[1]/100,
+              'Be9': tots[2]/100,
+              'Th232': tots[3]/100,
+              'U233': tots[4]/100}
+fuel.add_components(components, percent_type='ao')
 
-    # convert to wo
-    components = create_mass_percents_dictionary(fuel)
-    for nuc in fuel.get_nuclides():
-        fuel.remove_nuclide(nuc)
-    fuel.add_components(components, percent_type='wo')
-    #fuel_mass = fuel.get_mass()
-    #comp = {}
-    #for nuc in fuel.get_nuclides():
-    #    comp[nuc] = fuel.get_mass(nuc)
-    #for nuc in fuel.get_nuclides():
-    #    fuel.remove_nuclide(nuc)
-    #breakpoint()
-    #fuel.add_components(comp, percent_type='wo')
-
+# convert to wo
+components = create_mass_percents_dictionary(fuel)
+for nuc in fuel.get_nuclides():
+    fuel.remove_nuclide(nuc)
+fuel.add_components(components, percent_type='wo')
 
 moder = openmc.Material(name='graphite')
 moder.set_density('g/cm3', density=1.84)
@@ -87,39 +71,32 @@ moder.add_s_alpha_beta('c_Graphite')
 
 hast = openmc.Material(name='hastelloyN')
 hast.set_density('g/cm3', density=8.671)
-if MAT_FLAG == 'model':
-    hast.add_components({'Al27': 0.003,
-                         'Ni': 0.677,
-                         'W': 0.250,
-                         'Cr': 0.070},
-                        percent_type='wo')
-else:
-    components = {'Mo': 0.12,
-                  'Cr': 0.07,
-                  'Fe': 0.03,
-                  'C': 0.0006,
-                  'Mn': 0.0035,
-                  'Si': 0.001,
-                  'W': 0.001,
-                  'Al': 0.001,
-                  'Ti': 0.0125, #avg
-                  'Cu': 0.001,
-                  'Co': 0.002,
-                  'P': 0.00015,
-                  'S': 0.00015,
-                  'B': 0.000010,
-                  'Hf': 0.01,
-                  'Nb': 0.01}
+components = {'Mo': 0.12,
+              'Cr': 0.07,
+              'Fe': 0.03,
+              'C': 0.0006,
+              'Mn': 0.0035,
+              'Si': 0.001,
+              'W': 0.001,
+              'Al': 0.001,
+              'Ti': 0.0125, #avg
+              'Cu': 0.001,
+              'Co': 0.002,
+              'P': 0.00015,
+              'S': 0.00015,
+              'B': 0.000010,
+              'Hf': 0.01,
+              'Nb': 0.01}
 
-    tot = 0
-    wts = []
-    for nuc, wt in components.items():
-        wts.append(wt*100)
-        tot += wt
-    nickel = 1 - tot
+tot = 0
+wts = []
+for nuc, wt in components.items():
+    wts.append(wt*100)
+    tot += wt
+nickel = 1 - tot
 
-    components.update({'Ni': nickel})
-    hast.add_components(components, percent_type='wo')
+components.update({'Ni': nickel})
+hast.add_components(components, percent_type='wo')
 
 mat = openmc.Materials(materials=[fuel, moder, hast])
 mat.export_to_xml()
