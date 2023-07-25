@@ -23,7 +23,7 @@ mkdir -p $DATADIR/acedata
 # ndy, decay, sfy data
 LN="https://www.nndc.bnl.gov/endf-b7.1/zips/"
 SLUG="ENDF-B-VII.1-"
-DATA=("nfy" "decay" "neutrons")
+DATA=("sfy" "nfy" "decay" "neutrons")
 EXT=".zip"
 for D in ${DATA[@]}
 do
@@ -45,7 +45,7 @@ do
     then
         rm $DATADIR/$D/n-004_Be_007.endf
     fi
-    if [[ $D -ne "neutrons" ]]
+    if [[ $D != "neutrons" ]]
     then
         if [[ ! -f $DATADIR/endfb71.$D ]]
         then
@@ -111,10 +111,17 @@ do
     if [[ $D == "endf71x" ]]
     then
         # Remove old hydrogen evaluations
-        rm -f $DATADIR/acedata/$D/H/H1001.71*
-        sed -i "s/.*H\/1001\.71.*//" $DATADIR/$D/xsdir
+        NUMS=("0" "1" "2" "3" "4" "5" "6")
+        for NUM in ${NUMS[@]}
+        do
+            EXT="nc"
+            EXT="$NUM$EXT"
+            mv $DATADIR/acedata/$D/H/1001.72$EXT $DATADIR/acedata/$D/H/1001.71$EXT
+            sed -i "s/1001.72$EXT/1001.71$EXT/" $DATADIR/acedata/$D/H/1001.71$EXT
+            sed -i "s/1001.9$NUM/1001.8$NUM/" $DATADIR/acedata/$D/H/1001.71$EXT
+        done
+        sed -i "s/.*H\/1001\.72.*//" $DATADIR/$D/xsdir
 
-        ## Remove bad Be7 evaluation
         #rm -f $DATADIR/acedata/$D/Be/4007*
         #sed -i "s/.*Be\/4007.*//" $DATADIR/$D/xsdir
     else
