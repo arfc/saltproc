@@ -565,9 +565,10 @@ i       Parameters
             lines = self.resolve_include_paths(lines)
             lines = self.insert_path_to_geometry(lines)
             lines = self.create_runtime_matfile(lines)
-            self.get_neutron_settings(lines)
         else:
             lines = self.read_plaintext_file(self.runtime_inputfile)
+
+        self.get_neutron_settings(lines)
         lines = self.set_power_load(lines, reactor, dep_step)
 
         with open(self.runtime_inputfile, 'w') as out_file:

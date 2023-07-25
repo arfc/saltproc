@@ -80,6 +80,7 @@ class Results():
         self.material_composition = material_composition
         self.material_parameters = material_parameters
         self.waste_streams = waste_streams
+        f.close()
 
     def _collect_eds_bds_params(self, sim_params, col, errors=False, multidim=False):
         col_eds = sim_params.col(f'{col}_eds').tolist()
