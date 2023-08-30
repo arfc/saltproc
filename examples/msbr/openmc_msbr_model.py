@@ -35,13 +35,13 @@ def create_mass_percents_dictionary(mat):
     return dict(zip(nucs, mass_percents))
 
 if MAT_FLAG == 'model':
-    vals = np.array([71.75,71.75,16.0,16.0, 12.0,12.0, 0.25,0.25])
+    vals = np.array([71.75, 71.75, 16.0, 16.0, 12.0, 12.0, 0.25, 0.25])
 else:
-    vals = np.array([71.7,71.7,16.0,16.0, 12.0,12.0, 0.3,0.3])
+    vals = np.array([71.7, 71.7, 16.0, 16.0, 12.0, 12.0, 0.3, 0.3])
 # Mol fractions
 comps = np.array([1, 1, 1, 2, 1, 4, 1, 4])
 nucs = (['Li', 'F', 'Be', 'F', 'Th', 'F', 'U', 'F'])
-vals = comps*vals
+vals = comps * vals
 
 # Li, F, Be, Th, U
 tots = ([vals[0], vals[1] + vals[3] + vals[5] + vals[7], vals[2], vals[4], vals[6]])

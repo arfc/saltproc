@@ -92,7 +92,6 @@ class Materialflow(Material):
             self.mass = density * self.volume
             self.comp = comp
         else:
-            density = 0.0
             self.comp = comp
             self.mass = 0.0
 
@@ -224,9 +223,11 @@ class Materialflow(Material):
             Materialflow which is a sum of isotope masses from `x` and `y`.
 
         """
-        if x.mass == 0.0 or x.volume == 0.0 and y.mass != 0.0 and y.volume != 0.0:
+        if (x.mass == 0.0 or x.volume == 0.0) \
+                and (y.mass != 0.0 and y.volume != 0.0):
             return y
-        elif y.mass == 0.0 or y.volume == 0.0 and x.mass != 0.0 and x.volume != 0.0:
+        elif (x.mass != 0.0 and x.volume != 0.0) \
+                and (y.mass == 0.0 or y.volume == 0.0):
             return x
         else:
             cls = x.__class__

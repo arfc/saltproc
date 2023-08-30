@@ -73,7 +73,11 @@ def run():
         simulation.store_step_metadata()
 
         # Reprocessing here
-        if not run_without_reprocessing:
+        if run_without_reprocessing:
+            waste_and_feed_streams = None
+            waste_streams = None
+            extracted_mass = None
+        else:
             for key in mats.keys():
                 print('\nMass and volume of '
                       f'{key} before reproc: {mats[key].mass} g, ',
@@ -96,11 +100,8 @@ def run():
                       f'{mats[key].volume} cm3')
 
             print("Removed mass [g]:", extracted_mass)
-        else:
-            waste_and_feed_streams = None
-            waste_streams = None
-            extracted_mass = None
-        # Store in DB after reprocessing and refill (right before next depl)
+
+         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_and_feed_streams, step_idx)
         depcode.update_depletable_materials(mats, simulation.burn_time)
 
@@ -165,7 +166,7 @@ def read_main_input(main_inp_file):
         Arguments for running simulations on supercomputers using mpiexec or
         similar programs.
     rebuild_saltproc_results : bool
-        Flag to indicate wheter or not to rebuild SaltProc results file
+        Flag to indicate whether or not to rebuild SaltProc results file
         from existing depcode results
     run_without_reprocessing : bool
         Flag to indicate whether or not to run the depletion code in
