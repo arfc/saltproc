@@ -119,7 +119,6 @@ class Materialflow(Material):
         print("Mass %f g" % self.mass)
         print("Density %f g/cm3" % self.density)
         print("Mass flowrate %f g/s" % self.mass_flowrate)
-        print("Temperature %f K" % self.temperature)
         print("Void fraction %f " % self.void_frac)
         print("Burnup %f MWd/kgU" % self.burnup)
 
@@ -171,13 +170,12 @@ class Materialflow(Material):
                      volume=self.volume,
                      mass_flowrate=self.mass_flowrate,
                      void_frac=self.void_frac,
-                     burnup=self.burnup,
-                     temperature=self.temperature)
+                     burnup=self.burnup)
         return result
 
     def __eq__(self, other):
         """Overrides Python ``=`` operation to compare two Materialflow
-        objects. Compares objects total mass, volume temperature,
+        objects. Compares objects total mass, volume,
         and mass flowrate.
 
         Parameters
@@ -199,7 +197,6 @@ class Materialflow(Material):
                              other.mass,
                              abs_tol=1e-15) \
             and self.volume == other.volume \
-            and self.temperature == other.temperature \
             and self.mass_flowrate == other.mass_flowrate
 
         return value
@@ -258,8 +255,6 @@ class Materialflow(Material):
             result_comp = dict(zip(x_mass_dict.keys(), masses))
             result.replace_components(result_comp)
             result.mass_flowrate = x.mass_flowrate + y.mass_flowrate
-            # result.temp = (x.temerature*x.mass + y.temperature*y.mass)/result_mass  # averaged
-            result.temperature = x.temperature
             # Burnup is simply averaged by should be renormalized by heavy metal
             # use self.fissionable_mass?
             result.burnup = (x.burnup * x.mass + y.burnup * y.mass) / result_mass
@@ -288,7 +283,6 @@ class Materialflow(Material):
                 result.volume = scaling_factor * self.volume
                 result.mass = result.volume * result.get_density()
                 result.mass_flowrate = scaling_factor * self.mass_flowrate
-                # result.temperature = (x.temperature*x.get_mass() + y.temperature*y.get_mass())/result.get_mass()
             return result
         else:
             NotImplemented

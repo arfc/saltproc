@@ -316,7 +316,7 @@ class Simulation():
         """Initialize the HDF5/Pytables database (if it doesn't exist) or
         append the following data at the current depletion step to the
         database: burnable material composition, mass, density, volume,
-        temperature, burnup,  mass_flowrate, void_fraction.
+        burnup,  mass_flowrate, void_fraction.
 
         Parameters
         ----------
@@ -348,7 +348,6 @@ class Simulation():
             ('mass', float),
             ('density', float),
             ('volume', float),
-            ('temperature', float),
             ('mass_flowrate', float),
             ('void_fraction', float),
             ('burnup', float)
@@ -399,7 +398,6 @@ class Simulation():
                 mats[key].mass,
                 mats[key].get_density(),
                 mats[key].volume,
-                mats[key].temperature,
                 mats[key].mass_flowrate,
                 mats[key].void_frac,
                 mats[key].burnup

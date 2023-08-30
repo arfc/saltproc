@@ -184,34 +184,30 @@ def test_store_mat_data(simulation):
     assert tfuel_before_params[0] == fuel_before.mass
     assert tfuel_before_params[1] == fuel_before.density
     assert tfuel_before_params[2] == fuel_before.volume
-    #assert tfuel_before_params[3] == fuel_before.temperature
-    assert tfuel_before_params[4] == fuel_before.mass_flowrate
-    assert tfuel_before_params[5] == fuel_before.void_frac
-    assert tfuel_before_params[6] == fuel_before.burnup
+    assert tfuel_before_params[3] == fuel_before.mass_flowrate
+    assert tfuel_before_params[4] == fuel_before.void_frac
+    assert tfuel_before_params[5] == fuel_before.burnup
 
     assert tpois_before_params[0] == pois_before.mass
     assert tpois_before_params[1] == pois_before.density
     assert tpois_before_params[2] == pois_before.volume
-    #assert tpois_before_params[3] == pois_before.temperature
-    assert tpois_before_params[4] == pois_before.mass_flowrate
-    assert tpois_before_params[5] == pois_before.void_frac
-    assert tpois_before_params[6] == pois_before.burnup
+    assert tpois_before_params[3] == pois_before.mass_flowrate
+    assert tpois_before_params[4] == pois_before.void_frac
+    assert tpois_before_params[5] == pois_before.burnup
 
     assert tfuel_after_params[0] == fuel_after.mass
     assert tfuel_after_params[1] == fuel_after.density
     assert tfuel_after_params[2] == fuel_after.volume
-    #assert tfuel_after_params[3] == fuel_after.temperature
-    assert tfuel_after_params[4] == fuel_after.mass_flowrate
-    assert tfuel_after_params[5] == fuel_after.void_frac
-    assert tfuel_after_params[6] == fuel_after.burnup
+    assert tfuel_after_params[3] == fuel_after.mass_flowrate
+    assert tfuel_after_params[4] == fuel_after.void_frac
+    assert tfuel_after_params[5] == fuel_after.burnup
 
     assert tpois_after_params[0] == pois_after.mass
     assert tpois_after_params[1] == pois_after.density
     assert tpois_after_params[2] == pois_after.volume
-    #assert tpois_after_params[3] == pois_after.temperature
-    assert tpois_after_params[4] == pois_after.mass_flowrate
-    assert tpois_after_params[5] == pois_after.void_frac
-    assert tpois_after_params[6] == pois_after.burnup
+    assert tpois_after_params[3] == pois_after.mass_flowrate
+    assert tpois_after_params[4] == pois_after.void_frac
+    assert tpois_after_params[5] == pois_after.burnup
 
     # close the file
     db.close()

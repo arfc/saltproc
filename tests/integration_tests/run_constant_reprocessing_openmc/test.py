@@ -154,8 +154,6 @@ def read_fuel(file):
     for tmp in (tmp_after, tmp_before):
         # Convert structured array to simple array
         params = tmp.view(np.float64).reshape(tmp.shape + (-1,))
-        # remove temperature as it is broken right now.
-        params = np.concatenate((params[:,0:3], params[:, 4:]), axis=1)
         all_params += [params]
     after_params, before_params = all_params
     db.close()
