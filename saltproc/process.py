@@ -157,8 +157,6 @@ class Process():
         thru_flow.volume = thru_flow.volume * \
             total_thru_mass / thru_flow.get_mass()
         thru_flow.mass = total_thru_mass
-        #thru_flow.mass = float(inflow.mass - waste_stream.mass)
-        #thru_flow.norm_comp()
 
         del thru_mass, waste_mass
 

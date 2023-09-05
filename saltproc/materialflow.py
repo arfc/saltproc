@@ -235,8 +235,6 @@ class Materialflow(Material):
             x_density = x.mass / x.volume
             y_density = y.mass / y.volume
 
-            #result_density = x_density * y_density * (x.mass + y.mass) / \
-            #    (x.mass * y_density + y.mass * x_density)
             result_density = x_density
 
             result_volume = result_mass / result_density
