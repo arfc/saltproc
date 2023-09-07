@@ -212,6 +212,10 @@ Python API Changes
     - (new) → ``timestep_units``
     - (new) → ``timestep_type``
 
+  - (new) → ``Results`` 
+
+    - New class for reading the `saltproc_results.h5` file
+
   - ``Simulation``
 
     -  ``core_number`` →  (removed)
@@ -251,5 +255,11 @@ The following people reviewed code for this release of SaltProc:
 
 ..
   `@gh_username <https://github.com/gh_uname>`_
+
+- `@smpark7 <https://github.com/smpark7>`_
+- `@LukeSeifert <https://github.com/LukeSeifert>`_
+- `@munkm <https://github.com/munkm>`_
+- `@abachma2 <https://github.com/abachma2>`_
+
 
 
