@@ -1,8 +1,9 @@
-pyne
 numpy
 scipy
 json
 jsonschema
+openmc
 pytables
 networkx
 pydot
+serpentTools

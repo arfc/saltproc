@@ -144,5 +144,8 @@ jobs:
           pip install .
           cd ../
 
+      - name: Install SaltProc
+        run: pip install .
+
       - name: Check packages
         run: conda list

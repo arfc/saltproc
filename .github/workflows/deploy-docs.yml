@@ -23,7 +23,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
             fetch-depth: 0
 
@@ -55,6 +55,9 @@ jobs:
       - name: Update environment
         run: mamba env update -n saltproc-doc-env -f doc/doc-environment.yml
         if: steps.dependencies-cache.outputs.cache-hit != 'true'
+
+      - name: Install SaltProc
+        run: pip install .
 
       - name: Check packages
         run: conda list

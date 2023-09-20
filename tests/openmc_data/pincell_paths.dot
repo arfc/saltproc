@@ -1,0 +1,39 @@
+digraph fuel {  /* The name of directed graph must match name of material
+
+Structure of the reprocessing system described using DOT language:
+https://en.wikipedia.org/wiki/DOT_(graph_description_language)
+Parameter 'label' and 'fontsize' are needed for nice plotting.
+Mass flow rate, extraction efficiency and list of elements for removing must be
+specified in the 'input.proccess' file
+This DOT file can be also using for reprocessing scheme visualization:
+http://www.webgraphviz.com/
+*/
+# ==============================================================================
+  core_outlet -> entrainment_separator [label="100%", fontsize=20]
+  entrainment_separator -> waste_entrainment_separator [label="97% of\nXe, Kr, H", fontsize=20]
+  entrainment_separator -> core_inlet [label="100%", fontsize=20]
+  LEU_feed -> core_inlet
+# ==============================================================================
+# Optional parameters to obtain pretty plots
+# Section only needed to have 'waste' blocks on level with process
+
+  subgraph separ {
+    rank=same
+    entrainment_separator
+    waste_entrainment_separator
+  }
+
+  subgraph feed {
+    rank=same
+    LEU_feed
+    core_inlet
+  }
+
+# Section only needed to change font of the text and specify shapes of blocks
+  waste_entrainment_separator [shape=diamond, fontsize=24]
+
+  core_outlet [fontsize=24]
+  entrainment_separator [fontsize=24]
+  core_inlet [fontsize=24]
+  LEU_feed [shape=box, fontsize=24]
+}

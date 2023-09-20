@@ -41,6 +41,7 @@ jobs:
         with:
           miniforge-variant: Mambaforge # mamba is faster than base conda
           miniforge-version: latest
+          channels: conda-forge
           activate-environment: saltproc-env
           use-mamba: true
           use-only-tar-bz2: true

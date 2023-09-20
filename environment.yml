@@ -3,12 +3,12 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - pyne>=0.5.11=nomoab_noopenmc*
-  - numpy>=1.14.0
+  - numpy
   - pytables
   - networkx
   - pydot
   - pytest
   - jsonschema
   - pip:
+    - serpentTools
     - argparse==1.4.0

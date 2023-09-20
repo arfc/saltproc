@@ -3,8 +3,11 @@ import os
 import shutil
 import re
 
-from pyne import nucname as pyname
-from pyne import serpent
+import serpentTools
+import openmc
+import openmc.data
+from math import floor
+import numpy as np
 
 from saltproc import Materialflow
 from saltproc.depcode import Depcode
@@ -44,6 +47,9 @@ class SerpentDepcode(Depcode):
         keys and parameter values are values.
     step_metadata : dict of str to type
         Holds Serpent2 depletion step metadata. Metadata labels are keys
+        and metadata values are values.
+    depcode_metadata : dict of str to type
+        Holds Serpent2 simulation metadata. Metadata labels are keys
         and metadata values are values.
     runtime_inputfile : str
         Path to Serpent2 input file used to run depletion step. Contains neutron
@@ -173,7 +179,7 @@ class SerpentDepcode(Depcode):
         mat_data = zip(mat_cards, card_volume_idx)#, mat_extensions)
         self._burnable_material_card_data = dict(zip(mat_names, mat_data))
 
-    def convert_nuclide_code_to_name(self, nuc_code):
+    def nuclide_code_to_name(self, nuc_code):
         """Converts Serpent2 nuclide code to symbolic nuclide name.
         If nuclide is in a metastable state, the nuclide name is concatenated
         with the letter `m` and the state index.
@@ -186,61 +192,75 @@ class SerpentDepcode(Depcode):
         Returns
         -------
         nuc_name : str
-            Symbolic nuclide name (`Am242m1`).
+            Symbolic nuclide name (`Am242_m1`).
 
         """
 
         if '.' in str(nuc_code):
             nuc_code = int(nuc_code.split('.')[0])
-            if self.zaid_convention == 'serpent':
-                nuc_code = pyname.zzzaaa_to_id(nuc_code)
-            if self.zaid_convention in ('mcnp', 'nndc'):
-                if self.zaid_convention == 'mcnp' and nuc_code in (95242, 95642):
-                    if nuc_code == 95242:
-                        nuc_code = 95642
-                    else:
-                        nuc_code = 95242
-                nuc_code = pyname.mcnp_to_id(nuc_code)
-
-            zz = pyname.znum(nuc_code)
-            aa = pyname.anum(nuc_code)
-            aa_str = str(aa)
-            if self.zaid_convention == 'serpent':
-                if aa > 300:
-                    if zz > 76:
-                        aa_str = str(aa - 100) + 'm1'
-                    else:
-                        aa_str = str(aa - 200) + 'm1'
-                elif aa == 0:
-                    aa_str = 'nat'
-            if self.zaid_convention in ('mcnp', 'nndc'):
-                mm = pyname.snum(nuc_code)
-                if mm != 0:
-                    aa_str = str(aa) + f'm{mm}'
-
-            nuc_name = pyname.zz_name[zz] + aa_str
+            if self.zaid_convention == 'nndc' and nuc_code in (95242, 95642):
+               if nuc_code == 95242:
+                  nuc_code = 95642
+               else:
+                  nuc_code = 95242
+            Z, a, m = self._nuclide_code_to_zam(nuc_code)
         else:
-            meta_flag = pyname.snum(nuc_code)
-            if meta_flag:
-                nuc_name = pyname.name(nuc_code)[:-1] + 'm' + str(meta_flag)
-            else:
-                nuc_name = pyname.name(nuc_code)
+            Z, a, m = self._decay_code_to_zam(nuc_code)
 
-        return nuc_name
-
-    def _convert_name_to_nuccode(self, nucname):
-        if nucname [-2:] == 'm1':
-            nucname = nucname[:-2]
-            nucname += "M"
-        z = pyname.znum(nucname)
-        a = pyname.anum(nucname)
-        m = pyname.snum(nucname)
-        code = z * 1000 + a
+        nucname = openmc.data.gnds_name(Z, a, m=m)
         if m != 0:
-            code += 300 + 100 * m
-        return code
+            nucname = nucname[:-3] + f'_m{m}'
+        return nucname
 
-    def map_nuclide_code_zam_to_serpent(self):
+    def _decay_code_to_zam(self, nuc_code):
+        m = int(str(nuc_code)[-1])
+        nuc_code = int(str(nuc_code)[:-1])
+        Z = floor(nuc_code * 1e-3)
+        a = nuc_code % 1000
+        return Z, a, m
+
+    def _nuclide_code_to_zam(self, nuc_code):
+        if '.' in str(nuc_code):
+            nuc_code = int(nuc_code.split('.')[0])
+
+        Z = floor(nuc_code * 1e-3)
+        a = nuc_code % 1000
+        m = 0
+        if self.zaid_convention == 'serpent':
+            if a > 300:
+                m = 1
+                if Z > 76:
+                    a = a - 100
+                else:
+                    a = a - 200
+        else:
+            # Assumes only m=1 metastable states
+            if a > 400:
+                a -= 400
+                m = 1
+        return Z, a, m
+
+    def name_to_nuclide_code(self, nucname):
+        Z, a, m = openmc.data.zam(nucname)
+        nuc_code = self._zam_to_nuclide_code(Z, a, m)
+        return nuc_code
+
+    def _zam_to_nuclide_code(self, Z, a, m):
+        nuc_code = Z * 1000
+        if m != 0:
+            if self.zaid_convention == 'serpent':
+                nuc_code += int(((a / 100) - 3) * 100)
+            else:
+                nuc_code += 300 + 100 * m
+                if self.zaid_convention == 'nndc' and nuc_code in (95242, 95642):
+                   if nuc_code == 95242:
+                      nuc_code = 95642
+                   else:
+                      nuc_code = 95242
+        return nuc_code
+
+
+    def map_nuclide_name_to_serpent_name(self):
         """Creates a dictionary mapping nuclide codes in `zzaaam` format
         to Serpent2's nuclide code format.
 
@@ -273,26 +293,8 @@ class SerpentDepcode(Depcode):
                 if 'c  TRA' in line or 'c  DEC' in line:
                     line = line.split()
                     nuc_code = line[2]
-                    if '.' in str(nuc_code):
-                        nuc_code = int(nuc_code.split('.')[0])
-                        # In MCNP format the ground state of Am-242 is 95242,
-                        # but PyNE seems to disagree
-                        if self.zaid_convention == 'serpent':
-                            nuc_code = pyname.zzzaaa_to_id(nuc_code)
-                            zzaaam = \
-                                self.convert_nuclide_code_to_zam(pyname.zzaaam(nuc_code))
-                        if self.zaid_convention == 'nndc' or self.zaid_convention == 'mcnp':
-                            if self.zaid_convention == 'mcnp' and nuc_code in (95242, 95642):
-                                if nuc_code == 95242:
-                                    nuc_code = 95642
-                                else:
-                                    nuc_code = 95242
-                            nuc_code = pyname.mcnp_to_id(nuc_code)
-                            zzaaam = pyname.zzaaam(nuc_code)
-                    else:
-                        zzaaam = int(nuc_code)
-
-                    nuc_code_map.update({zzaaam: line[2]})
+                    nuc_name = self.nuclide_code_to_name(nuc_code)
+                    nuc_code_map.update({nuc_name: nuc_code})
         return nuc_code_map
 
     def resolve_include_paths(self, lines):
@@ -369,50 +371,56 @@ class SerpentDepcode(Depcode):
         else:
             moment = 0
 
+        openmc.reset_auto_ids()
         results_file = os.path.join('%s_dep.m' % self.runtime_inputfile)
-        results = serpent.parse_dep(results_file, make_mats=False)
-        self.days = results['DAYS'][moment]
+        results = serpentTools.read(results_file)
+        self.days = results.days[moment]
 
         # Get material names
         mat_names = []
         depleted_materials = {}
-        for key in results.keys():
-            name_match = re.search('MAT_(.+?)_VOLUME', key)
-            if name_match:
-                mat_names.append(name_match.group(1))
-        zai = list(map(int, results['ZAI'][:-2]))  # zzaaam codes of isotopes
-
-        for name in mat_names:
-            volume = results[f'MAT_{name}_VOLUME'][moment]
-            nucvec = dict(zip(zai, results[f'MAT_{name}_MDENS'][:, moment]))
-            depleted_materials[name] = Materialflow(nucvec)
-            depleted_materials[name].density = results[f'MAT_{name}_MDENS'][-1, moment]
-            depleted_materials[name].mass = depleted_materials[name].density * volume
-            depleted_materials[name].vol = volume
-            depleted_materials[name].burnup = results[f'MAT_{name}_BURNUP'][moment]
+        for material_name, material in results.materials.items():
+            if material_name != 'total':
+                nuclide_names = list(map(self.nuclide_code_to_name, material.zai[:-2]))
+                comp = dict(zip(nuclide_names, material.mdens[:-2, moment]))
+                volume = material.volume[moment]
+                density = material.mdens[-1, moment]
+                depleted_materials[material_name] = Materialflow(comp=comp,
+                                                                 comp_is_density=True,
+                                                                 density=density,
+                                                                 volume=volume,
+                                                                 burnup=results.burnup[moment])
         return depleted_materials
+
+    def read_depcode_metadata(self):
+        """Reads Serpent2 metadata and stores it in the
+        :class:`SerpentDepcode` object's :attr:`depcode_metadata` attribute.
+        """
+
+        res = serpentTools.read(self.runtime_inputfile + "_res.m")
+        depcode_name, depcode_ver = res.metadata['version'].split()
+        self.depcode_metadata['depcode_name'] = depcode_name
+        self.depcode_metadata['depcode_version'] = depcode_ver
+        self.depcode_metadata['title'] = res.metadata['title']
+        self.depcode_metadata['depcode_input_filename'] = \
+            res.metadata['inputFileName']
+        self.depcode_metadata['depcode_working_dir'] = \
+            res.metadata['workingDirectory']
+        self.depcode_metadata['xs_data_path'] = \
+            res.metadata['xsDataFilePath']
+
 
     def read_step_metadata(self):
         """Reads Serpent2 depletion step metadata and stores it in the
         :class:`SerpentDepcode` object's :attr:`step_metadata` attribute.
         """
-        res = serpent.parse_res(self.runtime_inputfile + "_res.m")
-        depcode_name, depcode_ver = res['VERSION'][0].decode('utf-8').split()
-        self.step_metadata['depcode_name'] = depcode_name
-        self.step_metadata['depcode_version'] = depcode_ver
-        self.step_metadata['title'] = res['TITLE'][0].decode('utf-8')
-        self.step_metadata['depcode_input_filename'] = \
-            res['INPUT_FILE_NAME'][0].decode('utf-8')
-        self.step_metadata['depcode_working_dir'] = \
-            res['WORKING_DIRECTORY'][0].decode('utf-8')
-        self.step_metadata['xs_data_path'] = \
-            res['XS_DATA_FILE_PATH'][0].decode('utf-8')
-        self.step_metadata['OMP_threads'] = res['OMP_THREADS'][0]
-        self.step_metadata['MPI_tasks'] = res['MPI_TASKS'][0]
-        self.step_metadata['memory_optimization_mode'] = res['OPTIMIZATION_MODE'][0]
-        self.step_metadata['depletion_timestep'] = res['BURN_DAYS'][1][0]
-        self.step_metadata['execution_time'] = res['RUNNING_TIME'][1]
-        self.step_metadata['memory_usage'] = res['MEMSIZE'][0]
+        res = serpentTools.read(self.runtime_inputfile + "_res.m")
+        self.step_metadata['OMP_threads'] = res.metadata['ompThreads']
+        self.step_metadata['MPI_tasks'] = res.metadata['mpiTasks']
+        self.step_metadata['memory_optimization_mode'] = res.metadata['optimizationMode']
+        self.step_metadata['depletion_timestep_size'] = res.resdata['burnDays'][1][0]
+        self.step_metadata['step_execution_time'] = np.sum(res.resdata['runningTime'])
+        self.step_metadata['step_memory_usage'] = np.sum(res.resdata['memsize'][0])
 
 
     def read_neutronics_parameters(self):
@@ -420,22 +428,28 @@ class SerpentDepcode(Depcode):
         in :class:`SerpentDepcode` object's :attr:`neutronics_parameters`
         attribute.
         """
-        res = serpent.parse_res(self.runtime_inputfile + "_res.m")
-        self.neutronics_parameters['keff_bds'] = res['IMP_KEFF'][0]
-        self.neutronics_parameters['keff_eds'] = res['IMP_KEFF'][1]
-        self.neutronics_parameters['breeding_ratio'] = \
-            res['CONVERSION_RATIO'][1]
-        self.neutronics_parameters['burn_days'] = res['BURN_DAYS'][1][0]
-        self.neutronics_parameters['power_level'] = res['TOT_POWER'][1][0]
-        b_l = int(.5 * len(res['FWD_ANA_BETA_ZERO'][1]))
-        self.neutronics_parameters['beta_eff'] = \
-            res['FWD_ANA_BETA_ZERO'][1].reshape((b_l, 2))
-        self.neutronics_parameters['delayed_neutrons_lambda'] = \
-            res['FWD_ANA_LAMBDA'][1].reshape((b_l, 2))
+        res = serpentTools.read(self.runtime_inputfile + "_res.m")
+        self.neutronics_parameters['keff_bds'] = res.resdata['impKeff'][0]
+        self.neutronics_parameters['keff_eds'] = res.resdata['impKeff'][1]
+        self.neutronics_parameters['breeding_ratio_bds'] = \
+            res.resdata['conversionRatio'][0]
+        self.neutronics_parameters['breeding_ratio_eds'] = \
+            res.resdata['conversionRatio'][1]
+        self.neutronics_parameters['burn_days'] = res.resdata['burnDays'][1][0]
+        self.neutronics_parameters['power_level'] = res.resdata['totPower'][1][0]
+        b_l = int(.5 * len(res['fwdAnaBetaZero'][1]))
+        self.neutronics_parameters['beta_eff_bds'] = \
+            res.resdata['fwdAnaBetaZero'][0].reshape((b_l, 2))
+        self.neutronics_parameters['beta_eff_eds'] = \
+            res.resdata['fwdAnaBetaZero'][1].reshape((b_l, 2))
+        self.neutronics_parameters['delayed_neutrons_lambda_bds'] = \
+            res.resdata['fwdAnaLambda'][0].reshape((b_l, 2))
+        self.neutronics_parameters['delayed_neutrons_lambda_eds'] = \
+            res.resdata['fwdAnaLambda'][1].reshape((b_l, 2))
         self.neutronics_parameters['fission_mass_bds'] = \
-            res['INI_FMASS'][1]
+            res.resdata['iniFmass'][1]
         self.neutronics_parameters['fission_mass_eds'] = \
-            res['TOT_FMASS'][1]
+            res.resdata['totFmass'][1]
 
     def set_power_load(self,
                        file_lines,
@@ -507,36 +521,6 @@ i       Parameters
 
         super().run_depletion_step(mpi_args, args)
 
-    def convert_nuclide_code_to_zam(self, nuc_code):
-        """Converts nuclide code from Serpent2 format to zam format.
-        Checks Serpent2-specific meta stable-flag for zzaaam. For instance,
-        47310 instead of 471101 for `Ag-110m1`. Metastable isotopes represented
-        with `aaa` started with ``3``.
-
-        Parameters
-        ----------
-        nuc_code : int
-            Nuclide code in Serpent2 format (`47310`).
-
-        Returns
-        -------
-        nuc_zzaam : int
-            Nuclide code in in `zzaaam` form (`471101`).
-
-        """
-
-        zz = pyname.znum(nuc_code)
-        aa = pyname.anum(nuc_code)
-        if aa > 300:
-            if zz > 76:
-                aa_new = aa - 100
-            else:
-                aa_new = aa - 200
-            zzaaam = str(zz) + str(aa_new) + '1'
-        else:
-            zzaaam = nuc_code
-        return int(zzaaam)
-
     def switch_to_next_geometry(self):
         """Inserts line with path to next Serpent geometry file at the
         beginning of the Serpent iteration input file.
@@ -581,9 +565,10 @@ i       Parameters
             lines = self.resolve_include_paths(lines)
             lines = self.insert_path_to_geometry(lines)
             lines = self.create_runtime_matfile(lines)
-            self.get_neutron_settings(lines)
         else:
             lines = self.read_plaintext_file(self.runtime_inputfile)
+
+        self.get_neutron_settings(lines)
         lines = self.set_power_load(lines, reactor, dep_step)
 
         with open(self.runtime_inputfile, 'w') as out_file:
@@ -609,7 +594,7 @@ i       Parameters
         with open(self.runtime_matfile, 'w') as f:
             f.write('%% Material compositions (after %f days)\n\n'
                     % dep_end_time)
-            nuc_code_map = self.map_nuclide_code_zam_to_serpent()
+            nuc_code_map = self.map_nuclide_name_to_serpent_name()
             if not(hasattr(self, '_burnable_material_card_data')):
                 lines = self.read_plaintext_file(self.template_input_file_path)
                 _, abs_src_matfile = self._get_burnable_materials_file(lines)
@@ -618,11 +603,10 @@ i       Parameters
             for name, mat in mats.items():
                 mat_card, card_volume_idx = self._burnable_material_card_data[name]
                 mat_card[2] = str(-mat.density)
-                mat_card[card_volume_idx] = "%7.5E" % mat.vol
+                mat_card[card_volume_idx] = "%7.5E" % mat.volume
                 f.write(" ".join(mat_card))
                 f.write("\n")
-                for nuc_code, mass_fraction in mat.comp.items():
-                    zam_code = pyname.zzaaam(nuc_code)
+                for nuc, mass_fraction in mat.comp.items():
                     f.write('           %9s  %7.14E\n' %
-                            (nuc_code_map[zam_code],
+                            (nuc_code_map[nuc],
                              -mass_fraction))

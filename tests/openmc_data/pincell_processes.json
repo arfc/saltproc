@@ -1,0 +1,37 @@
+{
+  "fuel": {
+    "extraction_processes": {
+      "core_inlet": {
+        "capacity": 9920000,
+        "efficiency": {},
+        "mass_flowrate": 9920000,
+        "volume": 0
+      },
+      "core_outlet": {
+        "capacity": 9920000,
+        "efficiency": {},
+        "mass_flowrate": 9920000,
+        "volume": 0
+      },
+      "entrainment_separator": {
+        "capacity": 9920000,
+        "efficiency": {
+          "Xe": 1
+        },
+        "mass_flowrate": 9920000,
+        "volume": 11
+      }
+    },
+    "feeds": {
+      "leu": {
+        "density": 19.1,
+        "volume": 1,
+        "mass": 19.1,
+        "comp": {
+          "U238": 0.33,
+          "O16": 0.67
+        }
+      }
+    }
+  }
+}

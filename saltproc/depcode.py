@@ -1,7 +1,16 @@
 import sys
 import subprocess
+import shutil
 
 from abc import ABC, abstractmethod
+
+try:
+    from mpi4py import MPI
+    import os
+    MPI_ON = True
+except ImportError:
+    MPI_ON = False
+
 
 class Depcode(ABC):
     """Abstract interface for running depletion steps.
@@ -31,6 +40,9 @@ class Depcode(ABC):
         and parameter values are values.
     step_metadata : dict of str to type
         Holds depletion code depletion step metadata. Metadata labels are keys
+        and metadata values are values.
+    depcode_metadata : dict of str to type
+        Holds depletion code simulation metadata. Metadata labels are keys
         and metadata values are values.
     runtime_inputfile : str
         Path to input file used to run depletion step.
@@ -62,12 +74,18 @@ class Depcode(ABC):
         self.geo_file_paths = geo_file_paths
         self.neutronics_parameters = {}
         self.step_metadata = {}
+        self.depcode_metadata = {}
         self.runtime_inputfile = None
         self.runtime_matfile = None
 
     @abstractmethod
+    def read_depcode_metadata(self):
+        """Read depletion code metadata, and store it in the :class:`Depcode`
+        object's :attr:`depcode_metadata` attribute"""
+
+    @abstractmethod
     def read_step_metadata(self):
-        """Reads depletion code's depletion step metadata and stores it in the
+        """Reads depletion step metadata and stores it in the
         :class:`Depcode` object's :attr:`step_metadata` attribute.
         """
 
@@ -116,16 +134,17 @@ class Depcode(ABC):
 
         print('Running %s' % (self.codename))
         try:
-            if mpi_args is None:
-                stdout = sys.stdout
+            if MPI_ON:
+                env = os.environ
             else:
-                stdout = None
+                env = None
             subprocess.run(
                 args,
                 check=True,
                 cwd=self.output_path,
-                stdout=stdout,
-                stderr=subprocess.STDOUT)
+                stdout=sys.stdout,
+                stderr=subprocess.STDOUT,
+                env=env)
             print(f'Finished {self.codename.upper()} Run')
         except subprocess.CalledProcessError as error:
             print(error.output.decode("utf-8"))
@@ -191,7 +210,7 @@ class Depcode(ABC):
         return file_lines
 
     @abstractmethod
-    def convert_nuclide_code_to_name(self, nuc_code):
+    def nuclide_code_to_name(self, nuc_code):
         """Converts depcode nuclide code to symbolic nuclide name.
 
         Parameters
@@ -207,7 +226,7 @@ class Depcode(ABC):
         """
 
     @abstractmethod
-    def _convert_name_to_nuccode(self, nucname):
+    def name_to_nuclide_code(self, nucname):
         """Converts depcode nuclide name to ZA nuclide code
 
         Parameters
@@ -244,3 +263,23 @@ class Depcode(ABC):
             lines = self.read_plaintext_file(file_path)
             with open(step_results_dir / fname, 'w') as out_file:
                 out_file.writelines(lines)
+
+    def rebuild_simulation_files(self, step_idx):
+        """Move simulation input and output files
+        from unique directory to runtime directory
+
+        Parameters
+        ----------
+        step_idx : int
+
+        """
+        step_results_dir = self.output_path / f'step_{step_idx}_data'
+
+        file_path = lambda file : self.output_path / step_results_dir / file
+        output_paths = list(map(file_path, self._OUTPUTFILE_NAMES))
+        input_paths = list(map(file_path, self._INPUTFILE_NAMES))
+        for file_path, fname in zip(output_paths, self._OUTPUTFILE_NAMES):
+            shutil.copy(file_path, (self.output_path / fname))
+
+        for file_path, fname in zip(input_paths, self._INPUTFILE_NAMES):
+            shutil.copy(file_path, (self.output_path / fname))

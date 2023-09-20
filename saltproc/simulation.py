@@ -59,6 +59,8 @@ class Simulation():
         self.restart_flag = restart_flag
         self.adjust_geo = adjust_geo
         self.compression_params = compression_params
+        self.nuclide_indices_dtype = np.dtype([('nuclide', 'S9'),
+                                          ('index', int)])
 
     def check_restart(self):
         """If the user set `restart_flag`
@@ -119,57 +121,64 @@ class Simulation():
             Current depletion time step.
 
         """
-        streams_gr = 'in_out_streams'
-        db = tb.open_file(
-            self.db_path,
-            mode='a',
-            filters=self.compression_params)
-        for mn in waste_dict.keys():  # iterate over materials
-            mat_node = getattr(db.root.materials, mn)
-            if not hasattr(mat_node, streams_gr):
-                waste_group = db.create_group(
-                    mat_node,
-                    streams_gr,
-                    'Waste Material streams data for each process')
-            else:
-                waste_group = getattr(mat_node, streams_gr)
-            for proc in waste_dict[mn].keys():
-                # proc_node = db.create_group(waste_group, proc)
-                # iso_idx[proc] = OrderedDict()
-                iso_idx = OrderedDict()
-                iso_wt_frac = []
-                coun = 0
-                # Read isotopes from Materialflow
-                for nuc, wt_frac in waste_dict[mn][proc].comp.items():
-                    # Dictonary in format {isotope_name : index(int)}
-                    iso_idx[self.sim_depcode.convert_nuclide_code_to_name(nuc)] = coun
-                    # Convert wt% to absolute [user units]
-                    iso_wt_frac.append(wt_frac * waste_dict[mn][proc].mass)
-                    coun += 1
-                # Try to open EArray and table and if not exist - create
-                try:
-                    earr = db.get_node(waste_group, proc)
-                except Exception:
-                    earr = db.create_earray(
-                        waste_group,
-                        proc,
-                        atom=tb.Float64Atom(),
-                        shape=(0, len(iso_idx)),
-                        title="Isotopic composition for %s" % proc)
-                    # Save isotope indexes map and units in EArray attributes
-                    earr.flavor = 'python'
-                    earr.attrs.iso_map = iso_idx
+        if waste_dict is not None:
+            streams_description = 'in_out_streams'
+            db = tb.open_file(
+                self.db_path,
+                mode='a',
+                filters=self.compression_params)
+            for material_name in waste_dict.keys():  # iterate over materials
+                mat_node = getattr(db.root.materials, material_name)
+                if not hasattr(mat_node, streams_description):
+                    waste_group = db.create_group(
+                        mat_node,
+                        streams_description,
+                        'Waste stream compositions for each process')
+                else:
+                    waste_group = getattr(mat_node, streams_description)
+                for proc in waste_dict[material_name].keys():
+                    if not hasattr(waste_group, proc):
+                        proc_node = db.create_group(waste_group, proc)
+                    else:
+                        proc_node = getattr(waste_group, proc)
+                    nuclide_indices = []
+                    iso_wt_frac = []
+                    coun = 0
+                    if hasattr(waste_dict[material_name][proc], 'comp'):
+                        # Read isotopes from Materialflow
+                        for nuc, wt_frac in waste_dict[material_name][proc].comp.items():
+                            # Dictonary in format {isotope_name : index(int)}
+                            nuclide_indices.append((nuc, coun))
+                            # Convert wt% to absolute [user units]
+                            iso_wt_frac.append(wt_frac * waste_dict[material_name][proc].mass)
+                            coun += 1
+                        # Try to open EArray and table and if not exist - create
+                        nuclide_indices_array = np.array(nuclide_indices, dtype=self.nuclide_indices_dtype)
+                        if hasattr(proc_node, 'comp'):
+                            earr = db.get_node(proc_node, 'comp')
+                        else:
+                            earr = db.create_earray(
+                                proc_node,
+                                'comp',
+                                atom=tb.Float64Atom(),
+                                shape=(0, len(nuclide_indices_array)),
+                                title="Isotopic composition for %s" % proc)
+                            # Save isotope indexes map and units in EArray attributes
+                            earr.flavor = 'python'
+                        if not hasattr(proc_node, 'nuclide_map'):
+                            db.create_table(proc_node,
+                                           'nuclide_map',
+                                            description=nuclide_indices_array)
 
-                earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, iso_idx, iso_wt_frac)
+                        earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, nuclide_indices, iso_wt_frac)
 
-                earr.append(np.asarray([iso_wt_frac], dtype=np.float64))
-                del iso_wt_frac
-                del iso_idx
+                        earr.append(np.asarray([iso_wt_frac], dtype=np.float64))
+                        del iso_wt_frac, nuclide_indices
+            db.close()
         # Also save materials AFTER reprocessing and refill here
         self.store_mat_data(after_mats, dep_step, True)
-        db.close()
 
-    def _fix_nuclide_discrepancy(self, db, earr, iso_idx, iso_wt_frac):
+    def _fix_nuclide_discrepancy(self, db, earr, nuclide_indices, iso_wt_frac):
         """Fix discrepancies between nuclide keys present in stored results and
         nuclides keys stored in results for the current depletion step
 
@@ -180,7 +189,7 @@ class Simulation():
         earr : tables.EArray
             Array storing nuclide material mass compositions from previously
             completed depletion steps
-        iso_idx : OrderedDict
+        nuclide_indices : OrderedDict
             Map of nuclide name to array index
         iso_wt_frac : list of float
             List storing nuclide material mass compositions for current
@@ -198,7 +207,9 @@ class Simulation():
             in the current depletion step that are stored in earr.
         """
 
-        base_nucs= set(earr.attrs.iso_map.keys())
+        parent_node = earr._v_parent
+        base_nucs = set(map(bytes.decode, parent_node.nuclide_map.col('nuclide')))
+        iso_idx = dict(nuclide_indices)
         step_nucs = set(iso_idx.keys())
         forward_difference = base_nucs.difference(step_nucs)
         backward_difference = step_nucs.difference(base_nucs)
@@ -220,10 +231,18 @@ class Simulation():
                         title=node_title)
             # Save isotope indexes map and units in EArray attributes
             earr.flavor = 'python'
-            earr.attrs.iso_map = combined_map
+            #earr.attrs.iso_map = combined_map
             earr_len = len(combined_earr)
             for i in range(earr_len):
                 earr.append(np.array([combined_earr[i]]))
+
+            # Reform nuclide_map
+            nuclide_indices = list(zip(combined_map.keys(), combined_map.values()))
+            nuclide_indices_array = np.array(nuclide_indices, dtype=self.nuclide_indices_dtype)
+            db.remove_node(parent_node.nuclide_map)
+            db.create_table(parent_node,
+                            'nuclide_map',
+                            description=nuclide_indices_array)
         else:
             combined_step_arr = iso_wt_frac
 
@@ -263,10 +282,14 @@ class Simulation():
             depletion step with additional entries for nuclides not present
             in the current depletion step that are stored in earr.
         """
+        parent_node = earr._v_parent
+        _nuclides = list(map(bytes.decode, parent_node.nuclide_map.col('nuclide')))
+        _indices = parent_node.nuclide_map.col('index')
+        base_nuclide_map = dict(zip(_nuclides, _indices))
         combined_nucs = list(base_nucs.union(step_nucs))
         # Sort the nucnames by ZAM
-        nuccodes = list(map(self.sim_depcode._convert_name_to_nuccode, combined_nucs))
-        combined_nucs = [nucname for nuccode, nucname in sorted(zip(nuccodes,combined_nucs))]
+        nuclide_codes = list(map(self.sim_depcode.name_to_nuclide_code, combined_nucs))
+        combined_nucs = [nucname for nuclide_code, nucname in sorted(zip(nuclide_codes,combined_nucs))]
 
         combined_values = np.arange(0, len(combined_nucs), 1).tolist()
         combined_map = OrderedDict(zip(combined_nucs,combined_values))
@@ -277,7 +300,7 @@ class Simulation():
         for nuc, idx in combined_map.items():
             if nuc in base_nucs:
                 for i in range(earr_len):
-                    combined_earr[i,idx] = earr[i][earr.attrs.iso_map[nuc]]
+                    combined_earr[i,idx] = earr[i][base_nuclide_map[nuc]]
                 if nuc in step_nucs:
                     combined_step_arr[idx] = iso_wt_frac[iso_idx[nuc]]
                 else:
@@ -293,7 +316,7 @@ class Simulation():
         """Initialize the HDF5/Pytables database (if it doesn't exist) or
         append the following data at the current depletion step to the
         database: burnable material composition, mass, density, volume,
-        temperature, burnup,  mass_flowrate, void_fraction.
+        burnup,  mass_flowrate, void_fraction.
 
         Parameters
         ----------
@@ -320,13 +343,11 @@ class Simulation():
             dep_step_str = ["before_reproc", "before"]
 
         # Moment when store compositions
-        iso_idx = OrderedDict()
         # numpy array row storage data for material physical properties
         mpar_dtype = np.dtype([
             ('mass', float),
             ('density', float),
             ('volume', float),
-            ('temperature', float),
             ('mass_flowrate', float),
             ('void_fraction', float),
             ('burnup', float)
@@ -345,7 +366,7 @@ class Simulation():
                                          'Material data')
         # Iterate over all materials
         for key, value in mats.items():
-            iso_idx[key] = OrderedDict()
+            nuclide_indices = []
             iso_wt_frac = []
             coun = 0
             # Create group for each material
@@ -359,19 +380,24 @@ class Simulation():
                                 dep_step_str[0],
                                 'Material data {dep_step_str[1]} reprocessing')
             comp_pfx = '/materials/' + str(key) + '/' + dep_step_str[0]
+            # Order the nucnames by ZAM
+            nuclide_codes = list(map(self.sim_depcode.name_to_nuclide_code, mats[key].comp.keys()))
+            ordered_nucs = [nucname for nuclide_code, nucname in sorted(zip(nuclide_codes,mats[key].comp.keys()))]
             # Read isotopes from Materialflow for material
-            for nuc_code, wt_frac in mats[key].comp.items():
+            for nuc in ordered_nucs:
+                wt_frac = mats[key].comp[nuc]
                 # Dictonary in format {isotope_name : index(int)}
-                iso_idx[key][self.sim_depcode.convert_nuclide_code_to_name(nuc_code)] = coun
-                # Convert wt% to absolute [user units]
+                nuclide_indices.append((nuc, coun))
+                # Convert wt% to total mass [g]
                 iso_wt_frac.append(wt_frac * mats[key].mass)
                 coun += 1
+            nuclide_indices_array = np.array(nuclide_indices,
+                                             dtype=self.nuclide_indices_dtype)
             # Store information about material properties in new array row
             mpar_row = (
                 mats[key].mass,
-                mats[key].density,
-                mats[key].vol,
-                mats[key].temp,
+                mats[key].get_density(),
+                mats[key].volume,
                 mats[key].mass_flowrate,
                 mats[key].void_frac,
                 mats[key].burnup
@@ -391,22 +417,25 @@ class Simulation():
                     comp_pfx,
                     'comp',
                     atom=tb.Float64Atom(),
-                    shape=(0, len(iso_idx[key])),
+                    shape=(0, len(nuclide_indices_array)),
                     title="Isotopic composition for %s" % key)
                 # Save isotope indexes map and units in EArray attributes
                 earr.flavor = 'python'
-                earr.attrs.iso_map = iso_idx[key]
                 # Create table for material Parameters
+                print('Creating ' + key + ' lookup table.')
+                db.create_table(comp_pfx,
+                                'nuclide_map',
+                                description=nuclide_indices_array)
                 print('Creating ' + key + ' parameters table.')
                 mpar_table = db.create_table(
                     comp_pfx,
                     'parameters',
                     np.empty(0, dtype=mpar_dtype),
-                    "Material parameters data")
+                    title="Material parameters data")
             print('Dumping Material %s data %s to %s.' %
                   (key, dep_step_str[0], os.path.abspath(self.db_path)))
 
-            earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, iso_idx[key], iso_wt_frac)
+            earr, iso_wt_frac = self._fix_nuclide_discrepancy(db, earr, nuclide_indices, iso_wt_frac)
 
             # Add row for the timestep to EArray and Material Parameters table
             earr.append(np.array([iso_wt_frac], dtype=np.float64))
@@ -416,7 +445,7 @@ class Simulation():
             mpar_table.flush()
         db.close()
 
-    def store_run_step_info(self):
+    def store_step_neutronics_parameters(self):
         """Adds the following depletion code and SaltProc simulation
         data at the current depletion step to the database:
         execution time, memory usage, multiplication factor, breeding ratio,
@@ -427,16 +456,19 @@ class Simulation():
         # Read info from depcode _res.m File
         self.sim_depcode.read_neutronics_parameters()
         # Initialize beta groups number
-        b_g = len(self.sim_depcode.neutronics_parameters['beta_eff'])
+        b_g = len(self.sim_depcode.neutronics_parameters['beta_eff_bds'])
         # numpy array row storage for run info
 
         class Step_info(tb.IsDescription):
             keff_bds = tb.Float32Col((2,))
             keff_eds = tb.Float32Col((2,))
-            breeding_ratio = tb.Float32Col((2,))
+            breeding_ratio_bds = tb.Float32Col((2,))
+            breeding_ratio_eds = tb.Float32Col((2,))
             cumulative_time_at_eds = tb.Float32Col()
             power_level = tb.Float32Col()
+            beta_eff_bds = tb.Float32Col((b_g, 2))
             beta_eff_eds = tb.Float32Col((b_g, 2))
+            delayed_neutrons_lambda_bds = tb.Float32Col((b_g, 2))
             delayed_neutrons_lambda_eds = tb.Float32Col((b_g, 2))
             fission_mass_bds = tb.Float32Col()
             fission_mass_eds = tb.Float32Col()
@@ -466,14 +498,20 @@ class Simulation():
 
         step_info['keff_bds'] = self.sim_depcode.neutronics_parameters['keff_bds']
         step_info['keff_eds'] = self.sim_depcode.neutronics_parameters['keff_eds']
-        step_info['breeding_ratio'] = self.sim_depcode.neutronics_parameters[
-            'breeding_ratio']
+        step_info['breeding_ratio_bds'] = self.sim_depcode.neutronics_parameters[
+            'breeding_ratio_bds']
+        step_info['breeding_ratio_eds'] = self.sim_depcode.neutronics_parameters[
+            'breeding_ratio_eds']
         step_info['cumulative_time_at_eds'] = self.burn_time
         step_info['power_level'] = self.sim_depcode.neutronics_parameters['power_level']
+        step_info['beta_eff_bds'] = self.sim_depcode.neutronics_parameters[
+            'beta_eff_bds']
         step_info['beta_eff_eds'] = self.sim_depcode.neutronics_parameters[
-            'beta_eff']
+            'beta_eff_eds']
+        step_info['delayed_neutrons_lambda_bds'] = self.sim_depcode.neutronics_parameters[
+            'delayed_neutrons_lambda_bds']
         step_info['delayed_neutrons_lambda_eds'] = self.sim_depcode.neutronics_parameters[
-            'delayed_neutrons_lambda']
+            'delayed_neutrons_lambda_eds']
         step_info['fission_mass_bds'] = self.sim_depcode.neutronics_parameters[
             'fission_mass_bds']
         step_info['fission_mass_eds'] = self.sim_depcode.neutronics_parameters[
@@ -484,7 +522,7 @@ class Simulation():
         step_info_table.flush()
         db.close()
 
-    def store_run_init_info(self):
+    def store_depcode_metadata(self):
         """Adds the following depletion code and SaltProc simulation parameters
         to the database:
         neutron population, active cycles, inactive cycles, depletion code
@@ -496,20 +534,61 @@ class Simulation():
         # numpy arraw row storage for run info
         # delete and make this datatype specific
         # to Depcode subclasses
-        step_metadata_dtype = np.dtype([
-            ('neutron_population', int),
-            ('active_cycles', int),
-            ('inactive_cycles', int),
+        depcode_metadata_dtype = np.dtype([
             ('depcode_name', 'S20'),
             ('depcode_version', 'S20'),
             ('title', 'S90'),
             ('depcode_input_filename', 'S90'),
             ('depcode_working_dir', 'S90'),
-            ('xs_data_path', 'S90'),
+            ('xs_data_path', 'S90')
+        ])
+        # Read info from depcode _res.m File
+        self.sim_depcode.read_depcode_metadata()
+        # Store information about material properties in new array row
+        depcode_metadata_row = (
+            self.sim_depcode.depcode_metadata['depcode_name'],
+            self.sim_depcode.depcode_metadata['depcode_version'],
+            self.sim_depcode.depcode_metadata['title'],
+            self.sim_depcode.depcode_metadata['depcode_input_filename'],
+            self.sim_depcode.depcode_metadata['depcode_working_dir'],
+            self.sim_depcode.depcode_metadata['xs_data_path']
+        )
+        depcode_metadata_array = np.array([depcode_metadata_row], dtype=depcode_metadata_dtype)
+
+        # Open or restore db and append datat to it
+        db = tb.open_file(
+            self.db_path,
+            mode='a',
+            filters=self.compression_params)
+        try:
+            depcode_metadata_table = db.get_node(db.root, 'depcode_metadata')
+        except Exception:
+            depcode_metadata_table = db.create_table(
+                db.root,
+                'depcode_metadata',
+                depcode_metadata_array,
+                "Depletion code metadata")
+        depcode_metadata_table.flush()
+        db.close()
+
+    def store_step_metadata(self):
+        """Adds the following depletion code and SaltProc simulation parameters
+        to the database:
+        neutron population, active cycles, inactive cycles, # of OMP threads, # of MPI
+        tasks, memory optimization mode (Serpent), depletion timestep size.
+
+        """
+        # numpy arraw row storage for run info
+        # delete and make this datatype specific
+        # to Depcode subclasses
+        step_metadata_dtype = np.dtype([
+            ('neutron_population', int),
+            ('active_cycles', int),
+            ('inactive_cycles', int),
             ('OMP_threads', int),
             ('MPI_tasks', int),
             ('memory_optimization_mode', int),
-            ('depletion_timestep', float),
+            ('depletion_timestep_size', float),
             ('execution_time', float),
             ('memory_usage', float)
         ])
@@ -520,18 +599,12 @@ class Simulation():
             self.sim_depcode.npop,
             self.sim_depcode.active_cycles,
             self.sim_depcode.inactive_cycles,  # delete the below
-            self.sim_depcode.step_metadata['depcode_name'],
-            self.sim_depcode.step_metadata['depcode_version'],
-            self.sim_depcode.step_metadata['title'],
-            self.sim_depcode.step_metadata['depcode_input_filename'],
-            self.sim_depcode.step_metadata['depcode_working_dir'],
-            self.sim_depcode.step_metadata['xs_data_path'],
             self.sim_depcode.step_metadata['OMP_threads'],
             self.sim_depcode.step_metadata['MPI_tasks'],
             self.sim_depcode.step_metadata['memory_optimization_mode'],
-            self.sim_depcode.step_metadata['depletion_timestep'],
-            self.sim_depcode.step_metadata['execution_time'],
-            self.sim_depcode.step_metadata['memory_usage']
+            self.sim_depcode.step_metadata['depletion_timestep_size'],
+            self.sim_depcode.step_metadata['step_execution_time'],
+            self.sim_depcode.step_metadata['step_memory_usage']
 
         )
         step_metadata_array = np.array([step_metadata_row], dtype=step_metadata_dtype)
@@ -542,13 +615,15 @@ class Simulation():
             mode='a',
             filters=self.compression_params)
         try:
-            step_metadata_table = db.get_node(db.root, 'initial_depcode_siminfo')
+            step_metadata_table = db.get_node(db.root, 'depletion_step_metadata')
         except Exception:
             step_metadata_table = db.create_table(
                 db.root,
-                'initial_depcode_siminfo',
-                step_metadata_array,
-                "Initial depletion code simulation parameters")
+                'depletion_step_metadata',
+                np.empty(0, dtype=step_metadata_dtype),
+                "Depletion step metadata")
+
+        step_metadata_table.append(step_metadata_array)
         step_metadata_table.flush()
         db.close()
 

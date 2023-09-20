@@ -2,6 +2,7 @@
    "proc_input_file": "processes.json",
    "dot_input_file": "paths.dot",
    "n_depletion_steps": 2,
+   "run_without_reprocessing": true,
    "depcode": {
        "codename": "serpent",
        "template_input_file_path": "test_input.ini",
@@ -9,8 +10,7 @@
        "zaid_convention": "serpent"
    },
    "simulation": {
-       "sim_name": "test_serpent_no_reprocessing",
-       "restart_flag": true
+       "sim_name": "test_serpent_no_reprocessing"
    },
    "reactor": {
        "volume": 1.0,

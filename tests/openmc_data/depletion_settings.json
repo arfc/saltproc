@@ -3,7 +3,6 @@
         "fission_q": "serpent_fissq.json",
         "diff_burnable_mats": false,
         "normalization_mode": "fission-q",
-        "dilute_initial": 1000,
         "fission_yield_mode": "constant",
         "fission_yield_opts": null,
         "reaction_rate_mode": "direct",

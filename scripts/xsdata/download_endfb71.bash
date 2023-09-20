@@ -1,4 +1,5 @@
 #! ~/bin/bash
+set -ex
 ################
 ### DOWNLOAD ###
 ################
@@ -22,7 +23,7 @@ mkdir -p $DATADIR/acedata
 # ndy, decay, sfy data
 LN="https://www.nndc.bnl.gov/endf-b7.1/zips/"
 SLUG="ENDF-B-VII.1-"
-DATA=("nfy" "decay" "sfy" "neutrons")
+DATA=("sfy" "nfy" "decay" "neutrons")
 EXT=".zip"
 for D in ${DATA[@]}
 do
@@ -35,7 +36,16 @@ do
         mkdir -p $DATADIR/$D
         unzip -j $DATADIR/$SLUG$D$EXT -d $DATADIR/$D
     fi
-    if [[ $D -ne "neutrons" ]]
+    # Remove Be7 evaluation
+    if [[ -f $DATADIR/$D/dec-004_Be_007.endf ]]
+    then
+        rm $DATADIR/$D/dec-004_Be_007.endf
+    fi
+    if [[ -f $DATADIR/$D/n-004_Be_007.endf ]]
+    then
+        rm $DATADIR/$D/n-004_Be_007.endf
+    fi
+    if [[ $D != "neutrons" ]]
     then
         if [[ ! -f $DATADIR/endfb71.$D ]]
         then
@@ -65,7 +75,7 @@ tar -xOzf $DATADIR/$ACEGZ xsdir | cat > $DATADIR/$XSDIR_FILE
 DATADIR_REGEX=${DATADIR//\//\\\/}
 
 # Fix datapath
-sed -i "s/datapath/datapath=$DATADIR_REGEX/" $DATADIR/$XSDIR_FILE
+sed -i "s/datapath /datapath=$DATADIR_REGEX/" $DATADIR/$XSDIR_FILE
 
 # Get cutoff line number
 LN="$(grep -n "directory" $DATADIR/$XSDIR_FILE)"
@@ -97,6 +107,44 @@ do
     then
         tar -xzf $DATADIR/"$D$EXT" -C $DATADIR --verbose
         mv $DATADIR/$D/$D $DATADIR/acedata/.
+    fi
+    if [[ $D == "endf71x" ]]
+    then
+        # Remove old hydrogen evaluations
+        NUMS=("0" "1" "2" "3" "4" "5" "6")
+        for NUM in ${NUMS[@]}
+        do
+            EXT="nc"
+            EXT="$NUM$EXT"
+            mv $DATADIR/acedata/$D/H/1001.72$EXT $DATADIR/acedata/$D/H/1001.71$EXT
+            sed -i "s/1001.72$EXT/1001.71$EXT/" $DATADIR/acedata/$D/H/1001.71$EXT
+            sed -i "s/1001.9$NUM/1001.8$NUM/" $DATADIR/acedata/$D/H/1001.71$EXT
+        done
+        sed -i "s/.*H\/1001\.72.*//" $DATADIR/$D/xsdir
+
+        #rm -f $DATADIR/acedata/$D/Be/4007*
+        #sed -i "s/.*Be\/4007.*//" $DATADIR/$D/xsdir
+    else
+        if $SUPPORTS_INTERPOLATE_CONTINUOUS_ENERGY
+        then
+            if [[ -f $DATADIR/acedata/$D/sio2.10t ]]
+            then
+                rm -f $DATADIR/acedata/$D.sio2.2*
+                rm -f $DATADIR/acedata/$D.sio2.3*
+                sed -i "s/.*sio2\.2.*//" $DATADIR/$D/xsdir
+                sed -i "s/.*sio2\.3.*//" $DATADIR/$D/xsdir
+            fi
+            if [[ -f $DATADIR/acedata/$D/u-o2.30t ]]
+            then
+                rm -f $DATADIR/acedata/$D.u-o2.2*
+                sed -i "s/.*u-o2\.2.*//" $DATADIR/$D/xsdir
+            fi
+            if [[ -f $DATADIR/acedata/$D/zr-h.30t ]]
+            then
+                rm -f $DATADIR/acedata/$D.zr-h.2*
+                sed -i "s/.*zr-h\.2.*//" $DATADIR/$D/xsdir
+            fi
+        fi
     fi
 
     cat $DATADIR/$D/xsdir >> $DATADIR/$XSDIR_FILE

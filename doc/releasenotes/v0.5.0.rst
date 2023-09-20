@@ -15,6 +15,8 @@ Release notes for v0.5.0
 
 
 .. _openmc: https://github.com/openmc-dev/openmc
+.. _serpentTools: https://github.com/CORE-GATECH-GROUP/serpent-tools
+.. _pytables: https://github.com/PyTables/PyTables
 .. _@yardasol: https://github.com/yardasol
 
 
@@ -39,15 +41,15 @@ Dependency Changes
   Describe any new/removed/modified package dependencies
 
 
-- ``SaltProc`` now optionally requires the following package:
+- ``SaltProc`` now requires the following package:
 
   - (new) → `openmc`_
+  - (new) → `serpentTools`_
+  - (formality) → `pytables`_
   
-- ``pyne>=0.5.11`` → ``pyne>=0.5.11=nomoab_noopenmc*``
+- ``pyne>=0.5.11`` →  (removed)
 
-- ``pydotplus`` →  (removed)
-
-- (new) → ``pydot``
+- ``pydotplus`` →  ``pydot``
 
 
 
@@ -210,6 +212,10 @@ Python API Changes
     - (new) → ``timestep_units``
     - (new) → ``timestep_type``
 
+  - (new) → ``Results`` 
+
+    - New class for reading the `saltproc_results.h5` file
+
   - ``Simulation``
 
     -  ``core_number`` →  (removed)
@@ -249,5 +255,11 @@ The following people reviewed code for this release of SaltProc:
 
 ..
   `@gh_username <https://github.com/gh_uname>`_
+
+- `@smpark7 <https://github.com/smpark7>`_
+- `@LukeSeifert <https://github.com/LukeSeifert>`_
+- `@munkm <https://github.com/munkm>`_
+- `@abachma2 <https://github.com/abachma2>`_
+
 
 

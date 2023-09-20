@@ -35,7 +35,8 @@ _DAYS_PER_YEAR = 365.25
 def run():
     """ Inititializes main run"""
     threads, saltproc_input = parse_arguments()
-    input_path, process_file, dot_file, mpi_args, object_input = \
+    input_path, process_file, dot_file, mpi_args, \
+        rebuild_saltproc_results, run_without_reprocessing, object_input = \
         read_main_input(saltproc_input)
     _print_simulation_input_info(object_input[1], object_input[0])
     # Intializing objects
@@ -53,10 +54,14 @@ def run():
         simulation.sim_depcode.write_runtime_input(msr,
                                                    step_idx,
                                                    simulation.restart_flag)
-        depcode.run_depletion_step(mpi_args, threads)
+
+        if rebuild_saltproc_results:
+            simulation.sim_depcode.rebuild_simulation_files(step_idx)
+        else:
+            depcode.run_depletion_step(mpi_args, threads)
         if step_idx == 0 and simulation.restart_flag is False:  # First step
             # Read general simulation data which never changes
-            simulation.store_run_init_info()
+            simulation.store_depcode_metadata()
             # Parse and store data for initial state (beginning of step_idx)
             mats = depcode.read_depleted_materials(False)
             simulation.store_mat_data(mats, step_idx - 1, False)
@@ -64,41 +69,45 @@ def run():
         # Main sequence
         mats = depcode.read_depleted_materials(True)
         simulation.store_mat_data(mats, step_idx, False)
-        simulation.store_run_step_info()
+        simulation.store_step_neutronics_parameters()
+        simulation.store_step_metadata()
 
         # Reprocessing here
-        print("\nMass and volume of fuel before reproc: %f g, %f cm3" %
-              (mats['fuel'].mass,
-               mats['fuel'].vol))
-        # print("Mass and volume of ctrlPois before reproc %f g; %f cm3" %
-        #       (mats['ctrlPois'].mass,
-        #        mats['ctrlPois'].vol))
-        waste_streams, extracted_mass = reprocess_materials(mats,
-                                                            process_file,
-                                                            dot_file)
-        print("\nMass and volume of fuel after reproc: %f g, %f cm3" %
-              (mats['fuel'].mass,
-               mats['fuel'].vol))
-        # print("Mass and volume of ctrlPois after reproc %f g; %f cm3" %
-        #       (mats['ctrlPois'].mass,
-        #        mats['ctrlPois'].vol))
-        waste_and_feed_streams = refill_materials(mats,
-                                                  extracted_mass,
-                                                  waste_streams,
-                                                  process_file)
-        print("\nMass and volume of fuel after REFILL: %f g, %f cm3" %
-              (mats['fuel'].mass,
-               mats['fuel'].vol))
-        # print("Mass and volume of ctrlPois after REFILL %f g; %f cm3" %
-        #       (mats['ctrlPois'].mass,
-        #        mats['ctrlPois'].vol))
-        print("Removed mass [g]:", extracted_mass)
-        # Store in DB after reprocessing and refill (right before next depl)
+        if run_without_reprocessing:
+            waste_and_feed_streams = None
+            waste_streams = None
+            extracted_mass = None
+        else:
+            for key in mats.keys():
+                print('\nMass and volume of '
+                      f'{key} before reproc: {mats[key].mass} g, ',
+                      f'{mats[key].volume} cm3')
+            waste_streams, extracted_mass = reprocess_materials(mats,
+                                                                process_file,
+                                                                dot_file)
+            for key in mats.keys():
+                print('\nMass and volume of '
+                      f'{key} after reproc: {mats[key].mass} g, ',
+                      f'{mats[key].volume} cm3')
+
+            waste_and_feed_streams = refill_materials(mats,
+                                                      extracted_mass,
+                                                      waste_streams,
+                                                      process_file)
+            for key in mats.keys():
+                print('\nMass and volume of '
+                      f'{key} after refill: {mats[key].mass} g, ',
+                      f'{mats[key].volume} cm3')
+
+            print("Removed mass [g]:", extracted_mass)
+
+         # Store in DB after reprocessing and refill (right before next depl)
         simulation.store_after_repr(mats, waste_and_feed_streams, step_idx)
         depcode.update_depletable_materials(mats, simulation.burn_time)
 
         # Preserve depletion and transport result and input files
-        depcode.preserve_simulation_files(step_idx)
+        if not rebuild_saltproc_results:
+            depcode.preserve_simulation_files(step_idx)
 
         del mats, waste_streams, waste_and_feed_streams, extracted_mass
         gc.collect()
@@ -108,11 +117,6 @@ def run():
         print("\nTime at the end of current depletion step: %fd" %
               simulation.burn_time)
         print("Simulation succeeded.\n")
-        '''print("Reactor object data.\n",
-        msr.mass_flowrate,
-              msr.power_levels,
-              msr.depletion_timesteps)'''
-
 
 def parse_arguments():
     """Parses arguments from command line.
@@ -161,6 +165,12 @@ def read_main_input(main_inp_file):
     mpi_args : list of str
         Arguments for running simulations on supercomputers using mpiexec or
         similar programs.
+    rebuild_saltproc_results : bool
+        Flag to indicate whether or not to rebuild SaltProc results file
+        from existing depcode results
+    run_without_reprocessing : bool
+        Flag to indicate whether or not to run the depletion code in
+        SaltProc without applying the reprocessing system.
     object_inputs : 3-tuple of dict
         tuple containing the inputs for constructing the
         :class:`~saltproc.Depcode`, :class:`~saltproc.Simulation`, and
@@ -205,6 +215,12 @@ def read_main_input(main_inp_file):
         # Create output directoy if it doesn't exist
         if not Path(input_parameters['output_path']).exists():
             Path(input_parameters['output_path']).mkdir(parents=True)
+
+        # Rebuild saltproc results?
+        rebuild_saltproc_results = input_parameters['rebuild_saltproc_results']
+
+        # Run without reprocessing?
+        run_without_reprocessing = input_parameters['run_without_reprocessing']
 
         # Class settings
         depcode_input = input_parameters['depcode']
@@ -255,7 +271,7 @@ def read_main_input(main_inp_file):
         reactor_input = _process_main_input_reactor_params(
             reactor_input, n_depletion_steps, depcode_input['codename'])
 
-        return input_path, process_file, dot_file, mpi_args, (
+        return input_path, process_file, dot_file, mpi_args, rebuild_saltproc_results, run_without_reprocessing, (
             depcode_input, simulation_input, reactor_input)
 
 def _print_simulation_input_info(simulation_input, depcode_input):
@@ -426,7 +442,7 @@ def reprocess_materials(mats, process_file, dot_file):
         print(f"Mass of material '{mat_name}' before reprocessing: "
               f"{inmass[mat_name]} g")
 
-        if mat_name == 'fuel' and material_for_extraction == 'fuel':
+        if mat_name == material_for_extraction:
             for i, path in enumerate(extraction_process_paths):
                 thru_flows[mat_name].append(initial_material)
 
@@ -434,7 +450,6 @@ def reprocess_materials(mats, process_file, dot_file):
                     # Calculate fraction of the flow going to the process proc
                     divisor = float(processes[proc].mass_flowrate /
                                     processes['core_outlet'].mass_flowrate)
-                    print(f'Process: {proc}, divisor={divisor}')
 
                     # Calculate waste stream and thru flow on proccess proc
                     thru_flow, waste_stream = \
@@ -452,23 +467,6 @@ def reprocess_materials(mats, process_file, dot_file):
                 mats[mat_name] += thru_flows[mat_name][idx]
                 print(f'{i + 1} Materal mass on path {i}: '
                       f'{thru_flows[mat_name][i].mass}')
-
-        #    print('\nMass balance: %f g = %f + %f + %f + %f + %f + %f' %
-        #          (inmass[mat_name],
-        #           mats[mat_name].mass,
-        #           waste_streams[mat_name]['waste_sparger'].mass,
-        #           waste_streams[mat_name]['waste_entrainment_separator'].mass,
-        #           waste_streams[mat_name]['waste_nickel_filter'].mass,
-        #           waste_streams[mat_name]['waste_bypass'].mass,
-        #           waste_streams[mat_name]['waste_liquid_metal'].mass))
-
-        # Bootstrap for many materials
-        #if mat_name == 'ctrlPois':
-        #    thru_flow, waste_stream = \
-        #        processes['removal_tb_dy'].process_material(mats[mat_name])
-
-        #    waste_streams[mat_name]['removal_tb_dy'] = waste_stream
-        #    mats[mat_name] = thru_flow
 
         extracted_mass[mat_name] = \
             inmass[mat_name] - float(mats[mat_name].mass)
@@ -512,7 +510,6 @@ def get_extraction_processes(process_file):
         for mat_name, procs in j.items():
             extraction_processes[mat_name] = OrderedDict()
             for proc_name, proc_data in procs['extraction_processes'].items():
-                print("Processs object data: ", proc_data)
                 st = proc_data['efficiency']
                 if proc_name == 'sparger' and st == "self":
                     extraction_processes[mat_name][proc_name] = \
@@ -590,7 +587,6 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
         representing those material feed streams.
 
     """
-    print('Fuel before refilling: ^^^', mats['fuel'].print_attr())
     feeds = get_feeds(process_file)
     refill_mats = OrderedDict()
     # Get feed group for each material
@@ -603,8 +599,6 @@ def refill_materials(mats, extracted_mass, waste_streams, process_file):
         mats[mat] += refill_mats[mat]
         print('Refilled fresh material: %s %f g' %
               (mat, refill_mats[mat].mass))
-        print('Refill Material: ^^^', refill_mats[mat].print_attr())
-        print('Fuel after arefill: ^^^', mats[mat].print_attr())
     return waste_streams
 
 
@@ -639,9 +633,8 @@ def get_feeds(process_file):
         for mat in j:
             feeds[mat] = OrderedDict()
             for feed_name, feed_data in j[mat]['feeds'].items():
-                nucvec = feed_data['comp']
-                feeds[mat][feed_name] = Materialflow(nucvec)
-                feeds[mat][feed_name].mass = feed_data['mass']
-                feeds[mat][feed_name].density = feed_data['density']
-                feeds[mat][feed_name].vol = feed_data['volume']
+                comp = feed_data['comp']
+                feeds[mat][feed_name] = Materialflow(comp=comp,
+                                                     density=feed_data['density'],
+                                                     volume=feed_data['volume'])
         return feeds

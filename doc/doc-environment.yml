@@ -3,16 +3,16 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - pyne>=0.5.11=nomoab_noopenmc*
+  - numpy
   - openmc
-  - numpy>=1.14.0
   - pytables
   - networkx
-  - pydotplus
+  - pydot
+  - jsonschema
   - sphinx
   - sphinx_rtd_theme
-  - jsonschema
   - pip:
-      - sphinx-multiversion
-      - sphinxcontrib-apidoc
-      - sphinx-jsonschema
+    - serpentTools
+    - sphinx-multiversion
+    - sphinxcontrib-apidoc
+    - sphinx-jsonschema

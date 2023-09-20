@@ -11,10 +11,10 @@ calculations. It couples directly with depletion-capable transport solvers to en
 calculations.
 
 **SaltProc** welcomes your contributions. It already relies on many libraries
-in the Scientific Python ecosystem including `pyne`_, `numpy`_, `matplotlib`_,
+in the Scientific Python ecosystem including `openmc`_, `numpy`_, `matplotlib`_,
 `networkx`_, and `pydot`_.
 
-.. _pyne: http://pyne.io/
+.. _openmc: http://openmc.org/
 .. _numpy: http://numpy.org
 .. _matplotlib: http://matplotlib.org
 .. _networkx: http://networkx.github.io

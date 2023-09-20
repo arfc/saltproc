@@ -366,23 +366,6 @@ OpenMC-specific properties
     ``null``
 
 
-``dilute_initial``
-~~~~~~~~~~~~~~~~~~
-
-  :description:
-    Initial atom density to add for nuclides that are zero in initial
-    condition.
-
-  :type:
-    ``number``
-
-  :minimum:
-    0
-
-  :default:
-    1000
-
-
 ``fission_yield_mode``
 ~~~~~~~~~~~~~~~~~~~~~~
 

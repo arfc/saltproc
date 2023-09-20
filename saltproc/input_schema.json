@@ -30,6 +30,16 @@
             "items": { "type": ["string", "integer"]},
             "default": null
         },
+        "rebuild_saltproc_results" : {
+            "description": "Flag to reconstruct the saltproc_results.h5 files from the stepwise depletion simulation results",
+            "type": "boolean",
+            "default": false
+        },
+        "run_without_reprocessing" : {
+            "description": "Flag to run the simulation with no material reprocessing",
+            "type": "boolean",
+            "default": false
+        },
         "depcode": {
             "description": "Depcode class input parameters",
             "type": "object",
@@ -206,11 +216,6 @@
                                                 "description": "Path to fission Q values",
                                                 "type": ["string", "null"],
                                                 "default": null},
-                                            "dilute_initial": {
-                                                "description": "Initial atom density to add for nuclides that are zero in initial condition.",
-                                                "type": "number",
-                                                "minimum": 0,
-                                                "default": 1000},
                                             "fission_yield_mode": {
                                                 "description": "Determine what fission energy helper is used",
                                                 "type": "string",

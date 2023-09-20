@@ -74,13 +74,12 @@ def test_update_depletable_materials(setup, openmc_depcode, openmc_reactor):
     for material in test_mats:
         if material.name in ref_mats.keys():
             ref_material = ref_mats[material.name]
-            nucvec = openmc_depcode._create_mass_percents_dictionary(material, percent_type='wo')
-            test_material = saltproc.Materialflow(nucvec)
-            test_material.density = material.get_mass_density()
-            test_material.mass = material.density * material.volume
-            test_material.vol = material.volume
-            for key in test_material.keys():
-                np.testing.assert_almost_equal(ref_material[key], test_material[key])
+            comp = openmc_depcode._create_mass_percents_dictionary(material, percent_type='wo')
+            test_material = saltproc.Materialflow(comp=comp,
+                                                  density=material.get_mass_density(),
+                                                  volume=material.volume)
+            for key in test_material.comp.keys():
+                np.testing.assert_almost_equal(ref_material.comp[key], test_material.comp[key])
 
     os.remove(openmc_depcode.runtime_matfile)
     # add the initial geometry file back in
@@ -174,7 +173,40 @@ def test_read_neutronics_parameters(setup, openmc_depcode):
     np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['keff_eds'], [1.05103269, 0.00466057])
     np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['fission_mass_bds'], 72564.3093712)
     np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['fission_mass_eds'], 72557.3124427)
-    np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['breeding_ratio'], [0.97204677, 0.00752009])
+    np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['breeding_ratio_bds'], [0.9521063, 0.0083894])
+    np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['breeding_ratio_eds'], [0.97204677, 0.00752009])
+    np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['beta_eff_bds'],
+                                   [[3.02722147e-03, 1.31653306e-05],
+                                    [2.56437016e-04, 2.34208212e-06],
+                                    [6.86216011e-04, 6.25698960e-06],
+                                    [5.37174557e-04, 4.87944274e-06],
+                                    [1.07088251e-03, 9.67739386e-06],
+                                    [3.49738100e-04, 3.15273093e-06],
+                                    [1.26773271e-04, 1.13579780e-06]])
+    np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['beta_eff_eds'],
+                                   [[3.03212025e-03, 1.18380793e-05],
+                                    [2.56575834e-04, 2.09668680e-06],
+                                    [6.86750234e-04, 5.60655617e-06],
+                                    [5.37887361e-04, 4.38160078e-06],
+                                    [1.07311207e-03, 8.71598231e-06],
+                                    [3.50594025e-04, 2.84366514e-06],
+                                    [1.27200728e-04, 1.02827496e-06]])
+    np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['delayed_neutrons_lambda_bds'],
+                                   [[3.73897612e+00, 2.28330678e-02],
+                                    [1.29055770e-02, 1.17473235e-04],
+                                    [3.47196633e-02, 3.15003298e-04],
+                                    [1.19315909e-01, 1.07374204e-03],
+                                    [2.87240700e-01, 2.55327461e-03],
+                                    [8.02702456e-01, 7.04572391e-03],
+                                    [2.48209181e+00, 2.15388393e-02]])
+    np.testing.assert_almost_equal(openmc_depcode.neutronics_parameters['delayed_neutrons_lambda_eds'],
+                                   [[3.74309570e+00, 2.09128562e-02],
+                                    [1.29051655e-02, 1.05244668e-04],
+                                    [3.47182736e-02, 2.82594073e-04],
+                                    [1.19318603e-01, 9.66662533e-04],
+                                    [2.87320044e-01, 2.31172530e-03],
+                                    [8.03807356e-01, 6.42367636e-03],
+                                    [2.48502626e+00, 1.97411877e-02]])
     assert openmc_depcode.neutronics_parameters['power_level'] == 2250000000.0
     assert openmc_depcode.neutronics_parameters['burn_days'] == 3.0
     openmc_depcode.output_path = old_output_path
@@ -189,8 +221,7 @@ def test_read_depleted_materials(setup, openmc_depcode):
     ref_mats = openmc_depcode.read_depleted_materials(True)
     for mat_name, ref_mat in ref_mats.items():
         for nuc in xml_mats[mat_name].get_nuclides():
-            pyne_nuc = openmc_depcode._convert_nucname_to_pyne(nuc)
-            np.testing.assert_almost_equal(ref_mat[pyne_nuc], xml_mats[mat_name].get_mass(nuc))
+            np.testing.assert_almost_equal(ref_mat.get_mass(nuc), xml_mats[mat_name].get_mass(nuc))
 
 
 def test_switch_to_next_geometry(setup, openmc_depcode, openmc_reactor):

@@ -6,14 +6,12 @@ from pathlib import Path
 import numpy as np
 
 from uncertainties import unumpy
-from pyne import nucname as pyname
-from pyne import serpent
 import openmc
 
 from saltproc import Materialflow
 from saltproc.depcode import Depcode
 from openmc.deplete.abc import _SECONDS_PER_DAY
-from openmc.deplete import Results, Chain, MicroXS
+from openmc.deplete import Results, Chain
 from openmc.mgxs import Beta, DecayRate, EnergyGroups
 from openmc.data import atomic_mass, DataLibrary, JOULE_PER_EV
 
@@ -56,6 +54,9 @@ class OpenMCDepcode(Depcode):
         keys and parameter values are values.
     step_metadata : dict of str to type
         Holds OpenMC depletion step metadata. Metadata labels are keys
+        and metadata values are values.
+    depcode_metadata : dict of str to type
+        Holds OpenMC simulation metadata. Metadata labels are keys
         and metadata values are values.
     runtime_inputfile : dict of str to str
         Paths to OpenMC input files used to run depletion step. Contains neutron
@@ -129,31 +130,21 @@ class OpenMCDepcode(Depcode):
             if material.name == '':
                 raise ValueError(f"Material {material.id} has no name.")
 
-    def read_step_metadata(self):
+    def read_depcode_metadata(self):
         """Reads OpenMC's depletion step metadata and stores it in the
         :class:`OpenMCDepcode` object's :attr:`step_metadata` attribute.
         """
         sp0 = openmc.StatePoint(self.output_path / 'openmc_simulation_n0.h5')
-        sp1 = openmc.StatePoint(self.output_path / 'openmc_simulation_n1.h5')
-        res = Results(self.output_path / 'depletion_results.h5')
 
         depcode_name, depcode_ver = self.codename, ".".join(list(map(str,sp0.version)))
-        execution_time = sp0.runtime['simulation'] + sp1.runtime['simulation'] + res[0].proc_time + res[1].proc_time
         sp0.close()
-        sp1.close()
 
-        self.step_metadata['depcode_name'] = depcode_name
-        self.step_metadata['depcode_version'] = depcode_ver
-        self.step_metadata['title'] = ''
-        self.step_metadata['depcode_input_filename'] = ''
-        self.step_metadata['depcode_working_dir'] = str(self.output_path)
-        self.step_metadata['xs_data_path'] = self._find_xs_path()
-        self.step_metadata['OMP_threads'] = -1
-        self.step_metadata['MPI_tasks'] = -1
-        self.step_metadata['memory_optimization_mode'] = -1
-        self.step_metadata['depletion_timestep'] = res[1].time[0]
-        self.step_metadata['execution_time'] = execution_time
-        self.step_metadata['memory_usage'] = -1
+        self.depcode_metadata['depcode_name'] = depcode_name
+        self.depcode_metadata['depcode_version'] = depcode_ver
+        self.depcode_metadata['title'] = ''
+        self.depcode_metadata['depcode_input_filename'] = ''
+        self.depcode_metadata['depcode_working_dir'] = str(self.output_path)
+        self.depcode_metadata['xs_data_path'] = self._find_xs_path()
 
     def _find_xs_path(self):
         try:
@@ -162,6 +153,25 @@ class OpenMCDepcode(Depcode):
             openmc.reset_auto_ids()
             xs_path = openmc.Materials.from_xml(self.runtime_matfile).cross_sections
         return xs_path
+
+    def read_step_metadata(self):
+        """Reads OpenMC's depletion step metadata and stores it in the
+        :class:`OpenMCDepcode` object's :attr:`step_metadata` attribute.
+        """
+        sp0 = openmc.StatePoint(self.output_path / 'openmc_simulation_n0.h5')
+        sp1 = openmc.StatePoint(self.output_path / 'openmc_simulation_n1.h5')
+        res = Results(self.output_path / 'depletion_results.h5')
+
+        execution_time = sp0.runtime['simulation'] + sp1.runtime['simulation'] + res[0].proc_time + res[1].proc_time
+        sp0.close()
+        sp1.close()
+
+        self.step_metadata['OMP_threads'] = -1
+        self.step_metadata['MPI_tasks'] = -1
+        self.step_metadata['memory_optimization_mode'] = -1
+        self.step_metadata['depletion_timestep_size'] = res[1].time[0]
+        self.step_metadata['step_execution_time'] = execution_time
+        self.step_metadata['step_memory_usage'] = -1
 
     def read_neutronics_parameters(self):
         """Reads OpenMC depletion step neutronics parameters and stores them
@@ -174,21 +184,25 @@ class OpenMCDepcode(Depcode):
 
         self.neutronics_parameters['keff_bds'] = res[0].k[0]
         self.neutronics_parameters['keff_eds'] = res[1].k[0]
-        self.neutronics_parameters['breeding_ratio'] = self._calculate_breeding_ratio(sp1)
+        self.neutronics_parameters['breeding_ratio_bds'] = self._calculate_breeding_ratio(sp0)
+        self.neutronics_parameters['breeding_ratio_eds'] = self._calculate_breeding_ratio(sp1)
         self.neutronics_parameters['burn_days'] = res[1].time[0] / _SECONDS_PER_DAY
         self.neutronics_parameters['power_level'] = res[1].source_rate
-        self.neutronics_parameters['beta_eff'] = self._calculate_delayed_quantity(sp1, self._beta)
-        self.neutronics_parameters['delayed_neutrons_lambda'] = \
+        self.neutronics_parameters['beta_eff_bds'] = self._calculate_delayed_quantity(sp0, self._beta)
+        self.neutronics_parameters['beta_eff_eds'] = self._calculate_delayed_quantity(sp1, self._beta)
+        self.neutronics_parameters['delayed_neutrons_lambda_bds'] = \
+            self._calculate_delayed_quantity(sp0, self._delayed_lambda)
+        self.neutronics_parameters['delayed_neutrons_lambda_eds'] = \
             self._calculate_delayed_quantity(sp1, self._delayed_lambda)
         init_fission_mass, final_fission_mass = self._calculate_fission_masses(res)
         self.neutronics_parameters['fission_mass_bds'] = init_fission_mass
         self.neutronics_parameters['fission_mass_eds'] = final_fission_mass
         del sp0, sp1
 
-    def _calculate_breeding_ratio(self, sp1):
+    def _calculate_breeding_ratio(self, sp):
         """Fissile material produces / fissile material destroyed"""
 
-        breeding_ratio_tally = sp1.get_tally(name='breeding_ratio_tally')
+        breeding_ratio_tally = sp.get_tally(name='breeding_ratio_tally')
         frame = breeding_ratio_tally.get_pandas_dataframe().set_index('score')
         n_gamma_frame = frame.loc['(n,gamma)'].set_index('nuclide')
         absorption_frame = frame.loc['absorption'].set_index('nuclide')
@@ -206,9 +220,9 @@ class OpenMCDepcode(Depcode):
 
         return np.array([breeding_ratio.n, breeding_ratio.s])
 
-    def _calculate_delayed_quantity(self, sp1, mgxs):
+    def _calculate_delayed_quantity(self, sp, mgxs):
         # group-wise delayed quantity
-        mgxs.load_from_statepoint(sp1)
+        mgxs.load_from_statepoint(sp)
         frame = mgxs.get_pandas_dataframe()
         vals = self._get_values_with_uncertainties(frame)
         tot = vals.sum()
@@ -272,9 +286,13 @@ class OpenMCDepcode(Depcode):
         results_file = Path(self.output_path / 'depletion_results.h5')
         depleted_materials = {}
         results = Results(results_file)
-        depleted_openmc_materials = results.export_to_materials(moment)
+
+        # Get decay and transport nuclides
+        nucs = list(results[-1].index_nuc.keys())
+        depleted_openmc_materials = results.export_to_materials(moment, nuc_with_data=nucs)
         if read_at_end:
-            starting_openmc_materials = results.export_to_materials(0)
+            _nucs = list(results[0].index_nuc.keys())
+            starting_openmc_materials = results.export_to_materials(0, nuc_with_data=_nucs)
         else:
             # placeholder for starting materials
             starting_openmc_materials = np.zeros(len(depleted_openmc_materials))
@@ -285,13 +303,9 @@ class OpenMCDepcode(Depcode):
         for starting_material, depleted_material in openmc_materials:
             if depleted_material.depletable:
                 volume = depleted_material.volume
-                nucvec = self._create_mass_percents_dictionary(depleted_material)
+                density = depleted_material.get_mass_density()
+                comp = self._create_mass_percents_dictionary(depleted_material)
                 name = depleted_material.name
-                depleted_materials[name] = Materialflow(nucvec)
-                depleted_materials[name].density = depleted_material.get_mass_density()
-                depleted_materials[name].mass = depleted_materials[name].density * volume
-                depleted_materials[name].vol = volume
-
                 if read_at_end:
                     sp0 = openmc.StatePoint(self.output_path / 'openmc_simulation_n0.h5')
                     heavy_metal_mass = starting_material.fissionable_mass * _KG_PER_G
@@ -300,7 +314,10 @@ class OpenMCDepcode(Depcode):
                     burnup = power * days / heavy_metal_mass
                 else:
                     burnup = 0
-                depleted_materials[name].burnup = burnup
+                depleted_materials[name] = Materialflow(comp=comp,
+                                                        density=density,
+                                                        volume=volume,
+                                                        burnup=burnup)
         del openmc_materials, depleted_openmc_materials, starting_openmc_materials
         return depleted_materials
 
@@ -334,28 +351,8 @@ class OpenMCDepcode(Depcode):
             mass_percents = percents
         else:
             raise ValueError(f'{percent_type} is not a valid percent type')
-        pyne_nucs = list(map(self._convert_nucname_to_pyne, nucs))
 
-        return dict(zip(pyne_nucs, mass_percents))
-
-    def _convert_nucname_to_pyne(self, nucname):
-        """Helper function for :func:`_create_mass_percents_dictionary`.
-        Converts an OpenMC-formatted nuclide name into a PyNE-formatted
-        nuclide name.
-
-        Parameters
-        ----------
-        nucname : str
-
-        Returns
-        -------
-        pyne_nucname : str
-
-        """
-        if nucname[-3:-1] == '_m':
-            nucname = nucname.split('_')[0]
-            nucname += 'M'
-        return nucname
+        return dict(zip(nucs, mass_percents))
 
     def _get_power_from_tallies(self, sp, power):
         fission_energy = sp.get_tally(name='fission_energy').mean.flatten()[0] # eV / src
@@ -365,18 +362,11 @@ class OpenMCDepcode(Depcode):
         power = fission_energy * f * JOULE_PER_EV # J / s
         return power
 
-    def convert_nuclide_code_to_name(self, nuc):
-        nucname = pyname.name(nuc)
-        if nucname[-1] == 'M':
-            nucname = nucname[:-1]
-            nucname += '_m1'
-        return nucname
+    def nuclide_code_to_name(self, nuc):
+        return nuc
 
-    def _convert_name_to_nuccode(self, nucname):
-        nucname = self._convert_nucname_to_pyne(nucname)
-        z = pyname.znum(nucname)
-        a = pyname.anum(nucname)
-        m = pyname.snum(nucname)
+    def name_to_nuclide_code(self, nucname):
+        z, a, m = openmc.data.zam(nucname)
         code = z * 1000 + a
         if m != 0:
             code += 300 + 100 * m
@@ -394,15 +384,15 @@ class OpenMCDepcode(Depcode):
         """
         # need to add flow control for plots option
         args = ['python',
-                self.exec_path,
+                str(self.exec_path),
                 '--materials',
-                self.runtime_matfile,
+                str(self.runtime_matfile),
                 '--geometry',
-                self.runtime_inputfile['geometry'],
+                str(self.runtime_inputfile['geometry']),
                 '--settings',
-                self.runtime_inputfile['settings'],
+                str(self.runtime_inputfile['settings']),
                 '--tallies',
-                self.runtime_inputfile['tallies'],
+                str(self.runtime_inputfile['tallies']),
                 '--directory',
                 str(self.output_path)]
         if mpi_args is not None:
@@ -445,9 +435,6 @@ class OpenMCDepcode(Depcode):
                 geo_file, materials=materials)
             settings = openmc.Settings.from_xml(
                 self.template_input_file_path['settings'])
-            self.npop = settings.particles
-            self.inactive_cycles = settings.inactive
-            self.active_cycles = settings.batches - self.inactive_cycles
 
         else:
             openmc.reset_auto_ids()
@@ -457,12 +444,11 @@ class OpenMCDepcode(Depcode):
             settings = openmc.Settings.from_xml(
                 self.runtime_inputfile['settings'])
 
-        diluted_model = openmc.Model(materials=materials, geometry=geometry, settings=settings)
-        reactions, diluted_materials = MicroXS._add_dilute_nuclides(self.chain_file_path,
-                                                                   diluted_model,
-                                                                   1e3)
+        self.npop = settings.particles
+        self.inactive_cycles = settings.inactive
+        self.active_cycles = settings.batches - self.inactive_cycles
 
-        diluted_materials.export_to_xml(self.runtime_matfile)
+        materials.export_to_xml(self.runtime_matfile)
         geometry.export_to_xml(self.runtime_inputfile['geometry'])
         settings.export_to_xml(self.runtime_inputfile['settings'])
         self.write_depletion_settings(reactor, depletion_step)
@@ -534,15 +520,11 @@ class OpenMCDepcode(Depcode):
             # depletable materials only
             if material.name in mats.keys():
                 components = {}
-                for nuc_code, mass_fraction in mats[material.name].comp.items():
-                    nuc_name = pyname.name(nuc_code)
-                    # Convert nuclide names from PyNE format to OpenMC format
-                    if nuc_name[-1] == 'M':
-                        nuc_name = nuc_name[:-1] + '_m1'
-                    components[nuc_name] = mass_fraction
-
+                for nuc_name, mass_fraction in mats[material.name].comp.items():
+                    if not(mass_fraction == 0.0 or mass_fraction == 0):
+                        components[nuc_name] = mass_fraction
                 material.set_density('g/cm3', mats[material.name].density)
-                material.volume = mats[material.name].vol
+                material.volume = mats[material.name].volume
                 for element in material.get_elements():
                     material.remove_element(element)
                 material.add_components(components, percent_type='wo')

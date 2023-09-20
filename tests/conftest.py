@@ -1,8 +1,21 @@
 from pathlib import Path
 import pytest
 
+from tests.integration_tests import config as integration_config
+
 from saltproc.app import read_main_input, _create_depcode_object, _create_simulation_object, _create_reactor_object
 from saltproc import Simulation
+
+
+def pytest_addoption(parser):
+    parser.addoption('--update', action='store_true')
+
+
+def pytest_configure(config):
+     opts = ['update']
+     for opt in opts:
+         if config.getoption(opt) is not None:
+             integration_config[opt] = config.getoption(opt)
 
 
 @pytest.fixture(scope='session')

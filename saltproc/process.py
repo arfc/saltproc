@@ -1,9 +1,9 @@
 """Process module"""
+import re
 from copy import deepcopy
 from math import exp
 import numpy as np
 
-from pyne import nucname as pyname
 from saltproc import Materialflow
 
 
@@ -99,40 +99,65 @@ class Process():
             reprocessing system component.
 
         """
-        waste_nucvec = {}
-        thru_nucvec = {}
-        print("Xe concentration in inflow before % f g" % inflow['Xe136'])
+        waste_mass = {}
+        thru_mass = {}
 
-        for nuc in inflow.comp.keys():
-            nuc_name = pyname.serpent(nuc).split('-')[0]
-            if nuc_name in self.efficiency:
-                # Evaluate removal efficiency for nuc_name (float)
-                self.efficiency[nuc_name] = \
-                    self.calculate_removal_efficiency(nuc_name)
+        total_waste_mass = 0.0
+        total_thru_mass = 0.0
 
-                thru_nucvec[nuc] = \
-                    float(inflow.comp[nuc]) * \
-                    float(1.0 - self.efficiency[nuc_name])
+        if bool(self.efficiency):
+            process_elements = list(self.efficiency.keys())
+            process_nucs = [nuc for nuc in inflow.comp.keys() \
+                            if re.match(r"([A-Z]+)([0-9]+)", nuc, re.I).groups()[0] \
+                            in process_elements]
+            thru_nucs = list(set(inflow.comp.keys()).difference(set(process_nucs)))
 
-                waste_nucvec[nuc] = \
-                    float(inflow[nuc]) * self.efficiency[nuc_name]
+            efficiency = [self.calculate_removal_efficiency(elem) \
+                          for elem in process_elements]
+            efficiency = dict(zip(process_elements, efficiency))
 
-            # Assume zero removal
-            else:
-                thru_nucvec[nuc] = float(inflow.comp[nuc])
-                waste_nucvec[nuc] = 0.0
+            nuc_efficiency = {}
+            for nuc in process_nucs:
+                elem = re.match(r"([A-Z]+)([0-9]+)", nuc, re.I).groups()[0]
+                nuc_efficiency[nuc] = efficiency[elem]
 
-        waste_stream = Materialflow(waste_nucvec)
+            thru_mass = np.array([inflow.get_mass(nuc) * \
+                                  (1.0 - nuc_efficiency[nuc]) \
+                                  for nuc in process_nucs])
+            waste_mass = np.array([inflow.get_mass(nuc) * \
+                                   nuc_efficiency[nuc] \
+                                   for nuc in process_nucs])
+
+            total_waste_mass = np.sum(waste_mass)
+            total_thru_mass = inflow.mass - total_waste_mass
+
+            waste_mass = dict(zip(process_nucs, waste_mass / total_waste_mass))
+
+            thru_mass_1 = np.array([inflow.get_mass(nuc) for nuc in thru_nucs])
+
+            thru_mass_1 = dict(zip(thru_nucs, thru_mass_1 / total_thru_mass))
+            thru_mass = dict(zip(process_nucs, thru_mass / total_thru_mass))
+            thru_mass.update(thru_mass_1)
+        else:
+            total_thru_mass = inflow.mass
+            thru_mass = inflow.comp.copy()
+
+        waste_stream = Materialflow(comp=waste_mass)
+        if bool(waste_mass) and np.max(list(waste_mass.values())) > 0.0:
+            waste_stream.volume = total_waste_mass / waste_stream.mass
+            waste_stream.mass = total_waste_mass
+        else:
+            waste_stream.volume = 0.0
         # preserve inflow attributes
         thru_flow = deepcopy(inflow)
-        thru_flow.comp = thru_nucvec
-        thru_flow.density = inflow.density
-        thru_flow.mass = float(inflow.mass - waste_stream.mass)
-        thru_flow.norm_comp()
+        thru_flow.replace_components(thru_mass)
+        # initial guess
+        thru_flow.volume = inflow.volume - waste_stream.volume
+        # correction
+        thru_flow.volume = thru_flow.volume * \
+            total_thru_mass / thru_flow.get_mass()
+        thru_flow.mass = total_thru_mass
 
-        print("Xe concentration in thruflow: %f g" % thru_flow['Xe136'])
-        print("Waste mass: %f g\n" % waste_stream.mass)
-
-        del thru_nucvec, waste_nucvec, nuc_name
+        del thru_mass, waste_mass
 
         return thru_flow, waste_stream
