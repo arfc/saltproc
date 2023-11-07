@@ -72,7 +72,7 @@ Required properties are as follows: ``proc_input_file``, ``dot_input_file``, ``o
 .. _mpi_args_property:
 
 ``mpi_args``
----------------------
+------------
 
   :description:
     Arguments for running simulations on supercomputers using ``mpiexec``
@@ -93,7 +93,7 @@ Required properties are as follows: ``proc_input_file``, ``dot_input_file``, ``o
 .. _rebuild_saltproc_results_property:
 
 ``rebuild_saltproc_results``
----------------------
+----------------------------
 
   :description:
     Flag to reconstruct the ``saltproc_results.h5`` files from the stepwise
@@ -110,7 +110,7 @@ Required properties are as follows: ``proc_input_file``, ``dot_input_file``, ``o
 .. _run_without_reprocessing_property:
 
 ``run_without_reprocessing``
----------------------
+----------------------------
 
   :description:
     Flag to run SaltProc with no material reprocessing.
