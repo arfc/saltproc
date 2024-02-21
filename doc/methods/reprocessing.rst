@@ -8,7 +8,8 @@ SaltProc models separations and feeds using three different data structures:
 Material flows
 --------------
 A material flow represents a material with a given
-volume, density, temperature, and nuclide composition.
+volume :math:`V`, density :math:`\rho`, temperature :math:`T`, and nuclide composition :math:`\mathbf{N}` flowing in or out
+of a processing component.
 It can also include information such as void fraction. :class:`saltproc.Materialflow`
 objects contain the prior mentioned quantities as attributes, as well as
 methods to perform the following:
@@ -17,7 +18,7 @@ methods to perform the following:
 
    a. The mass of the sum is :math:`m_{1+2} = m_{1} + m_{2}`
 
-   b. The composition of the sum is :math:`N_{1+2} = \frac{N_{1} * m_{1} + N_{2} * m_{2}}{m_{1} + m_{2}}`
+   b. The composition of the sum is :math:`\mathbf{N}_{1+2} = \frac{\mathbf{N}_{1} * m_{1} + \mathbf{N}_{2} * m_{2}}{m_{1} + m_{2}}`
 
    c. The temperature and density are assumed to be equal to the first :class:`saltproc.Materialflow` object
 
@@ -36,8 +37,8 @@ associated processing task. At a minimum, a :class:`saltproc.Process` object inc
 the following
 
 1. A mass flow rate, :math:`\dot{m}`, which specifies the mass of fuel salt a process can operate on per unit time
-2. An extraction efficiency, :math:`\epsilon`, for target element(s).
-3. A method to apply the process on a :class:`saltproc.Materialflow` object. 
+2. An extraction efficiency, :math:`\epsilon`, for target element(s)
+3. A method to apply the process on a :class:`saltproc.Materialflow` object
 
 Graphs
 ......
@@ -130,7 +131,7 @@ Similarly, for the waste streams, we have
 SaltProc does not currently track the volume and mass flow rate of waste streams.
 In practice, since it is extremely resource intensive to separate individual
 isotopes, SaltProc only allows extraction efficiencies to be defined for
-elements. So, for any isotope :math:`a` of xenon,
+elements. Additionally, any chemical processing would only act on elements, so there is little point in having isotope specific extration efficiencies. So, for any isotope :math:`a` of xenon,
 :math:`\epsilon_{\ce{^{a}Xe}} = \epsilon_{\ce{^{a^{\prime}}Xe}}`  where
 :math:`a^{\prime} \in \text{isotopes of Xe}`
 
