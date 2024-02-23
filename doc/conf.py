@@ -36,13 +36,13 @@ release = __version__
 
 # -- sphinx-multiversion configuration ---------------------------------------
 # Whitelist pattern for tags (set to None to ignore all tags)
-smv_tag_whitelist = r'^v\d[.][^12][.]\d.*$'
+smv_tag_whitelist = r'^v\d[.][^1234][.]\d$'
 
 # Whitelist pattern for branches (set to None to ignore all branches)
 smv_branch_whitelist = r'^(master)*$'
 
 # Whitelist pattern for remotes (set to None to use local branches only)
-smv_remote_whitelist = r'^(origin|upstream)$'
+smv_remote_whitelist = r'^upstream$'
 
 # Pattern for released versions
 smv_released_pattern = r'^tags/.*$'

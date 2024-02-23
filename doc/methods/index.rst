@@ -14,6 +14,4 @@ about the SaltProc's program flow, design, mathematical background, and more.
 .. toctree::
    :maxdepth: 1
 
-   coupling
    reprocessing
-   geometry_switching
