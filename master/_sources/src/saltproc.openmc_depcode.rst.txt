@@ -1,7 +1,0 @@
-saltproc.openmc\_depcode module
-===============================
-
-.. automodule:: saltproc.openmc_depcode
-   :members:
-   :undoc-members:
-   :show-inheritance:

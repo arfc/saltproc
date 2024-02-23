@@ -43,10 +43,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/index.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../devguide/index.html">Developer’s Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../fileformatspec/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io_formats/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -77,21 +79,52 @@
   <h1>Source code for saltproc.openmc_depcode</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">nucname</span> <span class="k">as</span> <span class="n">pyname</span>
-<span class="kn">from</span> <span class="nn">pyne</span> <span class="kn">import</span> <span class="n">serpent</span>
+<span class="kn">from</span> <span class="nn">uncertainties</span> <span class="kn">import</span> <span class="n">unumpy</span>
 <span class="kn">import</span> <span class="nn">openmc</span>
 
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Materialflow</span>
-<span class="kn">from</span> <span class="nn">saltproc.abc</span> <span class="kn">import</span> <span class="n">Depcode</span>
+<span class="kn">from</span> <span class="nn">saltproc.depcode</span> <span class="kn">import</span> <span class="n">Depcode</span>
+<span class="kn">from</span> <span class="nn">openmc.deplete.abc</span> <span class="kn">import</span> <span class="n">_SECONDS_PER_DAY</span>
+<span class="kn">from</span> <span class="nn">openmc.deplete</span> <span class="kn">import</span> <span class="n">Results</span><span class="p">,</span> <span class="n">Chain</span>
+<span class="kn">from</span> <span class="nn">openmc.mgxs</span> <span class="kn">import</span> <span class="n">Beta</span><span class="p">,</span> <span class="n">DecayRate</span><span class="p">,</span> <span class="n">EnergyGroups</span>
+<span class="kn">from</span> <span class="nn">openmc.data</span> <span class="kn">import</span> <span class="n">atomic_mass</span><span class="p">,</span> <span class="n">DataLibrary</span><span class="p">,</span> <span class="n">JOULE_PER_EV</span>
 
-<div class="viewcode-block" id="OpenMCDepcode"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode">[docs]</a><span class="k">class</span> <span class="nc">OpenMCDepcode</span><span class="p">(</span><span class="n">Depcode</span><span class="p">):</span>
+
+<span class="n">_FISSILE_NUCLIDES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;U233&#39;</span><span class="p">,</span> <span class="s1">&#39;U235&#39;</span><span class="p">,</span> <span class="s1">&#39;Pu239&#39;</span><span class="p">,</span> <span class="s1">&#39;Pu241&#39;</span><span class="p">]</span>
+<span class="n">_FERTILE_NUCLIDES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Th232&#39;</span><span class="p">,</span> <span class="s1">&#39;U234&#39;</span><span class="p">,</span> <span class="s1">&#39;U238&#39;</span><span class="p">,</span> <span class="s1">&#39;Pu238&#39;</span><span class="p">,</span> <span class="s1">&#39;Pu240&#39;</span><span class="p">]</span>
+<span class="n">_KG_PER_G</span> <span class="o">=</span> <span class="mf">1e-3</span>
+<span class="n">_MW_PER_W</span> <span class="o">=</span> <span class="mf">1e-6</span>
+<span class="n">_DELAYED_ENERGY_BOUNDS</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mf">20e7</span><span class="p">)</span> <span class="c1"># eV</span>
+<span class="n">_N_DELAYED_GROUPS</span> <span class="o">=</span> <span class="mi">6</span>
+
+<div class="viewcode-block" id="OpenMCDepcode"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode">[docs]</a><span class="k">class</span> <span class="nc">OpenMCDepcode</span><span class="p">(</span><span class="n">Depcode</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Interface for running depletion steps in OpenMC, as well as obtaining</span>
 <span class="sd">    depletion step results.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_path : str</span>
+<span class="sd">        Path to results storage directory.</span>
+<span class="sd">    exec_path : str</span>
+<span class="sd">        Path to OpenMC depletion script.</span>
+<span class="sd">    template_input_file_path : dict of str to str</span>
+<span class="sd">        Path to user input files (``.xml`` file for geometry,</span>
+<span class="sd">        material, and settings) for OpenMC. File type as strings</span>
+<span class="sd">        are keys (e.g. &#39;geometry&#39;, &#39;settings&#39;, &#39;material&#39;), and</span>
+<span class="sd">        file path as strings are values.</span>
+<span class="sd">    geo_file_paths : str or list, optional</span>
+<span class="sd">        Path to file that contains the reactor geometry.</span>
+<span class="sd">        List of `str` if reactivity control by</span>
+<span class="sd">        switching geometry is `On` or just `str` otherwise.</span>
+<span class="sd">     depletion_settings : dict</span>
+<span class="sd">         Keyword arguments to pass to :func:`openmc.model.deplete()`.</span>
+<span class="sd">     chain_file_path : str</span>
+<span class="sd">         Path to depletion chain file</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -100,6 +133,9 @@
 <span class="sd">        keys and parameter values are values.</span>
 <span class="sd">    step_metadata : dict of str to type</span>
 <span class="sd">        Holds OpenMC depletion step metadata. Metadata labels are keys</span>
+<span class="sd">        and metadata values are values.</span>
+<span class="sd">    depcode_metadata : dict of str to type</span>
+<span class="sd">        Holds OpenMC simulation metadata. Metadata labels are keys</span>
 <span class="sd">        and metadata values are values.</span>
 <span class="sd">    runtime_inputfile : dict of str to str</span>
 <span class="sd">        Paths to OpenMC input files used to run depletion step. Contains neutron</span>
@@ -116,7 +152,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="OpenMCDepcode.__init__"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">output_path</span><span class="p">,</span>
                  <span class="n">exec_path</span><span class="p">,</span>
                  <span class="n">template_input_file_path</span><span class="p">,</span>
@@ -125,26 +161,6 @@
                  <span class="n">chain_file_path</span>
                  <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize a OpenMCDepcode object.</span>
-
-<span class="sd">           Parameters</span>
-<span class="sd">           ----------</span>
-<span class="sd">           output_path : str</span>
-<span class="sd">               Path to results storage directory.</span>
-<span class="sd">           exec_path : str</span>
-<span class="sd">               Path to OpenMC depletion script.</span>
-<span class="sd">           template_input_file_path : dict of str to str</span>
-<span class="sd">               Path to user input files (``.xml`` file for geometry,</span>
-<span class="sd">               material, and settings) for OpenMC. File type as strings</span>
-<span class="sd">               are keys (e.g. &#39;geometry&#39;, &#39;settings&#39;, &#39;material&#39;), and</span>
-<span class="sd">               file path as strings are values.</span>
-<span class="sd">           geo_file_paths : str or list, optional</span>
-<span class="sd">               Path to file that contains the reactor geometry.</span>
-<span class="sd">               List of `str` if reactivity control by</span>
-<span class="sd">               switching geometry is `On` or just `str` otherwise.</span>
-<span class="sd">            depletion_settings : dict</span>
-<span class="sd">                Keyword arguments to pass to :func:`openmc.model.deplete()`.</span>
-<span class="sd">            chain_file_path : str</span>
-<span class="sd">                Path to depletion chain file</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -165,20 +181,159 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span> <span class="o">=</span> \
             <span class="p">{</span><span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;geometry.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()),</span>
              <span class="s1">&#39;settings&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;settings.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span> <span class="o">=</span> <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;materials.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span> <span class="o">=</span> <span class="nb">str</span><span class="p">((</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;materials.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
 
-<div class="viewcode-block" id="OpenMCDepcode.read_step_metadata"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.read_step_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">read_step_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_for_material_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;materials&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_OUTPUTFILE_NAMES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;depletion_results.h5&#39;</span><span class="p">,</span> <span class="s1">&#39;openmc_simulation_n0.h5&#39;</span><span class="p">,</span>
+                                 <span class="s1">&#39;openmc_simulation_n1.h5&#39;</span><span class="p">,</span> <span class="s1">&#39;summary.h5&#39;</span><span class="p">,</span>
+                                 <span class="s1">&#39;tallies.out&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_INPUTFILE_NAMES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;materials.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;geometry.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;tallies.xml&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_for_material_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checks that all materials in the material file</span>
+<span class="sd">        have a name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">           Path to a materials.xml file</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">openmc</span><span class="o">.</span><span class="n">reset_auto_ids</span><span class="p">()</span>
+        <span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="n">material_id_to_name</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="n">materials</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">material</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Material </span><span class="si">{</span><span class="n">material</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> has no name.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OpenMCDepcode.read_depcode_metadata"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode.read_depcode_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">read_depcode_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reads OpenMC&#39;s depletion step metadata and stores it in the</span>
 <span class="sd">        :class:`OpenMCDepcode` object&#39;s :attr:`step_metadata` attribute.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sp0</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">StatePoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;openmc_simulation_n0.h5&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OpenMCDepcode.read_neutronics_parameters"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.read_neutronics_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">read_neutronics_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">depcode_name</span><span class="p">,</span> <span class="n">depcode_ver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="n">sp0</span><span class="o">.</span><span class="n">version</span><span class="p">)))</span>
+        <span class="n">sp0</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">depcode_metadata</span><span class="p">[</span><span class="s1">&#39;depcode_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depcode_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depcode_metadata</span><span class="p">[</span><span class="s1">&#39;depcode_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depcode_ver</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depcode_metadata</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depcode_metadata</span><span class="p">[</span><span class="s1">&#39;depcode_input_filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depcode_metadata</span><span class="p">[</span><span class="s1">&#39;depcode_working_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depcode_metadata</span><span class="p">[</span><span class="s1">&#39;xs_data_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_xs_path</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_find_xs_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">xs_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;OPENMC_CROSS_SECTIONS&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">openmc</span><span class="o">.</span><span class="n">reset_auto_ids</span><span class="p">()</span>
+            <span class="n">xs_path</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span><span class="o">.</span><span class="n">cross_sections</span>
+        <span class="k">return</span> <span class="n">xs_path</span>
+
+<div class="viewcode-block" id="OpenMCDepcode.read_step_metadata"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode.read_step_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">read_step_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads OpenMC&#39;s depletion step metadata and stores it in the</span>
+<span class="sd">        :class:`OpenMCDepcode` object&#39;s :attr:`step_metadata` attribute.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sp0</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">StatePoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;openmc_simulation_n0.h5&#39;</span><span class="p">)</span>
+        <span class="n">sp1</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">StatePoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;openmc_simulation_n1.h5&#39;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">Results</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;depletion_results.h5&#39;</span><span class="p">)</span>
+
+        <span class="n">execution_time</span> <span class="o">=</span> <span class="n">sp0</span><span class="o">.</span><span class="n">runtime</span><span class="p">[</span><span class="s1">&#39;simulation&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">sp1</span><span class="o">.</span><span class="n">runtime</span><span class="p">[</span><span class="s1">&#39;simulation&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">proc_time</span> <span class="o">+</span> <span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">proc_time</span>
+        <span class="n">sp0</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">sp1</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;OMP_threads&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;MPI_tasks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;memory_optimization_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;depletion_timestep_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;step_execution_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">execution_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span><span class="p">[</span><span class="s1">&#39;step_memory_usage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span></div>
+
+<div class="viewcode-block" id="OpenMCDepcode.read_neutronics_parameters"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode.read_neutronics_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">read_neutronics_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reads OpenMC depletion step neutronics parameters and stores them</span>
 <span class="sd">        in :class:`OpenMCDepcode` object&#39;s :attr:`neutronics_parameters`</span>
 <span class="sd">        attribute.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sp0</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">StatePoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;openmc_simulation_n0.h5&#39;</span><span class="p">)</span>
+        <span class="n">sp1</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">StatePoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;openmc_simulation_n1.h5&#39;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">Results</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;depletion_results.h5&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OpenMCDepcode.read_depleted_materials"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.read_depleted_materials">[docs]</a>    <span class="k">def</span> <span class="nf">read_depleted_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;keff_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;keff_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;breeding_ratio_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_breeding_ratio</span><span class="p">(</span><span class="n">sp0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;breeding_ratio_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_breeding_ratio</span><span class="p">(</span><span class="n">sp1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;burn_days&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">_SECONDS_PER_DAY</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;power_level&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">source_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;beta_eff_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_delayed_quantity</span><span class="p">(</span><span class="n">sp0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;beta_eff_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_delayed_quantity</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;delayed_neutrons_lambda_bds&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_delayed_quantity</span><span class="p">(</span><span class="n">sp0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_lambda</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;delayed_neutrons_lambda_eds&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_delayed_quantity</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_lambda</span><span class="p">)</span>
+        <span class="n">init_fission_mass</span><span class="p">,</span> <span class="n">final_fission_mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_fission_masses</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;fission_mass_bds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_fission_mass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span><span class="p">[</span><span class="s1">&#39;fission_mass_eds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_fission_mass</span>
+        <span class="k">del</span> <span class="n">sp0</span><span class="p">,</span> <span class="n">sp1</span></div>
+
+    <span class="k">def</span> <span class="nf">_calculate_breeding_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fissile material produces / fissile material destroyed&quot;&quot;&quot;</span>
+
+        <span class="n">breeding_ratio_tally</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;breeding_ratio_tally&#39;</span><span class="p">)</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">breeding_ratio_tally</span><span class="o">.</span><span class="n">get_pandas_dataframe</span><span class="p">()</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;score&#39;</span><span class="p">)</span>
+        <span class="n">n_gamma_frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;(n,gamma)&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;nuclide&#39;</span><span class="p">)</span>
+        <span class="n">absorption_frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;absorption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;nuclide&#39;</span><span class="p">)</span>
+
+        <span class="n">n_gamma_vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_with_uncertainties</span><span class="p">(</span><span class="n">n_gamma_frame</span><span class="p">)</span>
+        <span class="n">absorption_vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_with_uncertainties</span><span class="p">(</span><span class="n">absorption_frame</span><span class="p">)</span>
+
+        <span class="n">n_gamma_series</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">n_gamma_frame</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">n_gamma_vals</span><span class="p">))</span>
+        <span class="n">absorption_series</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">absorption_frame</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">absorption_vals</span><span class="p">))</span>
+
+        <span class="n">fissionable_production_rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">n_gamma_series</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span> <span class="k">for</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fertile_nucs</span><span class="p">])</span>
+        <span class="n">fissionable_destruction_rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">absorption_series</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span> <span class="k">for</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fissile_nucs</span><span class="p">])</span>
+
+        <span class="n">breeding_ratio</span> <span class="o">=</span> <span class="n">fissionable_production_rate</span> <span class="o">/</span> <span class="n">fissionable_destruction_rate</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">breeding_ratio</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">breeding_ratio</span><span class="o">.</span><span class="n">s</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_calculate_delayed_quantity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">mgxs</span><span class="p">):</span>
+        <span class="c1"># group-wise delayed quantity</span>
+        <span class="n">mgxs</span><span class="o">.</span><span class="n">load_from_statepoint</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">mgxs</span><span class="o">.</span><span class="n">get_pandas_dataframe</span><span class="p">()</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_with_uncertainties</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[[</span><span class="n">v</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">]</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">tot</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">tot</span><span class="o">.</span><span class="n">s</span><span class="p">]])</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">tot</span><span class="p">,</span> <span class="n">vals</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_get_values_with_uncertainties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">],</span> <span class="n">frame</span><span class="p">[</span><span class="s1">&#39;std. dev.&#39;</span><span class="p">])))</span>
+        <span class="k">return</span> <span class="n">unumpy</span><span class="o">.</span><span class="n">uarray</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">],</span> <span class="n">frame</span><span class="p">[</span><span class="s1">&#39;std. dev.&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_calculate_fission_masses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the fission mass [kg] before and after material depletion&quot;&quot;&quot;</span>
+        <span class="n">init_fission_mass</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">final_fission_mass</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">init_mats</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">export_to_materials</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">final_mats</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">export_to_materials</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">init_mat</span><span class="p">,</span> <span class="n">final_mat</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">init_mats</span><span class="p">,</span> <span class="n">final_mats</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">init_mat</span><span class="o">.</span><span class="n">depletable</span><span class="p">:</span>
+                <span class="n">init_fission_mass</span> <span class="o">+=</span> <span class="n">init_mat</span><span class="o">.</span><span class="n">fissionable_mass</span>
+            <span class="k">if</span> <span class="n">final_mat</span><span class="o">.</span><span class="n">depletable</span><span class="p">:</span>
+                <span class="n">final_fission_mass</span> <span class="o">+=</span> <span class="n">final_mat</span><span class="o">.</span><span class="n">fissionable_mass</span>
+
+        <span class="c1"># Convert g to kg</span>
+        <span class="n">init_fission_mass</span> <span class="o">*=</span> <span class="n">_KG_PER_G</span>
+        <span class="n">final_fission_mass</span> <span class="o">*=</span> <span class="n">_KG_PER_G</span>
+
+        <span class="k">del</span> <span class="n">init_mat</span><span class="p">,</span> <span class="n">final_mat</span><span class="p">,</span> <span class="n">init_mats</span><span class="p">,</span> <span class="n">final_mats</span>
+        <span class="k">return</span> <span class="n">init_fission_mass</span><span class="p">,</span> <span class="n">final_fission_mass</span>
+
+<div class="viewcode-block" id="OpenMCDepcode.read_depleted_materials"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode.read_depleted_materials">[docs]</a>    <span class="k">def</span> <span class="nf">read_depleted_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reads depleted materials from OpenMC&#39;s `depletion_results.h5` file</span>
 <span class="sd">        and returns a dictionary with a :class:`Materialflow` object for each</span>
 <span class="sd">        depleted material.</span>
@@ -200,9 +355,103 @@
 <span class="sd">            ``value``</span>
 <span class="sd">                :class:`Materialflow` object holding composition and properties.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine moment in depletion step to read data from</span>
+        <span class="k">if</span> <span class="n">read_at_end</span><span class="p">:</span>
+            <span class="n">moment</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">moment</span> <span class="o">=</span> <span class="mi">0</span>
 
-<div class="viewcode-block" id="OpenMCDepcode.run_depletion_step"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.run_depletion_step">[docs]</a>    <span class="k">def</span> <span class="nf">run_depletion_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">results_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;depletion_results.h5&#39;</span><span class="p">)</span>
+        <span class="n">depleted_materials</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">Results</span><span class="p">(</span><span class="n">results_file</span><span class="p">)</span>
+
+        <span class="c1"># Get decay and transport nuclides</span>
+        <span class="n">nucs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index_nuc</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">depleted_openmc_materials</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">export_to_materials</span><span class="p">(</span><span class="n">moment</span><span class="p">,</span> <span class="n">nuc_with_data</span><span class="o">=</span><span class="n">nucs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">read_at_end</span><span class="p">:</span>
+            <span class="n">_nucs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index_nuc</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">starting_openmc_materials</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">export_to_materials</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nuc_with_data</span><span class="o">=</span><span class="n">_nucs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># placeholder for starting materials</span>
+            <span class="n">starting_openmc_materials</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">depleted_openmc_materials</span><span class="p">))</span>
+
+        <span class="n">openmc_materials</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">starting_openmc_materials</span><span class="p">,</span> <span class="n">depleted_openmc_materials</span><span class="p">)</span>
+
+        <span class="n">depleted_materials</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">starting_material</span><span class="p">,</span> <span class="n">depleted_material</span> <span class="ow">in</span> <span class="n">openmc_materials</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">depleted_material</span><span class="o">.</span><span class="n">depletable</span><span class="p">:</span>
+                <span class="n">volume</span> <span class="o">=</span> <span class="n">depleted_material</span><span class="o">.</span><span class="n">volume</span>
+                <span class="n">density</span> <span class="o">=</span> <span class="n">depleted_material</span><span class="o">.</span><span class="n">get_mass_density</span><span class="p">()</span>
+                <span class="n">comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_mass_percents_dictionary</span><span class="p">(</span><span class="n">depleted_material</span><span class="p">)</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">depleted_material</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">if</span> <span class="n">read_at_end</span><span class="p">:</span>
+                    <span class="n">sp0</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">StatePoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;openmc_simulation_n0.h5&#39;</span><span class="p">)</span>
+                    <span class="n">heavy_metal_mass</span> <span class="o">=</span> <span class="n">starting_material</span><span class="o">.</span><span class="n">fissionable_mass</span> <span class="o">*</span> <span class="n">_KG_PER_G</span>
+                    <span class="n">power</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">source_rate</span> <span class="o">*</span> <span class="n">_MW_PER_W</span>
+                    <span class="n">days</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">_SECONDS_PER_DAY</span>
+                    <span class="n">burnup</span> <span class="o">=</span> <span class="n">power</span> <span class="o">*</span> <span class="n">days</span> <span class="o">/</span> <span class="n">heavy_metal_mass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">burnup</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">depleted_materials</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Materialflow</span><span class="p">(</span><span class="n">comp</span><span class="o">=</span><span class="n">comp</span><span class="p">,</span>
+                                                        <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span>
+                                                        <span class="n">volume</span><span class="o">=</span><span class="n">volume</span><span class="p">,</span>
+                                                        <span class="n">burnup</span><span class="o">=</span><span class="n">burnup</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">openmc_materials</span><span class="p">,</span> <span class="n">depleted_openmc_materials</span><span class="p">,</span> <span class="n">starting_openmc_materials</span>
+        <span class="k">return</span> <span class="n">depleted_materials</span></div>
+
+    <span class="k">def</span> <span class="nf">_create_mass_percents_dictionary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mat</span><span class="p">,</span> <span class="n">percent_type</span><span class="o">=</span><span class="s1">&#39;ao&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a dicitonary with nuclide codes</span>
+<span class="sd">        in zzaaam formate as keys, and material composition</span>
+<span class="sd">        in mass percent as values</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mat : openmc.Material</span>
+<span class="sd">            A material</span>
+<span class="sd">        percent_type : str</span>
+<span class="sd">            Percent type of material</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            mass_dict : dict of int to float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">percents</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">nuclides</span><span class="p">))</span>
+        <span class="n">nucs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">at_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">nuclides</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">nuc</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="n">tp</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">nuclides</span><span class="p">):</span>
+            <span class="n">nucs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nuc</span><span class="p">)</span>
+            <span class="n">percents</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pt</span>
+            <span class="n">at_mass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">atomic_mass</span><span class="p">(</span><span class="n">nuc</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">percent_type</span> <span class="o">==</span> <span class="s1">&#39;ao&#39;</span><span class="p">:</span>
+            <span class="n">mass_percents</span> <span class="o">=</span> <span class="n">percents</span><span class="o">*</span><span class="n">at_mass</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">percents</span><span class="p">,</span> <span class="n">at_mass</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">percent_type</span> <span class="o">==</span> <span class="s1">&#39;wo&#39;</span><span class="p">:</span>
+            <span class="n">mass_percents</span> <span class="o">=</span> <span class="n">percents</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">percent_type</span><span class="si">}</span><span class="s1"> is not a valid percent type&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">nucs</span><span class="p">,</span> <span class="n">mass_percents</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_get_power_from_tallies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">power</span><span class="p">):</span>
+        <span class="n">fission_energy</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;fission_energy&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># eV / src</span>
+        <span class="n">heating</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;heating&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># eV / src</span>
+        <span class="n">Hp</span> <span class="o">=</span> <span class="n">JOULE_PER_EV</span> <span class="o">*</span> <span class="n">heating</span> <span class="c1"># J / src</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">power</span> <span class="o">/</span> <span class="n">Hp</span> <span class="c1"># src / s</span>
+        <span class="n">power</span> <span class="o">=</span> <span class="n">fission_energy</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">JOULE_PER_EV</span> <span class="c1"># J / s</span>
+        <span class="k">return</span> <span class="n">power</span>
+
+<div class="viewcode-block" id="OpenMCDepcode.nuclide_code_to_name"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode.nuclide_code_to_name">[docs]</a>    <span class="k">def</span> <span class="nf">nuclide_code_to_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">nuc</span></div>
+
+<div class="viewcode-block" id="OpenMCDepcode.name_to_nuclide_code"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode.name_to_nuclide_code">[docs]</a>    <span class="k">def</span> <span class="nf">name_to_nuclide_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nucname</span><span class="p">):</span>
+        <span class="n">z</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">zam</span><span class="p">(</span><span class="n">nucname</span><span class="p">)</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">z</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">+</span> <span class="n">a</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">code</span> <span class="o">+=</span> <span class="mi">300</span> <span class="o">+</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">m</span>
+        <span class="k">return</span> <span class="n">code</span></div>
+
+<div class="viewcode-block" id="OpenMCDepcode.run_depletion_step"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode.run_depletion_step">[docs]</a>    <span class="k">def</span> <span class="nf">run_depletion_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Runs a depletion step in OpenMC as a subprocess</span>
 
 <span class="sd">        mpi_args : list of str</span>
@@ -214,36 +463,27 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># need to add flow control for plots option</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;python&#39;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span><span class="p">),</span>
                 <span class="s1">&#39;--materials&#39;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">),</span>
                 <span class="s1">&#39;--geometry&#39;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">],</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]),</span>
                 <span class="s1">&#39;--settings&#39;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">],</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">]),</span>
                 <span class="s1">&#39;--tallies&#39;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;tallies&#39;</span><span class="p">],</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;tallies&#39;</span><span class="p">]),</span>
                 <span class="s1">&#39;--directory&#39;</span><span class="p">,</span>
                 <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)]</span>
         <span class="k">if</span> <span class="n">mpi_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">args</span> <span class="o">=</span> <span class="n">mpi_args</span> <span class="o">+</span> <span class="n">args</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
-                <span class="n">args</span><span class="p">,</span>
-                <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_inputfile_path</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> RUN FAILED</span><span class="se">\n</span><span class="s1"> see error message above&#39;</span>
-                               <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished OpenMC Run&#39;</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run_depletion_step</span><span class="p">(</span><span class="n">mpi_args</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="OpenMCDepcode.switch_to_next_geometry"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.switch_to_next_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">switch_to_next_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMCDepcode.switch_to_next_geometry"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode.switch_to_next_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">switch_to_next_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Switches the geometry file for the OpenMC depletion simulation to</span>
 <span class="sd">        the next geometry file in `geo_file_paths`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">openmc</span><span class="o">.</span><span class="n">reset_auto_ids</span><span class="p">()</span>
         <span class="n">mats</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span>
         <span class="n">next_geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geo_file_paths</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
@@ -251,7 +491,7 @@
         <span class="n">next_geometry</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">])</span>
         <span class="k">del</span> <span class="n">mats</span><span class="p">,</span> <span class="n">next_geometry</span></div>
 
-<div class="viewcode-block" id="OpenMCDepcode.write_runtime_input"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.write_runtime_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_runtime_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">depletion_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMCDepcode.write_runtime_input"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode.write_runtime_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_runtime_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">depletion_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Write OpenMC runtime input files for running depletion step.</span>
 
 <span class="sd">        Parameters</span>
@@ -266,31 +506,35 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">depletion_step</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">restart</span><span class="p">:</span>
+            <span class="n">geo_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo_file_paths</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">openmc</span><span class="o">.</span><span class="n">reset_auto_ids</span><span class="p">()</span>
             <span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;materials&#39;</span><span class="p">])</span>
             <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">geo_file_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">materials</span><span class="o">=</span><span class="n">materials</span><span class="p">)</span>
+                <span class="n">geo_file</span><span class="p">,</span> <span class="n">materials</span><span class="o">=</span><span class="n">materials</span><span class="p">)</span>
             <span class="n">settings</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Settings</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">npop</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">particles</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">inactive</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">batches</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span>
 
         <span class="k">else</span><span class="p">:</span>
+            <span class="n">openmc</span><span class="o">.</span><span class="n">reset_auto_ids</span><span class="p">()</span>
             <span class="n">materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span>
             <span class="n">geometry</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">],</span> <span class="n">materials</span><span class="o">=</span><span class="n">materials</span><span class="p">)</span>
             <span class="n">settings</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Settings</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">])</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">npop</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">particles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">inactive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_cycles</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">batches</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">inactive_cycles</span>
+
         <span class="n">materials</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span>
         <span class="n">geometry</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">])</span>
         <span class="n">settings</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_depletion_settings</span><span class="p">(</span><span class="n">reactor</span><span class="p">,</span> <span class="n">depletion_step</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_saltproc_openmc_tallies</span><span class="p">(</span><span class="n">materials</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_saltproc_openmc_tallies</span><span class="p">(</span><span class="n">materials</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">_DELAYED_ENERGY_BOUNDS</span><span class="p">,</span> <span class="n">_N_DELAYED_GROUPS</span><span class="p">)</span>
         <span class="k">del</span> <span class="n">materials</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">settings</span></div>
 
-<div class="viewcode-block" id="OpenMCDepcode.write_depletion_settings"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.write_depletion_settings">[docs]</a>    <span class="k">def</span> <span class="nf">write_depletion_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMCDepcode.write_depletion_settings"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode.write_depletion_settings">[docs]</a>    <span class="k">def</span> <span class="nf">write_depletion_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Write the depeletion settings for the ``openmc.deplete``</span>
 <span class="sd">        module.</span>
 
@@ -332,7 +576,7 @@
             <span class="n">depletion_settings_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depletion_settings</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">depletion_settings_json</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="OpenMCDepcode.update_depletable_materials"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.update_depletable_materials">[docs]</a>    <span class="k">def</span> <span class="nf">update_depletable_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mats</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMCDepcode.update_depletable_materials"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode.update_depletable_materials">[docs]</a>    <span class="k">def</span> <span class="nf">update_depletable_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mats</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Updates material file with reprocessed material compositions.</span>
 
 <span class="sd">        Parameters</span>
@@ -347,9 +591,29 @@
 <span class="sd">        dep_end_time : float</span>
 <span class="sd">            Current time at the end of the depletion step (d).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">openmc</span><span class="o">.</span><span class="n">reset_auto_ids</span><span class="p">()</span>
+        <span class="n">runtime_materials</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Materials</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OpenMCDepcode.write_saltproc_openmc_tallies"><a class="viewcode-back" href="../../src/saltproc.openmc_depcode.html#saltproc.openmc_depcode.OpenMCDepcode.write_saltproc_openmc_tallies">[docs]</a>    <span class="k">def</span> <span class="nf">write_saltproc_openmc_tallies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">materials</span><span class="p">,</span> <span class="n">geometry</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="n">runtime_materials</span><span class="p">:</span>
+            <span class="c1"># depletable materials only</span>
+            <span class="k">if</span> <span class="n">material</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">mats</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">components</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">nuc_name</span><span class="p">,</span> <span class="n">mass_fraction</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">[</span><span class="n">material</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">mass_fraction</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">mass_fraction</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                        <span class="n">components</span><span class="p">[</span><span class="n">nuc_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">mass_fraction</span>
+                <span class="n">material</span><span class="o">.</span><span class="n">set_density</span><span class="p">(</span><span class="s1">&#39;g/cm3&#39;</span><span class="p">,</span> <span class="n">mats</span><span class="p">[</span><span class="n">material</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">density</span><span class="p">)</span>
+                <span class="n">material</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">mats</span><span class="p">[</span><span class="n">material</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">volume</span>
+                <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">material</span><span class="o">.</span><span class="n">get_elements</span><span class="p">():</span>
+                    <span class="n">material</span><span class="o">.</span><span class="n">remove_element</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+                <span class="n">material</span><span class="o">.</span><span class="n">add_components</span><span class="p">(</span><span class="n">components</span><span class="p">,</span> <span class="n">percent_type</span><span class="o">=</span><span class="s1">&#39;wo&#39;</span><span class="p">)</span>
+
+        <span class="n">runtime_materials</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">runtime_materials</span>
+        <span class="k">del</span> <span class="n">material</span></div>
+
+
+<div class="viewcode-block" id="OpenMCDepcode.write_saltproc_openmc_tallies"><a class="viewcode-back" href="../../api/generated/saltproc.OpenMCDepcode.html#saltproc.OpenMCDepcode.write_saltproc_openmc_tallies">[docs]</a>    <span class="k">def</span> <span class="nf">write_saltproc_openmc_tallies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">materials</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">energy_bounds</span><span class="p">,</span> <span class="n">n_delayed_groups</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write tallies for calculating burnup and delayed neutron</span>
 <span class="sd">        parameters.</span>
@@ -360,45 +624,73 @@
 <span class="sd">            The materials for the depletion simulation</span>
 <span class="sd">        geometry : `openmc.Geometry` object</span>
 <span class="sd">            The geometry for the depletion simulation</span>
+<span class="sd">        energy_bounds : iterable of float</span>
+<span class="sd">            Energy group boundaries for calculating :math:`\\beta`, the delayed</span>
+<span class="sd">            neutron fraction, and :math:`\\lambda`, the decay rate for delayed</span>
+<span class="sd">            neutron precursors.</span>
+<span class="sd">        n_delayed_groups : int</span>
+<span class="sd">            Number of delayed groups for calculating :math:`\\beta`, the delayed</span>
+<span class="sd">            neutron fraction, and :math:`\\lambda`, the decay rate for delayed</span>
+<span class="sd">            neutron precursors.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ff_nuclides</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_fissile_fertile_nuclides</span><span class="p">()</span>
+        <span class="n">energy_groups</span> <span class="o">=</span> <span class="n">EnergyGroups</span><span class="p">(</span><span class="n">energy_bounds</span><span class="p">)</span>
+        <span class="n">delayed_groups</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_delayed_groups</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="n">delayed_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;domain&#39;</span><span class="p">:</span> <span class="n">geometry</span><span class="o">.</span><span class="n">root_universe</span><span class="p">,</span>
+                          <span class="s1">&#39;domain_type&#39;</span><span class="p">:</span> <span class="s1">&#39;universe&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;energy_groups&#39;</span><span class="p">:</span> <span class="n">energy_groups</span><span class="p">,</span>
+                          <span class="s1">&#39;delayed_groups&#39;</span><span class="p">:</span> <span class="n">delayed_groups</span><span class="p">}</span>
+
+        <span class="n">delayed_lambda</span> <span class="o">=</span> <span class="n">DecayRate</span><span class="p">(</span><span class="o">**</span><span class="n">delayed_kwargs</span><span class="p">)</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">Beta</span><span class="p">(</span><span class="o">**</span><span class="n">delayed_kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_lambda</span> <span class="o">=</span> <span class="n">delayed_lambda</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_beta</span> <span class="o">=</span> <span class="n">beta</span>
+
         <span class="n">tallies</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tallies</span><span class="p">()</span>
+        <span class="n">tallies</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">delayed_lambda</span><span class="o">.</span><span class="n">tallies</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">tallies</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">beta</span><span class="o">.</span><span class="n">tallies</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
-        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;delayed-fission-neutrons&#39;</span><span class="p">)</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">openmc</span><span class="o">.</span><span class="n">DelayedGroupFilter</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])]</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;delayed-nu-fission&#39;</span><span class="p">]</span>
-        <span class="n">tallies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tally</span><span class="p">)</span>
-
-        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;total-fission-neutrons&#39;</span><span class="p">)</span>
+        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;breeding_ratio_tally&#39;</span><span class="p">)</span>
         <span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">openmc</span><span class="o">.</span><span class="n">UniverseFilter</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">root_universe</span><span class="p">)]</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nu-fission&#39;</span><span class="p">]</span>
+        <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;(n,gamma)&#39;</span><span class="p">,</span> <span class="s1">&#39;absorption&#39;</span><span class="p">]</span>
+        <span class="n">tally</span><span class="o">.</span><span class="n">nuclides</span> <span class="o">=</span> <span class="n">ff_nuclides</span>
         <span class="n">tallies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tally</span><span class="p">)</span>
 
-        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;precursor-decay-constants&#39;</span><span class="p">)</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">openmc</span><span class="o">.</span><span class="n">DelayedGroupFilter</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])]</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;decay-rate&#39;</span><span class="p">]</span>
-        <span class="n">tallies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tally</span><span class="p">)</span>
-
-        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;fission-energy&#39;</span><span class="p">)</span>
+        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;fission_energy&#39;</span><span class="p">)</span>
         <span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">openmc</span><span class="o">.</span><span class="n">UniverseFilter</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">root_universe</span><span class="p">)]</span>
-        <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;fission-q-recoverable&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;fission-q-prompt&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;kappa-fission&#39;</span><span class="p">]</span>
+        <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;kappa-fission&#39;</span><span class="p">]</span>
         <span class="n">tallies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tally</span><span class="p">)</span>
 
-        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;normalization-factor&#39;</span><span class="p">)</span>
+        <span class="n">tally</span> <span class="o">=</span> <span class="n">openmc</span><span class="o">.</span><span class="n">Tally</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;heating&#39;</span><span class="p">)</span>
         <span class="n">tally</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">openmc</span><span class="o">.</span><span class="n">UniverseFilter</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">root_universe</span><span class="p">)]</span>
         <span class="n">tally</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;heating&#39;</span><span class="p">]</span>
         <span class="n">tallies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tally</span><span class="p">)</span>
 
-        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;tallies&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s1">&#39;tallies.xml&#39;</span><span class="p">)</span>
-        <span class="n">tallies</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;tallies&#39;</span><span class="p">])</span>
-        <span class="k">del</span> <span class="n">tallies</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;tallies&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;tallies.xml&#39;</span>
+        <span class="n">tallies</span><span class="o">.</span><span class="n">export_to_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span><span class="p">[</span><span class="s1">&#39;tallies&#39;</span><span class="p">])</span></div>
 
+    <span class="k">def</span> <span class="nf">_get_fissile_fertile_nuclides</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nuclides_with_data</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">data_lib</span> <span class="o">=</span> <span class="n">DataLibrary</span><span class="o">.</span><span class="n">from_xml</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">library</span> <span class="ow">in</span> <span class="n">data_lib</span><span class="o">.</span><span class="n">libraries</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">library</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;neutron&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">library</span><span class="p">[</span><span class="s1">&#39;materials&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nuclides_with_data</span><span class="p">:</span>
+                    <span class="n">nuclides_with_data</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
+        <span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chain_file_path</span><span class="p">)</span>
+        <span class="n">burnable_nucs</span> <span class="o">=</span> <span class="p">[</span><span class="n">nuc</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">chain</span><span class="o">.</span><span class="n">nuclides</span>
+                         <span class="k">if</span> <span class="n">nuc</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">nuclides_with_data</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fissile_nucs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">nuc</span> <span class="k">for</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">_FISSILE_NUCLIDES</span> <span class="k">if</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">burnable_nucs</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fertile_nucs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">nuc</span> <span class="k">for</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">_FERTILE_NUCLIDES</span> <span class="k">if</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">burnable_nucs</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fissile_nucs</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fertile_nucs</span><span class="p">))</span></div>
 </pre></div>
 
            </div>
@@ -429,11 +721,6 @@
     <span class="fa fa-caret-down"></span>
   </span>
   <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../v0.3.0/index.html">v0.3.0</a></dd>
-      <dd><a href="../../../v0.4.0/index.html">v0.4.0</a></dd>
-    </dl>
     <dl>
       <dt>Branches</dt>
       <dd><a href="openmc_depcode.html">master</a></dd>

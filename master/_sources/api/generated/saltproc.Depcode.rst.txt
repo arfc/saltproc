@@ -1,0 +1,7 @@
+﻿saltproc.Depcode
+================
+
+.. currentmodule:: saltproc
+
+.. autoclass:: Depcode
+    :members:

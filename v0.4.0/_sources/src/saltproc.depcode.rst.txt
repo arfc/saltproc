@@ -1,7 +1,0 @@
-saltproc.depcode module
-=======================
-
-.. automodule:: saltproc.depcode
-   :members:
-   :undoc-members:
-   :show-inheritance:

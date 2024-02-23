@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creating Processing System Files &mdash; Saltproc 0.5.dev documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Template and Runtime Files" href="templates.html" />
+    <link rel="prev" title="Creating a SaltProc input file" href="input.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.5.dev
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User’s Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="beginners.html">A Beginner’s Guide to SaltProc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basics.html">Basics of Using SaltProc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input.html">Creating a SaltProc input file</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Creating Processing System Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#defining-processing-system-components">Defining Processing System Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defining-the-processing-system-graph">Defining the Processing System Graph</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Template and Runtime Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html">Executables and Scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallel.html">Running in Parallel</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io_formats/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">User’s Guide</a></li>
+      <li class="breadcrumb-item active">Creating Processing System Files</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/userguide/processing_system.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="creating-processing-system-files">
+<span id="userguide-processing-system"></span><h1>Creating Processing System Files<a class="headerlink" href="#creating-processing-system-files" title="Permalink to this heading">¶</a></h1>
+<p>SaltProc uses two different files to represent a processing system:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A <code class="docutils literal notranslate"><span class="pre">.json</span></code> file defining processing system components</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">.dot</span></code> file linking the processing system components in a graph</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>An API to write the file defining processing system components is in
+development, but for now it must be written by hand.</p>
+</div>
+<section id="defining-processing-system-components">
+<h2>Defining Processing System Components<a class="headerlink" href="#defining-processing-system-components" title="Permalink to this heading">¶</a></h2>
+<p>The processing system components are defined for each material
+that a user want to process.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The of the material in the processing system components file <strong>must</strong> match
+the name of the corresponding material in the transport code.</p>
+</div>
+<p>We start with an empty JSON file:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Then add the materials we want to process. For simpilicty, let’s only consider
+one material, <code class="docutils literal notranslate"><span class="pre">fuel</span></code>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;fuel&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;extraction_processes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Inside the <code class="docutils literal notranslate"><span class="pre">fuel</span></code> key, we define our processing system components via the
+<code class="docutils literal notranslate"><span class="pre">extraction_processes</span></code> parameter. There are two components that every model
+must have: <code class="docutils literal notranslate"><span class="pre">core_outlet</span></code> – which marks the beginning of the reprocessing
+system – and <code class="docutils literal notranslate"><span class="pre">core_inlet</span></code> – which marks the end of the reprocessing system.
+Each process has several fields that must be filled by the user:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">capacity</span></code></dt><dd><p>Maximum mass flow rate the process can handle in <span class="math notranslate nohighlight">\(g/s\)</span>. This parameter is
+currently unused, but could be useful in the future for more physics-based
+implementations of reprocessing.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">efficiency</span></code></dt><dd><p>Dictionary mapping element names to extraction efficiencies. These should be empty
+for the <code class="docutils literal notranslate"><span class="pre">core_outlet</span></code> and <code class="docutils literal notranslate"><span class="pre">core_inlet</span></code> processes since they represetnt the
+beginning and end of the processng system.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mass_flowrate</span></code></dt><dd><p>The mass flowrate of the process in <span class="math notranslate nohighlight">\(g/s\)</span>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">volume</span></code></dt><dd><p>The volume of the processing component in <span class="math notranslate nohighlight">\(cm^3\)</span>.</p>
+</dd>
+</dl>
+<p>Let’s create <code class="docutils literal notranslate"><span class="pre">core_inlet</span></code> and <code class="docutils literal notranslate"><span class="pre">core_outlet</span></code> first, assuming a capacity
+of <span class="math notranslate nohighlight">\(9.92 \cdot 10^6\)</span> <span class="math notranslate nohighlight">\(g/s\)</span>, and that the mass flowrate is equal to the
+capacity:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;fuel&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;extraction_processes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;core_inlet&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;efficiency&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass_flowrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">            </span><span class="p">},</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;core_outlet&quot;</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;efficiency&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass_flowrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Now, let’s create three processes that acutally do things: <code class="docutils literal notranslate"><span class="pre">gas_separator</span></code>,
+which removes Kr, Xe, and H from the fuel, <code class="docutils literal notranslate"><span class="pre">nickel_filter</span></code>, which removes
+dissolved metals from the fuel, and <code class="docutils literal notranslate"><span class="pre">reductive_extractor</span></code>, which removes
+fission procducts from the fuel:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;fuel&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;extraction_processes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;core_inlet&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;efficiency&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass_flowrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">            </span><span class="p">},</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;core_outlet&quot;</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;efficiency&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass_flowrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;gas_separator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;efficiency&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Kr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Xe&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;H&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">                </span><span class="p">},</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass_flowrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10000000</span><span class="w"></span>
+<span class="w">            </span><span class="p">},</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;nickel_filter&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;efficiency&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Se&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Nb&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Mo&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Tc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Ru&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Rh&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Pd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Ag&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Sb&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Te&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">                </span><span class="p">},</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass_flowrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span><span class="w"></span>
+<span class="w">            </span><span class="p">},</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;reductive_extractor&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;efficiency&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;La&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Ce&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Pr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Nd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Pm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Sm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Gd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Eu&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Rb&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.032</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Sr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.032</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Cs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.032</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Ba&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.032</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Zr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.425</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Cd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.425</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;In&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.425</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Sn&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.425</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Br&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.842</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;I&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.842</span><span class="w"></span>
+<span class="w">                </span><span class="p">},</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass_flowrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>In addition to <code class="docutils literal notranslate"><span class="pre">extraction_processes</span></code>, we can also define <code class="docutils literal notranslate"><span class="pre">feeds</span></code>, which
+are materials added to the reprocessed material after the processing is
+performed. <code class="docutils literal notranslate"><span class="pre">feeds</span></code> require the following parameters:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">density</span></code></dt><dd><p>Density of the material in <span class="math notranslate nohighlight">\(g/cm^3\)</span></p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">volume</span></code></dt><dd><p>Volume of the material in <span class="math notranslate nohighlight">\(cm^3\)</span></p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mass</span></code></dt><dd><p>Mass of the material in <span class="math notranslate nohighlight">\(g\)</span></p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">comp</span></code></dt><dd><p>A dictionary mapping nuclide names to weight-percent.</p>
+</dd>
+</dl>
+<p>In this case, we can add a simple <code class="docutils literal notranslate"><span class="pre">fuel_salt</span></code> feed:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;fuel&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;extraction_processes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;core_inlet&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;efficiency&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass_flowrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">            </span><span class="p">},</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;core_outlet&quot;</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;efficiency&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass_flowrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;gas_separator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;efficiency&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Kr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Xe&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;H&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">                </span><span class="p">},</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass_flowrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10000000</span><span class="w"></span>
+<span class="w">            </span><span class="p">},</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;nickel_filter&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;efficiency&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Se&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Nb&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Mo&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Tc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Ru&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Rh&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Pd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Ag&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Sb&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Te&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">                </span><span class="p">},</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass_flowrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span><span class="w"></span>
+<span class="w">            </span><span class="p">},</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;reductive_extractor&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;efficiency&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;La&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Ce&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Pr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Nd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Pm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Sm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Gd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8904</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Eu&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Rb&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.032</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Sr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.032</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Cs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.032</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Ba&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.032</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Zr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.425</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Cd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.425</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;In&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.425</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Sn&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.425</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Br&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.842</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;I&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.842</span><span class="w"></span>
+<span class="w">                </span><span class="p">},</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass_flowrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9920000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span><span class="w"></span>
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;feeds&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;fuel_salt&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;density&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.35</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;volume&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1e8</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;mass&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.35e</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;comp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Li-7&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.07875361306856505</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Be-9&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.022558425114333525</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Fl-19&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.4540013117137259</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;Th-232&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.4446866501033755</span><span class="w"></span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="defining-the-processing-system-graph">
+<h2>Defining the Processing System Graph<a class="headerlink" href="#defining-the-processing-system-graph" title="Permalink to this heading">¶</a></h2>
+<p>As mentioned earlier, processing system graphs must be <em>acyclic directed</em> graphs.
+<em>Directed</em> means each edge in the graphs connecting nodes has a specific direction
+associated with it, and <em>acyclic</em> means there shouldn’t be any “loops”, that is,
+there should be no way to traverse along an edge that takes you back to a node
+you already visited.</p>
+<p>SaltProc uses the <a class="reference external" href="http://networkx.github.io">networkx</a> package to process graphs, and this is also
+how they should be constructed. We start by importing <code class="docutils literal notranslate"><span class="pre">networkx</span></code> and creating
+a <code class="docutils literal notranslate"><span class="pre">DiGraph</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span>
+</pre></div>
+</div>
+<p>Next, we need to add nodes to our graph. Each processing system component we defined
+previously is a node:</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The names of the nodes <strong>must</strong> match the names of the processing system
+components.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;core_outlet&#39;</span><span class="p">,</span> <span class="s1">&#39;core_inlet&#39;</span><span class="p">,</span> <span class="s1">&#39;gas_separator&#39;</span><span class="p">,</span> <span class="s1">&#39;nickel_filter&#39;</span><span class="p">,</span> <span class="s1">&#39;reductive_extractor&#39;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+    <span class="n">system</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, we need to connect the nodes with edges. The graph strucure
+of acyclic directed graphs can get fairly complicated, but for this example
+our graph is going to be a single point-to-point path:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">edges</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;core_outlet&#39;</span><span class="p">,</span> <span class="s1">&#39;gas_separator&#39;</span><span class="p">),</span>
+         <span class="p">(</span><span class="s1">&#39;gas_separator&#39;</span><span class="p">,</span> <span class="s1">&#39;nickel_filter&#39;</span><span class="p">),</span>
+         <span class="p">(</span><span class="s1">&#39;nickel_filter&#39;</span><span class="p">,</span> <span class="s1">&#39;reductive_extractor&#39;</span><span class="p">),</span>
+         <span class="p">(</span><span class="s1">&#39;reductive_extractor&#39;</span><span class="p">,</span> <span class="s1">&#39;core_inlet&#39;</span><span class="p">)]</span>
+<span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+    <span class="n">system</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edge</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To ensure that our graph is acyclic, we can run</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nx</span><span class="o">.</span><span class="n">algorithms</span><span class="o">.</span><span class="n">is_directed_acyclic_graph</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, we need to export this graph to a <code class="docutils literal notranslate"><span class="pre">.dot</span></code> file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">networkx.drawing</span> <span class="k">as</span> <span class="nn">nxd</span>
+<span class="n">nxd</span><span class="o">.</span><span class="n">nx_pydot</span><span class="o">.</span><span class="n">write_dot</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="s1">&#39;graph.dot&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="input.html" class="btn btn-neutral float-left" title="Creating a SaltProc input file" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="templates.html" class="btn btn-neutral float-right" title="Template and Runtime Files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: master
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="processing_system.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

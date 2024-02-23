@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>saltproc.Depcode &mdash; Saltproc 0.5.dev documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="saltproc.SerpentDepcode" href="saltproc.SerpentDepcode.html" />
+    <link rel="prev" title="SaltProc API" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.5.dev
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/index.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">SaltProc API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#depeletion-code-interfaces">Depeletion code interfaces</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">saltproc.Depcode</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#saltproc.Depcode"><code class="docutils literal notranslate"><span class="pre">Depcode</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.SerpentDepcode.html">saltproc.SerpentDepcode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.OpenMCDepcode.html">saltproc.OpenMCDepcode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#reprocessing">Reprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#running-the-simulation">Running the simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#results">Results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../io_formats/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">SaltProc API</a></li>
+      <li class="breadcrumb-item active">saltproc.Depcode</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/generated/saltproc.Depcode.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="saltproc-depcode">
+<h1>saltproc.Depcode<a class="headerlink" href="#saltproc-depcode" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="saltproc.Depcode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">saltproc.</span></span><span class="sig-name descname"><span class="pre">Depcode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">codename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_input_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_file_paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract interface for running depletion steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_path</strong> (<em>str</em>) – Path to results storage directory.</p></li>
+<li><p><strong>codename</strong> (<em>str</em>) – Name of depletion code.</p></li>
+<li><p><strong>exec_path</strong> (<em>str</em>) – Path to depletion code executable.</p></li>
+<li><p><strong>template_input_file_path</strong> (<em>str</em><em> or </em><em>dict</em><em> of </em><em>str to str</em>) – Path(s) to depletion code input file(s), or a dictionary where
+the input type (e.g. material, geometry, settings, etc.) as a
+string are keys, and the path to the input file are values.
+Type depends on depletion code in use.</p></li>
+<li><p><strong>geo_file_paths</strong> (<em>str</em><em> or </em><em>list</em><em>, </em><em>optional</em>) – Path to file that contains the reactor geometry.
+List of <cite>str</cite> if reactivity control by
+switching geometry is <cite>On</cite> or just <cite>str</cite> otherwise.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>neutronics_parameters</strong> (<em>dict</em><em> of </em><em>str to type</em>) – Holds depletion step neutronics parameters. Parameter names are keys
+and parameter values are values.</p></li>
+<li><p><strong>step_metadata</strong> (<em>dict</em><em> of </em><em>str to type</em>) – Holds depletion code depletion step metadata. Metadata labels are keys
+and metadata values are values.</p></li>
+<li><p><strong>depcode_metadata</strong> (<em>dict</em><em> of </em><em>str to type</em>) – Holds depletion code simulation metadata. Metadata labels are keys
+and metadata values are values.</p></li>
+<li><p><strong>runtime_inputfile</strong> (<em>str</em>) – Path to input file used to run depletion step.</p></li>
+<li><p><strong>runtime_matfile</strong> (<em>str</em>) – Path to material file containing burnable materials used to
+run depletion step.</p></li>
+<li><p><strong>npop</strong> (<em>int</em>) – Size of neutron population per cycle</p></li>
+<li><p><strong>active_cycles</strong> (<em>int</em>) – Number of active cycles.</p></li>
+<li><p><strong>inactive_cycles</strong> (<em>int</em>) – Number of inactive cycles.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.name_to_nuclide_code">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name_to_nuclide_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.name_to_nuclide_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.name_to_nuclide_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts depcode nuclide name to ZA nuclide code</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nucname</strong> (<em>str</em>) – Nuclide namce</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>nuc_name</strong> – ZA nuclide code</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.nuclide_code_to_name">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nuclide_code_to_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nuc_code</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.nuclide_code_to_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.nuclide_code_to_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts depcode nuclide code to symbolic nuclide name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nuc_code</strong> (<em>str</em>) – Nuclide code</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>nuc_name</strong> – Symbolic nuclide name (<cite>Am242m1</cite>).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.preserve_simulation_files">
+<span class="sig-name descname"><span class="pre">preserve_simulation_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.preserve_simulation_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.preserve_simulation_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move simulation input and output files
+to unique a directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>step_idx</strong> (<em>int</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.read_depcode_metadata">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_depcode_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.read_depcode_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.read_depcode_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read depletion code metadata, and store it in the <a class="reference internal" href="#saltproc.Depcode" title="saltproc.Depcode"><code class="xref py py-class docutils literal notranslate"><span class="pre">Depcode</span></code></a>
+object’s <code class="xref py py-attr docutils literal notranslate"><span class="pre">depcode_metadata</span></code> attribute</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.read_depleted_materials">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_depleted_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_at_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.read_depleted_materials"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.read_depleted_materials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads depleted materials from the depletion step results
+and returns a dictionary containing them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>read_at_end</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <cite>True</cite>, the function reads data at the end of the
+depletion step. Otherwise, the function reads data at the
+beginning of the depletion step.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>depleted_materials</strong> – Dictionary containing depleted materials.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><a class="reference internal" href="saltproc.Materialflow.html#saltproc.Materialflow" title="saltproc.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">Materialflow</span></code></a> object holding material composition and properties.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str to Materialflow</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.read_neutronics_parameters">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_neutronics_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.read_neutronics_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.read_neutronics_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads depletion code’s depletion step neutronics parameters and
+stores them in <a class="reference internal" href="#saltproc.Depcode" title="saltproc.Depcode"><code class="xref py py-class docutils literal notranslate"><span class="pre">Depcode</span></code></a> object’s
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">neutronics_parameters</span></code> attribute.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.read_plaintext_file">
+<span class="sig-name descname"><span class="pre">read_plaintext_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.read_plaintext_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.read_plaintext_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the content of a plaintext file for use by other methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – Path to file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>file_lines</strong> – File lines.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.read_step_metadata">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_step_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.read_step_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.read_step_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads depletion step metadata and stores it in the
+<a class="reference internal" href="#saltproc.Depcode" title="saltproc.Depcode"><code class="xref py py-class docutils literal notranslate"><span class="pre">Depcode</span></code></a> object’s <code class="xref py py-attr docutils literal notranslate"><span class="pre">step_metadata</span></code> attribute.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.rebuild_simulation_files">
+<span class="sig-name descname"><span class="pre">rebuild_simulation_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.rebuild_simulation_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.rebuild_simulation_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move simulation input and output files
+from unique directory to runtime directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>step_idx</strong> (<em>int</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.run_depletion_step">
+<span class="sig-name descname"><span class="pre">run_depletion_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mpi_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.run_depletion_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.run_depletion_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a depletion step as a subprocess with the given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mpi_args</strong> (<em>list</em><em> of </em><em>str</em>) – Arguments for running simulations on supercomputers using
+<code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> or similar programs.</p></li>
+<li><p><strong>args</strong> (<em>list</em><em> of </em><em>str</em>) – Arguments for running depletion step.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.switch_to_next_geometry">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">switch_to_next_geometry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.switch_to_next_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.switch_to_next_geometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes the geometry used in the depletion code simulation to the
+next geometry file in <code class="docutils literal notranslate"><span class="pre">geo_file_paths</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.update_depletable_materials">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_depletable_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dep_end_time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.update_depletable_materials"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.update_depletable_materials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update material file with reprocessed material compositions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mats</strong> (<em>dict</em><em> of </em><em>str to Materialflow</em>) – <p>Dictionary containing reprocessed material compositions.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>Name of burnable material.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p><a class="reference internal" href="saltproc.Materialflow.html#saltproc.Materialflow" title="saltproc.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">Materialflow</span></code></a> object holding composition and properties.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>dep_end_time</strong> (<em>float</em>) – Current time at the end of the depletion step (d).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Depcode.write_runtime_input">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_runtime_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dep_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/depcode.html#Depcode.write_runtime_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Depcode.write_runtime_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write input file(s) for running depletion step</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reactor</strong> (<em>Reactor</em>) – Contains information about power load curve and cumulative
+depletion time for the integration test.</p></li>
+<li><p><strong>dep_step</strong> (<em>int</em>) – Current depletion time step.</p></li>
+<li><p><strong>restart</strong> (<em>bool</em>) – Is the current simulation restarted?</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="SaltProc API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="saltproc.SerpentDepcode.html" class="btn btn-neutral float-right" title="saltproc.SerpentDepcode" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: master
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="saltproc.Depcode.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

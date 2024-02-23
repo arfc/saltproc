@@ -1,0 +1,6 @@
+﻿app.reprocess_materials
+=======================
+
+.. currentmodule:: app
+
+.. autofunction:: reprocess_materials

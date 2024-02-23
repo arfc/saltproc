@@ -45,10 +45,12 @@
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/index.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devguide/index.html">Developer’s Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="fileformatspec/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io_formats/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -79,12 +81,11 @@
   <section id="saltproc">
 <h1>SaltProc<a class="headerlink" href="#saltproc" title="Permalink to this heading">¶</a></h1>
 <p><strong>SaltProc</strong> is a python package for liquid-fueled nuclear reactor depletion
-calculations. It couples directly with the <a class="reference external" href="http://montecarlo.vtt.fi">Serpent2</a> or <a class="reference external" href="https://openmc.org/">OpenMC</a> Monte Carlo depletion
-software to enable online reprocessing system modeling in depletion
+calculations. It couples directly with depletion-capable transport solvers to enable online reprocessing system modeling in depletion
 calculations.</p>
 <p><strong>SaltProc</strong> welcomes your contributions. It already relies on many libraries
-in the Scientific Python ecosystem including <a class="reference external" href="http://pyne.io/">pyne</a>, <a class="reference external" href="http://numpy.org">numpy</a>, <a class="reference external" href="http://matplotlib.org">matplotlib</a>,
-<a class="reference external" href="http://networkx.github.io">networkx</a>, and <a class="reference external" href="https://pydotplus.readthedocs.io/">pydotplus</a>.</p>
+in the Scientific Python ecosystem including <a class="reference external" href="http://openmc.org/">openmc</a>, <a class="reference external" href="http://numpy.org">numpy</a>, <a class="reference external" href="http://matplotlib.org">matplotlib</a>,
+<a class="reference external" href="http://networkx.github.io">networkx</a>, and <a class="reference external" href="https://pypi.org/project/pydot/">pydot</a>.</p>
 <section id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
@@ -92,10 +93,12 @@ in the Scientific Python ecosystem including <a class="reference external" href=
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/index.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devguide/index.html">Developer’s Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="fileformatspec/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io_formats/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 </div>
@@ -165,11 +168,6 @@ scientific python projects developed at University of Washington <a class="refer
     <span class="fa fa-caret-down"></span>
   </span>
   <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../v0.3.0/index.html">v0.3.0</a></dd>
-      <dd><a href="../v0.4.0/index.html">v0.4.0</a></dd>
-    </dl>
     <dl>
       <dt>Branches</dt>
       <dd><a href="index.html">master</a></dd>

@@ -45,16 +45,17 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#note-on-installing-openmc">Note on installing OpenMC</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cross-section-configuration">Cross Section Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/index.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devguide/index.html">Developer’s Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="fileformatspec/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io_formats/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -87,14 +88,14 @@
 <p>SaltProc has the following dependencies:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p><a class="reference external" href="http://python.org">Python</a> (&gt;=3.5)</p></li>
-<li><p><a class="reference external" href="http://montecarlo.vtt.fi">Serpent</a> (&gt;=2.1.31)</p></li>
-<li><p><a class="reference external" href="http://pyne.io">PyNE</a> (&gt;=0.5.11)</p></li>
-<li><p><a class="reference external" href="https://openmc.org/">OpenMC</a> (&gt;=0.13.0)</p></li>
-<li><p><a class="reference external" href="http://numpy.org">NumPy</a> (&gt;=1.14.0)</p></li>
+<li><p><a class="reference external" href="http://python.org">python</a> (&gt;=3.5)</p></li>
+<li><p><a class="reference external" href="http://montecarlo.vtt.fi">serpent</a> (&gt;=2.1.31)</p></li>
+<li><p><a class="reference external" href="https://serpent-tools.readthedocs.io/en/master/index.html">serpentTools</a></p></li>
+<li><p><a class="reference external" href="https://openmc.org/">openmc</a> (&gt;=0.13.0)</p></li>
+<li><p><a class="reference external" href="http://numpy.org">numpy</a> (&gt;=1.14.0)</p></li>
 <li><p><a class="reference external" href="http://pytables.org">PyTables</a></p></li>
-<li><p><a class="reference external" href="http://networkx.github.io">NetworkX</a></p></li>
-<li><p><a class="reference external" href="https://pydotplus.readthedocs.io/">PyDotPlus</a></p></li>
+<li><p><a class="reference external" href="http://networkx.github.io">networkx</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pydot/pydot">pydot</a></p></li>
 <li><p><a class="reference external" href="https://github.com/Julian/jsonschema">jsonschema</a></p></li>
 </ol>
 </div></blockquote>
@@ -103,7 +104,6 @@
 <li><p><a class="reference external" href="https://docs.pytest.org">pytest</a> (for testing)</p></li>
 <li><p><a class="reference external" href="https://www.sphinx-doc.org">sphinx</a> and <a class="reference external" href="https://sphinx-rtd-theme.readthedocs.io">sphinx-rtd-theme</a> (for building documentation)</p></li>
 <li><p><a class="reference external" href="http://matplotlib.org">matplotlib</a></p></li>
-<li><p><a class="reference external" href="http://vitables.org">ViTables</a></p></li>
 </ol>
 </dd>
 </dl>
@@ -111,16 +111,11 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone git@github.com:arfc/saltproc.git
 </pre></div>
 </div>
-<section id="note-on-installing-openmc">
-<h2>Note on installing OpenMC<a class="headerlink" href="#note-on-installing-openmc" title="Permalink to this heading">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">conda-forge</span></code> build of OpenMC 0.13.0 cannot be installed alongside the <code class="docutils literal notranslate"><span class="pre">conda-forge</span></code> build of PyNE due to a conflict in the pinned HDF5 versions required by those builds. Since both are dependencies, users will need to pick one to install from source. We recommend users install OpenMC from source as it has a more active community and a step-by-step guide on how to install it from source on most machines. For Ubuntu users, consider using the <a class="reference external" href="https://github.com/yardasol/ubuntu-nuclear-software-installer">ubuntu-nuclear-software-installer</a>
-script to install OpenMC from source.</p>
-<p>Otherwise, all of the dependencies are readily available through the <a class="reference external" href="https://docs.conda.io/en/latest/">conda package manager</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>We recommend using the <a class="reference external" href="https://github.com/mamba-org/mamba">mamba</a> CLI tool to install packages quickly. SaltProc has a compltex package dependency structure which can result is long environment solve times in the default <code class="docutils literal notranslate"><span class="pre">conda</span></code> solver. <code class="docutils literal notranslate"><span class="pre">mamba</span></code> is a reimplementation of <code class="docutils literal notranslate"><span class="pre">conda</span></code> in <code class="docutils literal notranslate"><span class="pre">C++</span></code> and we have found it is significantly faster.</p>
 </div>
-<p>You can download the required ones using <code class="docutils literal notranslate"><span class="pre">conda</span></code> on the provided <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code>
+<p>You can download the required packages using <code class="docutils literal notranslate"><span class="pre">conda</span></code> on the provided <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code>
 file in the repository:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> saltproc/
 conda env create -f environment.yml
@@ -133,7 +128,6 @@ repository (assuming the <cite>saltproc-env</cite> environment is active):</p>
 </pre></div>
 </div>
 <p>Please let us know if you run into trouble.</p>
-</section>
 <section id="cross-section-configuration">
 <h2>Cross Section Configuration<a class="headerlink" href="#cross-section-configuration" title="Permalink to this heading">¶</a></h2>
 <p>SaltProc can use any cross section library that its depletion codes can. Currently supported depletion codes and their guides on cross section configuration are listed below:</p>
@@ -207,11 +201,6 @@ execute:</p>
     <span class="fa fa-caret-down"></span>
   </span>
   <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../v0.3.0/installation.html">v0.3.0</a></dd>
-      <dd><a href="../v0.4.0/installation.html">v0.4.0</a></dd>
-    </dl>
     <dl>
       <dt>Branches</dt>
       <dd><a href="installation.html">master</a></dd>

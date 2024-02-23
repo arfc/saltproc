@@ -1,0 +1,36 @@
+﻿app
+===
+
+.. automodule:: app
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      get_extraction_process_paths
+      get_extraction_processes
+      get_feeds
+      parse_arguments
+      read_main_input
+      refill_materials
+      reprocess_materials
+      run
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

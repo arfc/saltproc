@@ -1,7 +1,0 @@
-saltproc.version module
-=======================
-
-.. automodule:: saltproc.version
-   :members:
-   :undoc-members:
-   :show-inheritance:

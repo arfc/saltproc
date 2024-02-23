@@ -43,10 +43,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/index.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../devguide/index.html">Developer’s Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../fileformatspec/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io_formats/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -80,8 +82,40 @@
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Process</span>
 
 
-<div class="viewcode-block" id="Separator"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator">[docs]</a><span class="k">class</span> <span class="nc">Separator</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
+<div class="viewcode-block" id="Separator"><a class="viewcode-back" href="../../api/generated/saltproc.Separator.html#saltproc.Separator">[docs]</a><span class="k">class</span> <span class="nc">Separator</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a bubble separator.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    q_salt : float</span>
+<span class="sd">        volumetric salt flow rate (m^3/s)</span>
+<span class="sd">        Default: 0.1</span>
+<span class="sd">    q_he : float</span>
+<span class="sd">        volumetric helium flow rate (m^3/s)</span>
+<span class="sd">        Default: 0.005</span>
+<span class="sd">    do : float</span>
+<span class="sd">        gas outlet diameter (m)</span>
+<span class="sd">        Ranging from 1~3cm in our simulations</span>
+<span class="sd">        Default: 0.02</span>
+<span class="sd">    dp : float</span>
+<span class="sd">        sparger/contractor (pipe) diameter (m)</span>
+<span class="sd">        Default: 0.1</span>
+<span class="sd">    db : float</span>
+<span class="sd">        bubble diameter (m) for bubble generator/separator</span>
+<span class="sd">        Default: 0.001</span>
+<span class="sd">    deltap : float</span>
+<span class="sd">        Pressure difference between the inlet and the gas outlet (Pa)</span>
+<span class="sd">        (from 2e5 to 5e5 Pa)</span>
+<span class="sd">        Default: 4e5</span>
+<span class="sd">    temp_room: real</span>
+<span class="sd">        room temperature (Kelvin)</span>
+<span class="sd">        Default: 900</span>
+<span class="sd">    area : float</span>
+<span class="sd">        contactor cross-section (m^2)</span>
+<span class="sd">    jl : float</span>
+<span class="sd">        liquid superficial velocity (m/s)</span>
+<span class="sd">    alpha : float</span>
+<span class="sd">        void fraction</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -124,49 +158,19 @@
 <span class="sd">    ----------</span>
 <span class="sd">    [1] Jiaqi Chen and Caleb S. Brooks. Milestone 1.2 Report: CFD</span>
 <span class="sd">    Sensitivity Analysis. In preparation</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Default values from Jiaqi&#39;s simulation</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">k</span> <span class="o">=</span> <span class="mf">1.0</span>
 
-<div class="viewcode-block" id="Separator.__init__"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_salt</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">q_he</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">do</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">dp</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_salt</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">q_he</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">do</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">dp</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
                  <span class="n">deltap</span><span class="o">=</span><span class="mf">4e5</span><span class="p">,</span> <span class="n">temp_salt</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initializes the Separator object.</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        q_salt : float</span>
-<span class="sd">            volumetric salt flow rate (m^3/s)</span>
-<span class="sd">            Default: 0.1</span>
-<span class="sd">        q_he : float</span>
-<span class="sd">            volumetric helium flow rate (m^3/s)</span>
-<span class="sd">            Default: 0.005</span>
-<span class="sd">        do : float</span>
-<span class="sd">            gas outlet diameter (m)</span>
-<span class="sd">            Ranging from 1~3cm in our simulations</span>
-<span class="sd">            Default: 0.02</span>
-<span class="sd">        dp : float</span>
-<span class="sd">            sparger/contractor (pipe) diameter (m)</span>
-<span class="sd">            Default: 0.1</span>
-<span class="sd">        db : float</span>
-<span class="sd">            bubble diameter (m) for bubble generator/separator</span>
-<span class="sd">            Default: 0.001</span>
-<span class="sd">        deltap : float</span>
-<span class="sd">            Pressure difference between the inlet and the gas outlet (Pa)</span>
-<span class="sd">            (from 2e5 to 5e5 Pa)</span>
-<span class="sd">            Default: 4e5</span>
-<span class="sd">        temp_room: real</span>
-<span class="sd">            room temperature (Kelvin)</span>
-<span class="sd">            Default: 900</span>
-<span class="sd">        area : float</span>
-<span class="sd">            contactor cross-section (m^2)</span>
-<span class="sd">        jl : float</span>
-<span class="sd">            liquid superficial velocity (m/s)</span>
-<span class="sd">        alpha : float</span>
-<span class="sd">            void fraction</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        Default values from Jiaqi&#39;s simulation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span> <span class="o">=</span> <span class="n">q_salt</span>
@@ -179,9 +183,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_he</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_he</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">jl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Separator.calculate_removal_efficiency"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator.calculate_removal_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_removal_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Separator.calculate_removal_efficiency"><a class="viewcode-back" href="../../api/generated/saltproc.Separator.html#saltproc.Separator.calculate_removal_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_removal_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the value of the removal efficiency for a given nuclide</span>
 <span class="sd">        in this process.</span>
 
@@ -203,7 +207,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()[</span><span class="n">nuc_name</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Separator.description"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator.description">[docs]</a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Separator.description"><a class="viewcode-back" href="../../api/generated/saltproc.Separator.html#saltproc.Separator.description">[docs]</a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Class attributes&#39; descriptions for plotting purpose in</span>
 <span class="sd">        sensitivity analysis</span>
 
@@ -237,7 +241,7 @@
 
         <span class="k">return</span> <span class="n">plt_dict</span></div>
 
-<div class="viewcode-block" id="Separator.eff"><a class="viewcode-back" href="../../src/saltproc.separator.html#saltproc.separator.Separator.eff">[docs]</a>    <span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Separator.eff"><a class="viewcode-back" href="../../api/generated/saltproc.Separator.html#saltproc.Separator.eff">[docs]</a>    <span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Evaluates gas/bubble separation efficiency from Jiaqi&#39;s correlation</span>
 
 <span class="sd">        Returns</span>
@@ -302,11 +306,6 @@
     <span class="fa fa-caret-down"></span>
   </span>
   <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../v0.3.0/index.html">v0.3.0</a></dd>
-      <dd><a href="../../../v0.4.0/index.html">v0.4.0</a></dd>
-    </dl>
     <dl>
       <dt>Branches</dt>
       <dd><a href="separator.html">master</a></dd>

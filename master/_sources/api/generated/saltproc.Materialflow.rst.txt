@@ -1,0 +1,7 @@
+﻿saltproc.Materialflow
+=====================
+
+.. currentmodule:: saltproc
+
+.. autoclass:: Materialflow
+    :members:

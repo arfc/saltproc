@@ -52,10 +52,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/index.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devguide/index.html">Developer’s Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="fileformatspec/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io_formats/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -84,36 +86,46 @@
            <div itemprop="articleBody">
              
   <section id="overview">
-<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h1>
-<p>SaltProc couples directly with a variety of Monte Carlo neutron transport codes with depletion capabilities and enables sophisticated, multi-component online fuel reprocessing system
-modeling. SaltProc is the first open-source tool for liquid-fueled MSR
-depletion simulation with the following capabilities:</p>
-<ul class="simple">
-<li><p>neutron poison removal with user-defined efficiency,</p></li>
-<li><p>make-up mass loss by fresh fuel injection,</p></li>
-<li><p>reactivity control by adjusting fuel feed rate or reactor geometry (i.e. control rod depth),</p></li>
-<li><p>can model any reactor design,</p></li>
-<li><p>potentially, can couple with any depletion tool (i.e., MCNP, SCALE, OpenMC).</p></li>
+<span id="saltproc-overview"></span><h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h1>
+<p>SaltProc couples directly with a variety of neutron transport codes with
+depletion capabilities and enables sophisticated, multi-component online fuel
+reprocessing system modeling. SaltProc is the first open-source tool for
+liquid-fueled depletion simulations with the following capabilities:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Neutron poison removal with user-defined efficiency,</p></li>
+<li><p>Make-up mass loss by fresh fuel injection,</p></li>
+<li><p>Reactivity control by adjusting fuel feed rate or reactor geometry (i.e. control rod depth),</p></li>
+<li><p>Can model any reactor design,</p></li>
+<li><p>Couples with OpenMC and SERPENT (and extendable to other tools such as MCNP or SCALE).</p></li>
 </ul>
+</div></blockquote>
+<p id="supported-codes">Currently supported transport solvers:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="http://montecarlo.vtt.fi">Serpent2</a></p></li>
+<li><p><a class="reference external" href="https://openmc.org/">OpenMC</a></p></li>
+</ul>
+</div></blockquote>
 <section id="how-saltproc-works">
 <h2>How SaltProc works<a class="headerlink" href="#how-saltproc-works" title="Permalink to this heading">¶</a></h2>
 <p>SaltProc is a driver for Monte Carlo transport codes with depletion capabilities (henceforth referred to as <em>transport-depletion codes</em>) to simulate online fuel salt reprocessing for
 Molten Salt Reactors. It performs following major functions:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>runs the transport-depletion code</p></li>
-<li><p>parses and stores depleted material data in HDF5</p></li>
-<li><p>modifies parsed material composition (<cite>reprocesses</cite>)</p></li>
-<li><p>creates a new transport-depletion code input file</p></li>
+<li><p>Runs the transport-depletion code</p></li>
+<li><p>Parses and stores depleted material data in HDF5</p></li>
+<li><p>Modifies parsed material composition (<cite>reprocesses</cite>)</p></li>
+<li><p>Creates a new transport-depletion code input file</p></li>
 </ul>
 </div></blockquote>
 <p>The code logic flow is the following:</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li><p>Runs the transport-depletion code (<code class="xref py py-meth docutils literal notranslate"><span class="pre">saltproc.depcode.Depcode.run_depcode()</span></code>)</p></li>
-<li><p>Parses through the output <cite>*_dep.m</cite> file and creates PyNE Material object
+<li><p>Parses through the output <cite>*_dep.m</cite> file and creates Materialflow object
 for each burnable material.</p></li>
-<li><p>Processes Fuel (<a class="reference internal" href="src/saltproc.app.html#saltproc.app.reprocess_materials" title="saltproc.app.reprocess_materials"><code class="xref py py-meth docutils literal notranslate"><span class="pre">saltproc.app.reprocess_materials()</span></code></a> and <a class="reference internal" href="src/saltproc.app.html#saltproc.app.refill_materials" title="saltproc.app.refill_materials"><code class="xref py py-meth docutils literal notranslate"><span class="pre">saltproc.app.refill_materials()</span></code></a>):</p></li>
+<li><p>Processes Fuel (<code class="xref py py-meth docutils literal notranslate"><span class="pre">saltproc.app.reprocess_materials()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">saltproc.app.refill_materials()</span></code>):</p></li>
 </ol>
 <blockquote>
 <div><ul class="simple">
@@ -210,11 +222,6 @@ matures.</p>
     <span class="fa fa-caret-down"></span>
   </span>
   <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../v0.3.0/overview.html">v0.3.0</a></dd>
-      <dd><a href="../v0.4.0/overview.html">v0.4.0</a></dd>
-    </dl>
     <dl>
       <dt>Branches</dt>
       <dd><a href="overview.html">master</a></dd>

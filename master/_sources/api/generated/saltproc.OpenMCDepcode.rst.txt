@@ -1,0 +1,7 @@
+﻿saltproc.OpenMCDepcode
+======================
+
+.. currentmodule:: saltproc
+
+.. autoclass:: OpenMCDepcode
+    :members:

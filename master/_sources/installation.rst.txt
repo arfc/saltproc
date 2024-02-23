@@ -3,24 +3,24 @@ Installation
 
 SaltProc has the following dependencies:
 
-  #. `Python`_ (>=3.5)
-  #. `Serpent`_ (>=2.1.31)
-  #. `PyNE`_ (>=0.5.11)
-  #. `OpenMC`_ (>=0.13.0)
-  #. `NumPy`_ (>=1.14.0)
+  #. `python`_ (>=3.5)
+  #. `serpent`_ (>=2.1.31)
+  #. `serpentTools`_
+  #. `openmc`_ (>=0.13.0)
+  #. `numpy`_ (>=1.14.0)
   #. `PyTables`_
-  #. `NetworkX`_
-  #. `PyDotPlus`_
+  #. `networkx`_
+  #. `pydot`_
   #. `jsonschema`_
 
-.. _Serpent: http://montecarlo.vtt.fi
-.. _PyNE: http://pyne.io
-.. _OpenMC: https://openmc.org/
-.. _Python: http://python.org
-.. _NumPy: http://numpy.org
+.. _serpent: http://montecarlo.vtt.fi
+.. _serpentTools: https://serpent-tools.readthedocs.io/en/master/index.html
+.. _openmc: https://openmc.org/
+.. _python: http://python.org
+.. _numpy: http://numpy.org
 .. _PyTables: http://pytables.org
-.. _NetworkX: http://networkx.github.io
-.. _PyDotPlus: https://pydotplus.readthedocs.io/
+.. _networkx: http://networkx.github.io
+.. _pydot: https://github.com/pydot/pydot
 .. _pytest: https://docs.pytest.org
 .. _pytest documentation: https://docs.pytest.org/en/latest/how-to/usage.html
 .. _sphinx: https://www.sphinx-doc.org
@@ -36,7 +36,6 @@ Optional Dependencies:
   #. `pytest`_ (for testing)
   #. `sphinx`_ and `sphinx-rtd-theme`_ (for building documentation)
   #. `matplotlib`_
-  #. `ViTables`_
 
 
 
@@ -46,18 +45,9 @@ Clone the source from the SaltProc repository from `GitHub`_.
 
    git clone git@github.com:arfc/saltproc.git
 
-Note on installing OpenMC
--------------------------
-The ``conda-forge`` build of OpenMC 0.13.0 cannot be installed alongside the ``conda-forge`` build of PyNE due to a conflict in the pinned HDF5 versions required by those builds. Since both are dependencies, users will need to pick one to install from source. We recommend users install OpenMC from source as it has a more active community and a step-by-step guide on how to install it from source on most machines. For Ubuntu users, consider using the `ubuntu-nuclear-software-installer`_
-script to install OpenMC from source.
-
-.. _ubuntu-nuclear-software-installer: https://github.com/yardasol/ubuntu-nuclear-software-installer
-
-Otherwise, all of the dependencies are readily available through the `conda package manager`_.
-
 .. note:: We recommend using the `mamba`_ CLI tool to install packages quickly. SaltProc has a compltex package dependency structure which can result is long environment solve times in the default ``conda`` solver. ``mamba`` is a reimplementation of ``conda`` in ``C++`` and we have found it is significantly faster.
 
-You can download the required ones using ``conda`` on the provided ``environment.yml``
+You can download the required packages using ``conda`` on the provided ``environment.yml``
 file in the repository:
 
 .. code-block:: bash

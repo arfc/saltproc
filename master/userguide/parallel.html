@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Running in Parallel &mdash; Saltproc 0.5.dev documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Developer’s Guide" href="../devguide/index.html" />
+    <link rel="prev" title="Troubleshooting" href="troubleshooting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.5.dev
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User’s Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="beginners.html">A Beginner’s Guide to SaltProc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basics.html">Basics of Using SaltProc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input.html">Creating a SaltProc input file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_system.html">Creating Processing System Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Template and Runtime Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html">Executables and Scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Running in Parallel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shared-memory-parallelsim">Shared-Memory Parallelsim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#distributed-memory-parallelism">Distributed-Memory Parallelism</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io_formats/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">User’s Guide</a></li>
+      <li class="breadcrumb-item active">Running in Parallel</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/userguide/parallel.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="running-in-parallel">
+<span id="userguide-parallel"></span><h1>Running in Parallel<a class="headerlink" href="#running-in-parallel" title="Permalink to this heading">¶</a></h1>
+<p>If you have installed your <a class="reference internal" href="../overview.html#supported-codes"><span class="std std-ref">supported depletion code</span></a>
+with support for shared or distributed memory parallelism (typically via OpenMP
+or MPI, respectively) support, then you can take advantage of that parallelism
+in SaltProc as well.</p>
+<section id="shared-memory-parallelsim">
+<span id="parallel-shared"></span><h2>Shared-Memory Parallelsim<a class="headerlink" href="#shared-memory-parallelsim" title="Permalink to this heading">¶</a></h2>
+<p>To specify the number of theads to use in shared memory parallelism, use the
+<code class="docutils literal notranslate"><span class="pre">-s</span></code> or <code class="docutils literal notranslate"><span class="pre">--threads</span></code> command line argument when calling SaltProc. Note that
+this argument currently does not affect how OpenMC uses shared-memory
+parallelsim, as there is no way to specify the number of threads used
+in depletion. The default behavior is to use all available threads.
+User’s should read more about this
+<a class="reference external" href="https://docs.openmc.org/en/stable/usersguide/parallel.html#shared-memory-parallelism-openmp">here</a>.</p>
+</section>
+<section id="distributed-memory-parallelism">
+<span id="parallel-distributed"></span><h2>Distributed-Memory Parallelism<a class="headerlink" href="#distributed-memory-parallelism" title="Permalink to this heading">¶</a></h2>
+<p>SaltProc provides the <a class="reference internal" href="../io_formats/saltproc_input.html#mpi-args-property"><span class="std std-ref">mpi_args</span></a> parameter in the input file to
+give users flexible access to programs like <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code>. <code class="docutils literal notranslate"><span class="pre">mpi_args</span></code> is a list
+of strings that is appended to the subprocess call for each depletion step.</p>
+<p>For example, if we are using <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code>, and want to do a distributed-memory run on
+two nodes, then in our input file, we should have the following parameter:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;mpi_args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mpiexec&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-n&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">]</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="troubleshooting.html" class="btn btn-neutral float-left" title="Troubleshooting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../devguide/index.html" class="btn btn-neutral float-right" title="Developer’s Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: master
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="parallel.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

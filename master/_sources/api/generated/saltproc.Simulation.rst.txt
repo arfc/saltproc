@@ -1,0 +1,7 @@
+﻿saltproc.Simulation
+===================
+
+.. currentmodule:: saltproc
+
+.. autoclass:: Simulation
+    :members:

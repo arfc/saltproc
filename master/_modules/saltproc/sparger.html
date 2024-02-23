@@ -43,10 +43,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../src/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/index.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../devguide/index.html">Developer’s Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../fileformatspec/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io_formats/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -80,8 +82,36 @@
 <span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Process</span>
 
 
-<div class="viewcode-block" id="Sparger"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger">[docs]</a><span class="k">class</span> <span class="nc">Sparger</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
+<div class="viewcode-block" id="Sparger"><a class="viewcode-back" href="../../api/generated/saltproc.Sparger.html#saltproc.Sparger">[docs]</a><span class="k">class</span> <span class="nc">Sparger</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a gas sparger/bubble generator.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    q_salt : float</span>
+<span class="sd">        volumetric salt flow rate (m^3/s)</span>
+<span class="sd">        Default: 0.1</span>
+<span class="sd">    q_he : float</span>
+<span class="sd">        volumetric helium flow rate (m^3/s)</span>
+<span class="sd">        Default: 0.005</span>
+<span class="sd">    length : float</span>
+<span class="sd">        sparger/contractor length (m)</span>
+<span class="sd">        Default: 10</span>
+<span class="sd">    dp : float</span>
+<span class="sd">        sparger/contractor (pipe) diameter (m)</span>
+<span class="sd">        Default: 0.1</span>
+<span class="sd">    db : float</span>
+<span class="sd">        bubble diameter (m) for bubble generator/separator</span>
+<span class="sd">        Default: 0.001</span>
+<span class="sd">    temp_salt: float</span>
+<span class="sd">        salt temperature (K)</span>
+<span class="sd">        Default: 900</span>
+<span class="sd">    area : float</span>
+<span class="sd">        contactor cross-section (m^2)</span>
+<span class="sd">    corr: string</span>
+<span class="sd">         Sherwood correlations: ORNL-TM-2245 or Jaiqi&#39;s</span>
+<span class="sd">         (1) milestone report from Jiaqi [3]</span>
+<span class="sd">         (2) ORNL-TM-2245 Eq.36 [2]</span>
+<span class="sd">         default: Sherwood correlation from ORNL-TM-2245 Eq.36</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -149,6 +179,11 @@
 <span class="sd">    National Laboratory, Oak Ridge, TN, Report No. ORNL-TM-2245.</span>
 <span class="sd">    [3] Jiaqi Chen and Caleb S. Brooks. Milestone 1.2 Report: CFD</span>
 <span class="sd">    Sensitivity Analysis. In preparation</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Default values comes from Jiaqi&#39;s simulation</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">diffusivity</span> <span class="o">=</span> <span class="mf">2.5E-9</span>
@@ -157,42 +192,11 @@
     <span class="n">temp_room</span> <span class="o">=</span> <span class="mf">298.15</span>
     <span class="n">exp_const</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Xe&#39;</span><span class="p">:</span> <span class="mi">2300</span><span class="p">,</span> <span class="s1">&#39;Kr&#39;</span><span class="p">:</span> <span class="mi">1900</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
 
-<div class="viewcode-block" id="Sparger.__init__"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_salt</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">q_he</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_salt</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">q_he</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                  <span class="n">dp</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">temp_salt</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="s1">&#39;Jiaqi&#39;</span><span class="p">,</span>
                  <span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initializes the Sparger object.</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        q_salt : float</span>
-<span class="sd">            volumetric salt flow rate (m^3/s)</span>
-<span class="sd">            Default: 0.1</span>
-<span class="sd">        q_he : float</span>
-<span class="sd">            volumetric helium flow rate (m^3/s)</span>
-<span class="sd">            Default: 0.005</span>
-<span class="sd">        length : float</span>
-<span class="sd">            sparger/contractor length (m)</span>
-<span class="sd">            Default: 10</span>
-<span class="sd">        dp : float</span>
-<span class="sd">            sparger/contractor (pipe) diameter (m)</span>
-<span class="sd">            Default: 0.1</span>
-<span class="sd">        db : float</span>
-<span class="sd">            bubble diameter (m) for bubble generator/separator</span>
-<span class="sd">            Default: 0.001</span>
-<span class="sd">        temp_salt: float</span>
-<span class="sd">            salt temperature (K)</span>
-<span class="sd">            Default: 900</span>
-<span class="sd">        area : float</span>
-<span class="sd">            contactor cross-section (m^2)</span>
-<span class="sd">        corr: string</span>
-<span class="sd">             Sherwood correlations: ORNL-TM-2245 or Jaiqi&#39;s</span>
-<span class="sd">             (1) milestone report from Jiaqi [3]</span>
-<span class="sd">             (2) ORNL-TM-2245 Eq.36 [2]</span>
-<span class="sd">             default: Sherwood correlation from ORNL-TM-2245 Eq.36</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        Default values comes from Jiaqi&#39;s simulation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q_salt</span> <span class="o">=</span> <span class="n">q_salt</span>
@@ -203,9 +207,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">temp_salt</span> <span class="o">=</span> <span class="n">temp_salt</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">corr</span> <span class="o">=</span> <span class="n">corr</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Sparger.calculate_removal_efficiency"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.calculate_removal_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_removal_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Sparger.calculate_removal_efficiency"><a class="viewcode-back" href="../../api/generated/saltproc.Sparger.html#saltproc.Sparger.calculate_removal_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_removal_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the value of the removal efficiency for a given nuclide</span>
 <span class="sd">        in this process.</span>
 
@@ -226,7 +230,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">()[</span><span class="n">nuc_name</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Sparger.description"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.description">[docs]</a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Sparger.description"><a class="viewcode-back" href="../../api/generated/saltproc.Sparger.html#saltproc.Sparger.description">[docs]</a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Class attributes&#39; descriptions for plotting purpose in sensitivity</span>
 <span class="sd">        analysis</span>
 <span class="sd">        Return</span>
@@ -256,7 +260,7 @@
 
         <span class="k">return</span> <span class="n">plt_dict</span></div>
 
-<div class="viewcode-block" id="Sparger.eps"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.eps">[docs]</a>    <span class="k">def</span> <span class="nf">eps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h_const</span><span class="p">,</span> <span class="n">kl_const</span><span class="p">):</span>
+<div class="viewcode-block" id="Sparger.eps"><a class="viewcode-back" href="../../api/generated/saltproc.Sparger.html#saltproc.Sparger.eps">[docs]</a>    <span class="k">def</span> <span class="nf">eps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h_const</span><span class="p">,</span> <span class="n">kl_const</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Evaluates gas removal efficiency using Eq. 4</span>
 <span class="sd">        from Peebles report (ORNL-TM-2245).</span>
 
@@ -274,7 +278,7 @@
 
         <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">beta</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Sparger.sherwood"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.sherwood">[docs]</a>    <span class="k">def</span> <span class="nf">sherwood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Sparger.sherwood"><a class="viewcode-back" href="../../api/generated/saltproc.Sparger.html#saltproc.Sparger.sherwood">[docs]</a>    <span class="k">def</span> <span class="nf">sherwood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Contains Sherwood number correlations.</span>
 <span class="sd">             Sherwood correlations: ORNL-TM-2245 or Jaiqi</span>
 <span class="sd">             (1) Jaiqi Ph.D. dissertation</span>
@@ -287,7 +291,7 @@
 
         <span class="k">return</span> <span class="n">sh_corr</span></div>
 
-<div class="viewcode-block" id="Sparger.eff"><a class="viewcode-back" href="../../src/saltproc.sparger.html#saltproc.sparger.Sparger.eff">[docs]</a>    <span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Sparger.eff"><a class="viewcode-back" href="../../api/generated/saltproc.Sparger.html#saltproc.Sparger.eff">[docs]</a>    <span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Evaluates gas removal efficiencies for target isotopes.</span>
 <span class="sd">        In this function, vl, mu, rho, number_sh, number_sc, number_re and kl</span>
 <span class="sd">        are average liquid velocity (m/s), kinematic viscosity (Pa.s),</span>
@@ -357,11 +361,6 @@
     <span class="fa fa-caret-down"></span>
   </span>
   <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../../v0.3.0/index.html">v0.3.0</a></dd>
-      <dd><a href="../../../v0.4.0/index.html">v0.4.0</a></dd>
-    </dl>
     <dl>
       <dt>Branches</dt>
       <dd><a href="sparger.html">master</a></dd>

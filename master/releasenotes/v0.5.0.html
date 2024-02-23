@@ -46,7 +46,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../src/index.html">SaltProc API</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Release Notes</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Release notes for v0.5.0</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
@@ -63,8 +62,11 @@
 <li class="toctree-l2"><a class="reference internal" href="v0.3.0.html">Release notes for v0.3.0</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../fileformatspec/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io_formats/index.html">File Format Specifications</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
 </ul>
 
@@ -107,12 +109,15 @@ the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</
 <section id="dependency-changes">
 <h2>Dependency Changes<a class="headerlink" href="#dependency-changes" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">SaltProc</span></code> now optionally requires the following package:</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">SaltProc</span></code> now requires the following package:</p>
 <ul>
 <li><p>(new) → <a class="reference external" href="https://github.com/openmc-dev/openmc">openmc</a></p></li>
+<li><p>(new) → <a class="reference external" href="https://github.com/CORE-GATECH-GROUP/serpent-tools">serpentTools</a></p></li>
+<li><p>(formality) → <a class="reference external" href="https://github.com/PyTables/PyTables">pytables</a></p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pyne&gt;=0.5.11</span></code> → <code class="docutils literal notranslate"><span class="pre">pyne&gt;=0.5.11=nomoab_noopenmc*</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pyne&gt;=0.5.11</span></code> →  (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pydotplus</span></code> →  <code class="docutils literal notranslate"><span class="pre">pydot</span></code></p></li>
 </ul>
 </section>
 <section id="new-features">
@@ -232,11 +237,15 @@ longer be initialized by the user from the SaltProc input file.</p>
 <li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">get_neutron_settings()</span></code></p></li>
 <li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">_get_burnable_materials_file()</span></code></p></li>
 <li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">_get_burnable_material_card_data()</span></code></p></li>
+<li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">resolve_include_paths()</span></code></p></li>
+<li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">_convert_name_to_nuccode()</span></code></p></li>
 <li><p>(new parameter) →  <code class="docutils literal notranslate"><span class="pre">zaid_convention</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">OpenMCDepcode</span></code> is a <code class="docutils literal notranslate"><span class="pre">Depcode</span></code> subclass that interfaces with <code class="docutils literal notranslate"><span class="pre">openmc</span></code>. This class implements the following functions
 - <code class="docutils literal notranslate"><span class="pre">run_depletion_step()</span></code>
+- <code class="docutils literal notranslate"><span class="pre">write_saltproc_openmc_tallies()</span></code>
+- <code class="docutils literal notranslate"><span class="pre">convert_nuclide_code_to_name()</span></code>
 - <code class="docutils literal notranslate"><span class="pre">switch_to_next_geometry()</span></code>
 - <code class="docutils literal notranslate"><span class="pre">write_runtime_input()</span></code>
 - <code class="docutils literal notranslate"><span class="pre">write_depletion_settings()</span></code>
@@ -262,10 +271,16 @@ longer be initialized by the user from the SaltProc input file.</p>
 <li><p>(new) → <code class="docutils literal notranslate"><span class="pre">timestep_type</span></code></p></li>
 </ul>
 </li>
+<li><p>(new) → <code class="docutils literal notranslate"><span class="pre">Results</span></code></p>
+<ul>
+<li><p>New class for reading the <cite>saltproc_results.h5</cite> file</p></li>
+</ul>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Simulation</span></code></p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">core_number</span></code> →  (removed)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">node_number</span></code> →  (removed)</p></li>
+<li><p>(new function) → <code class="docutils literal notranslate"><span class="pre">_add_missing_nuclides()</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Sparger</span></code></p>
@@ -292,6 +307,12 @@ longer be initialized by the user from the SaltProc input file.</p>
 <section id="reviewers">
 <h2>Reviewers<a class="headerlink" href="#reviewers" title="Permalink to this heading">¶</a></h2>
 <p>The following people reviewed code for this release of SaltProc:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/smpark7">&#64;smpark7</a></p></li>
+<li><p><a class="reference external" href="https://github.com/LukeSeifert">&#64;LukeSeifert</a></p></li>
+<li><p><a class="reference external" href="https://github.com/munkm">&#64;munkm</a></p></li>
+<li><p><a class="reference external" href="https://github.com/abachma2">&#64;abachma2</a></p></li>
+</ul>
 </section>
 </section>
 
@@ -327,11 +348,6 @@ longer be initialized by the user from the SaltProc input file.</p>
     <span class="fa fa-caret-down"></span>
   </span>
   <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../../v0.3.0/index.html">v0.3.0</a></dd>
-      <dd><a href="../../v0.4.0/index.html">v0.4.0</a></dd>
-    </dl>
     <dl>
       <dt>Branches</dt>
       <dd><a href="v0.5.0.html">master</a></dd>

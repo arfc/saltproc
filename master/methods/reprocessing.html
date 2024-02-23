@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reprocessing Methods &mdash; Saltproc 0.5.dev documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="User’s Guide" href="../userguide/index.html" />
+    <link rel="prev" title="Theory and Methodology" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.5.dev
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Theory and Methodology</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Reprocessing Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#material-flows">Material flows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#processes">Processes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#graphs">Graphs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#material-reprocessing">Material reprocessing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io_formats/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Theory and Methodology</a></li>
+      <li class="breadcrumb-item active">Reprocessing Methods</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/methods/reprocessing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="reprocessing-methods">
+<span id="methods-reprocessing"></span><h1>Reprocessing Methods<a class="headerlink" href="#reprocessing-methods" title="Permalink to this heading">¶</a></h1>
+<p>SaltProc models separations and feeds using three different data structures:</p>
+<section id="material-flows">
+<h2>Material flows<a class="headerlink" href="#material-flows" title="Permalink to this heading">¶</a></h2>
+<p>A material flow represents a material with a given
+volume <span class="math notranslate nohighlight">\(V\)</span>, density <span class="math notranslate nohighlight">\(\rho\)</span>, temperature <span class="math notranslate nohighlight">\(T\)</span>, and nuclide composition <span class="math notranslate nohighlight">\(\mathbf{N}\)</span> flowing in or out
+of a processing component.
+It can also include information such as void fraction. <a class="reference internal" href="../api/generated/saltproc.Materialflow.html#saltproc.Materialflow" title="saltproc.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.Materialflow</span></code></a>
+objects contain the prior mentioned quantities as attributes, as well as
+methods to perform the following:</p>
+<ol class="arabic simple">
+<li><p>Add two <a class="reference internal" href="../api/generated/saltproc.Materialflow.html#saltproc.Materialflow" title="saltproc.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.Materialflow</span></code></a> objects together</p>
+<ol class="loweralpha simple">
+<li><p>The mass of the sum is <span class="math notranslate nohighlight">\(m_{1+2} = m_{1} + m_{2}\)</span></p></li>
+<li><p>The composition of the sum is <span class="math notranslate nohighlight">\(\mathbf{N}_{1+2} = \frac{\mathbf{N}_{1} * m_{1} + \mathbf{N}_{2} * m_{2}}{m_{1} + m_{2}}\)</span></p></li>
+<li><p>The temperature and density are assumed to be equal to the first <a class="reference internal" href="../api/generated/saltproc.Materialflow.html#saltproc.Materialflow" title="saltproc.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.Materialflow</span></code></a> object</p></li>
+</ol>
+</li>
+<li><p>Scale a <a class="reference internal" href="../api/generated/saltproc.Materialflow.html#saltproc.Materialflow" title="saltproc.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.Materialflow</span></code></a> object by a constant, specifically the mass and volume of the <a class="reference internal" href="../api/generated/saltproc.Materialflow.html#saltproc.Materialflow" title="saltproc.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.Materialflow</span></code></a> object.</p></li>
+</ol>
+<p><a class="reference internal" href="../api/generated/saltproc.Materialflow.html#saltproc.Materialflow" title="saltproc.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.Materialflow</span></code></a>. objects are used to store information about
+materials in reprocessing as well as materials being fed into the system.</p>
+<section id="processes">
+<h3>Processes<a class="headerlink" href="#processes" title="Permalink to this heading">¶</a></h3>
+<p>A process is an abstraction of chemical separation, extraction, or some
+other removal. Two processes commonly used in Gls{msr}s include
+extracting metals using gas sparging and filtering. In SaltProc,
+<a class="reference internal" href="../api/generated/saltproc.Process.html#saltproc.Process" title="saltproc.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.Process</span></code></a> objects contain data and functions to perform their
+associated processing task. At a minimum, a <a class="reference internal" href="../api/generated/saltproc.Process.html#saltproc.Process" title="saltproc.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.Process</span></code></a> object includes
+the following</p>
+<ol class="arabic simple">
+<li><p>A mass flow rate, <span class="math notranslate nohighlight">\(\dot{m}\)</span>, which specifies the mass of fuel salt a process can operate on per unit time</p></li>
+<li><p>An extraction efficiency, <span class="math notranslate nohighlight">\(\epsilon\)</span>, for target element(s)</p></li>
+<li><p>A method to apply the process on a <a class="reference internal" href="../api/generated/saltproc.Materialflow.html#saltproc.Materialflow" title="saltproc.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.Materialflow</span></code></a> object</p></li>
+</ol>
+</section>
+<section id="graphs">
+<h3>Graphs<a class="headerlink" href="#graphs" title="Permalink to this heading">¶</a></h3>
+<p>A graph is a mathematical object that connects <em>nodes</em>
+with <em>edges</em>. More formally,
+a graph is a pair of sets, <span class="math notranslate nohighlight">\((V, E)\)</span>, where</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(V\)</span> is a set whose elements are called nodes</p></li>
+<li><p><span class="math notranslate nohighlight">\(E\)</span> is a set whose elements are pairs of elements in <span class="math notranslate nohighlight">\(V\)</span></p></li>
+</ul>
+<p>A directed graph is a graph in which the elements are ordered pairs of elements
+in <span class="math notranslate nohighlight">\(V\)</span>. This gives the edges a direction. SaltProc uses directed graphs to
+model the order and path in which processes operate on materials.</p>
+<p>Processes and feeds are defined in one JSON input file, and the graph linking
+processes is defined in a DOT file. The process graph must be directed and
+acyclic in order to work with SaltProc. At runtime,
+SaltProc reads this input file to create <a class="reference internal" href="../api/generated/saltproc.Process.html#saltproc.Process" title="saltproc.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">saltproc.Process</span></code></a> objects for each item
+in the file. Every process file must have at least a <code class="xref py py-class docutils literal notranslate"><span class="pre">core_outlet</span></code> and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">core_inlet</span></code> Process.</p>
+</section>
+</section>
+<section id="material-reprocessing">
+<h2>Material reprocessing<a class="headerlink" href="#material-reprocessing" title="Permalink to this heading">¶</a></h2>
+<p>Recall that SaltProc uses a <em>batchwise</em> reprocessing scheme.
+Let <span class="math notranslate nohighlight">\(\mathbf{n}(t)^{j}\)</span> denote the nuclide mass vector for depletable material
+<span class="math notranslate nohighlight">\(j\)</span> as a function of time. For each depletable material <span class="math notranslate nohighlight">\(j\)</span>, the depletion
+solver numerically integrates the equation</p>
+<div class="math notranslate nohighlight">
+\[\frac{d\mathbf{n}^{j}(t)}{dt} = \mathbf{A}(\mathbf{n}^{j}(t), t)\]</div>
+<p>from time <span class="math notranslate nohighlight">\(i\)</span> to time <span class="math notranslate nohighlight">\(i+1\)</span> to get <span class="math notranslate nohighlight">\(\mathbf{n}^{j}(i+1)\)</span>, where <span class="math notranslate nohighlight">\(A\)</span> is the
+depletion matrix. This sequence is called a <strong>depletion step</strong>.</p>
+<p>Now, let the mass and volume of depletable material <span class="math notranslate nohighlight">\(j\)</span> be
+<span class="math notranslate nohighlight">\(m^{j}\)</span> and <span class="math notranslate nohighlight">\(V^{j}\)</span> respectively. Let the mass flow rate of process <span class="math notranslate nohighlight">\(p\)</span> be
+<span class="math notranslate nohighlight">\(\dot{m}_{p}\)</span>. At the end of each depletion step, SaltProc constructs process
+paths from the process graph defined in the DOT file, and sequentially applies
+each process <span class="math notranslate nohighlight">\(p\)</span> in each path <span class="math notranslate nohighlight">\(r\)</span> to the relevant materials to obtain through
+and waste streams for each material. SaltProc tracks the mass and nuclide vector for both through and waste streams. For through
+streams, SaltProc also tracks the volume and mass flow rate. For every node
+<span class="math notranslate nohighlight">\(p\in[0,l]\)</span> where <span class="math notranslate nohighlight">\(0\)</span> represents the core outlet and <span class="math notranslate nohighlight">\(l\)</span> represents the core
+inlet, in the path <span class="math notranslate nohighlight">\(r\)</span>, for the through streams we have</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{n}^{j}_{\text{through, }p,r} = \mathbf{n}^{j}_{\text{through, }p-1,r} (1 - \pmb{\epsilon}^{j}_{p,r})\]</div>
+<div class="math notranslate nohighlight">
+\[m^{j}_{\text{through, } p,r} = \alpha_{p} m^{j}_{\text{through, }p-1,r} - m^{j}_{\text{waste, }p,r}\]</div>
+<div class="math notranslate nohighlight">
+\[V^{j}_{\text{through, }p,r} = \alpha_{p}V^{j}_{\text{through, }p-1,r}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\alpha_{p,r} = \frac{\dot{m}_{p,r}}{\dot{m}_{\text{outlet}}}\]</div>
+<p>and the initial conditions are</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{n}^{j}_{\text{through, }0,r} = \mathbf{n}^{j}(i+1)\]</div>
+<div class="math notranslate nohighlight">
+\[m^{j}_{\text{through, }0,r} = \rho^{j}(i+1)V^{j}(i+1)\]</div>
+<div class="math notranslate nohighlight">
+\[V^{j}_{\text{through, }0,r} = V^{j}(i+1)\]</div>
+<p>Similarly, for the waste streams, we have</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{n}^{j}_{\text{waste, }p,r} = \mathbf{n}^{j}_{\text{through, }p-1,r} \cdot \pmb{\epsilon}^{j}_{p,r}\]</div>
+<div class="math notranslate nohighlight">
+\[m^{j}_{\text{waste, }p,r} = \alpha_{p,r} m^{j}_{\text{through, }p-1,r} \langle\mathbf{1},\mathbf{n}^{j}_{\text{waste, }p,r}\rangle\]</div>
+<p>SaltProc does not currently track the volume and mass flow rate of waste streams.
+In practice, since it is extremely resource intensive to separate individual
+isotopes, SaltProc only allows extraction efficiencies to be defined for
+elements. Additionally, any chemical processing would only act on elements, so there is little point in having isotope specific extration efficiencies. So, for any isotope <span class="math notranslate nohighlight">\(a\)</span> of xenon,
+<span class="math notranslate nohighlight">\(\epsilon_{\ce{^{a}Xe}} = \epsilon_{\ce{^{a^{\prime}}Xe}}\)</span>  where
+<span class="math notranslate nohighlight">\(a^{\prime} \in \text{isotopes of Xe}\)</span></p>
+<p>After the recursive computation, SaltProc sums through and waste streams over all
+paths to get the total through stream at the inlet, and the total waste stream at
+the inlet which represents all material removed during reprocessing. In practice,
+we are working with nuclide mass fractions, not total masses, so in the program
+there is an expansion and then normalization of the vectors:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{n}^{j}_\text{through, inlet, net} = \frac{\sum_{r} m^{j}_{\text{through, inlet, }r} \mathbf{n}^{j}_{\text{through, inlet, }r}}{\sum_{r} m^{j}_{\text{through, inlet, }r}}\]</div>
+<div class="math notranslate nohighlight">
+\[\mathbf{n}^{j}_{\text{waste, inlet, net}} = \frac{\sum_{r} m^{j}_{\text{waste, inlet, }r} \mathbf{n}^{j}_{\text{waste, inlet, }r}}{m^{j}_{\text{waste, inlet, }r}}\]</div>
+<p>Before running the next depletion step, for any material that has an associated
+feed material defined, SaltProc will add an amount of the feed material
+equivalent to the removed mass so that the mass of fuel salt undergoing depletion
+remains constant. For feed <span class="math notranslate nohighlight">\(j'\)</span> corresponding to material <span class="math notranslate nohighlight">\(j\)</span>, we have</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{n}^{j}_\text{filled} = \frac{m^{j}_{\text{through, }l}\mathbf{n}^{j}_\text{through, inlet, net} +  m^{j}_{\text{removed}}\mathbf{n}^{j'}}{m^{j}_{\text{through, }0}}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[m^{j}_\text{removed} = m^{j}_{\text{through, }0} - m^{j}_{\text{through, }l}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Theory and Methodology" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../userguide/index.html" class="btn btn-neutral float-right" title="User’s Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: master
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="reprocessing.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+﻿app.run
+=======
+
+.. currentmodule:: app
+
+.. autofunction:: run

@@ -1,7 +1,0 @@
-saltproc.serpent\_depcode module
-================================
-
-.. automodule:: saltproc.serpent_depcode
-   :members:
-   :undoc-members:
-   :show-inheritance:

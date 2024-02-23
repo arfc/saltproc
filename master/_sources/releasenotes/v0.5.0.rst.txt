@@ -15,6 +15,8 @@ Release notes for v0.5.0
 
 
 .. _openmc: https://github.com/openmc-dev/openmc
+.. _serpentTools: https://github.com/CORE-GATECH-GROUP/serpent-tools
+.. _pytables: https://github.com/PyTables/PyTables
 .. _@yardasol: https://github.com/yardasol
 
 
@@ -39,12 +41,16 @@ Dependency Changes
   Describe any new/removed/modified package dependencies
 
 
-- ``SaltProc`` now optionally requires the following package:
+- ``SaltProc`` now requires the following package:
 
   - (new) → `openmc`_
+  - (new) → `serpentTools`_
+  - (formality) → `pytables`_
   
-- ``pyne>=0.5.11`` → ``pyne>=0.5.11=nomoab_noopenmc*``
-  
+- ``pyne>=0.5.11`` →  (removed)
+
+- ``pydotplus`` →  ``pydot``
+
 
 
 New Features
@@ -173,11 +179,15 @@ Python API Changes
     - (new function) →  ``get_neutron_settings()``
     - (new function) →  ``_get_burnable_materials_file()`` 
     - (new function) →  ``_get_burnable_material_card_data()``
+    - (new function) →  ``resolve_include_paths()``
+    - (new function) →  ``_convert_name_to_nuccode()``
     - (new parameter) →  ``zaid_convention``
 
 
   - ``OpenMCDepcode`` is a ``Depcode`` subclass that interfaces with ``openmc``. This class implements the following functions 
     - ``run_depletion_step()``
+    - ``write_saltproc_openmc_tallies()``
+    - ``convert_nuclide_code_to_name()``
     - ``switch_to_next_geometry()``
     - ``write_runtime_input()``
     - ``write_depletion_settings()``
@@ -202,10 +212,15 @@ Python API Changes
     - (new) → ``timestep_units``
     - (new) → ``timestep_type``
 
+  - (new) → ``Results`` 
+
+    - New class for reading the `saltproc_results.h5` file
+
   - ``Simulation``
 
     -  ``core_number`` →  (removed)
     -  ``node_number`` →  (removed)
+    - (new function) → ``_add_missing_nuclides()``
 
   - ``Sparger``
 
@@ -240,5 +255,11 @@ The following people reviewed code for this release of SaltProc:
 
 ..
   `@gh_username <https://github.com/gh_uname>`_
+
+- `@smpark7 <https://github.com/smpark7>`_
+- `@LukeSeifert <https://github.com/LukeSeifert>`_
+- `@munkm <https://github.com/munkm>`_
+- `@abachma2 <https://github.com/abachma2>`_
+
 
 

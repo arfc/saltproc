@@ -1,7 +1,0 @@
-saltproc.tests.test\_simulation module
-======================================
-
-.. automodule:: saltproc.tests.test_simulation
-   :members:
-   :undoc-members:
-   :show-inheritance:

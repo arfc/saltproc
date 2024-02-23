@@ -1,0 +1,6 @@
+﻿app.read_main_input
+===================
+
+.. currentmodule:: app
+
+.. autofunction:: read_main_input

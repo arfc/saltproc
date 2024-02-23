@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creating a SaltProc input file &mdash; Saltproc 0.5.dev documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Creating Processing System Files" href="processing_system.html" />
+    <link rel="prev" title="Basics of Using SaltProc" href="basics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.5.dev
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User’s Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="beginners.html">A Beginner’s Guide to SaltProc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basics.html">Basics of Using SaltProc</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Creating a SaltProc input file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-json-file">Creating a JSON file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#base-paremters">Base paremters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transport-code-parameters">Transport code parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#serpent2">Serpent2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#openmc">OpenMC</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#simulation-parameters">Simulation parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#depletion-step-parameters">Depletion step parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="processing_system.html">Creating Processing System Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Template and Runtime Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html">Executables and Scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallel.html">Running in Parallel</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io_formats/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">User’s Guide</a></li>
+      <li class="breadcrumb-item active">Creating a SaltProc input file</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/userguide/input.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="creating-a-saltproc-input-file">
+<span id="userguide-input"></span><h1>Creating a SaltProc input file<a class="headerlink" href="#creating-a-saltproc-input-file" title="Permalink to this heading">¶</a></h1>
+<p>The SaltProc input file passes three categories of information to the program:</p>
+<ol class="arabic simple">
+<li><p>Paths to files that describe the reprocessing system</p></li>
+<li><p>Paths to template files for the transport code.</p></li>
+<li><p>Depletion settings</p></li>
+</ol>
+<p>In the following sections, we will create an example SaltProc input file, and
+explain the purpose for each input variable. For a more detailed breakdown of
+the inputs, check the <a class="reference internal" href="../io_formats/index.html#io-formats-input-files"><span class="std std-ref">Input Files</span></a> page.</p>
+<section id="creating-a-json-file">
+<h2>Creating a JSON file<a class="headerlink" href="#creating-a-json-file" title="Permalink to this heading">¶</a></h2>
+<p>JSON files themselves are not that complicated. They consist of key-value pairs,
+much like a dictionary in Python. The entire JSON files needs to be wrapped with curly brackets, so we start our file like so:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="base-paremters">
+<h2>Base paremters<a class="headerlink" href="#base-paremters" title="Permalink to this heading">¶</a></h2>
+<p>There are two required base parameters: <a class="reference internal" href="../io_formats/saltproc_input.html#proc-input-file-property"><span class="std std-ref">proc_input_file</span></a>, a path to the file
+that defines processes, and <a class="reference internal" href="../io_formats/saltproc_input.html#dot-input-file-property"><span class="std std-ref">dot_input_file</span></a>, a path to the file that defines
+the process graph. We will learn how to create these files in the next chapter,
+but for now we just need to specify a path. We recommend storing all the input
+files in the same directory, but this is not requried.</p>
+<p>Let’s name our process file <cite>processes.json</cite> and the process graph file <cite>graph.dot</cite>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;proc_input_file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;processes.json&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;dot_input_file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;graph.dot&quot;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="transport-code-parameters">
+<h2>Transport code parameters<a class="headerlink" href="#transport-code-parameters" title="Permalink to this heading">¶</a></h2>
+<p>As explained in <span class="xref std std-ref">methods_coupling</span>, SaltProc uses template files provided
+by the user to create runtime files that are used as inputs to the transport
+code for each depletion step. The <a class="reference internal" href="../io_formats/saltproc_input.html#depcode-property"><span class="std std-ref">depcode</span></a> setting in the
+SaltProc input file store paths to these template files, as well as other
+settings. The only two input parameters that have the same format for
+different transport codes are <a class="reference internal" href="../io_formats/depcode_input.html#codename-property"><span class="std std-ref">codename</span></a> and
+<a class="reference internal" href="../io_formats/depcode_input.html#geo-file-paths-property"><span class="std std-ref">geo_file_paths</span></a>. <code class="docutils literal notranslate"><span class="pre">codename</span></code> is a string that indicates the
+transport code you are using. Accepted values are lowercased versions of the
+supported transport code (e.g. “serpent”, “openmc”). <code class="docutils literal notranslate"><span class="pre">geo_file_paths</span></code> is a
+list of paths to geometry files <a class="footnote-reference brackets" href="#f1" id="id1">1</a>. At least one path to a geometry file must
+be given, and for the purposes of this guide this is sufficient.</p>
+<p>Let’s briefly break down the minimum requirements for each supported transport
+code.</p>
+<section id="serpent2">
+<h3>Serpent2<a class="headerlink" href="#serpent2" title="Permalink to this heading">¶</a></h3>
+<p>Only two additional parameters are needed for Serpent2 coupling:</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../io_formats/depcode_input.html#serpent-template-input-file-path-property"><span class="std std-ref">template_input_file_path</span></a></dt><dd><p>A path to a template input file. We describe the structure of this file in <a class="reference internal" href="templates.html#userguide-templates-serpent"><span class="std std-ref">Serpent 2 Template Files</span></a>.</p>
+</dd>
+<dt><a class="reference internal" href="../io_formats/depcode_input.html#zaid-convention-property"><span class="std std-ref">zaid_convention</span></a></dt><dd><p>A string that tells SaltProc what convention to use for the ZAIDs of
+metastable isotopes. By default, SaltProc uses the <code class="docutils literal notranslate"><span class="pre">mcnp</span></code> convention.</p>
+</dd>
+</dl>
+<p>Let’s assume that we name our template input file <cite>template.serpent</cite>. If we have
+verified that we are okay to use the default value for <code class="docutils literal notranslate"><span class="pre">zaid_convention</span></code>, then
+we have:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;proc_input_file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;processes.json&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;dot_input_file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;graph.dot&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;depcode&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;codename&quot;</span><span class="p">:</span><span class="w"> </span><span class="nt">&quot;serpent&quot;</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;geo_file_paths&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;geometry.ini&quot;</span><span class="p">],</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;template_input_file_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;template.serpent&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="openmc">
+<h3>OpenMC<a class="headerlink" href="#openmc" title="Permalink to this heading">¶</a></h3>
+<p>The OpenMC inputs are more complicated. There are two reasons for this:</p>
+<ol class="arabic simple">
+<li><p>OpenMC uses separate input files for material, geometry, settings, and tally parameters, and uses strict naming for these input files.</p></li>
+<li><p>Configuring OpenMC’s depletion capabilities must be done via the Python API, so what normally would be handled in the template input file must be handled directly in the SaltProc input file.</p></li>
+</ol>
+<p>Fortunately, SaltProc doesn’t require users to touch these setting at all if
+they want to use the default options. Users interested in configuring their
+OpenMC depletion settings should advise the <a class="reference external" href="https://docs.openmc.org/en/stable/pythonapi/deplete.html">deplete module API</a> as well as the
+<a class="reference external" href="https://docs.openmc.org/en/stable/usersguide/depletion.html">user guide section on depletion</a> to familiarize themselves with the various
+options, then look at the options in <a class="reference internal" href="../io_formats/depcode_input.html#openmc-depletion-settings-property"><span class="std std-ref">depletion_settings</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">depcode</span></code> paramter for OpenMC also has the
+<a class="reference internal" href="../io_formats/depcode_input.html#openmc-template-input-file-path-property"><span class="std std-ref">template_input_file_path</span></a> parameter, except it is an
+object that in turn requires two file paths:
+<code class="docutils literal notranslate"><span class="pre">materials</span></code> for the materials file, and <code class="docutils literal notranslate"><span class="pre">settings</span></code> for the settings file.
+There is an additonal required parameter, <a class="reference internal" href="../io_formats/depcode_input.html#openmc-chain-file-path-property"><span class="std std-ref">chain_file_path</span></a>
+which is a path to an OpenMC depletion chain file. Suppose we prepend
+<code class="docutils literal notranslate"><span class="pre">template_</span></code> to the names of our OpenMC input files:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;proc_input_file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;processes.json&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;dot_input_file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;graph.dot&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;depcode&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;codename&quot;</span><span class="p">:</span><span class="w"> </span><span class="nt">&quot;openmc&quot;</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;geo_file_paths&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;geometry.xml&quot;</span><span class="p">],</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;template_input_file_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;materials&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;template_materials.xml&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;template_settings.xml&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;chain_file_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chain_simple.xml&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="simulation-parameters">
+<h2>Simulation parameters<a class="headerlink" href="#simulation-parameters" title="Permalink to this heading">¶</a></h2>
+<p>Most users will only need to set the <code class="docutils literal notranslate"><span class="pre">sim_name</span></code> parameter. In this case,
+we can just pick <code class="docutils literal notranslate"><span class="pre">&quot;saltproc_example&quot;</span></code>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;proc_input_file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;processes.json&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;dot_input_file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;graph.dot&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;depcode&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;simulation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;sim_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;saltproc_example&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>There are two optional parameters that are important to make note of:</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../io_formats/simulation_input.html#restart-flag-property"><span class="std std-ref">restart_flag</span></a></dt><dd><p>If a simulation fails before all the depletion steps have been calculated, the
+users can set <code class="docutils literal notranslate"><span class="pre">restart_flag</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code> to run the simulation
+staring the last completed depletion step</p>
+</dd>
+<dt><a class="reference internal" href="../io_formats/simulation_input.html#adjust-geo-property"><span class="std std-ref">adjust_geo</span></a></dt><dd><p>Setting <code class="docutils literal notranslate"><span class="pre">adjut_geo</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code> will instruct SaltProc to switch to the next
+geometry file in <code class="docutils literal notranslate"><span class="pre">geo_file_paths</span></code> when <span class="math notranslate nohighlight">\(k_\text{eff}\)</span> drops below 1.</p>
+</dd>
+</dl>
+</section>
+<section id="depletion-step-parameters">
+<h2>Depletion step parameters<a class="headerlink" href="#depletion-step-parameters" title="Permalink to this heading">¶</a></h2>
+<p>In general, depletion parameters other than the defualts (e.g. timestepper
+method, solver used for the Bateman equations, normalization, etc.) should be
+set in the template input file when possible. The rationale for this is that
+these settings have more to do with the internal depletion calculations of the
+transport code than they do with SaltProc execution. The obvious exception to
+this are the delpletion step settings.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">reactor</span></code> parameter provides four parameters to specify depletion settings:</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../io_formats/reactor_input.html#power-levels-property"><span class="std std-ref">power_levels</span></a></dt><dd><p>This property describes the power level at each depletion timestep. If a user
+wants to use the same power level for each depletion timestep, they can pass
+a singleton list instead and set <a class="reference internal" href="../io_formats/saltproc_input.html#n-depletion-steps-property"><span class="std std-ref">n_depletion_steps</span></a>.</p>
+</dd>
+<dt><a class="reference internal" href="../io_formats/reactor_input.html#depletion-timesteps-property"><span class="std std-ref">depletion_timesteps</span></a></dt><dd><p>This property described the length of each depletion step.</p>
+</dd>
+<dt><a class="reference internal" href="../io_formats/reactor_input.html#timestep-type-property"><span class="std std-ref">timestep_type</span></a></dt><dd><p>The value of this property (<code class="docutils literal notranslate"><span class="pre">cumulative</span></code> or <code class="docutils literal notranslate"><span class="pre">stepwise</span></code>) tells SaltProc how
+to interpret <code class="docutils literal notranslate"><span class="pre">depletion_timesteps</span></code>. If <code class="docutils literal notranslate"><span class="pre">cumulative</span></code>, each value in
+<code class="docutils literal notranslate"><span class="pre">depletion</span> <span class="pre">timesteps</span></code> is assumed to be an absolute time, so the depletion
+step lengths are the differences between consecutive entries. If
+<code class="docutils literal notranslate"><span class="pre">stepwise</span></code>, each value in <code class="docutils literal notranslate"><span class="pre">depletion_stimesetps</span></code> is assumed to be the
+length of each depletion step. <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> is the default value for this
+parameter.</p>
+</dd>
+<dt><a class="reference internal" href="../io_formats/reactor_input.html#timestep-units-property"><span class="std std-ref">timestep_units</span></a></dt><dd><p>This parameter specifies the units for <code class="docutils literal notranslate"><span class="pre">depletion_timesteps</span></code></p>
+</dd>
+</dl>
+<p>Let’s assume we want to run a depletion simultion for 36 days using 3-day
+timesteps at 1000MW:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;proc_input_file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;processes.json&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;dot_input_file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;graph.dot&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;n_depletion_steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;depcode&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;simulation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;sim_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;saltproc_example&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;reactor&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;depletion_timesteps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;power_levels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1000</span><span class="p">],</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;timestep_units&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;d&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>With this, our input file is finished!</p>
+<p class="rubric">Footnotes</p>
+<dl class="footnote brackets">
+<dt class="label" id="f1"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>As explained in <span class="xref std std-ref">methods_geometry_switching</span>, SaltProc allows a user to provide multiple geometry configurations that are switched to sequentially if that option is enabled and <span class="math notranslate nohighlight">\(k_\text{eff}\)</span> drops below 1</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="basics.html" class="btn btn-neutral float-left" title="Basics of Using SaltProc" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="processing_system.html" class="btn btn-neutral float-right" title="Creating Processing System Files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: master
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="input.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
