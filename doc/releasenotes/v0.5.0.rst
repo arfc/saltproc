@@ -41,7 +41,7 @@ Dependency Changes
   Describe any new/removed/modified package dependencies
 
 
-- ``SaltProc`` now requires the following package:
+- ``SaltProc`` now requires the following packages:
 
   - (new) → `openmc`_
   - (new) → `serpentTools`_
@@ -70,8 +70,9 @@ Bug Fixes
 ..
   Describe any bug fixes.
 
-- `Fix bug where Serpent2 material temperatures are hardcoded to 900K in the JEFF 3.1.2 library format. <https://github.com/arfc/saltproc/pull/178>`
-- `Fix bug where using MCNP-style ZAID codes results in an error in various SerpentDepcode functions <https://github.com/arfc/saltproc/issues/187>`
+- `Fix bug where Serpent2 material temperatures are hardcoded to 900K in the JEFF 3.1.2 library format. <https://github.com/arfc/saltproc/pull/178>`_ by `@yardasol`_
+- `Fix bug where using MCNP-style ZAID codes results in an error in various SerpentDepcode functions <https://github.com/arfc/saltproc/issues/187>`_ by `@yardasol`_
+- `Fix bug where only one array of OpenMC Materials are stored in results <https://github.com/arfc/saltproc/issues/196>`_ by `@yardasol`_
 
 
 
@@ -106,10 +107,10 @@ Python API Changes
 - Input file format changes:
 
   - Removed the ``-n`` command line argument in favor of the new ``mpi_args`` input parameter
-  - Chaged the ``-d`` command line argument to ``-s``/``--threads``.
+  - Changed the ``-d`` command line argument to ``-s``/``--threads``.
   - (new)  → ``mpi_args``
   - Added default values for certain input parameters
-  - Adds a ``zaid_convention`` input parameter
+  - Added a ``zaid_convention`` input parameter
   - Added depletion settings for OpenMC
   - ``num_depsteps`` → ``n_depletion_steps``
   - ``depcode['template_inputfile_path']`` → ``depcode['template_input_file_path']``
@@ -135,7 +136,7 @@ Python API Changes
 
   - ``Depcode``
 
-    - Add `output_path` parameter.
+    - Added `output_path` parameter.
     - ``template_inputfile_path`` → ``template_input_file_path``
     - Removed default values for `geo_files`
     - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
@@ -154,7 +155,7 @@ Python API Changes
 
   - ``DepcodeSerpent`` → ``SerpentDepcode``
 
-    - Add `output_path` parameter.
+    - Added `output_path` parameter.
     - ``template_inputfile_path`` → ``template_input_file_path``
     - Removed default values for `exec_path`, `template_input_file_path`, `geo_files`
     - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
@@ -198,13 +199,13 @@ Python API Changes
 
     - ``reprocessing()`` → ``reprocess_materials()``
     - ``refill()`` → ``refill_materials()``
-    - ``read_feeds_from_input`` → ``get_feeds()``
-    - ``read_processes_from_input`` → ``get_extraction_processes()``
+    - ``read_feeds_from_input()`` → ``get_feeds()``
+    - ``read_processes_from_input()`` → ``get_extraction_processes()``
     - ``read_dot()`` → ``get_extraction_process_paths()``
 
   - ``Process``
 
-    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency``
+    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency()``
 
   - ``Reactor``
 
@@ -224,11 +225,11 @@ Python API Changes
 
   - ``Sparger``
 
-    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency``
+    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency()``
 
   - ``Separator``
 
-    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency``
+    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency()``
 
 
 Contributors
@@ -260,6 +261,5 @@ The following people reviewed code for this release of SaltProc:
 - `@LukeSeifert <https://github.com/LukeSeifert>`_
 - `@munkm <https://github.com/munkm>`_
 - `@abachma2 <https://github.com/abachma2>`_
-
-
-
+- `@samgdotson <https://github.com/samgdotson>`_
+- `@ZoeRichter <https://github.com/ZoeRichter>`_
