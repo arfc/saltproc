@@ -105,7 +105,7 @@ the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</
 <section id="dependency-changes">
 <h2>Dependency Changes<a class="headerlink" href="#dependency-changes" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">SaltProc</span></code> now requires the following package:</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">SaltProc</span></code> now requires the following packages:</p>
 <ul>
 <li><p>(new) → <a class="reference external" href="https://github.com/openmc-dev/openmc">openmc</a></p></li>
 <li><p>(new) → <a class="reference external" href="https://github.com/CORE-GATECH-GROUP/serpent-tools">serpentTools</a></p></li>
@@ -126,8 +126,9 @@ the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</
 <section id="bug-fixes">
 <h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
-<li><p><cite>Fix bug where Serpent2 material temperatures are hardcoded to 900K in the JEFF 3.1.2 library format. &lt;https://github.com/arfc/saltproc/pull/178&gt;</cite></p></li>
-<li><p><cite>Fix bug where using MCNP-style ZAID codes results in an error in various SerpentDepcode functions &lt;https://github.com/arfc/saltproc/issues/187&gt;</cite></p></li>
+<li><p><a class="reference external" href="https://github.com/arfc/saltproc/pull/178">Fix bug where Serpent2 material temperatures are hardcoded to 900K in the JEFF 3.1.2 library format.</a> by <a class="reference external" href="https://github.com/yardasol">&#64;yardasol</a></p></li>
+<li><p><a class="reference external" href="https://github.com/arfc/saltproc/issues/187">Fix bug where using MCNP-style ZAID codes results in an error in various SerpentDepcode functions</a> by <a class="reference external" href="https://github.com/yardasol">&#64;yardasol</a></p></li>
+<li><p><a class="reference external" href="https://github.com/arfc/saltproc/issues/196">Fix bug where only one array of OpenMC Materials are stored in results</a> by <a class="reference external" href="https://github.com/yardasol">&#64;yardasol</a></p></li>
 </ul>
 </section>
 <section id="script-changes">
@@ -153,10 +154,10 @@ the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</
 <li><p>Input file format changes:</p>
 <ul>
 <li><p>Removed the <code class="docutils literal notranslate"><span class="pre">-n</span></code> command line argument in favor of the new <code class="docutils literal notranslate"><span class="pre">mpi_args</span></code> input parameter</p></li>
-<li><p>Chaged the <code class="docutils literal notranslate"><span class="pre">-d</span></code> command line argument to <code class="docutils literal notranslate"><span class="pre">-s</span></code>/<code class="docutils literal notranslate"><span class="pre">--threads</span></code>.</p></li>
+<li><p>Changed the <code class="docutils literal notranslate"><span class="pre">-d</span></code> command line argument to <code class="docutils literal notranslate"><span class="pre">-s</span></code>/<code class="docutils literal notranslate"><span class="pre">--threads</span></code>.</p></li>
 <li><p>(new)  → <code class="docutils literal notranslate"><span class="pre">mpi_args</span></code></p></li>
 <li><p>Added default values for certain input parameters</p></li>
-<li><p>Adds a <code class="docutils literal notranslate"><span class="pre">zaid_convention</span></code> input parameter</p></li>
+<li><p>Added a <code class="docutils literal notranslate"><span class="pre">zaid_convention</span></code> input parameter</p></li>
 <li><p>Added depletion settings for OpenMC</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_depsteps</span></code> → <code class="docutils literal notranslate"><span class="pre">n_depletion_steps</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">depcode['template_inputfile_path']</span></code> → <code class="docutils literal notranslate"><span class="pre">depcode['template_input_file_path']</span></code></p></li>
@@ -188,7 +189,7 @@ longer be initialized by the user from the SaltProc input file.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">Depcode</span></code></p>
 <ul>
-<li><p>Add <cite>output_path</cite> parameter.</p></li>
+<li><p>Added <cite>output_path</cite> parameter.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">template_inputfile_path</span></code> → <code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code></p></li>
 <li><p>Removed default values for <cite>geo_files</cite></p></li>
 <li><p>Changed <cite>iter_inputfile</cite>, <cite>iter_matfile</cite> to be attributes instead of parameters</p></li>
@@ -208,7 +209,7 @@ longer be initialized by the user from the SaltProc input file.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent</span></code> → <code class="docutils literal notranslate"><span class="pre">SerpentDepcode</span></code></p>
 <ul>
-<li><p>Add <cite>output_path</cite> parameter.</p></li>
+<li><p>Added <cite>output_path</cite> parameter.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">template_inputfile_path</span></code> → <code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code></p></li>
 <li><p>Removed default values for <cite>exec_path</cite>, <cite>template_input_file_path</cite>, <cite>geo_files</cite></p></li>
 <li><p>Changed <cite>iter_inputfile</cite>, <cite>iter_matfile</cite> to be attributes instead of parameters</p></li>
@@ -250,14 +251,14 @@ longer be initialized by the user from the SaltProc input file.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">reprocessing()</span></code> → <code class="docutils literal notranslate"><span class="pre">reprocess_materials()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">refill()</span></code> → <code class="docutils literal notranslate"><span class="pre">refill_materials()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">read_feeds_from_input</span></code> → <code class="docutils literal notranslate"><span class="pre">get_feeds()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">read_processes_from_input</span></code> → <code class="docutils literal notranslate"><span class="pre">get_extraction_processes()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_feeds_from_input()</span></code> → <code class="docutils literal notranslate"><span class="pre">get_feeds()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_processes_from_input()</span></code> → <code class="docutils literal notranslate"><span class="pre">get_extraction_processes()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">read_dot()</span></code> → <code class="docutils literal notranslate"><span class="pre">get_extraction_process_paths()</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Process</span></code></p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency()</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Reactor</span></code></p>
@@ -281,12 +282,12 @@ longer be initialized by the user from the SaltProc input file.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Sparger</span></code></p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency()</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Separator</span></code></p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency()</span></code></p></li>
 </ul>
 </li>
 </ul>
@@ -308,6 +309,8 @@ longer be initialized by the user from the SaltProc input file.</p>
 <li><p><a class="reference external" href="https://github.com/LukeSeifert">&#64;LukeSeifert</a></p></li>
 <li><p><a class="reference external" href="https://github.com/munkm">&#64;munkm</a></p></li>
 <li><p><a class="reference external" href="https://github.com/abachma2">&#64;abachma2</a></p></li>
+<li><p><a class="reference external" href="https://github.com/samgdotson">&#64;samgdotson</a></p></li>
+<li><p><a class="reference external" href="https://github.com/ZoeRichter">&#64;ZoeRichter</a></p></li>
 </ul>
 </section>
 </section>
