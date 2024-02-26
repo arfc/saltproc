@@ -2,7 +2,7 @@
 Release notes for v0.6.0
 ========================
 
-.. note:: These release notes are currently in production.
+
 
 ..
   When documenting a bug fix or feature, please do so in the following format
