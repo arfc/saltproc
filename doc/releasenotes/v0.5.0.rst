@@ -107,10 +107,10 @@ Python API Changes
 - Input file format changes:
 
   - Removed the ``-n`` command line argument in favor of the new ``mpi_args`` input parameter
-  - Chaged the ``-d`` command line argument to ``-s``/``--threads``.
+  - Changed the ``-d`` command line argument to ``-s``/``--threads``.
   - (new)  → ``mpi_args``
   - Added default values for certain input parameters
-  - Adds a ``zaid_convention`` input parameter
+  - Added a ``zaid_convention`` input parameter
   - Added depletion settings for OpenMC
   - ``num_depsteps`` → ``n_depletion_steps``
   - ``depcode['template_inputfile_path']`` → ``depcode['template_input_file_path']``
@@ -199,13 +199,13 @@ Python API Changes
 
     - ``reprocessing()`` → ``reprocess_materials()``
     - ``refill()`` → ``refill_materials()``
-    - ``read_feeds_from_input`` → ``get_feeds()``
-    - ``read_processes_from_input`` → ``get_extraction_processes()``
+    - ``read_feeds_from_input()`` → ``get_feeds()``
+    - ``read_processes_from_input()`` → ``get_extraction_processes()``
     - ``read_dot()`` → ``get_extraction_process_paths()``
 
   - ``Process``
 
-    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency``
+    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency()``
 
   - ``Reactor``
 
