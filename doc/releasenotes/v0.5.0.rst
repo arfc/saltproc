@@ -136,7 +136,7 @@ Python API Changes
 
   - ``Depcode``
 
-    - Add `output_path` parameter.
+    - Added `output_path` parameter.
     - ``template_inputfile_path`` → ``template_input_file_path``
     - Removed default values for `geo_files`
     - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
@@ -155,7 +155,7 @@ Python API Changes
 
   - ``DepcodeSerpent`` → ``SerpentDepcode``
 
-    - Add `output_path` parameter.
+    - Added `output_path` parameter.
     - ``template_inputfile_path`` → ``template_input_file_path``
     - Removed default values for `exec_path`, `template_input_file_path`, `geo_files`
     - Changed `iter_inputfile`, `iter_matfile` to be attributes instead of parameters
@@ -225,11 +225,11 @@ Python API Changes
 
   - ``Sparger``
 
-    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency``
+    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency()``
 
   - ``Separator``
 
-    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency``
+    - ``calc_rem_efficiency()`` → ``calculate_removal_efficiency()``
 
 
 Contributors
