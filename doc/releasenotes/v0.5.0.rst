@@ -41,7 +41,7 @@ Dependency Changes
   Describe any new/removed/modified package dependencies
 
 
-- ``SaltProc`` now requires the following package:
+- ``SaltProc`` now requires the following packages:
 
   - (new) → `openmc`_
   - (new) → `serpentTools`_
@@ -70,8 +70,9 @@ Bug Fixes
 ..
   Describe any bug fixes.
 
-- `Fix bug where Serpent2 material temperatures are hardcoded to 900K in the JEFF 3.1.2 library format. <https://github.com/arfc/saltproc/pull/178>`
-- `Fix bug where using MCNP-style ZAID codes results in an error in various SerpentDepcode functions <https://github.com/arfc/saltproc/issues/187>`
+- `Fix bug where Serpent2 material temperatures are hardcoded to 900K in the JEFF 3.1.2 library format. <https://github.com/arfc/saltproc/pull/178>`_ by `@yardasol`_
+- `Fix bug where using MCNP-style ZAID codes results in an error in various SerpentDepcode functions <https://github.com/arfc/saltproc/issues/187>`_ by `@yardasol`_
+- `Fix bug where only one array of OpenMC Materials are stored in results <https://github.com/arfc/saltproc/issues/196>`_ by `@yardasol`_
 
 
 
@@ -260,6 +261,5 @@ The following people reviewed code for this release of SaltProc:
 - `@LukeSeifert <https://github.com/LukeSeifert>`_
 - `@munkm <https://github.com/munkm>`_
 - `@abachma2 <https://github.com/abachma2>`_
-
-
-
+- `@samgdotson <https://github.com/samgdotson>`_
+- `@ZoeRichter <https://github.com/ZoeRichter>`_
