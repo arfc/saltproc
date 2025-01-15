@@ -32,7 +32,7 @@ jobs:
 ## TESTING CACHE ##
 # Setup conda 
       - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v4
+        uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
           activate-environment: saltproc-env
@@ -102,7 +102,7 @@ jobs:
 
 ## DOCUMENTATION CACHE ##
       - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v4
+        uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
           activate-environment: saltproc-doc-env

@@ -37,7 +37,7 @@ jobs:
 
 # Setup conda 
       - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v4
+        uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
           channels: conda-forge
