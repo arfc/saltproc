@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - python < 3.12
   - numpy
   - pytables
   - networkx
@@ -10,5 +11,5 @@ dependencies:
   - pytest
   - jsonschema
   - pip:
-    - serpentTools
+    - git+https://github.com/CORE-GATECH-GROUP/serpent-tools.git
     - argparse==1.4.0
