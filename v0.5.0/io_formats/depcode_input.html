@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>depcode Properties &mdash; Saltproc 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="simulation Properties" href="simulation_input.html" />
+    <link rel="prev" title="SaltProc Input File" href="saltproc_input.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">File Format Specifications</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#input-files">Input Files</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="saltproc_input.html">SaltProc Input File</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">depcode</span></code> Properties</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#generic-properties">Generic properties</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#serpent-specific-properties">Serpent-specific properties</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#openmc-specific-properties">OpenMC-specific properties</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#operator-kwargs-properties"><code class="docutils literal notranslate"><span class="pre">operator_kwargs</span></code> Properties</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fission-yield-opts-properties-constant-fission-yield-mode"><code class="docutils literal notranslate"><span class="pre">fission_yield_opts</span></code> Properties – <code class="docutils literal notranslate"><span class="pre">constant</span></code> fission yield mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fission-yield-opts-properties-cutoff-fission-yield-mode"><code class="docutils literal notranslate"><span class="pre">fission_yield_opts</span></code> Properties – <code class="docutils literal notranslate"><span class="pre">cutoff</span></code> fission yield mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reaction-rate-opts-properties-flux-reaction-rate-mode"><code class="docutils literal notranslate"><span class="pre">reaction_rate_opts</span></code> Properties – <code class="docutils literal notranslate"><span class="pre">flux</span></code> reaction rate mode</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulation_input.html"><code class="docutils literal notranslate"><span class="pre">simulation</span></code> Properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reactor_input.html"><code class="docutils literal notranslate"><span class="pre">reactor</span></code> Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#output-files">Output Files</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">File Format Specifications</a></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">depcode</span></code> Properties</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/io_formats/depcode_input.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="depcode-properties">
+<span id="depcode-input"></span><h1><code class="docutils literal notranslate"><span class="pre">depcode</span></code> Properties<a class="headerlink" href="#depcode-properties" title="Permalink to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">depcode</span></code> property has a large number of potential inputs depending on which depletion code we are using. The generic properties are given directly
+below, and code-specific properties are given in their appropriate subsections.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The code-specific properties add to or modify the existing generic
+properties. They do not replace them, but there can be new ones.</p>
+</div>
+<section id="generic-properties">
+<h2>Generic properties<a class="headerlink" href="#generic-properties" title="Permalink to this heading">¶</a></h2>
+<p>Required properties: <code class="docutils literal notranslate"><span class="pre">codename</span></code>, <code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code>, <code class="docutils literal notranslate"><span class="pre">geo_file_paths</span></code>.</p>
+<section id="codename">
+<span id="codename-property"></span><h3><code class="docutils literal notranslate"><span class="pre">codename</span></code><a class="headerlink" href="#codename" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Name of depletion code</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-odd">enum</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">serpent</span></code>, <code class="docutils literal notranslate"><span class="pre">openmc</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="exec-path">
+<span id="exec-path-property"></span><h3><code class="docutils literal notranslate"><span class="pre">exec_path</span></code><a class="headerlink" href="#exec-path" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Path to depletion code executable</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="template-input-file-path">
+<span id="template-input-file-path-property"></span><h3><code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code><a class="headerlink" href="#template-input-file-path" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Path(s) to user’s template depletion code input file(s) with reactor model</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="geo-file-paths">
+<span id="geo-file-paths-property"></span><h3><code class="docutils literal notranslate"><span class="pre">geo_file_paths</span></code><a class="headerlink" href="#geo-file-paths" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Path(s) to geometry file(s) to switch to in depletion code runs</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+<dt class="field-odd">items</dt>
+<dd class="field-odd"><dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-even">minItems</dt>
+<dd class="field-even"><p>1</p>
+</dd>
+<dt class="field-odd">uniqueItems</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</section>
+<section id="serpent-specific-properties">
+<span id="id1"></span><h2>Serpent-specific properties<a class="headerlink" href="#serpent-specific-properties" title="Permalink to this heading">¶</a></h2>
+<section id="serpent-exec-path-property">
+<span id="id2"></span><h3><code class="docutils literal notranslate"><span class="pre">exec_path</span></code><a class="headerlink" href="#serpent-exec-path-property" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">default</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">sss2</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="serpent-template-input-file-path-property">
+<span id="id3"></span><h3><code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code><a class="headerlink" href="#serpent-template-input-file-path-property" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">pattern</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">^(.\\/)*(.*)$</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="zaid-convention">
+<span id="zaid-convention-property"></span><h3><code class="docutils literal notranslate"><span class="pre">zaid_convention</span></code><a class="headerlink" href="#zaid-convention" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>ZAID naming convention for nuclide codes. ‘serpent’: The third digit in ZA for nuclides in isomeric states is 3 (e.g. 47310 for for Ag-110m). ‘mcnp’: ZA = Z*1000 + A + (300 + 100*m). where m is the mth isomeric state (e.g. 47510 for Ag-110m). ‘nndc’: Identical to ‘mcnp’, except Am242m1 is 95242 and Am242 is 95642</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-odd">enum</dt>
+<dd class="field-odd"><p>“serpent”, “mcnp”, “nndc”</p>
+</dd>
+<dt class="field-even">default</dt>
+<dd class="field-even"><p>“mcnp”</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</section>
+<section id="openmc-specific-properties">
+<span id="id4"></span><h2>OpenMC-specific properties<a class="headerlink" href="#openmc-specific-properties" title="Permalink to this heading">¶</a></h2>
+<section id="openmc-exec-path-property">
+<span id="id5"></span><h3><code class="docutils literal notranslate"><span class="pre">exec_path</span></code><a class="headerlink" href="#openmc-exec-path-property" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Path to OpenMC depletion script</p>
+</dd>
+<dt class="field-even">const</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">openmc_deplete.py</span></code></p>
+</dd>
+<dt class="field-odd">default</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">openmc_deplete.py</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="openmc-template-input-file-path-property">
+<span id="id6"></span><h3><code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code><a class="headerlink" href="#openmc-template-input-file-path-property" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Paths to OpenMC template input files.</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">object</span></code>.</p>
+</dd>
+<dt class="field-odd">required</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">settings</span></code>, <code class="docutils literal notranslate"><span class="pre">materials</span></code></p>
+</dd>
+<dt class="field-even">properties</dt>
+<dd class="field-even"><dl class="field-list simple">
+<dt class="field-odd">settings</dt>
+<dd class="field-odd"><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>OpenMC settings file</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-odd">pattern</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">^(.\\/)+(.+)\\.xml$</span></code></p>
+</dd>
+<dt class="field-even">default</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">settings.xml</span></code></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">materials</dt>
+<dd class="field-even"><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>OpenMC materials file</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-odd">pattern</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">^(.\\/)*(.*)\\.xml$</span></code></p>
+</dd>
+<dt class="field-even">default</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">materials.xml</span></code></p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="openmc-geo-file-paths-property">
+<span id="id7"></span><h3><code class="docutils literal notranslate"><span class="pre">geo_file_paths</span></code><a class="headerlink" href="#openmc-geo-file-paths-property" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">items</dt>
+<dd class="field-odd"><dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-even">pattern</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">^(.\\/)*(.*)\\.xml$</span></code></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">default</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">geometry.xml</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="chain-file-path">
+<span id="openmc-chain-file-path-property"></span><h3><code class="docutils literal notranslate"><span class="pre">chain_file_path</span></code><a class="headerlink" href="#chain-file-path" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Path to depletion chain file</p>
+</dd>
+<dt class="field-even">pattern</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">^(.\\/)*(.*)\\.xml$</span></code></p>
+</dd>
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="depletion-settings">
+<span id="openmc-depletion-settings-property"></span><h3><code class="docutils literal notranslate"><span class="pre">depletion_settings</span></code><a class="headerlink" href="#depletion-settings" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>OpenMC depletion settings</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">object</span></code>.</p>
+</dd>
+<dt class="field-odd">default</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p>
+</dd>
+<dt class="field-even">properties</dt>
+<dd class="field-even"><dl class="field-list simple">
+<dt class="field-odd">method</dt>
+<dd class="field-odd"><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Integration method used for depletion</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-odd">enum</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">cecm</span></code>, <code class="docutils literal notranslate"><span class="pre">predictor</span></code>, <code class="docutils literal notranslate"><span class="pre">cf4</span></code>, <code class="docutils literal notranslate"><span class="pre">epc_rk4</span></code>, <code class="docutils literal notranslate"><span class="pre">si_celi</span></code>, <code class="docutils literal notranslate"><span class="pre">si_leqi</span></code>,
+<code class="docutils literal notranslate"><span class="pre">celi</span></code>, <code class="docutils literal notranslate"><span class="pre">leqi</span></code></p>
+</dd>
+<dt class="field-even">default</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">predictor</span></code></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">final_step</dt>
+<dd class="field-even"><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Indicate whether or not a transport solve should be run at the end of the
+last timestep</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">boolean</span></code></p>
+</dd>
+<dt class="field-odd">default</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">operator_kwargs</dt>
+<dd class="field-odd"><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Keyword arguments passed to the depletion operator initalizer</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd>
+<dt class="field-odd">default</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p>
+</dd>
+<dt class="field-even">properties</dt>
+<dd class="field-even"><p><a class="reference internal" href="#openmc-operator-kwargs-properties"><span class="std std-ref">operator_kwargs Properties</span></a></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">output</dt>
+<dd class="field-even"><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Capture OpenMC output from standard out</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">boolean</span></code></p>
+</dd>
+<dt class="field-odd">default</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">integrator_kwargs</dt>
+<dd class="field-odd"><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Remaining keyword arguments for the depletion Integrator initalizer</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd>
+<dt class="field-odd">default</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p>
+</dd>
+<dt class="field-even">properties</dt>
+<dd class="field-even"><dl class="field-list simple">
+<dt class="field-odd">solver</dt>
+<dd class="field-odd"><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Bateman equations solver type</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-odd">enum</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">cram16</span></code>, <code class="docutils literal notranslate"><span class="pre">cram48</span></code></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">n_steps</dt>
+<dd class="field-even"><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Number of stochastic iterations for stochastic integrators</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">number</span></code></p>
+</dd>
+<dt class="field-odd">minimum</dt>
+<dd class="field-odd"><p>1</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</section>
+<section id="operator-kwargs-properties">
+<span id="openmc-operator-kwargs-properties"></span><h2><code class="docutils literal notranslate"><span class="pre">operator_kwargs</span></code> Properties<a class="headerlink" href="#operator-kwargs-properties" title="Permalink to this heading">¶</a></h2>
+<section id="diff-burnable-mats">
+<h3><code class="docutils literal notranslate"><span class="pre">diff_burnable_mats</span></code><a class="headerlink" href="#diff-burnable-mats" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Whether to differentiate burnable materials with multiple instances.</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">boolean</span></code></p>
+</dd>
+<dt class="field-odd">default</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="normalization-mode">
+<h3><code class="docutils literal notranslate"><span class="pre">normalization_mode</span></code><a class="headerlink" href="#normalization-mode" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Indicate how tally resutls should be normalized</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-odd">enum</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">energy-deposition</span></code>, <code class="docutils literal notranslate"><span class="pre">fission-q</span></code>, <code class="docutils literal notranslate"><span class="pre">source-rate</span></code></p>
+</dd>
+<dt class="field-even">default</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">fission-q</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="fission-q">
+<h3><code class="docutils literal notranslate"><span class="pre">fission_q</span></code><a class="headerlink" href="#fission-q" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Path to fission Q values</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">string</span></code>, <code class="docutils literal notranslate"><span class="pre">null</span></code></p>
+</dd>
+<dt class="field-odd">default</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">null</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="fission-yield-mode">
+<h3><code class="docutils literal notranslate"><span class="pre">fission_yield_mode</span></code><a class="headerlink" href="#fission-yield-mode" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Determine what fission energy helper is used</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-odd">enum</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">constant</span></code>, <code class="docutils literal notranslate"><span class="pre">cutoff</span></code>, <code class="docutils literal notranslate"><span class="pre">average</span></code></p>
+</dd>
+<dt class="field-even">default</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">constant</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="fission-yield-opts">
+<h3><code class="docutils literal notranslate"><span class="pre">fission_yield_opts</span></code><a class="headerlink" href="#fission-yield-opts" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Arguments for the fission yield helper</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">object</span></code>, <code class="docutils literal notranslate"><span class="pre">null</span></code></p>
+</dd>
+<dt class="field-odd">default</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">null</span></code>. See <a class="reference internal" href="#openmc-constant-fission-yield-opts-properties"><span class="std std-ref">fission_yield_opts Properties – constant fission yield mode</span></a>
+and <a class="reference internal" href="#openmc-cutoff-fission-yield-opts-properties"><span class="std std-ref">fission_yield_opts Properties – cutoff fission yield mode</span></a> for object
+properties when <code class="docutils literal notranslate"><span class="pre">fission_yield_mode</span></code> is <code class="docutils literal notranslate"><span class="pre">constant</span></code> and
+<code class="docutils literal notranslate"><span class="pre">cutoff</span></code>, respectively.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="reaction-rate-mode">
+<h3><code class="docutils literal notranslate"><span class="pre">reaction_rate_mode</span></code><a class="headerlink" href="#reaction-rate-mode" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Indicate how one-group reaction rates should be calculated</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-odd">enum</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">direct</span></code>, <code class="docutils literal notranslate"><span class="pre">flux</span></code></p>
+</dd>
+<dt class="field-even">default</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">direct</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="reaction-rate-opts">
+<h3><code class="docutils literal notranslate"><span class="pre">reaction_rate_opts</span></code><a class="headerlink" href="#reaction-rate-opts" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">object</span></code>, <code class="docutils literal notranslate"><span class="pre">null</span></code></p>
+</dd>
+<dt class="field-even">default</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">null</span></code>. See <a class="reference internal" href="#openmc-flux-reaction-rate-opts-properties"><span class="std std-ref">reaction_rate_opts Properties – flux reaction rate mode</span></a> for
+object properties when <code class="docutils literal notranslate"><span class="pre">reaction_rate_mode</span></code> is <code class="docutils literal notranslate"><span class="pre">flux</span></code>.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="reduce-chain">
+<h3><code class="docutils literal notranslate"><span class="pre">reduce_chain</span></code><a class="headerlink" href="#reduce-chain" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Whether or not to reduce the depletion chain.</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">boolean</span></code></p>
+</dd>
+<dt class="field-odd">default</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="reduce-chain-level">
+<h3><code class="docutils literal notranslate"><span class="pre">reduce_chain_level</span></code><a class="headerlink" href="#reduce-chain-level" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Depth of serach while reducing depletion chain</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">integer</span></code>, <code class="docutils literal notranslate"><span class="pre">null</span></code></p>
+</dd>
+<dt class="field-odd">default</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">null</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</section>
+<section id="fission-yield-opts-properties-constant-fission-yield-mode">
+<span id="openmc-constant-fission-yield-opts-properties"></span><h2><code class="docutils literal notranslate"><span class="pre">fission_yield_opts</span></code> Properties – <code class="docutils literal notranslate"><span class="pre">constant</span></code> fission yield mode<a class="headerlink" href="#fission-yield-opts-properties-constant-fission-yield-mode" title="Permalink to this heading">¶</a></h2>
+<section id="energy">
+<h3><code class="docutils literal notranslate"><span class="pre">energy</span></code><a class="headerlink" href="#energy" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Energy of fission yield libraries [MeV]</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">number</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</section>
+<section id="fission-yield-opts-properties-cutoff-fission-yield-mode">
+<span id="openmc-cutoff-fission-yield-opts-properties"></span><h2><code class="docutils literal notranslate"><span class="pre">fission_yield_opts</span></code> Properties – <code class="docutils literal notranslate"><span class="pre">cutoff</span></code> fission yield mode<a class="headerlink" href="#fission-yield-opts-properties-cutoff-fission-yield-mode" title="Permalink to this heading">¶</a></h2>
+<section id="cutoff">
+<h3><code class="docutils literal notranslate"><span class="pre">cutoff</span></code><a class="headerlink" href="#cutoff" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Cutoff energy in eV</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">number</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="thermal-energy">
+<h3><code class="docutils literal notranslate"><span class="pre">thermal_energy</span></code><a class="headerlink" href="#thermal-energy" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Energy of yield data corresponding to thermal yields</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">number</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="fast-energy">
+<h3><code class="docutils literal notranslate"><span class="pre">fast_energy</span></code><a class="headerlink" href="#fast-energy" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Energy of yield data corresponding to fast yields</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">number</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</section>
+<section id="reaction-rate-opts-properties-flux-reaction-rate-mode">
+<span id="openmc-flux-reaction-rate-opts-properties"></span><h2><code class="docutils literal notranslate"><span class="pre">reaction_rate_opts</span></code> Properties – <code class="docutils literal notranslate"><span class="pre">flux</span></code> reaction rate mode<a class="headerlink" href="#reaction-rate-opts-properties-flux-reaction-rate-mode" title="Permalink to this heading">¶</a></h2>
+<section id="energies">
+<h3><code class="docutils literal notranslate"><span class="pre">energies</span></code><a class="headerlink" href="#energies" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Energy group boundaries</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+<dt class="field-odd">items</dt>
+<dd class="field-odd"><dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">number</span></code></p>
+</dd>
+<dt class="field-even">minItems</dt>
+<dd class="field-even"><p>2</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="reactions">
+<h3><code class="docutils literal notranslate"><span class="pre">reactions</span></code><a class="headerlink" href="#reactions" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Reactions to tally</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+<dt class="field-odd">items</dt>
+<dd class="field-odd"><dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-even">minItems</dt>
+<dd class="field-even"><p>1</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="nuclides">
+<h3><code class="docutils literal notranslate"><span class="pre">nuclides</span></code><a class="headerlink" href="#nuclides" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">description</dt>
+<dd class="field-odd"><p>Nuclides on which to tally reactions</p>
+</dd>
+<dt class="field-even">type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+<dt class="field-odd">items</dt>
+<dd class="field-odd"><dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">string</span></code></p>
+</dd>
+<dt class="field-even">minItems</dt>
+<dd class="field-even"><p>1</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="saltproc_input.html" class="btn btn-neutral float-left" title="SaltProc Input File" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="simulation_input.html" class="btn btn-neutral float-right" title="simulation Properties" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: v0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="depcode_input.html">v0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../master/io_formats/depcode_input.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

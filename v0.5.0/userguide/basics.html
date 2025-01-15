@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basics of Using SaltProc &mdash; Saltproc 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Creating a SaltProc input file" href="input.html" />
+    <link rel="prev" title="A Beginner’s Guide to SaltProc" href="beginners.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User’s Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="beginners.html">A Beginner’s Guide to SaltProc</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Basics of Using SaltProc</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-a-model">Running a Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#javascript-object-notation-json">JavaScript Object Notation (JSON)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#creating-input-files">Creating input files</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#viewing-and-analyzing-results">Viewing and Analyzing Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#physical-units">Physical Units</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="input.html">Creating a SaltProc input file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_system.html">Creating Processing System Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Template and Runtime Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html">Executables and Scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallel.html">Running in Parallel</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io_formats/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">User’s Guide</a></li>
+      <li class="breadcrumb-item active">Basics of Using SaltProc</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/userguide/basics.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="basics-of-using-saltproc">
+<span id="userguide-basics"></span><h1>Basics of Using SaltProc<a class="headerlink" href="#basics-of-using-saltproc" title="Permalink to this heading">¶</a></h1>
+<section id="running-a-model">
+<h2>Running a Model<a class="headerlink" href="#running-a-model" title="Permalink to this heading">¶</a></h2>
+<p>SaltProc is built in Python, so rather than calling an executable to run
+SaltProc, you call Python and invoke the SaltProc module. You use the <code class="docutils literal notranslate"><span class="pre">-i</span></code>
+flag to specify a path to the <a class="reference internal" href="../io_formats/saltproc_input.html#saltproc-input"><span class="std std-ref">SaltProc Input File</span></a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m saltproc -i saltproc_input.json
+</pre></div>
+</div>
+<p>The first thing SaltProc does when running a simulation is read this input file
+and validate that it is correct. At a minium, the input file requires six
+parameters to be filled by the user:</p>
+<div class="error admonition">
+<p class="admonition-title">Required</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../io_formats/saltproc_input.html#proc-input-file-property"><span class="std std-ref">proc_input_file</span></a></dt><dd><p>This file describes the properties of each processing system component.</p>
+</dd>
+<dt><a class="reference internal" href="../io_formats/saltproc_input.html#dot-input-file-property"><span class="std std-ref">dot_input_file</span></a></dt><dd><p>This file describes the strucutre of the processing system as a graph</p>
+</dd>
+<dt><a class="reference internal" href="../io_formats/saltproc_input.html#n-depletion-steps-property"><span class="std std-ref">n_depletion_steps</span></a></dt><dd><p>Specifies the number of depletion steps to run.</p>
+</dd>
+<dt><a class="reference internal" href="../io_formats/saltproc_input.html#depcode-property"><span class="std std-ref">depcode</span></a></dt><dd><p>This parameter contains runtime options for the transport code as a
+dictionary. The parameters expected change depending on which transport
+code is used, but at a minimum there will be parameters to specify
+geometry and material files for all transport codes. See
+<a class="reference internal" href="../io_formats/depcode_input.html#depcode-input"><span class="std std-ref">depcode Properties</span></a> for a full listing of these options.</p>
+</dd>
+<dt><a class="reference internal" href="../io_formats/saltproc_input.html#simulation-property"><span class="std std-ref">simulation</span></a></dt><dd><p>This parameter contains the name of the simulation, as well as
+options to restart the simulation from when it stopped (in the
+case of a runtime error), as well as an option to turn on geometry
+switching. See <a class="reference internal" href="../io_formats/simulation_input.html#simulation-input"><span class="std std-ref">simulation Properties</span></a> for a full listing of these
+options</p>
+</dd>
+<dt><a class="reference internal" href="../io_formats/saltproc_input.html#reactor-property"><span class="std std-ref">reactor</span></a></dt><dd><p>This parameter contains setttings for the depletion simulation
+(number of timesteps, power level, timestep units). See
+<a class="reference internal" href="../io_formats/reactor_input.html#reactor-input"><span class="std std-ref">reactor Properties</span></a> for a full listing of these options.</p>
+</dd>
+</dl>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Optional</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../io_formats/saltproc_input.html#mpi-args-property"><span class="std std-ref">mpi_args</span></a></dt><dd><p>Users running a simulation on a computer with multiple cores, sockets, or
+nodes will benefit from utilizing all available hardware resources on the
+transport simulation. This parameter holds commands to execute a simulation
+using MPI for distribtued memory parallelism. Note that the user must include
+the executable in this parameter (<code class="docutils literal notranslate"><span class="pre">mpiexec</span></code>, <code class="docutils literal notranslate"><span class="pre">mpirun</span></code>, etc.). We discuss
+this in greater detail in <a class="reference internal" href="parallel.html#userguide-parallel"><span class="std std-ref">Running in Parallel</span></a>.</p>
+</dd>
+</dl>
+</div>
+<section id="javascript-object-notation-json">
+<h3>JavaScript Object Notation (JSON)<a class="headerlink" href="#javascript-object-notation-json" title="Permalink to this heading">¶</a></h3>
+<p>SaltProc uses <a class="reference external" href="https://www.json.org/json-en.html">JSON</a> to structure its input files. JSON is used as it has
+all the capabilities of stuctured markup language like <a class="reference external" href="https://www.w3.org/XML/">XML</a>, but intead
+of using tags, it is structured more or less like a dictionary data structure.
+This has the benefit of being extremely easy and quick to write by hand.</p>
+</section>
+<section id="creating-input-files">
+<h3>Creating input files<a class="headerlink" href="#creating-input-files" title="Permalink to this heading">¶</a></h3>
+<p>SaltProc input files are written by hand. We cover how to do this in detail
+in the next section of the User Guide.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The majority of work preparing
+for a SaltProc simulation is not writing the SaltProc input file, but
+creating the model for the transport code. The steps and syntax for
+this vary from code to code. See
+<a class="reference internal" href="../overview.html#supported-codes"><span class="std std-ref">the list of supported codes</span></a> for links to
+documentation.</p>
+</div>
+</section>
+</section>
+<section id="viewing-and-analyzing-results">
+<h2>Viewing and Analyzing Results<a class="headerlink" href="#viewing-and-analyzing-results" title="Permalink to this heading">¶</a></h2>
+<p>After a simulation is completed by running <code class="docutils literal notranslate"><span class="pre">saltproc</span></code>, all of the transport
+code results and input files are stored in the <code class="docutils literal notranslate"><span class="pre">saltproc_runtime</span></code> directory
+(unless you provided a path for <a class="reference internal" href="../io_formats/saltproc_input.html#output-path-property"><span class="std std-ref">output_path</span></a> in the input file,
+in which case the results are stored in a directory with that path):</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">saltproc_results.h5</span></code></dt><dd><p>An HDF5 file containing material compositions for all depletable materials,
+including compositions before and after reprocessing, as well as delayed
+neutron data. See <a class="reference internal" href="../io_formats/databasefile.html#results-file"><span class="std std-ref">HDF5 Output File</span></a> for a full listing of parameters.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">step_i_data</span></code></dt><dd><p>A directory storing input and output files for the transport simulation(s)
+for the <span class="math notranslate nohighlight">\(i\)</span>-th depletion step.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Users must use <a class="reference external" href="http://pytables.org">PyTables</a> to load and read results directly from
+the HDF5 file. An API for doing this is in development.</p>
+</div>
+</section>
+<section id="physical-units">
+<h2>Physical Units<a class="headerlink" href="#physical-units" title="Permalink to this heading">¶</a></h2>
+<p>SaltProc results use the following units unless otherwise specified.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 48%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Measure</p></th>
+<th class="head"><p>Default unit</p></th>
+<th class="head"><p>Symbol</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>mass</p></td>
+<td><p>kilogram</p></td>
+<td><p>kg</p></td>
+</tr>
+<tr class="row-odd"><td><p>power</p></td>
+<td><p>watt</p></td>
+<td><p>W</p></td>
+</tr>
+<tr class="row-even"><td><p>time</p></td>
+<td><p>days</p></td>
+<td><p>d</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="beginners.html" class="btn btn-neutral float-left" title="A Beginner’s Guide to SaltProc" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="input.html" class="btn btn-neutral float-right" title="Creating a SaltProc input file" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: v0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="basics.html">v0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../master/userguide/basics.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

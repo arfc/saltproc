@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>saltproc.Process &mdash; Saltproc 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="saltproc.Sparger" href="saltproc.Sparger.html" />
+    <link rel="prev" title="saltproc.Materialflow" href="saltproc.Materialflow.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/index.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">SaltProc API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#depeletion-code-interfaces">Depeletion code interfaces</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#reprocessing">Reprocessing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="saltproc.Materialflow.html">saltproc.Materialflow</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">saltproc.Process</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#saltproc.Process"><code class="docutils literal notranslate"><span class="pre">Process</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.Sparger.html">saltproc.Sparger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="saltproc.Separator.html">saltproc.Separator</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#running-the-simulation">Running the simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#results">Results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../io_formats/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">SaltProc API</a></li>
+      <li class="breadcrumb-item active">saltproc.Process</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/generated/saltproc.Process.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="saltproc-process">
+<h1>saltproc.Process<a class="headerlink" href="#saltproc-process" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="saltproc.Process">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">saltproc.</span></span><span class="sig-name descname"><span class="pre">Process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">initial_data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/process.html#Process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents an aribtrary processing component that extracts nuclides from
+a material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mass_flowrate</strong> (<em>float</em>) – mass flow rate of the material flow (g/s)</p></li>
+<li><p><strong>capacity</strong> (<em>float</em>) – maximum mass flow rate of the material flow which current process
+can handle (g/s)</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – total volume of the current facility (<span class="math notranslate nohighlight">\(cm^3\)</span>)</p></li>
+<li><p><strong>efficiency</strong> (<em>dict</em><em> of </em><em>str to float</em><em> or </em><em>str</em>) – <dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">key</span></code></dt><dd><p>element name for removal (not isotope)</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>removal efficency for the isotope as a weight fraction (float)
+or a function eps(x,m,t,P,L) (str)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>optional_parameter</strong> (<em>float</em>) – user can define any custom parameter in the input file describing
+processes and use it in efficiency function</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Process.calculate_removal_efficiency">
+<span class="sig-name descname"><span class="pre">calculate_removal_efficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nuc_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/process.html#Process.calculate_removal_efficiency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Process.calculate_removal_efficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the value of the removal efficiency for a given nuclide
+in this process.</p>
+<p>If the efficiency is a str describing efficiency as a
+function (eps(x,m,t,P,L)), then construct the function and evaluate it.
+Otherwise, it is a float and can be returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nuc_name</strong> (<em>str</em>) – Name of target nuclide to be removed.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>efficiency</strong> – Extraction efficiency for the given nuclide.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Process.check_mass_conservation">
+<span class="sig-name descname"><span class="pre">check_mass_conservation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/process.html#Process.check_mass_conservation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Process.check_mass_conservation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checking that Process.outflow + Process.waste_stream is equal
+Process.inflow and the total mass is being conserved. Returns <cite>True</cite> if
+the mass conserved or <cite>False</cite> if its mismatched.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="saltproc.Process.process_material">
+<span class="sig-name descname"><span class="pre">process_material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inflow</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/saltproc/process.html#Process.process_material"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#saltproc.Process.process_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates <a class="reference internal" href="saltproc.Materialflow.html#saltproc.Materialflow" title="saltproc.Materialflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">Materialflow</span></code></a> object <cite>inflow</cite> by removing target
+nuclides with specific efficiencies in single component of fuel
+reprocessing system and returns waste stream Materialflow object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inflow</strong> (<em>Materialflow obj</em>) – Material flowing into the processing system component.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>waste_stream</strong> (<em>Materialflow object</em>) – Waste stream from the reprocessing system component.</p></li>
+<li><p><strong>thru_flow</strong> (<em>Materialflow object</em>) – Remaining material flow that will pass through the
+reprocessing system component.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="saltproc.Materialflow.html" class="btn btn-neutral float-left" title="saltproc.Materialflow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="saltproc.Sparger.html" class="btn btn-neutral float-right" title="saltproc.Sparger" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: v0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="saltproc.Process.html">v0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../../master/index.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

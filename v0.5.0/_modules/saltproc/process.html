@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>saltproc.process &mdash; Saltproc 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/index.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io_formats/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">saltproc.process</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for saltproc.process</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Process module&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">exp</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">saltproc</span> <span class="kn">import</span> <span class="n">Materialflow</span>
+
+
+<div class="viewcode-block" id="Process"><a class="viewcode-back" href="../../api/generated/saltproc.Process.html#saltproc.Process">[docs]</a><span class="k">class</span> <span class="nc">Process</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Represents an aribtrary processing component that extracts nuclides from</span>
+<span class="sd">    a material.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mass_flowrate : float</span>
+<span class="sd">        mass flow rate of the material flow (g/s)</span>
+<span class="sd">    capacity : float</span>
+<span class="sd">        maximum mass flow rate of the material flow which current process</span>
+<span class="sd">        can handle (g/s)</span>
+<span class="sd">    volume : float</span>
+<span class="sd">        total volume of the current facility (:math:`cm^3`)</span>
+<span class="sd">    efficiency : dict of str to float or str</span>
+
+<span class="sd">        ``key``</span>
+<span class="sd">            element name for removal (not isotope)</span>
+<span class="sd">        ``value``</span>
+<span class="sd">            removal efficency for the isotope as a weight fraction (float)</span>
+<span class="sd">            or a function eps(x,m,t,P,L) (str)</span>
+<span class="sd">    optional_parameter : float</span>
+<span class="sd">        user can define any custom parameter in the input file describing</span>
+<span class="sd">        processes and use it in efficiency function</span>
+
+<span class="sd">     &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">initial_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the Process object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">dictionary</span> <span class="ow">in</span> <span class="n">initial_data</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Process.calculate_removal_efficiency"><a class="viewcode-back" href="../../api/generated/saltproc.Process.html#saltproc.Process.calculate_removal_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_removal_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the value of the removal efficiency for a given nuclide</span>
+<span class="sd">        in this process.</span>
+
+<span class="sd">        If the efficiency is a str describing efficiency as a</span>
+<span class="sd">        function (eps(x,m,t,P,L)), then construct the function and evaluate it.</span>
+<span class="sd">        Otherwise, it is a float and can be returned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nuc_name : str</span>
+<span class="sd">            Name of target nuclide to be removed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        efficiency : float</span>
+<span class="sd">            Extraction efficiency for the given nuclide.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">[</span><span class="n">nuc_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">eps</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">eps</span><span class="p">:</span>
+                    <span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="s2">&quot;self.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">attr</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eps</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
+        <span class="n">efficiency</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">efficiency</span></div>
+
+<div class="viewcode-block" id="Process.check_mass_conservation"><a class="viewcode-back" href="../../api/generated/saltproc.Process.html#saltproc.Process.check_mass_conservation">[docs]</a>    <span class="k">def</span> <span class="nf">check_mass_conservation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checking that Process.outflow + Process.waste_stream is equal</span>
+<span class="sd">        Process.inflow and the total mass is being conserved. Returns `True` if</span>
+<span class="sd">        the mass conserved or `False` if its mismatched.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out_stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outflow</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">waste_stream</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">out_stream</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflow</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Process.process_material"><a class="viewcode-back" href="../../api/generated/saltproc.Process.html#saltproc.Process.process_material">[docs]</a>    <span class="k">def</span> <span class="nf">process_material</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inflow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Updates :class:`Materialflow` object `inflow` by removing target</span>
+<span class="sd">        nuclides with specific efficiencies in single component of fuel</span>
+<span class="sd">        reprocessing system and returns waste stream Materialflow object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inflow : Materialflow obj</span>
+<span class="sd">            Material flowing into the processing system component.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        waste_stream : Materialflow object</span>
+<span class="sd">            Waste stream from the reprocessing system component.</span>
+<span class="sd">        thru_flow : Materialflow object</span>
+<span class="sd">            Remaining material flow that will pass through the</span>
+<span class="sd">            reprocessing system component.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">waste_mass</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">thru_mass</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">total_waste_mass</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">total_thru_mass</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">):</span>
+            <span class="n">process_elements</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">process_nucs</span> <span class="o">=</span> <span class="p">[</span><span class="n">nuc</span> <span class="k">for</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">inflow</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> \
+                            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([A-Z]+)([0-9]+)&quot;</span><span class="p">,</span> <span class="n">nuc</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> \
+                            <span class="ow">in</span> <span class="n">process_elements</span><span class="p">]</span>
+            <span class="n">thru_nucs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">inflow</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">process_nucs</span><span class="p">)))</span>
+
+            <span class="n">efficiency</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">calculate_removal_efficiency</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> \
+                          <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">process_elements</span><span class="p">]</span>
+            <span class="n">efficiency</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">process_elements</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">))</span>
+
+            <span class="n">nuc_efficiency</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">process_nucs</span><span class="p">:</span>
+                <span class="n">elem</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([A-Z]+)([0-9]+)&quot;</span><span class="p">,</span> <span class="n">nuc</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">nuc_efficiency</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span> <span class="o">=</span> <span class="n">efficiency</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span>
+
+            <span class="n">thru_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">inflow</span><span class="o">.</span><span class="n">get_mass</span><span class="p">(</span><span class="n">nuc</span><span class="p">)</span> <span class="o">*</span> \
+                                  <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">nuc_efficiency</span><span class="p">[</span><span class="n">nuc</span><span class="p">])</span> \
+                                  <span class="k">for</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">process_nucs</span><span class="p">])</span>
+            <span class="n">waste_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">inflow</span><span class="o">.</span><span class="n">get_mass</span><span class="p">(</span><span class="n">nuc</span><span class="p">)</span> <span class="o">*</span> \
+                                   <span class="n">nuc_efficiency</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span> \
+                                   <span class="k">for</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">process_nucs</span><span class="p">])</span>
+
+            <span class="n">total_waste_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">waste_mass</span><span class="p">)</span>
+            <span class="n">total_thru_mass</span> <span class="o">=</span> <span class="n">inflow</span><span class="o">.</span><span class="n">mass</span> <span class="o">-</span> <span class="n">total_waste_mass</span>
+
+            <span class="n">waste_mass</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">process_nucs</span><span class="p">,</span> <span class="n">waste_mass</span> <span class="o">/</span> <span class="n">total_waste_mass</span><span class="p">))</span>
+
+            <span class="n">thru_mass_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">inflow</span><span class="o">.</span><span class="n">get_mass</span><span class="p">(</span><span class="n">nuc</span><span class="p">)</span> <span class="k">for</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">thru_nucs</span><span class="p">])</span>
+
+            <span class="n">thru_mass_1</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">thru_nucs</span><span class="p">,</span> <span class="n">thru_mass_1</span> <span class="o">/</span> <span class="n">total_thru_mass</span><span class="p">))</span>
+            <span class="n">thru_mass</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">process_nucs</span><span class="p">,</span> <span class="n">thru_mass</span> <span class="o">/</span> <span class="n">total_thru_mass</span><span class="p">))</span>
+            <span class="n">thru_mass</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">thru_mass_1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">total_thru_mass</span> <span class="o">=</span> <span class="n">inflow</span><span class="o">.</span><span class="n">mass</span>
+            <span class="n">thru_mass</span> <span class="o">=</span> <span class="n">inflow</span><span class="o">.</span><span class="n">comp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">waste_stream</span> <span class="o">=</span> <span class="n">Materialflow</span><span class="p">(</span><span class="n">comp</span><span class="o">=</span><span class="n">waste_mass</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">waste_mass</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">waste_mass</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">waste_stream</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">total_waste_mass</span> <span class="o">/</span> <span class="n">waste_stream</span><span class="o">.</span><span class="n">mass</span>
+            <span class="n">waste_stream</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">total_waste_mass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">waste_stream</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="c1"># preserve inflow attributes</span>
+        <span class="n">thru_flow</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">inflow</span><span class="p">)</span>
+        <span class="n">thru_flow</span><span class="o">.</span><span class="n">replace_components</span><span class="p">(</span><span class="n">thru_mass</span><span class="p">)</span>
+        <span class="c1"># initial guess</span>
+        <span class="n">thru_flow</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">inflow</span><span class="o">.</span><span class="n">volume</span> <span class="o">-</span> <span class="n">waste_stream</span><span class="o">.</span><span class="n">volume</span>
+        <span class="c1"># correction</span>
+        <span class="n">thru_flow</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">thru_flow</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> \
+            <span class="n">total_thru_mass</span> <span class="o">/</span> <span class="n">thru_flow</span><span class="o">.</span><span class="n">get_mass</span><span class="p">()</span>
+        <span class="n">thru_flow</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">total_thru_mass</span>
+
+        <span class="k">del</span> <span class="n">thru_mass</span><span class="p">,</span> <span class="n">waste_mass</span>
+
+        <span class="k">return</span> <span class="n">thru_flow</span><span class="p">,</span> <span class="n">waste_stream</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: v0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="process.html">v0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../../master/index.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

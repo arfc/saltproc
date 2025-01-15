@@ -1,0 +1,6 @@
+﻿app.refill_materials
+====================
+
+.. currentmodule:: app
+
+.. autofunction:: refill_materials

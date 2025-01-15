@@ -1,0 +1,7 @@
+﻿saltproc.Sparger
+================
+
+.. currentmodule:: saltproc
+
+.. autoclass:: Sparger
+    :members:

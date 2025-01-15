@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Release notes for v0.5.0 &mdash; Saltproc 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Release notes for v0.4.0" href="v0.4.0.html" />
+    <link rel="prev" title="Release Notes" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Release Notes</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Release notes for v0.5.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dependency-changes">Dependency Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#new-features">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bug-fixes">Bug Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#script-changes">Script Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-api-changes">Python API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#contributors">Contributors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviewers">Reviewers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="v0.4.0.html">Release notes for v0.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v0.3.0.html">Release notes for v0.3.0</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io_formats/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Release Notes</a></li>
+      <li class="breadcrumb-item active">Release notes for v0.5.0</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/releasenotes/v0.5.0.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="release-notes-for-v0-5-0">
+<h1>Release notes for v0.5.0<a class="headerlink" href="#release-notes-for-v0-5-0" title="Permalink to this heading">¶</a></h1>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">¶</a></h2>
+<p>This release adds support for <code class="docutils literal notranslate"><span class="pre">OpenMC</span></code> in <code class="docutils literal notranslate"><span class="pre">SaltProc</span></code> via the addition of
+the <code class="docutils literal notranslate"><span class="pre">DepcodeOpenMC</span></code> class</p>
+</section>
+<section id="dependency-changes">
+<h2>Dependency Changes<a class="headerlink" href="#dependency-changes" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SaltProc</span></code> now requires the following packages:</p>
+<ul>
+<li><p>(new) → <a class="reference external" href="https://github.com/openmc-dev/openmc">openmc</a></p></li>
+<li><p>(new) → <a class="reference external" href="https://github.com/CORE-GATECH-GROUP/serpent-tools">serpentTools</a></p></li>
+<li><p>(formality) → <a class="reference external" href="https://github.com/PyTables/PyTables">pytables</a></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pyne&gt;=0.5.11</span></code> →  (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pydotplus</span></code> →  <code class="docutils literal notranslate"><span class="pre">pydot</span></code></p></li>
+</ul>
+</section>
+<section id="new-features">
+<h2>New Features<a class="headerlink" href="#new-features" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">openmc</span></code> support via <cite>DepcodeOpenMC</cite></p></li>
+<li><p>OpenMC compatible MSBR model.</p></li>
+</ul>
+</section>
+<section id="bug-fixes">
+<h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/arfc/saltproc/pull/178">Fix bug where Serpent2 material temperatures are hardcoded to 900K in the JEFF 3.1.2 library format.</a> by <a class="reference external" href="https://github.com/yardasol">&#64;yardasol</a></p></li>
+<li><p><a class="reference external" href="https://github.com/arfc/saltproc/issues/187">Fix bug where using MCNP-style ZAID codes results in an error in various SerpentDepcode functions</a> by <a class="reference external" href="https://github.com/yardasol">&#64;yardasol</a></p></li>
+<li><p><a class="reference external" href="https://github.com/arfc/saltproc/issues/196">Fix bug where only one array of OpenMC Materials are stored in results</a> by <a class="reference external" href="https://github.com/yardasol">&#64;yardasol</a></p></li>
+</ul>
+</section>
+<section id="script-changes">
+<h2>Script Changes<a class="headerlink" href="#script-changes" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Added convenience features to <code class="docutils literal notranslate"><span class="pre">process_j312.bash</span></code></p>
+<ul>
+<li><p>Control flow check for an <code class="docutils literal notranslate"><span class="pre">XSDIR</span></code> environment variable set by the user. This variable should point to the location where the user would like the library to be installed</p></li>
+<li><p>Commands to download and run the <code class="docutils literal notranslate"><span class="pre">xsdirconvert.pl</span></code> script (found on the Serpent wiki) to convert the MCNP <code class="docutils literal notranslate"><span class="pre">.dir</span></code> style file to the Serpent <code class="docutils literal notranslate"><span class="pre">.xsdata</span></code> style file</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">SERPENT_DATA</span></code> and <code class="docutils literal notranslate"><span class="pre">SERPENT_ACELIB</span></code> variables to <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code></p></li>
+</ul>
+</li>
+<li><p>A new script, <code class="docutils literal notranslate"><span class="pre">scripts/ci/openmc-xs.bash</span></code>, that downloads the OpenMC HDF5 cross section library.</p></li>
+<li><p>A new script, <code class="docutils literal notranslate"><span class="pre">download_endfb71.bash</span></code>, that downloads the ENDF/B 7.1 cross section library – including thermal scattering, decay, and fission yield data – in ACE format.</p></li>
+<li><p>A new script, <code class="docutils literal notranslate"><span class="pre">process_endfb71_to_openmc.bash</span></code>, that converts the library created by <code class="docutils literal notranslate"><span class="pre">download_endfb71.bash</span></code> into an OpenMC-usable HDF5 format. Requires OpenMC to be installed from source to use.</p></li>
+<li><p>A new script <code class="docutils literal notranslate"><span class="pre">openmc_msbr_model.py</span></code>, that creates an OpenMC-usable MSBR model based on the Serpent MSBR model.</p></li>
+</ul>
+</section>
+<section id="python-api-changes">
+<h2>Python API Changes<a class="headerlink" href="#python-api-changes" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>The test suite has been overhauled and moved to the <cite>tests/</cite> directory. The test suite is no longer part of the <cite>saltproc</cite> package.</p></li>
+<li><p>Input file format changes:</p>
+<ul>
+<li><p>Removed the <code class="docutils literal notranslate"><span class="pre">-n</span></code> command line argument in favor of the new <code class="docutils literal notranslate"><span class="pre">mpi_args</span></code> input parameter</p></li>
+<li><p>Changed the <code class="docutils literal notranslate"><span class="pre">-d</span></code> command line argument to <code class="docutils literal notranslate"><span class="pre">-s</span></code>/<code class="docutils literal notranslate"><span class="pre">--threads</span></code>.</p></li>
+<li><p>(new)  → <code class="docutils literal notranslate"><span class="pre">mpi_args</span></code></p></li>
+<li><p>Added default values for certain input parameters</p></li>
+<li><p>Added a <code class="docutils literal notranslate"><span class="pre">zaid_convention</span></code> input parameter</p></li>
+<li><p>Added depletion settings for OpenMC</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_depsteps</span></code> → <code class="docutils literal notranslate"><span class="pre">n_depletion_steps</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depcode['template_inputfile_path']</span></code> → <code class="docutils literal notranslate"><span class="pre">depcode['template_input_file_path']</span></code></p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">depcode['template_input_file_path']</span></code> input variable now has the following depletion-code-depentent types:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">str</span></code> for <code class="docutils literal notranslate"><span class="pre">Serpent2</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dict</span></code> of <code class="docutils literal notranslate"><span class="pre">str</span></code> to <code class="docutils literal notranslate"><span class="pre">str</span></code> for <code class="docutils literal notranslate"><span class="pre">openmc</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depcode['iter_inputfile']</span></code> → (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depcode['iter_matfile']</span></code> → (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depcode['npop']</span></code> → (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depcode['active_cycles']</span></code> → (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depcode['inactive_cycles']</span></code> → (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reactor['dep_step_length_cumulative']</span></code> → <code class="docutils literal notranslate"><span class="pre">depletion_timesteps</span></code></p></li>
+<li><p>(new)  → <code class="docutils literal notranslate"><span class="pre">reactor['timestep_type']</span></code></p></li>
+<li><p>(new)  → <code class="docutils literal notranslate"><span class="pre">reactor['timestep_units']</span></code></p></li>
+</ul>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Variables that have been removed from the saltproc input file
+remain part of the <code class="docutils literal notranslate"><span class="pre">Depcode</span></code> classes as attributes. Their use is unchanged, save for the fact they can no
+longer be initialized by the user from the SaltProc input file.</p>
+</div>
+<ul class="simple">
+<li><p>New/changed classes, methods, and attributes:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Depcode</span></code></p>
+<ul>
+<li><p>Added <cite>output_path</cite> parameter.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">template_inputfile_path</span></code> → <code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code></p></li>
+<li><p>Removed default values for <cite>geo_files</cite></p></li>
+<li><p>Changed <cite>iter_inputfile</cite>, <cite>iter_matfile</cite> to be attributes instead of parameters</p></li>
+<li><p>Changed <cite>npop</cite>, <cite>active_cycles</cite>, <cite>inactive_cycles</cite> to be attributes instead of parameters</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_depcode_info()</span></code> → <code class="docutils literal notranslate"><span class="pre">read_step_metadata()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sim_info</span></code> → <code class="docutils literal notranslate"><span class="pre">step_metadata</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_depcode_step_param()</span></code> → <code class="docutils literal notranslate"><span class="pre">read_neutronics_parameters()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">param</span></code> → <code class="docutils literal notranslate"><span class="pre">neutronics_parameters</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_dep_comp()</span></code> → <code class="docutils literal notranslate"><span class="pre">read_depleted_materials()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_depcode()</span></code> → <code class="docutils literal notranslate"><span class="pre">run_depletion_step()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_mat_file()</span></code> → <code class="docutils literal notranslate"><span class="pre">update_depletable_materials()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_depcode_input()</span></code> →  <code class="docutils literal notranslate"><span class="pre">write_runtime_input()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iter_inputfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_inputfile</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iter_matfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_matfile</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geo_files</span></code>  → <code class="docutils literal notranslate"><span class="pre">geo_file_paths</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DepcodeSerpent</span></code> → <code class="docutils literal notranslate"><span class="pre">SerpentDepcode</span></code></p>
+<ul>
+<li><p>Added <cite>output_path</cite> parameter.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">template_inputfile_path</span></code> → <code class="docutils literal notranslate"><span class="pre">template_input_file_path</span></code></p></li>
+<li><p>Removed default values for <cite>exec_path</cite>, <cite>template_input_file_path</cite>, <cite>geo_files</cite></p></li>
+<li><p>Changed <cite>iter_inputfile</cite>, <cite>iter_matfile</cite> to be attributes instead of parameters</p></li>
+<li><p>Changed <cite>npop</cite>, <cite>active_cycles</cite>, <cite>inactive_cycles</cite> to be attributes instead of parameters</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_depcode_info()</span></code> → <code class="docutils literal notranslate"><span class="pre">read_depletion_step_metadata()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sim_info</span></code> → <code class="docutils literal notranslate"><span class="pre">step_metadata</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_depcode_step_param()</span></code> → <code class="docutils literal notranslate"><span class="pre">read_neutronics_parameters()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">param</span></code> → <code class="docutils literal notranslate"><span class="pre">neutronics_parameters</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_dep_comp()</span></code> → <code class="docutils literal notranslate"><span class="pre">read_depleted_materials()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_nuclide_name_map_zam_to_serpent()</span></code> → <code class="docutils literal notranslate"><span class="pre">map_nuclide_code_zam_to_serpent()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_depcode()</span></code> → <code class="docutils literal notranslate"><span class="pre">run_depletion_step()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_mat_file()</span></code> → <code class="docutils literal notranslate"><span class="pre">update_depletable_materials()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_nuc_name()</span></code> →  <code class="docutils literal notranslate"><span class="pre">convert_nuclide_code_to_name()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">convert_nuclide_name_serpent_to_zam()</span></code> → <code class="docutils literal notranslate"><span class="pre">convert_nuclide_code_to_zam()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_iter_matfile()</span></code> → <code class="docutils literal notranslate"><span class="pre">create_runtime_matfile()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">replace_burnup_parameters()</span></code> → <code class="docutils literal notranslate"><span class="pre">set_power_load()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_depcode_input()</span></code> →  <code class="docutils literal notranslate"><span class="pre">write_runtime_input()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iter_inputfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_inputfile</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iter_matfile</span></code>  →  <code class="docutils literal notranslate"><span class="pre">runtime_matfile</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geo_files</span></code>  → <code class="docutils literal notranslate"><span class="pre">geo_file_paths</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">change_sim_par()</span></code> →  (deleted)</p></li>
+<li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">get_neutron_settings()</span></code></p></li>
+<li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">_get_burnable_materials_file()</span></code></p></li>
+<li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">_get_burnable_material_card_data()</span></code></p></li>
+<li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">resolve_include_paths()</span></code></p></li>
+<li><p>(new function) →  <code class="docutils literal notranslate"><span class="pre">_convert_name_to_nuccode()</span></code></p></li>
+<li><p>(new parameter) →  <code class="docutils literal notranslate"><span class="pre">zaid_convention</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OpenMCDepcode</span></code> is a <code class="docutils literal notranslate"><span class="pre">Depcode</span></code> subclass that interfaces with <code class="docutils literal notranslate"><span class="pre">openmc</span></code>. This class implements the following functions
+- <code class="docutils literal notranslate"><span class="pre">run_depletion_step()</span></code>
+- <code class="docutils literal notranslate"><span class="pre">write_saltproc_openmc_tallies()</span></code>
+- <code class="docutils literal notranslate"><span class="pre">convert_nuclide_code_to_name()</span></code>
+- <code class="docutils literal notranslate"><span class="pre">switch_to_next_geometry()</span></code>
+- <code class="docutils literal notranslate"><span class="pre">write_runtime_input()</span></code>
+- <code class="docutils literal notranslate"><span class="pre">write_depletion_settings()</span></code>
+- <code class="docutils literal notranslate"><span class="pre">write_saltproc_openmc_tallies()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">app.py</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">reprocessing()</span></code> → <code class="docutils literal notranslate"><span class="pre">reprocess_materials()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">refill()</span></code> → <code class="docutils literal notranslate"><span class="pre">refill_materials()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_feeds_from_input()</span></code> → <code class="docutils literal notranslate"><span class="pre">get_feeds()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_processes_from_input()</span></code> → <code class="docutils literal notranslate"><span class="pre">get_extraction_processes()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_dot()</span></code> → <code class="docutils literal notranslate"><span class="pre">get_extraction_process_paths()</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Process</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency()</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reactor</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">dep_step_length_cumulative</span></code> → <code class="docutils literal notranslate"><span class="pre">depletion_timesteps</span></code></p></li>
+<li><p>(new) → <code class="docutils literal notranslate"><span class="pre">timestep_units</span></code></p></li>
+<li><p>(new) → <code class="docutils literal notranslate"><span class="pre">timestep_type</span></code></p></li>
+</ul>
+</li>
+<li><p>(new) → <code class="docutils literal notranslate"><span class="pre">Results</span></code></p>
+<ul>
+<li><p>New class for reading the <cite>saltproc_results.h5</cite> file</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Simulation</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">core_number</span></code> →  (removed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">node_number</span></code> →  (removed)</p></li>
+<li><p>(new function) → <code class="docutils literal notranslate"><span class="pre">_add_missing_nuclides()</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Sparger</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency()</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Separator</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">calc_rem_efficiency()</span></code> → <code class="docutils literal notranslate"><span class="pre">calculate_removal_efficiency()</span></code></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="contributors">
+<h2>Contributors<a class="headerlink" href="#contributors" title="Permalink to this heading">¶</a></h2>
+<p>The following people contributed code to this release of SaltProc:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/yardasol">&#64;yardasol</a></p></li>
+</ul>
+</section>
+<section id="reviewers">
+<h2>Reviewers<a class="headerlink" href="#reviewers" title="Permalink to this heading">¶</a></h2>
+<p>The following people reviewed code for this release of SaltProc:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/smpark7">&#64;smpark7</a></p></li>
+<li><p><a class="reference external" href="https://github.com/LukeSeifert">&#64;LukeSeifert</a></p></li>
+<li><p><a class="reference external" href="https://github.com/munkm">&#64;munkm</a></p></li>
+<li><p><a class="reference external" href="https://github.com/abachma2">&#64;abachma2</a></p></li>
+<li><p><a class="reference external" href="https://github.com/samgdotson">&#64;samgdotson</a></p></li>
+<li><p><a class="reference external" href="https://github.com/ZoeRichter">&#64;ZoeRichter</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Release Notes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="v0.4.0.html" class="btn btn-neutral float-right" title="Release notes for v0.4.0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: v0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="v0.5.0.html">v0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../master/releasenotes/v0.5.0.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

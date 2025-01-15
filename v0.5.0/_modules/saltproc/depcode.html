@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>saltproc.depcode &mdash; Saltproc 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Saltproc
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../methods/index.html">Theory and Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/index.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../devguide/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">SaltProc API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io_formats/index.html">File Format Specifications</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/arfc/saltproc/blob/master/CITATION.md">How to cite</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Saltproc</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">saltproc.depcode</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for saltproc.depcode</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="n">MPI_ON</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">MPI_ON</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="Depcode"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode">[docs]</a><span class="k">class</span> <span class="nc">Depcode</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Abstract interface for running depletion steps.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_path : str</span>
+<span class="sd">        Path to results storage directory.</span>
+<span class="sd">    codename : str</span>
+<span class="sd">        Name of depletion code.</span>
+<span class="sd">    exec_path : str</span>
+<span class="sd">        Path to depletion code executable.</span>
+<span class="sd">    template_input_file_path : str or dict of str to str</span>
+<span class="sd">        Path(s) to depletion code input file(s), or a dictionary where</span>
+<span class="sd">        the input type (e.g. material, geometry, settings, etc.) as a</span>
+<span class="sd">        string are keys, and the path to the input file are values.</span>
+<span class="sd">        Type depends on depletion code in use.</span>
+<span class="sd">    geo_file_paths : str or list, optional</span>
+<span class="sd">        Path to file that contains the reactor geometry.</span>
+<span class="sd">        List of `str` if reactivity control by</span>
+<span class="sd">        switching geometry is `On` or just `str` otherwise.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    -----------</span>
+<span class="sd">    neutronics_parameters : dict of str to type</span>
+<span class="sd">        Holds depletion step neutronics parameters. Parameter names are keys</span>
+<span class="sd">        and parameter values are values.</span>
+<span class="sd">    step_metadata : dict of str to type</span>
+<span class="sd">        Holds depletion code depletion step metadata. Metadata labels are keys</span>
+<span class="sd">        and metadata values are values.</span>
+<span class="sd">    depcode_metadata : dict of str to type</span>
+<span class="sd">        Holds depletion code simulation metadata. Metadata labels are keys</span>
+<span class="sd">        and metadata values are values.</span>
+<span class="sd">    runtime_inputfile : str</span>
+<span class="sd">        Path to input file used to run depletion step.</span>
+<span class="sd">    runtime_matfile : str</span>
+<span class="sd">        Path to material file containing burnable materials used to</span>
+<span class="sd">        run depletion step.</span>
+<span class="sd">    npop : int</span>
+<span class="sd">        Size of neutron population per cycle</span>
+<span class="sd">    active_cycles : int</span>
+<span class="sd">        Number of active cycles.</span>
+<span class="sd">    inactive_cycles : int</span>
+<span class="sd">        Number of inactive cycles.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">codename</span><span class="p">,</span>
+                 <span class="n">output_path</span><span class="p">,</span>
+                 <span class="n">exec_path</span><span class="p">,</span>
+                 <span class="n">template_input_file_path</span><span class="p">,</span>
+                 <span class="n">geo_file_paths</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a Depcode object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">codename</span> <span class="o">=</span> <span class="n">codename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">output_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exec_path</span> <span class="o">=</span> <span class="n">exec_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template_input_file_path</span> <span class="o">=</span> <span class="n">template_input_file_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geo_file_paths</span> <span class="o">=</span> <span class="n">geo_file_paths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutronics_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_metadata</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depcode_metadata</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_inputfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_matfile</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Depcode.read_depcode_metadata"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.read_depcode_metadata">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">read_depcode_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read depletion code metadata, and store it in the :class:`Depcode`</span>
+<span class="sd">        object&#39;s :attr:`depcode_metadata` attribute&quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Depcode.read_step_metadata"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.read_step_metadata">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">read_step_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads depletion step metadata and stores it in the</span>
+<span class="sd">        :class:`Depcode` object&#39;s :attr:`step_metadata` attribute.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Depcode.read_neutronics_parameters"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.read_neutronics_parameters">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">read_neutronics_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads depletion code&#39;s depletion step neutronics parameters and</span>
+<span class="sd">        stores them in :class:`Depcode` object&#39;s</span>
+<span class="sd">        :attr:`neutronics_parameters` attribute.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Depcode.read_depleted_materials"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.read_depleted_materials">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">read_depleted_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_at_end</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads depleted materials from the depletion step results</span>
+<span class="sd">        and returns a dictionary containing them.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        read_at_end : bool, optional</span>
+<span class="sd">            If `True`, the function reads data at the end of the</span>
+<span class="sd">            depletion step. Otherwise, the function reads data at the</span>
+<span class="sd">            beginning of the depletion step.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        depleted_materials : dict of str to Materialflow</span>
+<span class="sd">            Dictionary containing depleted materials.</span>
+
+<span class="sd">            ``key``</span>
+<span class="sd">                Name of burnable material.</span>
+<span class="sd">            ``value``</span>
+<span class="sd">                :class:`Materialflow` object holding material composition and properties.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span></div>
+<div class="viewcode-block" id="Depcode.run_depletion_step"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.run_depletion_step">[docs]</a>    <span class="k">def</span> <span class="nf">run_depletion_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_args</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs a depletion step as a subprocess with the given parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mpi_args : list of str</span>
+<span class="sd">            Arguments for running simulations on supercomputers using</span>
+<span class="sd">            ``mpiexec`` or similar programs.</span>
+<span class="sd">        args : list of str</span>
+<span class="sd">            Arguments for running depletion step.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">MPI_ON</span><span class="p">:</span>
+                <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">env</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">args</span><span class="p">,</span>
+                <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
+                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+                <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Finished </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s1"> Run&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> RUN FAILED</span><span class="se">\n</span><span class="s1"> see error message above&#39;</span>
+                               <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codename</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Depcode.switch_to_next_geometry"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.switch_to_next_geometry">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">switch_to_next_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Changes the geometry used in the depletion code simulation to the</span>
+<span class="sd">        next geometry file in ``geo_file_paths``</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Depcode.write_runtime_input"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.write_runtime_input">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">write_runtime_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">dep_step</span><span class="p">,</span> <span class="n">restart</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write input file(s) for running depletion step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        reactor : Reactor</span>
+<span class="sd">            Contains information about power load curve and cumulative</span>
+<span class="sd">            depletion time for the integration test.</span>
+<span class="sd">        dep_step : int</span>
+<span class="sd">            Current depletion time step.</span>
+<span class="sd">        restart : bool</span>
+<span class="sd">            Is the current simulation restarted?</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Depcode.update_depletable_materials"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.update_depletable_materials">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">update_depletable_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mats</span><span class="p">,</span> <span class="n">dep_end_time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update material file with reprocessed material compositions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mats : dict of str to Materialflow</span>
+<span class="sd">            Dictionary containing reprocessed material compositions.</span>
+
+<span class="sd">            ``key``</span>
+<span class="sd">                Name of burnable material.</span>
+<span class="sd">            ``value``</span>
+<span class="sd">                :class:`Materialflow` object holding composition and properties.</span>
+<span class="sd">        dep_end_time : float</span>
+<span class="sd">            Current time at the end of the depletion step (d).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Depcode.read_plaintext_file"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.read_plaintext_file">[docs]</a>    <span class="k">def</span> <span class="nf">read_plaintext_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads the content of a plaintext file for use by other methods.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            Path to file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        file_lines : list of str</span>
+<span class="sd">            File lines.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file_lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">file_lines</span></div>
+
+<div class="viewcode-block" id="Depcode.nuclide_code_to_name"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.nuclide_code_to_name">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">nuclide_code_to_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nuc_code</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts depcode nuclide code to symbolic nuclide name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nuc_code : str</span>
+<span class="sd">            Nuclide code</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nuc_name : str</span>
+<span class="sd">            Symbolic nuclide name (`Am242m1`).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Depcode.name_to_nuclide_code"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.name_to_nuclide_code">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">name_to_nuclide_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nucname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts depcode nuclide name to ZA nuclide code</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nucname : str</span>
+<span class="sd">            Nuclide namce</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nuc_name : str</span>
+<span class="sd">            ZA nuclide code</span>
+
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Depcode.preserve_simulation_files"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.preserve_simulation_files">[docs]</a>    <span class="k">def</span> <span class="nf">preserve_simulation_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move simulation input and output files</span>
+<span class="sd">        to unique a directory</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step_idx : int</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">step_results_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;step_</span><span class="si">{</span><span class="n">step_idx</span><span class="si">}</span><span class="s1">_data&#39;</span>
+        <span class="n">step_results_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">file_path</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">file</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">file</span>
+        <span class="n">output_paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_OUTPUTFILE_NAMES</span><span class="p">))</span>
+        <span class="n">input_paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_INPUTFILE_NAMES</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">output_paths</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_OUTPUTFILE_NAMES</span><span class="p">):</span>
+            <span class="n">file_path</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">step_results_dir</span> <span class="o">/</span> <span class="n">fname</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">input_paths</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_INPUTFILE_NAMES</span><span class="p">):</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_plaintext_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">step_results_dir</span> <span class="o">/</span> <span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_file</span><span class="p">:</span>
+                <span class="n">out_file</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Depcode.rebuild_simulation_files"><a class="viewcode-back" href="../../api/generated/saltproc.Depcode.html#saltproc.Depcode.rebuild_simulation_files">[docs]</a>    <span class="k">def</span> <span class="nf">rebuild_simulation_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move simulation input and output files</span>
+<span class="sd">        from unique directory to runtime directory</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step_idx : int</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">step_results_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;step_</span><span class="si">{</span><span class="n">step_idx</span><span class="si">}</span><span class="s1">_data&#39;</span>
+
+        <span class="n">file_path</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">file</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">step_results_dir</span> <span class="o">/</span> <span class="n">file</span>
+        <span class="n">output_paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_OUTPUTFILE_NAMES</span><span class="p">))</span>
+        <span class="n">input_paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_INPUTFILE_NAMES</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">output_paths</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_OUTPUTFILE_NAMES</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">fname</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">input_paths</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_INPUTFILE_NAMES</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">fname</span><span class="p">))</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: v0.5.0
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="depcode.html">v0.5.0</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="../../../master/index.html">master</a></dd>
+    </dl>
+  </div>
+</div><script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
