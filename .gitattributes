@@ -1,2 +1,5 @@
-*.mat linguist-vendored
 *.ipynb linguist-vendored
+*.m linguist-vendored
+*.h5 linguist-vendored
+*.out linguist-vendored
+*.mat linguist-vendored
