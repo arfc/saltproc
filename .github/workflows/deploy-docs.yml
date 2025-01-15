@@ -23,15 +23,14 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
             fetch-depth: 0
 
 # Setup conda 
       - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v4
         with:
-          miniforge-variant: Mambaforge # mamba is faster than base conda
           miniforge-version: latest
           activate-environment: saltproc-doc-env
           use-mamba: true
@@ -43,7 +42,7 @@ jobs:
       - name: Set cache date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         id: dependencies-cache
         with:
           path: |
@@ -68,7 +67,7 @@ jobs:
             cp doc/redirect.html doc/_build/html/index.html
 
       - name: Deploy documentation to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./doc/_build/html
