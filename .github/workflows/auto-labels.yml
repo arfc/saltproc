@@ -16,7 +16,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Remove Priority and Status labels
         run: |
           id=${{ github.event.issue.number }}
@@ -35,7 +35,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Remove Priority and Status labels
         run: |
           id=${{ github.event.pull_reqeust.number }}
