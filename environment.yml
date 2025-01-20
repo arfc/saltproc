@@ -1,8 +1,10 @@
-name: saltproc-env
+name: saltproc-env-test
 channels:
   - conda-forge
   - defaults
 dependencies:
+  - python<3.12
+  - openmc
   - numpy
   - pytables
   - networkx
@@ -10,5 +12,5 @@ dependencies:
   - pytest
   - jsonschema
   - pip:
-    - serpentTools
-    - argparse==1.4.0
+    - git+https://github.com/CORE-GATECH-GROUP/serpent-tools.git
+    - argparse

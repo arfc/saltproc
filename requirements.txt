@@ -6,4 +6,4 @@ openmc
 pytables
 networkx
 pydot
-serpentTools
+git+https://github.com/CORE-GATECH-GROUP/serpent-tools.git
