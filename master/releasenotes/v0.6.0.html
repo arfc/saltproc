@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Executables and Scripts &mdash; Saltproc 0.6.dev documentation</title>
+  <title>Release notes for v0.6.0 &mdash; Saltproc 0.6.dev documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Troubleshooting" href="troubleshooting.html" />
-    <link rel="prev" title="Template and Runtime Files" href="templates.html" /> 
+    <link rel="next" title="Release notes for v0.5.0" href="v0.5.0.html" />
+    <link rel="prev" title="Release Notes" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,23 +46,25 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../releasenotes/index.html">Release Notes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Release Notes</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Release notes for v0.6.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dependency-changes">Dependency Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#new-features">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bug-fixes">Bug Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#script-changes">Script Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-api-changes">Python API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#contributors">Contributors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviewers">Reviewers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="v0.5.0.html">Release notes for v0.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v0.4.0.html">Release notes for v0.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v0.3.0.html">Release notes for v0.3.0</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../methods/index.html">Theory and Methodology</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">User’s Guide</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="beginners.html">A Beginner’s Guide to SaltProc</a></li>
-<li class="toctree-l2"><a class="reference internal" href="basics.html">Basics of Using SaltProc</a></li>
-<li class="toctree-l2"><a class="reference internal" href="input.html">Creating a SaltProc input file</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_system.html">Creating Processing System Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="templates.html">Template and Runtime Files</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Executables and Scripts</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#saltproc"><code class="docutils literal notranslate"><span class="pre">saltproc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#other-scripts">Other scripts</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="parallel.html">Running in Parallel</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../devguide/index.html">Developer’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/index.html">SaltProc API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io_formats/index.html">File Format Specifications</a></li>
@@ -83,10 +85,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="index.html">User’s Guide</a></li>
-      <li class="breadcrumb-item active">Executables and Scripts</li>
+          <li class="breadcrumb-item"><a href="index.html">Release Notes</a></li>
+      <li class="breadcrumb-item active">Release notes for v0.6.0</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/userguide/scripts.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/releasenotes/v0.6.0.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -94,28 +96,37 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="executables-and-scripts">
-<span id="userguide-scripts"></span><h1>Executables and Scripts<a class="headerlink" href="#executables-and-scripts" title="Permalink to this heading">¶</a></h1>
-<section id="saltproc">
-<h2><code class="docutils literal notranslate"><span class="pre">saltproc</span></code><a class="headerlink" href="#saltproc" title="Permalink to this heading">¶</a></h2>
-<p>Once you have a model built (see <a class="reference internal" href="basics.html#userguide-basics"><span class="std std-ref">Basics of Using SaltProc</span></a>), you can run SaltProc
-from the command line!</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m saltproc -i saltproc_input.json
-</pre></div>
+  <section id="release-notes-for-v0-6-0">
+<h1>Release notes for v0.6.0<a class="headerlink" href="#release-notes-for-v0-6-0" title="Permalink to this heading">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These release notes are currently in production.</p>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">saltproc</span></code> accepts the following command line flags:</p>
-<dl class="option-list">
-<dt><kbd><span class="option">-s</span>, <span class="option">--threads</span></kbd></dt>
-<dd><p>Threads to use for shared-memory parallelism</p>
-</dd>
-<dt><kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></dt>
-<dd><p>Show help message</p>
-</dd>
-</dl>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="other-scripts">
-<h2>Other scripts<a class="headerlink" href="#other-scripts" title="Permalink to this heading">¶</a></h2>
-<p>Additional scripts can be found in the :ref:<a href="#id1"><span class="problematic" id="id2">`</span></a>scripts directroy &lt;<a class="reference external" href="https://github.com/arfc/saltproc/tree/master/scripts">https://github.com/arfc/saltproc/tree/master/scripts</a>&gt;.</p>
+<section id="dependency-changes">
+<h2>Dependency Changes<a class="headerlink" href="#dependency-changes" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="new-features">
+<h2>New Features<a class="headerlink" href="#new-features" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="bug-fixes">
+<h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="script-changes">
+<h2>Script Changes<a class="headerlink" href="#script-changes" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="python-api-changes">
+<h2>Python API Changes<a class="headerlink" href="#python-api-changes" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="contributors">
+<h2>Contributors<a class="headerlink" href="#contributors" title="Permalink to this heading">¶</a></h2>
+<p>The following people contributed code to this release of SaltProc:</p>
+</section>
+<section id="reviewers">
+<h2>Reviewers<a class="headerlink" href="#reviewers" title="Permalink to this heading">¶</a></h2>
+<p>The following people reviewed code for this release of SaltProc:</p>
 </section>
 </section>
 
@@ -123,8 +134,8 @@ from the command line!</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="templates.html" class="btn btn-neutral float-left" title="Template and Runtime Files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="troubleshooting.html" class="btn btn-neutral float-right" title="Troubleshooting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Release Notes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="v0.5.0.html" class="btn btn-neutral float-right" title="Release notes for v0.5.0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
@@ -147,17 +158,17 @@ from the command line!</p>
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
   <span class="rst-current-version" data-toggle="rst-current-version">
     <span class="fa fa-book"> Other Versions</span>
-    v: v0.5.0
+    v: master
     <span class="fa fa-caret-down"></span>
   </span>
   <div class="rst-other-versions">
     <dl>
       <dt>Tags</dt>
-      <dd><a href="scripts.html">v0.5.0</a></dd>
+      <dd><a href="../../v0.5.0/index.html">v0.5.0</a></dd>
     </dl>
     <dl>
       <dt>Branches</dt>
-      <dd><a href="../../master/userguide/scripts.html">master</a></dd>
+      <dd><a href="v0.6.0.html">master</a></dd>
     </dl>
   </div>
 </div><script>
