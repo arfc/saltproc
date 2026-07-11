@@ -257,6 +257,8 @@ class SerpentDepcode(Depcode):
                       nuc_code = 95642
                    else:
                       nuc_code = 95242
+        else:
+            nuc_code += a
         return nuc_code
 
 

@@ -148,8 +148,8 @@ class Results():
                    len(material.after_reproc.comp))
         material_comp = np.empty(arr_dim)
         for nuc in nucs:
-            nuc_comp_br = material.before_reproc.comp[:, nuc_map[nuc]]
-            nuc_comp_ar = material.after_reproc.comp[:, nuc_map[nuc]]
+            nuc_comp_br = material.before_reproc.comp[:, nuc_map[nuc]].tolist()
+            nuc_comp_ar = material.after_reproc.comp[:, nuc_map[nuc]].tolist()
             nuc_comp_0 = nuc_comp_br.pop(0)
             nuc_comp = []
             for c1, c2 in zip(nuc_comp_br, nuc_comp_ar):
