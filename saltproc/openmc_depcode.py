@@ -89,7 +89,7 @@ class OpenMCDepcode(Depcode):
         if exec_path == "openmc_deplete.py":
             exec_path = (Path(__file__).parents[0] / exec_path).resolve()
         else:
-            exec_path == (Path(template_input_file_path['settings'].parents[0]) / exec_path).resolve()
+            exec_path = (Path(template_input_file_path['settings'].parents[0]) / exec_path).resolve()
 
         self.depletion_settings = depletion_settings
         self.chain_file_path = chain_file_path
